@@ -1,0 +1,17 @@
+{
+    "timeout": 1,
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "logs": {
+        "text": "var/infection/infection.log",
+        "summary": "var/infection/summary.log",
+        "perMutator": "var/infection/per-mutator.md",
+        "badge": {
+            "branch": "master"
+        }
+    },
+    "$schema": "vendor/infection/infection/resources/schema.json"
+}

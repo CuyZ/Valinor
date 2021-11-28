@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         cacheResultFile="var/cache/phpunit/.phpunit.result.cache"
+>
+    <php>
+        <ini name="assert.active" value="1" />
+        <ini name="assert.exception" value="1" />
+    </php>
+
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="functional">
+            <directory>tests/Functional</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage cacheDirectory="var/cache/phpunit/coverage">
+        <include>
+            <directory suffix=".php">src/</directory>
+        </include>
+    </coverage>
+</phpunit>

@@ -1,0 +1,68 @@
+name: Mutation tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  mutation:
+    name: Mutation tests
+    runs-on: ubuntu-latest
+    env:
+      php-version: 8.1
+      php-extensions: xdebug, yaml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Needed for the `git diff` used below for Infection
+
+      -   name: Setup cache environment
+          id: extcache
+          uses: shivammathur/cache-extensions@v1
+          with:
+            php-version: ${{ matrix.php }}
+            extensions: ${{ env.php-extensions }}
+            key: mutation-php-extensions-${{ runner.os }}-${{ env.php-version }}
+
+      -   name: Cache PHP extensions
+          uses: actions/cache@v2
+          with:
+            path: ${{ steps.extcache.outputs.dir }}
+            key: ${{ steps.extcache.outputs.key }}
+            restore-keys: ${{ steps.extcache.outputs.key }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php-version }}
+          extensions: ${{ env.php-extensions }}
+          ini-values: zend.assertions=1
+
+      - id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ runner.os }}
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Creating var directory
+        run: mkdir -p var/cache
+
+      - name: Running mutation tests
+        if: github.ref == 'refs/heads/master'
+        run: php vendor/bin/infection --threads=$(nproc)
+        env:
+          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
+
+      - name: Running mutation tests
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --depth=1 origin $GITHUB_BASE_REF
+          php vendor/bin/infection --threads=$(nproc) --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --only-covered

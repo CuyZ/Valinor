@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Type\Parser\Exception\Generic;
+
+use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
+use CuyZ\Valinor\Type\Type;
+use RuntimeException;
+
+final class InvalidAssignedGeneric extends RuntimeException implements InvalidType
+{
+    /**
+     * @param class-string $className
+     */
+    public function __construct(Type $generic, Type $template, string $name, string $className)
+    {
+        parent::__construct(
+            "The generic `$generic` is not a subtype of `$template` for " .
+            "the template `$name` of the class `$className`.",
+            1604613633
+        );
+    }
+}

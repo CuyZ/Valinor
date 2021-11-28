@@ -1,0 +1,4 @@
+var
+vendor
+composer.lock
+phpstan.neon

@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Definition\Exception;
+
+use LogicException;
+
+final class PropertyNotFound extends LogicException
+{
+    public function __construct(string $property)
+    {
+        parent::__construct(
+            "The property `$property` does not exist.",
+            1510936145
+        );
+    }
+}

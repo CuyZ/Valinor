@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Mapper\Tree\Builder;
+
+use BackedEnum;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidEnumValue;
+use CuyZ\Valinor\Mapper\Tree\Node;
+use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Types\EnumType;
+use Stringable;
+use UnitEnum;
+
+use function assert;
+use function filter_var;
+use function is_bool;
+use function is_numeric;
+use function is_string;
+
+final class EnumNodeBuilder implements NodeBuilder
+{
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    {
+        $type = $shell->type();
+        $value = $shell->value();
+
+        assert($type instanceof EnumType);
+
+        /** @var class-string<UnitEnum> $enumName */
+        $enumName = $type->signature()->className();
+
+        foreach ($enumName::cases() as $case) {
+            if ($this->valueMatchesEnumCase($value, $case)) {
+                return Node::leaf($shell, $case);
+            }
+        }
+
+        throw new InvalidEnumValue($enumName, $value);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function valueMatchesEnumCase($value, UnitEnum $case): bool
+    {
+        if (! $case instanceof BackedEnum) {
+            return $value === $case->name;
+        }
+
+        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
+        if (is_string($case->value)) {
+            if (! is_string($value) && ! is_numeric($value) && ! $value instanceof Stringable) {
+                return false;
+            }
+
+            return (string)$value === $case->value;
+        }
+
+        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
+        if (is_bool($value) || filter_var($value, FILTER_VALIDATE_INT) === false) {
+            return false;
+        }
+
+        return (int)$value === $case->value;
+    }
+}

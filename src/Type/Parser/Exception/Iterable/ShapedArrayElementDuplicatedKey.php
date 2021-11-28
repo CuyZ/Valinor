@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Type\Parser\Exception\Iterable;
+
+use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
+use RuntimeException;
+
+final class ShapedArrayElementDuplicatedKey extends RuntimeException implements InvalidType
+{
+    public function __construct(string $key, string $signature)
+    {
+        parent::__construct(
+            "Key `$key` cannot be used several times in shaped array signature `$signature`.",
+            1631283279
+        );
+    }
+}

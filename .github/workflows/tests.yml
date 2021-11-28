@@ -1,0 +1,59 @@
+name: Tests
+on: [ push ]
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} / ${{ matrix.dependency-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [ 7.4, 8.0, 8.1 ]
+        dependency-version: [ prefer-lowest, prefer-stable ]
+    env:
+      php-extensions: xdebug, yaml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup cache environment
+        id: extcache
+        uses: shivammathur/cache-extensions@v1
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.php-extensions }}
+          key: tests-php-extensions-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependency-version }}
+
+      - name: Cache PHP extensions
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.extcache.outputs.dir }}
+          key: ${{ steps.extcache.outputs.key }}
+          restore-keys: ${{ steps.extcache.outputs.key }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.php-extensions }}
+          ini-values: zend.assertions=1
+
+      - id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependency-version }}-${{ hashFiles('composer.json') }}
+
+      - name: Install dependencies
+        run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+
+      - name: Running unit tests
+        run: php vendor/bin/phpunit --testsuite=unit
+
+      - name: Running functional tests
+        run: php vendor/bin/phpunit --testsuite=functional
+
+      - name: Running integration tests
+        run: php vendor/bin/phpunit --testsuite=integration

@@ -1,0 +1,20 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        # \PHPStan\Rules\BooleansInConditions
+        - '#Only booleans are allowed in .* given#'
+        # \PHPStan\Rules\DisallowedConstructs\DisallowedShortTernaryRule
+        - '#Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.#'
+        # \PHPStan\Rules\DisallowedConstructs\DisallowedEmptyRule
+        - '#Construct empty\(\) is not allowed\. Use more strict comparison\.#'
+
+        - '#Method [\w\\:]+_data_provider\(\) return type has no value type specified in iterable type#'
+    stubFiles:
+        - stubs/Psr/SimpleCache/CacheInterface.php.stub
+    tmpDir: var/cache/phpstan

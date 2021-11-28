@@ -1,0 +1,64 @@
+name: Coding Standards & Static Analysis
+on: [ push ]
+jobs:
+  qa:
+    name: Quality Assurance
+    runs-on: ubuntu-latest
+    env:
+      php-version: 8.1
+      php-extensions: xdebug, yaml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      -   name: Setup cache environment
+          id: extcache
+          uses: shivammathur/cache-extensions@v1
+          with:
+            php-version: ${{ matrix.php }}
+            extensions: ${{ env.php-extensions }}
+            key: qa-php-extensions-${{ runner.os }}-${{ env.php-version }}
+
+      -   name: Cache PHP extensions
+          uses: actions/cache@v2
+          with:
+            path: ${{ steps.extcache.outputs.dir }}
+            key: ${{ steps.extcache.outputs.key }}
+            restore-keys: ${{ steps.extcache.outputs.key }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php-version }}
+          extensions: ${{ env.php-extensions }}
+          ini-values: zend.assertions=1
+
+      - id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ runner.os }}
+
+      - name: Cache PHPStan results
+        uses: actions/cache@v2
+        with:
+          path: var/cache/phpstan
+          key: phpstan
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Creating var directory
+        run: mkdir -p var/cache
+
+      - name: Running PHP Coding Standards Fixer
+        run: | # @todo remove PHP_CS_FIXER_IGNORE_ENV when PHP-CS-Fixer supports PHP 8.1
+          export PHP_CS_FIXER_IGNORE_ENV=1
+          php vendor/bin/php-cs-fixer fix --dry-run
+
+      - name: Running PHPStan
+        run: php vendor/bin/phpstan
