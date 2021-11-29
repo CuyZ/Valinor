@@ -16,9 +16,9 @@
     ],
     "require": {
         "php": "~7.4.0 || ~8.0.0 || ~8.1.0",
+        "composer-runtime-api": "^2.0",
         "psr/simple-cache": "^1.0 || ^2.0",
         "doctrine/annotations": "^1.11",
-        "composer/package-versions-deprecated": "1.11.99.2",
         "symfony/polyfill-php80": "^1.22"
     },
     "require-dev": {
