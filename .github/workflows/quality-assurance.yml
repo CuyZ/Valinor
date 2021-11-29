@@ -1,9 +1,5 @@
 name: Coding Standards & Static Analysis
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+on: [push, pull_request]
 jobs:
   qa:
     name: Quality Assurance
