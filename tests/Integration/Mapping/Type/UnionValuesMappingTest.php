@@ -20,6 +20,9 @@ final class UnionValuesMappingTest extends IntegrationTest
             'scalarWithString' => 'foo',
             'nullableWithString' => 'bar',
             'nullableWithNull' => null,
+            'integerValue' => 1337,
+            'stringValueWithSingleQuote' => 'bar',
+            'stringValueWithDoubleQuote' => 'fiz',
         ];
 
         $classes = [UnionValues::class, UnionValuesWithConstructor::class];
@@ -42,17 +45,12 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame('foo', $result->scalarWithString);
             self::assertSame('bar', $result->nullableWithString);
             self::assertSame(null, $result->nullableWithNull);
-        }
-    }
 
-    public function values_are_mapped_properly_data_provider(): iterable
-    {
-        yield [UnionValues::class];
-        yield [UnionValuesWithConstructor::class];
-
-        if (PHP_VERSION_ID >= 8_00_00) {
-            yield [NativeUnionValues::class];
-            yield [NativeUnionValuesWithConstructor::class];
+            if ($result instanceof UnionValues) {
+                self::assertSame(1337, $result->integerValue);
+                self::assertSame('bar', $result->stringValueWithSingleQuote);
+                self::assertSame('fiz', $result->stringValueWithDoubleQuote);
+            }
         }
     }
 }
@@ -76,6 +74,15 @@ class UnionValues
 
     /** @var string|null|float */
     public $nullableWithNull = 'Schwifty!';
+
+    /** @var 42|1337 */
+    public int $integerValue = 42;
+
+    /** @var 'foo'|'bar' */
+    public string $stringValueWithSingleQuote;
+
+    /** @var "baz"|"fiz" */
+    public string $stringValueWithDoubleQuote;
 }
 
 class UnionValuesWithConstructor extends UnionValues
@@ -87,6 +94,9 @@ class UnionValuesWithConstructor extends UnionValues
      * @param bool|float|int|string $scalarWithString
      * @param string|null|float $nullableWithString
      * @param string|null|float $nullableWithNull
+     * @param 42|1337 $integerValue
+     * @param 'foo'|'bar' $stringValueWithSingleQuote
+     * @param "baz"|"fiz" $stringValueWithDoubleQuote
      */
     public function __construct(
         $scalarWithBoolean = 'Schwifty!',
@@ -94,7 +104,10 @@ class UnionValuesWithConstructor extends UnionValues
         $scalarWithInteger = 'Schwifty!',
         $scalarWithString = 'Schwifty!',
         $nullableWithString = 'Schwifty!',
-        $nullableWithNull = 'Schwifty!'
+        $nullableWithNull = 'Schwifty!',
+        int $integerValue = 42,
+        string $stringValueWithSingleQuote = 'foo',
+        string $stringValueWithDoubleQuote = 'baz'
     ) {
         $this->scalarWithBoolean = $scalarWithBoolean;
         $this->scalarWithFloat = $scalarWithFloat;
@@ -102,5 +115,8 @@ class UnionValuesWithConstructor extends UnionValues
         $this->scalarWithString = $scalarWithString;
         $this->nullableWithString = $nullableWithString;
         $this->nullableWithNull = $nullableWithNull;
+        $this->integerValue = $integerValue;
+        $this->stringValueWithSingleQuote = $stringValueWithSingleQuote;
+        $this->stringValueWithDoubleQuote = $stringValueWithDoubleQuote;
     }
 }
