@@ -11,4 +11,4 @@
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 
-*.php.stub linguist-language=PHP
+*.stub linguist-language=PHP
