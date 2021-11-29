@@ -1,5 +1,5 @@
 name: Tests
-on: [ push ]
+on: [push, pull_request]
 jobs:
   tests:
     name: PHP ${{ matrix.php }} / ${{ matrix.dependency-version }}
@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [ 7.4, 8.0, 8.1 ]
+        php: [ '7.4', '8.0', '8.1' ]
         dependency-version: [ prefer-lowest, prefer-stable ]
     env:
       php-extensions: xdebug, yaml
