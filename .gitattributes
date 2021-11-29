@@ -10,3 +10,5 @@
 /infection.json.dist export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
+
+*.stub linguist-language=PHP
