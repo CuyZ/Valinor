@@ -27,7 +27,7 @@ final class LexingParser implements TypeParser
     {
         $symbols = $this->splitTokens($raw);
         $symbols = array_map('trim', $symbols);
-        $symbols = array_filter($symbols);
+        $symbols = array_filter($symbols, static fn ($value) => $value !== '');
 
         $tokens = array_map(
             fn (string $symbol) => $this->lexer->tokenize($symbol),
