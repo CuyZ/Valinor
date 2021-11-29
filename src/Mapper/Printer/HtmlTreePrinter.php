@@ -99,7 +99,7 @@ final class HtmlTreePrinter implements TreePrinter
     {
         $value = $node->isValid() ? $node->value() : null;
 
-        if (! empty($node->children())) {
+        if ($node->hasChildren()) {
             $details = 'details';
             $summary = 'summary';
         } else {
@@ -122,7 +122,7 @@ final class HtmlTreePrinter implements TreePrinter
 
         $this->html .= "</$summary>";
 
-        if (! empty($node->children())) {
+        if ($node->hasChildren()) {
             foreach ($node->children() as $subNode) {
                 $this->print($subNode);
             }
