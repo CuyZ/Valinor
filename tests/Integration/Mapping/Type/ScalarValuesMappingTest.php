@@ -25,8 +25,11 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'integer' => 1337,
             'positiveInteger' => 1337,
             'negativeInteger' => -1337,
+            'integerValue' => 42,
             'string' => 'foo',
             'nonEmptyString' => 'bar',
+            'stringValueWithSingleQuote' => 'baz',
+            'stringValueWithDoubleQuote' => 'fiz',
             'classString' => self::class,
             'classStringOfDateTime' => DateTimeImmutable::class,
             'classStringOfAlias' => stdClass::class,
@@ -44,8 +47,11 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->integer);
             self::assertSame(1337, $result->positiveInteger);
             self::assertSame(-1337, $result->negativeInteger);
+            self::assertSame(42, $result->integerValue);
             self::assertSame('foo', $result->string);
             self::assertSame('bar', $result->nonEmptyString);
+            self::assertSame('baz', $result->stringValueWithSingleQuote);
+            self::assertSame('fiz', $result->stringValueWithDoubleQuote);
             self::assertSame(self::class, $result->classString);
             self::assertSame(DateTimeImmutable::class, $result->classStringOfDateTime);
             self::assertSame(stdClass::class, $result->classStringOfAlias);
@@ -103,10 +109,19 @@ class ScalarValues
     /** @var negative-int */
     public int $negativeInteger = -1;
 
+    /** @var 42 */
+    public int $integerValue;
+
     public string $string = 'Schwifty!';
 
     /** @var non-empty-string */
     public string $nonEmptyString = 'Schwifty!';
+
+    /** @var 'baz' */
+    public string $stringValueWithSingleQuote;
+
+    /** @var "fiz" */
+    public string $stringValueWithDoubleQuote;
 
     /** @var class-string */
     public string $classString = stdClass::class;
@@ -123,7 +138,10 @@ class ScalarValuesWithConstructor extends ScalarValues
     /**
      * @param positive-int $positiveInteger
      * @param negative-int $negativeInteger
+     * @param 42 $integerValue
      * @param non-empty-string $nonEmptyString
+     * @param 'baz' $stringValueWithSingleQuote
+     * @param "fiz" $stringValueWithDoubleQuote
      * @param class-string $classString
      * @param class-string<DateTimeInterface> $classStringOfDateTime
      * @param class-string<ObjectAlias> $classStringOfAlias
@@ -134,8 +152,11 @@ class ScalarValuesWithConstructor extends ScalarValues
         int $integer,
         int $positiveInteger,
         int $negativeInteger,
+        int $integerValue,
         string $string,
         string $nonEmptyString,
+        string $stringValueWithSingleQuote,
+        string $stringValueWithDoubleQuote,
         string $classString,
         string $classStringOfDateTime,
         string $classStringOfAlias
@@ -145,8 +166,11 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->integer = $integer;
         $this->positiveInteger = $positiveInteger;
         $this->negativeInteger = $negativeInteger;
+        $this->integerValue = $integerValue;
         $this->string = $string;
         $this->nonEmptyString = $nonEmptyString;
+        $this->stringValueWithSingleQuote = $stringValueWithSingleQuote;
+        $this->stringValueWithDoubleQuote = $stringValueWithDoubleQuote;
         $this->classString = $classString;
         $this->classStringOfDateTime = $classStringOfDateTime;
         $this->classStringOfAlias = $classStringOfAlias;

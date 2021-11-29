@@ -92,10 +92,10 @@ final class Reflection
     {
         if ($reflection instanceof ReflectionProperty) {
             $docComment = $reflection->getDocComment() ?: '';
-            $regex = '@var\s+([\w\s?|&<>,-\[\]{}:\\\\]+)';
+            $regex = '@var\s+([\w\s?|&<>\'",-\[\]{}:\\\\]+)';
         } else {
             $docComment = $reflection->getDeclaringFunction()->getDocComment() ?: '';
-            $regex = "@param\s+([\w\s?|&<>,-\[\]{}:\\\\]+)\s+\\$$reflection->name";
+            $regex = "@param\s+([\w\s?|&<>'\",-\[\]{}:\\\\]+)\s+\\$$reflection->name\s+";
         }
 
         if (! preg_match("/$regex/", $docComment, $matches)) {
@@ -109,7 +109,7 @@ final class Reflection
     {
         $docComment = $reflection->getDocComment() ?: '';
 
-        if (! preg_match('/@return\s+([\w\s?|&<>,-\[\]{}:\\\\]+)/', $docComment, $matches)) {
+        if (! preg_match('/@return\s+([\w\s?|&<>\'",-\[\]{}:\\\\]+)/', $docComment, $matches)) {
             return null;
         }
 
