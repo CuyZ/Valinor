@@ -155,6 +155,10 @@ final class ArrayToken implements TraversingToken
                 if (! $key instanceof StringValueType && ! $key instanceof IntegerValueType) {
                     $key = new StringValueType((string)$key);
                 }
+
+                if ($key instanceof IntegerValueType) {
+                    $index++;
+                }
             } else {
                 if ($optional) {
                     throw new ShapedArrayColonTokenMissing($elements, $type);
