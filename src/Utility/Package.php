@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility;
 
-use PackageVersions\Versions;
+use Composer\InstalledVersions;
 
 final class Package
 {
@@ -13,6 +13,6 @@ final class Package
     public static function version(): string
     {
         /** @infection-ignore-all */
-        return self::$version ??= Versions::getVersion('cuyz/valinor');
+        return self::$version ??= InstalledVersions::getVersion('cuyz/valinor');
     }
 }
