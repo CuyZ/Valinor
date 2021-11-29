@@ -16,5 +16,5 @@ parameters:
 
         - '#Method [\w\\:]+_data_provider\(\) return type has no value type specified in iterable type#'
     stubFiles:
-        - stubs/Psr/SimpleCache/CacheInterface.php.stub
+        - stubs/Psr/SimpleCache/CacheInterface.stub
     tmpDir: var/cache/phpstan
