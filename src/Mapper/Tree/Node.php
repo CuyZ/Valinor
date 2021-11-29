@@ -135,6 +135,11 @@ final class Node
         return $this->children;
     }
 
+    public function hasChildren(): bool
+    {
+        return $this->children !== [];
+    }
+
     public function withMessage(Message $message): self
     {
         $clone = clone $this;
