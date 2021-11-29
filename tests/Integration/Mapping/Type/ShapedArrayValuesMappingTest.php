@@ -15,8 +15,13 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
     public function test_values_are_mapped_properly(): void
     {
         $source = [
-            'basicShapedArray' => [
-                'foo' => 'bar',
+            'basicShapedArrayWithStringKeys' => [
+                'foo' => 'fiz',
+                'bar' => 42,
+            ],
+            'basicShapedArrayWithIntegerKeys' => [
+                0 => 'fiz',
+                1 => 42.404
             ],
             'shapedArrayWithObject' => [
                 'foo' => ['value' => 'bar'],
@@ -38,7 +43,8 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 $this->mappingFail($error);
             }
 
-            self::assertSame($source['basicShapedArray'], $result->basicShapedArray);
+            self::assertSame($source['basicShapedArrayWithStringKeys'], $result->basicShapedArrayWithStringKeys);
+            self::assertSame($source['basicShapedArrayWithIntegerKeys'], $result->basicShapedArrayWithIntegerKeys);
             self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']);
             self::assertSame($source['shapedArrayWithOptionalValue'], $result->shapedArrayWithOptionalValue);
             self::assertSame('bar', $result->advancedShapedArray['mandatoryString']);
@@ -51,11 +57,13 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
     {
         try {
             $this->mapperBuilder->mapper()->map(ShapedArrayValues::class, [
-                'basicShapedArray' => ['foo' => new stdClass()],
-                'shapedArrayWithOptionalValue' => [],
+                'basicShapedArrayWithStringKeys' => [
+                    'foo' => new stdClass(),
+                    'bar' => 42
+                ],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['basicShapedArray.foo'][0];
+            $error = $exception->describe()['basicShapedArrayWithStringKeys.foo'][0];
 
             self::assertInstanceOf(CannotCastToScalarValue::class, $error);
             self::assertSame(1618736242, $error->getCode());
@@ -66,8 +74,11 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
 
 class ShapedArrayValues
 {
-    /** @var array{foo: string} */
-    public array $basicShapedArray;
+    /** @var array{foo: string, bar: int} */
+    public array $basicShapedArrayWithStringKeys;
+
+    /** @var array{0: string, 1: float} */
+    public array $basicShapedArrayWithIntegerKeys;
 
     /** @var array{foo: SimpleObject} */
     public array $shapedArrayWithObject;
@@ -75,25 +86,28 @@ class ShapedArrayValues
     /** @var array{optionalString?: string} */
     public array $shapedArrayWithOptionalValue;
 
-    /** @var array{int, float, optionalString?: string, mandatoryString: string} */
+    /** @var array{0: int, float, optionalString?: string, mandatoryString: string} */
     public array $advancedShapedArray;
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
 {
     /**
-     * @param array{foo: string} $basicShapedArray
+     * @param array{foo: string, bar: int} $basicShapedArrayWithStringKeys
+     * @param array{0: string, 1: float} $basicShapedArrayWithIntegerKeys
      * @param array{foo: SimpleObject} $shapedArrayWithObject
      * @param array{optionalString?: string} $shapedArrayWithOptionalValue
-     * @param array{int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
+     * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      */
     public function __construct(
-        array $basicShapedArray,
+        array $basicShapedArrayWithStringKeys,
+        array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,
         array $shapedArrayWithOptionalValue,
         array $advancedShapedArray
     ) {
-        $this->basicShapedArray = $basicShapedArray;
+        $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
+        $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
         $this->shapedArrayWithObject = $shapedArrayWithObject;
         $this->shapedArrayWithOptionalValue = $shapedArrayWithOptionalValue;
         $this->advancedShapedArray = $advancedShapedArray;
