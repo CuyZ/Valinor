@@ -181,8 +181,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
     {
         $class = get_class(new class () {
             /**
-             * @var string
              * @phpstan-ignore-next-line
+             * @var string
              */
             public bool $propertyWithNotMatchingTypes;
         });

@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Functional\Type\Parser\Lexer;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObject;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\ClassStringClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\ImpossibleParsing;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
@@ -510,15 +509,6 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Right type is missing for intersection `DateTimeInterface&?`.');
 
         $this->parser->parse('DateTimeInterface&');
-    }
-
-    public function test_type_that_cannot_be_parsed_throws_exception(): void
-    {
-        $this->expectException(ImpossibleParsing::class);
-        $this->expectExceptionCode(1585373891);
-        $this->expectExceptionMessage('The type `int float` could not be parsed.');
-
-        $this->parser->parse('int float');
     }
 
     public function test_missing_simple_array_closing_bracket_throws_exception(): void
