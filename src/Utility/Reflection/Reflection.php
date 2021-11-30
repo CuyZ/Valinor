@@ -21,6 +21,7 @@ use RuntimeException;
 use function get_class;
 use function implode;
 use function preg_match;
+use function preg_replace;
 use function trim;
 
 final class Reflection
@@ -95,9 +96,14 @@ final class Reflection
             $regex = '@var\s+([\w\s?|&<>\'",-\[\]{}:\\\\]+)';
         } else {
             $docComment = $reflection->getDeclaringFunction()->getDocComment() ?: '';
-            $regex = "@param\s+([\w\s?|&<>'\",-\[\]{}:\\\\]+)\s+\\$$reflection->name\s+";
+            $regex = "@param\s+([\w\s?|&<>'\",-\[\]{}:\\\\]+)\s+\\$$reflection->name(\s+|$)";
         }
 
+        /** @var string $docComment */
+        $docComment = preg_replace('#^\s*/\*\*([^/]+)/\s*$#', '$1', $docComment);
+        $docComment = preg_replace('/\s*\*([^\s]*)/', '$1', $docComment);
+
+        /** @var string $docComment */
         if (! preg_match("/$regex/", $docComment, $matches)) {
             return null;
         }

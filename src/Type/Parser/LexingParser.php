@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser;
 
-use CuyZ\Valinor\Type\Parser\Exception\ImpossibleParsing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
 use CuyZ\Valinor\Type\Type;
@@ -34,15 +33,7 @@ final class LexingParser implements TypeParser
             $symbols
         );
 
-        $stream = new TokenStream(...$tokens);
-
-        $type = $stream->read();
-
-        if (! $stream->done()) {
-            throw new ImpossibleParsing($raw);
-        }
-
-        return $type;
+        return (new TokenStream(...$tokens))->read();
     }
 
     /**
