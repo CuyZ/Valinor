@@ -19,7 +19,7 @@ final class InvalidSourceForObject extends RuntimeException implements Message
         $type = get_debug_type($source);
 
         parent::__construct(
-            "Invalid source type `$type`, it must be an array.",
+            "Invalid source type `$type`, it must be an iterable.",
             1632903281
         );
     }

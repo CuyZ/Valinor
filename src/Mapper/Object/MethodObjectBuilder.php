@@ -23,6 +23,7 @@ use function array_values;
 use function count;
 use function is_a;
 use function is_array;
+use function is_iterable;
 use function iterator_to_array;
 
 final class MethodObjectBuilder implements ObjectBuilder
@@ -113,6 +114,10 @@ final class MethodObjectBuilder implements ObjectBuilder
     {
         if ($source === null) {
             return [];
+        }
+
+        if (is_iterable($source) && ! is_array($source)) {
+            $source = iterator_to_array($source);
         }
 
         $parameters = $this->method->parameters();
