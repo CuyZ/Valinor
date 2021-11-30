@@ -131,7 +131,7 @@ final class MethodObjectBuilderTest extends TestCase
 
         $this->expectException(InvalidSourceForObject::class);
         $this->expectExceptionCode(1632903281);
-        $this->expectExceptionMessage('Invalid source type `string`, it must be an array.');
+        $this->expectExceptionMessage('Invalid source type `string`, it must be an iterable.');
 
         /** @var Generator<Argument> $arguments */
         $arguments = $objectBuilder->describeArguments('foo');

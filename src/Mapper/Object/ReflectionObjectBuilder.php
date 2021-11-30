@@ -68,6 +68,10 @@ final class ReflectionObjectBuilder implements ObjectBuilder
             return [];
         }
 
+        if (is_iterable($source) && ! is_array($source)) {
+            $source = iterator_to_array($source);
+        }
+
         $properties = $this->class->properties();
 
         if (count($properties) === 1) {
