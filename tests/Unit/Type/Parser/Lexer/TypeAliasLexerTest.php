@@ -7,12 +7,12 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\FakeTypeLexer;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\Token\FakeToken;
-use CuyZ\Valinor\Type\Parser\Lexer\GenericAssignerLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\TypeAliasLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TypeToken;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use PHPUnit\Framework\TestCase;
 
-final class GenericAssignerLexerTest extends TestCase
+final class TypeAliasLexerTest extends TestCase
 {
     private FakeTypeLexer $delegate;
 
@@ -30,7 +30,7 @@ final class GenericAssignerLexerTest extends TestCase
 
         $this->delegate->will($symbol, $token);
 
-        $lexer = new GenericAssignerLexer($this->delegate, ['TemplateA' => new FakeType()]);
+        $lexer = new TypeAliasLexer($this->delegate, ['TemplateA' => new FakeType()]);
 
         self::assertSame($token, $lexer->tokenize($symbol));
     }
@@ -39,7 +39,7 @@ final class GenericAssignerLexerTest extends TestCase
     {
         $type = new FakeType();
 
-        $lexer = new GenericAssignerLexer($this->delegate, ['Template' => $type]);
+        $lexer = new TypeAliasLexer($this->delegate, ['Template' => $type]);
 
         /** @var TypeToken $result */
         $result = $lexer->tokenize('Template');

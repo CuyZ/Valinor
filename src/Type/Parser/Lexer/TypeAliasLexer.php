@@ -8,26 +8,26 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TypeToken;
 use CuyZ\Valinor\Type\Type;
 
-final class GenericAssignerLexer implements TypeLexer
+final class TypeAliasLexer implements TypeLexer
 {
     private TypeLexer $delegate;
 
     /** @var array<string, Type> */
-    private array $generics;
+    private array $aliases;
 
     /**
-     * @param array<string, Type> $generics
+     * @param array<string, Type> $aliases
      */
-    public function __construct(TypeLexer $delegate, array $generics)
+    public function __construct(TypeLexer $delegate, array $aliases)
     {
         $this->delegate = $delegate;
-        $this->generics = $generics;
+        $this->aliases = $aliases;
     }
 
     public function tokenize(string $symbol): Token
     {
-        if (isset($this->generics[$symbol])) {
-            return new TypeToken($this->generics[$symbol]);
+        if (isset($this->aliases[$symbol])) {
+            return new TypeToken($this->aliases[$symbol]);
         }
 
         return $this->delegate->tokenize($symbol);

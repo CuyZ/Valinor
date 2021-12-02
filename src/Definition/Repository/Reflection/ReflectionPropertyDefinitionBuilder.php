@@ -12,8 +12,8 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassAliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
@@ -104,7 +104,7 @@ final class ReflectionPropertyDefinitionBuilder
             new ClassContextSpecification($signature->className()),
             new ClassAliasSpecification($signature->className()),
             new HandleClassGenericSpecification(),
-            new GenericAssignerSpecification($signature->generics()),
+            new TypeAliasAssignerSpecification($signature->generics()),
         );
 
         return $this->parseType($type, $reflection, $parser);

@@ -7,12 +7,12 @@ namespace CuyZ\Valinor\Type\Parser\Factory;
 use CuyZ\Valinor\Type\Parser\CachedParser;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassAliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericAssignerSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Lexer\ClassAliasLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\ClassContextLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\ClassGenericLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\GenericAssignerLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\TypeAliasLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
@@ -62,8 +62,8 @@ final class LexingTypeParserFactory implements TypeParserFactory
             return new ClassGenericLexer($lexer, $this, $this->templateParser);
         }
 
-        if ($specification instanceof GenericAssignerSpecification) {
-            return new GenericAssignerLexer($lexer, $specification->generics());
+        if ($specification instanceof TypeAliasAssignerSpecification) {
+            return new TypeAliasLexer($lexer, $specification->aliases());
         }
 
         throw new LogicException('Unhandled specification of type `' . get_class($specification) . '`.');
