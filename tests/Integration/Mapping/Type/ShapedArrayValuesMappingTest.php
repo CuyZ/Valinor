@@ -15,6 +15,10 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
     public function test_values_are_mapped_properly(): void
     {
         $source = [
+            'basicShapedArrayWithExcessiveKey' => [
+                'foo' => 'foo',
+                'bar' => 42,
+            ],
             'basicShapedArrayWithStringKeys' => [
                 'foo' => 'fiz',
                 'bar' => 42,
@@ -47,6 +51,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 $this->mappingFail($error);
             }
 
+            self::assertSame(['foo' => 'foo'], $result->basicShapedArrayWithExcessiveKey);
             self::assertSame($source['basicShapedArrayWithStringKeys'], $result->basicShapedArrayWithStringKeys);
             self::assertSame($source['basicShapedArrayWithIntegerKeys'], $result->basicShapedArrayWithIntegerKeys);
             self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']);
@@ -79,6 +84,9 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
 
 class ShapedArrayValues
 {
+    /** @var array{foo: string} */
+    public array $basicShapedArrayWithExcessiveKey;
+
     /** @var array{foo: string, bar: int} */
     public array $basicShapedArrayWithStringKeys;
 
@@ -106,6 +114,7 @@ class ShapedArrayValues
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
 {
     /**
+     * @param array{foo: string} $basicShapedArrayWithExcessiveKey
      * @param array{foo: string, bar: int} $basicShapedArrayWithStringKeys
      * @param array{0: string, 1: float} $basicShapedArrayWithIntegerKeys
      * @param array{foo: SimpleObject} $shapedArrayWithObject
@@ -117,6 +126,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      */
     public function __construct(
+        array $basicShapedArrayWithExcessiveKey,
         array $basicShapedArrayWithStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,
@@ -124,6 +134,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayOnSeveralLines,
         array $advancedShapedArray
     ) {
+        $this->basicShapedArrayWithExcessiveKey = $basicShapedArrayWithExcessiveKey;
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
         $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
         $this->shapedArrayWithObject = $shapedArrayWithObject;

@@ -9,7 +9,10 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\TraversableType;
 use CuyZ\Valinor\Type\Type;
 
+use function array_diff;
 use function array_key_exists;
+use function array_keys;
+use function count;
 use function implode;
 use function in_array;
 use function is_array;
@@ -45,9 +48,11 @@ final class ShapedArrayType implements TraversableType
             return false;
         }
 
+        $keys = [];
+
         foreach ($this->elements as $shape) {
             $type = $shape->type();
-            $key = $shape->key()->value();
+            $keys[] = $key = $shape->key()->value();
             $valueExists = array_key_exists($key, $value);
 
             if (! $valueExists && ! $shape->isOptional()) {
@@ -59,7 +64,9 @@ final class ShapedArrayType implements TraversableType
             }
         }
 
-        return true;
+        $excess = array_diff(array_keys($value), $keys);
+
+        return count($excess) === 0;
     }
 
     public function matches(Type $other): bool
