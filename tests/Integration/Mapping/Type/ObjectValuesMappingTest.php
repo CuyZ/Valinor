@@ -28,25 +28,6 @@ final class ObjectValuesMappingTest extends IntegrationTest
             self::assertSame('foo', $result->object->value);
         }
     }
-
-//    public function test_empty_mandatory_value_throws_exception(): void
-//    {
-//        try {
-//            $this->mapperBuilder->mapper()->map(ObjectValues::class, [
-//                'object' => false,
-//            ]);
-//        } catch (MappingError $exception) {
-//            ray($exception->describe());
-//            $error = $exception->describe()['object'][0];
-//            var_dump($error->getMessage());
-//
-////            self::assertInstanceOf(CannotCastToScalarValue::class, $error);
-////            self::assertSame(1618736242, $error->getCode());
-////            self::assertSame('Cannot be empty and must be filled with a value of type `string`.', $error->getMessage());
-////
-////            throw $exception;
-//        }
-//    }
 }
 
 class ObjectValues
