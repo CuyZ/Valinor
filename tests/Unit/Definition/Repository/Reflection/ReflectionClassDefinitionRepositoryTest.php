@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\ClassSignature;
+use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Exception\InvalidParameterDefaultValue;
 use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
 use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
+use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\BooleanType;
@@ -270,5 +272,24 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionMessage("Return types for method `$class::publicMethod()` do not match: `bool` (docblock) does not accept `string` (native).");
 
         $this->repository->for(new ClassSignature($class));
+    }
+
+    public function test_class_with_local_type_alias_name_duplication_throws_exception(): void
+    {
+        $class = get_class(
+            /**
+             * @template T
+             * @template AnotherTemplate
+             * @psalm-type T = int
+             * @phpstan-type AnotherTemplate = int
+             */
+            new class () { }
+        );
+
+        $this->expectException(ClassTypeAliasesDuplication::class);
+        $this->expectExceptionCode(1638477604);
+        $this->expectExceptionMessage("The following type aliases already exist in class `$class`: `T`, `AnotherTemplate`.");
+
+        $this->repository->for(new ClassSignature($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
     }
 }
