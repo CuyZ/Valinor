@@ -21,6 +21,7 @@ use RuntimeException;
 use function get_class;
 use function implode;
 use function preg_match;
+use function preg_match_all;
 use function preg_replace;
 use function trim;
 
@@ -115,6 +116,24 @@ final class Reflection
         }
 
         return trim($matches[1]);
+    }
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return array<string, string>
+     */
+    public static function localTypeAliases(ReflectionClass $reflection): array
+    {
+        $types = [];
+        $docComment = self::sanitizeDocComment($reflection);
+
+        preg_match_all('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*([\w\s?|&<>\'",-:\\\\\[\]{}]+)/', $docComment, $matches);
+
+        foreach ($matches[2] as $key => $name) {
+            $types[(string)$name] = $matches[3][$key];
+        }
+
+        return $types;
     }
 
     public static function ofCallable(callable $callable): ReflectionFunctionAbstract
