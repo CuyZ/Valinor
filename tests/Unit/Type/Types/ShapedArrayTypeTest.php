@@ -69,6 +69,7 @@ final class ShapedArrayTypeTest extends TestCase
 
     public function test_does_not_accept_incorrect_values(): void
     {
+        self::assertFalse($this->type->accepts(['foo' => 42]));
         self::assertFalse($this->type->accepts(['foo' => new stdClass()]));
         self::assertFalse($this->type->accepts(['bar' => 'foo']));
 
@@ -78,6 +79,11 @@ final class ShapedArrayTypeTest extends TestCase
         self::assertFalse($this->type->accepts(404));
         self::assertFalse($this->type->accepts(false));
         self::assertFalse($this->type->accepts(new stdClass()));
+    }
+
+    public function test_does_not_accept_array_with_excessive_keys(): void
+    {
+        self::assertFalse($this->type->accepts(['foo' => 'foo', 'fiz' => 42]));
     }
 
     public function test_matches_valid_array_shaped_type(): void
