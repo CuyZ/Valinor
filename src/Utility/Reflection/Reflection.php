@@ -92,18 +92,13 @@ final class Reflection
     public static function docBlockType(Reflector $reflection): ?string
     {
         if ($reflection instanceof ReflectionProperty) {
-            $docComment = $reflection->getDocComment() ?: '';
-            $regex = '@var\s+([\w\s?|&<>\'",-\[\]{}:\\\\]+)';
+            $docComment = self::sanitizeDocComment($reflection);
+            $regex = "@var\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)";
         } else {
-            $docComment = $reflection->getDeclaringFunction()->getDocComment() ?: '';
-            $regex = "@param\s+([\w\s?|&<>'\",-\[\]{}:\\\\]+)\s+\\$$reflection->name(\s+|$)";
+            $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
+            $regex = "@param\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)\s+\\$$reflection->name(\W+|$)";
         }
 
-        /** @var string $docComment */
-        $docComment = preg_replace('#^\s*/\*\*([^/]+)/\s*$#', '$1', $docComment);
-        $docComment = preg_replace('/\s*\*([^\s]*)/', '$1', $docComment);
-
-        /** @var string $docComment */
         if (! preg_match("/$regex/", $docComment, $matches)) {
             return null;
         }
@@ -113,9 +108,9 @@ final class Reflection
 
     public static function docBlockReturnType(ReflectionFunctionAbstract $reflection): ?string
     {
-        $docComment = $reflection->getDocComment() ?: '';
+        $docComment = self::sanitizeDocComment($reflection);
 
-        if (! preg_match('/@return\s+([\w\s?|&<>\'",-\[\]{}:\\\\]+)/', $docComment, $matches)) {
+        if (! preg_match("/@return\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
             return null;
         }
 
@@ -141,5 +136,15 @@ final class Reflection
         }
 
         return new ReflectionMethod($callable[0], $callable[1]);
+    }
+
+    /**
+     * @param ReflectionClass<object>|ReflectionProperty|ReflectionFunctionAbstract $reflection
+     */
+    private static function sanitizeDocComment(Reflector $reflection): string
+    {
+        $docComment = preg_replace('#^\s*/\*\*([^/]+)/\s*$#', '$1', $reflection->getDocComment() ?: '');
+
+        return preg_replace('/\s*\*\s*(\S*)/', '$1', $docComment); // @phpstan-ignore-line
     }
 }

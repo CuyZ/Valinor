@@ -7,9 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection;
 use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Definition\Exception\InvalidParameterDefaultValue;
 use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
-use CuyZ\Valinor\Definition\Exception\MethodReturnTypesDoNotMatch;
-use CuyZ\Valinor\Definition\Exception\ParameterTypesDoNotMatch;
-use CuyZ\Valinor\Definition\Exception\PropertyTypesDoNotMatch;
+use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
@@ -187,8 +185,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             public bool $propertyWithNotMatchingTypes;
         });
 
-        $this->expectException(PropertyTypesDoNotMatch::class);
-        $this->expectExceptionCode(1617218939);
+        $this->expectException(TypesDoNotMatch::class);
+        $this->expectExceptionCode(1638471381);
         $this->expectExceptionMessage("Types for property `$class::\$propertyWithNotMatchingTypes` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->repository->for(new ClassSignature($class));
@@ -247,8 +245,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             }
         });
 
-        $this->expectException(ParameterTypesDoNotMatch::class);
-        $this->expectExceptionCode(1617220595);
+        $this->expectException(TypesDoNotMatch::class);
+        $this->expectExceptionCode(1638471381);
         $this->expectExceptionMessage("Types for parameter `$class::publicMethod(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->repository->for(new ClassSignature($class));
@@ -267,8 +265,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             }
         });
 
-        $this->expectException(MethodReturnTypesDoNotMatch::class);
-        $this->expectExceptionCode(1634048916);
+        $this->expectException(TypesDoNotMatch::class);
+        $this->expectExceptionCode(1638471381);
         $this->expectExceptionMessage("Return types for method `$class::publicMethod()` do not match: `bool` (docblock) does not accept `string` (native).");
 
         $this->repository->for(new ClassSignature($class));
