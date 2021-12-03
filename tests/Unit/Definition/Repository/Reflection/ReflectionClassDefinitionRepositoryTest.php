@@ -8,7 +8,10 @@ use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Exception\InvalidParameterDefaultValue;
 use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
+use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
+use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
 use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
+use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
@@ -291,5 +294,53 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionMessage("The following type aliases already exist in class `$class`: `T`, `AnotherTemplate`.");
 
         $this->repository->for(new ClassSignature($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
+    }
+
+    public function test_class_with_invalid_type_alias_import_class_throws_exception(): void
+    {
+        $class = get_class(
+            /**
+             * @phpstan-import-type T from UnknownType
+             */
+            new class () { }
+        );
+
+        $this->expectException(InvalidTypeAliasImportClass::class);
+        $this->expectExceptionCode(1638535486);
+        $this->expectExceptionMessage("Cannot import a type alias from unknown class `UnknownType` in class `$class`.");
+
+        $this->repository->for(new ClassSignature($class));
+    }
+
+    public function test_class_with_invalid_type_alias_import_class_type_throws_exception(): void
+    {
+        $class = get_class(
+            /**
+             * @phpstan-import-type T from string
+             */
+            new class () { }
+        );
+
+        $this->expectException(InvalidTypeAliasImportClassType::class);
+        $this->expectExceptionCode(1638535608);
+        $this->expectExceptionMessage("Importing a type alias can only be done with classes, `string` was given in class `$class`.");
+
+        $this->repository->for(new ClassSignature($class));
+    }
+
+    public function test_class_with_unknown_type_alias_import_throws_exception(): void
+    {
+        $class = get_class(
+            /**
+             * @phpstan-import-type T from stdClass
+             */
+            new class () { }
+        );
+
+        $this->expectException(UnknownTypeAliasImport::class);
+        $this->expectExceptionCode(1638535757);
+        $this->expectExceptionMessage("Type alias `T` imported in `$class` could not be found in `stdClass`");
+
+        $this->repository->for(new ClassSignature($class));
     }
 }

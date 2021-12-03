@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type\Parser;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\NativeStringType;
-use CuyZ\Valinor\Type\Types\BooleanType;
 use RuntimeException;
 
 use function trim;
@@ -27,19 +25,13 @@ final class FakeTypeParser implements TypeParser
             return $this->types[$raw];
         }
 
-        if ($raw === 'bool') {
-            return BooleanType::get();
+        $type = FakeType::from($raw);
+
+        if ($type instanceof FakeType) {
+            throw new class ("Type `$raw` not handled by `FakeTypeParser`.") extends RuntimeException implements InvalidType { };
         }
 
-        if ($raw === 'string') {
-            return NativeStringType::get();
-        }
-
-        if ($raw === 'array-key') {
-            return ArrayKeyType::default();
-        }
-
-        throw new class ("Type `$raw` not handled by `FakeTypeParser`.") extends RuntimeException implements InvalidType { };
+        return $type;
     }
 
     public function willReturn(string $raw, Type $type): void
