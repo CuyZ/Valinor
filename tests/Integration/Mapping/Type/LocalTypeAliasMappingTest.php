@@ -36,6 +36,23 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
             }
         }
     }
+
+    public function test_type_aliases_are_imported_correctly(): void
+    {
+        foreach ([PhpStanAliasImport::class, PsalmAliasImport::class] as $class) {
+            try {
+                $result = $this->mapperBuilder
+                    ->mapper()
+                    ->map($class, [
+                        'importedType' => 42,
+                    ]);
+
+                self::assertSame(42, $result->importedType);
+            } catch (MappingError $error) {
+                $this->mappingFail($error);
+            }
+        }
+    }
 }
 
 /**
@@ -70,6 +87,15 @@ class PhpStanLocalAliases
 }
 
 /**
+ * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
+ */
+class PhpStanAliasImport
+{
+    /** @var AliasWithEqualsSign */
+    public int $importedType;
+}
+
+/**
  * @template T
  * @psalm-type AliasArray = T[]
  */
@@ -98,4 +124,13 @@ class PsalmLocalAliases
 
     /** @var AliasGeneric */
     public GenericObjectWithPsalmLocalAlias $aliasGeneric;
+}
+
+/**
+ * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
+ */
+class PsalmAliasImport
+{
+    /** @var AliasWithEqualsSign */
+    public int $importedType;
 }

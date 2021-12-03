@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\BooleanType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use stdClass;
 
-use function class_exists;
 use function in_array;
 
 final class FakeType implements Type
@@ -39,8 +40,12 @@ final class FakeType implements Type
             return BooleanType::get();
         }
 
-        if (class_exists($raw)) {
-            return new ClassType($raw);
+        if ($raw === 'array-key') {
+            return ArrayKeyType::default();
+        }
+
+        if ($raw === stdClass::class) {
+            return new ClassType(stdClass::class);
         }
 
         return new self();

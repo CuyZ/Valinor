@@ -136,6 +136,27 @@ final class Reflection
         return $types;
     }
 
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return array<class-string, string[]>
+     */
+    public static function importedTypeAliases(ReflectionClass $reflection): array
+    {
+        $types = [];
+        $docComment = self::sanitizeDocComment($reflection);
+
+        preg_match_all('/@(phpstan|psalm)-import-type\s+([a-zA-Z]\w*)\s*from\s*([\w\s?|&<>\'",-:\\\\\[\]{}]+)/', $docComment, $matches);
+
+        foreach ($matches[2] as $key => $name) {
+            /** @var class-string $classString */
+            $classString = $matches[3][$key];
+
+            $types[$classString][] = $name;
+        }
+
+        return $types;
+    }
+
     public static function ofCallable(callable $callable): ReflectionFunctionAbstract
     {
         if ($callable instanceof Closure) {
