@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Parser\Exception\ClassStringClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidClassStringSubType;
+use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
