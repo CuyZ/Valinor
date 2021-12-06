@@ -160,6 +160,31 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'negative-int',
                 'type' => IntegerType::class,
             ],
+            'Positive integer value' => [
+                'raw' => '1337',
+                'transformed' => '1337',
+                'type' => IntegerValueType::class,
+            ],
+            'Negative integer value' => [
+                'raw' => '-1337',
+                'transformed' => '-1337',
+                'type' => IntegerValueType::class,
+            ],
+            'Integer range' => [
+                'raw' => 'int<42, 1337>',
+                'transformed' => 'int<42, 1337>',
+                'type' => IntegerRangeType::class,
+            ],
+            'Integer range with negative values' => [
+                'raw' => 'int<-1337, -42>',
+                'transformed' => 'int<-1337, -42>',
+                'type' => IntegerRangeType::class,
+            ],
+            'Integer range with min and max values' => [
+                'raw' => 'int<min, max>',
+                'transformed' => 'int<min, max>',
+                'type' => IntegerRangeType::class,
+            ],
             'String type' => [
                 'raw' => 'string',
                 'transformed' => 'string',
@@ -179,6 +204,16 @@ final class NativeLexerTest extends TestCase
                 'raw' => 'NON-EMPTY-STRING',
                 'transformed' => 'non-empty-string',
                 'type' => NonEmptyStringType::class,
+            ],
+            'String value with single quote' => [
+                'raw' => "'foo'",
+                'transformed' => "'foo'",
+                'type' => StringValueType::class,
+            ],
+            'String value with double quote' => [
+                'raw' => '"foo"',
+                'transformed' => '"foo"',
+                'type' => StringValueType::class,
             ],
             'Boolean type' => [
                 'raw' => 'bool',
@@ -444,21 +479,6 @@ final class NativeLexerTest extends TestCase
                 'raw' => 'stdClass&DateTimeInterface',
                 'transformed' => 'stdClass&DateTimeInterface',
                 'type' => IntersectionType::class,
-            ],
-            'String value with single quote' => [
-                'raw' => "'foo'",
-                'transformed' => "'foo'",
-                'type' => StringValueType::class,
-            ],
-            'String value with double quote' => [
-                'raw' => '"foo"',
-                'transformed' => '"foo"',
-                'type' => StringValueType::class,
-            ],
-            'Integer value' => [
-                'raw' => '1337',
-                'transformed' => '1337',
-                'type' => IntegerValueType::class,
             ],
         ];
     }
@@ -732,6 +752,60 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Comma missing in shaped array signature `array{0: int, 1: string`.');
 
         $this->parser->parse('array{int, string]');
+    }
+
+    public function test_missing_min_value_for_integer_range_throws_exception(): void
+    {
+        $this->expectException(IntegerRangeMissingMinValue::class);
+        $this->expectExceptionCode(1638787061);
+        $this->expectExceptionMessage('Missing min value for integer range, its signature must match `int<min, max>`.');
+
+        $this->parser->parse('int<');
+    }
+
+    public function test_invalid_min_value_for_integer_range_throws_exception(): void
+    {
+        $this->expectException(IntegerRangeInvalidMinValue::class);
+        $this->expectExceptionCode(1638787807);
+        $this->expectExceptionMessage('Invalid type `string` for min value of integer range, it must be either `min` or an integer value.');
+
+        $this->parser->parse('int<string, 1337>');
+    }
+
+    public function test_missing_comma_for_integer_range_throws_exception(): void
+    {
+        $this->expectException(IntegerRangeMissingComma::class);
+        $this->expectExceptionCode(1638787915);
+        $this->expectExceptionMessage('Missing comma in integer range signature `int<42, ?>`.');
+
+        $this->parser->parse('int<42 1337>');
+    }
+
+    public function test_missing_max_value_for_integer_range_throws_exception(): void
+    {
+        $this->expectException(IntegerRangeMissingMaxValue::class);
+        $this->expectExceptionCode(1638788092);
+        $this->expectExceptionMessage('Missing max value for integer range, its signature must match `int<42, max>`.');
+
+        $this->parser->parse('int<42,');
+    }
+
+    public function test_invalid_max_value_for_integer_range_throws_exception(): void
+    {
+        $this->expectException(IntegerRangeInvalidMaxValue::class);
+        $this->expectExceptionCode(1638788172);
+        $this->expectExceptionMessage('Invalid type `string` for max value of integer range `int<42, ?>`, it must be either `max` or an integer value.');
+
+        $this->parser->parse('int<42, string>');
+    }
+
+    public function test_missing_closing_bracket_for_integer_range_throws_exception(): void
+    {
+        $this->expectException(IntegerRangeMissingClosingBracket::class);
+        $this->expectExceptionCode(1638788306);
+        $this->expectExceptionMessage('Missing closing bracket in integer range signature `int<42, 1337>`.');
+
+        $this->parser->parse('int<42, 1337');
     }
 
     public function test_missing_closing_single_quote_throws_exception(): void

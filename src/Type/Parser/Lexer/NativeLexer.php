@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CommaToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\EnumNameToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntersectionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IterableToken;
@@ -68,6 +69,9 @@ final class NativeLexer implements TypeLexer
                 return NullableToken::get();
             case ',':
                 return CommaToken::get();
+            case 'int':
+            case 'integer':
+                return IntegerToken::get();
             case 'array':
                 return ArrayToken::array();
             case 'non-empty-array':

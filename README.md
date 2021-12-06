@@ -228,6 +228,15 @@ final class SomeClass
         /** @var negative-int */
         private int $negativeInteger,
 
+        /** @var int<-42, 1337> */
+        private int $integerRange,
+
+        /** @var int<min, 0> */
+        private int $integerRangeWithMinRange,
+
+        /** @var int<0, max> */
+        private int $integerRangeWithMaxRange,
+
         private string $string,
         
         /** @var non-empty-string */

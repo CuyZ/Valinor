@@ -10,7 +10,6 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\BooleanType;
 use CuyZ\Valinor\Type\Types\FloatType;
 use CuyZ\Valinor\Type\Types\MixedType;
-use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -61,9 +60,6 @@ final class NativeToken implements TraversingToken
                 return MixedType::get();
             case 'float':
                 return FloatType::get();
-            case 'int':
-            case 'integer':
-                return NativeIntegerType::get();
             case 'positive-int':
                 return PositiveIntegerType::get();
             case 'negative-int':
