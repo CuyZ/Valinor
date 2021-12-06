@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
@@ -76,6 +77,9 @@ final class TypeCompilerTest extends TestCase
         yield [NativeIntegerType::get()];
         yield [PositiveIntegerType::get()];
         yield [NegativeIntegerType::get()];
+        yield [new IntegerRangeType(42, 1337)];
+        yield [new IntegerRangeType(-1337, -42)];
+        yield [new IntegerRangeType(PHP_INT_MIN, PHP_INT_MAX)];
         yield [NativeStringType::get()];
         yield [NonEmptyStringType::get()];
         yield [UndefinedObjectType::get()];

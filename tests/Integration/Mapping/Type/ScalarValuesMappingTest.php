@@ -25,6 +25,9 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'integer' => 1337,
             'positiveInteger' => 1337,
             'negativeInteger' => -1337,
+            'integerRangeWithPositiveValue' => 1337,
+            'integerRangeWithNegativeValue' => -1337,
+            'integerRangeWithMinAndMax' => 42,
             'integerValue' => 42,
             'string' => 'foo',
             'nonEmptyString' => 'bar',
@@ -47,6 +50,9 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->integer);
             self::assertSame(1337, $result->positiveInteger);
             self::assertSame(-1337, $result->negativeInteger);
+            self::assertSame(1337, $result->integerRangeWithPositiveValue);
+            self::assertSame(-1337, $result->integerRangeWithNegativeValue);
+            self::assertSame(42, $result->integerRangeWithMinAndMax);
             self::assertSame(42, $result->integerValue);
             self::assertSame('foo', $result->string);
             self::assertSame('bar', $result->nonEmptyString);
@@ -109,6 +115,15 @@ class ScalarValues
     /** @var negative-int */
     public int $negativeInteger = -1;
 
+    /** @var int<-1337, 1337> */
+    public int $integerRangeWithPositiveValue = -1;
+
+    /** @var int<-1337, 1337> */
+    public int $integerRangeWithNegativeValue = -1;
+
+    /** @var int<min, max> */
+    public int $integerRangeWithMinAndMax = -1;
+
     /** @var 42 */
     public int $integerValue;
 
@@ -138,6 +153,9 @@ class ScalarValuesWithConstructor extends ScalarValues
     /**
      * @param positive-int $positiveInteger
      * @param negative-int $negativeInteger
+     * @param int<-1337, 1337> $integerRangeWithPositiveValue
+     * @param int<-1337, 1337> $integerRangeWithNegativeValue
+     * @param int<min, max> $integerRangeWithMinAndMax
      * @param 42 $integerValue
      * @param non-empty-string $nonEmptyString
      * @param 'baz' $stringValueWithSingleQuote
@@ -152,6 +170,9 @@ class ScalarValuesWithConstructor extends ScalarValues
         int $integer,
         int $positiveInteger,
         int $negativeInteger,
+        int $integerRangeWithPositiveValue,
+        int $integerRangeWithNegativeValue,
+        int $integerRangeWithMinAndMax,
         int $integerValue,
         string $string,
         string $nonEmptyString,
@@ -166,6 +187,9 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->integer = $integer;
         $this->positiveInteger = $positiveInteger;
         $this->negativeInteger = $negativeInteger;
+        $this->integerRangeWithPositiveValue = $integerRangeWithPositiveValue;
+        $this->integerRangeWithNegativeValue = $integerRangeWithNegativeValue;
+        $this->integerRangeWithMinAndMax = $integerRangeWithMinAndMax;
         $this->integerValue = $integerValue;
         $this->string = $string;
         $this->nonEmptyString = $nonEmptyString;

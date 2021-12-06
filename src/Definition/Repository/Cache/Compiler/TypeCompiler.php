@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
@@ -57,6 +58,8 @@ final class TypeCompiler
             case $type instanceof UndefinedObjectType:
             case $type instanceof MixedType:
                 return "$class::get()";
+            case $type instanceof IntegerRangeType:
+                return "new $class({$type->min()}, {$type->max()})";
             case $type instanceof StringValueType:
             case $type instanceof IntegerValueType:
                 $value = var_export($type->value(), true);
