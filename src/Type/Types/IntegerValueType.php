@@ -42,8 +42,19 @@ final class IntegerValueType implements IntegerType, FixedType
             return $other->isMatchedBy($this);
         }
 
-        return $other instanceof IntegerType
-            || $other instanceof MixedType;
+        if ($other instanceof NativeIntegerType || $other instanceof MixedType) {
+            return true;
+        }
+
+        if ($other instanceof NegativeIntegerType && $this->value < 0) {
+            return true;
+        }
+
+        if ($other instanceof PositiveIntegerType && $this->value > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     public function canCast($value): bool

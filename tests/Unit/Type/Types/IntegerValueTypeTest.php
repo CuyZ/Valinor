@@ -9,6 +9,9 @@ use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NegativeIntegerType;
+use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -119,6 +122,26 @@ final class IntegerValueTypeTest extends TestCase
         self::assertFalse((new IntegerValueType(1337))->matches(new IntegerValueType(42)));
     }
 
+    public function test_matches_positive_integer_when_value_is_positive(): void
+    {
+        self::assertTrue((new IntegerValueType(1337))->matches(new PositiveIntegerType()));
+    }
+
+    public function test_does_not_match_positive_integer_when_value_is_negative(): void
+    {
+        self::assertFalse((new IntegerValueType(-1337))->matches(new PositiveIntegerType()));
+    }
+
+    public function test_matches_negative_integer_when_value_is_negative(): void
+    {
+        self::assertTrue((new IntegerValueType(-1337))->matches(new NegativeIntegerType()));
+    }
+
+    public function test_does_not_match_negative_integer_when_value_is_positive(): void
+    {
+        self::assertFalse((new IntegerValueType(1337))->matches(new NegativeIntegerType()));
+    }
+
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse($this->type->matches(new FakeType()));
@@ -127,6 +150,11 @@ final class IntegerValueTypeTest extends TestCase
     public function test_matches_mixed_type(): void
     {
         self::assertTrue($this->type->matches(new MixedType()));
+    }
+
+    public function test_matches_native_integer_type(): void
+    {
+        self::assertTrue($this->type->matches(new NativeIntegerType()));
     }
 
     public function test_matches_union_type_containing_integer_type(): void
