@@ -1,0 +1,15 @@
+<?php
+
+return [
+    'preset' => [
+        'misc' => [
+            'label' => 'Other',
+            'description' => 'Other miscellaneous changes',
+        ],
+    ],
+    'releaseCommitMessageFormat' => 'release: new version {{currentTag}}',
+    'tagPrefix' => '',
+    'packageBump' => false,
+    'hiddenMentions' => true,
+    'hiddenReferences' => true,
+];
