@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\AnotherSimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
 
@@ -38,6 +39,10 @@ final class ArrayValuesMappingTest extends IntegrationTest
             'nonEmptyArrayWithDefaultKeyType' => [42 => 'foo', 'some-key' => 'bar'],
             'nonEmptyArrayWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'],
             'nonEmptyArrayWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'],
+            'arrayOfUnionOfObjects' => [
+                ['value' => 'foo'],
+                ['anotherValue' => 'bar'],
+            ],
         ];
 
         foreach ([ArrayValues::class, ArrayValuesWithConstructor::class] as $class) {
@@ -65,6 +70,8 @@ final class ArrayValuesMappingTest extends IntegrationTest
             self::assertSame($source['nonEmptyArrayWithDefaultKeyType'], $result->nonEmptyArrayWithDefaultKeyType);
             self::assertSame($source['nonEmptyArrayWithIntegerKeyType'], $result->nonEmptyArrayWithIntegerKeyType);
             self::assertSame($source['nonEmptyArrayWithStringKeyType'], $result->nonEmptyArrayWithStringKeyType);
+            self::assertSame('foo', $result->arrayOfUnionOfObjects[0]->value);
+            self::assertSame('bar', $result->arrayOfUnionOfObjects[1]->anotherValue);
         }
     }
 
@@ -142,6 +149,10 @@ class ArrayValues
 
     /** @var non-empty-array<string, string> */
     public array $nonEmptyArrayWithStringKeyType = ['foo' => 'bar'];
+
+    /** @var array<SimpleObject|AnotherSimpleObject> */
+    public array $arrayOfUnionOfObjects;
+
 }
 
 class ArrayValuesWithConstructor extends ArrayValues
@@ -161,6 +172,7 @@ class ArrayValuesWithConstructor extends ArrayValues
      * @param non-empty-array<array-key, string> $nonEmptyArrayWithDefaultKeyType
      * @param non-empty-array<int, string> $nonEmptyArrayWithIntegerKeyType
      * @param non-empty-array<string, string> $nonEmptyArrayWithStringKeyType
+     * @param array<SimpleObject|AnotherSimpleObject> $arrayOfUnionOfObjects
      */
     public function __construct(
         array $booleans,
@@ -176,7 +188,8 @@ class ArrayValuesWithConstructor extends ArrayValues
         array $nonEmptyArraysOfStrings,
         array $nonEmptyArrayWithDefaultKeyType,
         array $nonEmptyArrayWithIntegerKeyType,
-        array $nonEmptyArrayWithStringKeyType
+        array $nonEmptyArrayWithStringKeyType,
+        array $arrayOfUnionOfObjects
     ) {
         $this->booleans = $booleans;
         $this->floats = $floats;
@@ -192,5 +205,6 @@ class ArrayValuesWithConstructor extends ArrayValues
         $this->nonEmptyArrayWithDefaultKeyType = $nonEmptyArrayWithDefaultKeyType;
         $this->nonEmptyArrayWithIntegerKeyType = $nonEmptyArrayWithIntegerKeyType;
         $this->nonEmptyArrayWithStringKeyType = $nonEmptyArrayWithStringKeyType;
+        $this->arrayOfUnionOfObjects = $arrayOfUnionOfObjects;
     }
 }
