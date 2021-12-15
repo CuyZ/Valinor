@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper;
 
-use CuyZ\Valinor\Mapper\Exception\CannotMapObject;
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingType;
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
@@ -31,7 +30,7 @@ final class TreeMapperContainer implements TreeMapper
         $node = $this->node($signature, $source);
 
         if (! $node->isValid()) {
-            throw new CannotMapObject($node);
+            throw new MappingError($node);
         }
 
         return $node->value(); // @phpstan-ignore-line

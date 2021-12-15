@@ -4,12 +4,25 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper;
 
-use Throwable;
+use CuyZ\Valinor\Mapper\Tree\Node;
+use RuntimeException;
 
-interface MappingError extends Throwable
+final class MappingError extends RuntimeException
 {
-    /**
-     * @return array<string, array<Throwable>>
-     */
-    public function describe(): array;
+    private Node $node;
+
+    public function __construct(Node $node)
+    {
+        $this->node = $node;
+
+        parent::__construct(
+            "Could not map an object of type `{$node->type()}` with the given source.",
+            1617193185
+        );
+    }
+
+    public function node(): Node
+    {
+        return $this->node;
+    }
 }

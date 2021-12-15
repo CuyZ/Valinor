@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Resolver\Exception\UnionTypeDoesNotAllowNull;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Throwable;
 
 final class DateTimeMappingTest extends IntegrationTest
 {
@@ -68,7 +69,9 @@ final class DateTimeMappingTest extends IntegrationTest
                     'dateTime' => 'invalid datetime',
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['dateTime'][0];
+            $error = $exception->node()->children()['dateTime']->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(CannotParseToDateTime::class, $error);
             self::assertSame(1630686564, $error->getCode());
@@ -88,7 +91,9 @@ final class DateTimeMappingTest extends IntegrationTest
                     ],
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['dateTime'][0];
+            $error = $exception->node()->children()['dateTime']->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(CannotParseToDateTime::class, $error);
             self::assertSame(1630686564, $error->getCode());
@@ -107,7 +112,7 @@ final class DateTimeMappingTest extends IntegrationTest
                     ],
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['dateTime.datetime'][0];
+            $error = $exception->node()->children()['dateTime']->children()['datetime']->messages()[0];
 
             self::assertInstanceOf(UnionTypeDoesNotAllowNull::class, $error);
         }

@@ -113,20 +113,15 @@ public function getThread(int $id): Thread
     $rawJson = $this->client->request("https://example.com/thread/$id");
 
     try {   
-       return (new \CuyZ\Valinor\MapperBuilder())
-           ->mapper()
-           ->map(
-               Thread::class,
-               new \CuyZ\Valinor\Mapper\Source\JsonSource($rawJson)
-           );
-   } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-       $this->logger->error(
-           'Invalid JSON returned by API', 
-           $error->describe() // This gives more information about what was wrong
-       );
-
-       throw $error;
-   }
+        return (new \CuyZ\Valinor\MapperBuilder())
+            ->mapper()
+            ->map(
+                Thread::class,
+                new \CuyZ\Valinor\Mapper\Source\JsonSource($rawJson)
+            );
+    } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+        // Do something…
+    }
 }
 ```
 
@@ -147,12 +142,17 @@ More specific validation should be done in the constructor of the value object,
 by throwing an exception if something is wrong with the given data. A good
 practice would be to use lightweight validation tools like [Webmozart Assert].
 
+When the mapping fails, the exception gives access to the root node. This
+recursive object allows retrieving all needed information through the whole
+mapping tree: path, values, types and messages, including the issues that caused
+the exception.
+
 ```php
 final class SomeClass
 {
-    public function __construct(private string $value)
+    public function __construct(private string $someValue)
     {
-        Assert::startsWith($value, 'foo_');
+        Assert::startsWith($someValue, 'foo_');
     }
 }
 
@@ -161,12 +161,42 @@ try {
        ->mapper()
        ->map(
            SomeClass::class,
-           ['value' => 'bar_baz']
+           ['someValue' => 'bar_baz']
        );
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    // Contains an error similar to:
+    $node = $error->node()->children()['someValue'];
+
+    // Should print something similar to:
     // > Expected a value to start with "foo_". Got: "bar_baz"
-    var_dump($error->describe());
+    var_dump($node->messages()[0]);
+
+    // The name of a node can be accessed 
+    $name = $node->name();
+
+    // The logical path of a node contains dot separated names of its parents
+    $path = $node->path();
+    
+    // The type of the node can be cast to string to enhance suggestion messages 
+    $type = (string)$node->type();
+
+    // It is important to check if a node is valid before getting its value
+    if ($node->isValid()) {
+        // The processed value of the node can be different from original input
+        $value = $node->value();
+    }
+
+    // All messages bound to the node can be accessed
+    foreach ($node->messages() as $message) {
+        // Errors can be retrieved by filtering like below:
+        if ($message instanceof Throwable) {
+            // Do something…
+        }
+    }
+
+    // If the node is a branch, its children can be recursively accessed
+    foreach ($node->children() as $child) {
+        // Do something…  
+    }
 }
 ```
 

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
+use Throwable;
 
 final class ArrayValuesMappingTest extends IntegrationTest
 {
@@ -75,7 +76,9 @@ final class ArrayValuesMappingTest extends IntegrationTest
                 'nonEmptyArraysOfStrings' => [],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['nonEmptyArraysOfStrings'][0];
+            $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(InvalidNodeValue::class, $error);
             self::assertSame(1630678334, $error->getCode());
@@ -90,7 +93,9 @@ final class ArrayValuesMappingTest extends IntegrationTest
                 'integers' => ['foo'],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['integers.0'][0];
+            $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(CannotCastToScalarValue::class, $error);
             self::assertSame(1618736242, $error->getCode());
