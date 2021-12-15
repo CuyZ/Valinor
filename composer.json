@@ -41,17 +41,17 @@
     },
     "scripts": {
         "check": [
-            "php vendor/bin/phpunit",
-            "php vendor/bin/php-cs-fixer fix --dry-run",
-            "php vendor/bin/phpstan"
+            "phpunit",
+            "php-cs-fixer fix --dry-run",
+            "phpstan"
         ],
         "fix": [
-            "php vendor/bin/php-cs-fixer fix"
+            "php-cs-fixer fix"
         ],
         "mutation": [
             "@putenv XDEBUG_MODE=coverage",
-            "php vendor/bin/phpunit --coverage-xml='var/cache/phpunit/coverage' --log-junit='var/cache/phpunit/coverage/junit.xml'",
-            "php vendor/bin/infection --threads=12 --skip-initial-tests --coverage='var/cache/phpunit/coverage'"
+            "phpunit --coverage-xml='var/cache/phpunit/coverage' --log-junit='var/cache/phpunit/coverage/junit.xml'",
+            "infection --threads=12 --skip-initial-tests --coverage='var/cache/phpunit/coverage'"
         ]
     }
 }
