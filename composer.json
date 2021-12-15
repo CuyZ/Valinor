@@ -26,7 +26,7 @@
         "infection/infection": "^0.25.0",
         "phpstan/phpstan": "^1.2",
         "phpstan/phpstan-strict-rules": "^1.0",
-        "friendsofphp/php-cs-fixer": "^3.0",
+        "friendsofphp/php-cs-fixer": "^3.4",
         "marcocesarato/php-conventional-changelog": "^1.12"
     },
     "autoload": {
