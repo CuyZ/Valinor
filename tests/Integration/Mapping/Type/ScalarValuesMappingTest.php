@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Type;
 
-use CuyZ\Valinor\Mapper\Exception\CannotMapObject;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
@@ -14,6 +13,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use stdClass;
 use stdClass as ObjectAlias;
+use Throwable;
 
 final class ScalarValuesMappingTest extends IntegrationTest
 {
@@ -71,7 +71,9 @@ final class ScalarValuesMappingTest extends IntegrationTest
                 'value' => new stdClass(),
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['value'][0];
+            $error = $exception->node()->children()['value']->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(CannotCastToScalarValue::class, $error);
             self::assertSame(1618736242, $error->getCode());
@@ -81,22 +83,18 @@ final class ScalarValuesMappingTest extends IntegrationTest
 
     public function test_empty_mandatory_value_throws_exception(): void
     {
-        $this->expectException(CannotMapObject::class);
-        $this->expectExceptionCode(1617193185);
-        $this->expectExceptionMessage('Could not map an object of type `' . SimpleObject::class . '` with the given source.');
-
         try {
             $this->mapperBuilder->mapper()->map(SimpleObject::class, [
                 'value' => null,
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['value'][0];
+            $error = $exception->node()->children()['value']->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(CannotCastToScalarValue::class, $error);
             self::assertSame(1618736242, $error->getCode());
             self::assertSame('Cannot be empty and must be filled with a value of type `string`.', $error->getMessage());
-
-            throw $exception;
         }
     }
 }

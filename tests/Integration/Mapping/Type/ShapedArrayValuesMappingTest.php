@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use stdClass;
+use Throwable;
 
 final class ShapedArrayValuesMappingTest extends IntegrationTest
 {
@@ -25,7 +26,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             ],
             'basicShapedArrayWithIntegerKeys' => [
                 0 => 'fiz',
-                1 => 42.404
+                1 => 42.404,
             ],
             'shapedArrayWithObject' => [
                 'foo' => ['value' => 'bar'],
@@ -69,11 +70,13 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             $this->mapperBuilder->mapper()->map(ShapedArrayValues::class, [
                 'basicShapedArrayWithStringKeys' => [
                     'foo' => new stdClass(),
-                    'bar' => 42
+                    'bar' => 42,
                 ],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['basicShapedArrayWithStringKeys.foo'][0];
+            $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
+
+            assert($error instanceof Throwable);
 
             self::assertInstanceOf(CannotCastToScalarValue::class, $error);
             self::assertSame(1618736242, $error->getCode());

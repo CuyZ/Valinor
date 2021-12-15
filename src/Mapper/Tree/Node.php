@@ -19,7 +19,7 @@ final class Node
     /** @var mixed */
     private $value;
 
-    /** @var array<string, Node> */
+    /** @var array<Node> */
     private array $children = [];
 
     /** @var array<Message> */
@@ -128,7 +128,7 @@ final class Node
     }
 
     /**
-     * @return array<string, Node>
+     * @return array<Node>
      */
     public function children(): array
     {
