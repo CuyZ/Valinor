@@ -21,6 +21,9 @@ use function is_string;
 
 final class DateTimeObjectBuilder implements ObjectBuilder
 {
+    public const DATE_MYSQL = 'Y-m-d H:i:s';
+    public const DATE_PGSQL = 'Y-m-d H:i:s.u';
+
     /** @var class-string<DateTime|DateTimeImmutable> */
     private string $className;
 
@@ -75,7 +78,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
         $formats = [
             DATE_ATOM, DATE_RFC850, DATE_COOKIE, DATE_RFC822, DATE_RFC1036,
             DATE_RFC1123, DATE_RFC2822, DATE_RFC3339, DATE_RFC3339_EXTENDED,
-            DATE_RFC7231, DATE_RSS, DATE_W3C,
+            DATE_RFC7231, DATE_RSS, DATE_W3C, self::DATE_MYSQL, self::DATE_PGSQL,
         ];
 
         foreach ($formats as $format) {
