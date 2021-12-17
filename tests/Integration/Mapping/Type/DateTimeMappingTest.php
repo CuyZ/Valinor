@@ -29,8 +29,8 @@ final class DateTimeMappingTest extends IntegrationTest
             'datetime' => '2012-12-21 13:37:42',
             'format' => 'Y-m-d H:i:s',
         ];
-        $mysqlTimestamp = '2012-12-21 13:37:42';
-        $pgsqlDateTime = '2012-12-21 13:37:42.123456';
+        $mysqlDate = '2012-12-21 13:37:42';
+        $pgsqlDate = '2012-12-21 13:37:42.123456';
 
         try {
             $result = $this->mapperBuilder->mapper()->map(AllDateTimeValues::class, [
@@ -40,8 +40,8 @@ final class DateTimeMappingTest extends IntegrationTest
                 'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
                 'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
                 'dateTimeFromArray' => $dateTimeFromArray,
-                'mysqlTimestamp' => $mysqlTimestamp,
-                'pgsqlDateTime' => $pgsqlDateTime,
+                'mysqlDate' => $mysqlDate,
+                'pgsqlDate' => $pgsqlDate,
 
             ]);
         } catch (MappingError $error) {
@@ -55,8 +55,8 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithFormat['datetime']}"), $result->dateTimeFromTimestampWithFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $result->dateTimeFromAtomFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
-        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlTimestamp), $result->mysqlTimestamp);
-        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDateTime), $result->pgsqlDateTime);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $result->pgsqlDate);
     }
 
     public function test_invalid_datetime_throws_exception(): void
@@ -137,7 +137,7 @@ final class AllDateTimeValues
 
     public DateTimeInterface $dateTimeFromArray;
 
-    public DateTimeInterface $mysqlTimestamp;
+    public DateTimeInterface $mysqlDate;
 
-    public DateTimeInterface $pgsqlDateTime;
+    public DateTimeInterface $pgsqlDate;
 }

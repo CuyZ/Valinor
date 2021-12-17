@@ -76,9 +76,9 @@ final class DateTimeObjectBuilder implements ObjectBuilder
     private function tryAllFormats(string $value): ?DateTimeInterface
     {
         $formats = [
-            DATE_ATOM, DATE_RFC850, DATE_COOKIE, DATE_RFC822, DATE_RFC1036,
-            DATE_RFC1123, DATE_RFC2822, DATE_RFC3339, DATE_RFC3339_EXTENDED,
-            DATE_RFC7231, DATE_RSS, DATE_W3C, self::DATE_MYSQL, self::DATE_PGSQL,
+            self::DATE_MYSQL, self::DATE_PGSQL, DATE_ATOM, DATE_RFC850, DATE_COOKIE,
+            DATE_RFC822, DATE_RFC1036, DATE_RFC1123, DATE_RFC2822, DATE_RFC3339,
+            DATE_RFC3339_EXTENDED, DATE_RFC7231, DATE_RSS, DATE_W3C,
         ];
 
         foreach ($formats as $format) {
