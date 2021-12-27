@@ -13,7 +13,9 @@ use CuyZ\Valinor\Tests\Fixture\Annotation\AnnotationWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Annotation\BasicAnnotation;
 use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
+use CuyZ\Valinor\Tests\Fixture\Attribute\NestedAttribute;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithAttributes;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithNestedAttributes;
 use Error;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -252,6 +254,72 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(AttributeWithArguments::class));
         self::assertTrue($attributes->has(BasicAnnotation::class));
         self::assertTrue($attributes->has(AnnotationWithArguments::class));
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_compiles_native_php_attributes_for_class_with_nested_attributes(): void
+    {
+        $reflection = new ReflectionClass(ObjectWithNestedAttributes::class);
+
+        $attributes = $this->compile(new NativeAttributes($reflection));
+
+        self::assertCount(3, $attributes);
+        self::assertTrue($attributes->has(BasicAttribute::class));
+        self::assertTrue($attributes->has(AttributeWithArguments::class));
+        self::assertTrue($attributes->has(NestedAttribute::class));
+
+        /** @var AttributeWithArguments $attribute */
+        $attribute = [...$attributes->ofType(AttributeWithArguments::class)][0];
+
+        self::assertSame('foo', $attribute->foo);
+        self::assertSame('bar', $attribute->bar);
+
+        /** @var NestedAttribute $attribute */
+        $attribute = [...$attributes->ofType(NestedAttribute::class)][0];
+
+        self::assertCount(2, $attribute->nestedAttributes);
+        self::assertInstanceOf(BasicAttribute::class, $attribute->nestedAttributes[0]);
+        self::assertInstanceOf(AttributeWithArguments::class, $attribute->nestedAttributes[1]);
+
+        /** @var AttributeWithArguments $nestedAttribute */
+        $nestedAttribute = $attribute->nestedAttributes[1];
+
+        self::assertSame('foo', $nestedAttribute->foo);
+        self::assertSame('bar', $nestedAttribute->bar);
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_compiles_native_php_attributes_for_property_with_nested_attributes(): void
+    {
+        $reflection = new ReflectionClass(ObjectWithNestedAttributes::class);
+        $reflection = $reflection->getProperty('property');
+
+        $attributes = $this->compile(new NativeAttributes($reflection));
+
+        self::assertCount(3, $attributes);
+        self::assertTrue($attributes->has(BasicAttribute::class));
+        self::assertTrue($attributes->has(AttributeWithArguments::class));
+        self::assertTrue($attributes->has(NestedAttribute::class));
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_compiles_native_php_attributes_for_method_with_nested_attributes(): void
+    {
+        $reflection = new ReflectionClass(ObjectWithNestedAttributes::class);
+        $reflection = $reflection->getMethod('method');
+
+        $attributes = $this->compile(new NativeAttributes($reflection));
+
+        self::assertCount(3, $attributes);
+        self::assertTrue($attributes->has(BasicAttribute::class));
+        self::assertTrue($attributes->has(AttributeWithArguments::class));
+        self::assertTrue($attributes->has(NestedAttribute::class));
     }
 
     private function compile(Attributes $attributes): Attributes
