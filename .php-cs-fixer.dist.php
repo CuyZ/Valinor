@@ -2,7 +2,8 @@
 
 $finder = PhpCsFixer\Finder::create()->in([
     './src',
-    './tests'
+    './tests',
+    './qa',
 ]);
 
 if (PHP_VERSION_ID < 8_00_00) {
