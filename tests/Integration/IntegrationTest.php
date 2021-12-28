@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Throwable;
 
 use function implode;
+use function is_dir;
 use function iterator_to_array;
 
 abstract class IntegrationTest extends TestCase
@@ -31,6 +32,10 @@ abstract class IntegrationTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
+
+        if (! is_dir($this->cacheDir)) {
+            return;
+        }
 
         /** @var FilesystemIterator $file */
         foreach (new FilesystemIterator($this->cacheDir) as $file) {
