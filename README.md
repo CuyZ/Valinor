@@ -125,6 +125,44 @@ public function getThread(int $id): Thread
 }
 ```
 
+### Mapping advanced types
+
+Although it is recommended to map an input to a value object, in some cases 
+mapping to another type can be easier/more flexible.
+
+It is for instance possible to map to an array of objects:
+
+```php
+try {
+    $objects = (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(
+            'array<' . SomeClass::class . '>',
+            [/* … */]
+        );
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    // Do something…
+}
+```
+
+For simple use-cases, an array shape can be used:
+
+```php
+try {
+    $array = (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(
+            'array{foo: string, bar: int}',
+            [/* … */]
+        );
+    
+    echo $array['foo'];
+    echo $array['bar'] * 2;
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    // Do something…
+}
+```
+
 ### Validation
 
 The source given to a mapper can never be trusted, this is actually the very
@@ -225,7 +263,7 @@ map(new \CuyZ\Valinor\Mapper\Source\FileSource(
 ### Construction strategy
 
 During the mapping, instances of the objects are created and hydrated with the
-correct values. construction strategies will determine what values are needed
+correct values. Construction strategies will determine what values are needed
 and how an object is built.
 
 An object can provide either…
@@ -368,6 +406,91 @@ final class SomeClass
         private array $unionInsideArray,
     ) {}
 }
+```
+
+## Static analysis
+
+To help static analysis of a codebase using this library, an extension for
+[PHPStan] and a plugin for [Psalm] are provided. They enable these tools to
+better understand the behaviour of the mapper.
+
+Considering at least one of those tools are installed on a project, below are
+examples of the kind of errors that would be reported.
+
+**Mapping to an array of classes**
+
+```php
+final class SomeClass
+{
+    public function __construct(
+        public readonly string $foo,
+        public readonly int $bar,
+    ) {}
+}
+
+$objects = (new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(
+        'array<' . SomeClass::class . '>',
+        [/* … */]
+    );
+
+foreach ($objects as $object) {
+    // ✅
+    echo $object->foo;
+    
+    // ✅
+    echo $object->bar * 2;
+    
+    // ❌ Cannot perform operation between `string` and `int`
+    echo $object->foo * $object->bar;
+    
+    // ❌ Property `SomeClass::$fiz` is not defined
+    echo $object->fiz;
+} 
+```
+
+**Mapping to a shaped array**
+
+```php
+$array = (new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(
+        'array{foo: string, bar: int}',
+        [/* … */]
+    );
+
+// ✅
+echo $array['foo'];
+
+// ❌ Expected `string` but got `int`
+echo strtolower($array['bar']);
+
+// ❌ Cannot perform operation between `string` and `int`
+echo $array['foo'] * $array['bar'];
+
+// ❌ Offset `fiz` does not exist on array
+echo $array['fiz']; 
+```
+
+---
+
+To activate this feature, the configuration must be updated for the installed
+tool(s):
+
+**PHPStan**
+
+```yaml
+includes:
+    - vendor/cuyz/valinor/qa/PHPStan/valinor-phpstan-configuration.php
+```
+
+**Psalm**
+
+```xml
+<plugins>
+    <plugin filename="vendor/cuyz/valinor/qa/Psalm/Plugin/TreeMapperPsalmPlugin.php"/>
+</plugins>
 ```
 
 [PHPStan]: https://phpstan.org/

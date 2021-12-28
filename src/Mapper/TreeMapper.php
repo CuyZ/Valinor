@@ -9,11 +9,11 @@ interface TreeMapper
     /**
      * @template T of object
      *
-     * @param class-string<T> $signature
+     * @param string|class-string<T> $signature
      * @param mixed $source
-     * @return T
+     * @return T|mixed
      *
      * @throws MappingError
      */
-    public function map(string $signature, $source): object;
+    public function map(string $signature, $source);
 }
