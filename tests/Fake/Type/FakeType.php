@@ -25,6 +25,8 @@ final class FakeType implements Type
     /** @var mixed[] */
     private array $accepting;
 
+    private bool $permissive = false;
+
     public function __construct(string $name = null)
     {
         $this->name = $name ?? 'FakeType' . self::$counter++;
@@ -51,10 +53,18 @@ final class FakeType implements Type
         return new self();
     }
 
+    public static function permissive(): self
+    {
+        $instance = new self();
+        $instance->permissive = true;
+
+        return $instance;
+    }
+
     /**
      * @param mixed ...$values
      */
-    public static function thatWillAccept(...$values): self
+    public static function accepting(...$values): self
     {
         $instance = new self();
         $instance->accepting = $values;
@@ -62,7 +72,7 @@ final class FakeType implements Type
         return $instance;
     }
 
-    public static function thatWillMatch(Type $other): self
+    public static function matching(Type $other): self
     {
         $instance = new self();
         $instance->matching = $other;
@@ -72,7 +82,8 @@ final class FakeType implements Type
 
     public function accepts($value): bool
     {
-        return isset($this->accepting) && in_array($value, $this->accepting, true);
+        return $this->permissive
+            || (isset($this->accepting) && in_array($value, $this->accepting, true));
     }
 
     public function matches(Type $other): bool
