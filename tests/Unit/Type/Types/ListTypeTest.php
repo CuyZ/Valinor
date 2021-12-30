@@ -58,7 +58,7 @@ final class ListTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $type = FakeType::thatWillAccept('Some value');
+        $type = FakeType::accepting('Some value');
 
         self::assertTrue((new ListType($type))->accepts([
             'Some value',
@@ -88,7 +88,7 @@ final class ListTypeTest extends TestCase
 
     public function test_matches_valid_list_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listOfTypeA = new ListType($typeA);
         $listOfTypeB = new ListType($typeB);
@@ -109,7 +109,7 @@ final class ListTypeTest extends TestCase
 
     public function test_matches_valid_array_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listType = new ListType($typeA);
         $arrayType = new ArrayType(ArrayKeyType::integer(), $typeB);
@@ -132,7 +132,7 @@ final class ListTypeTest extends TestCase
 
     public function test_matches_valid_iterable_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listType = new ListType($typeA);
         $iterableType = new IterableType(ArrayKeyType::integer(), $typeB);

@@ -28,7 +28,7 @@ final class ShellTest extends TestCase
 
     public function test_change_type_changes_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $shellA = Shell::root($typeA, []);
         $shellB = $shellA->withType($typeB);
@@ -93,7 +93,7 @@ final class ShellTest extends TestCase
     public function test_shell_child_values_can_be_retrieved(): void
     {
         $value = 'some value';
-        $type = FakeType::thatWillAccept($value);
+        $type = FakeType::permissive();
         $attributes = new FakeAttributes();
 
         $shell = Shell::root(new FakeType(), []);
