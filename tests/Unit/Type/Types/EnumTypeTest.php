@@ -25,15 +25,12 @@ final class EnumTypeTest extends TestCase
     {
         parent::setUp();
 
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $this->enumType = new EnumType(PureEnum::class);
     }
 
     public function test_accepts_correct_values(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         self::assertTrue($this->enumType->accepts(PureEnum::FOO));
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         self::assertTrue($this->enumType->accepts(PureEnum::BAR));
     }
 
@@ -55,9 +52,7 @@ final class EnumTypeTest extends TestCase
 
     public function test_matches_same_enum_type(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $enumTypeA = new EnumType(PureEnum::class);
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $enumTypeB = new EnumType(PureEnum::class);
 
         self::assertTrue($enumTypeA->matches($enumTypeB));
@@ -65,9 +60,7 @@ final class EnumTypeTest extends TestCase
 
     public function test_does_not_match_other_enum_type(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $enumTypeA = new EnumType(PureEnum::class);
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $enumTypeB = new EnumType(BackedStringEnum::class);
 
         self::assertFalse($enumTypeA->matches($enumTypeB));
@@ -92,7 +85,6 @@ final class EnumTypeTest extends TestCase
     {
         $unionType = new UnionType(
             new FakeType(),
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             new EnumType(PureEnum::class),
             new FakeType(),
         );
