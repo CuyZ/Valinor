@@ -12,8 +12,8 @@ use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
-use CuyZ\Valinor\Mapper\Object\Exception\ObjectConstructionError;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
+use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use Generator;
 use PHPUnit\Framework\TestCase;
@@ -164,8 +164,8 @@ final class MethodObjectBuilderTest extends TestCase
         $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithConstructorThatThrowsException::class));
         $objectBuilder = new MethodObjectBuilder($class, '__construct');
 
-        $this->expectException(ObjectConstructionError::class);
-        $this->expectExceptionCode(1630142421);
+        $this->expectException(ThrowableMessage::class);
+        $this->expectExceptionCode(1337);
         $this->expectExceptionMessage('some exception');
 
         $objectBuilder->build([]);
@@ -194,6 +194,6 @@ final class ObjectWithConstructorThatThrowsException
 {
     public function __construct()
     {
-        throw new RuntimeException('some exception');
+        throw new RuntimeException('some exception', 1337);
     }
 }

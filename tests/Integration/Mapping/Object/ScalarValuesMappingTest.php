@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use DateTime;
@@ -13,7 +12,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use stdClass;
 use stdClass as ObjectAlias;
-use Throwable;
 
 final class ScalarValuesMappingTest extends IntegrationTest
 {
@@ -73,11 +71,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['value']->messages()[0];
 
-            assert($error instanceof Throwable);
-
-            self::assertInstanceOf(CannotCastToScalarValue::class, $error);
-            self::assertSame(1618736242, $error->getCode());
-            self::assertSame('Cannot cast value of type `stdClass` to `string`.', $error->getMessage());
+            self::assertSame('1618736242', $error->code());
+            self::assertSame('Cannot cast value of type `stdClass` to `string`.', (string)$error);
         }
     }
 
@@ -90,11 +85,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['value']->messages()[0];
 
-            assert($error instanceof Throwable);
-
-            self::assertInstanceOf(CannotCastToScalarValue::class, $error);
-            self::assertSame(1618736242, $error->getCode());
-            self::assertSame('Cannot be empty and must be filled with a value of type `string`.', $error->getMessage());
+            self::assertSame('1618736242', $error->code());
+            self::assertSame('Cannot be empty and must be filled with a value of type `string`.', (string)$error);
         }
     }
 }

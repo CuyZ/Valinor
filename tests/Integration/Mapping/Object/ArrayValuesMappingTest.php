@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
-use Throwable;
 
 final class ArrayValuesMappingTest extends IntegrationTest
 {
@@ -78,11 +75,8 @@ final class ArrayValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
 
-            assert($error instanceof Throwable);
-
-            self::assertInstanceOf(InvalidNodeValue::class, $error);
-            self::assertSame(1630678334, $error->getCode());
-            self::assertSame('Empty array is not accepted by `non-empty-array<string>`.', $error->getMessage());
+            self::assertSame('1630678334', $error->code());
+            self::assertSame('Empty array is not accepted by `non-empty-array<string>`.', (string)$error);
         }
     }
 
@@ -95,11 +89,8 @@ final class ArrayValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
 
-            assert($error instanceof Throwable);
-
-            self::assertInstanceOf(CannotCastToScalarValue::class, $error);
-            self::assertSame(1618736242, $error->getCode());
-            self::assertSame('Cannot cast value of type `string` to `int`.', $error->getMessage());
+            self::assertSame('1618736242', $error->code());
+            self::assertSame('Cannot cast value of type `string` to `int`.', (string)$error);
         }
     }
 }

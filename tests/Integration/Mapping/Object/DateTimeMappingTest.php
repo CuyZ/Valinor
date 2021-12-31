@@ -6,13 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\DateTimeObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\Exception\CannotParseToDateTime;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use CuyZ\Valinor\Type\Resolver\Exception\UnionTypeDoesNotAllowNull;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Throwable;
 
 final class DateTimeMappingTest extends IntegrationTest
 {
@@ -71,11 +68,8 @@ final class DateTimeMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['dateTime']->messages()[0];
 
-            assert($error instanceof Throwable);
-
-            self::assertInstanceOf(CannotParseToDateTime::class, $error);
-            self::assertSame(1630686564, $error->getCode());
-            self::assertSame('Impossible to convert `invalid datetime` to `DateTime`.', $error->getMessage());
+            self::assertSame('1630686564', $error->code());
+            self::assertSame('Impossible to convert `invalid datetime` to `DateTime`.', (string)$error);
         }
     }
 
@@ -93,11 +87,8 @@ final class DateTimeMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['dateTime']->messages()[0];
 
-            assert($error instanceof Throwable);
-
-            self::assertInstanceOf(CannotParseToDateTime::class, $error);
-            self::assertSame(1630686564, $error->getCode());
-            self::assertSame('Impossible to convert `1337` to `DateTime`.', $error->getMessage());
+            self::assertSame('1630686564', $error->code());
+            self::assertSame('Impossible to convert `1337` to `DateTime`.', (string)$error);
         }
     }
 
@@ -114,7 +105,8 @@ final class DateTimeMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['dateTime']->children()['datetime']->messages()[0];
 
-            self::assertInstanceOf(UnionTypeDoesNotAllowNull::class, $error);
+            self::assertSame('1618742357', $error->code());
+            self::assertSame('Cannot assign an empty value to union type `positive-int|non-empty-string`.', (string)$error);
         }
     }
 }
