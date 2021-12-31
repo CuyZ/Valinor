@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetInvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\DuplicatedNodeChild;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Type\Type;
 use Throwable;
 
@@ -22,7 +23,7 @@ final class Node
     /** @var array<Node> */
     private array $children = [];
 
-    /** @var array<Message> */
+    /** @var array<NodeMessage> */
     private array $messages = [];
 
     private bool $valid = true;
@@ -137,18 +138,17 @@ final class Node
 
     public function withMessage(Message $message): self
     {
+        $message = new NodeMessage($this, $message);
+
         $clone = clone $this;
         $clone->messages = [...$this->messages, $message];
-
-        if ($message instanceof Throwable) {
-            $clone->valid = false;
-        }
+        $clone->valid = $clone->valid && ! $message->isError();
 
         return $clone;
     }
 
     /**
-     * @return array<Message>
+     * @return array<NodeMessage>
      */
     public function messages(): array
     {

@@ -13,7 +13,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
-use CuyZ\Valinor\Mapper\Object\Exception\ObjectConstructionError;
+use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Type\Types\ClassType;
 use Exception;
 
@@ -102,7 +102,7 @@ final class MethodObjectBuilder implements ObjectBuilder
             /** @infection-ignore-all */
             return $className::$methodName(...array_values($arguments)); // @phpstan-ignore-line
         } catch (Exception $exception) {
-            throw new ObjectConstructionError($exception);
+            throw ThrowableMessage::from($exception);
         }
     }
 

@@ -226,7 +226,7 @@ try {
     // All messages bound to the node can be accessed
     foreach ($node->messages() as $message) {
         // Errors can be retrieved by filtering like below:
-        if ($message instanceof Throwable) {
+        if ($message->isError()) {
             // Do something…
         }
     }

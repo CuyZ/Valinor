@@ -35,7 +35,7 @@ final class VisitorMappingTest extends IntegrationTest
                 ->mapper()
                 ->map(SimpleObject::class, ['value' => 'foo']);
         } catch (MappingError $exception) {
-            self::assertSame($error, $exception->node()->messages()[0]);
+            self::assertSame((string)$error, (string)$exception->node()->messages()[0]);
         }
 
         self::assertSame(['#1', '#2'], $visits);

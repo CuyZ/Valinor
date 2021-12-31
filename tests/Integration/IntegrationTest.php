@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\MapperBuilder;
 use FilesystemIterator;
 use PHPUnit\Framework\TestCase;
-use Throwable;
 
 use function implode;
 use function is_dir;
@@ -61,8 +60,8 @@ abstract class IntegrationTest extends TestCase
             $errors = [];
 
             foreach ($node->messages() as $message) {
-                if ($message instanceof Throwable) {
-                    $errors[] = $message->getMessage();
+                if ($message->isError()) {
+                    $errors[] = (string)$message;
                 }
             }
 
