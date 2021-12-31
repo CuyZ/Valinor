@@ -40,7 +40,6 @@ final class EnumNodeBuilderTest extends TestCase
 
     public function test_invalid_value_throws_exception(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $type = new EnumType(PureEnum::class);
 
         $this->expectException(InvalidEnumValue::class);
@@ -52,7 +51,6 @@ final class EnumNodeBuilderTest extends TestCase
 
     public function test_invalid_string_value_throws_exception(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $type = new EnumType(BackedStringEnum::class);
 
         $this->expectException(InvalidEnumValue::class);
@@ -64,7 +62,6 @@ final class EnumNodeBuilderTest extends TestCase
 
     public function test_boolean_instead_of_integer_value_throws_exception(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $type = new EnumType(BackedIntegerEnum::class);
 
         $this->expectException(InvalidEnumValue::class);
@@ -76,7 +73,6 @@ final class EnumNodeBuilderTest extends TestCase
 
     public function test_invalid_integer_value_throws_exception(): void
     {
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         $type = new EnumType(BackedIntegerEnum::class);
 
         $this->expectException(InvalidEnumValue::class);
