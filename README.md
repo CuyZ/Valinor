@@ -202,11 +202,7 @@ try {
            ['someValue' => 'bar_baz']
        );
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    $node = $error->node()->children()['someValue'];
-
-    // Should print something similar to:
-    // > Expected a value to start with "foo_". Got: "bar_baz"
-    var_dump($node->messages()[0]);
+    $node = $error->node();
 
     // The name of a node can be accessed 
     $name = $node->name();
@@ -217,23 +213,99 @@ try {
     // The type of the node can be cast to string to enhance suggestion messages 
     $type = (string)$node->type();
 
-    // It is important to check if a node is valid before getting its value
-    if ($node->isValid()) {
-        // The processed value of the node can be different from original input
-        $value = $node->value();
-    }
-
-    // All messages bound to the node can be accessed
-    foreach ($node->messages() as $message) {
-        // Errors can be retrieved by filtering like below:
-        if ($message->isError()) {
-            // Do something…
-        }
-    }
-
     // If the node is a branch, its children can be recursively accessed
     foreach ($node->children() as $child) {
         // Do something…  
+    }
+    
+    // Get flatten list of all messages through the whole nodes tree
+    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+    
+    // If only errors are wanted, they can be filtered
+    $errorMessages = $messages->errors();
+
+    // Should print something similar to:
+    // > Expected a value to start with "foo_". Got: "bar_baz"
+    foreach ($errorsMessages as $message) {
+        echo $message;
+    }
+}
+```
+
+### Message customization / translation
+
+When working with messages, it can sometimes be useful to customize the content
+of a message — for instance to translate it.
+
+The helper class `\CuyZ\Valinor\Mapper\Tree\Message\MessageMapFormatter` can be
+used to provide a list of new formats. It can be instantiated with an array 
+where each key represents either:
+
+- The code of the message to be replaced
+- The content of the message to be replaced
+- The class name of the message to be replaced
+
+If none of those is found, the content of the message will stay unchanged unless
+a default one is given to the class.
+
+If one of these keys is found, the array entry will be used to replace the
+content of the message. This entry can be either a plain text or a callable that
+takes the message as a parameter and returns a string; it is for instance
+advised to use a callable in cases where a translation service is used — to
+avoid useless greedy operations.
+
+In any case, the content can contain placeholders that will automatically be
+replaced by, in order:
+
+1. The original code of the message
+2. The original content of the message
+3. A string representation of the node type
+4. The name of the node
+5. The path of the node
+
+```php
+try {
+    (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(SomeClass::class, [/* … */]);
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    $node = $error->node();
+    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+
+    $formatter = (new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter([
+        // Will match if the given message has this exact code
+        'some_code' => 'new content / previous code was: %1$s',
+    
+        // Will match if the given message has this exact content
+        'Some message content' => 'new content / previous message: %2$s',
+    
+        // Will match if the given message is an instance of `SomeError`
+        SomeError::class => '
+            - Original code of the message: %1$s
+            - Original content of the message: %2$s
+            - Node type: %3$s
+            - Node name: %4$s
+            - Node path: %5$s
+        ',
+    
+        // A callback can be used to get access to the message instance
+        OtherError::class => function (NodeMessage $message): string {
+            if ((string)$message->type() === 'string|int') {
+                // …
+            }
+    
+            return 'Some message content';
+        },
+    
+        // For greedy operation, it is advised to use a lazy-callback
+        'foo' => fn () => $this->translator->translate('foo.bar'),
+    ]))
+        ->defaultsTo('some default message')
+        // …or…
+        ->defaultsTo(fn () => $this->translator->translate('default_message'));
+
+    foreach ($messages as $message) {
+        echo $formatter->format($message);    
     }
 }
 ```
