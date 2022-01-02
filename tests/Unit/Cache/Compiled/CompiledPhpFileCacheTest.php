@@ -165,7 +165,9 @@ final class CompiledPhpFileCacheTest extends TestCase
 
     public function test_clear_cache_does_not_delete_unrelated_files(): void
     {
-        mkdir($this->cacheDir);
+        if (! is_dir($this->cacheDir)) {
+            mkdir($this->cacheDir);
+        }
 
         touch($filenameA = $this->cacheDir . DIRECTORY_SEPARATOR . 'foo.php');
         touch($filenameB = $this->cacheDir . DIRECTORY_SEPARATOR . 'bar.php');
