@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use LogicException;
 
-final class ForbiddenMixedType extends LogicException
+final class ForbiddenMixedType extends LogicException implements InvalidType
 {
     public function __construct()
     {
