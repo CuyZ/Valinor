@@ -188,10 +188,7 @@ the exception.
 ```php
 final class SomeClass
 {
-    public function __construct(private string $someValue)
-    {
-        Assert::startsWith($someValue, 'foo_');
-    }
+    public function __construct(private int $someValue) { }
 }
 
 try {
