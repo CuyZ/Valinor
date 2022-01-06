@@ -50,7 +50,7 @@ jobs:
           key: phpstan
 
       - name: Install dependencies
-        run: composer update --prefer-dist --no-interaction
+        run: composer install --prefer-dist --no-interaction
 
       - name: Creating var directory
         run: mkdir -p var/cache
