@@ -4,6 +4,36 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.4.0](https://github.com/romm/Valinor/compare/0.3.0...0.4.0) (2022-01-07)
+### ⚠ BREAKING CHANGES
+
+* Add access to root node when error occurs during mapping ([54f608](https://github.com/romm/Valinor/commit/54f608e5b1a4bbd508246c063a3e79df48c1ddeb))
+* Allow mapping to any type ([b2e810](https://github.com/romm/Valinor/commit/b2e810e3ce997181b7cfcc96d2bccb9c56a5bdd8))
+* Allow object builder to yield arguments without source ([8a7414](https://github.com/romm/Valinor/commit/8a74147d4c1f78696049c2dfb9acf979ef6e4689))
+* Wrap node messages in proper class ([a805ba](https://github.com/romm/Valinor/commit/a805ba0442f9ac8dd6b2499426ffa6fcb190d4be))
+
+### Features
+
+* Introduce automatic union of objects inferring during mapping ([79d7c2](https://github.com/romm/Valinor/commit/79d7c266ecabc069b11120338ae1e62a8f3dca97))
+* Introduce helper class `MessageMapFormatter` ([ddf69e](https://github.com/romm/Valinor/commit/ddf69efaaa4eeab87126bdc7f43b92d5faa06f46))
+* Introduce helper class `MessagesFlattener` ([a97b40](https://github.com/romm/Valinor/commit/a97b406154fa5bccc2f874634ed24af69401cd4a))
+* Introduce helper `NodeTraverser` for recursive operations on nodes ([cc1bc6](https://github.com/romm/Valinor/commit/cc1bc66bbece7f79dfec093e33e96d3e31bca4e9))
+
+### Bug Fixes
+
+* Handle nested attributes compilation ([d2795b](https://github.com/romm/Valinor/commit/d2795bc6b9ee53f9896889cabc1006be2586b008))
+* Treat forbidden mixed type as invalid type ([36bd36](https://github.com/romm/Valinor/commit/36bd3638c8e48d2c43d247991b8d2055e8ab56bb))
+* Treat union type resolving error as message ([e834cd](https://github.com/romm/Valinor/commit/e834cdc5d3384d4295582f8d602b5da5f656e83a))
+* Use locked package versions for quality assurance workflow ([626f13](https://github.com/romm/Valinor/commit/626f135eee5b4954845e954d567babd58f6ca51b))
+
+### Other
+
+* Ignore changelog configuration file in git export ([85a6a4](https://github.com/romm/Valinor/commit/85a6a49ce20b96f2e023a7e824b8085ea198fd39))
+* Raise PHPStan version ([0144bf](https://github.com/romm/Valinor/commit/0144bf084a4883ecbdb65155a05b2ea90e7fca61))
+
+
+---
+
 ## [0.3.0](https://github.com/romm/Valinor/compare/0.2.0...0.3.0) (2021-12-18)
 ### Features
 
