@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\UnionType;
 use RuntimeException;
 
+/** @api */
 final class CannotResolveObjectTypeFromUnion extends RuntimeException implements Message
 {
     public function __construct(UnionType $unionType)

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+/** @internal */
 final class IterableCommaMissing extends RuntimeException implements InvalidType
 {
     public function __construct(Type $type)

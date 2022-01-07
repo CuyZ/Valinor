@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class ClassStringToken implements TraversingToken
 {
     use IsSingleton;

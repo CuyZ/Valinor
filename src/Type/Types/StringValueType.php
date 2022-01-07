@@ -14,6 +14,7 @@ use Stringable;
 use function is_numeric;
 use function is_string;
 
+/** @api */
 final class StringValueType implements StringType, FixedType
 {
     private string $value;

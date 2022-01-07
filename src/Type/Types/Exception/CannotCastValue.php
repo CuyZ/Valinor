@@ -9,6 +9,7 @@ use RuntimeException;
 
 use function get_debug_type;
 
+/** @api */
 final class CannotCastValue extends RuntimeException implements CastError
 {
     /**

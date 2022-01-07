@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\DoctrineAnnotations;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use Reflector;
 
+/** @internal */
 final class DoctrineAnnotationsRepository implements AttributesRepository
 {
     public function for(Reflector $reflector): DoctrineAnnotations

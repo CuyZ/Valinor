@@ -11,6 +11,7 @@ use RuntimeException;
 
 use function implode;
 
+/** @internal */
 final class ShapedArrayColonTokenMissing extends RuntimeException implements InvalidType
 {
     /**

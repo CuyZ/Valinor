@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class UnionToken implements LeftTraversingToken
 {
     use IsSingleton;

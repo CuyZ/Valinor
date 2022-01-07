@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Source\Exception;
 
 use RuntimeException;
 
+/** @internal */
 final class InvalidYaml extends RuntimeException implements SourceException
 {
     public function __construct()

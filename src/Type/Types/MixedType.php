@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @api */
 final class MixedType implements Type
 {
     use IsSingleton;

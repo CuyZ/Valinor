@@ -25,6 +25,7 @@ use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 
+/** @internal */
 final class ArrayToken implements TraversingToken
 {
     /** @var class-string<ArrayType|NonEmptyArrayType> */

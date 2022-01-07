@@ -16,6 +16,7 @@ use Traversable;
 
 use function array_map;
 
+/** @internal */
 final class NativeAttributes implements Attributes
 {
     private AttributesContainer $delegate;

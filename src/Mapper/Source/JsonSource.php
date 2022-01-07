@@ -17,6 +17,8 @@ use function is_iterable;
 use function json_decode;
 
 /**
+ * @api
+ *
  * @implements IteratorAggregate<mixed>
  */
 final class JsonSource implements IteratorAggregate

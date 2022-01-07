@@ -8,6 +8,8 @@ use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 /**
+ * @internal
+ *
  * @template T
  */
 final class ValueAlteringNodeBuilder implements NodeBuilder

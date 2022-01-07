@@ -20,6 +20,7 @@ use function in_array;
 use function is_array;
 use function ksort;
 
+/** @internal */
 final class UnionObjectNarrower implements UnionNarrower
 {
     private UnionNarrower $delegate;

@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use RuntimeException;
 
+/** @internal */
 final class InvalidConstructorMethodReturnType extends RuntimeException
 {
     /**

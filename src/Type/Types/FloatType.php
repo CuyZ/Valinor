@@ -12,6 +12,7 @@ use CuyZ\Valinor\Utility\IsSingleton;
 use function is_float;
 use function is_numeric;
 
+/** @api */
 final class FloatType implements ScalarType
 {
     use IsSingleton;

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
+/** @api */
 final class ShapedArrayElementMissing extends RuntimeException implements Message
 {
     public function __construct(ShapedArrayElement $element)

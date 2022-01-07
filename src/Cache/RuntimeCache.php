@@ -14,6 +14,8 @@ use Psr\SimpleCache\CacheInterface;
  *
  * @link http://www.php-fig.org/psr/psr-16/
  *
+ * @internal
+ *
  * @template EntryType
  * @implements CacheInterface<EntryType>
  */

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Stream;
 
 use OutOfBoundsException;
 
+/** @internal */
 final class TryingToAccessOutboundToken extends OutOfBoundsException
 {
     public function __construct()

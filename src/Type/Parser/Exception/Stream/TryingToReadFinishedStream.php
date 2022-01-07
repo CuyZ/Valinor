@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Stream;
 
 use OverflowException;
 
+/** @internal */
 final class TryingToReadFinishedStream extends OverflowException
 {
     public function __construct()

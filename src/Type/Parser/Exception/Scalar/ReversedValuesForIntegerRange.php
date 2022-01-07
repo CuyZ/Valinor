@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Scalar;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use RuntimeException;
 
+/** @internal */
 final class ReversedValuesForIntegerRange extends RuntimeException implements InvalidType
 {
     public function __construct(int $min, int $max)

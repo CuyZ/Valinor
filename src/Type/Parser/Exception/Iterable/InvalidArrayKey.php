@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use RuntimeException;
 
+/** @internal */
 final class InvalidArrayKey extends RuntimeException implements InvalidType
 {
     /**

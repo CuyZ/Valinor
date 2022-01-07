@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+/** @internal */
 final class RightIntersectionTypeMissing extends RuntimeException implements InvalidType
 {
     public function __construct(Type $type)

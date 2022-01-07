@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class OpeningSquareBracketToken implements LeftTraversingToken
 {
     use IsSingleton;

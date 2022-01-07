@@ -19,6 +19,7 @@ use Exception;
 use function array_values;
 use function is_a;
 
+/** @api */
 final class MethodObjectBuilder implements ObjectBuilder
 {
     private ClassDefinition $class;

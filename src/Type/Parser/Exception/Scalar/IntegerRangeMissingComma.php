@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use RuntimeException;
 
+/** @internal */
 final class IntegerRangeMissingComma extends RuntimeException implements InvalidType
 {
     public function __construct(IntegerValueType $min)

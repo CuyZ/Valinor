@@ -17,6 +17,8 @@ use function is_iterable;
 use function yaml_parse;
 
 /**
+ * @api
+ *
  * @implements IteratorAggregate<mixed>
  */
 final class YamlSource implements IteratorAggregate

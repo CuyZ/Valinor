@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use function array_unshift;
 use function implode;
 
+/** @api */
 final class Shell
 {
     private string $name;

@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function implode;
 
+/** @internal */
 final class ShapedArrayClosingBracketMissing extends RuntimeException implements InvalidType
 {
     /**

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Visitor;
 
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
+/** @internal */
 final class AttributeShellVisitor implements ShellVisitor
 {
     public function visit(Shell $shell): Shell

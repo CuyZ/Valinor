@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 use CuyZ\Valinor\Type\Type;
 use LogicException;
 
+/** @api */
 final class InvalidClassString extends LogicException implements CastError
 {
     public function __construct(string $raw, Type $type)

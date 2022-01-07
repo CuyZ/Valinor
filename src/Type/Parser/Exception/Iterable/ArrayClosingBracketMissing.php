@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use RuntimeException;
 
+/** @internal */
 final class ArrayClosingBracketMissing extends RuntimeException implements InvalidType
 {
     /**

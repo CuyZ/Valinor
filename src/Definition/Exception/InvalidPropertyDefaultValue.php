@@ -9,6 +9,7 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use LogicException;
 use ReflectionProperty;
 
+/** @internal */
 final class InvalidPropertyDefaultValue extends LogicException
 {
     public function __construct(ReflectionProperty $reflection, Type $type)

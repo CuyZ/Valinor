@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\ScalarType;
 
 use function assert;
 
+/** @internal */
 final class ScalarNodeBuilder implements NodeBuilder
 {
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node

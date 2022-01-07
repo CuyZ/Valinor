@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use RuntimeException;
 
+/** @api */
 final class InvalidIntegerRangeValue extends RuntimeException implements CastError
 {
     public function __construct(int $value, IntegerRangeType $type)

@@ -66,6 +66,8 @@ use function is_callable;
  *
  * $content = $formatter->format($message);
  * ```
+ *
+ * @api
  */
 final class MessageMapFormatter implements MessageFormatter
 {

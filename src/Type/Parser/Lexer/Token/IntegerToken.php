@@ -17,6 +17,7 @@ use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class IntegerToken implements TraversingToken
 {
     use IsSingleton;

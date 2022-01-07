@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\UnknownSymbol;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 
+/** @internal */
 final class UnknownSymbolToken implements TraversingToken
 {
     private string $symbol;

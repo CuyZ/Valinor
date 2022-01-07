@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
+/** @internal */
 final class InvalidShapeElementType extends RuntimeException implements InvalidType
 {
     public function __construct(ShapedArrayElement $element)

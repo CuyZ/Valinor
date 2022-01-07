@@ -2,6 +2,7 @@
 
 namespace CuyZ\Valinor\Type;
 
+/** @api */
 interface FixedType extends Type
 {
     /**

@@ -10,6 +10,7 @@ use Stringable;
 use function implode;
 use function ltrim;
 
+/** @api */
 final class ClassSignature implements Stringable
 {
     /** @var class-string */

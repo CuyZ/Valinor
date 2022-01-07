@@ -14,6 +14,8 @@ use Traversable;
 use function strtolower;
 
 /**
+ * @api
+ *
  * @implements IteratorAggregate<mixed>
  */
 final class FileSource implements IteratorAggregate, IdentifiableSource

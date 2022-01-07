@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function count;
 
+/** @internal */
 final class TooManyObjectBuilderFactoryAttributes extends RuntimeException
 {
     /**

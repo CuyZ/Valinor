@@ -13,6 +13,7 @@ use DateTimeInterface;
 
 use function is_a;
 
+/** @internal */
 final class BasicObjectBuilderFactory implements ObjectBuilderFactory
 {
     public function for(ClassDefinition $class): ObjectBuilder

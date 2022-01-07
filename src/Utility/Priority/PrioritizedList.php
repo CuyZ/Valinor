@@ -8,6 +8,8 @@ use IteratorAggregate;
 use Traversable;
 
 /**
+ * @api
+ *
  * @template T of object
  * @implements IteratorAggregate<T>
  */

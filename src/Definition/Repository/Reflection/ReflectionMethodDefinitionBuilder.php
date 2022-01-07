@@ -13,6 +13,7 @@ use ReflectionParameter;
 
 use function array_map;
 
+/** @internal */
 final class ReflectionMethodDefinitionBuilder
 {
     private ReflectionParameterDefinitionBuilder $parameterBuilder;

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\GenericClassNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 
+/** @internal */
 final class ClassGenericLexer implements TypeLexer
 {
     private TypeLexer $delegate;

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use RuntimeException;
 
+/** @internal */
 final class DuplicatedNodeChild extends RuntimeException
 {
     public function __construct(string $name)

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\NoCasterForType;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
+/** @internal */
 final class CasterNodeBuilder implements NodeBuilder
 {
     /** @var array<class-string, NodeBuilder> */

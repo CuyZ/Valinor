@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\MissingPropertyArgument;
 
 use function array_key_exists;
 
+/** @api */
 final class ReflectionObjectBuilder implements ObjectBuilder
 {
     private ClassDefinition $class;

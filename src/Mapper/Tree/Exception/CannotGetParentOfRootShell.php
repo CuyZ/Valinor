@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use RuntimeException;
 
+/** @internal */
 final class CannotGetParentOfRootShell extends RuntimeException
 {
     public function __construct()

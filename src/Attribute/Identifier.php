@@ -27,6 +27,8 @@ use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
  * ];
  * ```
  *
+ * @api
+ *
  * @Annotation
  * @Target({"PROPERTY"})
  */

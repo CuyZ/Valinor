@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
+/** @internal */
 final class UnionNullNarrower implements UnionNarrower
 {
     private UnionNarrower $delegate;

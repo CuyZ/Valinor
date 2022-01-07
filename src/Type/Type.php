@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type;
 
 use Stringable;
 
+/** @api */
 interface Type extends Stringable
 {
     /**

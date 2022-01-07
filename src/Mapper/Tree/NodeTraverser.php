@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree;
 
 /**
+ * @api
+ *
  * @template T
  */
 final class NodeTraverser

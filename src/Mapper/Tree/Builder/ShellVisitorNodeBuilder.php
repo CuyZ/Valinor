@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 
+/** @internal */
 final class ShellVisitorNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;

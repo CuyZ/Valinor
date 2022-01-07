@@ -10,6 +10,7 @@ use LogicException;
 
 use function get_class;
 
+/** @internal */
 final class WrongTokenType extends LogicException
 {
     public function __construct(Token $token)

@@ -10,6 +10,8 @@ namespace CuyZ\Valinor\Utility\Priority;
  *
  * The higher the priority is for a given object, the more chance it has to
  * be used first.
+ *
+ * @api
  */
 interface HasPriority
 {

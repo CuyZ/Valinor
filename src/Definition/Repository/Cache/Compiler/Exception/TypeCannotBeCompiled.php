@@ -9,6 +9,7 @@ use LogicException;
 
 use function get_class;
 
+/** @internal */
 final class TypeCannotBeCompiled extends LogicException
 {
     public function __construct(Type $type)

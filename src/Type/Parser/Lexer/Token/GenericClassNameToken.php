@@ -32,6 +32,7 @@ use function array_shift;
 use function array_slice;
 use function count;
 
+/** @internal */
 final class GenericClassNameToken implements TraversingToken
 {
     /** @var class-string */

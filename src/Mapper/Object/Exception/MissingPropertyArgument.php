@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use RuntimeException;
 
+/** @api */
 final class MissingPropertyArgument extends RuntimeException implements Message
 {
     public function __construct(PropertyDefinition $property)

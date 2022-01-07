@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class IterableToken implements TraversingToken
 {
     use IsSingleton;

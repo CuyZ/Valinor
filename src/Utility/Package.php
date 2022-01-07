@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Utility;
 
 use Composer\InstalledVersions;
 
+/** @internal */
 final class Package
 {
     private static string $version;

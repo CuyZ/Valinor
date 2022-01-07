@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
+/** @api */
 final class ClassDefinition
 {
     /** @var class-string */

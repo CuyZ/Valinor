@@ -6,6 +6,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidTemplate;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 
+/** @internal */
 interface TemplateParser
 {
     /**

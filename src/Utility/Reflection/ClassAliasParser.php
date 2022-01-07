@@ -13,6 +13,7 @@ use function explode;
 use function implode;
 use function strtolower;
 
+/** @internal */
 final class ClassAliasParser
 {
     use IsSingleton;

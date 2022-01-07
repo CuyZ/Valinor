@@ -40,6 +40,7 @@ use function get_class;
 use function implode;
 use function var_export;
 
+/** @internal */
 final class TypeCompiler
 {
     public function compile(Type $type): string

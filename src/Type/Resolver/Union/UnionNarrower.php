@@ -5,6 +5,7 @@ namespace CuyZ\Valinor\Type\Resolver\Union;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnionType;
 
+/** @internal */
 interface UnionNarrower
 {
     /**

@@ -12,6 +12,7 @@ use function array_fill;
 use function count;
 use function implode;
 
+/** @internal */
 final class MissingGenerics extends RuntimeException implements InvalidType
 {
     /**

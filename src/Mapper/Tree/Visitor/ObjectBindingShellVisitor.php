@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Visitor;
 
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
+/** @internal */
 final class ObjectBindingShellVisitor implements ShellVisitor
 {
     /** @var array<string, callable(mixed): object> */

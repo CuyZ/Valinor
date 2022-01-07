@@ -14,6 +14,7 @@ use Stringable;
 use function is_numeric;
 use function is_string;
 
+/** @api */
 final class NonEmptyStringType implements StringType
 {
     use IsSingleton;

@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function is_array;
 
+/** @api */
 final class ArrayType implements CompositeTraversableType
 {
     private static self $native;

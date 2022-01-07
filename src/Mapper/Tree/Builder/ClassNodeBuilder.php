@@ -20,6 +20,7 @@ use function is_array;
 use function is_iterable;
 use function iterator_to_array;
 
+/** @internal */
 final class ClassNodeBuilder implements NodeBuilder
 {
     private ClassDefinitionRepository $classDefinitionRepository;

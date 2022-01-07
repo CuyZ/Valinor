@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Definition;
 use CuyZ\Valinor\Utility\IsSingleton;
 use Traversable;
 
+/** @internal */
 final class EmptyAttributes implements Attributes
 {
     use IsSingleton;

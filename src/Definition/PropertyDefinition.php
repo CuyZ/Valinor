@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition;
 
 use CuyZ\Valinor\Type\Type;
 
+/** @api */
 final class PropertyDefinition
 {
     private string $name;

@@ -12,6 +12,7 @@ use UnitEnum;
 
 use function in_array;
 
+/** @api */
 final class EnumType implements ObjectType
 {
     private ClassSignature $signature;

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 
 use function count;
 
+/** @internal */
 final class AttributeObjectBuilderFactory implements ObjectBuilderFactory
 {
     private ObjectBuilderFactory $delegate;

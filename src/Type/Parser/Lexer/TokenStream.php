@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
 use CuyZ\Valinor\Type\Type;
 
+/** @internal */
 final class TokenStream
 {
     /** @var Token[] */

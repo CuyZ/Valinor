@@ -14,6 +14,7 @@ use function array_key_exists;
 use function assert;
 use function is_array;
 
+/** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node

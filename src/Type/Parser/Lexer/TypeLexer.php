@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 
+/** @internal */
 interface TypeLexer
 {
     public function tokenize(string $symbol): Token;

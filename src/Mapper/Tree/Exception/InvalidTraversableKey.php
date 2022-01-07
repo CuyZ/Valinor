@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use RuntimeException;
 
+/** @api */
 final class InvalidTraversableKey extends RuntimeException implements Message
 {
     /**

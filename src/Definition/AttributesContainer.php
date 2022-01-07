@@ -9,6 +9,7 @@ use Traversable;
 use function array_filter;
 use function count;
 
+/** @internal */
 final class AttributesContainer implements Attributes
 {
     /** @var array<object> */

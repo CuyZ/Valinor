@@ -18,6 +18,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use function assert;
 use function is_iterable;
 
+/** @internal */
 final class ArrayNodeBuilder implements NodeBuilder
 {
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node

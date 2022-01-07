@@ -25,6 +25,7 @@ use function preg_match_all;
 use function preg_replace;
 use function trim;
 
+/** @internal */
 final class Reflection
 {
     /** @var array<ReflectionClass<object>> */
