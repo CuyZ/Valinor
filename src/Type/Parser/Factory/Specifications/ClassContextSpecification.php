@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Factory\Specifications;
 
+/** @internal */
 final class ClassContextSpecification
 {
     /** @var class-string */

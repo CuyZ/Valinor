@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use RuntimeException;
 
+/** @internal */
 final class MethodNotFound extends RuntimeException
 {
     public function __construct(ClassDefinition $class, string $methodName)

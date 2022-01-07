@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use function preg_match_all;
 use function trim;
 
+/** @internal */
 final class BasicTemplateParser implements TemplateParser
 {
     public function templates(string $source, TypeParser $typeParser): array

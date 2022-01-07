@@ -16,6 +16,7 @@ use function interface_exists;
 use function is_string;
 use function is_subclass_of;
 
+/** @api */
 final class ClassStringType implements StringType
 {
     private ?ObjectType $subType;

@@ -12,6 +12,8 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 /**
+ * @api
+ *
  * @Annotation
  * @NamedArgumentConstructor
  * @Target({"CLASS"})

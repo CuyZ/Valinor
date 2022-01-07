@@ -23,6 +23,7 @@ use function is_int;
 use function is_null;
 use function is_string;
 
+/** @internal */
 final class DateTimeObjectBuilder implements ObjectBuilder
 {
     public const DATE_MYSQL = 'Y-m-d H:i:s';

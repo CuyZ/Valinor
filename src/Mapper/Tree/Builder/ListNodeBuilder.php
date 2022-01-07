@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use function assert;
 use function is_iterable;
 
+/** @internal */
 final class ListNodeBuilder implements NodeBuilder
 {
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node

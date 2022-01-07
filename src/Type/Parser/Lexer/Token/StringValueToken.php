@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\StringValueType;
 
+/** @internal */
 final class StringValueToken implements TraversingToken
 {
     private StringValueType $type;

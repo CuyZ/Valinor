@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser;
 
 use CuyZ\Valinor\Type\Type;
 
+/** @internal */
 final class CachedParser implements TypeParser
 {
     private TypeParser $delegate;

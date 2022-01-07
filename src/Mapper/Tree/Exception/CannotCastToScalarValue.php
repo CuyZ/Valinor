@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\ScalarType;
 use RuntimeException;
 
+/** @api */
 final class CannotCastToScalarValue extends RuntimeException implements Message
 {
     /**

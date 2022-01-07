@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+/** @internal */
 final class NoCasterForType extends RuntimeException
 {
     public function __construct(Type $type)

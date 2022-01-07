@@ -19,6 +19,7 @@ use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 
 use function strtolower;
 
+/** @internal */
 final class NativeToken implements TraversingToken
 {
     /** @var array<string, self> */

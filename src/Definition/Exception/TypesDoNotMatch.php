@@ -12,6 +12,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use Reflector;
 
+/** @internal */
 final class TypesDoNotMatch extends LogicException
 {
     /**

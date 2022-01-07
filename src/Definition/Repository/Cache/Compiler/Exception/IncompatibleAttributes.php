@@ -9,6 +9,7 @@ use LogicException;
 
 use function get_class;
 
+/** @internal */
 final class IncompatibleAttributes extends LogicException
 {
     public function __construct(Attributes $attributes)

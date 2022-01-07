@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidShapeElementType;
 use CuyZ\Valinor\Type\Type;
 use Stringable;
 
+/** @api */
 final class ShapedArrayElement implements Stringable
 {
     /** @var StringValueType|IntegerValueType */

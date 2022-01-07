@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TypeToken;
 use CuyZ\Valinor\Type\Type;
 
+/** @internal */
 final class TypeAliasLexer implements TypeLexer
 {
     private TypeLexer $delegate;

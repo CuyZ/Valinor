@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use RuntimeException;
 
+/** @api */
 final class MissingMethodArgument extends RuntimeException implements Message
 {
     public function __construct(ParameterDefinition $parameter)

@@ -11,6 +11,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
+/** @internal */
 final class TreeMapperContainer implements TreeMapper
 {
     private TypeParser $typeParser;

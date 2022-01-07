@@ -13,6 +13,7 @@ use Stringable;
 use function is_numeric;
 use function is_string;
 
+/** @api */
 final class NativeStringType implements StringType
 {
     use IsSingleton;

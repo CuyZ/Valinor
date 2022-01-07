@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Mapper\Source\Exception;
 use RuntimeException;
 
 /**
+ * @internal
+ *
  * @codeCoverageIgnore
  * @infection-ignore-all
  */

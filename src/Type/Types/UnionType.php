@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
 use function implode;
 
+/** @api */
 final class UnionType implements CombiningType
 {
     /** @var Type[] */

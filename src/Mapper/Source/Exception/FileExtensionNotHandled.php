@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Source\Exception;
 
 use RuntimeException;
 
+/** @internal */
 final class FileExtensionNotHandled extends RuntimeException implements SourceException
 {
     public function __construct(string $extension)

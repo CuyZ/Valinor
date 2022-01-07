@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
+/** @internal */
 final class ErrorCatcherNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;

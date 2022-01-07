@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Definition\Exception;
 use CuyZ\Valinor\Definition\ClassSignature;
 use LogicException;
 
+/** @internal */
 final class InvalidTypeAliasImportClass extends LogicException
 {
     /**

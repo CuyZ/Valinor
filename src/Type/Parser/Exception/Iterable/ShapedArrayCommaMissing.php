@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function implode;
 
+/** @internal */
 final class ShapedArrayCommaMissing extends RuntimeException implements InvalidType
 {
     /**

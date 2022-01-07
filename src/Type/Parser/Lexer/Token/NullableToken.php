@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class NullableToken implements TraversingToken
 {
     use IsSingleton;

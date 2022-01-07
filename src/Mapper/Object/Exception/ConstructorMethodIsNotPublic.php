@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use LogicException;
 
+/** @internal */
 final class ConstructorMethodIsNotPublic extends LogicException
 {
     public function __construct(MethodDefinition $method)

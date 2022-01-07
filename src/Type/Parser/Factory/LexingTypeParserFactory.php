@@ -22,6 +22,7 @@ use LogicException;
 
 use function get_class;
 
+/** @internal */
 final class LexingTypeParserFactory implements TypeParserFactory
 {
     private TemplateParser $templateParser;

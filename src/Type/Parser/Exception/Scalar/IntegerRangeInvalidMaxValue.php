@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use RuntimeException;
 
+/** @internal */
 final class IntegerRangeInvalidMaxValue extends RuntimeException implements InvalidType
 {
     public function __construct(IntegerValueType $min, Type $type)

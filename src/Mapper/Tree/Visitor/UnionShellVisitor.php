@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Resolver\Union\UnionNarrower;
 use CuyZ\Valinor\Type\Types\UnionType;
 
+/** @internal */
 final class UnionShellVisitor implements ShellVisitor
 {
     private UnionNarrower $unionNarrower;

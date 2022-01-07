@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Type\Type;
 use LogicException;
 
+/** @api */
 final class UnresolvableType extends LogicException implements Type
 {
     public function __construct(string $message)

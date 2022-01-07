@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception;
 
 use RuntimeException;
 
+/** @internal */
 final class UnknownSymbol extends RuntimeException implements InvalidType
 {
     public function __construct(string $symbol)

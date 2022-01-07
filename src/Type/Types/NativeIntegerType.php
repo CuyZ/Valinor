@@ -13,6 +13,7 @@ use function filter_var;
 use function is_bool;
 use function is_int;
 
+/** @api */
 final class NativeIntegerType implements IntegerType
 {
     use IsSingleton;

@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use LogicException;
 
+/** @internal */
 final class CannotGetInvalidNodeValue extends LogicException
 {
     public function __construct(Node $node)

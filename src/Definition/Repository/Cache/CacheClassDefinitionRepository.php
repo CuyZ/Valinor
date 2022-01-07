@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use Psr\SimpleCache\CacheInterface;
 
+/** @internal */
 final class CacheClassDefinitionRepository implements ClassDefinitionRepository
 {
     private ClassDefinitionRepository $delegate;

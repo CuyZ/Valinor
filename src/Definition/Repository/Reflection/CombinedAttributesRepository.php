@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\CombinedAttributes;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use Reflector;
 
+/** @internal */
 final class CombinedAttributesRepository implements AttributesRepository
 {
     private DoctrineAnnotationsRepository $doctrineAnnotationsFactory;

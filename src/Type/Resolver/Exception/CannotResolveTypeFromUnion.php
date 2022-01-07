@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function get_debug_type;
 
+/** @api */
 final class CannotResolveTypeFromUnion extends RuntimeException implements Message
 {
     /**

@@ -11,6 +11,7 @@ use Throwable;
 
 use function sprintf;
 
+/** @api */
 final class NodeMessage implements Message, HasCode
 {
     private Node $node;

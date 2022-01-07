@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use RuntimeException;
 
+/** @api */
 final class MappingError extends RuntimeException
 {
     private Node $node;

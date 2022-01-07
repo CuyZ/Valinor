@@ -8,6 +8,7 @@ use LogicException;
 
 use function implode;
 
+/** @internal */
 final class ClassTypeAliasesDuplication extends LogicException
 {
     /**

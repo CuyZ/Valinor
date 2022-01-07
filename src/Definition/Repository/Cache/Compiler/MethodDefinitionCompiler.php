@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\ParameterDefinition;
 
 use function var_export;
 
+/** @internal */
 final class MethodDefinitionCompiler
 {
     private TypeCompiler $typeCompiler;

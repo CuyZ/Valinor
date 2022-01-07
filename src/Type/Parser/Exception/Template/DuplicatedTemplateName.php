@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Template;
 
 use LogicException;
 
+/** @internal */
 final class DuplicatedTemplateName extends LogicException implements InvalidTemplate
 {
     public function __construct(string $template)

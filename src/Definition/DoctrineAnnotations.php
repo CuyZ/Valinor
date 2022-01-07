@@ -13,6 +13,7 @@ use ReflectionProperty;
 use Reflector;
 use Traversable;
 
+/** @internal */
 final class DoctrineAnnotations implements Attributes
 {
     private AttributesContainer $delegate;

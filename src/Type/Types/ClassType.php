@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function is_subclass_of;
 
+/** @api */
 final class ClassType implements ObjectType
 {
     private ClassSignature $signature;

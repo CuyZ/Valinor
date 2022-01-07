@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class IntersectionToken implements LeftTraversingToken
 {
     use IsSingleton;

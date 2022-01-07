@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Resolver\Exception;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+/** @internal */
 final class InvalidTypeResolvedForInterface extends RuntimeException
 {
     public function __construct(string $interfaceName, Type $wrongType)

@@ -8,6 +8,7 @@ use RuntimeException;
 
 use function get_debug_type;
 
+/** @internal */
 final class InvalidInterfaceResolverReturnType extends RuntimeException
 {
     /**

@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use UnitEnum;
 
+/** @internal */
 final class EnumNameToken implements TraversingToken
 {
     /** @var class-string<UnitEnum> */

@@ -17,6 +17,7 @@ use function filemtime;
 use function implode;
 use function iterator_to_array;
 
+/** @internal */
 final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCompiler
 {
     private AttributesCompiler $attributesCompiler;

@@ -2,6 +2,9 @@ includes:
     - qa/PHPStan/valinor-phpstan-configuration.php
     - vendor/phpstan/phpstan-strict-rules/rules.neon
 
+rules:
+    - CuyZ\Valinor\QA\PHPStan\Extension\ApiAndInternalAnnotationCheck
+
 parameters:
     level: max
     paths:

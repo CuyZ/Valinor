@@ -10,6 +10,7 @@ use CuyZ\Valinor\Utility\IsSingleton;
 
 use function is_object;
 
+/** @api */
 final class UndefinedObjectType implements Type
 {
     use IsSingleton;

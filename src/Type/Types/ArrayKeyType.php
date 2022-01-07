@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 
 use function is_int;
 
+/** @api */
 final class ArrayKeyType implements ScalarType
 {
     private static self $integer;

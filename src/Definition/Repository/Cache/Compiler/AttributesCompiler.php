@@ -20,6 +20,7 @@ use function count;
 use function implode;
 use function var_export;
 
+/** @internal */
 final class AttributesCompiler
 {
     public function compile(Attributes $attributes): string

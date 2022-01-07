@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\PropertyDefinition;
 
+/** @internal */
 final class PropertyDefinitionCompiler
 {
     private TypeCompiler $typeCompiler;

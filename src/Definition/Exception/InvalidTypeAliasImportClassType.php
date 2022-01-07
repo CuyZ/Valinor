@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Type\Type;
 use LogicException;
 
+/** @internal */
 final class InvalidTypeAliasImportClassType extends LogicException
 {
     public function __construct(ClassSignature $signature, Type $type)

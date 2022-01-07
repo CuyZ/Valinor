@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Template;
 
 use LogicException;
 
+/** @internal */
 final class InvalidClassTemplate extends LogicException implements InvalidTemplate
 {
     /**

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 
 use RuntimeException;
 
+/** @api */
 final class InvalidEmptyStringValue extends RuntimeException implements CastError
 {
     public function __construct()

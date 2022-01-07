@@ -32,6 +32,7 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 
+/** @internal */
 final class ReflectionClassDefinitionRepository implements ClassDefinitionRepository
 {
     private AttributesRepository $attributesFactory;

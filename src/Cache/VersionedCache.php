@@ -9,6 +9,8 @@ use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
 /**
+ * @internal
+ *
  * @template EntryType
  * @implements CacheInterface<EntryType>
  */

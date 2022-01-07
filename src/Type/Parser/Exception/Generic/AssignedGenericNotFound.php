@@ -9,6 +9,7 @@ use RuntimeException;
 
 use function implode;
 
+/** @internal */
 final class AssignedGenericNotFound extends RuntimeException implements InvalidType
 {
     public function __construct(string $className, string ...$templates)

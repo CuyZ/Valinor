@@ -13,6 +13,7 @@ use Reflector;
 use function get_class;
 use function implode;
 
+/** @internal */
 final class InvalidReflectionParameter extends LogicException
 {
     public function __construct(Reflector $reflector)

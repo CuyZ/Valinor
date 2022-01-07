@@ -12,6 +12,7 @@ use ReflectionClass;
 use function class_exists;
 use function interface_exists;
 
+/** @internal */
 final class ClassAliasLexer implements TypeLexer
 {
     private TypeLexer $delegate;

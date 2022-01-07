@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 
+/** @internal */
 final class ClassContextLexer implements TypeLexer
 {
     private TypeLexer $delegate;

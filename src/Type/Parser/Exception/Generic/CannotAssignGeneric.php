@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function implode;
 
+/** @internal */
 final class CannotAssignGeneric extends RuntimeException implements InvalidType
 {
     public function __construct(string $className, Type ...$generics)

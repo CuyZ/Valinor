@@ -28,6 +28,8 @@ use function uniqid;
 use function unlink;
 
 /**
+ * @internal
+ *
  * @template EntryType
  * @implements CacheInterface<EntryType>
  */

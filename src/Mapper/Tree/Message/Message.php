@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 
 use Stringable;
 
+/** @api */
 interface Message extends Stringable
 {
 }

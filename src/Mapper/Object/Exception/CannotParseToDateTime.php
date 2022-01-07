@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use DateTimeInterface;
 use RuntimeException;
 
+/** @api */
 final class CannotParseToDateTime extends RuntimeException implements Message
 {
     /**

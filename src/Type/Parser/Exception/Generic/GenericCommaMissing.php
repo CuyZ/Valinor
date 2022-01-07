@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function implode;
 
+/** @internal */
 final class GenericCommaMissing extends RuntimeException implements InvalidType
 {
     /**

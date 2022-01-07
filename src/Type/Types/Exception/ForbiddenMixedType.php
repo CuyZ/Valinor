@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use LogicException;
 
+/** @internal */
 final class ForbiddenMixedType extends LogicException implements InvalidType
 {
     public function __construct()

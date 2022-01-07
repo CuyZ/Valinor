@@ -14,6 +14,7 @@ use function implode;
 use function is_bool;
 use function is_scalar;
 
+/** @api */
 final class InvalidEnumValue extends RuntimeException implements Message
 {
     /**

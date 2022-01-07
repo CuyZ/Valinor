@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use RuntimeException;
 
+/** @internal */
 final class ListClosingBracketMissing extends RuntimeException implements InvalidType
 {
     /**

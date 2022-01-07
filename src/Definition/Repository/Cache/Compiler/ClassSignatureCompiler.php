@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ClassSignature;
 
+/** @internal */
 final class ClassSignatureCompiler
 {
     private TypeCompiler $typeCompiler;

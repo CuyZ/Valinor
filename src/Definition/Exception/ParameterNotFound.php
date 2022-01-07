@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition\Exception;
 
 use LogicException;
 
+/** @internal */
 final class ParameterNotFound extends LogicException
 {
     public function __construct(string $parameter)

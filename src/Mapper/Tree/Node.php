@@ -13,6 +13,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Type\Type;
 use Throwable;
 
+/** @api */
 final class Node
 {
     private Shell $shell;

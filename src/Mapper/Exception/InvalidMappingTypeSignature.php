@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Exception;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use RuntimeException;
 
+/** @internal */
 final class InvalidMappingTypeSignature extends RuntimeException
 {
     public function __construct(string $raw, InvalidType $exception)

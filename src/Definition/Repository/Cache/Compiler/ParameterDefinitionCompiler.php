@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
+/** @internal */
 final class ParameterDefinitionCompiler
 {
     private TypeCompiler $typeCompiler;

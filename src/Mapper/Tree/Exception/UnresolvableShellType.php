@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use RuntimeException;
 
+/** @internal */
 final class UnresolvableShellType extends RuntimeException
 {
     public function __construct(UnresolvableType $type)

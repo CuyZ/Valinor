@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 
+/** @internal */
 final class ListToken implements TraversingToken
 {
     /** @var class-string<ListType|NonEmptyListType> */

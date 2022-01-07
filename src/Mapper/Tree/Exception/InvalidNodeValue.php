@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+/** @api */
 final class InvalidNodeValue extends RuntimeException implements Message
 {
     /**

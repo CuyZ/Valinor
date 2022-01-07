@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValueType;
 use function filter_var;
 use function is_bool;
 
+/** @api */
 final class IntegerValueType implements IntegerType, FixedType
 {
     private int $value;

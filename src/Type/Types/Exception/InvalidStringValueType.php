@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 
 use RuntimeException;
 
+/** @api */
 final class InvalidStringValueType extends RuntimeException implements CastError
 {
     /**

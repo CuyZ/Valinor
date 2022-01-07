@@ -17,6 +17,7 @@ use DateTimeInterface;
 
 use function is_string;
 
+/** @internal */
 final class InterfaceShellVisitor implements ShellVisitor
 {
     /** @var array<class-string, callable(Shell): class-string> */

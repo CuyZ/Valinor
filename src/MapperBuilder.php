@@ -12,6 +12,7 @@ use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use LogicException;
 
+/** @api */
 final class MapperBuilder
 {
     private Settings $settings;

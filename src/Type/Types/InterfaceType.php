@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function is_subclass_of;
 
+/** @api */
 final class InterfaceType implements ObjectType
 {
     private ClassSignature $signature;

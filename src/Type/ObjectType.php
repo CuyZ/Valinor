@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type;
 
 use CuyZ\Valinor\Definition\ClassSignature;
 
+/** @api */
 interface ObjectType extends Type
 {
     public function signature(): ClassSignature;

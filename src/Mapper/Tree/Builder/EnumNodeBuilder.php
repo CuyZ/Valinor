@@ -18,6 +18,7 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 
+/** @internal */
 final class EnumNodeBuilder implements NodeBuilder
 {
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node

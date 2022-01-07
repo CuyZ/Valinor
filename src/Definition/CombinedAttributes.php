@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition;
 
 use Traversable;
 
+/** @internal */
 final class CombinedAttributes implements Attributes
 {
     private DoctrineAnnotations $doctrineAnnotations;

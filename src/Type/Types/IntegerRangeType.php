@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerRangeValue;
 
 use function sprintf;
 
+/** @api */
 final class IntegerRangeType implements IntegerType
 {
     private int $min;

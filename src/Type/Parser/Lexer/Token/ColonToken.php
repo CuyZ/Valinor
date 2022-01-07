@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Utility\IsSingleton;
 
+/** @internal */
 final class ColonToken implements Token
 {
     use IsSingleton;

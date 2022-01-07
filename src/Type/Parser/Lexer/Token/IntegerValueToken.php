@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 
+/** @internal */
 final class IntegerValueToken implements TraversingToken
 {
     private int $value;

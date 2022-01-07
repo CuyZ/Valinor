@@ -16,6 +16,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use Reflector;
 
+/** @internal */
 final class ReflectionTypeResolver
 {
     private TypeParser $nativeParser;

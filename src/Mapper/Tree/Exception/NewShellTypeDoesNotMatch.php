@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+/** @internal */
 final class NewShellTypeDoesNotMatch extends RuntimeException
 {
     public function __construct(Shell $shell, Type $newType)

@@ -30,6 +30,8 @@ use function array_filter;
  * }
  * ```
  *
+ * @api
+ *
  * @implements IteratorAggregate<NodeMessage>
  */
 final class MessagesFlattener implements IteratorAggregate

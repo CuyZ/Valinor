@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\UnionType;
 
 use function count;
 
+/** @internal */
 final class UnionScalarNarrower implements UnionNarrower
 {
     /**

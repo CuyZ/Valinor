@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function implode;
 
+/** @api */
 final class IntersectionType implements CombiningType
 {
     /** @var ObjectType[] */

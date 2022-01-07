@@ -13,6 +13,7 @@ use function array_map;
 use function preg_split;
 use function str_starts_with;
 
+/** @internal */
 final class LexingParser implements TypeParser
 {
     private TypeLexer $lexer;

@@ -10,6 +10,8 @@ use IteratorAggregate;
 use Traversable;
 
 /**
+ * @api
+ *
  * @implements IteratorAggregate<string, PropertyDefinition>
  */
 final class Properties implements IteratorAggregate, Countable

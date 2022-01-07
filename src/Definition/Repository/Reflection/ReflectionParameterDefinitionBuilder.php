@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionParameter;
 
+/** @internal */
 final class ReflectionParameterDefinitionBuilder
 {
     private AttributesRepository $attributesFactory;

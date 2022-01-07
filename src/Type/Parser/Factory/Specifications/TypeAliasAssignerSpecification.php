@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Factory\Specifications;
 
 use CuyZ\Valinor\Type\Type;
 
+/** @internal */
 final class TypeAliasAssignerSpecification
 {
     /** @var array<string, Type> */

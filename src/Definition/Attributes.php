@@ -8,6 +8,8 @@ use Countable;
 use IteratorAggregate;
 
 /**
+ * @api
+ *
  * @extends IteratorAggregate<object>
  */
 interface Attributes extends IteratorAggregate, Countable

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Cache\Exception;
 
 use RuntimeException;
 
+/** @internal */
 final class CorruptedCompiledPhpCacheFile extends RuntimeException
 {
     public function __construct(string $filename)

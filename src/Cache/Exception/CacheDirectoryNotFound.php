@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Cache\Exception;
 use RuntimeException;
 
 /**
+ * @internal
+ *
  * @codeCoverageIgnore
  * @infection-ignore-all
  */

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
+/** @internal */
 final class ClassNameToken implements TraversingToken
 {
     /** @var class-string */
