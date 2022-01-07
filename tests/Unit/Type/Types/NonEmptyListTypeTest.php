@@ -60,7 +60,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $type = FakeType::thatWillAccept('Some value');
+        $type = FakeType::accepting('Some value');
 
         self::assertTrue((new NonEmptyListType($type))->accepts([
             'Some value',
@@ -91,7 +91,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_matches_valid_list_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listOfTypeA = new NonEmptyListType($typeA);
         $listOfTypeB = new ListType($typeB);
@@ -112,7 +112,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_matches_valid_non_empty_list_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listOfTypeA = new NonEmptyListType($typeA);
         $listOfTypeB = new NonEmptyListType($typeB);
@@ -133,7 +133,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_matches_valid_array_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listType = new NonEmptyListType($typeA);
         $arrayType = new ArrayType(ArrayKeyType::integer(), $typeB);
@@ -156,7 +156,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_matches_valid_non_empty_array_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listType = new NonEmptyListType($typeA);
         $arrayType = new NonEmptyArrayType(ArrayKeyType::integer(), $typeB);
@@ -179,7 +179,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_matches_valid_iterable_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $listType = new NonEmptyListType($typeA);
         $iterableType = new IterableType(ArrayKeyType::integer(), $typeB);

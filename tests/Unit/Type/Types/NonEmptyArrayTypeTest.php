@@ -57,7 +57,7 @@ final class NonEmptyArrayTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $type = FakeType::thatWillAccept('Some value');
+        $type = FakeType::accepting('Some value');
 
         $arrayWithDefaultKey = new NonEmptyArrayType(ArrayKeyType::default(), $type);
         $arrayWithIntegerKey = new NonEmptyArrayType(ArrayKeyType::integer(), $type);
@@ -92,7 +92,7 @@ final class NonEmptyArrayTypeTest extends TestCase
 
     public function test_matches_valid_array_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $arrayOfTypeA = new NonEmptyArrayType(ArrayKeyType::default(), $typeA);
         $arrayOfTypeB = new NonEmptyArrayType(ArrayKeyType::default(), $typeB);

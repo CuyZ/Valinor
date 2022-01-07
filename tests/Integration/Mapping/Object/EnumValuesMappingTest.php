@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Integration\Mapping\Type;
+namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
@@ -34,17 +34,11 @@ final class EnumValuesMappingTest extends IntegrationTest
                 $this->mappingFail($error);
             }
 
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             self::assertSame(PureEnum::FOO, $result->pureEnumWithFirstValue);
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             self::assertSame(PureEnum::BAR, $result->pureEnumWithSecondValue);
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             self::assertSame(BackedStringEnum::FOO, $result->backedStringEnumWithFirstValue);
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             self::assertSame(BackedStringEnum::BAR, $result->backedStringEnumWithSecondValue);
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             self::assertSame(BackedIntegerEnum::FOO, $result->backedIntegerEnumWithFirstValue);
-            // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
             self::assertSame(BackedIntegerEnum::BAR, $result->backedIntegerEnumWithSecondValue);
         }
     }

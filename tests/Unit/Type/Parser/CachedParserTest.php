@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Factory;
+namespace CuyZ\Valinor\Tests\Unit\Type\Parser;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\FakeTypeParser;

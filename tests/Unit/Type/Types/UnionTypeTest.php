@@ -63,9 +63,9 @@ final class UnionTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $typeA = FakeType::thatWillAccept(42.1337);
-        $typeB = FakeType::thatWillAccept('foo');
-        $typeC = FakeType::thatWillAccept($object = new stdClass());
+        $typeA = FakeType::accepting(42.1337);
+        $typeB = FakeType::accepting('foo');
+        $typeC = FakeType::accepting($object = new stdClass());
 
         $unionType = new UnionType($typeA, $typeB, $typeC);
 
@@ -94,7 +94,7 @@ final class UnionTypeTest extends TestCase
     public function test_matches_valid_type(): void
     {
         $typeA = new FakeType();
-        $typeB = FakeType::thatWillMatch($typeC = new FakeType());
+        $typeB = FakeType::matching($typeC = new FakeType());
 
         $unionType = new UnionType($typeA, $typeB);
 

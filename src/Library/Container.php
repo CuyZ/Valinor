@@ -21,7 +21,6 @@ use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\BasicObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\EnumNodeBuilder;
@@ -31,12 +30,13 @@ use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShellVisitorNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AggregateShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
-use CuyZ\Valinor\Mapper\Tree\Visitor\ObjectBindingShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\InterfaceShellVisitor;
+use CuyZ\Valinor\Mapper\Tree\Visitor\ObjectBindingShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\UnionShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -49,6 +49,7 @@ use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Resolver\Union\UnionNullNarrower;
+use CuyZ\Valinor\Type\Resolver\Union\UnionObjectNarrower;
 use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
@@ -91,7 +92,13 @@ final class Container
             ShellVisitor::class => function () use ($settings): ShellVisitor {
                 return new AggregateShellVisitor(
                     new UnionShellVisitor(
-                        new UnionNullNarrower(new UnionScalarNarrower())
+                        new UnionNullNarrower(
+                            new UnionObjectNarrower(
+                                new UnionScalarNarrower(),
+                                $this->get(ClassDefinitionRepository::class),
+                                $this->get(ObjectBuilderFactory::class),
+                            )
+                        )
                     ),
                     new InterfaceShellVisitor(
                         $settings->interfaceMapping,

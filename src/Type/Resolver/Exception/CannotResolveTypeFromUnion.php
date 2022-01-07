@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Resolver\Exception;
 
+use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\UnionType;
 use RuntimeException;
 
 use function get_debug_type;
 
-final class CannotResolveTypeFromUnion extends RuntimeException
+final class CannotResolveTypeFromUnion extends RuntimeException implements Message
 {
     /**
      * @param mixed $value

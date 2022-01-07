@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer;
+namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer\Token;
 
 use AssertionError;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NativeToken;

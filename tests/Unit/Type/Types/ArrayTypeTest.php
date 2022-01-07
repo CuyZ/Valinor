@@ -72,7 +72,7 @@ final class ArrayTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $type = FakeType::thatWillAccept('Some value');
+        $type = FakeType::accepting('Some value');
 
         $arrayWithDefaultKey = new ArrayType(ArrayKeyType::default(), $type);
         $arrayWithIntegerKey = new ArrayType(ArrayKeyType::integer(), $type);
@@ -106,7 +106,7 @@ final class ArrayTypeTest extends TestCase
 
     public function test_matches_valid_array_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $arrayOfTypeA = new ArrayType(ArrayKeyType::default(), $typeA);
         $arrayOfTypeB = new ArrayType(ArrayKeyType::default(), $typeB);
@@ -127,7 +127,7 @@ final class ArrayTypeTest extends TestCase
 
     public function test_matches_valid_iterable_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $arrayType = new ArrayType(ArrayKeyType::default(), $typeA);
         $iterableType = new IterableType(ArrayKeyType::default(), $typeB);

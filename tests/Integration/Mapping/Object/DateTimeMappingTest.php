@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Integration\Mapping\Type;
+namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Object\Exception\CannotParseToDateTime;
+use CuyZ\Valinor\Mapper\Object\DateTimeObjectBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use CuyZ\Valinor\Type\Resolver\Exception\UnionTypeDoesNotAllowNull;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -28,6 +27,8 @@ final class DateTimeMappingTest extends IntegrationTest
             'datetime' => '2012-12-21 13:37:42',
             'format' => 'Y-m-d H:i:s',
         ];
+        $mysqlDate = '2012-12-21 13:37:42';
+        $pgsqlDate = '2012-12-21 13:37:42.123456';
 
         try {
             $result = $this->mapperBuilder->mapper()->map(AllDateTimeValues::class, [
@@ -37,6 +38,9 @@ final class DateTimeMappingTest extends IntegrationTest
                 'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
                 'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
                 'dateTimeFromArray' => $dateTimeFromArray,
+                'mysqlDate' => $mysqlDate,
+                'pgsqlDate' => $pgsqlDate,
+
             ]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
@@ -49,6 +53,8 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithFormat['datetime']}"), $result->dateTimeFromTimestampWithFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $result->dateTimeFromAtomFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $result->pgsqlDate);
     }
 
     public function test_invalid_datetime_throws_exception(): void
@@ -60,11 +66,10 @@ final class DateTimeMappingTest extends IntegrationTest
                     'dateTime' => 'invalid datetime',
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['dateTime'][0];
+            $error = $exception->node()->children()['dateTime']->messages()[0];
 
-            self::assertInstanceOf(CannotParseToDateTime::class, $error);
-            self::assertSame(1630686564, $error->getCode());
-            self::assertSame('Impossible to convert `invalid datetime` to `DateTime`.', $error->getMessage());
+            self::assertSame('1630686564', $error->code());
+            self::assertSame('Impossible to convert `invalid datetime` to `DateTime`.', (string)$error);
         }
     }
 
@@ -80,11 +85,10 @@ final class DateTimeMappingTest extends IntegrationTest
                     ],
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['dateTime'][0];
+            $error = $exception->node()->children()['dateTime']->messages()[0];
 
-            self::assertInstanceOf(CannotParseToDateTime::class, $error);
-            self::assertSame(1630686564, $error->getCode());
-            self::assertSame('Impossible to convert `1337` to `DateTime`.', $error->getMessage());
+            self::assertSame('1630686564', $error->code());
+            self::assertSame('Impossible to convert `1337` to `DateTime`.', (string)$error);
         }
     }
 
@@ -99,9 +103,9 @@ final class DateTimeMappingTest extends IntegrationTest
                     ],
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['dateTime.datetime'][0];
+            $error = $exception->node()->children()['dateTime']->children()['value']->messages()[0];
 
-            self::assertInstanceOf(UnionTypeDoesNotAllowNull::class, $error);
+            self::assertSame('1607027306', $error->code());
         }
     }
 }
@@ -128,4 +132,8 @@ final class AllDateTimeValues
     public DateTimeInterface $dateTimeFromAtomFormat;
 
     public DateTimeInterface $dateTimeFromArray;
+
+    public DateTimeInterface $mysqlDate;
+
+    public DateTimeInterface $pgsqlDate;
 }

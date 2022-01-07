@@ -91,7 +91,8 @@ final class AttributesCompiler
 
         /** @infection-ignore-all */
         if (count($arguments) > 0) {
-            $arguments = var_export($arguments, true);
+            $arguments = serialize($arguments);
+            $arguments = 'unserialize(' . var_export($arguments, true) . ')';
 
             return "new $name(...$arguments)";
         }

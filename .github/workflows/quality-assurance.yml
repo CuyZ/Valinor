@@ -50,15 +50,13 @@ jobs:
           key: phpstan
 
       - name: Install dependencies
-        run: composer update --prefer-dist --no-interaction
+        run: composer install --prefer-dist --no-interaction
 
       - name: Creating var directory
         run: mkdir -p var/cache
 
       - name: Running PHP Coding Standards Fixer
-        run: | # @todo remove PHP_CS_FIXER_IGNORE_ENV when PHP-CS-Fixer supports PHP 8.1
-          export PHP_CS_FIXER_IGNORE_ENV=1
-          php vendor/bin/php-cs-fixer fix --dry-run
+        run: php vendor/bin/php-cs-fixer fix --dry-run
 
       - name: Running PHPStan
         run: php vendor/bin/phpstan

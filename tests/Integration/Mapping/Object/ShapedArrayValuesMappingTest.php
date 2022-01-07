@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Integration\Mapping\Type;
+namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use stdClass;
@@ -25,7 +24,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             ],
             'basicShapedArrayWithIntegerKeys' => [
                 0 => 'fiz',
-                1 => 42.404
+                1 => 42.404,
             ],
             'shapedArrayWithObject' => [
                 'foo' => ['value' => 'bar'],
@@ -69,15 +68,14 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             $this->mapperBuilder->mapper()->map(ShapedArrayValues::class, [
                 'basicShapedArrayWithStringKeys' => [
                     'foo' => new stdClass(),
-                    'bar' => 42
+                    'bar' => 42,
                 ],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->describe()['basicShapedArrayWithStringKeys.foo'][0];
+            $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
 
-            self::assertInstanceOf(CannotCastToScalarValue::class, $error);
-            self::assertSame(1618736242, $error->getCode());
-            self::assertSame('Cannot cast value of type `stdClass` to `string`.', $error->getMessage());
+            self::assertSame('1618736242', $error->code());
+            self::assertSame('Cannot cast value of type `stdClass` to `string`.', (string)$error);
         }
     }
 }

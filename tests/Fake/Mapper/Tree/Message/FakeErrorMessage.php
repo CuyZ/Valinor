@@ -9,8 +9,13 @@ use Exception;
 
 final class FakeErrorMessage extends Exception implements Message
 {
+    public function __construct(string $message = 'some error message')
+    {
+        parent::__construct($message);
+    }
+
     public function __toString(): string
     {
-        return 'some error message';
+        return $this->message;
     }
 }

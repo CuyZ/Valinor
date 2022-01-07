@@ -56,7 +56,7 @@ final class IterableTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $type = FakeType::thatWillAccept('Some value');
+        $type = FakeType::accepting('Some value');
 
         $iterableWithDefaultKey = new IterableType(ArrayKeyType::default(), $type);
         $iterableWithIntegerKey = new IterableType(ArrayKeyType::integer(), $type);
@@ -90,7 +90,7 @@ final class IterableTypeTest extends TestCase
 
     public function test_matches_valid_iterable_type(): void
     {
-        $typeA = FakeType::thatWillMatch($typeB = new FakeType());
+        $typeA = FakeType::matching($typeB = new FakeType());
 
         $iterableOfTypeA = new IterableType(ArrayKeyType::default(), $typeA);
         $iterableOfTypeB = new IterableType(ArrayKeyType::default(), $typeB);

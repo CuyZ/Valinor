@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 
-use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodReturnType;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
-use CuyZ\Valinor\Mapper\Object\Exception\ObjectConstructionError;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
+use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
-use Generator;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuntimeException;
@@ -118,26 +115,6 @@ final class MethodObjectBuilderTest extends TestCase
         new MethodObjectBuilder($class, 'invalidConstructor');
     }
 
-    public function test_invalid_source_type_throws_exception(): void
-    {
-        $object = new class () {
-            public function __construct()
-            {
-            }
-        };
-
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
-        $objectBuilder = new MethodObjectBuilder($class, '__construct');
-
-        $this->expectException(InvalidSourceForObject::class);
-        $this->expectExceptionCode(1632903281);
-        $this->expectExceptionMessage('Invalid source type `string`, it must be an iterable.');
-
-        /** @var Generator<Argument> $arguments */
-        $arguments = $objectBuilder->describeArguments('foo');
-        $arguments->current();
-    }
-
     public function test_missing_arguments_throws_exception(): void
     {
         $object = new class ('foo') {
@@ -164,8 +141,8 @@ final class MethodObjectBuilderTest extends TestCase
         $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithConstructorThatThrowsException::class));
         $objectBuilder = new MethodObjectBuilder($class, '__construct');
 
-        $this->expectException(ObjectConstructionError::class);
-        $this->expectExceptionCode(1630142421);
+        $this->expectException(ThrowableMessage::class);
+        $this->expectExceptionCode(1337);
         $this->expectExceptionMessage('some exception');
 
         $objectBuilder->build([]);
@@ -194,6 +171,6 @@ final class ObjectWithConstructorThatThrowsException
 {
     public function __construct()
     {
-        throw new RuntimeException('some exception');
+        throw new RuntimeException('some exception', 1337);
     }
 }

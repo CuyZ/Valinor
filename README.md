@@ -113,20 +113,53 @@ public function getThread(int $id): Thread
     $rawJson = $this->client->request("https://example.com/thread/$id");
 
     try {   
-       return (new \CuyZ\Valinor\MapperBuilder())
-           ->mapper()
-           ->map(
-               Thread::class,
-               new \CuyZ\Valinor\Mapper\Source\JsonSource($rawJson)
-           );
-   } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-       $this->logger->error(
-           'Invalid JSON returned by API', 
-           $error->describe() // This gives more information about what was wrong
-       );
+        return (new \CuyZ\Valinor\MapperBuilder())
+            ->mapper()
+            ->map(
+                Thread::class,
+                new \CuyZ\Valinor\Mapper\Source\JsonSource($rawJson)
+            );
+    } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+        // Do something…
+    }
+}
+```
 
-       throw $error;
-   }
+### Mapping advanced types
+
+Although it is recommended to map an input to a value object, in some cases 
+mapping to another type can be easier/more flexible.
+
+It is for instance possible to map to an array of objects:
+
+```php
+try {
+    $objects = (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(
+            'array<' . SomeClass::class . '>',
+            [/* … */]
+        );
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    // Do something…
+}
+```
+
+For simple use-cases, an array shape can be used:
+
+```php
+try {
+    $array = (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(
+            'array{foo: string, bar: int}',
+            [/* … */]
+        );
+    
+    echo $array['foo'];
+    echo $array['bar'] * 2;
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    // Do something…
 }
 ```
 
@@ -147,12 +180,17 @@ More specific validation should be done in the constructor of the value object,
 by throwing an exception if something is wrong with the given data. A good
 practice would be to use lightweight validation tools like [Webmozart Assert].
 
+When the mapping fails, the exception gives access to the root node. This
+recursive object allows retrieving all needed information through the whole
+mapping tree: path, values, types and messages, including the issues that caused
+the exception.
+
 ```php
 final class SomeClass
 {
-    public function __construct(private string $value)
+    public function __construct(private string $someValue)
     {
-        Assert::startsWith($value, 'foo_');
+        Assert::startsWith($someValue, 'foo_');
     }
 }
 
@@ -161,12 +199,114 @@ try {
        ->mapper()
        ->map(
            SomeClass::class,
-           ['value' => 'bar_baz']
+           ['someValue' => 'bar_baz']
        );
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    // Contains an error similar to:
+    $node = $error->node();
+
+    // The name of a node can be accessed 
+    $name = $node->name();
+
+    // The logical path of a node contains dot separated names of its parents
+    $path = $node->path();
+    
+    // The type of the node can be cast to string to enhance suggestion messages 
+    $type = (string)$node->type();
+
+    // If the node is a branch, its children can be recursively accessed
+    foreach ($node->children() as $child) {
+        // Do something…  
+    }
+    
+    // Get flatten list of all messages through the whole nodes tree
+    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+    
+    // If only errors are wanted, they can be filtered
+    $errorMessages = $messages->errors();
+
+    // Should print something similar to:
     // > Expected a value to start with "foo_". Got: "bar_baz"
-    var_dump($error->describe());
+    foreach ($errorsMessages as $message) {
+        echo $message;
+    }
+}
+```
+
+### Message customization / translation
+
+When working with messages, it can sometimes be useful to customize the content
+of a message — for instance to translate it.
+
+The helper class `\CuyZ\Valinor\Mapper\Tree\Message\MessageMapFormatter` can be
+used to provide a list of new formats. It can be instantiated with an array 
+where each key represents either:
+
+- The code of the message to be replaced
+- The content of the message to be replaced
+- The class name of the message to be replaced
+
+If none of those is found, the content of the message will stay unchanged unless
+a default one is given to the class.
+
+If one of these keys is found, the array entry will be used to replace the
+content of the message. This entry can be either a plain text or a callable that
+takes the message as a parameter and returns a string; it is for instance
+advised to use a callable in cases where a translation service is used — to
+avoid useless greedy operations.
+
+In any case, the content can contain placeholders that will automatically be
+replaced by, in order:
+
+1. The original code of the message
+2. The original content of the message
+3. A string representation of the node type
+4. The name of the node
+5. The path of the node
+
+```php
+try {
+    (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(SomeClass::class, [/* … */]);
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    $node = $error->node();
+    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+
+    $formatter = (new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter([
+        // Will match if the given message has this exact code
+        'some_code' => 'new content / previous code was: %1$s',
+    
+        // Will match if the given message has this exact content
+        'Some message content' => 'new content / previous message: %2$s',
+    
+        // Will match if the given message is an instance of `SomeError`
+        SomeError::class => '
+            - Original code of the message: %1$s
+            - Original content of the message: %2$s
+            - Node type: %3$s
+            - Node name: %4$s
+            - Node path: %5$s
+        ',
+    
+        // A callback can be used to get access to the message instance
+        OtherError::class => function (NodeMessage $message): string {
+            if ((string)$message->type() === 'string|int') {
+                // …
+            }
+    
+            return 'Some message content';
+        },
+    
+        // For greedy operation, it is advised to use a lazy-callback
+        'foo' => fn () => $this->translator->translate('foo.bar'),
+    ]))
+        ->defaultsTo('some default message')
+        // …or…
+        ->defaultsTo(fn () => $this->translator->translate('default_message'));
+
+    foreach ($messages as $message) {
+        echo $formatter->format($message);    
+    }
 }
 ```
 
@@ -195,7 +335,7 @@ map(new \CuyZ\Valinor\Mapper\Source\FileSource(
 ### Construction strategy
 
 During the mapping, instances of the objects are created and hydrated with the
-correct values. construction strategies will determine what values are needed
+correct values. Construction strategies will determine what values are needed
 and how an object is built.
 
 An object can provide either…
@@ -338,6 +478,91 @@ final class SomeClass
         private array $unionInsideArray,
     ) {}
 }
+```
+
+## Static analysis
+
+To help static analysis of a codebase using this library, an extension for
+[PHPStan] and a plugin for [Psalm] are provided. They enable these tools to
+better understand the behaviour of the mapper.
+
+Considering at least one of those tools are installed on a project, below are
+examples of the kind of errors that would be reported.
+
+**Mapping to an array of classes**
+
+```php
+final class SomeClass
+{
+    public function __construct(
+        public readonly string $foo,
+        public readonly int $bar,
+    ) {}
+}
+
+$objects = (new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(
+        'array<' . SomeClass::class . '>',
+        [/* … */]
+    );
+
+foreach ($objects as $object) {
+    // ✅
+    echo $object->foo;
+    
+    // ✅
+    echo $object->bar * 2;
+    
+    // ❌ Cannot perform operation between `string` and `int`
+    echo $object->foo * $object->bar;
+    
+    // ❌ Property `SomeClass::$fiz` is not defined
+    echo $object->fiz;
+} 
+```
+
+**Mapping to a shaped array**
+
+```php
+$array = (new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(
+        'array{foo: string, bar: int}',
+        [/* … */]
+    );
+
+// ✅
+echo $array['foo'];
+
+// ❌ Expected `string` but got `int`
+echo strtolower($array['bar']);
+
+// ❌ Cannot perform operation between `string` and `int`
+echo $array['foo'] * $array['bar'];
+
+// ❌ Offset `fiz` does not exist on array
+echo $array['fiz']; 
+```
+
+---
+
+To activate this feature, the configuration must be updated for the installed
+tool(s):
+
+**PHPStan**
+
+```yaml
+includes:
+    - vendor/cuyz/valinor/qa/PHPStan/valinor-phpstan-configuration.php
+```
+
+**Psalm**
+
+```xml
+<plugins>
+    <plugin filename="vendor/cuyz/valinor/qa/Psalm/Plugin/TreeMapperPsalmPlugin.php"/>
+</plugins>
 ```
 
 [PHPStan]: https://phpstan.org/

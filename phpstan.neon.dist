@@ -1,4 +1,5 @@
 includes:
+    - qa/PHPStan/valinor-phpstan-configuration.php
     - vendor/phpstan/phpstan-strict-rules/rules.neon
 
 parameters:
@@ -6,6 +7,7 @@ parameters:
     paths:
         - src
         - tests
+        - qa/PHPStan
     ignoreErrors:
         # \PHPStan\Rules\BooleansInConditions
         - '#Only booleans are allowed in .* given#'
@@ -15,6 +17,10 @@ parameters:
         - '#Construct empty\(\) is not allowed\. Use more strict comparison\.#'
 
         - '#Method [\w\\:]+_data_provider\(\) return type has no value type specified in iterable type#'
+
+        - message: '#Template type T of method CuyZ\\Valinor\\Mapper\\TreeMapper::map\(\) is not referenced in a parameter#'
+          path: src/Mapper/TreeMapper.php
+
     stubFiles:
-        - stubs/Psr/SimpleCache/CacheInterface.stub
+        - qa/PHPStan/Stubs/Psr/SimpleCache/CacheInterface.stub
     tmpDir: var/cache/phpstan

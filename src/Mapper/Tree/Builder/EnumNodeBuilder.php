@@ -48,7 +48,6 @@ final class EnumNodeBuilder implements NodeBuilder
             return $value === $case->name;
         }
 
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         if (is_string($case->value)) {
             if (! is_string($value) && ! is_numeric($value) && ! $value instanceof Stringable) {
                 return false;
@@ -57,11 +56,10 @@ final class EnumNodeBuilder implements NodeBuilder
             return (string)$value === $case->value;
         }
 
-        // @phpstan-ignore-next-line // wait for PHPStan support for PHP 8.1
         if (is_bool($value) || filter_var($value, FILTER_VALIDATE_INT) === false) {
             return false;
         }
 
-        return (int)$value === $case->value;
+        return (int)$value === $case->value; // @phpstan-ignore-line
     }
 }
