@@ -103,10 +103,9 @@ final class DateTimeMappingTest extends IntegrationTest
                     ],
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['dateTime']->children()['datetime']->messages()[0];
+            $error = $exception->node()->children()['dateTime']->children()['value']->messages()[0];
 
-            self::assertSame('1618742357', $error->code());
-            self::assertSame('Cannot assign an empty value to union type `positive-int|non-empty-string`.', (string)$error);
+            self::assertSame('1607027306', $error->code());
         }
     }
 }

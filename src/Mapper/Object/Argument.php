@@ -15,19 +15,41 @@ final class Argument
     private Type $type;
 
     /** @var mixed */
-    private $value;
+    private $defaultValue;
 
-    private ?Attributes $attributes;
+    private bool $isRequired = true;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct(string $name, Type $type, $value, Attributes $attributes = null)
+    private Attributes $attributes;
+
+    private function __construct(string $name, Type $type)
     {
         $this->name = $name;
         $this->type = $type;
-        $this->value = $value;
-        $this->attributes = $attributes;
+    }
+
+    public static function required(string $name, Type $type): self
+    {
+        return new self($name, $type);
+    }
+
+    /**
+     * @param mixed $defaultValue
+     */
+    public static function optional(string $name, Type $type, $defaultValue): self
+    {
+        $instance = new self($name, $type);
+        $instance->defaultValue = $defaultValue;
+        $instance->isRequired = false;
+
+        return $instance;
+    }
+
+    public function withAttributes(Attributes $attributes): self
+    {
+        $clone = clone $this;
+        $clone->attributes = $attributes;
+
+        return $clone;
     }
 
     public function name(): string
@@ -43,9 +65,14 @@ final class Argument
     /**
      * @return mixed
      */
-    public function value()
+    public function defaultValue()
     {
-        return $this->value;
+        return $this->defaultValue;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->isRequired;
     }
 
     public function attributes(): Attributes

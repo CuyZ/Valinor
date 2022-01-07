@@ -10,21 +10,14 @@ use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodReturnType;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Type\Types\ClassType;
 use Exception;
 
-use function array_key_exists;
-use function array_keys;
 use function array_values;
-use function count;
 use function is_a;
-use function is_array;
-use function is_iterable;
-use function iterator_to_array;
 
 final class MethodObjectBuilder implements ObjectBuilder
 {
@@ -66,17 +59,14 @@ final class MethodObjectBuilder implements ObjectBuilder
         }
     }
 
-    public function describeArguments($source): iterable
+    public function describeArguments(): iterable
     {
-        $source = $this->transformSource($source);
-
         foreach ($this->method->parameters() as $parameter) {
-            $name = $parameter->name();
-            $type = $parameter->type();
-            $attributes = $parameter->attributes();
-            $value = array_key_exists($name, $source) ? $source[$name] : $parameter->defaultValue();
+            $argument = $parameter->isOptional()
+                ? Argument::optional($parameter->name(), $parameter->type(), $parameter->defaultValue())
+                : Argument::required($parameter->name(), $parameter->type());
 
-            yield new Argument($name, $type, $value, $attributes);
+            yield $argument->withAttributes($parameter->attributes());
         }
     }
 
@@ -92,48 +82,18 @@ final class MethodObjectBuilder implements ObjectBuilder
         $methodName = $this->method->name();
 
         try {
+            // @PHP8.0 `array_values` can be removed
+            $arguments = array_values($arguments);
+
             if (! $this->method->isStatic()) {
-                // @PHP8.0 `array_values` can be removed
                 /** @infection-ignore-all */
-                return new $className(...array_values($arguments));
+                return new $className(...$arguments);
             }
 
-            // @PHP8.0 `array_values` can be removed
             /** @infection-ignore-all */
-            return $className::$methodName(...array_values($arguments)); // @phpstan-ignore-line
+            return $className::$methodName(...$arguments); // @phpstan-ignore-line
         } catch (Exception $exception) {
             throw ThrowableMessage::from($exception);
         }
-    }
-
-    /**
-     * @param mixed $source
-     * @return mixed[]
-     */
-    private function transformSource($source): array
-    {
-        if ($source === null) {
-            return [];
-        }
-
-        if (is_iterable($source) && ! is_array($source)) {
-            $source = iterator_to_array($source);
-        }
-
-        $parameters = $this->method->parameters();
-
-        if (count($parameters) === 1) {
-            $name = array_keys(iterator_to_array($parameters))[0];
-
-            if (! is_array($source) || ! array_key_exists($name, $source)) {
-                $source = [$name => $source];
-            }
-        }
-
-        if (! is_array($source)) {
-            throw new InvalidSourceForObject($source);
-        }
-
-        return $source;
     }
 }
