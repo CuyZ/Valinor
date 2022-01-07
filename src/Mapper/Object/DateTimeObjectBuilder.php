@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\CannotParseToDateTime;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ShapedArrayElement;
+use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeImmutable;
@@ -24,6 +28,8 @@ final class DateTimeObjectBuilder implements ObjectBuilder
     public const DATE_MYSQL = 'Y-m-d H:i:s';
     public const DATE_PGSQL = 'Y-m-d H:i:s.u';
 
+    private static Type $argumentType;
+
     /** @var class-string<DateTime|DateTimeImmutable> */
     private string $className;
 
@@ -35,24 +41,35 @@ final class DateTimeObjectBuilder implements ObjectBuilder
         $this->className = $className;
     }
 
-    public function describeArguments($source): iterable
+    public function describeArguments(): iterable
     {
-        $datetime = $source;
-        $format = null;
+        self::$argumentType ??= new UnionType(
+            new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get()),
+            new ShapedArrayType(
+                new ShapedArrayElement(
+                    new StringValueType('datetime'),
+                    new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get())
+                ),
+                new ShapedArrayElement(
+                    new StringValueType('format'),
+                    new UnionType(NullType::get(), NonEmptyStringType::get()),
+                    true
+                ),
+            )
+        );
 
-        if (is_array($source)) {
-            $datetime = $source['datetime'] ?? null;
-            $format = $source['format'] ?? null;
-        }
-
-        yield new Argument('datetime', new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get()), $datetime);
-        yield new Argument('format', new UnionType(NullType::get(), NonEmptyStringType::get()), $format);
+        yield Argument::required('value', self::$argumentType);
     }
 
     public function build(array $arguments): DateTimeInterface
     {
-        $datetime = $arguments['datetime'];
-        $format = $arguments['format'];
+        $datetime = $arguments['value'];
+        $format = null;
+
+        if (is_array($datetime)) {
+            $format = $datetime['format'];
+            $datetime = $datetime['datetime'];
+        }
 
         assert(is_string($datetime) || is_int($datetime));
         assert(is_string($format) || is_null($format));

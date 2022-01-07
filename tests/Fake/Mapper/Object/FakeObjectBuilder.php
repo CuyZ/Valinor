@@ -9,7 +9,7 @@ use stdClass;
 
 final class FakeObjectBuilder implements ObjectBuilder
 {
-    public function describeArguments($source): iterable
+    public function describeArguments(): iterable
     {
         return [];
     }

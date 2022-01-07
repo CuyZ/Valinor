@@ -5,13 +5,20 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\Argument;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ClassType;
 
+use function array_key_exists;
 use function assert;
+use function count;
+use function is_array;
+use function is_iterable;
+use function iterator_to_array;
 
 final class ClassNodeBuilder implements NodeBuilder
 {
@@ -28,7 +35,7 @@ final class ClassNodeBuilder implements NodeBuilder
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
-        $value = $shell->value();
+        $source = $shell->value();
 
         assert($type instanceof ClassType);
 
@@ -36,16 +43,51 @@ final class ClassNodeBuilder implements NodeBuilder
         $builder = $this->objectBuilderFactory->for($class);
 
         $children = [];
+        $arguments = [...$builder->describeArguments()];
+        $source = $this->transformSource($source, ...$arguments);
 
-        foreach ($builder->describeArguments($value) as $arg) {
-            $child = $shell->child($arg->name(), $arg->type(), $arg->value(), $arg->attributes());
+        foreach ($arguments as $argument) {
+            $name = $argument->name();
+            $type = $argument->type();
+            $attributes = $argument->attributes();
+            $value = array_key_exists($name, $source) ? $source[$name] : $argument->defaultValue();
 
+            $child = $shell->child($name, $type, $value, $attributes);
             $children[] = $rootBuilder->build($child);
         }
 
         $object = $this->buildObject($builder, $children);
 
         return Node::branch($shell, $object, $children);
+    }
+
+    /**
+     * @param mixed $source
+     * @return mixed[]
+     */
+    private function transformSource($source, Argument ...$arguments): array
+    {
+        if ($source === null) {
+            return [];
+        }
+
+        if (is_iterable($source) && ! is_array($source)) {
+            $source = iterator_to_array($source);
+        }
+
+        if (count($arguments) === 1) {
+            $name = $arguments[0]->name();
+
+            if (! is_array($source) || ! array_key_exists($name, $source)) {
+                $source = [$name => $source];
+            }
+        }
+
+        if (! is_array($source)) {
+            throw new InvalidSourceForObject($source);
+        }
+
+        return $source;
     }
 
     /**

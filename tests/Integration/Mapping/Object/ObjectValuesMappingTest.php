@@ -13,6 +13,7 @@ final class ObjectValuesMappingTest extends IntegrationTest
     public function test_values_are_mapped_properly(): void
     {
         $source = [
+            'string' => 'foo',
             'object' => [
                 'value' => 'foo',
             ],
@@ -28,17 +29,36 @@ final class ObjectValuesMappingTest extends IntegrationTest
             self::assertSame('foo', $result->object->value);
         }
     }
+
+    public function test_invalid_iterable_source_throws_exception(): void
+    {
+        $source = 'foo';
+
+        foreach ([ObjectValues::class, ObjectValuesWithConstructor::class] as $class) {
+            try {
+                $this->mapperBuilder->mapper()->map($class, $source);
+            } catch (MappingError $exception) {
+                $error = $exception->node()->messages()[0];
+
+                self::assertSame('1632903281', $error->code());
+                self::assertSame('Invalid source type `string`, it must be an iterable.', (string)$error);
+            }
+        }
+    }
 }
 
 class ObjectValues
 {
     public SimpleObject $object;
+
+    public string $string;
 }
 
 class ObjectValuesWithConstructor extends ObjectValues
 {
-    public function __construct(SimpleObject $object)
+    public function __construct(SimpleObject $object, string $string)
     {
         $this->object = $object;
+        $this->string = $string;
     }
 }
