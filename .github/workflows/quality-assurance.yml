@@ -49,6 +49,9 @@ jobs:
           path: var/cache/phpstan
           key: phpstan
 
+      - name: Checking Composer
+        run: composer validate
+
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
 
