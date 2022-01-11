@@ -2,13 +2,20 @@ name: Tests
 on: [push, pull_request]
 jobs:
   tests:
-    name: PHP ${{ matrix.php }} / ${{ matrix.dependency-version }}
+    name: PHP ${{ matrix.php-version }} / ${{ matrix.dependencies }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        php: [ '7.4', '8.0', '8.1' ]
-        dependency-version: [ prefer-lowest, prefer-stable ]
+        dependencies:
+          - "lowest"
+          - "highest"
+          - "locked"
+        php-version:
+          - "7.4"
+          - "8.0"
+          - "8.1"
+
     env:
       php-extensions: xdebug, yaml
     steps:
@@ -19,9 +26,9 @@ jobs:
         id: extcache
         uses: shivammathur/cache-extensions@v1
         with:
-          php-version: ${{ matrix.php }}
+          php-version: ${{ matrix.php-version }}
           extensions: ${{ env.php-extensions }}
-          key: tests-php-extensions-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependency-version }}
+          key: tests-php-extensions-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.dependencies }}
 
       - name: Cache PHP extensions
         uses: actions/cache@v2
@@ -33,21 +40,13 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: ${{ matrix.php-version }}
           extensions: ${{ env.php-extensions }}
           ini-values: zend.assertions=1
 
-      - id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v2
+      - uses: "ramsey/composer-install@v2"
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependency-version }}-${{ hashFiles('composer.json') }}
-
-      - name: Install dependencies
-        run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+          dependency-versions: ${{ matrix.dependencies }}
 
       - name: Running unit tests
         run: php vendor/bin/phpunit --testsuite=unit
