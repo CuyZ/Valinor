@@ -8,11 +8,18 @@ namespace CuyZ\Valinor\Mapper;
 interface TreeMapper
 {
     /**
-     * @template T of object
+     * @psalm-template TObject of object
+     * @psalm-template TypeDefinition of string|class-string<TObject>
      *
-     * @param string|class-string<T> $signature
+     * @param TypeDefinition $signature
      * @param mixed $source
-     * @return T|mixed
+     * @return TObject|mixed
+     *
+     * @psalm-return (
+     *     $signature is class-string<TObject>
+     *         ? TObject
+     *         : mixed
+     * )
      *
      * @throws MappingError
      */
