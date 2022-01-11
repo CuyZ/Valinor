@@ -65,4 +65,4 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
-          php vendor/bin/infection --threads=$(nproc) --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --only-covered
+          php vendor/bin/infection --threads=$(nproc) --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --only-covered
