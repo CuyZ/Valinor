@@ -33,16 +33,6 @@ jobs:
           extensions: ${{ env.php-extensions }}
           ini-values: zend.assertions=1
 
-      - id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ hashFiles('composer.json') }}
-          restore-keys: composer-${{ runner.os }}
-
       - name: Cache PHPStan results
         uses: actions/cache@v2
         with:
@@ -52,14 +42,16 @@ jobs:
       - name: Checking Composer
         run: composer validate
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction
-
       - name: Creating var directory
         run: mkdir -p var/cache
+
+      - uses: "ramsey/composer-install@v2"
 
       - name: Running PHP Coding Standards Fixer
         run: php vendor/bin/php-cs-fixer fix --dry-run
 
       - name: Running PHPStan
         run: php vendor/bin/phpstan
+
+      - name: Running Psalm
+        run: php vendor/bin/psalm
