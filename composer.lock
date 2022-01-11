@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "772f607d21d90fe3f8cac2923e23e201",
+    "content-hash": "9c97d188138f4d0c230b1b21b422ec51",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -888,21 +888,21 @@
         },
         {
             "name": "infection/infection",
-            "version": "0.25.5",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/infection/infection.git",
-                "reference": "6844063ee1347c7942734b85ead95ad6226a4a02"
+                "reference": "e346a2ff4ebe277f3f4e8cc295c033dcab13e7f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/infection/infection/zipball/6844063ee1347c7942734b85ead95ad6226a4a02",
-                "reference": "6844063ee1347c7942734b85ead95ad6226a4a02",
+                "url": "https://api.github.com/repos/infection/infection/zipball/e346a2ff4ebe277f3f4e8cc295c033dcab13e7f0",
+                "reference": "e346a2ff4ebe277f3f4e8cc295c033dcab13e7f0",
                 "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2.0",
-                "composer/xdebug-handler": "^2.0",
+                "composer/xdebug-handler": "^2.0 || ^3.0",
                 "ext-dom": "*",
                 "ext-json": "*",
                 "ext-libxml": "*",
@@ -998,7 +998,7 @@
             ],
             "support": {
                 "issues": "https://github.com/infection/infection/issues",
-                "source": "https://github.com/infection/infection/tree/0.25.5"
+                "source": "https://github.com/infection/infection/tree/0.26.0"
             },
             "funding": [
                 {
@@ -1010,7 +1010,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2021-12-16T05:06:28+00:00"
+            "time": "2022-01-10T10:25:48+00:00"
         },
         {
             "name": "justinrainbow/json-schema",

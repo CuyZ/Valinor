@@ -9,8 +9,8 @@
         "text": "var/infection/infection.log",
         "summary": "var/infection/summary.log",
         "perMutator": "var/infection/per-mutator.md",
-        "badge": {
-            "branch": "master"
+        "stryker": {
+            "report": "master"
         }
     },
     "$schema": "vendor/infection/infection/resources/schema.json"
