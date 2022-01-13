@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Exception\InvalidParameterDefaultValue;
 use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
@@ -18,6 +17,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
@@ -55,8 +55,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             private bool $privateProperty; // @phpstan-ignore-line
         };
 
-        $signature = new ClassSignature(get_class($object));
-        $properties = $this->repository->for($signature)->properties();
+        $type = new ClassType(get_class($object));
+        $properties = $this->repository->for($type)->properties();
 
         self::assertTrue($properties->get('propertyWithDefaultValue')->hasDefaultValue());
         self::assertSame('Default value for property', $properties->get('propertyWithDefaultValue')->defaultValue());
@@ -114,8 +114,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         };
 
         $className = get_class($object);
-        $signature = new ClassSignature($className);
-        $methods = $this->repository->for($signature)->methods();
+        $type = new ClassType($className);
+        $methods = $this->repository->for($type)->methods();
 
         self::assertTrue($methods->hasConstructor());
 
@@ -158,7 +158,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             public $propertyWithInvalidType; // @phpstan-ignore-line
         });
 
-        $class = $this->repository->for(new ClassSignature($class));
+        $class = $this->repository->for(new ClassType($class));
         $type = $class->properties()->get('propertyWithInvalidType')->type();
 
         self::assertInstanceOf(UnresolvableType::class, $type);
@@ -177,7 +177,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1629211093);
         $this->expectExceptionMessage("Default value of property `$class::\$propertyWithInvalidDefaultValue` is not accepted by `string`.");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_property_with_non_matching_types_throws_exception(): void
@@ -194,7 +194,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638471381);
         $this->expectExceptionMessage("Types for property `$class::\$propertyWithNotMatchingTypes` do not match: `string` (docblock) does not accept `bool` (native).");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_invalid_parameter_type_throws_exception(): void
@@ -211,7 +211,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             }
         });
 
-        $class = $this->repository->for(new ClassSignature($class));
+        $class = $this->repository->for(new ClassType($class));
         $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidType')->type();
 
         self::assertInstanceOf(UnresolvableType::class, $type);
@@ -235,7 +235,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1629210903);
         $this->expectExceptionMessage("Default value of parameter `$class::publicMethod(\$parameterWithInvalidDefaultValue)` is not accepted by `string`.");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_parameter_with_non_matching_types_throws_exception(): void
@@ -254,7 +254,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638471381);
         $this->expectExceptionMessage("Types for parameter `$class::publicMethod(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_method_with_non_matching_return_types_throws_exception(): void
@@ -274,7 +274,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638471381);
         $this->expectExceptionMessage("Return types for method `$class::publicMethod()` do not match: `bool` (docblock) does not accept `string` (native).");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_class_with_local_type_alias_name_duplication_throws_exception(): void
@@ -293,7 +293,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638477604);
         $this->expectExceptionMessage("The following type aliases already exist in class `$class`: `T`, `AnotherTemplate`.");
 
-        $this->repository->for(new ClassSignature($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
+        $this->repository->for(new ClassType($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
     }
 
     public function test_class_with_invalid_type_alias_import_class_throws_exception(): void
@@ -309,7 +309,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638535486);
         $this->expectExceptionMessage("Cannot import a type alias from unknown class `UnknownType` in class `$class`.");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_class_with_invalid_type_alias_import_class_type_throws_exception(): void
@@ -325,7 +325,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638535608);
         $this->expectExceptionMessage("Importing a type alias can only be done with classes, `string` was given in class `$class`.");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 
     public function test_class_with_unknown_type_alias_import_throws_exception(): void
@@ -341,6 +341,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionCode(1638535757);
         $this->expectExceptionMessage("Type alias `T` imported in `$class` could not be found in `stdClass`");
 
-        $this->repository->for(new ClassSignature($class));
+        $this->repository->for(new ClassType($class));
     }
 }

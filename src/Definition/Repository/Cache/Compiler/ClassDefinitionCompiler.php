@@ -20,6 +20,8 @@ use function iterator_to_array;
 /** @internal */
 final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCompiler
 {
+    private TypeCompiler $typeCompiler;
+
     private AttributesCompiler $attributesCompiler;
 
     private MethodDefinitionCompiler $methodCompiler;
@@ -28,16 +30,18 @@ final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCom
 
     public function __construct()
     {
-        $typeCompiler = new TypeCompiler();
+        $this->typeCompiler = new TypeCompiler();
         $this->attributesCompiler = new AttributesCompiler();
 
-        $this->methodCompiler = new MethodDefinitionCompiler($typeCompiler, $this->attributesCompiler);
-        $this->propertyCompiler = new PropertyDefinitionCompiler($typeCompiler, $this->attributesCompiler);
+        $this->methodCompiler = new MethodDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
+        $this->propertyCompiler = new PropertyDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
     }
 
     public function compile($value): string
     {
         assert($value instanceof ClassDefinition);
+
+        $type = $this->typeCompiler->compile($value->type());
 
         $properties = array_map(
             fn (PropertyDefinition $property) => $this->propertyCompiler->compile($property),
@@ -56,8 +60,7 @@ final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCom
 
         return <<<PHP
         new \CuyZ\Valinor\Definition\ClassDefinition(
-            '{$value->name()}',
-            '{$value->signature()}',
+            $type,
             $attributes,
             new \CuyZ\Valinor\Definition\Properties($properties),
             new \CuyZ\Valinor\Definition\Methods($methods)

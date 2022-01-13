@@ -14,7 +14,6 @@ use Stringable;
 use function class_exists;
 use function interface_exists;
 use function is_string;
-use function is_subclass_of;
 
 /** @api */
 final class ClassStringType implements StringType
@@ -45,10 +44,7 @@ final class ClassStringType implements StringType
             return true;
         }
 
-        $subClass = $this->subType->signature()->className();
-
-        /** @phpstan-ignore-next-line @see https://github.com/phpstan/phpstan-src/pull/397 */
-        return $value === $subClass || is_subclass_of($value, $subClass);
+        return is_a($value, $this->subType->className(), true);
     }
 
     public function matches(Type $other): bool
@@ -97,9 +93,7 @@ final class ClassStringType implements StringType
             return $value;
         }
 
-        $subClass = $this->subType->signature()->className();
-
-        if ($value === $subClass || is_subclass_of($value, $subClass)) {
+        if (is_a($value, $this->subType->className(), true)) {
             return $value;
         }
 

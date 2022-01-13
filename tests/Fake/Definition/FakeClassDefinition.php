@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Fake\Definition;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
+use CuyZ\Valinor\Type\Types\ClassType;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -26,8 +27,7 @@ final class FakeClassDefinition
     public static function new(string $name = stdClass::class): ClassDefinition
     {
         return new ClassDefinition(
-            $name,
-            $name,
+            new ClassType($name),
             new FakeAttributes(),
             new Properties(),
             new Methods()
@@ -50,8 +50,7 @@ final class FakeClassDefinition
         );
 
         return new ClassDefinition(
-            $reflection->name,
-            'Signature::' . $reflection->name,
+            new ClassType($reflection->name),
             new FakeAttributes(),
             new Properties(...$properties),
             new Methods(...$methods)

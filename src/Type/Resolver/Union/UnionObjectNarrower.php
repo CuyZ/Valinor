@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Type\Resolver\Union;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveObjectTypeFromUnion;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
 use function array_map;
@@ -50,11 +50,11 @@ final class UnionObjectNarrower implements UnionNarrower
         $argumentsList = [];
 
         foreach ($unionType->types() as $type) {
-            if (! $type instanceof ObjectType) {
+            if (! $type instanceof ClassType) {
                 return $this->delegate->narrow($unionType, $source);
             }
 
-            $class = $this->classDefinitionRepository->for($type->signature());
+            $class = $this->classDefinitionRepository->for($type);
             $objectBuilder = $this->objectBuilderFactory->for($class);
             $arguments = [...$objectBuilder->describeArguments()];
 

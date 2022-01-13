@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
-use function is_subclass_of;
-
 /** @api */
 final class InterfaceType implements ObjectType
 {
-    private ClassSignature $signature;
+    /** @var class-string */
+    private string $interfaceName;
+
+    /** @var array<string, Type> */
+    private array $generics;
 
     /**
      * @param class-string $interfaceName
@@ -22,19 +23,23 @@ final class InterfaceType implements ObjectType
      */
     public function __construct(string $interfaceName, array $generics = [])
     {
-        $this->signature = new ClassSignature($interfaceName, $generics);
+        $this->interfaceName = $interfaceName;
+        $this->generics = $generics;
     }
 
-    public function signature(): ClassSignature
+    public function className(): string
     {
-        return $this->signature;
+        return $this->interfaceName;
+    }
+
+    public function generics(): array
+    {
+        return $this->generics;
     }
 
     public function accepts($value): bool
     {
-        $name = $this->signature->className();
-
-        return $value instanceof $name;
+        return $value instanceof $this->interfaceName;
     }
 
     public function matches(Type $other): bool
@@ -51,15 +56,13 @@ final class InterfaceType implements ObjectType
             return false;
         }
 
-        $className = $this->signature->className();
-        $otherClassName = $other->signature()->className();
-
-        /** @phpstan-ignore-next-line @see https://github.com/phpstan/phpstan-src/pull/397 */
-        return $className === $otherClassName || is_subclass_of($otherClassName, $className);
+        return is_a($other->className(), $this->interfaceName, true);
     }
 
     public function __toString(): string
     {
-        return $this->signature->toString();
+        return empty($this->generics)
+            ? $this->interfaceName
+            : $this->interfaceName . '<' . implode(', ', $this->generics) . '>';
     }
 }

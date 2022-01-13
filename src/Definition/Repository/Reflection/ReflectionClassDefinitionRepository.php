@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
@@ -52,10 +51,10 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $this->methodBuilder = new ReflectionMethodDefinitionBuilder($attributesRepository);
     }
 
-    public function for(ClassSignature $signature): ClassDefinition
+    public function for(ClassType $type): ClassDefinition
     {
-        $reflection = Reflection::class($signature->className());
-        $typeResolver = $this->typeResolver($signature);
+        $reflection = Reflection::class($type->className());
+        $typeResolver = $this->typeResolver($type);
 
         $properties = array_map(
             fn (ReflectionProperty $property) => $this->propertyBuilder->for($property, $typeResolver),
@@ -68,19 +67,18 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         );
 
         return new ClassDefinition(
-            $signature->className(),
-            $signature->toString(),
+            $type,
             $this->attributesFactory->for($reflection),
             new Properties(...$properties),
             new Methods(...$methods),
         );
     }
 
-    private function typeResolver(ClassSignature $signature): ReflectionTypeResolver
+    private function typeResolver(ClassType $type): ReflectionTypeResolver
     {
-        $generics = $signature->generics();
-        $localAliases = $this->localTypeAliases($signature);
-        $importedAliases = $this->importedTypeAliases($signature);
+        $generics = $type->generics();
+        $localAliases = $this->localTypeAliases($type);
+        $importedAliases = $this->importedTypeAliases($type);
 
         $duplicates = [];
         $keys = [...array_keys($generics), ...array_keys($localAliases), ...array_keys($importedAliases)];
@@ -94,18 +92,18 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         }
 
         if (count($duplicates) > 0) {
-            throw new ClassTypeAliasesDuplication($signature->className(), ...array_keys($duplicates));
+            throw new ClassTypeAliasesDuplication($type->className(), ...array_keys($duplicates));
         }
 
         $advancedParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($signature->className()),
-            new ClassAliasSpecification($signature->className()),
+            new ClassContextSpecification($type->className()),
+            new ClassAliasSpecification($type->className()),
             new HandleClassGenericSpecification(),
             new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases)
         );
 
         $nativeParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($signature->className())
+            new ClassContextSpecification($type->className())
         );
 
         return new ReflectionTypeResolver($nativeParser, $advancedParser);
@@ -114,12 +112,12 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return array<string, Type>
      */
-    private function localTypeAliases(ClassSignature $signature): array
+    private function localTypeAliases(ClassType $type): array
     {
-        $reflection = Reflection::class($signature->className());
+        $reflection = Reflection::class($type->className());
         $rawTypes = Reflection::localTypeAliases($reflection);
 
-        $typeParser = $this->typeParser($signature);
+        $typeParser = $this->typeParser($type);
 
         $types = [];
 
@@ -130,7 +128,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
                 $raw = trim($raw);
 
                 $types[$name] = new UnresolvableType(
-                    "The type `$raw` for local alias `$name` of the class `{$signature->className()}` could not be resolved: {$exception->getMessage()}"
+                    "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}"
                 );
             }
         }
@@ -141,12 +139,12 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return array<string, Type>
      */
-    private function importedTypeAliases(ClassSignature $signature): array
+    private function importedTypeAliases(ClassType $type): array
     {
-        $reflection = Reflection::class($signature->className());
+        $reflection = Reflection::class($type->className());
         $importedTypesRaw = Reflection::importedTypeAliases($reflection);
 
-        $typeParser = $this->typeParser($signature);
+        $typeParser = $this->typeParser($type);
 
         $importedTypes = [];
 
@@ -154,34 +152,34 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             try {
                 $classType = $typeParser->parse($class);
             } catch (InvalidType $exception) {
-                throw new InvalidTypeAliasImportClass($signature, $class);
+                throw new InvalidTypeAliasImportClass($type, $class);
             }
 
             if (! $classType instanceof ClassType) {
-                throw new InvalidTypeAliasImportClassType($signature, $classType);
+                throw new InvalidTypeAliasImportClassType($type, $classType);
             }
 
-            $localTypes = $this->localTypeAliases($classType->signature());
+            $localTypes = $this->localTypeAliases($classType);
 
-            foreach ($types as $type) {
-                if (! isset($localTypes[$type])) {
-                    throw new UnknownTypeAliasImport($signature, $classType->signature()->className(), $type);
+            foreach ($types as $importedType) {
+                if (! isset($localTypes[$importedType])) {
+                    throw new UnknownTypeAliasImport($type, $classType->className(), $importedType);
                 }
 
-                $importedTypes[$type] = $localTypes[$type];
+                $importedTypes[$importedType] = $localTypes[$importedType];
             }
         }
 
         return $importedTypes;
     }
 
-    private function typeParser(ClassSignature $signature): TypeParser
+    private function typeParser(ClassType $type): TypeParser
     {
         return $this->typeParserFactory->get(
-            new ClassContextSpecification($signature->className()),
-            new ClassAliasSpecification($signature->className()),
+            new ClassContextSpecification($type->className()),
+            new ClassAliasSpecification($type->className()),
             new HandleClassGenericSpecification(),
-            new TypeAliasAssignerSpecification($signature->generics()),
+            new TypeAliasAssignerSpecification($type->generics()),
         );
     }
 }

@@ -44,7 +44,7 @@ final class InterfaceShellVisitor implements ShellVisitor
             return $shell;
         }
 
-        $interfaceName = $type->signature()->className();
+        $interfaceName = $type->className();
 
         if (! isset($this->interfaceMapping[$interfaceName])) {
             throw new CannotResolveTypeFromInterface($interfaceName);

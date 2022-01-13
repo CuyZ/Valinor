@@ -51,7 +51,7 @@ final class ClassDefinitionCompilerTest extends TestCase
         self::assertInstanceOf(ClassDefinition::class, $class);
 
         self::assertSame($className, $class->name());
-        self::assertSame("Signature::$className", $class->signature());
+        self::assertSame($className, $class->type()->className());
 
         $properties = $class->properties();
 

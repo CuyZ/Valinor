@@ -28,16 +28,13 @@ final class EnumNodeBuilder implements NodeBuilder
 
         assert($type instanceof EnumType);
 
-        /** @var class-string<UnitEnum> $enumName */
-        $enumName = $type->signature()->className();
-
-        foreach ($enumName::cases() as $case) {
+        foreach ($type->className()::cases() as $case) {
             if ($this->valueMatchesEnumCase($value, $case)) {
                 return Node::leaf($shell, $case);
             }
         }
 
-        throw new InvalidEnumValue($enumName, $value);
+        throw new InvalidEnumValue($type->className(), $value);
     }
 
     /**

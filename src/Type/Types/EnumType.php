@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
@@ -15,21 +14,33 @@ use function in_array;
 /** @api */
 final class EnumType implements ObjectType
 {
-    private ClassSignature $signature;
+    /** @var class-string<UnitEnum> */
+    private string $enumName;
 
     /**
      * @param class-string<UnitEnum> $enumName
      */
     public function __construct(string $enumName)
     {
-        $this->signature = new ClassSignature($enumName);
+        $this->enumName = $enumName;
+    }
+
+    /**
+     * @return class-string<UnitEnum>
+     */
+    public function className(): string
+    {
+        return $this->enumName;
+    }
+
+    public function generics(): array
+    {
+        return [];
     }
 
     public function accepts($value): bool
     {
-        $enumName = $this->signature->className();
-
-        return in_array($value, $enumName::cases(), true);
+        return in_array($value, ($this->enumName)::cases(), true);
     }
 
     public function matches(Type $other): bool
@@ -39,20 +50,15 @@ final class EnumType implements ObjectType
         }
 
         if ($other instanceof self) {
-            return $other->signature->className() === $this->signature->className();
+            return $other->enumName === $this->enumName;
         }
 
         return $other instanceof UndefinedObjectType
             || $other instanceof MixedType;
     }
 
-    public function signature(): ClassSignature
-    {
-        return $this->signature;
-    }
-
     public function __toString(): string
     {
-        return $this->signature->toString();
+        return $this->enumName;
     }
 }
