@@ -42,7 +42,7 @@ final class ApiAndInternalAnnotationCheck implements Rule
             return [];
         }
 
-        if (! preg_match('/@api|internal\s+/', $reflection->getResolvedPhpDoc()?->getPhpDocString() ?? '')) {
+        if (! preg_match('/@(api|internal)\s+/', $reflection->getResolvedPhpDoc()?->getPhpDocString() ?? '')) {
             return [
                 RuleErrorBuilder::message(
                     'Missing annotation `@api` or `@internal`.'
