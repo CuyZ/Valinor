@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Cache;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Type\Types\ClassType;
 use Psr\SimpleCache\CacheInterface;
 
 /** @internal */
@@ -26,15 +26,15 @@ final class CacheClassDefinitionRepository implements ClassDefinitionRepository
         $this->cache = $cache;
     }
 
-    public function for(ClassSignature $signature): ClassDefinition
+    public function for(ClassType $type): ClassDefinition
     {
-        $key = "class-definition-$signature";
+        $key = "class-definition-$type";
 
         if ($this->cache->has($key)) {
             return $this->cache->get($key);
         }
 
-        $class = $this->delegate->for($signature);
+        $class = $this->delegate->for($type);
 
         $this->cache->set($key, $class);
 

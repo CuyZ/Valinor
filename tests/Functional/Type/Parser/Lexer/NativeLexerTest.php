@@ -520,13 +520,13 @@ final class NativeLexerTest extends TestCase
         $types = $intersectionType->types();
 
         self::assertInstanceOf(ClassType::class, $types[0]);
-        self::assertSame(stdClass::class, $types[0]->signature()->className());
+        self::assertSame(stdClass::class, $types[0]->className());
 
         self::assertInstanceOf(InterfaceType::class, $types[1]);
-        self::assertSame(DateTimeInterface::class, $types[1]->signature()->className());
+        self::assertSame(DateTimeInterface::class, $types[1]->className());
 
         self::assertInstanceOf(ClassType::class, $types[2]);
-        self::assertSame(DateTime::class, $types[2]->signature()->className());
+        self::assertSame(DateTime::class, $types[2]->className());
     }
 
     public function test_missing_right_intersection_type_throws_exception(): void

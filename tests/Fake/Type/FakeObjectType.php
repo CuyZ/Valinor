@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use stdClass;
@@ -13,9 +12,8 @@ use function in_array;
 
 final class FakeObjectType implements ObjectType
 {
+    /** @var class-string */
     private string $className;
-
-    private ClassSignature $signature;
 
     /** @var Type[] */
     private array $matching = [];
@@ -29,7 +27,16 @@ final class FakeObjectType implements ObjectType
     public function __construct(string $className = stdClass::class)
     {
         $this->className = $className;
-        $this->signature = new ClassSignature($className);
+    }
+
+    public function className(): string
+    {
+        return $this->className;
+    }
+
+    public function generics(): array
+    {
+        return [];
     }
 
     public function accepts($value): bool
@@ -50,11 +57,6 @@ final class FakeObjectType implements ObjectType
     public function willMatch(Type ...$others): void
     {
         $this->matching = [...$this->matching, ...$others];
-    }
-
-    public function signature(): ClassSignature
-    {
-        return $this->signature;
     }
 
     public function __toString(): string

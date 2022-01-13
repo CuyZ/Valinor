@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
+use CuyZ\Valinor\Type\Types\ClassType;
+
 /** @api */
 final class ClassDefinition
 {
-    /** @var class-string */
-    private string $className;
-
-    private string $signature;
+    private ClassType $type;
 
     private Attributes $attributes;
 
@@ -18,18 +17,13 @@ final class ClassDefinition
 
     private Methods $methods;
 
-    /**
-     * @param class-string $className
-     */
     public function __construct(
-        string $className,
-        string $signature,
+        ClassType $type,
         Attributes $attributes,
         Properties $properties,
         Methods $methods
     ) {
-        $this->className = $className;
-        $this->signature = $signature;
+        $this->type = $type;
         $this->attributes = $attributes;
         $this->properties = $properties;
         $this->methods = $methods;
@@ -40,12 +34,12 @@ final class ClassDefinition
      */
     public function name(): string
     {
-        return $this->className;
+        return $this->type->className();
     }
 
-    public function signature(): string
+    public function type(): ClassType
     {
-        return $this->signature;
+        return $this->type;
     }
 
     public function attributes(): Attributes

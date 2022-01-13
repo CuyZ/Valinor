@@ -23,7 +23,7 @@ final class InterfaceTypeTest extends TestCase
     {
         $type = new InterfaceType(DateTimeInterface::class);
 
-        self::assertSame(DateTimeInterface::class, $type->signature()->className());
+        self::assertSame(DateTimeInterface::class, $type->className());
     }
 
     public function test_string_value_is_correct(): void

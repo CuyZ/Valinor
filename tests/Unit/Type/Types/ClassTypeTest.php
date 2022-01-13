@@ -20,7 +20,7 @@ final class ClassTypeTest extends TestCase
     {
         $type = new ClassType(stdClass::class);
 
-        self::assertSame(stdClass::class, $type->signature()->className());
+        self::assertSame(stdClass::class, $type->className());
     }
 
     public function test_string_value_is_signature(): void
@@ -62,7 +62,7 @@ final class ClassTypeTest extends TestCase
         $classTypeA = new ClassType(DateTimeInterface::class);
         $classTypeB = new ClassType(DateTime::class);
 
-        self::assertTrue($classTypeA->matches($classTypeB));
+        self::assertTrue($classTypeB->matches($classTypeA));
     }
 
     public function test_does_not_match_invalid_type(): void

@@ -121,13 +121,13 @@ final class TypeCompiler
             case $type instanceof InterfaceType:
                 $generics = [];
 
-                foreach ($type->signature()->generics() as $key => $generic) {
+                foreach ($type->generics() as $key => $generic) {
                     $generics[] = var_export($key, true) . ' => ' . $this->compile($generic);
                 }
 
                 $generics = implode(', ', $generics);
 
-                return "new $class({$type->signature()->className()}::class, [$generics])";
+                return "new $class('{$type->className()}', [$generics])";
             case $type instanceof ClassStringType:
                 if (null === $type->subType()) {
                     return "new $class()";
@@ -137,7 +137,7 @@ final class TypeCompiler
 
                 return "new $class($subType)";
             case $type instanceof EnumType:
-                return "new $class({$type->signature()->className()}::class)";
+                return "new $class({$type->className()}::class)";
             case $type instanceof UnresolvableType:
                 return "new $class('{$type->getMessage()}')";
             default:

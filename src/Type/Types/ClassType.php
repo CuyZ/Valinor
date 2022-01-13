@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Definition\ClassSignature;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
-use function is_subclass_of;
+use function is_a;
 
 /** @api */
 final class ClassType implements ObjectType
 {
-    private ClassSignature $signature;
+    /** @var class-string */
+    private string $className;
+
+    /** @var array<string, Type> */
+    private array $generics;
 
     /**
      * @param class-string $className
@@ -21,19 +24,23 @@ final class ClassType implements ObjectType
      */
     public function __construct(string $className, array $generics = [])
     {
-        $this->signature = new ClassSignature($className, $generics);
+        $this->className = ltrim($className, '\\'); // @phpstan-ignore-line
+        $this->generics = $generics;
     }
 
-    public function signature(): ClassSignature
+    public function className(): string
     {
-        return $this->signature;
+        return $this->className;
+    }
+
+    public function generics(): array
+    {
+        return $this->generics;
     }
 
     public function accepts($value): bool
     {
-        $name = $this->signature->className();
-
-        return $value instanceof $name;
+        return $value instanceof $this->className;
     }
 
     public function matches(Type $other): bool
@@ -54,15 +61,13 @@ final class ClassType implements ObjectType
             return false;
         }
 
-        $className = $this->signature->className();
-        $otherClassName = $other->signature()->className();
-
-        /** @phpstan-ignore-next-line @see https://github.com/phpstan/phpstan-src/pull/397 */
-        return $className === $otherClassName || is_subclass_of($otherClassName, $className);
+        return is_a($this->className, $other->className(), true);
     }
 
     public function __toString(): string
     {
-        return $this->signature->toString();
+        return empty($this->generics)
+            ? $this->className
+            : $this->className . '<' . implode(', ', $this->generics) . '>';
     }
 }

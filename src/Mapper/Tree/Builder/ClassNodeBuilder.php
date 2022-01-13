@@ -40,7 +40,7 @@ final class ClassNodeBuilder implements NodeBuilder
 
         assert($type instanceof ClassType);
 
-        $class = $this->classDefinitionRepository->for($type->signature());
+        $class = $this->classDefinitionRepository->for($type);
         $builder = $this->objectBuilderFactory->for($class);
 
         $children = [];

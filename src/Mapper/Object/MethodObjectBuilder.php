@@ -55,7 +55,7 @@ final class MethodObjectBuilder implements ObjectBuilder
             throw new InvalidConstructorMethodReturnType($this->method, $this->class->name());
         }
 
-        if (! is_a($returnType->signature()->className(), $this->class->name(), true)) {
+        if (! is_a($returnType->className(), $this->class->name(), true)) {
             throw new InvalidConstructorMethodClassReturnType($this->method, $this->class->name());
         }
     }
