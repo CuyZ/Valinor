@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
@@ -84,15 +83,15 @@ final class MethodObjectBuilderTest extends TestCase
     public function test_invalid_constructor_method_return_type_throws_exception(): void
     {
         $object = new class () {
-            public static function invalidConstructor(): int
+            public static function invalidConstructor(): bool
             {
-                return 42;
+                return true;
             }
         };
 
-        $this->expectException(InvalidConstructorMethodReturnType::class);
-        $this->expectExceptionCode(1638094383);
-        $this->expectExceptionMessage('Method `Signature::invalidConstructor` must return `' . get_class($object) . '` to be a valid constructor.');
+        $this->expectException(InvalidConstructorMethodClassReturnType::class);
+        $this->expectExceptionCode(1638094499);
+        $this->expectExceptionMessage('Method `Signature::invalidConstructor` must return `' . get_class($object) . '` to be a valid constructor but returns `bool`.');
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
         new MethodObjectBuilder($class, 'invalidConstructor');

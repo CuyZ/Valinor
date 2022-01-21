@@ -9,15 +9,12 @@ use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
-use CuyZ\Valinor\Type\Types\ClassType;
 use Exception;
 
 use function array_values;
-use function is_a;
 
 /** @api */
 final class MethodObjectBuilder implements ObjectBuilder
@@ -49,13 +46,7 @@ final class MethodObjectBuilder implements ObjectBuilder
             throw new ConstructorMethodIsNotStatic($this->method);
         }
 
-        $returnType = $this->method->returnType();
-
-        if (! $returnType instanceof ClassType) {
-            throw new InvalidConstructorMethodReturnType($this->method, $this->class->name());
-        }
-
-        if (! is_a($returnType->className(), $this->class->name(), true)) {
+        if (! $this->method->returnType()->matches($this->class->type())) {
             throw new InvalidConstructorMethodClassReturnType($this->method, $this->class->name());
         }
     }

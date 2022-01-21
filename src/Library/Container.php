@@ -18,7 +18,8 @@ use CuyZ\Valinor\Definition\Repository\Reflection\DoctrineAnnotationsRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\BasicObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
@@ -137,7 +138,9 @@ final class Container
 
             ObjectBuilderFactory::class => function (): ObjectBuilderFactory {
                 return new AttributeObjectBuilderFactory(
-                    new BasicObjectBuilderFactory()
+                    new DateTimeObjectBuilderFactory(
+                        new ConstructorObjectBuilderFactory()
+                    )
                 );
             },
 
