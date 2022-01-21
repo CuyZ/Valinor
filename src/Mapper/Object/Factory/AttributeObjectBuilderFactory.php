@@ -20,19 +20,19 @@ final class AttributeObjectBuilderFactory implements ObjectBuilderFactory
         $this->delegate = $delegate;
     }
 
-    public function for(ClassDefinition $class): ObjectBuilder
+    public function for(ClassDefinition $class, $source): ObjectBuilder
     {
         /** @var ObjectBuilderFactory[] $attributes */
         $attributes = $class->attributes()->ofType(ObjectBuilderFactory::class);
 
         if (count($attributes) === 0) {
-            return $this->delegate->for($class);
+            return $this->delegate->for($class, $source);
         }
 
         if (count($attributes) > 1) {
             throw new TooManyObjectBuilderFactoryAttributes($class, $attributes);
         }
 
-        return $attributes[0]->for($class);
+        return $attributes[0]->for($class, $source);
     }
 }

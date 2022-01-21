@@ -334,15 +334,97 @@ map(new \CuyZ\Valinor\Mapper\Source\FileSource(
 
 ### Construction strategy
 
-During the mapping, instances of the objects are created and hydrated with the
-correct values. Construction strategies will determine what values are needed
-and how an object is built.
+During the mapping, instances of objects are recursively created and hydrated
+with transformed values. Construction strategies will determine what values are
+needed and how an object is built.
 
-An object can provide either…
+#### Constructor
 
-- …a constructor that will be called with proper parameters.
-- …a list of properties that will be filled with proper values — even if they
-  are private.
+If a constructor exists and is public, its arguments will determine which values
+are needed from the input.
+
+```php
+final class SomeClass
+{
+    public function __construct(
+        public readonly string $foo,
+        public readonly int $bar,
+    ) {}
+}
+```
+
+#### Named constructor
+
+An object may have several ways of being created — in such cases it is common to
+use so-called named constructors, also known as static factory methods. If one
+or more are found, they can be called during the mapping to create an instance
+of the object.
+
+What defines a named constructor is a method that:
+
+1. is public
+2. is static
+3. returns an instance of the object
+4. has one or more arguments
+
+```php
+final class Color
+{
+    /**
+     * @param int<0, 255> $red
+     * @param int<0, 255> $green
+     * @param int<0, 255> $blue
+     */
+    private function __construct(
+        public readonly int $red,
+        public readonly int $green,
+        public readonly int $blue
+    ) {}
+
+    /**
+     * @param int<0, 255> $red
+     * @param int<0, 255> $green
+     * @param int<0, 255> $blue
+     */
+    public static function fromRgb(int $red, int $green, int $blue): self
+    {
+        return new self($red, $green, $blue);
+    }
+
+    /**
+     * @param non-empty-string $hex
+     */
+    public static function fromHex(string $hex): self
+    {
+        if (strlen($hex) !== 6) {
+            throw new DomainException('Must be 6 characters long');
+        }
+
+        /** @var int<0, 255> $red */
+        $red = hexdec(substr($hex, 0, 2));
+        /** @var int<0, 255> $green */
+        $green = hexdec(substr($hex, 2, 2));
+        /** @var int<0, 255> $blue */
+        $blue = hexdec(substr($hex, 4, 2));
+
+        return new self($red, $green, $blue);
+    }
+}
+```
+
+#### Properties
+
+If no constructor nor named constructor is found, properties will determine 
+which values are needed from the input.
+
+```php
+final class SomeClass
+{
+    public readonly string $foo;
+
+    public readonly int $bar;
+}
+```
 
 ## Handled types
 
@@ -560,6 +642,7 @@ includes:
 **Psalm**
 
 ```xml
+
 <plugins>
     <plugin filename="vendor/cuyz/valinor/qa/Psalm/Plugin/TreeMapperPsalmPlugin.php"/>
 </plugins>

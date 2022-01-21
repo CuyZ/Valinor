@@ -47,7 +47,7 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
 final class ObjectBuilderStrategyAttribute implements ObjectBuilderFactory
 {
-    public function for(ClassDefinition $class): ObjectBuilder
+    public function for(ClassDefinition $class, $source): ObjectBuilder
     {
         return new MethodObjectBuilder($class, 'create');
     }

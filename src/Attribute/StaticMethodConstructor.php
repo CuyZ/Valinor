@@ -14,6 +14,9 @@ use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 /**
  * @api
  *
+ * @deprecated This attribute is not useful anymore, automatic named constructor
+ *             resolution is now provided by the library out of the box.
+ *
  * @Annotation
  * @NamedArgumentConstructor
  * @Target({"CLASS"})
@@ -28,7 +31,7 @@ final class StaticMethodConstructor implements ObjectBuilderFactory
         $this->methodName = $methodName;
     }
 
-    public function for(ClassDefinition $class): ObjectBuilder
+    public function for(ClassDefinition $class, $source): ObjectBuilder
     {
         return new MethodObjectBuilder($class, $this->methodName);
     }

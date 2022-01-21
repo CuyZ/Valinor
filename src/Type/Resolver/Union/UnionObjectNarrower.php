@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Resolver\Union;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderNotFound;
 use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveObjectTypeFromUnion;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
@@ -55,7 +56,13 @@ final class UnionObjectNarrower implements UnionNarrower
             }
 
             $class = $this->classDefinitionRepository->for($type);
-            $objectBuilder = $this->objectBuilderFactory->for($class);
+
+            try {
+                $objectBuilder = $this->objectBuilderFactory->for($class, $source);
+            } catch (ObjectBuilderNotFound $exception) { // @PHP8.0 do not capture exception
+                continue;
+            }
+
             $arguments = [...$objectBuilder->describeArguments()];
 
             foreach ($arguments as $argument) {

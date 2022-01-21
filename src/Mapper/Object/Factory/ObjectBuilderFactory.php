@@ -10,5 +10,10 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 /** @internal */
 interface ObjectBuilderFactory
 {
-    public function for(ClassDefinition $class): ObjectBuilder;
+    /**
+     * @param mixed $source
+     *
+     * @throws ObjectBuilderNotFound
+     */
+    public function for(ClassDefinition $class, $source): ObjectBuilder;
 }
