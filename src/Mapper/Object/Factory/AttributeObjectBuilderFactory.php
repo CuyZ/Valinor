@@ -33,6 +33,6 @@ final class AttributeObjectBuilderFactory implements ObjectBuilderFactory
             throw new TooManyObjectBuilderFactoryAttributes($class, $attributes);
         }
 
-        return \reset($attributes)->for($class, $source);
+        return $attributes[0]->for($class, $source);
     }
 }
