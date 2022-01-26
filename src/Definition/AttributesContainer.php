@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Definition;
 use Traversable;
 
 use function array_filter;
+use function array_values;
 use function count;
 
 /** @internal */
@@ -33,10 +34,10 @@ final class AttributesContainer implements Attributes
 
     public function ofType(string $className): iterable
     {
-        return array_filter(
+        return array_values(array_filter(
             $this->attributes,
             static fn (object $attribute): bool => $attribute instanceof $className
-        );
+        ));
     }
 
     public function count(): int
