@@ -19,12 +19,9 @@ use function file_put_contents;
 use function implode;
 use function is_dir;
 use function mkdir;
-use function rename;
 use function sha1;
 use function str_contains;
-use function sys_get_temp_dir;
 use function time;
-use function uniqid;
 use function unlink;
 
 /**
@@ -81,13 +78,9 @@ final class CompiledPhpFileCache implements CacheInterface
             throw new CacheDirectoryNotFound($this->cacheDir); // @codeCoverageIgnore
         }
 
-        /** @infection-ignore-all */
-        $tmpFilename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('', true);
         $filename = $this->path($key);
 
-        file_put_contents($tmpFilename, $code);
-
-        if (! rename($tmpFilename, $filename)) {
+        if (file_put_contents($filename, $code) === false) {
             /** @infection-ignore-all */
             // @codeCoverageIgnoreStart
             throw new CompiledPhpCacheFileNotWritten($filename);

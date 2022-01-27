@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
-use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\Mapper\Tree\Shell;
-
 use function sys_get_temp_dir;
+use function uniqid;
 
 /** @internal */
 final class Settings
@@ -33,6 +31,6 @@ final class Settings
 
     public function __construct()
     {
-        $this->cacheDir = sys_get_temp_dir();
+        $this->cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('', true);
     }
 }
