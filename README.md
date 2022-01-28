@@ -428,12 +428,13 @@ final class SomeClass
 
 ### Modifiers
 
-Sometimes the source data is not in the same format and/or organised in the same way
-as your DTOs. Modifiers will change the source before the mapping occurs.
+Sometimes the source is not in the same format and/or organised in the same
+way as a value object. Modifiers can be used to change a source before the 
+mapping occurs.
 
 #### Camel case keys
 
-This modifier changes all keys to be in camelCase.
+This modifier recursively forces all keys to be in camelCase format.
 
 ```php
 final class SomeClass
@@ -441,9 +442,14 @@ final class SomeClass
     public readonly string $someValue;
 }
 
-$source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys(
-    new \CuyZ\Valinor\Mapper\Source\JsonSource('{"some_value": "foo"}')
-);
+$source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys([
+    'some_value' => 'foo',
+    // …or…
+    'some-value' => 'foo',
+    // …or…
+    'some value' => 'foo',
+    // …will be replaced by `['someValue' => 'foo']`
+]);
 
 (new \CuyZ\Valinor\MapperBuilder())
         ->mapper()
