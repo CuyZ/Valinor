@@ -426,6 +426,30 @@ final class SomeClass
 }
 ```
 
+### Modifiers
+
+Sometimes the source data is not in the same format and/or organised in the same way
+as your DTOs. Modifiers will change the source before the mapping occurs.
+
+#### Camel case keys
+
+This modifier changes all keys to be in camelCase.
+
+```php
+final class SomeClass
+{
+    public readonly string $someValue;
+}
+
+$source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys(
+    new \CuyZ\Valinor\Mapper\Source\JsonSource('{"some_value": "foo"}')
+);
+
+(new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(SomeClass::class, $source);
+```
+
 ## Handled types
 
 To prevent conflicts or duplication of the type annotations, this library tries
