@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Utility\Reflection;
 use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Singleton;
 use ReflectionClass;
+use ReflectionFunction;
+use Reflector;
 
 use function array_shift;
 use function explode;
@@ -18,16 +20,16 @@ final class ClassAliasParser
 {
     use IsSingleton;
 
-    /** @var array<class-string, array<string, class-string>> */
+    /** @var array<class-string, array<string, string>> */
     private array $aliases = [];
 
     /**
      * If the given symbol was imported as an alias in the given class, the
      * original value is returned.
      *
-     * @param ReflectionClass<object> $reflection
+     * @param ReflectionClass<object>|ReflectionFunction $reflection
      */
-    public function resolveAlias(string $symbol, ReflectionClass $reflection): string
+    public function resolveAlias(string $symbol, Reflector $reflection): string
     {
         $alias = $symbol;
 
@@ -54,12 +56,12 @@ final class ClassAliasParser
     }
 
     /**
-     * @param ReflectionClass<object> $reflection
-     * @return array<string, class-string>
+     * @param ReflectionClass<object>|ReflectionFunction $reflection
+     * @return array<string, string>
      */
-    private function aliases(ReflectionClass $reflection): array
+    private function aliases(Reflector $reflection): array
     {
         /** @infection-ignore-all */
-        return $this->aliases[$reflection->name] ??= Singleton::phpParser()->parseClass($reflection);
+        return $this->aliases[$reflection->name] ??= Singleton::phpParser()->parseUseStatements($reflection);
     }
 }

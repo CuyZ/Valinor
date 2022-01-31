@@ -14,7 +14,7 @@ use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassAliasSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
@@ -97,7 +97,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 
         $advancedParser = $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),
-            new ClassAliasSpecification($type->className()),
+            new AliasSpecification(Reflection::class($type->className())),
             new HandleClassGenericSpecification(),
             new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases)
         );
@@ -177,7 +177,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     {
         return $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),
-            new ClassAliasSpecification($type->className()),
+            new AliasSpecification(Reflection::class($type->className())),
             new HandleClassGenericSpecification(),
             new TypeAliasAssignerSpecification($type->generics()),
         );

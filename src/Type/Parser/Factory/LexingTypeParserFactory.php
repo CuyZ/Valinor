@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Factory;
 
 use CuyZ\Valinor\Type\Parser\CachedParser;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassAliasSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
-use CuyZ\Valinor\Type\Parser\Lexer\ClassAliasLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\AliasLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\ClassContextLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\ClassGenericLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\TypeAliasLexer;
@@ -55,8 +55,8 @@ final class LexingTypeParserFactory implements TypeParserFactory
             return new ClassContextLexer($lexer, $specification->className());
         }
 
-        if ($specification instanceof ClassAliasSpecification) {
-            return new ClassAliasLexer($lexer, $specification->className());
+        if ($specification instanceof AliasSpecification) {
+            return new AliasLexer($lexer, $specification->reflection());
         }
 
         if ($specification instanceof HandleClassGenericSpecification) {
