@@ -6,27 +6,30 @@ namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Utility\Reflection\ClassAliasParser;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
+
+use ReflectionFunction;
+
+use Reflector;
 
 use function class_exists;
 use function interface_exists;
 
 /** @internal */
-final class ClassAliasLexer implements TypeLexer
+final class AliasLexer implements TypeLexer
 {
     private TypeLexer $delegate;
 
-    /** @var ReflectionClass<object> */
-    private ReflectionClass $reflection;
+    /** @var ReflectionClass<object>|ReflectionFunction */
+    private Reflector $reflection;
 
     /**
-     * @param class-string $className
+     * @param ReflectionClass<object>|ReflectionFunction $reflection
      */
-    public function __construct(TypeLexer $delegate, string $className)
+    public function __construct(TypeLexer $delegate, Reflector $reflection)
     {
         $this->delegate = $delegate;
-        $this->reflection = Reflection::class($className);
+        $this->reflection = $reflection;
     }
 
     public function tokenize(string $symbol): Token
@@ -54,9 +57,9 @@ final class ClassAliasLexer implements TypeLexer
     }
 
     /**
-     * @param ReflectionClass<object> $reflection
+     * @param ReflectionClass<object>|ReflectionFunction $reflection
      */
-    private function resolveNamespaced(string $symbol, ReflectionClass $reflection): string
+    private function resolveNamespaced(string $symbol, Reflector $reflection): string
     {
         $namespace = $reflection->getNamespaceName();
 

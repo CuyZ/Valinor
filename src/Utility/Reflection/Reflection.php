@@ -23,13 +23,17 @@ use function implode;
 use function preg_match;
 use function preg_match_all;
 use function preg_replace;
+use function spl_object_hash;
 use function trim;
 
 /** @internal */
 final class Reflection
 {
-    /** @var array<ReflectionClass<object>> */
+    /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
+
+    /** @var array<string, ReflectionFunction> */
+    private static array $functionReflection = [];
 
     /**
      * @param class-string $className
@@ -38,6 +42,13 @@ final class Reflection
     public static function class(string $className): ReflectionClass
     {
         return self::$classReflection[$className] ??= new ReflectionClass($className);
+    }
+
+    public static function function(callable $function): ReflectionFunction
+    {
+        $closure = Closure::fromCallable($function);
+
+        return self::$functionReflection[spl_object_hash($closure)] ??= new ReflectionFunction($closure);
     }
 
     public static function signature(Reflector $reflection): string
@@ -52,6 +63,10 @@ final class Reflection
 
         if ($reflection instanceof ReflectionMethod) {
             return "{$reflection->getDeclaringClass()->name}::$reflection->name()";
+        }
+
+        if ($reflection instanceof ReflectionFunction) {
+            return "$reflection->name:{$reflection->getStartLine()}-{$reflection->getEndLine()}";
         }
 
         if ($reflection instanceof ReflectionParameter) {

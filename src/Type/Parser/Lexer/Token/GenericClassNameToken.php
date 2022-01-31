@@ -14,7 +14,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidAssignedGeneric;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidClassTemplate;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidTemplate;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassAliasSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\LazyParser;
@@ -61,7 +61,7 @@ final class GenericClassNameToken implements TraversingToken
             $parser = new LazyParser(
                 fn () => $this->typeParserFactory->get(
                     new ClassContextSpecification($this->className),
-                    new ClassAliasSpecification($this->className)
+                    new AliasSpecification($reflection)
                 )
             );
 

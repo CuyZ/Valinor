@@ -37,6 +37,16 @@ final class ReflectionTest extends TestCase
         self::assertSame($classReflectionA, $classReflectionB);
     }
 
+    public function test_function_reflection_is_created_only_once(): void
+    {
+        $function = fn () => 42;
+
+        $functionReflectionA = Reflection::function($function);
+        $functionReflectionB = Reflection::function($function);
+
+        self::assertSame($functionReflectionA, $functionReflectionB);
+    }
+
     public function test_reflection_signatures_are_correct(): void
     {
         $class = get_class(new class () {
