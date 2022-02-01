@@ -32,6 +32,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShellVisitorNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AggregateShellVisitor;
@@ -39,7 +40,6 @@ use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\InterfaceShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ObjectBindingShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
-use CuyZ\Valinor\Mapper\Tree\Visitor\UnionShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TreeMapperContainer;
 use CuyZ\Valinor\Type\Parser\CachedParser;
@@ -92,15 +92,6 @@ final class Container
 
             ShellVisitor::class => function () use ($settings): ShellVisitor {
                 return new AggregateShellVisitor(
-                    new UnionShellVisitor(
-                        new UnionNullNarrower(
-                            new UnionObjectNarrower(
-                                new UnionScalarNarrower(),
-                                $this->get(ClassDefinitionRepository::class),
-                                $this->get(ObjectBuilderFactory::class),
-                            )
-                        )
-                    ),
                     new InterfaceShellVisitor(
                         $settings->interfaceMapping,
                         $this->get(TypeParser::class),
@@ -128,6 +119,14 @@ final class Container
                     ),
                     ScalarType::class => new ScalarNodeBuilder(),
                 ]);
+
+                $builder = new UnionNodeBuilder($builder, new UnionNullNarrower(
+                    new UnionObjectNarrower(
+                        new UnionScalarNarrower(),
+                        $this->get(ClassDefinitionRepository::class),
+                        $this->get(ObjectBuilderFactory::class),
+                    )
+                ));
 
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
                 $builder = new ValueAlteringNodeBuilder($builder, $settings->valueModifier);
