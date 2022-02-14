@@ -45,6 +45,24 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
         self::assertInstanceOf(SomeBarObject::class, $result->objects['bar']);
     }
 
+    public function test_source_matching_two_unions_maps_the_one_with_most_arguments(): void
+    {
+        try {
+            $result = $this->mapperBuilder->mapper()->map(UnionOfBarAndFizAndFoo::class, [
+                ['foo' => 'foo', 'bar' => 'bar', 'fiz' => 'fiz'],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        /** @var SomeBarAndFizObject $object */
+        $object = $result->objects[0];
+
+        self::assertInstanceOf(SomeBarAndFizObject::class, $object);
+        self::assertSame('bar', $object->bar);
+        self::assertSame('fiz', $object->fiz);
+    }
+
     public function test_objects_sharing_one_property_are_resolved_correctly(): void
     {
         try {
@@ -89,7 +107,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['objects']->children()[0]->messages()[0];
 
-            self::assertSame('1641406600', $error->code());
+            self::assertSame('1642787246', $error->code());
         }
     }
 
@@ -98,10 +116,6 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
         yield [
             'className' => UnionOfFooAndBar::class,
             'source' => [['foo' => 'foo', 'bar' => 'bar']],
-        ];
-        yield [
-            'className' => UnionOfFooAndBarAndFiz::class,
-            'source' => [['foo' => 'foo', 'bar' => 'bar', 'fiz' => 'fiz']],
         ];
         yield [
             'className' => UnionOfFooAndAnotherFoo::class,
@@ -132,9 +146,9 @@ final class UnionOfFooAndBarAndFoo
 }
 
 // @PHP8.1 Readonly properties
-final class UnionOfFooAndBarAndFiz
+final class UnionOfBarAndFizAndFoo
 {
-    /** @var array<SomeFooObject|SomeBarAndFizObject> */
+    /** @var array<SomeBarAndFizObject|SomeFooObject> */
     public array $objects;
 }
 

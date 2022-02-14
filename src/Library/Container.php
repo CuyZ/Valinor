@@ -21,6 +21,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
@@ -51,11 +52,9 @@ use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Resolver\Union\UnionNullNarrower;
-use CuyZ\Valinor\Type\Resolver\Union\UnionObjectNarrower;
 use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
@@ -114,20 +113,17 @@ final class Container
                     NonEmptyArrayType::class => $arrayNodeBuilder,
                     IterableType::class => $arrayNodeBuilder,
                     ShapedArrayType::class => new ShapedArrayNodeBuilder(),
-                    ClassType::class => new ClassNodeBuilder(
-                        $this->get(ClassDefinitionRepository::class),
-                        $this->get(ObjectBuilderFactory::class),
-                    ),
                     ScalarType::class => new ScalarNodeBuilder(),
                 ]);
 
-                $builder = new UnionNodeBuilder($builder, new UnionNullNarrower(
-                    new UnionObjectNarrower(
-                        new UnionScalarNarrower(),
-                        $this->get(ClassDefinitionRepository::class),
-                        $this->get(ObjectBuilderFactory::class),
-                    )
-                ));
+                $builder = new UnionNodeBuilder($builder, new UnionNullNarrower(new UnionScalarNarrower()));
+
+                $builder = new ClassNodeBuilder(
+                    $builder,
+                    $this->get(ClassDefinitionRepository::class),
+                    $this->get(ObjectBuilderFactory::class),
+                    $this->get(ObjectBuilderFilterer::class),
+                );
 
                 $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
@@ -140,10 +136,14 @@ final class Container
             ObjectBuilderFactory::class => function (): ObjectBuilderFactory {
                 return new AttributeObjectBuilderFactory(
                     new DateTimeObjectBuilderFactory(
-                        new ConstructorObjectBuilderFactory()
+                        new ConstructorObjectBuilderFactory(
+                            $this->get(ObjectBuilderFilterer::class)
+                        )
                     )
                 );
             },
+
+            ObjectBuilderFilterer::class => fn () => new ObjectBuilderFilterer(),
 
             ClassDefinitionRepository::class => function () use ($settings): ClassDefinitionRepository {
                 $repository = new ReflectionClassDefinitionRepository(

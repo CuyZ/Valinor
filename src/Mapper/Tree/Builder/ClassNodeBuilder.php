@@ -8,13 +8,17 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\UnionType;
 
+use function array_filter;
 use function array_key_exists;
-use function assert;
 use function count;
 use function is_array;
 use function is_iterable;
@@ -23,29 +27,41 @@ use function iterator_to_array;
 /** @internal */
 final class ClassNodeBuilder implements NodeBuilder
 {
+    private NodeBuilder $delegate;
+
     private ClassDefinitionRepository $classDefinitionRepository;
 
     private ObjectBuilderFactory $objectBuilderFactory;
 
-    public function __construct(ClassDefinitionRepository $classDefinitionRepository, ObjectBuilderFactory $objectBuilderFactory)
-    {
+    private ObjectBuilderFilterer $objectBuilderFilterer;
+
+    public function __construct(
+        NodeBuilder $delegate,
+        ClassDefinitionRepository $classDefinitionRepository,
+        ObjectBuilderFactory $objectBuilderFactory,
+        ObjectBuilderFilterer $objectBuilderFilterer
+    ) {
+        $this->delegate = $delegate;
         $this->classDefinitionRepository = $classDefinitionRepository;
         $this->objectBuilderFactory = $objectBuilderFactory;
+        $this->objectBuilderFilterer = $objectBuilderFilterer;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
-        $type = $shell->type();
+        $classTypes = $this->classTypes($shell->type());
+
+        if (empty($classTypes)) {
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
         $source = $shell->value();
 
-        assert($type instanceof ClassType);
-
-        $class = $this->classDefinitionRepository->for($type);
-        $builder = $this->objectBuilderFactory->for($class, $source);
-
-        $children = [];
+        $builder = $this->builder($source, ...$classTypes);
         $arguments = [...$builder->describeArguments()];
+
         $source = $this->transformSource($source, ...$arguments);
+        $children = [];
 
         foreach ($arguments as $argument) {
             $name = $argument->name();
@@ -60,6 +76,44 @@ final class ClassNodeBuilder implements NodeBuilder
         $object = $this->buildObject($builder, $children);
 
         return Node::branch($shell, $object, $children);
+    }
+
+    /**
+     * @return array<ClassType>
+     */
+    private function classTypes(Type $type): array
+    {
+        if ($type instanceof ClassType) {
+            return [$type];
+        }
+
+        if ($type instanceof UnionType) {
+            return array_filter($type->types(), static fn (Type $subType) => $subType instanceof ClassType);
+        }
+
+        return [];
+    }
+
+    /**
+     * @param mixed $source
+     */
+    private function builder($source, ClassType ...$classTypes): ObjectBuilder
+    {
+        $builders = [];
+
+        foreach ($classTypes as $classType) {
+            $class = $this->classDefinitionRepository->for($classType);
+
+            try {
+                $builders[] = $this->objectBuilderFactory->for($class, $source);
+            } catch (SuitableObjectBuilderNotFound $exception) {
+                if (count($classTypes) === 1) {
+                    throw $exception;
+                }
+            }
+        }
+
+        return $this->objectBuilderFilterer->filter($source, ...$builders);
     }
 
     /**
