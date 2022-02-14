@@ -13,7 +13,7 @@ interface ObjectBuilderFactory
     /**
      * @param mixed $source
      *
-     * @throws ObjectBuilderNotFound
+     * @throws SuitableObjectBuilderNotFound
      */
     public function for(ClassDefinition $class, $source): ObjectBuilder;
 }

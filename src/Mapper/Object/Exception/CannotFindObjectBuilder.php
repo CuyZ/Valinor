@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
-use CuyZ\Valinor\Definition\MethodDefinition;
-use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderNotFound;
+use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
+use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use RuntimeException;
 
@@ -16,26 +16,26 @@ use function implode;
 use function ksort;
 
 /** @api */
-final class CannotFindConstructor extends RuntimeException implements Message, ObjectBuilderNotFound
+final class CannotFindObjectBuilder extends RuntimeException implements Message, SuitableObjectBuilderNotFound
 {
     /**
      * @param mixed $source
-     * @param non-empty-list<MethodDefinition> $constructors
+     * @param non-empty-list<ObjectBuilder> $builders
      */
-    public function __construct($source, array $constructors)
+    public function __construct($source, array $builders)
     {
         $type = get_debug_type($source);
 
         $signatures = [];
         $sortedSignatures = [];
 
-        foreach ($constructors as $method) {
+        foreach ($builders as $builder) {
             $parameters = [];
 
-            foreach ($method->parameters() as $parameter) {
-                $parameters[] = $parameter->isOptional()
-                    ? "{$parameter->name()}?: {$parameter->type()}"
-                    : "{$parameter->name()}: {$parameter->type()}";
+            foreach ($builder->describeArguments() as $argument) {
+                $parameters[] = $argument->isRequired()
+                    ? "{$argument->name()}: {$argument->type()}"
+                    : "{$argument->name()}?: {$argument->type()}";
             }
 
             $signatures[count($parameters)]['array{' . implode(', ', $parameters) . '}'] = true;

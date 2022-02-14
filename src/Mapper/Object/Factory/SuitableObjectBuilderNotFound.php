@@ -6,7 +6,8 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 
 use Throwable;
 
+// @todo rename
 /** @internal */
-interface ObjectBuilderNotFound extends Throwable
+interface SuitableObjectBuilderNotFound extends Throwable
 {
 }
