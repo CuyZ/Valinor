@@ -23,6 +23,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\EnumNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
@@ -128,6 +129,7 @@ final class Container
                     )
                 ));
 
+                $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
                 $builder = new ValueAlteringNodeBuilder($builder, $settings->valueModifier);
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
