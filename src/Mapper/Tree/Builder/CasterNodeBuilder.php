@@ -25,11 +25,6 @@ final class CasterNodeBuilder implements NodeBuilder
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
-        $value = $shell->value();
-
-        if ($type->accepts($value)) {
-            return Node::leaf($shell, $value);
-        }
 
         foreach ($this->builders as $allowed => $builder) {
             if ($type instanceof $allowed) {
