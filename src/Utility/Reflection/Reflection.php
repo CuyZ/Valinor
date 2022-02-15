@@ -81,7 +81,7 @@ final class Reflection
         /** @var ReflectionNamedType $type */
         $name = $type->getName();
 
-        if ($name !== 'null' && $type->allowsNull()) {
+        if ($name !== 'null' && $type->allowsNull() && $name !== 'mixed') {
             return $name . '|null';
         }
 
