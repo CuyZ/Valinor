@@ -173,27 +173,6 @@ final class Reflection
         return $types;
     }
 
-    public static function ofCallable(callable $callable): ReflectionFunctionAbstract
-    {
-        if ($callable instanceof Closure) {
-            return new ReflectionFunction($callable);
-        }
-
-        if (is_string($callable)) {
-            $parts = explode('::', $callable);
-
-            return count($parts) > 1
-                ? new ReflectionMethod($parts[0], $parts[1])
-                : new ReflectionFunction($callable);
-        }
-
-        if (! is_array($callable)) {
-            $callable = [$callable, '__invoke'];
-        }
-
-        return new ReflectionMethod($callable[0], $callable[1]);
-    }
-
     /**
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionFunctionAbstract $reflection
      */

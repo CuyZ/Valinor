@@ -25,6 +25,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRe
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\ObjectBindingBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
@@ -45,7 +46,6 @@ use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AggregateShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\InterfaceShellVisitor;
-use CuyZ\Valinor\Mapper\Tree\Visitor\ObjectBindingShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TreeMapperContainer;
@@ -102,7 +102,6 @@ final class Container
                         $this->get(TypeParser::class),
                     ),
                     new AttributeShellVisitor(),
-                    new ObjectBindingShellVisitor($settings->objectBinding),
                 );
             },
 
@@ -142,14 +141,21 @@ final class Container
                 return new ErrorCatcherNodeBuilder($builder);
             },
 
-            ObjectBuilderFactory::class => function (): ObjectBuilderFactory {
-                return new AttributeObjectBuilderFactory(
-                    new DateTimeObjectBuilderFactory(
-                        new ConstructorObjectBuilderFactory(
-                            $this->get(ObjectBuilderFilterer::class)
-                        )
-                    )
+            ObjectBuilderFactory::class => function () use ($settings): ObjectBuilderFactory {
+                $factory = new ConstructorObjectBuilderFactory(
+                    $this->get(ObjectBuilderFilterer::class)
                 );
+
+                $factory = new DateTimeObjectBuilderFactory($factory);
+
+                $factory = new ObjectBindingBuilderFactory(
+                    $factory,
+                    $this->get(FunctionDefinitionRepository::class),
+                    $this->get(ObjectBuilderFilterer::class),
+                    $settings->objectBinding,
+                );
+
+                return new AttributeObjectBuilderFactory($factory);
             },
 
             ObjectBuilderFilterer::class => fn () => new ObjectBuilderFilterer(),

@@ -15,7 +15,7 @@ final class Settings
     /** @var array<class-string, callable(Shell): class-string> */
     public array $interfaceMapping = [];
 
-    /** @var array<string, callable(mixed): object> */
+    /** @var list<callable> */
     public array $objectBinding = [];
 
     /** @var list<callable> */

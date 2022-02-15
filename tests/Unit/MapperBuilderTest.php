@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Unit;
 use CuyZ\Valinor\MapperBuilder;
 use DateTime;
 use DateTimeInterface;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -43,15 +42,5 @@ final class MapperBuilderTest extends TestCase
     public function test_mapper_instance_is_the_same(): void
     {
         self::assertSame($this->mapperBuilder->mapper(), $this->mapperBuilder->mapper());
-    }
-
-    public function test_bind_with_callable_with_no_return_type_throws_exception(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('No return type was found for this callable.');
-
-        // @phpstan-ignore-next-line
-        $this->mapperBuilder->bind(static function () {
-        });
     }
 }

@@ -166,48 +166,4 @@ final class ReflectionTest extends TestCase
 
         self::assertNull($type);
     }
-
-    public function test_reflection_of_closure_is_correct(): void
-    {
-        $callable = static function (): void {
-        };
-
-        $reflection = Reflection::ofCallable($callable);
-
-        self::assertTrue($reflection->isClosure());
-    }
-
-    public function test_reflection_of_function_is_correct(): void
-    {
-        $reflection = Reflection::ofCallable('strlen');
-
-        self::assertSame('strlen', $reflection->getShortName());
-    }
-
-    public function test_reflection_of_static_method_is_correct(): void
-    {
-        $class = new class () {
-            public static function someMethod(): void
-            {
-            }
-        };
-
-        // @phpstan-ignore-next-line
-        $reflection = Reflection::ofCallable(get_class($class) . '::someMethod');
-
-        self::assertSame('someMethod', $reflection->getShortName());
-    }
-
-    public function test_reflection_of_callable_class_is_correct(): void
-    {
-        $class = new class () {
-            public function __invoke(): void
-            {
-            }
-        };
-
-        $reflection = Reflection::ofCallable($class);
-
-        self::assertSame('__invoke', $reflection->getShortName());
-    }
 }
