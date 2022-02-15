@@ -54,7 +54,13 @@ final class CompiledPhpFileCacheTest extends TestCase
             /** @var string $path */
             $path = $file->getRealPath();
 
-            unlink($path);
+            if ($file->isFile()) {
+                unlink($path);
+            }
+
+            if ($file->isDir()) {
+                rmdir($path);
+            }
         }
 
         rmdir($this->cacheDir);
@@ -187,11 +193,8 @@ final class CompiledPhpFileCacheTest extends TestCase
     {
         $this->cache->set('foo', 'foo');
 
-        /** @var SplFileInfo $file */
-        $file = (new FilesystemIterator($this->cacheDir))->current();
-
         /** @var string $filename */
-        $filename = $file->getPathname();
+        $filename = $this->currentCacheFile()->getPathname();
 
         file_put_contents($filename, '<?php throw new Exception()');
 
@@ -208,11 +211,8 @@ final class CompiledPhpFileCacheTest extends TestCase
     {
         $this->cache->set('foo', 'foo');
 
-        /** @var SplFileInfo $file */
-        $file = (new FilesystemIterator($this->cacheDir))->current();
-
         /** @var string $filename */
-        $filename = $file->getPathname();
+        $filename = $this->currentCacheFile()->getPathname();
 
         file_put_contents($filename, '<?php return 1;');
 
@@ -223,5 +223,13 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->cache->get('foo');
 
         unlink($filename);
+    }
+
+    private function currentCacheFile(): SplFileInfo
+    {
+        $iterator = (new FilesystemIterator($this->cacheDir));
+        $iterator->next();
+
+        return $iterator->current(); // @phpstan-ignore-line
     }
 }

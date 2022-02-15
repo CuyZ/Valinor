@@ -12,12 +12,12 @@ use RuntimeException;
  * @codeCoverageIgnore
  * @infection-ignore-all
  */
-final class CacheDirectoryNotFound extends RuntimeException
+final class CacheDirectoryNotWritable extends RuntimeException
 {
     public function __construct(string $directory)
     {
         parent::__construct(
-            "Provided directory `$directory` does not exist.",
+            "Provided directory `$directory` is not writable.",
             1616445016
         );
     }
