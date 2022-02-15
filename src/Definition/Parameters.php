@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition;
 
 use Countable;
+use CuyZ\Valinor\Definition\Exception\InvalidParameterIndex;
 use CuyZ\Valinor\Definition\Exception\ParameterNotFound;
 use IteratorAggregate;
 use Traversable;
+
+use function array_values;
 
 /**
  * @api
@@ -38,6 +41,18 @@ final class Parameters implements IteratorAggregate, Countable
         }
 
         return $this->parameters[$name];
+    }
+
+    /**
+     * @param int<0, max> $index
+     */
+    public function at(int $index): ParameterDefinition
+    {
+        if ($index >= $this->count()) {
+            throw new InvalidParameterIndex($index, $this);
+        }
+
+        return array_values($this->parameters)[$index];
     }
 
     public function count(): int

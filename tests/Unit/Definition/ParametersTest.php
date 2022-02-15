@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
+use CuyZ\Valinor\Definition\Exception\InvalidParameterIndex;
 use CuyZ\Valinor\Definition\Exception\ParameterNotFound;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeParameterDefinition;
@@ -34,6 +35,25 @@ final class ParametersTest extends TestCase
         $this->expectExceptionMessage('The parameter `unknownParameter` does not exist.');
 
         (new Parameters())->get('unknownParameter');
+    }
+
+    public function test_get_parameter_at_index_returns_correct_parameter(): void
+    {
+        $parameterA = FakeParameterDefinition::new('SomeParameterA');
+        $parameterB = FakeParameterDefinition::new('SomeParameterB');
+        $parameters = new Parameters($parameterA, $parameterB);
+
+        self::assertSame($parameterA, $parameters->at(0));
+        self::assertSame($parameterB, $parameters->at(1));
+    }
+
+    public function test_get_parameter_at_index_out_of_range_throws_exception(): void
+    {
+        $this->expectException(InvalidParameterIndex::class);
+        $this->expectExceptionCode(1644936619);
+        $this->expectExceptionMessage('Index 1 is out of range, it should be between 0 and 0.');
+
+        (new Parameters(FakeParameterDefinition::new()))->at(1);
     }
 
     public function test_parameters_are_countable(): void
