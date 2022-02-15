@@ -66,27 +66,8 @@ final class MapperBuilder
      */
     public function alter(callable $callback): self
     {
-        $reflection = Reflection::ofCallable($callback);
-
-        if ($reflection->getNumberOfParameters() === 0) {
-            throw new LogicException('One parameter is required for this callable.');
-        }
-
-        $parameter = $reflection->getParameters()[0];
-        $nativeType = $parameter->getType();
-        $typeFromDocBlock = Reflection::docBlockType($parameter);
-
-        if ($typeFromDocBlock) {
-            $type = $typeFromDocBlock;
-        } elseif ($nativeType) {
-            $type = Reflection::flattenType($nativeType);
-        } else {
-            throw new LogicException('No type was found for the parameter of this callable.');
-        }
-
         $clone = clone $this;
-        $clone->settings->valueModifier[$type] ??= [];
-        $clone->settings->valueModifier[$type][] = $callback;
+        $clone->settings->valueModifier[] = $callback;
 
         return $clone;
     }

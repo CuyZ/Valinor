@@ -9,14 +9,19 @@ use CuyZ\Valinor\Cache\Compiled\CompiledPhpFileCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\VersionedCache;
 use CuyZ\Valinor\Definition\ClassDefinition;
+use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\CombinedAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\DoctrineAnnotationsRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
@@ -127,7 +132,11 @@ final class Container
 
                 $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
-                $builder = new ValueAlteringNodeBuilder($builder, $settings->valueModifier);
+                $builder = new ValueAlteringNodeBuilder(
+                    $builder,
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->valueModifier
+                );
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
                 return new ErrorCatcherNodeBuilder($builder);
@@ -156,6 +165,19 @@ final class Container
                 $cache = $this->wrapCache($cache);
 
                 return new CacheClassDefinitionRepository($repository, $cache);
+            },
+
+            FunctionDefinitionRepository::class => function () use ($settings): FunctionDefinitionRepository {
+                $repository = new ReflectionFunctionDefinitionRepository(
+                    $this->get(TypeParserFactory::class),
+                    $this->get(AttributesRepository::class),
+                );
+
+                /** @var CacheInterface<FunctionDefinition> $cache */
+                $cache = new CompiledPhpFileCache($settings->cacheDir, new FunctionDefinitionCompiler());
+                $cache = $this->wrapCache($cache);
+
+                return new CacheFunctionDefinitionRepository($repository, $cache);
             },
 
             AttributesRepository::class => function () use ($settings): AttributesRepository {

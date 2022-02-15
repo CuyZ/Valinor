@@ -18,10 +18,7 @@ final class Settings
     /** @var array<string, callable(mixed): object> */
     public array $objectBinding = [];
 
-    /**
-     * @template T
-     * @var array<string, array<callable(T): T>>
-     */
+    /** @var list<callable> */
     public array $valueModifier = [];
 
     /** @var array<callable(Node): void> */

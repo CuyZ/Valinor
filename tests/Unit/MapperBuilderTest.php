@@ -54,22 +54,4 @@ final class MapperBuilderTest extends TestCase
         $this->mapperBuilder->bind(static function () {
         });
     }
-
-    public function test_alter_with_callable_with_no_parameter_throws_exception(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('One parameter is required for this callable.');
-
-        $this->mapperBuilder->alter(static function (): void {
-        });
-    }
-
-    public function test_alter_with_callable_with_parameter_with_no_type_throws_exception(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('No type was found for the parameter of this callable.');
-
-        $this->mapperBuilder->alter(static function ($foo): void {
-        });
-    }
 }
