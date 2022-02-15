@@ -17,6 +17,7 @@ final class ValueAlteringMappingTest extends IntegrationTest
     {
         try {
             $result = $this->mapperBuilder
+                ->alter(fn () => 'bar')
                 ->alter(fn (string $value) => strtolower($value))
                 ->alter(fn (string $value) => strtoupper($value))
                 ->alter(/** @param string $value */ fn ($value) => $value . '!')
