@@ -122,7 +122,7 @@ final class ClassNodeBuilder implements NodeBuilder
      */
     private function transformSource($source, Argument ...$arguments): array
     {
-        if ($source === null) {
+        if ($source === null || count($arguments) === 0) {
             return [];
         }
 

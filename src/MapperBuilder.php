@@ -9,8 +9,6 @@ use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
-use LogicException;
 
 /** @api */
 final class MapperBuilder
@@ -37,25 +35,35 @@ final class MapperBuilder
     }
 
     /**
-     * @param callable(mixed): object $callback
+     * Defines a custom way to build an object during the mapping.
+     *
+     * The return type of the callback will be resolved by the mapping to know
+     * when to use it.
+     *
+     * The callback can take any arguments, that will automatically be mapped
+     * using the given source. These arguments can then be used to instantiate
+     * the object in the desired way.
+     *
+     * Example:
+     *
+     * ```
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->bind(function(string $string, OtherClass $otherClass): SomeClass {
+     *         $someClass = new SomeClass($string);
+     *         $someClass->addOtherClass($otherClass);
+     *
+     *         return $someClass;
+     *     })
+     *     ->mapper()
+     *     ->map(SomeClass::class, [
+     *         // …
+     *     ]);
+     * ```
      */
     public function bind(callable $callback): self
     {
-        $reflection = Reflection::ofCallable($callback);
-
-        $nativeType = $reflection->getReturnType();
-        $typeFromDocBlock = Reflection::docBlockReturnType($reflection);
-
-        if ($typeFromDocBlock) {
-            $type = $typeFromDocBlock;
-        } elseif ($nativeType) {
-            $type = Reflection::flattenType($nativeType);
-        } else {
-            throw new LogicException('No return type was found for this callable.');
-        }
-
         $clone = clone $this;
-        $clone->settings->objectBinding[$type] = $callback;
+        $clone->settings->objectBinding[] = $callback;
 
         return $clone;
     }

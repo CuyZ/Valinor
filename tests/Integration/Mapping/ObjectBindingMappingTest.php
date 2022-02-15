@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use stdClass;
 
 use function get_class;
@@ -26,9 +25,7 @@ final class ObjectBindingMappingTest extends IntegrationTest
             $result = $this->mapperBuilder
                 ->bind(fn (): stdClass => $object)
                 ->mapper()
-                ->map(get_class($class), [
-                    'object' => new stdClass(),
-                ]);
+                ->map(get_class($class), []);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -47,9 +44,7 @@ final class ObjectBindingMappingTest extends IntegrationTest
             $result = $this->mapperBuilder
                 ->bind(/** @return stdClass */ fn () => $object)
                 ->mapper()
-                ->map(get_class($class), [
-                    'object' => new stdClass(),
-                ]);
+                ->map(get_class($class), []);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -68,7 +63,6 @@ final class ObjectBindingMappingTest extends IntegrationTest
                 ->bind(fn (): DateTimeImmutable => $defaultImmutable)
                 ->mapper()
                 ->map(SimpleDateTimeValues::class, [
-                    'dateTimeInterface' => 1357047105,
                     'dateTimeImmutable' => 1357047105,
                     'dateTime' => 1357047105,
                 ]);
@@ -76,16 +70,58 @@ final class ObjectBindingMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        self::assertSame($defaultImmutable, $result->dateTimeInterface);
         self::assertSame($defaultImmutable, $result->dateTimeImmutable);
         self::assertSame($default, $result->dateTime);
+    }
+
+    public function test_bind_object_with_one_argument_binds_object(): void
+    {
+        try {
+            $result = $this->mapperBuilder
+                ->bind(function (int $int): stdClass {
+                    $class = new stdClass();
+                    $class->int = $int;
+
+                    return $class;
+                })
+                ->mapper()
+                ->map(stdClass::class, 1337);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(1337, $result->int);
+    }
+
+    public function test_bind_object_with_arguments_binds_object(): void
+    {
+        try {
+            $result = $this->mapperBuilder
+                ->bind(function (string $string, int $int, float $float = 1337.404): stdClass {
+                    $class = new stdClass();
+                    $class->string = $string;
+                    $class->int = $int;
+                    $class->float = $float;
+
+                    return $class;
+                })
+                ->mapper()
+                ->map(stdClass::class, [
+                    'string' => 'foo',
+                    'int' => 42,
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->string);
+        self::assertSame(42, $result->int);
+        self::assertSame(1337.404, $result->float);
     }
 }
 
 final class SimpleDateTimeValues
 {
-    public DateTimeInterface $dateTimeInterface;
-
     public DateTimeImmutable $dateTimeImmutable;
 
     public DateTime $dateTime;
