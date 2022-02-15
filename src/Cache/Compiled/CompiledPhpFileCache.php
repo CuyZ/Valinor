@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Cache\Compiled;
 
-use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotFound;
+use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
 use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
 use DateInterval;
@@ -22,7 +22,6 @@ use function mkdir;
 use function rename;
 use function sha1;
 use function str_contains;
-use function sys_get_temp_dir;
 use function time;
 use function uniqid;
 use function unlink;
@@ -76,13 +75,15 @@ final class CompiledPhpFileCache implements CacheInterface
     {
         $code = $this->compile($value, $ttl);
 
+        $tmpDir = $this->cacheDir . DIRECTORY_SEPARATOR . '.valinor.tmp';
+
         /** @infection-ignore-all */
-        if (! is_dir($this->cacheDir) && ! mkdir($this->cacheDir, 510, true)) {
-            throw new CacheDirectoryNotFound($this->cacheDir); // @codeCoverageIgnore
+        if (! is_dir($tmpDir) && ! mkdir($tmpDir, 510, true)) {
+            throw new CacheDirectoryNotWritable($this->cacheDir); // @codeCoverageIgnore
         }
 
         /** @infection-ignore-all */
-        $tmpFilename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('', true);
+        $tmpFilename = $tmpDir . DIRECTORY_SEPARATOR . uniqid('', true);
         $filename = $this->path($key);
 
         file_put_contents($tmpFilename, $code);
@@ -112,7 +113,12 @@ final class CompiledPhpFileCache implements CacheInterface
     {
         $success = true;
 
+        /** @var FilesystemIterator $file */
         foreach (new FilesystemIterator($this->cacheDir) as $file) {
+            if (! $file->isFile()) {
+                continue;
+            }
+
             /** @var FilesystemIterator $file */
             $line = $file->openFile()->getCurrentLine();
 

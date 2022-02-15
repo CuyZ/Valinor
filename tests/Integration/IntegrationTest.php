@@ -41,7 +41,13 @@ abstract class IntegrationTest extends TestCase
             /** @var string $path */
             $path = $file->getRealPath();
 
-            unlink($path);
+            if ($file->isFile()) {
+                unlink($path);
+            }
+
+            if ($file->isDir()) {
+                rmdir($path);
+            }
         }
 
         rmdir($this->cacheDir);
