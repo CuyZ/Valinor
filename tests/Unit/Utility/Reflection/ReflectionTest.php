@@ -106,6 +106,20 @@ final class ReflectionTest extends TestCase
     }
 
     /**
+     * @requires PHP >= 8
+     */
+    public function test_mixed_type_is_handled(): void
+    {
+        $object = new class () {
+            public mixed $someProperty;
+        };
+
+        /** @var ReflectionType $type */
+        $type = (new ReflectionProperty($object, 'someProperty'))->getType();
+        self::assertSame('mixed', Reflection::flattenType($type));
+    }
+
+    /**
      * @requires PHP >= 8.1
      */
     public function test_intersection_type_is_handled(): void
