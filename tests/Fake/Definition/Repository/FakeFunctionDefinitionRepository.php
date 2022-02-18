@@ -19,7 +19,15 @@ final class FakeFunctionDefinitionRepository implements FunctionDefinitionReposi
             'foo',
             'foo:42-1337',
             new Parameters(
-                new ParameterDefinition('bar', 'foo::bar', NativeStringType::get(), false, 'foo', EmptyAttributes::get())
+                new ParameterDefinition(
+                    'bar',
+                    'foo::bar',
+                    NativeStringType::get(),
+                    false,
+                    false,
+                    'foo',
+                    EmptyAttributes::get()
+                )
             ),
             NativeStringType::get()
         );

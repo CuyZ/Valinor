@@ -91,6 +91,10 @@ final class ReflectionTypeResolver
 
         $type = Reflection::flattenType($reflectionType);
 
+        if ($reflection instanceof ReflectionParameter && $reflection->isVariadic()) {
+            $type .= '[]';
+        }
+
         return $this->parseType($type, $reflection, $this->nativeParser);
     }
 

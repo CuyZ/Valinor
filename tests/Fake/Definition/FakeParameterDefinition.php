@@ -22,6 +22,7 @@ final class FakeParameterDefinition
             $name,
             $type ?? new FakeType(),
             false,
+            false,
             null,
             new FakeAttributes()
         );
@@ -40,6 +41,7 @@ final class FakeParameterDefinition
             'Signature::' . $reflection->name,
             $type,
             $reflection->isOptional(),
+            $reflection->isVariadic(),
             $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null,
             new FakeAttributes()
         );

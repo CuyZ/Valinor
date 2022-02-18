@@ -15,6 +15,7 @@ use ReflectionClass;
 
 use function file_put_contents;
 use function get_class;
+use function implode;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
@@ -36,9 +37,9 @@ final class ClassDefinitionCompilerTest extends TestCase
             new class () {
                 public string $property = 'Some property default value';
 
-                public static function method(string $parameter = 'Some parameter default value'): string
+                public static function method(string $parameter = 'Some parameter default value', string ...$variadic): string
                 {
-                    return $parameter;
+                    return $parameter . implode(' / ', $variadic);
                 }
             };
 
@@ -79,7 +80,12 @@ final class ClassDefinitionCompilerTest extends TestCase
         self::assertSame('Signature::parameter', $parameter->signature());
         self::assertSame(NativeStringType::get(), $parameter->type());
         self::assertTrue($parameter->isOptional());
+        self::assertFalse($parameter->isVariadic());
         self::assertSame('Some parameter default value', $parameter->defaultValue());
+
+        $variadic = $method->parameters()->get('variadic');
+
+        self::assertTrue($variadic->isVariadic());
     }
 
     public function test_modifying_class_definition_file_invalids_compiled_class_definition(): void
