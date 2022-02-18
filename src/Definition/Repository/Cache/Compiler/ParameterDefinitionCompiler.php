@@ -22,6 +22,7 @@ final class ParameterDefinitionCompiler
     public function compile(ParameterDefinition $parameter): string
     {
         $isOptional = var_export($parameter->isOptional(), true);
+        $isVariadic = var_export($parameter->isVariadic(), true);
         $defaultValue = var_export($parameter->defaultValue(), true);
         $type = $this->typeCompiler->compile($parameter->type());
         $attributes = $this->attributesCompiler->compile($parameter->attributes());
@@ -32,6 +33,7 @@ final class ParameterDefinitionCompiler
                 '{$parameter->signature()}',
                 $type,
                 $isOptional,
+                $isVariadic,
                 $defaultValue,
                 $attributes
             )

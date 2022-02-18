@@ -17,6 +17,7 @@ final class ParameterDefinitionTest extends TestCase
         $signature = 'someParameterSignature';
         $type = new FakeType();
         $isOptional = true;
+        $isVariadic = true;
         $defaultValue = 'Some parameter default value';
         $attributes = new FakeAttributes();
 
@@ -25,6 +26,7 @@ final class ParameterDefinitionTest extends TestCase
             $signature,
             $type,
             $isOptional,
+            $isVariadic,
             $defaultValue,
             $attributes
         );
@@ -33,6 +35,7 @@ final class ParameterDefinitionTest extends TestCase
         self::assertSame($signature, $parameter->signature());
         self::assertSame($type, $parameter->type());
         self::assertSame($isOptional, $parameter->isOptional());
+        self::assertSame($isVariadic, $parameter->isVariadic());
         self::assertSame($defaultValue, $parameter->defaultValue());
         self::assertSame($attributes, $parameter->attributes());
     }

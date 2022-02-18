@@ -14,8 +14,6 @@ use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
 
-use function array_values;
-
 /** @api */
 final class MethodObjectBuilder implements ObjectBuilder
 {
@@ -64,9 +62,19 @@ final class MethodObjectBuilder implements ObjectBuilder
 
     public function build(array $arguments): object
     {
+        $values = [];
+
         foreach ($this->method->parameters() as $parameter) {
+            $name = $parameter->name();
+
             if (! array_key_exists($parameter->name(), $arguments) && ! $parameter->isOptional()) {
                 throw new MissingMethodArgument($parameter);
+            }
+
+            if ($parameter->isVariadic()) {
+                $values = [...$values, ...$arguments[$name]]; // @phpstan-ignore-line we know that the argument is iterable
+            } else {
+                $values[] = $arguments[$name];
             }
         }
 
@@ -75,15 +83,14 @@ final class MethodObjectBuilder implements ObjectBuilder
 
         try {
             // @PHP8.0 `array_values` can be removed
-            $arguments = array_values($arguments);
+            /** @infection-ignore-all */
+            $values = array_values($values);
 
             if (! $this->method->isStatic()) {
-                /** @infection-ignore-all */
-                return new $className(...$arguments);
+                return new $className(...$values);
             }
 
-            /** @infection-ignore-all */
-            return $className::$methodName(...$arguments); // @phpstan-ignore-line
+            return $className::$methodName(...$values); // @phpstan-ignore-line
         } catch (Exception $exception) {
             throw ThrowableMessage::from($exception);
         }

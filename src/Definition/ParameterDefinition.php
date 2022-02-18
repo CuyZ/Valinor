@@ -17,6 +17,8 @@ final class ParameterDefinition
 
     private bool $isOptional;
 
+    private bool $isVariadic;
+
     /** @var mixed */
     private $defaultValue;
 
@@ -30,6 +32,7 @@ final class ParameterDefinition
         string $signature,
         Type $type,
         bool $isOptional,
+        bool $isVariadic,
         $defaultValue,
         Attributes $attributes
     ) {
@@ -37,6 +40,7 @@ final class ParameterDefinition
         $this->signature = $signature;
         $this->type = $type;
         $this->isOptional = $isOptional;
+        $this->isVariadic = $isVariadic;
         $this->defaultValue = $defaultValue;
         $this->attributes = $attributes;
     }
@@ -59,6 +63,11 @@ final class ParameterDefinition
     public function isOptional(): bool
     {
         return $this->isOptional;
+    }
+
+    public function isVariadic(): bool
+    {
+        return $this->isVariadic;
     }
 
     /**

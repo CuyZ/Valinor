@@ -27,8 +27,16 @@ final class ReflectionParameterDefinitionBuilder
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);
         $isOptional = $reflection->isOptional();
-        $defaultValue = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
+        $isVariadic = $reflection->isVariadic();
         $attributes = $this->attributesFactory->for($reflection);
+
+        if ($reflection->isDefaultValueAvailable()) {
+            $defaultValue = $reflection->getDefaultValue();
+        } elseif ($reflection->isVariadic()) {
+            $defaultValue = [];
+        } else {
+            $defaultValue = null;
+        }
 
         if ($isOptional
             && ! $type instanceof UnresolvableType
@@ -37,6 +45,6 @@ final class ReflectionParameterDefinitionBuilder
             throw new InvalidParameterDefaultValue($reflection, $type);
         }
 
-        return new ParameterDefinition($name, $signature, $type, $isOptional, $defaultValue, $attributes);
+        return new ParameterDefinition($name, $signature, $type, $isOptional, $isVariadic, $defaultValue, $attributes);
     }
 }
