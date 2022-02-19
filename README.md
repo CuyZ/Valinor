@@ -332,6 +332,82 @@ map(new \CuyZ\Valinor\Mapper\Source\FileSource(
 ));
 ```
 
+#### Modifiers
+
+Sometimes the source is not in the same format and/or organised in the same
+way as a value object. Modifiers can be used to change a source before the
+mapping occurs.
+
+##### Camel case keys
+
+This modifier recursively forces all keys to be in camelCase format.
+
+```php
+final class SomeClass
+{
+    public readonly string $someValue;
+}
+
+$source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys([
+    'some_value' => 'foo',
+    // …or…
+    'some-value' => 'foo',
+    // …or…
+    'some value' => 'foo',
+    // …will be replaced by `['someValue' => 'foo']`
+]);
+
+(new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(SomeClass::class, $source);
+```
+
+##### Path mapping
+
+This modifier can be used to change paths in the source data using a dot notation.
+
+The mapping is done using an associative array of path mappings. This array must
+have the source path as key and the target path as value.
+
+The source path uses the dot notation (eg `A.B.C`) and can contain one `*` for
+non-associative array paths (eg `A.B.*.C`).
+
+```php
+final class Country
+{
+    /** @var City[] */
+    public readonly array $cities;
+}
+
+final class City
+{
+    public readonly string $name;
+}
+
+$source = new \CuyZ\Valinor\Mapper\Source\Modifier\PathMapping([
+    'towns' => [
+        ['label' => 'Ankh Morpork'],
+        ['label' => 'Minas Tirith'],
+    ],
+],
+[
+    'towns' => 'cities',
+    'towns.*.label' => 'name',
+]);
+
+// After modification this is what the source will look like:
+[
+    'cities' => [
+        ['name' => 'Ankh Morpork'],
+        ['name' => 'Minas Tirith'],
+    ],
+];
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(Country::class, $source);
+```
+
 ### Construction strategy
 
 During the mapping, instances of objects are recursively created and hydrated
