@@ -55,7 +55,6 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        /** @var SomeBarAndFizObject $object */
         $object = $result->objects[0];
 
         self::assertInstanceOf(SomeBarAndFizObject::class, $object);

@@ -41,7 +41,6 @@ final class TypeAliasLexerTest extends TestCase
 
         $lexer = new TypeAliasLexer($this->delegate, ['Template' => $type]);
 
-        /** @var TypeToken $result */
         $result = $lexer->tokenize('Template');
 
         self::assertInstanceOf(TypeToken::class, $result);

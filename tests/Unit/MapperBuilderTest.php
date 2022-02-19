@@ -41,6 +41,6 @@ final class MapperBuilderTest extends TestCase
 
     public function test_mapper_instance_is_the_same(): void
     {
-        self::assertSame($this->mapperBuilder->mapper(), $this->mapperBuilder->mapper());
+        self::assertSame($this->mapperBuilder->mapper(), $this->mapperBuilder->mapper()); // @phpstan-ignore-line
     }
 }

@@ -33,7 +33,7 @@ final class NonEmptyArrayTypeTest extends TestCase
 
     public function test_native_returns_same_instance(): void
     {
-        self::assertSame(NonEmptyArrayType::native(), NonEmptyArrayType::native());
+        self::assertSame(NonEmptyArrayType::native(), NonEmptyArrayType::native()); // @phpstan-ignore-line
     }
 
     public function test_native_subtype_is_correct(): void

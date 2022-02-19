@@ -36,7 +36,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_native_returns_same_instance(): void
     {
-        self::assertSame(NonEmptyListType::native(), NonEmptyListType::native());
+        self::assertSame(NonEmptyListType::native(), NonEmptyListType::native()); // @phpstan-ignore-line
     }
 
     public function test_native_subtype_is_correct(): void
