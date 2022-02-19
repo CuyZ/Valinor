@@ -66,7 +66,7 @@ final class PathMappingTest extends IntegrationTest
         self::assertSame('buz', $objects[1]->value);
     }
 
-    public function test_sub_iterable_path_is_mapped(): void
+    public function test_sub_iterable_numeric_path_is_mapped(): void
     {
         try {
             $object = $this->mapperBuilder->mapper()->map(
@@ -88,6 +88,30 @@ final class PathMappingTest extends IntegrationTest
         self::assertCount(2, $object->subArrayValue->values);
         self::assertSame('bar', $object->subArrayValue->values[0]->value);
         self::assertSame('buz', $object->subArrayValue->values[1]->value);
+    }
+
+    public function test_sub_iterable_string_path_is_mapped(): void
+    {
+        try {
+            $object = $this->mapperBuilder->mapper()->map(
+                SomeClassWithSubLevelArray::class,
+                new PathMapping(
+                    [
+                        'subArrayValue' => [
+                            'bar' => ['foo' => 'bar'],
+                            'buz' => ['foo' => 'buz'],
+                        ],
+                    ],
+                    ['subArrayValue.*.foo' => 'value']
+                )
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertCount(2, $object->subArrayValue->values);
+        self::assertSame('bar', $object->subArrayValue->values['bar']->value);
+        self::assertSame('buz', $object->subArrayValue->values['buz']->value);
     }
 
     public function test_path_with_sub_paths_are_mapped(): void
