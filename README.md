@@ -364,7 +364,8 @@ $source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys([
 
 ##### Path mapping
 
-This modifier can be used to change paths in the source data using a dot notation.
+This modifier can be used to change paths in the source data using a dot 
+notation.
 
 The mapping is done using an associative array of path mappings. This array must
 have the source path as key and the target path as value.
@@ -389,8 +390,7 @@ $source = new \CuyZ\Valinor\Mapper\Source\Modifier\PathMapping([
         ['label' => 'Ankh Morpork'],
         ['label' => 'Minas Tirith'],
     ],
-],
-[
+], [
     'towns' => 'cities',
     'towns.*.label' => 'name',
 ]);
