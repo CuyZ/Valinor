@@ -1,6 +1,7 @@
 includes:
     - qa/PHPStan/valinor-phpstan-configuration.php
     - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
 
 rules:
     - CuyZ\Valinor\QA\PHPStan\Extension\ApiAndInternalAnnotationCheck

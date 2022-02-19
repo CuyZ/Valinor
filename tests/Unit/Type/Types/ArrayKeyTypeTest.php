@@ -14,9 +14,9 @@ final class ArrayKeyTypeTest extends TestCase
 {
     public function test_instances_are_memoized(): void
     {
-        self::assertSame(ArrayKeyType::default(), ArrayKeyType::default());
-        self::assertSame(ArrayKeyType::integer(), ArrayKeyType::integer());
-        self::assertSame(ArrayKeyType::string(), ArrayKeyType::string());
+        self::assertSame(ArrayKeyType::default(), ArrayKeyType::default()); // @phpstan-ignore-line
+        self::assertSame(ArrayKeyType::integer(), ArrayKeyType::integer()); // @phpstan-ignore-line
+        self::assertSame(ArrayKeyType::string(), ArrayKeyType::string()); // @phpstan-ignore-line
     }
 
     public function test_string_values_are_correct(): void

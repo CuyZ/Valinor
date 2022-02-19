@@ -487,7 +487,6 @@ final class NativeLexerTest extends TestCase
     {
         $raw = 'int|float|string';
 
-        /** @var UnionType $unionType */
         $unionType = $this->parser->parse($raw);
 
         self::assertInstanceOf(UnionType::class, $unionType);
@@ -512,7 +511,6 @@ final class NativeLexerTest extends TestCase
     {
         $raw = 'stdClass&DateTimeInterface&DateTime';
 
-        /** @var IntersectionType $intersectionType */
         $intersectionType = $this->parser->parse($raw);
 
         self::assertInstanceOf(IntersectionType::class, $intersectionType);

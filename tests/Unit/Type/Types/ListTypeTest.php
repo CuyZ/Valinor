@@ -34,7 +34,7 @@ final class ListTypeTest extends TestCase
 
     public function test_native_returns_same_instance(): void
     {
-        self::assertSame(ListType::native(), ListType::native());
+        self::assertSame(ListType::native(), ListType::native()); // @phpstan-ignore-line
     }
 
     public function test_native_subtype_is_correct(): void

@@ -45,7 +45,6 @@ final class ClassDefinitionCompilerTest extends TestCase
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
         $className = get_class($object);
 
-        /** @var ClassDefinition $class */
         $class = $this->eval($this->compiler->compile($class));
 
         self::assertInstanceOf(ClassDefinition::class, $class);

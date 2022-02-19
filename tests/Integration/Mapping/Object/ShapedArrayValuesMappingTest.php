@@ -53,7 +53,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertSame(['foo' => 'foo'], $result->basicShapedArrayWithExcessiveKey);
             self::assertSame($source['basicShapedArrayWithStringKeys'], $result->basicShapedArrayWithStringKeys);
             self::assertSame($source['basicShapedArrayWithIntegerKeys'], $result->basicShapedArrayWithIntegerKeys);
-            self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']);
+            self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']); // @phpstan-ignore-line
             self::assertSame($source['shapedArrayWithOptionalValue'], $result->shapedArrayWithOptionalValue);
             self::assertSame($source['shapedArrayOnSeveralLines'], $result->shapedArrayOnSeveralLines);
             self::assertSame('bar', $result->advancedShapedArray['mandatoryString']);

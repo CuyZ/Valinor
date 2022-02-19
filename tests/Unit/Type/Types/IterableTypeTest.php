@@ -32,7 +32,7 @@ final class IterableTypeTest extends TestCase
 
     public function test_native_returns_same_instance(): void
     {
-        self::assertSame(IterableType::native(), IterableType::native());
+        self::assertSame(IterableType::native(), IterableType::native()); // @phpstan-ignore-line
     }
 
     public function test_native_subtype_is_correct(): void
