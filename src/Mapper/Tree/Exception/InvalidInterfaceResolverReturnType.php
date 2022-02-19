@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Type\Resolver\Exception;
+namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use RuntimeException;
 

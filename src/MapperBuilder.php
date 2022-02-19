@@ -7,7 +7,6 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Mapper\TreeMapper;
 
 /** @api */
@@ -23,8 +22,30 @@ final class MapperBuilder
     }
 
     /**
-     * @param class-string $interfaceName
-     * @param callable(Shell): class-string $callback
+     * Allows the mapper to infer an implementation for a given interface.
+     *
+     * The callback can take any arguments, that will automatically be mapped
+     * using the given source. These arguments can then be used to decide which
+     * implementation should be used.
+     *
+     * Example:
+     *
+     * ```
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->infer(UuidInterface::class, fn () => MyUuid::class)
+     *     ->infer(SomeInterface::class, fn (string $type) => match($type) {
+     *         'foo' => Foo::class,
+     *         'bar' => Bar::class,
+     *         default => throw new DomainException("Unhandled type `$type`.")
+     *     })
+     *     ->mapper()
+     *     ->map(SomeInterface::class, [
+     *         'type' => 'foo',
+     *         'uuid' => 'a6868d61-acba-406d-bcff-30ecd8c0ceb6',
+     *     ]);
+     * ```
+     *
+     * @param interface-string $interfaceName
      */
     public function infer(string $interfaceName, callable $callback): self
     {

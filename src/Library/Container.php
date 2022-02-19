@@ -34,6 +34,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\EnumNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
@@ -43,9 +44,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ShellVisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Visitor\AggregateShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
-use CuyZ\Valinor\Mapper\Tree\Visitor\InterfaceShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TreeMapperContainer;
@@ -95,14 +94,8 @@ final class Container
                 );
             },
 
-            ShellVisitor::class => function () use ($settings): ShellVisitor {
-                return new AggregateShellVisitor(
-                    new InterfaceShellVisitor(
-                        $settings->interfaceMapping,
-                        $this->get(TypeParser::class),
-                    ),
-                    new AttributeShellVisitor(),
-                );
+            ShellVisitor::class => function (): ShellVisitor {
+                return new AttributeShellVisitor();
             },
 
             NodeBuilder::class => function () use ($settings): NodeBuilder {
@@ -127,6 +120,13 @@ final class Container
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectBuilderFilterer::class),
+                );
+
+                $builder = new InterfaceNodeBuilder(
+                    $builder,
+                    $this->get(FunctionDefinitionRepository::class),
+                    $this->get(TypeParser::class),
+                    $settings->interfaceMapping,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);

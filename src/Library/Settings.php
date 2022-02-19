@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Library;
 
 use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\Mapper\Tree\Shell;
 
 use function sys_get_temp_dir;
 
 /** @internal */
 final class Settings
 {
-    /** @var array<class-string, callable(Shell): class-string> */
+    /** @var array<class-string, callable> */
     public array $interfaceMapping = [];
 
     /** @var list<callable> */
