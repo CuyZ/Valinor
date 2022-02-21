@@ -6,7 +6,7 @@
         "object", "tree", "mapper", "mapping", "hydrator", "array", "conversion", "json", "yaml"
     ],
     "homepage": "https://github.com/CuyZ/Valinor",
-    "license": "GPL-3.0-or-later",
+    "license": "MIT",
     "authors": [
         {
             "name": "Romain Canon",
