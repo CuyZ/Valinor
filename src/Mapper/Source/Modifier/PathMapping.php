@@ -7,10 +7,8 @@ namespace CuyZ\Valinor\Mapper\Source\Modifier;
 use IteratorAggregate;
 use Traversable;
 
+use function explode;
 use function is_array;
-use function is_numeric;
-use function str_ends_with;
-use function strlen;
 
 /**
  * @api
@@ -28,7 +26,7 @@ final class PathMapping implements IteratorAggregate
      */
     public function __construct(iterable $source, array $map)
     {
-        $this->source = $this->map($source, $map);
+        $this->source = $this->map($source, $this->prepareMappings($map));
     }
 
     public function getIterator(): Traversable
@@ -38,46 +36,62 @@ final class PathMapping implements IteratorAggregate
 
     /**
      * @param iterable<mixed> $source
-     * @param array<string, string> $map
+     * @param array<Mapping> $mappings
      * @return array<mixed>
      */
-    private function map(iterable $source, array $map, string $currentPath = ''): array
+    private function map(iterable $source, array $mappings, int $depth = 0): array
     {
         $out = [];
 
         foreach ($source as $key => $value) {
             /** @var int|string $key */
-            $currentPath = $this->addToPath($currentPath, $key);
+            $newMappings = array_filter($mappings, fn (Mapping $mapping) => $mapping->matches($key, $depth));
+
+            /** @var int|string $key */
+            $newKey = $this->findMapping($newMappings, $depth, $key);
 
             if (is_array($value)) {
-                $out[$map[$currentPath] ?? $key] = $this->map($value, $map, $currentPath);
+                $out[$newKey] = $this->map($value, $newMappings, $depth + 1);
 
                 continue;
             }
 
-            $out[$map[$currentPath] ?? $key] = $value;
+            $out[$newKey] = $value;
         }
 
         return $out;
     }
 
     /**
-     * @param int|string $keyToAdd
+     * @param array<string, string> $map
+     * @return array<Mapping>
      */
-    private function addToPath(string $path, $keyToAdd): string
+    private function prepareMappings(array $map): array
     {
-        if (is_numeric($keyToAdd)) {
-            $keyToAdd = '*';
+        $mappings = [];
+
+        foreach ($map as $from => $to) {
+            $mappings[] = new Mapping(explode('.', $from), $to);
         }
 
-        if (strlen($path) === 0) {
-            return $keyToAdd;
+        return $mappings;
+    }
+
+    /**
+     * @param array<Mapping> $mappings
+     * @param int|string $key
+     * @return int|string
+     */
+    private function findMapping(array $mappings, int $atDepth, $key)
+    {
+        foreach ($mappings as $mapping) {
+            $mappedKey = $mapping->findMappedKey($key, $atDepth);
+
+            if (null !== $mappedKey) {
+                return $mappedKey;
+            }
         }
 
-        if ($keyToAdd === '*' && str_ends_with($path, '*')) {
-            return $path;
-        }
-
-        return "$path.$keyToAdd";
+        return $key;
     }
 }

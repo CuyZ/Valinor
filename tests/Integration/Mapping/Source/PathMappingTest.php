@@ -10,136 +10,85 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class PathMappingTest extends IntegrationTest
 {
-    public function test_root_path_is_mapped(): void
-    {
-        try {
-            $object = $this->mapperBuilder->mapper()->map(
-                SomeClassWithOneProperty::class,
-                new PathMapping(
-                    ['foo' => 'bar'],
-                    ['foo' => 'value']
-                )
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('bar', $object->value);
-    }
-
-    public function test_sub_path_is_mapped(): void
-    {
-        try {
-            $object = $this->mapperBuilder->mapper()->map(
-                SomeClassWithOneSubLevel::class,
-                new PathMapping(
-                    ['subValue' => ['foo' => 'bar']],
-                    ['subValue.foo' => 'value']
-                )
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('bar', $object->subValue->value);
-    }
-
-    public function test_root_iterable_path_is_mapped(): void
-    {
-        try {
-            $objects = $this->mapperBuilder->mapper()->map(
-                SomeClassWithOneProperty::class . '[]',
-                new PathMapping(
-                    [
-                        ['a1' => 'bar'],
-                        ['a1' => 'buz'],
-                    ],
-                    ['*.a1' => 'value']
-                )
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertCount(2, $objects);
-        self::assertSame('bar', $objects[0]->value);
-        self::assertSame('buz', $objects[1]->value);
-    }
-
-    public function test_sub_iterable_numeric_path_is_mapped(): void
-    {
-        try {
-            $object = $this->mapperBuilder->mapper()->map(
-                SomeClassWithSubLevelArray::class,
-                new PathMapping(
-                    [
-                        'subArrayValue' => [
-                            ['foo' => 'bar'],
-                            ['foo' => 'buz'],
-                        ],
-                    ],
-                    ['subArrayValue.*.foo' => 'value']
-                )
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertCount(2, $object->subArrayValue->values);
-        self::assertSame('bar', $object->subArrayValue->values[0]->value);
-        self::assertSame('buz', $object->subArrayValue->values[1]->value);
-    }
-
-    public function test_sub_iterable_string_path_is_mapped(): void
-    {
-        try {
-            $object = $this->mapperBuilder->mapper()->map(
-                SomeClassWithSubLevelArray::class,
-                new PathMapping(
-                    [
-                        'subArrayValue' => [
-                            'bar' => ['foo' => 'bar'],
-                            'buz' => ['foo' => 'buz'],
-                        ],
-                    ],
-                    ['subArrayValue.*.foo' => 'value']
-                )
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertCount(2, $object->subArrayValue->values);
-        self::assertSame('bar', $object->subArrayValue->values['bar']->value);
-        self::assertSame('buz', $object->subArrayValue->values['buz']->value);
-    }
-
     public function test_path_with_sub_paths_are_mapped(): void
     {
+        $map = [
+            'A1' => 'newA1',
+            'A1.B1' => 'value',
+            'A2' => 'newA2',
+            'A2.*.B1' => 'value',
+            'A3' => 'newA3',
+            'A3.B1' => 'newB1',
+            'A3.B2' => 'newB2',
+            'A3.*.C' => 'value',
+            'A4' => 'newA4',
+            'A4.B' => 'newB',
+            'A4.B.*.B1' => 'value',
+        ];
+
+        $keys = array_keys($map);
+        shuffle($keys);
+        $randomMap = [];
+
+        foreach ($keys as $key) {
+            $randomMap[$key] = $map[$key];
+        }
+
         try {
             $object = $this->mapperBuilder->mapper()->map(
-                SomeClassWithSubLevelArray::class,
+                SomeRootClass::class,
                 new PathMapping(
                     [
-                        'A' => [
-                            ['B' => 'bar'],
-                            ['B' => 'buz'],
+                        'A1' => [
+                            'B1' => 'foo',
+                        ],
+                        'A2' => [
+                            ['B1' => 'bar'],
+                            ['B1' => 'buz'],
+                        ],
+                        'A3' => [
+                            'B1' => ['C' => 'biz'],
+                            'B2' => ['C' => 'boz'],
+                        ],
+                        'A4' => [
+                            'B' => [
+                                ['B1' => 'faz'],
+                                ['B1' => 'fyz'],
+                            ],
                         ],
                     ],
-                    [
-                        'A' => 'subArrayValue',
-                        'A.*.B' => 'value',
-                    ]
+                    $randomMap
                 )
             );
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
 
-        self::assertCount(2, $object->subArrayValue->values);
-        self::assertSame('bar', $object->subArrayValue->values[0]->value);
-        self::assertSame('buz', $object->subArrayValue->values[1]->value);
+        self::assertSame('foo', $object->newA1->value);
+
+        self::assertCount(2, $object->newA2);
+        self::assertSame('bar', $object->newA2[0]->value);
+        self::assertSame('buz', $object->newA2[1]->value);
+
+        self::assertSame('biz', $object->newA3->newB1->value);
+        self::assertSame('boz', $object->newA3->newB2->value);
+
+        self::assertCount(2, $object->newA4->newB);
+        self::assertSame('faz', $object->newA4->newB[0]->value);
+        self::assertSame('fyz', $object->newA4->newB[1]->value);
     }
+}
+
+class SomeRootClass
+{
+    public SomeClassWithOneProperty $newA1;
+
+    /** @var array<SomeClassWithOneProperty> */
+    public array $newA2;
+
+    public SomeClassWithTwoProperties $newA3;
+
+    public SomeClassWithArrayProperty $newA4;
 }
 
 class SomeClassWithOneProperty
@@ -147,18 +96,14 @@ class SomeClassWithOneProperty
     public string $value;
 }
 
-class SomeClassWithOneSubLevel
+class SomeClassWithTwoProperties
 {
-    public SomeClassWithOneProperty $subValue;
+    public SomeClassWithOneProperty $newB1;
+    public SomeClassWithOneProperty $newB2;
 }
 
-class SomeClassWithSubLevelArray
+class SomeClassWithArrayProperty
 {
-    public SomeClassWithArray $subArrayValue;
-}
-
-class SomeClassWithArray
-{
-    /** @var SomeClassWithOneProperty[] */
-    public array $values;
+    /** @var array<SomeClassWithOneProperty> */
+    public array $newB;
 }
