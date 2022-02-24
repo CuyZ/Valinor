@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
+use Exception;
 
 use function array_values;
 
@@ -42,6 +44,10 @@ final class CallbackObjectBuilder implements ObjectBuilder
         /** @infection-ignore-all */
         $arguments = array_values($arguments);
 
-        return ($this->callback)(...$arguments);
+        try {
+            return ($this->callback)(...$arguments);
+        } catch (Exception $exception) {
+            throw ThrowableMessage::from($exception);
+        }
     }
 }
