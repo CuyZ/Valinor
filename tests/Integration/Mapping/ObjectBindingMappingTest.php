@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTime;
 use DateTimeImmutable;
+use DomainException;
 use stdClass;
 
 use function get_class;
@@ -117,6 +118,23 @@ final class ObjectBindingMappingTest extends IntegrationTest
         self::assertSame('foo', $result->string);
         self::assertSame(42, $result->int);
         self::assertSame(1337.404, $result->float);
+    }
+
+    public function test_object_binding_throwing_exception_fails_mapping_with_message(): void
+    {
+        try {
+            $this->mapperBuilder
+                ->bind(function (): stdClass {
+                    // @PHP8.0 use short closure
+                    throw new DomainException('some domain exception');
+                })
+                ->mapper()
+                ->map(stdClass::class, []);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertSame('some domain exception', (string)$exception->node()->messages()[0]);
+        }
     }
 }
 
