@@ -14,6 +14,8 @@ use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
 
+use function array_values;
+
 /** @api */
 final class MethodObjectBuilder implements ObjectBuilder
 {
@@ -72,7 +74,8 @@ final class MethodObjectBuilder implements ObjectBuilder
             }
 
             if ($parameter->isVariadic()) {
-                $values = [...$values, ...$arguments[$name]]; // @phpstan-ignore-line we know that the argument is iterable
+                // @PHP8.0 remove `array_values`? Behaviour might change, careful.
+                $values = [...$values, ...array_values($arguments[$name])]; // @phpstan-ignore-line we know that the argument is iterable
             } else {
                 $values[] = $arguments[$name];
             }

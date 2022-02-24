@@ -22,6 +22,23 @@ final class VariadicParameterMappingTest extends IntegrationTest
         self::assertSame(['foo', 'bar', 'baz'], $object->values);
     }
 
+    public function test_variadic_parameters_are_mapped_properly_when_string_keys_are_given(): void
+    {
+        try {
+            $object = $this->mapperBuilder->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
+                'values' => [
+                    'foo' => 'foo',
+                    'bar' => 'bar',
+                    'baz' => 'baz',
+                ]
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['foo', 'bar', 'baz'], $object->values);
+    }
+
     public function test_named_constructor_with_only_variadic_parameters_are_mapped_properly(): void
     {
         try {
