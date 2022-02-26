@@ -47,7 +47,6 @@ final class PathMapping implements IteratorAggregate
             /** @var int|string $key */
             $newMappings = array_filter($mappings, fn (Mapping $mapping) => $mapping->matches($key, $depth));
 
-            /** @var int|string $key */
             $newKey = $this->findMapping($newMappings, $depth, $key);
 
             if (is_array($value)) {
