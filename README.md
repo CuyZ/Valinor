@@ -371,7 +371,7 @@ The mapping is done using an associative array of path mappings. This array must
 have the source path as key and the target path as value.
 
 The source path uses the dot notation (eg `A.B.C`) and can contain one `*` for
-non-associative array paths (eg `A.B.*.C`).
+array paths (eg `A.B.*.C`).
 
 ```php
 final class Country
