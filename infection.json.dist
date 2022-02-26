@@ -9,6 +9,7 @@
         "text": "var/infection/infection.log",
         "summary": "var/infection/summary.log",
         "perMutator": "var/infection/per-mutator.md",
+        "html": "var/infection/infection.html",
         "stryker": {
             "report": "master"
         }
