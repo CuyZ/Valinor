@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
+namespace CuyZ\Valinor\Tests\Integration\Mapping\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
