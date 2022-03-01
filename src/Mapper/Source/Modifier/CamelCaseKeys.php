@@ -39,6 +39,11 @@ final class CamelCaseKeys implements IteratorAggregate
                 $value = $this->replace($value);
             }
 
+            if (! is_string($key)) {
+                $result[$key] = $value;
+                continue;
+            }
+
             $camelCaseKey = $this->camelCaseKeys($key);
 
             if (isset($result[$camelCaseKey])) {
