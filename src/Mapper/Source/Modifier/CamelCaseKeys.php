@@ -11,15 +11,15 @@ use function is_iterable;
 
 /**
  * @api
- * @implements IteratorAggregate<string, mixed>
+ * @implements IteratorAggregate<mixed>
  */
 final class CamelCaseKeys implements IteratorAggregate
 {
-    /** @var array<string, mixed> */
+    /** @var array<mixed> */
     private array $source;
 
     /**
-     * @param iterable<string, mixed> $source
+     * @param iterable<mixed> $source
      */
     public function __construct(iterable $source)
     {
@@ -27,8 +27,8 @@ final class CamelCaseKeys implements IteratorAggregate
     }
 
     /**
-     * @param iterable<string, mixed> $source
-     * @return array<string, mixed>
+     * @param iterable<mixed> $source
+     * @return array<mixed>
      */
     private function replace(iterable $source): array
     {
