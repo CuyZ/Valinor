@@ -1,0 +1,63 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Mapper\Source;
+
+use CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys;
+use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
+use IteratorAggregate;
+use SplFileObject;
+use Traversable;
+
+/**
+ * @api
+ *
+ * @implements IteratorAggregate<mixed>
+ */
+final class Source implements IteratorAggregate
+{
+    /** @var IteratorAggregate<mixed> */
+    private IteratorAggregate $delegate;
+
+    /**
+     * @param IteratorAggregate<mixed> $delegate
+     */
+    private function __construct(IteratorAggregate $delegate)
+    {
+        $this->delegate = $delegate;
+    }
+
+    public static function json(string $jsonSource): Source
+    {
+        return new Source(new JsonSource($jsonSource));
+    }
+
+    public static function yaml(string $yamlSource): Source
+    {
+        return new Source(new YamlSource($yamlSource));
+    }
+
+    public static function file(SplFileObject $file): Source
+    {
+        return new Source(new FileSource($file));
+    }
+
+    public function camelCaseKeys(): Source
+    {
+        return new Source(new CamelCaseKeys($this));
+    }
+
+    /**
+     * @param array<string, string> $map
+     */
+    public function map(array $map): Source
+    {
+        return new Source(new PathMapping($this, $map));
+    }
+
+    public function getIterator(): Traversable
+    {
+        yield from $this->delegate;
+    }
+}

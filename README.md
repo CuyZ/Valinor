@@ -408,6 +408,38 @@ $source = new \CuyZ\Valinor\Mapper\Source\Modifier\PathMapping([
     ->map(Country::class, $source);
 ```
 
+#### Source builder
+
+To help with the source, a builder can be used:
+
+```php
+final class Country
+{
+    /** @var City[] */
+    public readonly array $cityList;
+}
+
+final class City
+{
+    public readonly string $name;
+}
+
+$json = '{
+    "city-list": [
+        {"label": "Mos Eisley"},
+        {"label": "Bourg Palette"}
+    ]
+}';
+
+$source = \CuyZ\Valinor\Mapper\Source\Source::json($json)
+    ->map(['city-list.*.label' => 'name'])
+    ->camelCaseKeys();
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(Country::class, $source);
+```
+
 ### Construction strategy
 
 During the mapping, instances of objects are recursively created and hydrated
