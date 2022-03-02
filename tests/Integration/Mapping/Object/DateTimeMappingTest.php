@@ -11,24 +11,34 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
+use function mt_rand;
+
 final class DateTimeMappingTest extends IntegrationTest
 {
     public function test_datetime_properties_are_converted_properly(): void
     {
-        $dateTimeInterface = new DateTimeImmutable('@1356097062');
-        $dateTimeImmutable = new DateTimeImmutable('@1356097062');
-        $dateTimeFromTimestamp = 1356097062;
+        $dateTimeInterfaceValue = $this->get_random_timestamp();
+        $dateTimeImmutableValue = $this->get_random_timestamp();
+        $dateTimeFromTimestampValue = $this->get_random_timestamp();
+        $dateTimeFromTimestampWithFormatValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format(DATE_ATOM);
+        $dateTimeFromArrayValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format('Y-m-d H:i:s');
+        $mysqlDateValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format('Y-m-d H:i:s');
+        $pgsqlDateValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format('Y-m-d H:i:s.u');
+
+        $dateTimeInterface = new DateTimeImmutable(sprintf('@%s', $dateTimeInterfaceValue));
+        $dateTimeImmutable = new DateTimeImmutable(sprintf('@%s', $dateTimeImmutableValue));
+        $dateTimeFromTimestamp = $this->get_random_timestamp();
         $dateTimeFromTimestampWithFormat = [
-            'datetime' => 1356097062,
+            'datetime' => $dateTimeFromTimestampValue,
             'format' => 'U',
         ];
-        $dateTimeFromAtomFormat = '2012-12-21T13:37:42+00:00';
+        $dateTimeFromAtomFormat = $dateTimeFromTimestampWithFormatValue;
         $dateTimeFromArray = [
-            'datetime' => '2012-12-21 13:37:42',
+            'datetime' => $dateTimeFromArrayValue,
             'format' => 'Y-m-d H:i:s',
         ];
-        $mysqlDate = '2012-12-21 13:37:42';
-        $pgsqlDate = '2012-12-21 13:37:42.123456';
+        $mysqlDate = $mysqlDateValue;
+        $pgsqlDate = $pgsqlDateValue;
 
         try {
             $result = $this->mapperBuilder->mapper()->map(AllDateTimeValues::class, [
@@ -107,6 +117,11 @@ final class DateTimeMappingTest extends IntegrationTest
 
             self::assertSame('1607027306', $error->code());
         }
+    }
+
+    private function get_random_timestamp(): int
+    {
+        return mt_rand(1, time());
     }
 }
 
