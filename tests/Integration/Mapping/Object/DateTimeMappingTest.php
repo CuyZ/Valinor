@@ -11,23 +11,23 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
-use function mt_rand;
+use function random_int;
 
 final class DateTimeMappingTest extends IntegrationTest
 {
     public function test_datetime_properties_are_converted_properly(): void
     {
-        $dateTimeInterfaceValue = $this->get_random_timestamp();
-        $dateTimeImmutableValue = $this->get_random_timestamp();
-        $dateTimeFromTimestampValue = $this->get_random_timestamp();
-        $dateTimeFromTimestampWithFormatValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format(DATE_ATOM);
-        $dateTimeFromArrayValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format('Y-m-d H:i:s');
-        $mysqlDateValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format('Y-m-d H:i:s');
-        $pgsqlDateValue = (new DateTime())->setTimestamp($this->get_random_timestamp())->format('Y-m-d H:i:s.u');
+        $dateTimeInterfaceValue = $this->make_random_timestamp();
+        $dateTimeImmutableValue = $this->make_random_timestamp();
+        $dateTimeFromTimestampValue = $this->make_random_timestamp();
+        $dateTimeFromTimestampWithFormatValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format(DATE_ATOM);
+        $dateTimeFromArrayValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format('Y-m-d H:i:s');
+        $mysqlDateValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format('Y-m-d H:i:s');
+        $pgsqlDateValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format('Y-m-d H:i:s.u');
 
         $dateTimeInterface = new DateTimeImmutable(sprintf('@%s', $dateTimeInterfaceValue));
         $dateTimeImmutable = new DateTimeImmutable(sprintf('@%s', $dateTimeImmutableValue));
-        $dateTimeFromTimestamp = $this->get_random_timestamp();
+        $dateTimeFromTimestamp = $this->make_random_timestamp();
         $dateTimeFromTimestampWithFormat = [
             'datetime' => $dateTimeFromTimestampValue,
             'format' => 'U',
@@ -119,9 +119,9 @@ final class DateTimeMappingTest extends IntegrationTest
         }
     }
 
-    private function get_random_timestamp(): int
+    private function make_random_timestamp(): int
     {
-        return mt_rand(1, time());
+        return random_int(1, 32503726800);
     }
 }
 
