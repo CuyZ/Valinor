@@ -17,28 +17,20 @@ final class DateTimeMappingTest extends IntegrationTest
 {
     public function test_datetime_properties_are_converted_properly(): void
     {
-        $dateTimeInterfaceValue = $this->make_random_timestamp();
-        $dateTimeImmutableValue = $this->make_random_timestamp();
-        $dateTimeFromTimestampValue = $this->make_random_timestamp();
-        $dateTimeFromTimestampWithFormatValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format(DATE_ATOM);
-        $dateTimeFromArrayValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format('Y-m-d H:i:s');
-        $mysqlDateValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format('Y-m-d H:i:s');
-        $pgsqlDateValue = (new DateTime())->setTimestamp($this->make_random_timestamp())->format('Y-m-d H:i:s.u');
-
-        $dateTimeInterface = new DateTimeImmutable(sprintf('@%s', $dateTimeInterfaceValue));
-        $dateTimeImmutable = new DateTimeImmutable(sprintf('@%s', $dateTimeImmutableValue));
-        $dateTimeFromTimestamp = $this->make_random_timestamp();
+        $dateTimeInterface = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
+        $dateTimeImmutable = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
+        $dateTimeFromTimestamp = $this->buildRandomTimestamp();
         $dateTimeFromTimestampWithFormat = [
-            'datetime' => $dateTimeFromTimestampValue,
+            'datetime' => $this->buildRandomTimestamp(),
             'format' => 'U',
         ];
-        $dateTimeFromAtomFormat = $dateTimeFromTimestampWithFormatValue;
+        $dateTimeFromAtomFormat = (new DateTime())->setTimestamp($this->buildRandomTimestamp())->format(DATE_ATOM);
         $dateTimeFromArray = [
-            'datetime' => $dateTimeFromArrayValue,
+            'datetime' => (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s'),
             'format' => 'Y-m-d H:i:s',
         ];
-        $mysqlDate = $mysqlDateValue;
-        $pgsqlDate = $pgsqlDateValue;
+        $mysqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s');
+        $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
 
         try {
             $result = $this->mapperBuilder->mapper()->map(AllDateTimeValues::class, [
@@ -119,7 +111,7 @@ final class DateTimeMappingTest extends IntegrationTest
         }
     }
 
-    private function make_random_timestamp(): int
+    private function buildRandomTimestamp(): int
     {
         return random_int(1, 32503726800);
     }
