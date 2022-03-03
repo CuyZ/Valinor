@@ -7,9 +7,39 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Source;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use IteratorAggregate;
+use Traversable;
 
 final class SourceTest extends IntegrationTest
 {
+    public function test_iterable_source(): void
+    {
+        try {
+            $object = $this->mapperBuilder->mapper()->map(
+                SomeClassWithSubProperty::class,
+                Source::iterable(new SomeIterableClass())
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $object->someNestedValue->someValue);
+    }
+
+    public function test_array_source(): void
+    {
+        try {
+            $object = $this->mapperBuilder->mapper()->map(
+                SomeClassWithSubProperty::class,
+                Source::array(['someNestedValue' => ['someValue' => 'foo']])
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $object->someNestedValue->someValue);
+    }
+
     public function test_json_source(): void
     {
         try {
@@ -118,4 +148,15 @@ final class SomeClassWithSingleProperty
 final class SomeClassWithSubProperty
 {
     public SomeClassWithSingleProperty $someNestedValue;
+}
+
+/**
+ * @implements IteratorAggregate<mixed>
+ */
+final class SomeIterableClass implements IteratorAggregate
+{
+    public function getIterator(): Traversable
+    {
+        yield from ['someNestedValue' => ['someValue' => 'foo']];
+    }
 }

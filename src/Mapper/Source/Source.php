@@ -17,15 +17,31 @@ use Traversable;
  */
 final class Source implements IteratorAggregate
 {
-    /** @var IteratorAggregate<mixed> */
-    private IteratorAggregate $delegate;
+    /** @var iterable<mixed> */
+    private iterable $delegate;
 
     /**
-     * @param IteratorAggregate<mixed> $delegate
+     * @param iterable<mixed> $delegate
      */
-    private function __construct(IteratorAggregate $delegate)
+    private function __construct(iterable $delegate)
     {
         $this->delegate = $delegate;
+    }
+
+    /**
+     * @param iterable<mixed> $data
+     */
+    public static function iterable(iterable $data): Source
+    {
+        return new Source($data);
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public static function array(array $data): Source
+    {
+        return new Source($data);
     }
 
     public static function json(string $jsonSource): Source
