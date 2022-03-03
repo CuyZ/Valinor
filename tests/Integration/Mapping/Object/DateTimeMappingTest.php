@@ -11,24 +11,26 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
+use function random_int;
+
 final class DateTimeMappingTest extends IntegrationTest
 {
     public function test_datetime_properties_are_converted_properly(): void
     {
-        $dateTimeInterface = new DateTimeImmutable('@1356097062');
-        $dateTimeImmutable = new DateTimeImmutable('@1356097062');
-        $dateTimeFromTimestamp = 1356097062;
+        $dateTimeInterface = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
+        $dateTimeImmutable = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
+        $dateTimeFromTimestamp = $this->buildRandomTimestamp();
         $dateTimeFromTimestampWithFormat = [
-            'datetime' => 1356097062,
+            'datetime' => $this->buildRandomTimestamp(),
             'format' => 'U',
         ];
-        $dateTimeFromAtomFormat = '2012-12-21T13:37:42+00:00';
+        $dateTimeFromAtomFormat = (new DateTime())->setTimestamp($this->buildRandomTimestamp())->format(DATE_ATOM);
         $dateTimeFromArray = [
-            'datetime' => '2012-12-21 13:37:42',
+            'datetime' => (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s'),
             'format' => 'Y-m-d H:i:s',
         ];
-        $mysqlDate = '2012-12-21 13:37:42';
-        $pgsqlDate = '2012-12-21 13:37:42.123456';
+        $mysqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s');
+        $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
 
         try {
             $result = $this->mapperBuilder->mapper()->map(AllDateTimeValues::class, [
@@ -107,6 +109,11 @@ final class DateTimeMappingTest extends IntegrationTest
 
             self::assertSame('1607027306', $error->code());
         }
+    }
+
+    private function buildRandomTimestamp(): int
+    {
+        return random_int(1, 32503726800);
     }
 }
 
