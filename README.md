@@ -349,17 +349,15 @@ final class SomeClass
     public readonly string $someValue;
 }
 
-$input = [
-    'some_value' => 'foo',
-    // …or…
-    'some-value' => 'foo',
-    // …or…
-    'some value' => 'foo',
-    // …will be replaced by `['someValue' => 'foo']`
-];
-
-$source = \CuyZ\Valinor\Mapper\Source\Source::array($input)
-    ->camelCaseKeys();
+$source = \CuyZ\Valinor\Mapper\Source\Source::array([
+       'some_value' => 'foo',
+       // …or…
+       'some-value' => 'foo',
+       // …or…
+       'some value' => 'foo',
+       // …will be replaced by `['someValue' => 'foo']`
+   ])
+   ->camelCaseKeys();
 
 (new \CuyZ\Valinor\MapperBuilder())
         ->mapper()
@@ -389,14 +387,12 @@ final class City
     public readonly string $name;
 }
 
-$input = [
-    'towns' => [
-        ['label' => 'Ankh Morpork'],
-        ['label' => 'Minas Tirith'],
-    ],
-];
-
-$source = \CuyZ\Valinor\Mapper\Source\Source::array($input)
+$source = \CuyZ\Valinor\Mapper\Source\Source::array([
+       'towns' => [
+           ['label' => 'Ankh Morpork'],
+           ['label' => 'Minas Tirith'],
+       ],
+    ])
     ->map([
        'towns' => 'cities',
        'towns.*.label' => 'name',
@@ -427,7 +423,7 @@ final class AcmeSource implements IteratorAggregate
     
     public function __construct(iterable $source)
     {
-        $this->source = $source;
+        $this->source = $this->doSomething($source);
     }
     
     private function doSomething(iterable $source): iterable
@@ -441,11 +437,6 @@ final class AcmeSource implements IteratorAggregate
     {
         yield from $this->source;
     }
-}
-
-final class SomeClass
-{
-    public readonly string $value;
 }
 
 $source = \CuyZ\Valinor\Mapper\Source\Source::iterable(new AcmeSource(['value' => 'foo']))
