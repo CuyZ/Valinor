@@ -22,6 +22,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\DoctrineAnnotationsRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\Factory\ArrayAccessObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
@@ -145,6 +146,8 @@ final class Container
                 $factory = new ConstructorObjectBuilderFactory(
                     $this->get(ObjectBuilderFilterer::class)
                 );
+
+                $factory = new ArrayAccessObjectBuilderFactory($factory);
 
                 $factory = new DateTimeObjectBuilderFactory($factory);
 
