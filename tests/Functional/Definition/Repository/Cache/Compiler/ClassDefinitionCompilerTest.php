@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithParameterDefaultObjectValue;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use DateTime;
 use Error;
@@ -86,6 +87,21 @@ final class ClassDefinitionCompilerTest extends TestCase
         $variadic = $method->parameters()->get('variadic');
 
         self::assertTrue($variadic->isVariadic());
+    }
+
+    /**
+     * @PHP8.1 move to test above
+     *
+     * @requires PHP >= 8.1
+     */
+    public function test_parameter_with_object_default_value_is_compiled_correctly(): void
+    {
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithParameterDefaultObjectValue::class));
+
+        $class = $this->eval($this->compiler->compile($class));
+
+        self::assertInstanceOf(ClassDefinition::class, $class);
+        self::assertSame(ObjectWithParameterDefaultObjectValue::class, $class->name());
     }
 
     public function test_modifying_class_definition_file_invalids_compiled_class_definition(): void
