@@ -5,67 +5,95 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Factory;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\MethodDefinition;
+use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
+use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
-use CuyZ\Valinor\Mapper\Object\ReflectionObjectBuilder;
 
-use function array_map;
+use function array_key_exists;
+use function array_unshift;
 use function count;
 
 /** @internal */
 final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 {
+    private ObjectBuilderFactory $delegate;
+
+    /** @var array<class-string, null> */
+    public array $nativeConstructors = [];
+
+    private FunctionsContainer $constructors;
+
     private ObjectBuilderFilterer $objectBuilderFilterer;
 
-    public function __construct(ObjectBuilderFilterer $objectBuilderFilterer)
-    {
+    /** @var array<string, ObjectBuilder[]> */
+    private array $builders = [];
+
+    /**
+     * @param array<class-string, null> $nativeConstructors
+     */
+    public function __construct(
+        ObjectBuilderFactory $delegate,
+        array $nativeConstructors,
+        FunctionsContainer $constructors,
+        ObjectBuilderFilterer $objectBuilderFilterer
+    ) {
+        $this->delegate = $delegate;
+        $this->nativeConstructors = $nativeConstructors;
+        $this->constructors = $constructors;
         $this->objectBuilderFilterer = $objectBuilderFilterer;
     }
 
     public function for(ClassDefinition $class, $source): ObjectBuilder
     {
-        $constructors = $this->findConstructors($class);
+        $builders = $this->listBuilders($class);
 
-        if (count($constructors) === 0) {
-            return new ReflectionObjectBuilder($class);
+        if (count($builders) === 0) {
+            if ($class->methods()->hasConstructor()) {
+                throw new CannotInstantiateObject($class);
+            }
+
+            return $this->delegate->for($class, $source);
         }
 
-        $builders = array_map(
-            fn (MethodDefinition $constructor) => new MethodObjectBuilder($class, $constructor->name()),
-            $constructors
-        );
+        if (count($builders) === 1) {
+            return $builders[0];
+        }
 
         return $this->objectBuilderFilterer->filter($source, ...$builders);
     }
 
     /**
-     * @return list<MethodDefinition>
+     * @return list<ObjectBuilder>
      */
-    private function findConstructors(ClassDefinition $class): array
+    private function listBuilders(ClassDefinition $class): array
     {
-        $constructors = [];
-        $methods = $class->methods();
+        $type = $class->type();
+        $key = $type->__toString();
 
-        if ($methods->hasConstructor() && $methods->constructor()->isPublic()) {
-            $constructors[] = $methods->constructor();
-        }
+        if (! array_key_exists($key, $this->builders)) {
+            $builders = [];
 
-        foreach ($methods as $method) {
-            /** @infection-ignore-all */
-            if (count($method->parameters()) === 0) {
-                continue;
+            $methods = $class->methods();
+
+            foreach ($this->constructors as $constructor) {
+                if ($constructor->returnType()->matches($type)) {
+                    $builders[] = new FunctionObjectBuilder($constructor, $this->constructors->callback($constructor));
+                }
             }
 
-            if ($method->isStatic()
-                && $method->isPublic()
-                && $method->returnType()->matches($class->type())
+            if ((array_key_exists($class->name(), $this->nativeConstructors) || count($builders) === 0)
+                && $methods->hasConstructor()
+                && $methods->constructor()->isPublic()
             ) {
-                $constructors[] = $method;
+                array_unshift($builders, new MethodObjectBuilder($class, '__construct'));
             }
+
+            $this->builders[$key] = $builders;
         }
 
-        return $constructors;
+        return $this->builders[$key];
     }
 }

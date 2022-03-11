@@ -80,9 +80,16 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_one_failing_union_type_does_not_stop_union_inferring(): void
     {
         try {
-            $result = $this->mapperBuilder->mapper()->map(SomeClassWithOneFailingUnionType::class, [
-                'object' => ['foo' => 'foo'],
-            ]);
+            $result = $this->mapperBuilder
+                // @PHP8.1 first-class callable syntax
+                ->registerConstructor(
+                    [SomeClassWithTwoIdenticalNamedConstructors::class, 'constructorA'],
+                    [SomeClassWithTwoIdenticalNamedConstructors::class, 'constructorB'],
+                )
+                ->mapper()
+                ->map(SomeClassWithOneFailingUnionType::class, [
+                    'object' => ['foo' => 'foo'],
+                ]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

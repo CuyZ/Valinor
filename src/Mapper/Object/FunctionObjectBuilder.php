@@ -9,7 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
 
 /** @internal */
-final class CallbackObjectBuilder implements ObjectBuilder
+final class FunctionObjectBuilder implements ObjectBuilder
 {
     private FunctionDefinition $function;
 

@@ -129,17 +129,33 @@ final class MethodObjectBuilderTest extends TestCase
     {
         $this->expectException(ConstructorMethodIsNotPublic::class);
         $this->expectExceptionCode(1630937169);
-        $this->expectExceptionMessage('The constructor method `Signature::someConstructor` must be public.');
+        $this->expectExceptionMessage('The constructor of the class `' . ObjectWithPrivateNativeConstructor::class . '` is not public.');
 
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithPrivateConstructor::class));
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithPrivateNativeConstructor::class));
+        new MethodObjectBuilder($class, '__construct');
+    }
+
+    public function test_constructor_builder_for_class_with_private_named_constructor_throws_exception(): void
+    {
+        $classWithPrivateNativeConstructor = new class () {
+            // @phpstan-ignore-next-line
+            private static function someConstructor(): void
+            {
+            }
+        };
+
+        $this->expectException(ConstructorMethodIsNotPublic::class);
+        $this->expectExceptionCode(1630937169);
+        $this->expectExceptionMessage('The named constructor `Signature::someConstructor` is not public.');
+
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass($classWithPrivateNativeConstructor));
         new MethodObjectBuilder($class, 'someConstructor');
     }
 }
 
-final class ObjectWithPrivateConstructor
+final class ObjectWithPrivateNativeConstructor
 {
-    // @phpstan-ignore-next-line
-    private static function someConstructor(): void
+    private function __construct()
     {
     }
 }

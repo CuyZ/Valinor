@@ -27,16 +27,18 @@ final class MapperBuilderTest extends TestCase
     {
         $builderA = $this->mapperBuilder;
         $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
-        $builderC = $builderA->bind(static fn (): stdClass => new stdClass());
-        $builderD = $builderA->alter(static fn (string $value): string => 'foo');
-        $builderE = $builderA->withCacheDir(sys_get_temp_dir());
-        $builderF = $builderA->enableLegacyDoctrineAnnotations();
+        $builderC = $builderA->bind(static fn (): DateTime => new DateTime());
+        $builderD = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
+        $builderE = $builderA->alter(static fn (string $value): string => 'foo');
+        $builderF = $builderA->withCacheDir(sys_get_temp_dir());
+        $builderG = $builderA->enableLegacyDoctrineAnnotations();
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
         self::assertNotSame($builderA, $builderD);
         self::assertNotSame($builderA, $builderE);
         self::assertNotSame($builderA, $builderF);
+        self::assertNotSame($builderA, $builderG);
     }
 
     public function test_mapper_instance_is_the_same(): void

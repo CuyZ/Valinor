@@ -26,8 +26,8 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRe
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\ObjectBindingBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
@@ -147,19 +147,24 @@ final class Container
             },
 
             ObjectBuilderFactory::class => function () use ($settings): ObjectBuilderFactory {
-                $factory = new ConstructorObjectBuilderFactory(
-                    $this->get(ObjectBuilderFilterer::class)
+                $constructors = new FunctionsContainer(
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->customConstructors
                 );
 
-                $factory = new DateTimeObjectBuilderFactory($factory);
+                $factory = new ReflectionObjectBuilderFactory();
 
-                $factory = new ObjectBindingBuilderFactory(
+                $factory = new ConstructorObjectBuilderFactory(
                     $factory,
+                    $settings->nativeConstructors,
+                    $constructors,
                     $this->get(ObjectBuilderFilterer::class),
-                    new FunctionsContainer(
-                        $this->get(FunctionDefinitionRepository::class),
-                        $settings->objectBinding
-                    )
+                );
+
+                $factory = new DateTimeObjectBuilderFactory(
+                    $factory,
+                    $constructors,
+                    $this->get(ObjectBuilderFilterer::class),
                 );
 
                 return new AttributeObjectBuilderFactory($factory);

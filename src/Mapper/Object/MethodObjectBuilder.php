@@ -32,7 +32,7 @@ final class MethodObjectBuilder implements ObjectBuilder
         $this->method = $methods->get($methodName);
 
         if (! $this->method->isPublic()) {
-            throw new ConstructorMethodIsNotPublic($this->method);
+            throw new ConstructorMethodIsNotPublic($this->class, $this->method);
         }
 
         if ($this->method->name() === '__construct') {

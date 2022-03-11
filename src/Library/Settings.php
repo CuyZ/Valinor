@@ -16,8 +16,11 @@ final class Settings
     /** @var array<class-string, callable> */
     public array $interfaceMapping = [];
 
+    /** @var array<class-string, null> */
+    public array $nativeConstructors = [];
+
     /** @var list<callable> */
-    public array $objectBinding = [];
+    public array $customConstructors = [];
 
     /** @var list<callable> */
     public array $valueModifier = [];
