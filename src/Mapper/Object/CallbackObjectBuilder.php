@@ -8,8 +8,6 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
 
-use function array_values;
-
 /** @internal */
 final class CallbackObjectBuilder implements ObjectBuilder
 {
@@ -40,9 +38,7 @@ final class CallbackObjectBuilder implements ObjectBuilder
 
     public function build(array $arguments): object
     {
-        // @PHP8.0 `array_values` can be removed
-        /** @infection-ignore-all */
-        $arguments = array_values($arguments);
+        $arguments = new MethodArguments($this->function->parameters(), $arguments);
 
         try {
             return ($this->callback)(...$arguments);

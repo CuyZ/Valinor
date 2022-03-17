@@ -10,11 +10,8 @@ use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
-use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
-
-use function array_values;
 
 /** @api */
 final class MethodObjectBuilder implements ObjectBuilder
@@ -64,36 +61,14 @@ final class MethodObjectBuilder implements ObjectBuilder
 
     public function build(array $arguments): object
     {
-        $values = [];
-
-        foreach ($this->method->parameters() as $parameter) {
-            $name = $parameter->name();
-
-            if (! array_key_exists($parameter->name(), $arguments) && ! $parameter->isOptional()) {
-                throw new MissingMethodArgument($parameter);
-            }
-
-            if ($parameter->isVariadic()) {
-                // @PHP8.0 remove `array_values`? Behaviour might change, careful.
-                $values = [...$values, ...array_values($arguments[$name])]; // @phpstan-ignore-line we know that the argument is iterable
-            } else {
-                $values[] = $arguments[$name];
-            }
-        }
-
         $className = $this->class->name();
         $methodName = $this->method->name();
+        $arguments = new MethodArguments($this->method->parameters(), $arguments);
 
         try {
-            // @PHP8.0 `array_values` can be removed
-            /** @infection-ignore-all */
-            $values = array_values($values);
-
-            if (! $this->method->isStatic()) {
-                return new $className(...$values);
-            }
-
-            return $className::$methodName(...$values); // @phpstan-ignore-line
+            return $this->method->isStatic()
+                ? $className::$methodName(...$arguments) // @phpstan-ignore-line
+                : new $className(...$arguments);
         } catch (Exception $exception) {
             throw ThrowableMessage::from($exception);
         }
