@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
-use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
@@ -112,27 +111,6 @@ final class MethodObjectBuilderTest extends TestCase
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
         new MethodObjectBuilder($class, 'invalidConstructor');
-    }
-
-    public function test_missing_arguments_throws_exception(): void
-    {
-        $object = new class ('foo') {
-            public string $value;
-
-            public function __construct(string $value)
-            {
-                $this->value = $value;
-            }
-        };
-
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
-        $objectBuilder = new MethodObjectBuilder($class, '__construct');
-
-        $this->expectException(MissingMethodArgument::class);
-        $this->expectExceptionCode(1629468609);
-        $this->expectExceptionMessage('Missing argument `Signature::value` of type `string`.');
-
-        $objectBuilder->build([]);
     }
 
     public function test_exception_thrown_by_constructor_is_caught_and_wrapped(): void
