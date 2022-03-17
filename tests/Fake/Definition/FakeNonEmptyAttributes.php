@@ -14,7 +14,7 @@ final class FakeNonEmptyAttributes implements Attributes
         return true;
     }
 
-    public function ofType(string $className): iterable
+    public function ofType(string $className): array
     {
         return [];
     }

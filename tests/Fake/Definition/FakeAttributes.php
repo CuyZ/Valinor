@@ -14,7 +14,7 @@ final class FakeAttributes implements Attributes
         return false;
     }
 
-    public function ofType(string $className): iterable
+    public function ofType(string $className): array
     {
         return [];
     }
