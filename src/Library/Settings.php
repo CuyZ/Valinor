@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Library;
 
 use CuyZ\Valinor\Mapper\Tree\Node;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 use function sys_get_temp_dir;
 
@@ -30,5 +32,6 @@ final class Settings
     public function __construct()
     {
         $this->cacheDir = sys_get_temp_dir();
+        $this->interfaceMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
     }
 }
