@@ -10,6 +10,7 @@ use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\VersionedCache;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
@@ -124,17 +125,21 @@ final class Container
 
                 $builder = new InterfaceNodeBuilder(
                     $builder,
-                    $this->get(FunctionDefinitionRepository::class),
+                    new FunctionsContainer(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->interfaceMapping
+                    ),
                     $this->get(TypeParser::class),
-                    $settings->interfaceMapping,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
                 $builder = new ValueAlteringNodeBuilder(
                     $builder,
-                    $this->get(FunctionDefinitionRepository::class),
-                    $settings->valueModifier
+                    new FunctionsContainer(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->valueModifier
+                    )
                 );
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
@@ -150,9 +155,11 @@ final class Container
 
                 $factory = new ObjectBindingBuilderFactory(
                     $factory,
-                    $this->get(FunctionDefinitionRepository::class),
                     $this->get(ObjectBuilderFilterer::class),
-                    $settings->objectBinding,
+                    new FunctionsContainer(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->objectBinding
+                    )
                 );
 
                 return new AttributeObjectBuilderFactory($factory);

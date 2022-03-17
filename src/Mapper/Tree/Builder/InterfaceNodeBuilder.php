@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Parameters;
-use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForInterface;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidInterfaceResolverReturnType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTypeResolvedForInterface;
@@ -18,8 +18,6 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveTypeFromInterface;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Exception;
 
 /** @internal */
@@ -27,31 +25,15 @@ final class InterfaceNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
 
+    private FunctionsContainer $functions;
+
     private TypeParser $typeParser;
 
-    private FunctionDefinitionRepository $functionDefinitionRepository;
-
-    /** @var array<interface-string, callable> */
-    private array $callbacks;
-
-    /** @var array<interface-string, FunctionDefinition> */
-    private array $functions;
-
-    /**
-     * @param array<interface-string, callable> $interfaceMapping
-     */
-    public function __construct(
-        NodeBuilder $delegate,
-        FunctionDefinitionRepository $functionDefinitionRepository,
-        TypeParser $typeParser,
-        array $interfaceMapping
-    ) {
+    public function __construct(NodeBuilder $delegate, FunctionsContainer $functions, TypeParser $typeParser)
+    {
         $this->delegate = $delegate;
-        $this->functionDefinitionRepository = $functionDefinitionRepository;
+        $this->functions = $functions;
         $this->typeParser = $typeParser;
-
-        $this->callbacks = $interfaceMapping;
-        $this->callbacks[DateTimeInterface::class] ??= static fn () => DateTimeImmutable::class;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
@@ -64,14 +46,14 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         $interfaceName = $type->className();
 
-        if (! isset($this->callbacks[$interfaceName])) {
+        if (! $this->functions->has($interfaceName)) {
             throw new CannotResolveTypeFromInterface($interfaceName);
         }
 
-        /** @infection-ignore-all */
-        $this->functions[$interfaceName] ??= $this->functionDefinitionRepository->for($this->callbacks[$interfaceName]);
+        $function = $this->functions->get($interfaceName);
+        $callback = $this->functions->callback($function);
 
-        $children = $this->children($shell, $this->functions[$interfaceName], $rootBuilder);
+        $children = $this->children($shell, $function, $rootBuilder);
         $arguments = [];
 
         foreach ($children as $child) {
@@ -83,7 +65,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         }
 
         try {
-            $signature = ($this->callbacks[$interfaceName])(...$arguments);
+            $signature = $callback(...$arguments);
         } catch (Exception $exception) {
             throw ThrowableMessage::from($exception);
         }
