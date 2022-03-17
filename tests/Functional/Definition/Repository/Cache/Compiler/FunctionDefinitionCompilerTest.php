@@ -12,6 +12,7 @@ use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class FunctionDefinitionCompilerTest extends TestCase
 {
@@ -29,6 +30,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
         $function = new FunctionDefinition(
             'foo',
             'foo:42-1337',
+            stdClass::class,
             new Parameters(
                 new ParameterDefinition(
                     'bar',
@@ -48,6 +50,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
 
         self::assertSame('foo', $compiledFunction->name());
         self::assertSame('foo:42-1337', $compiledFunction->signature());
+        self::assertSame(stdClass::class, $compiledFunction->class());
         self::assertTrue($compiledFunction->parameters()->has('bar'));
         self::assertInstanceOf(NativeStringType::class, $compiledFunction->returnType());
     }

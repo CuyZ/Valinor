@@ -9,6 +9,8 @@ use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionFunction;
@@ -43,6 +45,8 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         return new FunctionDefinition(
             $reflection->getName(),
             Reflection::signature($reflection),
+            // @PHP 8.0 nullsafe operator
+            $reflection->getClosureScopeClass() ? $reflection->getClosureScopeClass()->name : null,
             new Parameters(...$parameters),
             $returnType
         );
@@ -50,8 +54,19 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
 
     private function typeResolver(ReflectionFunction $reflection): ReflectionTypeResolver
     {
-        $advancedParser = $this->typeParserFactory->get(new AliasSpecification($reflection));
-        $nativeParser = $this->typeParserFactory->get();
+        $class = $reflection->getClosureScopeClass();
+
+        $nativeSpecifications = [];
+        $advancedSpecification = [new AliasSpecification($reflection)];
+
+        if ($class !== null) {
+            $nativeSpecifications[] = new ClassContextSpecification($class->name);
+            $advancedSpecification[] = new ClassContextSpecification($class->name);
+            $advancedSpecification[] = new HandleClassGenericSpecification();
+        }
+
+        $nativeParser = $this->typeParserFactory->get(...$nativeSpecifications);
+        $advancedParser = $this->typeParserFactory->get(...$advancedSpecification);
 
         return new ReflectionTypeResolver($nativeParser, $advancedParser);
     }

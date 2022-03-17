@@ -17,10 +17,22 @@ final class FunctionDefinition
 
     private Type $returnType;
 
-    public function __construct(string $name, string $signature, Parameters $parameters, Type $returnType)
-    {
+    /** @var class-string|null */
+    private ?string $class;
+
+    /**
+     * @param class-string|null $class
+     */
+    public function __construct(
+        string $name,
+        string $signature,
+        ?string $class,
+        Parameters $parameters,
+        Type $returnType
+    ) {
         $this->name = $name;
         $this->signature = $signature;
+        $this->class = $class;
         $this->parameters = $parameters;
         $this->returnType = $returnType;
     }
@@ -33,6 +45,14 @@ final class FunctionDefinition
     public function signature(): string
     {
         return $this->signature;
+    }
+
+    /**
+     * @return class-string|null
+     */
+    public function class(): ?string
+    {
+        return $this->class;
     }
 
     /**

@@ -8,6 +8,8 @@ use CuyZ\Valinor\Cache\Compiled\CacheCompiler;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
+use function var_export;
+
 /** @internal */
 final class FunctionDefinitionCompiler implements CacheCompiler
 {
@@ -30,6 +32,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
             iterator_to_array($value->parameters())
         );
 
+        $class = var_export($value->class(), true);
         $parameters = implode(', ', $parameters);
         $returnType = $this->typeCompiler->compile($value->returnType());
 
@@ -37,6 +40,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
             new \CuyZ\Valinor\Definition\FunctionDefinition(
                 '{$value->name()}',
                 '{$value->signature()}',
+                $class,
                 new \CuyZ\Valinor\Definition\Parameters($parameters),
                 $returnType
             )

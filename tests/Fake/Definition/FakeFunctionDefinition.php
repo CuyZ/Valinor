@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use stdClass;
 
 final class FakeFunctionDefinition
 {
@@ -17,6 +18,7 @@ final class FakeFunctionDefinition
         return new FunctionDefinition(
             'foo',
             'foo:42-1337',
+            stdClass::class,
             new Parameters(
                 new ParameterDefinition(
                     'bar',
