@@ -44,7 +44,7 @@ final class CombinedAttributes implements Attributes
         return $this->delegate->has($className);
     }
 
-    public function ofType(string $className): iterable
+    public function ofType(string $className): array
     {
         return $this->delegate->ofType($className);
     }

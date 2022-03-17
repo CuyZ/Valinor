@@ -25,5 +25,5 @@ interface Attributes extends IteratorAggregate, Countable
      * @param class-string<T> $className
      * @return list<T>
      */
-    public function ofType(string $className): iterable;
+    public function ofType(string $className): array;
 }

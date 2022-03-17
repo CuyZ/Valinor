@@ -11,7 +11,6 @@ final class AttributeShellVisitor implements ShellVisitor
 {
     public function visit(Shell $shell): Shell
     {
-        /** @var ShellVisitor[] $visitors */
         $visitors = $shell->attributes()->ofType(ShellVisitor::class);
 
         foreach ($visitors as $visitor) {

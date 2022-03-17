@@ -40,8 +40,8 @@ final class AttributesContainerTest extends TestCase
         $attributes = new AttributesContainer($object, $date);
         $filteredAttributes = $attributes->ofType(DateTimeInterface::class);
 
-        self::assertNotSame($filteredAttributes, $attributes);
         self::assertContainsEquals($date, $filteredAttributes);
         self::assertNotContains($object, $filteredAttributes);
+        self::assertSame($date, $filteredAttributes[0]);
     }
 }
