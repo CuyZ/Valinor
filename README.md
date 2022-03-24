@@ -312,8 +312,7 @@ try {
 
 ### Source
 
-Any source can be given to the mapper, but some helpers can be used for more
-convenience:
+Any source can be given to the mapper, be it an array, some json, yaml or even a file:
 
 ```php
 function map($source) {
@@ -322,12 +321,14 @@ function map($source) {
         ->map(SomeClass::class, $source);
 }
 
-map(new \CuyZ\Valinor\Mapper\Source\JsonSource($jsonString));
+map(\CuyZ\Valinor\Mapper\Source\Source::array($someData));
 
-map(new \CuyZ\Valinor\Mapper\Source\YamlSource($yamlString));
+map(\CuyZ\Valinor\Mapper\Source\Source::json($jsonString));
+
+map(\CuyZ\Valinor\Mapper\Source\Source::yaml($yamlString));
 
 // File containing valid Json or Yaml content and with valid extension
-map(new \CuyZ\Valinor\Mapper\Source\FileSource(
+map(new \CuyZ\Valinor\Mapper\Source\Source::file(
     new SplFileObject('path/to/my/file.json')
 ));
 ```
@@ -348,14 +349,15 @@ final class SomeClass
     public readonly string $someValue;
 }
 
-$source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys([
-    'some_value' => 'foo',
-    // …or…
-    'some-value' => 'foo',
-    // …or…
-    'some value' => 'foo',
-    // …will be replaced by `['someValue' => 'foo']`
-]);
+$source = \CuyZ\Valinor\Mapper\Source\Source::array([
+        'some_value' => 'foo',
+        // …or…
+        'some-value' => 'foo',
+        // …or…
+        'some value' => 'foo',
+        // …will be replaced by `['someValue' => 'foo']`
+   ])
+   ->camelCaseKeys();
 
 (new \CuyZ\Valinor\MapperBuilder())
         ->mapper()
@@ -385,15 +387,16 @@ final class City
     public readonly string $name;
 }
 
-$source = new \CuyZ\Valinor\Mapper\Source\Modifier\PathMapping([
-    'towns' => [
-        ['label' => 'Ankh Morpork'],
-        ['label' => 'Minas Tirith'],
-    ],
-], [
-    'towns' => 'cities',
-    'towns.*.label' => 'name',
-]);
+$source = \CuyZ\Valinor\Mapper\Source\Source::array([
+        'towns' => [
+            ['label' => 'Ankh Morpork'],
+            ['label' => 'Minas Tirith'],
+        ],
+    ])
+    ->map([
+        'towns' => 'cities',
+        'towns.*.label' => 'name',
+   ]);
 
 // After modification this is what the source will look like:
 [
@@ -406,6 +409,42 @@ $source = new \CuyZ\Valinor\Mapper\Source\Modifier\PathMapping([
 (new \CuyZ\Valinor\MapperBuilder())
     ->mapper()
     ->map(Country::class, $source);
+```
+
+#### Custom source
+
+The source is just an iterable, so it's easy to create a custom one.
+It can even be combined with the provided builder.
+
+```php
+final class AcmeSource implements IteratorAggregate
+{
+    private iterable $source;
+    
+    public function __construct(iterable $source)
+    {
+        $this->source = $this->doSomething($source);
+    }
+    
+    private function doSomething(iterable $source): iterable
+    {
+        // Do something with $source
+        
+        return $source;
+    }
+    
+    public function getIterator()
+    {
+        yield from $this->source;
+    }
+}
+
+$source = \CuyZ\Valinor\Mapper\Source\Source::iterable(new AcmeSource(['value' => 'foo']))
+    ->camelCaseKeys();
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(SomeClass::class, $source);
 ```
 
 ### Construction strategy
