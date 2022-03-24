@@ -113,6 +113,15 @@ final class ClassNodeBuilder implements NodeBuilder
             }
         }
 
+        // If only one builder remains, there is no need to filter the list.
+        // This is mostly to prevent an error happening if the given source does
+        // not match the arguments of the builder, in which case the error would
+        // not be precise. Returning this builder leaves the responsibility
+        // of the errors to the builder itself, which will be more precise.
+        if (count($builders) === 1) {
+            return $builders[0];
+        }
+
         return $this->objectBuilderFilterer->filter($source, ...$builders);
     }
 

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\VersionedCache;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
@@ -25,8 +26,8 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRe
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\ObjectBindingBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
@@ -124,17 +125,21 @@ final class Container
 
                 $builder = new InterfaceNodeBuilder(
                     $builder,
-                    $this->get(FunctionDefinitionRepository::class),
+                    new FunctionsContainer(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->interfaceMapping
+                    ),
                     $this->get(TypeParser::class),
-                    $settings->interfaceMapping,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
                 $builder = new ValueAlteringNodeBuilder(
                     $builder,
-                    $this->get(FunctionDefinitionRepository::class),
-                    $settings->valueModifier
+                    new FunctionsContainer(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->valueModifier
+                    )
                 );
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
@@ -142,17 +147,24 @@ final class Container
             },
 
             ObjectBuilderFactory::class => function () use ($settings): ObjectBuilderFactory {
-                $factory = new ConstructorObjectBuilderFactory(
-                    $this->get(ObjectBuilderFilterer::class)
+                $constructors = new FunctionsContainer(
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->customConstructors
                 );
 
-                $factory = new DateTimeObjectBuilderFactory($factory);
+                $factory = new ReflectionObjectBuilderFactory();
 
-                $factory = new ObjectBindingBuilderFactory(
+                $factory = new ConstructorObjectBuilderFactory(
                     $factory,
-                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->nativeConstructors,
+                    $constructors,
                     $this->get(ObjectBuilderFilterer::class),
-                    $settings->objectBinding,
+                );
+
+                $factory = new DateTimeObjectBuilderFactory(
+                    $factory,
+                    $constructors,
+                    $this->get(ObjectBuilderFilterer::class),
                 );
 
                 return new AttributeObjectBuilderFactory($factory);

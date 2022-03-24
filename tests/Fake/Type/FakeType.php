@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
+use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\BooleanType;
@@ -48,6 +49,10 @@ final class FakeType implements Type
 
         if ($raw === stdClass::class) {
             return new ClassType(stdClass::class);
+        }
+
+        if ($raw === StringableObject::class) {
+            return new ClassType(StringableObject::class);
         }
 
         return new self();

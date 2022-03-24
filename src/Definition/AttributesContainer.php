@@ -32,7 +32,7 @@ final class AttributesContainer implements Attributes
         return false;
     }
 
-    public function ofType(string $className): iterable
+    public function ofType(string $className): array
     {
         return array_values(array_filter(
             $this->attributes,

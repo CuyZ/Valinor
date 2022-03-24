@@ -6,20 +6,19 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\Exception\SeveralObjectBuildersFound;
+use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 
 /** @internal */
 final class ObjectBuilderFilterer
 {
     /**
      * @param mixed $source
+     *
+     * @throws SuitableObjectBuilderNotFound
      */
     public function filter($source, ObjectBuilder ...$builders): ObjectBuilder
     {
         /** @var non-empty-list<ObjectBuilder> $builders */
-        if (count($builders) === 1) {
-            return $builders[0];
-        }
-
         $constructors = [];
 
         foreach ($builders as $builder) {

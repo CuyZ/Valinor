@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
-use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
@@ -114,27 +113,6 @@ final class MethodObjectBuilderTest extends TestCase
         new MethodObjectBuilder($class, 'invalidConstructor');
     }
 
-    public function test_missing_arguments_throws_exception(): void
-    {
-        $object = new class ('foo') {
-            public string $value;
-
-            public function __construct(string $value)
-            {
-                $this->value = $value;
-            }
-        };
-
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
-        $objectBuilder = new MethodObjectBuilder($class, '__construct');
-
-        $this->expectException(MissingMethodArgument::class);
-        $this->expectExceptionCode(1629468609);
-        $this->expectExceptionMessage('Missing argument `Signature::value` of type `string`.');
-
-        $objectBuilder->build([]);
-    }
-
     public function test_exception_thrown_by_constructor_is_caught_and_wrapped(): void
     {
         $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithConstructorThatThrowsException::class));
@@ -151,17 +129,33 @@ final class MethodObjectBuilderTest extends TestCase
     {
         $this->expectException(ConstructorMethodIsNotPublic::class);
         $this->expectExceptionCode(1630937169);
-        $this->expectExceptionMessage('The constructor method `Signature::someConstructor` must be public.');
+        $this->expectExceptionMessage('The constructor of the class `' . ObjectWithPrivateNativeConstructor::class . '` is not public.');
 
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithPrivateConstructor::class));
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithPrivateNativeConstructor::class));
+        new MethodObjectBuilder($class, '__construct');
+    }
+
+    public function test_constructor_builder_for_class_with_private_named_constructor_throws_exception(): void
+    {
+        $classWithPrivateNativeConstructor = new class () {
+            // @phpstan-ignore-next-line
+            private static function someConstructor(): void
+            {
+            }
+        };
+
+        $this->expectException(ConstructorMethodIsNotPublic::class);
+        $this->expectExceptionCode(1630937169);
+        $this->expectExceptionMessage('The named constructor `Signature::someConstructor` is not public.');
+
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass($classWithPrivateNativeConstructor));
         new MethodObjectBuilder($class, 'someConstructor');
     }
 }
 
-final class ObjectWithPrivateConstructor
+final class ObjectWithPrivateNativeConstructor
 {
-    // @phpstan-ignore-next-line
-    private static function someConstructor(): void
+    private function __construct()
     {
     }
 }

@@ -453,7 +453,7 @@ During the mapping, instances of objects are recursively created and hydrated
 with transformed values. Construction strategies will determine what values are
 needed and how an object is built.
 
-#### Constructor
+#### Native constructor
 
 If a constructor exists and is public, its arguments will determine which values
 are needed from the input.
@@ -468,21 +468,59 @@ final class SomeClass
 }
 ```
 
-#### Named constructor
+#### Custom constructor
 
-An object may have several ways of being created — in such cases it is common to
-use so-called named constructors, also known as static factory methods. If one
-or more are found, they can be called during the mapping to create an instance
-of the object.
+An object may have custom ways of being created, in such cases these
+constructors need to be registered to the mapper to be used. A constructor is a
+callable that can be either:
 
-What defines a named constructor is a method that:
+1. A named constructor, also known as a static factory method
+2. The method of a service — for instance a repository
+3. A "callable object" — a class that declares an `__invoke` method
+4. Any other callable — including anonymous functions
 
-1. is public
-2. is static
-3. returns an instance of the object
-4. has one or more arguments
+In any case, the return type of the callable will be resolved by the mapper to
+know when to use it. Any argument can be provided and will automatically be
+mapped using the given source. These arguments can then be used to instantiate 
+the object in the desired way.
+
+Registering any constructor will disable the native constructor — the
+`__construct` method — of the targeted class. If for some reason it still needs 
+to be handled as well, the name of the class must be given to the 
+registration method.
 
 ```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConstructor(
+        // Allow the native constructor to be used
+        Color::class,
+
+        // Register a named constructor
+        Color::fromHex(...),
+        // …or for PHP < 8.1:
+        [Color::class, 'fromHex'],
+
+        /**
+         * An anonymous function can also be used, for instance when the desired
+         * object is an external dependency that cannot be modified.
+         * 
+         * @param 'red'|'green'|'blue' $color
+         * @param 'dark'|'light' $darkness
+         */
+        function (string $color, string $darkness): stdClass {
+            $main = $darkness === 'dark' ? 128 : 255;
+            $other = $darkness === 'dark' ? 0 : 128;
+ 
+            return new Color(
+                $color === 'red' ? $main : $other,
+                $color === 'green' ? $main : $other,
+                $color === 'blue' ? $main : $other,
+            );
+        }
+    )
+    ->mapper()
+    ->map(Color::class, [/* … */]);
+
 final class Color
 {
     /**
@@ -490,21 +528,11 @@ final class Color
      * @param int<0, 255> $green
      * @param int<0, 255> $blue
      */
-    private function __construct(
+    public function __construct(
         public readonly int $red,
         public readonly int $green,
         public readonly int $blue
     ) {}
-
-    /**
-     * @param int<0, 255> $red
-     * @param int<0, 255> $green
-     * @param int<0, 255> $blue
-     */
-    public static function fromRgb(int $red, int $green, int $blue): self
-    {
-        return new self($red, $green, $blue);
-    }
 
     /**
      * @param non-empty-string $hex
@@ -529,8 +557,8 @@ final class Color
 
 #### Properties
 
-If no constructor nor named constructor is found, properties will determine 
-which values are needed from the input.
+If no constructor is registered, properties will determine which values are
+needed from the input.
 
 ```php
 final class SomeClass

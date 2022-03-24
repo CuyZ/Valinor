@@ -22,7 +22,6 @@ final class AttributeObjectBuilderFactory implements ObjectBuilderFactory
 
     public function for(ClassDefinition $class, $source): ObjectBuilder
     {
-        /** @var ObjectBuilderFactory[] $attributes */
         $attributes = $class->attributes()->ofType(ObjectBuilderFactory::class);
 
         if (count($attributes) === 0) {

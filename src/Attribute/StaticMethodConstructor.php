@@ -9,13 +9,12 @@ use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 /**
  * @api
  *
- * @deprecated This attribute is not useful anymore, automatic named constructor
- *             resolution is now provided by the library out of the box.
+ * @deprecated This attribute should not be used anymore, the method
+ *             `MapperBuilder::registerConstructor()` should be used instead.
  *
  * @Annotation
  * @NamedArgumentConstructor

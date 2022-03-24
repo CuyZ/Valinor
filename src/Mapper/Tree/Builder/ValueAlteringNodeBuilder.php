@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
+use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
@@ -14,25 +13,12 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
 
-    private FunctionDefinitionRepository $functionDefinitionRepository;
+    private FunctionsContainer $functions;
 
-    /** @var list<callable> */
-    private array $callbacks;
-
-    /** @var list<FunctionDefinition> */
-    private array $functions;
-
-    /**
-     * @param list<callable> $callbacks
-     */
-    public function __construct(
-        NodeBuilder $delegate,
-        FunctionDefinitionRepository $functionDefinitionRepository,
-        array $callbacks
-    ) {
+    public function __construct(NodeBuilder $delegate, FunctionsContainer $functions)
+    {
         $this->delegate = $delegate;
-        $this->functionDefinitionRepository = $functionDefinitionRepository;
-        $this->callbacks = $callbacks;
+        $this->functions = $functions;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
@@ -46,7 +32,7 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         $value = $node->value();
         $type = $node->type();
 
-        foreach ($this->functions() as $key => $function) {
+        foreach ($this->functions as $function) {
             $parameters = $function->parameters();
 
             if (count($parameters) === 0) {
@@ -54,27 +40,11 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
             }
 
             if ($parameters->at(0)->type()->matches($type)) {
-                $value = ($this->callbacks[$key])($value);
+                $value = ($this->functions->callback($function))($value);
                 $node = $node->withValue($value);
             }
         }
 
         return $node;
-    }
-
-    /**
-     * @return FunctionDefinition[]
-     */
-    private function functions(): array
-    {
-        if (! isset($this->functions)) {
-            $this->functions = [];
-
-            foreach ($this->callbacks as $key => $callback) {
-                $this->functions[$key] = $this->functionDefinitionRepository->for($callback);
-            }
-        }
-
-        return $this->functions;
     }
 }
