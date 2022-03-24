@@ -350,12 +350,12 @@ final class SomeClass
 }
 
 $source = \CuyZ\Valinor\Mapper\Source\Source::array([
-       'some_value' => 'foo',
-       // …or…
-       'some-value' => 'foo',
-       // …or…
-       'some value' => 'foo',
-       // …will be replaced by `['someValue' => 'foo']`
+        'some_value' => 'foo',
+        // …or…
+        'some-value' => 'foo',
+        // …or…
+        'some value' => 'foo',
+        // …will be replaced by `['someValue' => 'foo']`
    ])
    ->camelCaseKeys();
 
@@ -388,14 +388,14 @@ final class City
 }
 
 $source = \CuyZ\Valinor\Mapper\Source\Source::array([
-       'towns' => [
-           ['label' => 'Ankh Morpork'],
-           ['label' => 'Minas Tirith'],
-       ],
+        'towns' => [
+            ['label' => 'Ankh Morpork'],
+            ['label' => 'Minas Tirith'],
+        ],
     ])
     ->map([
-       'towns' => 'cities',
-       'towns.*.label' => 'name',
+        'towns' => 'cities',
+        'towns.*.label' => 'name',
    ]);
 
 // After modification this is what the source will look like:
