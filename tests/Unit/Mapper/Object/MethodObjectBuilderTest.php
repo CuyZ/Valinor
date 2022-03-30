@@ -151,6 +151,26 @@ final class MethodObjectBuilderTest extends TestCase
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($classWithPrivateNativeConstructor));
         new MethodObjectBuilder($class, 'someConstructor');
     }
+
+    public function test_arguments_instance_stays_the_same(): void
+    {
+        $class = new class ('foo') {
+            public string $string;
+
+            public function __construct(string $string)
+            {
+                $this->string = $string;
+            }
+        };
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass($class));
+
+        $objectBuilder = new MethodObjectBuilder($class, '__construct');
+
+        $argumentsA = $objectBuilder->describeArguments();
+        $argumentsB = $objectBuilder->describeArguments();
+
+        self::assertSame($argumentsA, $argumentsB);
+    }
 }
 
 final class ObjectWithPrivateNativeConstructor

@@ -54,7 +54,7 @@ final class ObjectBuilderFilterer
      */
     private function filledArguments(ObjectBuilder $builder, $source)
     {
-        $arguments = [...$builder->describeArguments()];
+        $arguments = $builder->describeArguments();
 
         if (! is_array($source)) {
             return count($arguments) === 1;
@@ -63,10 +63,10 @@ final class ObjectBuilderFilterer
         /** @infection-ignore-all */
         $filled = 0;
 
-        foreach ($arguments as $parameter) {
-            if (isset($source[$parameter->name()])) {
+        foreach ($arguments as $argument) {
+            if (isset($source[$argument->name()])) {
                 $filled++;
-            } elseif ($parameter->isRequired()) {
+            } elseif ($argument->isRequired()) {
                 return false;
             }
         }

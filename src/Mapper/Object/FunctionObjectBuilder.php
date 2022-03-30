@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
+
+use function array_map;
+use function array_values;
+use function iterator_to_array;
 
 /** @internal */
 final class FunctionObjectBuilder implements ObjectBuilder
@@ -15,6 +20,8 @@ final class FunctionObjectBuilder implements ObjectBuilder
 
     /** @var callable(): object */
     private $callback;
+
+    private Arguments $arguments;
 
     /**
      * @param callable(): object $callback
@@ -25,15 +32,17 @@ final class FunctionObjectBuilder implements ObjectBuilder
         $this->callback = $callback;
     }
 
-    public function describeArguments(): iterable
+    public function describeArguments(): Arguments
     {
-        foreach ($this->function->parameters() as $parameter) {
-            $argument = $parameter->isOptional()
-                ? Argument::optional($parameter->name(), $parameter->type(), $parameter->defaultValue())
-                : Argument::required($parameter->name(), $parameter->type());
+        return $this->arguments ??= new Arguments(
+            ...array_map(function (ParameterDefinition $parameter) {
+                $argument = $parameter->isOptional()
+                    ? Argument::optional($parameter->name(), $parameter->type(), $parameter->defaultValue())
+                    : Argument::required($parameter->name(), $parameter->type());
 
-            yield $argument->withAttributes($parameter->attributes());
-        }
+                return $argument->withAttributes($parameter->attributes());
+            }, array_values(iterator_to_array($this->function->parameters()))) // @PHP8.1 array unpacking
+        );
     }
 
     public function build(array $arguments): object

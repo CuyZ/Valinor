@@ -7,10 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object;
 /** @internal */
 interface ObjectBuilder
 {
-    /**
-     * @return iterable<Argument>
-     */
-    public function describeArguments(): iterable;
+    public function describeArguments(): Arguments;
 
     /**
      * @param array<string, mixed> $arguments

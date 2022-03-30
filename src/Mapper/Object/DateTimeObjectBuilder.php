@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\CannotParseToDateTime;
-use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -29,10 +28,10 @@ final class DateTimeObjectBuilder implements ObjectBuilder
     public const DATE_MYSQL = 'Y-m-d H:i:s';
     public const DATE_PGSQL = 'Y-m-d H:i:s.u';
 
-    private static Type $argumentType;
-
     /** @var class-string<DateTime|DateTimeImmutable> */
     private string $className;
+
+    private Arguments $arguments;
 
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
@@ -42,24 +41,24 @@ final class DateTimeObjectBuilder implements ObjectBuilder
         $this->className = $className;
     }
 
-    public function describeArguments(): iterable
+    public function describeArguments(): Arguments
     {
-        self::$argumentType ??= new UnionType(
-            new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get()),
-            new ShapedArrayType(
-                new ShapedArrayElement(
-                    new StringValueType('datetime'),
-                    new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get())
-                ),
-                new ShapedArrayElement(
-                    new StringValueType('format'),
-                    new UnionType(NullType::get(), NonEmptyStringType::get()),
-                    true
-                ),
-            )
+        return $this->arguments ??= new Arguments(
+            Argument::required('value', new UnionType(
+                new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get()),
+                new ShapedArrayType(
+                    new ShapedArrayElement(
+                        new StringValueType('datetime'),
+                        new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get())
+                    ),
+                    new ShapedArrayElement(
+                        new StringValueType('format'),
+                        new UnionType(NullType::get(), NonEmptyStringType::get()),
+                        true
+                    ),
+                )
+            ))
         );
-
-        yield Argument::required('value', self::$argumentType);
     }
 
     public function build(array $arguments): DateTimeInterface
