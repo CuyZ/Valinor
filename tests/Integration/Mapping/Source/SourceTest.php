@@ -54,6 +54,9 @@ final class SourceTest extends IntegrationTest
         self::assertSame('foo', $object->someNestedValue->someValue);
     }
 
+    /**
+     * @requires extension yaml
+     */
     public function test_yaml_source(): void
     {
         try {
