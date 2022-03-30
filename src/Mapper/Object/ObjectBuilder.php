@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
-/** @api */
+/** @internal */
 interface ObjectBuilder
 {
     /**
