@@ -5,29 +5,37 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
+use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingPropertyArgument;
 
 use function array_key_exists;
+use function array_map;
+use function array_values;
+use function iterator_to_array;
 
 /** @api */
 final class ReflectionObjectBuilder implements ObjectBuilder
 {
     private ClassDefinition $class;
 
+    private Arguments $arguments;
+
     public function __construct(ClassDefinition $class)
     {
         $this->class = $class;
     }
 
-    public function describeArguments(): iterable
+    public function describeArguments(): Arguments
     {
-        foreach ($this->class->properties() as $property) {
-            $argument = $property->hasDefaultValue()
-                ? Argument::optional($property->name(), $property->type(), $property->defaultValue())
-                : Argument::required($property->name(), $property->type());
+        return $this->arguments ??= new Arguments(
+            ...array_map(function (PropertyDefinition $property) {
+                $argument = $property->hasDefaultValue()
+                    ? Argument::optional($property->name(), $property->type(), $property->defaultValue())
+                    : Argument::required($property->name(), $property->type());
 
-            yield $argument->withAttributes($property->attributes());
-        }
+                return $argument->withAttributes($property->attributes());
+            }, array_values(iterator_to_array($this->class->properties()))) // @PHP8.1 array unpacking
+        );
     }
 
     public function build(array $arguments): object

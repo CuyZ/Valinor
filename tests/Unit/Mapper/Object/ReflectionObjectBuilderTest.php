@@ -50,6 +50,17 @@ final class ReflectionObjectBuilderTest extends TestCase
         self::assertSame('valueC', $result->valueC()); // @phpstan-ignore-line
     }
 
+    public function test_arguments_instance_stays_the_same(): void
+    {
+        $class = FakeClassDefinition::new();
+        $objectBuilder = new ReflectionObjectBuilder($class);
+
+        $argumentsA = $objectBuilder->describeArguments();
+        $argumentsB = $objectBuilder->describeArguments();
+
+        self::assertSame($argumentsA, $argumentsB);
+    }
+
     public function test_missing_arguments_throws_exception(): void
     {
         $object = new class () {

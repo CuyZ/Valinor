@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Mapper\Object\Argument;
+use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
@@ -58,9 +58,9 @@ final class ClassNodeBuilder implements NodeBuilder
         $source = $shell->value();
 
         $builder = $this->builder($source, ...$classTypes);
-        $arguments = [...$builder->describeArguments()];
+        $arguments = $builder->describeArguments();
 
-        $source = $this->transformSource($source, ...$arguments);
+        $source = $this->transformSource($source, $arguments);
         $children = [];
 
         foreach ($arguments as $argument) {
@@ -129,7 +129,7 @@ final class ClassNodeBuilder implements NodeBuilder
      * @param mixed $source
      * @return mixed[]
      */
-    private function transformSource($source, Argument ...$arguments): array
+    private function transformSource($source, Arguments $arguments): array
     {
         if ($source === null || count($arguments) === 0) {
             return [];
@@ -140,7 +140,7 @@ final class ClassNodeBuilder implements NodeBuilder
         }
 
         if (count($arguments) === 1) {
-            $name = $arguments[0]->name();
+            $name = $arguments->at(0)->name();
 
             if (! is_array($source) || ! array_key_exists($name, $source)) {
                 $source = [$name => $source];
