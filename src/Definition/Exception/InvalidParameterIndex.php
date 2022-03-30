@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Exception;
 
 use CuyZ\Valinor\Definition\Parameters;
-use LogicException;
+use OutOfBoundsException;
 
 /** @internal */
-final class InvalidParameterIndex extends LogicException
+final class InvalidParameterIndex extends OutOfBoundsException
 {
     public function __construct(int $index, Parameters $parameters)
     {
