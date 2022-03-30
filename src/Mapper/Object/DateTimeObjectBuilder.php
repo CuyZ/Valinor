@@ -68,7 +68,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
         $format = null;
 
         if (is_array($datetime)) {
-            $format = $datetime['format'];
+            $format = $datetime['format'] ?? null;
             $datetime = $datetime['datetime'];
         }
 

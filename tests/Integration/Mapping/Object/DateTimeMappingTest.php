@@ -20,6 +20,9 @@ final class DateTimeMappingTest extends IntegrationTest
         $dateTimeInterface = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
         $dateTimeImmutable = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
         $dateTimeFromTimestamp = $this->buildRandomTimestamp();
+        $dateTimeFromTimestampWithOutFormat = [
+            'datetime' => $this->buildRandomTimestamp(),
+        ];
         $dateTimeFromTimestampWithFormat = [
             'datetime' => $this->buildRandomTimestamp(),
             'format' => 'U',
@@ -37,6 +40,7 @@ final class DateTimeMappingTest extends IntegrationTest
                 'dateTimeInterface' => $dateTimeInterface,
                 'dateTimeImmutable' => $dateTimeImmutable,
                 'dateTimeFromTimestamp' => $dateTimeFromTimestamp,
+                'dateTimeFromTimestampWithOutFormat' => $dateTimeFromTimestampWithOutFormat,
                 'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
                 'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
                 'dateTimeFromArray' => $dateTimeFromArray,
@@ -53,6 +57,7 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertEquals($dateTimeImmutable, $result->dateTimeImmutable);
         self::assertEquals(new DateTimeImmutable("@$dateTimeFromTimestamp"), $result->dateTimeFromTimestamp);
         self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithFormat['datetime']}"), $result->dateTimeFromTimestampWithFormat);
+        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithOutFormat['datetime']}"), $result->dateTimeFromTimestampWithOutFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $result->dateTimeFromAtomFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
         self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
@@ -133,6 +138,8 @@ final class AllDateTimeValues
     public DateTimeImmutable $dateTimeImmutable;
 
     public DateTime $dateTimeFromTimestamp;
+
+    public DateTime $dateTimeFromTimestampWithOutFormat;
 
     public DateTime $dateTimeFromTimestampWithFormat;
 
