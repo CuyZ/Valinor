@@ -30,4 +30,18 @@ final class ValueAlteringMappingTest extends IntegrationTest
 
         self::assertSame('FOO!', $result->value);
     }
+
+    public function test_value_not_accepted_by_value_altering_callback_is_not_used(): void
+    {
+        try {
+            $result = $this->mapperBuilder
+                ->alter(fn (string $value) => $value)
+                ->mapper()
+                ->map('string|null', null);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertNull($result);
+    }
 }

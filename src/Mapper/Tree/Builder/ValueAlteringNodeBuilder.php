@@ -30,7 +30,6 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         }
 
         $value = $node->value();
-        $type = $node->type();
 
         foreach ($this->functions as $function) {
             $parameters = $function->parameters();
@@ -39,10 +38,14 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            if ($parameters->at(0)->type()->matches($type)) {
-                $value = ($this->functions->callback($function))($value);
-                $node = $node->withValue($value);
+            $firstParameterType = $parameters->at(0)->type();
+
+            if (! $firstParameterType->accepts($value)) {
+                continue;
             }
+
+            $value = ($this->functions->callback($function))($value);
+            $node = $node->withValue($value);
         }
 
         return $node;
