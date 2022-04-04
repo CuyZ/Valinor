@@ -15,11 +15,10 @@ final class FakeObjectType implements ObjectType
     /** @var class-string */
     private string $className;
 
-    /** @var Type[] */
-    private array $matching = [];
+    private Type $matching;
 
-    /** @var mixed[] */
-    private array $accepting = [];
+    /** @var object[] */
+    private array $accepting;
 
     /**
      * @param class-string $className
@@ -27,6 +26,22 @@ final class FakeObjectType implements ObjectType
     public function __construct(string $className = stdClass::class)
     {
         $this->className = $className;
+    }
+
+    public static function accepting(object ...$objects): self
+    {
+        $instance = new self();
+        $instance->accepting = $objects;
+
+        return $instance;
+    }
+
+    public static function matching(Type $other): self
+    {
+        $instance = new self();
+        $instance->matching = $other;
+
+        return $instance;
     }
 
     public function className(): string
@@ -41,22 +56,12 @@ final class FakeObjectType implements ObjectType
 
     public function accepts($value): bool
     {
-        return in_array($value, $this->accepting, true);
+        return isset($this->accepting) && in_array($value, $this->accepting, true);
     }
 
     public function matches(Type $other): bool
     {
-        return in_array($other, $this->matching, true);
-    }
-
-    public function willAccept(object $object): void
-    {
-        $this->accepting[] = $object;
-    }
-
-    public function willMatch(Type ...$others): void
-    {
-        $this->matching = [...$this->matching, ...$others];
+        return $other === ($this->matching ?? null);
     }
 
     public function __toString(): string

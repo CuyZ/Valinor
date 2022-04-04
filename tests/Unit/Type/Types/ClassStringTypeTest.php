@@ -200,10 +200,9 @@ final class ClassStringTypeTest extends TestCase
     public function test_matches_same_type_with_object_type(): void
     {
         $objectTypeA = new FakeObjectType();
-        $objectTypeB = new FakeObjectType();
-        $objectTypeA->willMatch($objectTypeB);
+        $objectTypeB = FakeObjectType::matching($objectTypeA);
 
-        self::assertTrue((new ClassStringType($objectTypeA))->matches(new ClassStringType($objectTypeB)));
+        self::assertTrue((new ClassStringType($objectTypeB))->matches(new ClassStringType($objectTypeA)));
     }
 
     public function test_does_not_match_same_type_with_no_object_type(): void
@@ -242,16 +241,15 @@ final class ClassStringTypeTest extends TestCase
     public function test_matches_union_containing_valid_type(): void
     {
         $objectTypeA = new FakeObjectType();
-        $objectTypeB = new FakeObjectType();
-        $objectTypeA->willMatch($objectTypeB);
+        $objectTypeB = FakeObjectType::matching($objectTypeA);
 
         $unionType = new UnionType(
             new FakeType(),
-            new ClassStringType($objectTypeB),
+            new ClassStringType($objectTypeA),
             new FakeType(),
         );
 
-        self::assertTrue((new ClassStringType($objectTypeA))->matches($unionType));
+        self::assertTrue((new ClassStringType($objectTypeB))->matches($unionType));
     }
 
     public function test_does_not_match_union_containing_invalid_type(): void

@@ -41,15 +41,11 @@ final class IntersectionTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $typeA = new FakeObjectType();
-        $typeB = new FakeObjectType();
-        $typeC = new FakeObjectType();
-
         $object = new stdClass();
 
-        $typeA->willAccept($object);
-        $typeB->willAccept($object);
-        $typeC->willAccept($object);
+        $typeA = FakeObjectType::accepting($object);
+        $typeB = FakeObjectType::accepting($object);
+        $typeC = FakeObjectType::accepting($object);
 
         $intersectionType = new IntersectionType($typeA, $typeB, $typeC);
 
@@ -76,15 +72,12 @@ final class IntersectionTypeTest extends TestCase
     public function test_matches_valid_type(): void
     {
         $objectTypeA = new FakeObjectType();
-        $objectTypeB = new FakeObjectType();
-        $objectTypeC = new FakeObjectType();
+        $objectTypeB = FakeObjectType::matching($objectTypeA);
+        $objectTypeC = FakeObjectType::matching($objectTypeA);
 
-        $intersectionType = new IntersectionType($objectTypeA, $objectTypeB);
+        $intersectionType = new IntersectionType($objectTypeB, $objectTypeC);
 
-        $objectTypeA->willMatch($objectTypeC);
-        $objectTypeB->willMatch($objectTypeC);
-
-        self::assertTrue($intersectionType->matches($objectTypeC));
+        self::assertTrue($intersectionType->matches($objectTypeA));
     }
 
     public function test_does_not_match_invalid_type(): void
@@ -111,16 +104,14 @@ final class IntersectionTypeTest extends TestCase
     public function test_matches_union_containing_valid_type(): void
     {
         $objectTypeA = new FakeObjectType();
-        $objectTypeB = new FakeObjectType();
-        $objectTypeC = new FakeObjectType();
-        $objectTypeA->willMatch($objectTypeC);
-        $objectTypeB->willMatch($objectTypeC);
+        $objectTypeB = FakeObjectType::matching($objectTypeA);
+        $objectTypeC = FakeObjectType::matching($objectTypeA);
 
-        $intersectionType = new IntersectionType($objectTypeA, $objectTypeB);
+        $intersectionType = new IntersectionType($objectTypeB, $objectTypeC);
 
         $unionType = new UnionType(
             new FakeType(),
-            $objectTypeC,
+            $objectTypeA,
             new FakeType(),
         );
 
