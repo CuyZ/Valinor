@@ -38,7 +38,7 @@ final class NodeMessage implements Message, HasCode
      *
      * See usage examples below:
      *
-     * ```
+     * ```php
      * $content = $message->format('the previous code was: %1$s');
      *
      * $content = $message->format(
