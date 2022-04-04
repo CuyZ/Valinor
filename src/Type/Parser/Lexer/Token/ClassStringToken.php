@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
 /** @internal */
@@ -27,7 +28,7 @@ final class ClassStringToken implements TraversingToken
 
         $type = $stream->read();
 
-        if (! $type instanceof ObjectType) {
+        if (! $type instanceof ObjectType && ! $type instanceof UnionType) {
             throw new InvalidClassStringSubType($type);
         }
 

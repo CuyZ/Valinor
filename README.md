@@ -776,7 +776,7 @@ final class SomeClass
     public function __construct(
         private int|string $simpleUnion,
         
-        /** @var class-string<SomeInterface>|class-string<AnotherInterface> */
+        /** @var class-string<SomeInterface|AnotherInterface> */
         private string $unionOfClassString,
         
         /** @var array<SomeInterface|AnotherInterface> */

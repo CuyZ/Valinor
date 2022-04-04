@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
+use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
@@ -22,11 +23,29 @@ use stdClass;
 
 final class ClassStringTypeTest extends TestCase
 {
-    public function test_subtype_can_be_retrieved(): void
+    public function test_string_subtype_can_be_retrieved(): void
     {
         $subType = new FakeObjectType();
 
         self::assertSame($subType, (new ClassStringType($subType))->subType());
+    }
+
+    public function test_union_of_string_subtype_can_be_retrieved(): void
+    {
+        $subType = new UnionType(new FakeObjectType(), new FakeObjectType());
+
+        self::assertSame($subType, (new ClassStringType($subType))->subType());
+    }
+
+    public function test_union_with_invalid_type_throws_exception(): void
+    {
+        $type = new UnionType(new FakeObjectType(), new FakeType());
+
+        $this->expectException(InvalidUnionOfClassString::class);
+        $this->expectExceptionCode(1648830951);
+        $this->expectExceptionMessage("Type `$type` contains invalid class string element(s).");
+
+        new ClassStringType($type);
     }
 
     public function test_accepts_correct_values(): void
@@ -60,6 +79,26 @@ final class ClassStringTypeTest extends TestCase
         self::assertTrue($classStringType->accepts(DateTimeInterface::class));
 
         self::assertFalse($classStringType->accepts(stdClass::class));
+    }
+
+    public function test_accepts_correct_values_with_union_sub_type(): void
+    {
+        $type = new UnionType(new FakeObjectType(DateTimeInterface::class), new FakeObjectType(stdClass::class));
+        $classStringType = new ClassStringType($type);
+
+        self::assertTrue($classStringType->accepts(DateTime::class));
+        self::assertTrue($classStringType->accepts(DateTimeImmutable::class));
+        self::assertTrue($classStringType->accepts(DateTimeInterface::class));
+
+        self::assertTrue($classStringType->accepts(stdClass::class));
+    }
+
+    public function test_does_not_accept_incorrect_values_with_union_sub_type(): void
+    {
+        $unionType = new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class));
+        $classStringType = new ClassStringType($unionType);
+
+        self::assertFalse($classStringType->accepts(DateTimeImmutable::class));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -112,6 +151,17 @@ final class ClassStringTypeTest extends TestCase
 
     public function test_cast_invalid_class_string_throws_exception(): void
     {
+        $classStringObject = new StringableObject('foo');
+
+        $this->expectException(InvalidClassString::class);
+        $this->expectExceptionCode(1608132562);
+        $this->expectExceptionMessage("Invalid class string `foo`.");
+
+        (new ClassStringType())->cast($classStringObject);
+    }
+
+    public function test_cast_invalid_class_string_of_object_type_throws_exception(): void
+    {
         $objectType = new FakeObjectType();
         $classStringObject = new StringableObject(DateTimeInterface::class);
 
@@ -120,6 +170,18 @@ final class ClassStringTypeTest extends TestCase
         $this->expectExceptionMessage("Invalid class string `DateTimeInterface`, it must be a subtype of `$objectType`.");
 
         (new ClassStringType($objectType))->cast($classStringObject);
+    }
+
+    public function test_cast_invalid_class_string_of_union_type_throws_exception(): void
+    {
+        $unionType = new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class));
+        $classStringObject = new StringableObject(DateTimeInterface::class);
+
+        $this->expectException(InvalidClassString::class);
+        $this->expectExceptionCode(1608132562);
+        $this->expectExceptionMessage("Invalid class string `DateTimeInterface`, it must be one of `DateTime`, `stdClass`.");
+
+        (new ClassStringType($unionType))->cast($classStringObject);
     }
 
     public function test_string_value_is_correct(): void

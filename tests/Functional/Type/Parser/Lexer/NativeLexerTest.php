@@ -425,6 +425,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'class-string<DateTimeInterface>',
                 'type' => ClassStringType::class,
             ],
+            'Class string of union' => [
+                'raw' => 'class-string<DateTimeInterface|stdClass>',
+                'transformed' => 'class-string<DateTimeInterface|stdClass>',
+                'type' => ClassStringType::class,
+            ],
             'Class name' => [
                 'raw' => stdClass::class,
                 'transformed' => stdClass::class,

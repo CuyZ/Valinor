@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidClassString;
+use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use Stringable;
 
 use function class_exists;
@@ -18,12 +19,24 @@ use function is_string;
 /** @api */
 final class ClassStringType implements StringType
 {
-    private ?ObjectType $subType;
+    /** @var ObjectType|UnionType|null */
+    private ?Type $subType;
 
     private string $signature;
 
-    public function __construct(ObjectType $subType = null)
+    /**
+     * @param ObjectType|UnionType $subType
+     */
+    public function __construct(Type $subType = null)
     {
+        if ($subType instanceof UnionType) {
+            foreach ($subType->types() as $type) {
+                if (! $type instanceof ObjectType) {
+                    throw new InvalidUnionOfClassString($subType);
+                }
+            }
+        }
+
         $this->subType = $subType;
         $this->signature = $this->subType
             ? "class-string<$this->subType>"
@@ -44,7 +57,18 @@ final class ClassStringType implements StringType
             return true;
         }
 
-        return is_a($value, $this->subType->className(), true);
+        if ($this->subType instanceof ObjectType) {
+            return is_a($value, $this->subType->className(), true);
+        }
+
+        foreach ($this->subType->types() as $type) {
+            /** @var ObjectType $type */
+            if (is_a($value, $type->className(), true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function matches(Type $other): bool
@@ -89,18 +113,17 @@ final class ClassStringType implements StringType
 
         $value = (string)$value; // @phpstan-ignore-line
 
-        if (! $this->subType) {
-            return $value;
+        if (! $this->accepts($value)) {
+            throw new InvalidClassString($value, $this->subType);
         }
 
-        if (is_a($value, $this->subType->className(), true)) {
-            return $value;
-        }
-
-        throw new InvalidClassString($value, $this->subType);
+        return $value;
     }
 
-    public function subType(): ?ObjectType
+    /**
+     * @return ObjectType|UnionType|null
+     */
+    public function subType(): ?Type
     {
         return $this->subType;
     }
