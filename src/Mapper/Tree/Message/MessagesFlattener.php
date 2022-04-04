@@ -18,7 +18,7 @@ use function array_filter;
  * flatten all caught errors into a basic array of string that can then easily
  * be used to inform the user of what is wrong.
  *
- * ```
+ * ```php
  * try {
  *     // …
  * } catch(MappingError $error) {

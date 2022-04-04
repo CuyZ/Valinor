@@ -32,7 +32,7 @@ final class MapperBuilder
      *
      * Example:
      *
-     * ```
+     * ```php
      * (new \CuyZ\Valinor\MapperBuilder())
      *     ->infer(UuidInterface::class, fn () => MyUuid::class)
      *     ->infer(SomeInterface::class, fn (string $type) => match($type) {

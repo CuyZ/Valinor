@@ -31,7 +31,7 @@ use function is_callable;
  *
  * See usage examples below:
  *
- * ```
+ * ```php
  * $formatter = (new MessageMapFormatter([
  *     // Will match if the given message has this exact code
  *     'some_code' => 'new content / previous code was: %1$s',

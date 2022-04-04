@@ -12,7 +12,7 @@ use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
  * This attribute can be added to an object property. It will be filled with
  * the iteration key from the source which is used to map the object tree.
  *
- * ```
+ * ```php
  * use CuyZ\Valinor\Attribute\Identifier;
  *
  * final class Foo
