@@ -98,7 +98,7 @@ final class IntegerValueTypeTest extends TestCase
     {
         $this->expectException(InvalidIntegerValueType::class);
         $this->expectExceptionCode(1631267159);
-        $this->expectExceptionMessage('Value of type `string` does not match integer value `1337`.');
+        $this->expectExceptionMessage("Value 'foo' does not match integer value 1337.");
 
         $this->type->cast('foo');
     }
@@ -107,7 +107,7 @@ final class IntegerValueTypeTest extends TestCase
     {
         $this->expectException(InvalidIntegerValue::class);
         $this->expectExceptionCode(1631090798);
-        $this->expectExceptionMessage('Value `42` does not match integer value `1337`.');
+        $this->expectExceptionMessage('Value 42 does not match expected 1337.');
 
         $this->type->cast('42');
     }

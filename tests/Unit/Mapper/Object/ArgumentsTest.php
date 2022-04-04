@@ -7,7 +7,9 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidArgumentIndex;
+use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 
 final class ArgumentsTest extends TestCase
@@ -26,13 +28,17 @@ final class ArgumentsTest extends TestCase
     public function test_signature_is_correct(): void
     {
         $typeA = FakeType::permissive();
-        $typeB = FakeType::permissive();
+        $typeB = new FakeObjectType();
+        $typeC = new UnionType(new FakeObjectType(), new FakeObjectType());
+        $typeD = FakeType::permissive();
 
         $arguments = new Arguments(
-            Argument::required('someArgumentA', $typeA),
-            Argument::optional('someArgumentB', $typeB, 'defaultValue')
+            Argument::required('someArgument', $typeA),
+            Argument::required('someArgumentOfObject', $typeB),
+            Argument::required('someArgumentWithUnionOfObject', $typeC),
+            Argument::optional('someOptionalArgument', $typeD, 'defaultValue')
         );
 
-        self::assertSame("array{someArgumentA: $typeA, someArgumentB?: $typeB}", $arguments->signature());
+        self::assertSame("array{someArgument: $typeA, someArgumentOfObject: ?, someArgumentWithUnionOfObject: ?, someOptionalArgument?: $typeD}", $arguments->signature());
     }
 }

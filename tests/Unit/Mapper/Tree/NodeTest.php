@@ -11,8 +11,10 @@ use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Mapper\FakeNode;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
+use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class NodeTest extends TestCase
 {
@@ -35,7 +37,7 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value of type `string` is not accepted by type `$type`.");
+        $this->expectExceptionMessage("Value 'foo' does not match expected `$type`.");
 
         FakeNode::leaf($type, 'foo');
     }
@@ -80,7 +82,7 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value of type `string` is not accepted by type `$type`.");
+        $this->expectExceptionMessage("Value 'foo' does not match expected `$type`.");
 
         FakeNode::branch([], $type, 'foo');
     }
@@ -131,9 +133,21 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value of type `int` is not accepted by type `$type`.");
+        $this->expectExceptionMessage("Value 1337 does not match expected `$type`.");
 
         FakeNode::leaf($type, 'foo')->withValue(1337);
+    }
+
+    public function test_node_with_invalid_value_for_object_type_returns_invalid_node(): void
+    {
+        $object = new stdClass();
+        $type = FakeObjectType::accepting($object);
+
+        $this->expectException(InvalidNodeValue::class);
+        $this->expectExceptionCode(1630678334);
+        $this->expectExceptionMessage("Value 1337 is not accepted.");
+
+        FakeNode::leaf($type, $object)->withValue(1337);
     }
 
     public function test_node_with_messages_returns_node_with_messages(): void

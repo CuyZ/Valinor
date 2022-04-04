@@ -111,7 +111,7 @@ final class NativeBooleanTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `string` to `bool`.');
+        $this->expectExceptionMessage("Cannot cast 'foo' to `bool`.");
 
         $this->booleanType->cast('foo');
     }

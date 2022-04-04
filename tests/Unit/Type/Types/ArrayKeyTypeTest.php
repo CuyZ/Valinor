@@ -110,7 +110,7 @@ final class ArrayKeyTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `stdClass` to `array-key`.');
+        $this->expectExceptionMessage('Cannot cast object(stdClass) to `array-key`.');
 
         ArrayKeyType::default()->cast(new stdClass());
     }

@@ -6,7 +6,8 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\TypeHelper;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
@@ -17,12 +18,15 @@ final class SourceMustBeIterable extends RuntimeException implements Message
      */
     public function __construct($value, Type $type)
     {
-        $valueType = Polyfill::get_debug_type($value);
-
-        $message = "Source must be iterable in order to be cast to `$type`, but is of type `$valueType`.";
-
         if ($value === null) {
-            $message = "Cannot cast an empty value to `$type`.";
+            $message = TypeHelper::containsObject($type)
+                ? 'Cannot be empty.'
+                : "Cannot be empty and must be filled with a value matching `$type`.";
+        } else {
+            $value = ValueDumper::dump($value);
+            $message = TypeHelper::containsObject($type)
+                ? "Value $value is not accepted."
+                : "Value $value does not match expected `$type`.";
         }
 
         parent::__construct($message, 1618739163);

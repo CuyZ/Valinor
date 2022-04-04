@@ -33,7 +33,7 @@ final class JsonSourceTest extends TestCase
     {
         $this->expectException(SourceNotIterable::class);
         $this->expectExceptionCode(1566307291);
-        $this->expectExceptionMessage('The configuration is not an iterable but of type `bool`.');
+        $this->expectExceptionMessage('Invalid source true, expected an iterable.');
 
         new JsonSource('true');
     }

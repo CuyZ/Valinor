@@ -108,7 +108,7 @@ final class StringValueTypeTest extends TestCase
     {
         $this->expectException(InvalidStringValueType::class);
         $this->expectExceptionCode(1631263954);
-        $this->expectExceptionMessage('Value of type `stdClass` does not match string value `Schwifty!`.');
+        $this->expectExceptionMessage("Value object(stdClass) does not match string value 'Schwifty!'.");
 
         $this->type->cast(new stdClass());
     }
@@ -117,7 +117,7 @@ final class StringValueTypeTest extends TestCase
     {
         $this->expectException(InvalidStringValue::class);
         $this->expectExceptionCode(1631263740);
-        $this->expectExceptionMessage('Values `Schwifty?` and `Schwifty!` do not match.');
+        $this->expectExceptionMessage("Value 'Schwifty?' does not match expected 'Schwifty!'.");
 
         $typeA = new StringValueType('Schwifty!');
         $typeB = new StringValueType('Schwifty?');

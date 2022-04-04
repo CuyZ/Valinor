@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use Countable;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidArgumentIndex;
+use CuyZ\Valinor\Utility\TypeHelper;
 use IteratorAggregate;
 use Traversable;
 
@@ -36,9 +37,14 @@ final class Arguments implements IteratorAggregate, Countable
     public function signature(): string
     {
         $parameters = array_map(
-            fn (Argument $argument) => $argument->isRequired()
-                ? "{$argument->name()}: {$argument->type()}"
-                : "{$argument->name()}?: {$argument->type()}",
+            function (Argument $argument) {
+                $name = $argument->name();
+                $type = $argument->type();
+
+                $signature = TypeHelper::containsObject($type) ? '?' : $type;
+
+                return $argument->isRequired() ? "$name: $signature" : "$name?: $signature";
+            },
             $this->arguments
         );
 

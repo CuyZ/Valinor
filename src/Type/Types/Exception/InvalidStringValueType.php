@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
@@ -15,10 +15,11 @@ final class InvalidStringValueType extends RuntimeException implements CastError
      */
     public function __construct($value, string $stringValue)
     {
-        $baseType = Polyfill::get_debug_type($value);
+        $value = ValueDumper::dump($value);
+        $stringValue = ValueDumper::dump($stringValue);
 
         parent::__construct(
-            "Value of type `$baseType` does not match string value `$stringValue`.",
+            "Value $value does not match string value $stringValue.",
             1631263954
         );
     }

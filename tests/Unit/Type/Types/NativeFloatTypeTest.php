@@ -89,7 +89,7 @@ final class NativeFloatTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `string` to `float`.');
+        $this->expectExceptionMessage("Cannot cast 'foo' to `float`.");
 
         $this->floatType->cast('foo');
     }

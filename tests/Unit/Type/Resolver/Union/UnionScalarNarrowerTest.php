@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Resolver\Union;
 
-use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveTypeFromUnion;
 use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
@@ -101,18 +101,29 @@ final class UnionScalarNarrowerTest extends TestCase
 
         $this->expectException(CannotResolveTypeFromUnion::class);
         $this->expectExceptionCode(1607027306);
-        $this->expectExceptionMessage("Impossible to resolve the type from the union `$unionType` with a value of type `string`.");
+        $this->expectExceptionMessage("Value 'foo' does not match any of `bool`, `int`, `float`.");
 
-        $this->unionScalarNarrower->narrow($unionType, '42');
+        $this->unionScalarNarrower->narrow($unionType, 'foo');
+    }
+
+    public function test_several_possible_types_with_object_throws_exception(): void
+    {
+        $unionType = new UnionType(new FakeObjectType(), NativeIntegerType::get(), NativeFloatType::get());
+
+        $this->expectException(CannotResolveTypeFromUnion::class);
+        $this->expectExceptionCode(1607027306);
+        $this->expectExceptionMessage("Value 'foo' is not accepted.");
+
+        $this->unionScalarNarrower->narrow($unionType, 'foo');
     }
 
     public function test_null_value_but_null_not_in_union_throws_exception(): void
     {
-        $unionType = new UnionType(new FakeType(), new FakeType());
+        $unionType = new UnionType(NativeBooleanType::get(), NativeIntegerType::get(), NativeFloatType::get());
 
         $this->expectException(CannotResolveTypeFromUnion::class);
         $this->expectExceptionCode(1607027306);
-        $this->expectExceptionMessage("Impossible to resolve the type from the union `$unionType` with a value of type `null`.");
+        $this->expectExceptionMessage("Value null does not match any of `bool`, `int`, `float`.");
 
         $this->unionScalarNarrower->narrow($unionType, null);
     }

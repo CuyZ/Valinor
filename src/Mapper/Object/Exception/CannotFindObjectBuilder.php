@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 use function array_keys;
@@ -24,21 +24,17 @@ final class CannotFindObjectBuilder extends RuntimeException implements Message,
      */
     public function __construct($source, array $builders)
     {
-        $type = Polyfill::get_debug_type($source);
+        $value = ValueDumper::dump($source);
 
         $signatures = [];
         $sortedSignatures = [];
 
         foreach ($builders as $builder) {
-            $parameters = [];
+            $arguments = $builder->describeArguments();
+            $count = count($arguments);
+            $signature = $arguments->signature();
 
-            foreach ($builder->describeArguments() as $argument) {
-                $parameters[] = $argument->isRequired()
-                    ? "{$argument->name()}: {$argument->type()}"
-                    : "{$argument->name()}?: {$argument->type()}";
-            }
-
-            $signatures[count($parameters)]['array{' . implode(', ', $parameters) . '}'] = true;
+            $signatures[$count][$signature] = null;
         }
 
         ksort($signatures);
@@ -50,7 +46,7 @@ final class CannotFindObjectBuilder extends RuntimeException implements Message,
         }
 
         parent::__construct(
-            "Invalid value, got `$type` but expected one of `" . implode('`, `', $sortedSignatures) . '`.',
+            "Value $value does not match any of `" . implode('`, `', $sortedSignatures) . '`.',
             1642183169
         );
     }

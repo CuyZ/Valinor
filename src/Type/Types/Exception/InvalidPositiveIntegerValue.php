@@ -12,7 +12,7 @@ final class InvalidPositiveIntegerValue extends RuntimeException implements Cast
     public function __construct(int $value)
     {
         parent::__construct(
-            "Invalid value `$value`: it must be a positive integer.",
+            "Invalid value $value: it must be a positive integer.",
             1632923676
         );
     }

@@ -113,7 +113,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     {
         $this->expectException(InvalidInterfaceResolverReturnType::class);
         $this->expectExceptionCode(1630091260);
-        $this->expectExceptionMessage('Invalid type `int`; it must be the name of a class that implements `DateTimeInterface`.');
+        $this->expectExceptionMessage('Invalid value 42; it must be the name of a class that implements `DateTimeInterface`.');
 
         $this->mapperBuilder
             ->infer(DateTimeInterface::class, fn () => 42)
@@ -158,7 +158,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1645283485', $error->code());
-            self::assertSame('Invalid source type `int`, it must be an iterable.', (string)$error);
+            self::assertSame('Invalid value 42, it must be an iterable.', (string)$error);
         }
     }
 
@@ -175,7 +175,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
             $error = $exception->node()->children()['key']->messages()[0];
 
             self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot cast value of type `string` to `int`.', (string)$error);
+            self::assertSame("Cannot cast 'foo' to `int`.", (string)$error);
         }
     }
 

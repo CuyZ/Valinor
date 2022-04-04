@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
@@ -17,10 +17,10 @@ final class SeveralObjectBuildersFound extends RuntimeException implements Messa
      */
     public function __construct($source)
     {
-        $type = Polyfill::get_debug_type($source);
+        $value = ValueDumper::dump($source);
 
         parent::__construct(
-            "Could not map input of type `$type`.",
+            "Value $value is not accepted.",
             1642787246
         );
     }

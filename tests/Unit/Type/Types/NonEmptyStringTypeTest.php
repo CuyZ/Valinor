@@ -97,7 +97,7 @@ final class NonEmptyStringTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `stdClass` to `non-empty-string`.');
+        $this->expectExceptionMessage('Cannot cast object(stdClass) to `non-empty-string`.');
 
         $this->nonEmptyStringType->cast(new stdClass());
     }

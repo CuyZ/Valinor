@@ -112,7 +112,7 @@ final class BooleanValueTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `string` to `true`.');
+        $this->expectExceptionMessage("Cannot cast 'foo' to `true`.");
 
         BooleanValueType::true()->cast('foo');
     }
@@ -121,7 +121,7 @@ final class BooleanValueTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `string` to `false`.');
+        $this->expectExceptionMessage("Cannot cast 'foo' to `false`.");
 
         BooleanValueType::false()->cast('foo');
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Resolver\Union;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Resolver\Union\FakeUnionNarrower;
 use CuyZ\Valinor\Type\Resolver\Exception\UnionTypeDoesNotAllowNull;
@@ -53,7 +54,18 @@ final class UnionNullNarrowerTest extends TestCase
 
         $this->expectException(UnionTypeDoesNotAllowNull::class);
         $this->expectExceptionCode(1618742357);
-        $this->expectExceptionMessage("Cannot assign an empty value to union type `$unionType`.");
+        $this->expectExceptionMessage("Cannot be empty and must be filled with a value matching `$unionType`.");
+
+        $this->unionNullNarrower->narrow($unionType, null);
+    }
+
+    public function test_null_value_not_allowed_by_union_type_containing_object_type_throws_exception(): void
+    {
+        $unionType = new UnionType(new FakeType(), new FakeObjectType());
+
+        $this->expectException(UnionTypeDoesNotAllowNull::class);
+        $this->expectExceptionCode(1618742357);
+        $this->expectExceptionMessage('Cannot be empty.');
 
         $this->unionNullNarrower->narrow($unionType, null);
     }

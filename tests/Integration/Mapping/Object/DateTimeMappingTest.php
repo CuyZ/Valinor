@@ -76,7 +76,7 @@ final class DateTimeMappingTest extends IntegrationTest
             $error = $exception->node()->children()['dateTime']->messages()[0];
 
             self::assertSame('1630686564', $error->code());
-            self::assertSame('Impossible to convert `invalid datetime` to `DateTime`.', (string)$error);
+            self::assertSame("Impossible to parse date with value 'invalid datetime'.", (string)$error);
         }
     }
 
@@ -95,7 +95,7 @@ final class DateTimeMappingTest extends IntegrationTest
             $error = $exception->node()->children()['dateTime']->messages()[0];
 
             self::assertSame('1630686564', $error->code());
-            self::assertSame('Impossible to convert `1337` to `DateTime`.', (string)$error);
+            self::assertSame("Impossible to parse date with value '1337'.", (string)$error);
         }
     }
 

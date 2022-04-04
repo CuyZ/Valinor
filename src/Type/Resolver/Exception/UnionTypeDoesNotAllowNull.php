@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Resolver\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Utility\TypeHelper;
 use RuntimeException;
 
 /** @api */
@@ -13,9 +14,10 @@ final class UnionTypeDoesNotAllowNull extends RuntimeException implements Messag
 {
     public function __construct(UnionType $unionType)
     {
-        parent::__construct(
-            "Cannot assign an empty value to union type `$unionType`.",
-            1618742357
-        );
+        $message = TypeHelper::containsObject($unionType)
+            ? 'Cannot be empty.'
+            : "Cannot be empty and must be filled with a value matching `$unionType`.";
+
+        parent::__construct($message, 1618742357);
     }
 }
