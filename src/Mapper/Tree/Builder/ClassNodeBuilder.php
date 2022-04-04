@@ -148,7 +148,7 @@ final class ClassNodeBuilder implements NodeBuilder
         }
 
         if (! is_array($source)) {
-            throw new InvalidSourceForObject($source);
+            throw new InvalidSourceForObject($source, $arguments);
         }
 
         return $source;

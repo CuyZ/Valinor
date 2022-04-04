@@ -41,7 +41,7 @@ final class ObjectValuesMappingTest extends IntegrationTest
                 $error = $exception->node()->messages()[0];
 
                 self::assertSame('1632903281', $error->code());
-                self::assertSame('Invalid source type `string`, it must be an iterable.', (string)$error);
+                self::assertSame("Value 'foo' does not match `array{object: ?, string: string}`.", (string)$error);
             }
         }
     }

@@ -72,7 +72,7 @@ final class FloatValueTypeTest extends TestCase
     {
         $this->expectException(InvalidFloatValueType::class);
         $this->expectExceptionCode(1652110003);
-        $this->expectExceptionMessage('Value of type `string` does not match float value `1337.42`.');
+        $this->expectExceptionMessage("Value 'foo' does not match float value 1337.42.");
 
         $this->floatValueType->cast('foo');
     }
@@ -81,7 +81,7 @@ final class FloatValueTypeTest extends TestCase
     {
         $this->expectException(InvalidFloatValue::class);
         $this->expectExceptionCode(1652110115);
-        $this->expectExceptionMessage('Value `404.42` does not match expected value `1337.42`.');
+        $this->expectExceptionMessage('Value 404.42 does not match expected 1337.42.');
 
         $this->floatValueType->cast('404.42');
     }

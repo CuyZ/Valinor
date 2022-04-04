@@ -34,7 +34,7 @@ final class ListNodeBuilderTest extends TestCase
     {
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage('Source must be iterable in order to be cast to `list`, but is of type `string`.');
+        $this->expectExceptionMessage("Value 'foo' does not match expected `list`.");
 
         (new RootNodeBuilder(new ListNodeBuilder()))->build(Shell::root(ListType::native(), 'foo'));
     }

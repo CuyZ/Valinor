@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
-use DateTimeInterface;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
 final class CannotParseToDateTime extends RuntimeException implements Message
 {
-    /**
-     * @param class-string<DateTimeInterface> $dateTimeClassName
-     */
-    public function __construct(string $datetime, string $dateTimeClassName)
+    public function __construct(string $datetime)
     {
+        $datetime = ValueDumper::dump($datetime);
+
         parent::__construct(
-            "Impossible to convert `$datetime` to `$dateTimeClassName`.",
+            "Impossible to parse date with value $datetime.",
             1630686564
         );
     }

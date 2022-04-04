@@ -72,7 +72,7 @@ final class IntegerValueType implements IntegerType, FixedType
         $value = (int)$value; // @phpstan-ignore-line
 
         if (! $this->accepts($value)) {
-            throw new InvalidIntegerValue($value, $this);
+            throw new InvalidIntegerValue($value, $this->value);
         }
 
         return $value;

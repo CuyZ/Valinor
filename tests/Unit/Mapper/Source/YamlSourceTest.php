@@ -36,7 +36,7 @@ final class YamlSourceTest extends TestCase
     {
         $this->expectException(SourceNotIterable::class);
         $this->expectExceptionCode(1566307291);
-        $this->expectExceptionMessage('The configuration is not an iterable but of type `string`.');
+        $this->expectExceptionMessage("Invalid source 'foo', expected an iterable.");
 
         new YamlSource('foo');
     }

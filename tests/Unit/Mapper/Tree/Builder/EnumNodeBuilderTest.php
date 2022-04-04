@@ -44,7 +44,7 @@ final class EnumNodeBuilderTest extends TestCase
 
         $this->expectException(InvalidEnumValue::class);
         $this->expectExceptionCode(1633093113);
-        $this->expectExceptionMessage('Invalid value `foo`, it must be one of `FOO`, `BAR`.');
+        $this->expectExceptionMessage("Invalid value 'foo', it must be one of 'FOO', 'BAR'.");
 
         $this->builder->build(Shell::root($type, 'foo'));
     }
@@ -55,7 +55,7 @@ final class EnumNodeBuilderTest extends TestCase
 
         $this->expectException(InvalidEnumValue::class);
         $this->expectExceptionCode(1633093113);
-        $this->expectExceptionMessage('Invalid value `stdClass`, it must be one of `foo`, `bar`.');
+        $this->expectExceptionMessage("Invalid value object(stdClass), it must be one of 'foo', 'bar'.");
 
         $this->builder->build(Shell::root($type, new stdClass()));
     }
@@ -66,7 +66,7 @@ final class EnumNodeBuilderTest extends TestCase
 
         $this->expectException(InvalidEnumValue::class);
         $this->expectExceptionCode(1633093113);
-        $this->expectExceptionMessage('Invalid value `bool`, it must be one of `42`, `1337`.');
+        $this->expectExceptionMessage('Invalid value false, it must be one of 42, 1337.');
 
         $this->builder->build(Shell::root($type, false));
     }
@@ -77,7 +77,7 @@ final class EnumNodeBuilderTest extends TestCase
 
         $this->expectException(InvalidEnumValue::class);
         $this->expectExceptionCode(1633093113);
-        $this->expectExceptionMessage('Invalid value `stdClass`, it must be one of `42`, `1337`.');
+        $this->expectExceptionMessage('Invalid value object(stdClass), it must be one of 42, 1337.');
 
         $this->builder->build(Shell::root($type, new stdClass()));
     }

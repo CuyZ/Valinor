@@ -115,7 +115,7 @@ final class IntegerRangeTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast from `string` to `$this->type`.");
+        $this->expectExceptionMessage("Cannot cast 'foo' to `$this->type`.");
 
         $this->type->cast('foo');
     }
@@ -124,7 +124,7 @@ final class IntegerRangeTypeTest extends TestCase
     {
         $this->expectException(InvalidIntegerRangeValue::class);
         $this->expectExceptionCode(1638785150);
-        $this->expectExceptionMessage("Invalid value `1337`: it must be an integer between {$this->type->min()} and {$this->type->max()}.");
+        $this->expectExceptionMessage("Invalid value 1337: it must be an integer between {$this->type->min()} and {$this->type->max()}.");
 
         $this->type->cast(1337);
     }

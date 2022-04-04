@@ -6,8 +6,11 @@ namespace CuyZ\Valinor\Type\Resolver\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\UnionType;
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\TypeHelper;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
+
+use function implode;
 
 /** @api */
 final class CannotResolveTypeFromUnion extends RuntimeException implements Message
@@ -17,11 +20,11 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Messa
      */
     public function __construct(UnionType $unionType, $value)
     {
-        $type = Polyfill::get_debug_type($value);
+        $value = ValueDumper::dump($value);
+        $message = TypeHelper::containsObject($unionType)
+            ? "Value $value is not accepted."
+            : "Value $value does not match any of `" . implode('`, `', $unionType->types()) . "`.";
 
-        parent::__construct(
-            "Impossible to resolve the type from the union `$unionType` with a value of type `$type`.",
-            1607027306
-        );
+        parent::__construct($message, 1607027306);
     }
 }

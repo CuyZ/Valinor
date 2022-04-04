@@ -6,14 +6,12 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use BackedEnum;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 use UnitEnum;
 
 use function array_map;
 use function implode;
-use function is_bool;
-use function is_scalar;
 
 /** @api */
 final class InvalidEnumValue extends RuntimeException implements Message
@@ -26,21 +24,16 @@ final class InvalidEnumValue extends RuntimeException implements Message
     {
         $values = array_map(
             static function (UnitEnum $case) {
-                return $case instanceof BackedEnum
-                    ? $case->value
-                    : $case->name;
+                return ValueDumper::dump($case instanceof BackedEnum ? $case->value : $case->name);
             },
             $enumName::cases()
         );
 
-        $values = implode('`, `', $values);
-
-        if (! is_scalar($value) || is_bool($value)) {
-            $value = Polyfill::get_debug_type($value);
-        }
+        $values = implode(', ', $values);
+        $value = ValueDumper::dump($value);
 
         parent::__construct(
-            "Invalid value `$value`, it must be one of `$values`.",
+            "Invalid value $value, it must be one of $values.",
             1633093113
         );
     }

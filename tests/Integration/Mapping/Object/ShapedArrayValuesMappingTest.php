@@ -75,7 +75,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
 
             self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot cast value of type `stdClass` to `string`.', (string)$error);
+            self::assertSame('Cannot cast object(stdClass) to `string`.', (string)$error);
         }
     }
 }

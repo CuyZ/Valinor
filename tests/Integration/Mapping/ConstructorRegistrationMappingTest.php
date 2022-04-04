@@ -290,7 +290,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1642787246', $error->code());
-            self::assertSame('Could not map input of type `array`.', (string)$error);
+            self::assertSame('Value array (empty) is not accepted.', (string)$error);
         }
     }
 
@@ -308,7 +308,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1642183169', $error->code());
-            self::assertSame('Invalid value, got `array` but expected one of `array{foo: string}`, `array{bar: int, baz?: float}`.', (string)$error);
+            self::assertSame('Value array (empty) does not match any of `array{foo: string}`, `array{bar: int, baz?: float}`.', (string)$error);
         }
     }
 

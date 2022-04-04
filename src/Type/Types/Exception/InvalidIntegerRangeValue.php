@@ -13,7 +13,7 @@ final class InvalidIntegerRangeValue extends RuntimeException implements CastErr
     public function __construct(int $value, IntegerRangeType $type)
     {
         parent::__construct(
-            "Invalid value `$value`: it must be an integer between {$type->min()} and {$type->max()}.",
+            "Invalid value $value: it must be an integer between {$type->min()} and {$type->max()}.",
             1638785150
         );
     }

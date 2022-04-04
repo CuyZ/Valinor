@@ -76,7 +76,7 @@ final class ArrayValuesMappingTest extends IntegrationTest
             $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
 
             self::assertSame('1630678334', $error->code());
-            self::assertSame('Empty array is not accepted by `non-empty-array<string>`.', (string)$error);
+            self::assertSame('Value array (empty) does not match expected `non-empty-array<string>`.', (string)$error);
         }
     }
 
@@ -90,7 +90,7 @@ final class ArrayValuesMappingTest extends IntegrationTest
             $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
 
             self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot cast value of type `string` to `int`.', (string)$error);
+            self::assertSame("Cannot cast 'foo' to `int`.", (string)$error);
         }
     }
 }

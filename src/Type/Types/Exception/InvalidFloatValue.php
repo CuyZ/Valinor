@@ -12,7 +12,7 @@ final class InvalidFloatValue extends RuntimeException implements CastError
     public function __construct(float $value, float $expected)
     {
         parent::__construct(
-            "Value `$value` does not match expected value `$expected`.",
+            "Value $value does not match expected $expected.",
             1652110115
         );
     }

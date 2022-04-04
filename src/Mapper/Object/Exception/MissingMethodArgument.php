@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use RuntimeException;
 
-/** @api */
-final class MissingMethodArgument extends RuntimeException implements Message
+/** @internal */
+final class MissingMethodArgument extends RuntimeException
 {
     public function __construct(ParameterDefinition $parameter)
     {

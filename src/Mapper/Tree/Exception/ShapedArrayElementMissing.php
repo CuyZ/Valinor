@@ -14,7 +14,7 @@ final class ShapedArrayElementMissing extends RuntimeException implements Messag
     public function __construct(ShapedArrayElement $element)
     {
         parent::__construct(
-            "Missing value `{$element->key()}` of type `{$element->type()}`.",
+            "Missing element `{$element->key()}` of type `{$element->type()}`.",
             1631613641
         );
     }

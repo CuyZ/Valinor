@@ -96,7 +96,7 @@ final class PositiveIntegerTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `string` to `positive-int`.');
+        $this->expectExceptionMessage("Cannot cast 'foo' to `positive-int`.");
 
         $this->positiveIntegerType->cast('foo');
     }
@@ -105,7 +105,7 @@ final class PositiveIntegerTypeTest extends TestCase
     {
         $this->expectException(InvalidPositiveIntegerValue::class);
         $this->expectExceptionCode(1632923676);
-        $this->expectExceptionMessage('Invalid value `-1337`: it must be a positive integer.');
+        $this->expectExceptionMessage('Invalid value -1337: it must be a positive integer.');
 
         $this->positiveIntegerType->cast(-1337);
     }
@@ -114,7 +114,7 @@ final class PositiveIntegerTypeTest extends TestCase
     {
         $this->expectException(InvalidPositiveIntegerValue::class);
         $this->expectExceptionCode(1632923676);
-        $this->expectExceptionMessage('Invalid value `0`: it must be a positive integer.');
+        $this->expectExceptionMessage('Invalid value 0: it must be a positive integer.');
 
         $this->positiveIntegerType->cast(0);
     }

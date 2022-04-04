@@ -37,7 +37,7 @@ final class ArrayNodeBuilderTest extends TestCase
     {
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage('Source must be iterable in order to be cast to `array`, but is of type `string`.');
+        $this->expectExceptionMessage("Value 'foo' does not match expected `array`.");
 
         (new RootNodeBuilder(new ArrayNodeBuilder()))->build(Shell::root(ArrayType::native(), 'foo'));
     }
@@ -46,7 +46,7 @@ final class ArrayNodeBuilderTest extends TestCase
     {
         $this->expectException(InvalidTraversableKey::class);
         $this->expectExceptionCode(1630946163);
-        $this->expectExceptionMessage('Invalid key `foo`, it must be of type `int`.');
+        $this->expectExceptionMessage("Invalid key 'foo', it must be of type `int`.");
 
         $type = new ArrayType(ArrayKeyType::integer(), NativeStringType::get());
         $value = [

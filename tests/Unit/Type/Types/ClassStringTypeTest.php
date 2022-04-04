@@ -144,7 +144,7 @@ final class ClassStringTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `int` to `class-string`.');
+        $this->expectExceptionMessage('Cannot cast 42 to `class-string`.');
 
         (new ClassStringType())->cast(42);
     }

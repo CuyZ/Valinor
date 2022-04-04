@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Definition\PropertyDefinition;
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use RuntimeException;
 
-/** @api */
-final class MissingPropertyArgument extends RuntimeException implements Message
+/** @internal */
+final class MissingPropertyArgument extends RuntimeException
 {
     public function __construct(PropertyDefinition $property)
     {

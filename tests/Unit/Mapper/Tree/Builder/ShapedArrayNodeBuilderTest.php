@@ -10,6 +10,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\ShapedArrayElementMissing;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -31,7 +32,18 @@ final class ShapedArrayNodeBuilderTest extends TestCase
 
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage("Source must be iterable in order to be cast to `$type`, but is of type `string`.");
+        $this->expectExceptionMessage("Value 'foo' does not match expected `array{foo: SomeType}`.");
+
+        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, 'foo'));
+    }
+
+    public function test_build_with_invalid_source_for_shaped_array_containing_object_type_throws_exception(): void
+    {
+        $type = new ShapedArrayType(new ShapedArrayElement(new StringValueType('foo'), new FakeObjectType()));
+
+        $this->expectException(SourceMustBeIterable::class);
+        $this->expectExceptionCode(1618739163);
+        $this->expectExceptionMessage("Value 'foo' is not accepted.");
 
         (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, 'foo'));
     }
@@ -42,7 +54,7 @@ final class ShapedArrayNodeBuilderTest extends TestCase
 
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage("Cannot cast an empty value to `$type`.");
+        $this->expectExceptionMessage("Cannot be empty and must be filled with a value matching `array{foo: SomeType}`.");
 
         (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, null));
     }
@@ -51,7 +63,7 @@ final class ShapedArrayNodeBuilderTest extends TestCase
     {
         $this->expectException(ShapedArrayElementMissing::class);
         $this->expectExceptionCode(1631613641);
-        $this->expectExceptionMessage("Missing value `foo` of type `SomeType`.");
+        $this->expectExceptionMessage("Missing element `foo` of type `SomeType`.");
 
         $type = new ShapedArrayType(new ShapedArrayElement(new StringValueType('foo'), new FakeType('SomeType')));
 

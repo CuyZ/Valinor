@@ -6,7 +6,8 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\TypeHelper;
+use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
@@ -17,13 +18,10 @@ final class InvalidNodeValue extends RuntimeException implements Message
      */
     public function __construct($value, Type $type)
     {
-        $valueType = Polyfill::get_debug_type($value);
-
-        $message = "Value of type `$valueType` is not accepted by type `$type`.";
-
-        if ($value === []) {
-            $message = "Empty array is not accepted by `$type`.";
-        }
+        $value = ValueDumper::dump($value);
+        $message = TypeHelper::containsObject($type)
+            ? "Value $value is not accepted."
+            : "Value $value does not match expected `$type`.";
 
         parent::__construct($message, 1630678334);
     }

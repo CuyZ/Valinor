@@ -94,7 +94,7 @@ final class NativeStringTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `stdClass` to `string`.');
+        $this->expectExceptionMessage('Cannot cast object(stdClass) to `string`.');
 
         $this->stringType->cast(new stdClass());
     }

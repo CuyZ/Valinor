@@ -108,7 +108,7 @@ final class NativeIntegerTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast from `string` to `int`.');
+        $this->expectExceptionMessage("Cannot cast 'foo' to `int`.");
 
         $this->integerType->cast('foo');
     }
