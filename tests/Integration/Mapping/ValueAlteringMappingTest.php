@@ -44,4 +44,20 @@ final class ValueAlteringMappingTest extends IntegrationTest
 
         self::assertNull($result);
     }
+
+    public function test_alter_function_is_called_when_not_the_first_nor_the_last_one(): void
+    {
+        try {
+            $result = $this->mapperBuilder
+                ->alter(fn (int $value) => 404)
+                ->alter(fn (string $value) => $value . '!')
+                ->alter(fn (float $value) => 42.1337)
+                ->mapper()
+                ->map('string', 'some value');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('some value!', $result);
+    }
 }
