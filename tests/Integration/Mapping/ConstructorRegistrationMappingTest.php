@@ -116,6 +116,41 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame('foo', $result->foo);
     }
 
+    public function test_native_constructor_is_not_called_if_not_registered_but_other_constructors_are_registered(): void
+    {
+        try {
+            $result = $this->mapperBuilder
+                // @PHP8.1 first-class callable syntax
+                ->registerConstructor([SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
+                ->mapper()
+                ->map(SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('value from named constructor', $result->foo);
+    }
+
+    public function test_registered_native_constructor_is_called_if_registered_and_other_constructors_are_registered(): void
+    {
+        try {
+            $result = $this->mapperBuilder
+                // @PHP8.1 first-class callable syntax
+                ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class)
+                ->registerConstructor([SomeClassWithDifferentNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
+                ->mapper()
+                ->map(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class, [
+                    'foo' => 'foo',
+                    'bar' => 1337,
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->foo);
+        self::assertSame(1337, $result->bar);
+    }
+
     public function test_registered_constructor_is_used_when_not_the_first_nor_last_one(): void
     {
         $object = new stdClass();
@@ -367,6 +402,42 @@ final class SomeClassWithNamedConstructors
         $instance->foo = $foo;
 
         return $instance;
+    }
+}
+
+final class SomeClassWithSimilarNativeConstructorAndNamedConstructor
+{
+    public string $foo;
+
+    public function __construct(string $foo)
+    {
+        $this->foo = $foo;
+    }
+
+    public static function namedConstructor(string $foo): self
+    {
+        $instance = new self($foo);
+        $instance->foo = 'value from named constructor';
+
+        return $instance;
+    }
+}
+
+final class SomeClassWithDifferentNativeConstructorAndNamedConstructor
+{
+    public string $foo;
+
+    public int $bar;
+
+    public function __construct(string $foo, int $bar)
+    {
+        $this->foo = $foo;
+        $this->bar = $bar;
+    }
+
+    public static function namedConstructor(string $foo): self
+    {
+        return new self($foo, 42);
     }
 }
 
