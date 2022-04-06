@@ -9,10 +9,14 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
+use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use DateTime;
 use Error;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+
+use function uniqid;
 
 final class FunctionDefinitionCompilerTest extends TestCase
 {
@@ -49,6 +53,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
         $code = $this->compiler->compile($function);
         $compiledFunction = $this->eval($code);
 
+        self::assertInstanceOf(FunctionDefinition::class, $compiledFunction);
         self::assertSame('foo', $compiledFunction->name());
         self::assertSame('foo:42-1337', $compiledFunction->signature());
         self::assertSame('foo/bar', $compiledFunction->fileName());
@@ -57,7 +62,34 @@ final class FunctionDefinitionCompilerTest extends TestCase
         self::assertInstanceOf(NativeStringType::class, $compiledFunction->returnType());
     }
 
-    private function eval(string $code): FunctionDefinition
+    public function test_modifying_function_definition_file_invalids_compiled_function_definition(): void
+    {
+        $fileName = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid() . ".php";
+
+        file_put_contents($fileName, "<?php function _valinor_test_modifying_function_definition_file_invalids_compiled_function_definition() {}");
+
+        include $fileName;
+
+        $class = FakeFunctionDefinition::new($fileName);
+
+        $validationCode = $this->compiler->compileValidation($class);
+        $firstValidation = $this->eval($validationCode);
+
+        unlink($fileName);
+        touch($fileName, (new DateTime('+5 seconds'))->getTimestamp());
+
+        $secondValidation = $this->eval($validationCode);
+
+        unlink($fileName);
+
+        self::assertTrue($firstValidation);
+        self::assertFalse($secondValidation);
+    }
+
+    /**
+     * @return FunctionDefinition|bool
+     */
+    private function eval(string $code)
     {
         try {
             return eval("return $code;");
