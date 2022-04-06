@@ -18,6 +18,7 @@ final class FakeFunctionDefinition
         return new FunctionDefinition(
             'foo',
             'foo:42-1337',
+            'foo/bar',
             stdClass::class,
             new Parameters(
                 new ParameterDefinition(

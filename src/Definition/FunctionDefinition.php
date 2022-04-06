@@ -13,12 +13,14 @@ final class FunctionDefinition
 
     private string $signature;
 
-    private Parameters $parameters;
-
-    private Type $returnType;
+    private ?string $fileName;
 
     /** @var class-string|null */
     private ?string $class;
+
+    private Parameters $parameters;
+
+    private Type $returnType;
 
     /**
      * @param class-string|null $class
@@ -26,12 +28,14 @@ final class FunctionDefinition
     public function __construct(
         string $name,
         string $signature,
+        ?string $fileName,
         ?string $class,
         Parameters $parameters,
         Type $returnType
     ) {
         $this->name = $name;
         $this->signature = $signature;
+        $this->fileName = $fileName;
         $this->class = $class;
         $this->parameters = $parameters;
         $this->returnType = $returnType;
@@ -45,6 +49,11 @@ final class FunctionDefinition
     public function signature(): string
     {
         return $this->signature;
+    }
+
+    public function fileName(): ?string
+    {
+        return $this->fileName;
     }
 
     /**
