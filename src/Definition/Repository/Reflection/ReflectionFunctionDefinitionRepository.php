@@ -45,6 +45,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         return new FunctionDefinition(
             $reflection->getName(),
             Reflection::signature($reflection),
+            $reflection->getFileName() ?: null,
             // @PHP 8.0 nullsafe operator
             $reflection->getClosureScopeClass() ? $reflection->getClosureScopeClass()->name : null,
             new Parameters(...$parameters),

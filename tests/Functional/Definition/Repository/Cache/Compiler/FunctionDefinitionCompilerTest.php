@@ -30,6 +30,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
         $function = new FunctionDefinition(
             'foo',
             'foo:42-1337',
+            'foo/bar',
             stdClass::class,
             new Parameters(
                 new ParameterDefinition(
@@ -50,6 +51,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
 
         self::assertSame('foo', $compiledFunction->name());
         self::assertSame('foo:42-1337', $compiledFunction->signature());
+        self::assertSame('foo/bar', $compiledFunction->fileName());
         self::assertSame(stdClass::class, $compiledFunction->class());
         self::assertTrue($compiledFunction->parameters()->has('bar'));
         self::assertInstanceOf(NativeStringType::class, $compiledFunction->returnType());

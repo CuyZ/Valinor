@@ -32,6 +32,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
             iterator_to_array($value->parameters())
         );
 
+        $fileName = var_export($value->fileName(), true);
         $class = var_export($value->class(), true);
         $parameters = implode(', ', $parameters);
         $returnType = $this->typeCompiler->compile($value->returnType());
@@ -40,6 +41,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
             new \CuyZ\Valinor\Definition\FunctionDefinition(
                 '{$value->name()}',
                 '{$value->signature()}',
+                $fileName,
                 $class,
                 new \CuyZ\Valinor\Definition\Parameters($parameters),
                 $returnType
