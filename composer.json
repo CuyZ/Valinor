@@ -56,5 +56,10 @@
             "phpunit --coverage-xml='var/cache/phpunit/coverage' --log-junit='var/cache/phpunit/coverage/junit.xml'",
             "infection --threads=12 --skip-initial-tests --coverage='var/cache/phpunit/coverage'"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": false
+        }
     }
 }
