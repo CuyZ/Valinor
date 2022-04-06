@@ -45,7 +45,8 @@
         "check": [
             "phpunit",
             "php-cs-fixer fix --dry-run",
-            "phpstan"
+            "phpstan",
+            "psalm"
         ],
         "fix": [
             "php-cs-fixer fix"
