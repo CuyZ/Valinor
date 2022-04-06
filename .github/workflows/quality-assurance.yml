@@ -40,7 +40,7 @@ jobs:
           key: phpstan
 
       - name: Checking Composer
-        run: composer validate
+        run: composer validate --strict
 
       - name: Creating var directory
         run: mkdir -p var/cache
