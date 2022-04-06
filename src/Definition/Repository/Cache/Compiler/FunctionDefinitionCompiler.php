@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Cache\Compiled\CacheCompiler;
+use CuyZ\Valinor\Cache\Compiled\CacheValidationCompiler;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
 use function var_export;
 
 /** @internal */
-final class FunctionDefinitionCompiler implements CacheCompiler
+final class FunctionDefinitionCompiler implements CacheCompiler, CacheValidationCompiler
 {
     private TypeCompiler $typeCompiler;
 
@@ -47,5 +48,22 @@ final class FunctionDefinitionCompiler implements CacheCompiler
                 $returnType
             )
             PHP;
+    }
+
+    public function compileValidation($value): string
+    {
+        assert($value instanceof FunctionDefinition);
+
+        $fileName = $value->fileName();
+
+        // If the file does not exist it means it's a native function so the
+        // definition is always valid.
+        if (null === $fileName) {
+            return 'true';
+        }
+
+        $time = filemtime($fileName);
+
+        return "\\filemtime('$fileName') === $time";
     }
 }

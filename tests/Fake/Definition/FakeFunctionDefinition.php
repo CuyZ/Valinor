@@ -13,12 +13,12 @@ use stdClass;
 
 final class FakeFunctionDefinition
 {
-    public static function new(): FunctionDefinition
+    public static function new(string $fileName = null): FunctionDefinition
     {
         return new FunctionDefinition(
             'foo',
             'foo:42-1337',
-            'foo/bar',
+            $fileName ?? 'foo/bar',
             stdClass::class,
             new Parameters(
                 new ParameterDefinition(
