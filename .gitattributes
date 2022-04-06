@@ -10,6 +10,7 @@
 /.php-cs-fixer.dist.php export-ignore
 /infection.json.dist export-ignore
 /phpstan.neon.dist export-ignore
+/psalm.xml export-ignore
 /phpunit.xml.dist export-ignore
 
 *.stub linguist-language=PHP
