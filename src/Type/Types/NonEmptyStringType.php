@@ -9,10 +9,11 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidEmptyStringValue;
 use CuyZ\Valinor\Utility\IsSingleton;
-use Stringable;
 
 use function is_numeric;
+use function is_object;
 use function is_string;
+use function method_exists;
 
 /** @api */
 final class NonEmptyStringType implements StringType
@@ -39,7 +40,8 @@ final class NonEmptyStringType implements StringType
     {
         return is_string($value)
             || is_numeric($value)
-            || $value instanceof Stringable;
+            // @PHP8.0 `$value instanceof Stringable`
+            || (is_object($value) && method_exists($value, '__toString'));
     }
 
     public function cast($value): string

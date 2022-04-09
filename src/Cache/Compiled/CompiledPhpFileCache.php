@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Cache\Compiled;
 use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
 use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
+use CuyZ\Valinor\Utility\Polyfill;
 use DateInterval;
 use DateTime;
 use Error;
@@ -21,7 +22,6 @@ use function is_dir;
 use function mkdir;
 use function rename;
 use function sha1;
-use function str_contains;
 use function time;
 use function uniqid;
 use function unlink;
@@ -123,7 +123,7 @@ final class CompiledPhpFileCache implements CacheInterface
             $line = $file->openFile()->getCurrentLine();
 
             /** @infection-ignore-all */
-            if (! $line || ! str_contains($line, self::GENERATED_MESSAGE)) {
+            if (! $line || ! Polyfill::str_contains($line, self::GENERATED_MESSAGE)) {
                 continue;
             }
 

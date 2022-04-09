@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
-
-use function get_debug_type;
 
 /** @internal */
 final class InvalidInterfaceResolverReturnType extends RuntimeException
@@ -16,7 +15,7 @@ final class InvalidInterfaceResolverReturnType extends RuntimeException
      */
     public function __construct(string $interfaceName, $value)
     {
-        $type = get_debug_type($value);
+        $type = Polyfill::get_debug_type($value);
 
         parent::__construct(
             "Invalid type `$type`; it must be the name of a class that implements `$interfaceName`.",

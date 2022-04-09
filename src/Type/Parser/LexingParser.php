@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Type\Parser;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
 
 use function array_filter;
 use function array_map;
 use function preg_split;
-use function str_starts_with;
 
 /** @internal */
 final class LexingParser implements TypeParser
@@ -42,15 +42,15 @@ final class LexingParser implements TypeParser
      */
     private function splitTokens(string $raw): array
     {
-        if (str_contains($raw, "@anonymous\0")) {
+        if (Polyfill::str_contains($raw, "@anonymous\0")) {
             return $this->splitTokensContainingAnonymousClass($raw);
         }
 
-        if (str_contains($raw, "'")) {
+        if (Polyfill::str_contains($raw, "'")) {
             return $this->splitQuotes("'", $raw);
         }
 
-        if (str_contains($raw, '"')) {
+        if (Polyfill::str_contains($raw, '"')) {
             return $this->splitQuotes('"', $raw);
         }
 
@@ -68,7 +68,7 @@ final class LexingParser implements TypeParser
         $symbols = [];
 
         foreach ($splits as $symbol) {
-            if (str_starts_with($symbol, $quote)) {
+            if (Polyfill::str_starts_with($symbol, $quote)) {
                 $symbols[] = $symbol;
             } else {
                 $symbols = [...$symbols, ...$this->splitTokens($symbol)];
@@ -88,7 +88,7 @@ final class LexingParser implements TypeParser
         $symbols = [];
 
         foreach ($splits as $symbol) {
-            if (str_contains($symbol, "@anonymous\0")) {
+            if (Polyfill::str_contains($symbol, "@anonymous\0")) {
                 $symbols[] = $symbol;
             } else {
                 $symbols = [...$symbols, ...$this->splitTokens($symbol)];

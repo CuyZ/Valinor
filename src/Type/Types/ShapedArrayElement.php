@@ -7,10 +7,13 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidShapeElementType;
 use CuyZ\Valinor\Type\Type;
-use Stringable;
 
-/** @api */
-final class ShapedArrayElement implements Stringable
+/**
+ * @PHP8.0 implement Stringable
+ *
+ * @api
+ */
+final class ShapedArrayElement
 {
     /** @var StringValueType|IntegerValueType */
     private FixedType $key;

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
 
 /** @api */
@@ -16,7 +17,7 @@ final class CannotCastToScalarValue extends RuntimeException implements Message
      */
     public function __construct($value, ScalarType $type)
     {
-        $valueType = get_debug_type($value);
+        $valueType = Polyfill::get_debug_type($value);
         $message = "Cannot cast value of type `$valueType` to `$type`.";
 
         if ($value === null) {

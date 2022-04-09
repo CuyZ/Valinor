@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
 
 /** @api */
@@ -14,7 +15,7 @@ final class InvalidIntegerValueType extends RuntimeException implements CastErro
      */
     public function __construct($value, int $integerValue)
     {
-        $baseType = get_debug_type($value);
+        $baseType = Polyfill::get_debug_type($value);
 
         parent::__construct(
             "Value of type `$baseType` does not match integer value `$integerValue`.",

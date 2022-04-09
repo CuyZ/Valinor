@@ -27,14 +27,12 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\StringValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
+use CuyZ\Valinor\Utility\Polyfill;
 use UnitEnum;
 
 use function class_exists;
-use function enum_exists;
 use function filter_var;
 use function interface_exists;
-use function str_ends_with;
-use function str_starts_with;
 use function strtolower;
 use function substr;
 
@@ -87,11 +85,11 @@ final class NativeLexer implements TypeLexer
                 return ClassStringToken::get();
         }
 
-        if (str_starts_with($symbol, "'") && str_ends_with($symbol, "'")) {
+        if (Polyfill::str_starts_with($symbol, "'") && Polyfill::str_ends_with($symbol, "'")) {
             return StringValueToken::singleQuote(substr($symbol, 1, -1));
         }
 
-        if (str_starts_with($symbol, '"') && str_ends_with($symbol, '"')) {
+        if (Polyfill::str_starts_with($symbol, '"') && Polyfill::str_ends_with($symbol, '"')) {
             return StringValueToken::doubleQuote(substr($symbol, 1, -1));
         }
 
