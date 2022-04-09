@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use BackedEnum;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
 use UnitEnum;
 
@@ -35,7 +36,7 @@ final class InvalidEnumValue extends RuntimeException implements Message
         $values = implode('`, `', $values);
 
         if (! is_scalar($value) || is_bool($value)) {
-            $value = get_debug_type($value);
+            $value = Polyfill::get_debug_type($value);
         }
 
         parent::__construct(

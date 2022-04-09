@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
 
 use function array_keys;
 use function count;
-use function get_debug_type;
 use function implode;
 use function ksort;
 
@@ -24,7 +24,7 @@ final class CannotFindObjectBuilder extends RuntimeException implements Message,
      */
     public function __construct($source, array $builders)
     {
-        $type = get_debug_type($source);
+        $type = Polyfill::get_debug_type($source);
 
         $signatures = [];
         $sortedSignatures = [];

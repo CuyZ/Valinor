@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fixture\Object;
 
-use Stringable;
-
-final class StringableObject implements Stringable
+/**
+ * @PHP8.0 implement Stringable
+ */
+final class StringableObject
 {
     private string $value;
 

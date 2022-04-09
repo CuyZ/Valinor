@@ -6,9 +6,8 @@ namespace CuyZ\Valinor\Type\Resolver\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
-
-use function get_debug_type;
 
 /** @api */
 final class CannotResolveTypeFromUnion extends RuntimeException implements Message
@@ -18,7 +17,7 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Messa
      */
     public function __construct(UnionType $unionType, $value)
     {
-        $type = get_debug_type($value);
+        $type = Polyfill::get_debug_type($value);
 
         parent::__construct(
             "Impossible to resolve the type from the union `$unionType` with a value of type `$type`.",

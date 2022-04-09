@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
-
-use function get_debug_type;
 
 /** @api */
 final class InvalidSourceForObject extends RuntimeException implements Message
@@ -17,7 +16,7 @@ final class InvalidSourceForObject extends RuntimeException implements Message
      */
     public function __construct($source)
     {
-        $type = get_debug_type($source);
+        $type = Polyfill::get_debug_type($source);
 
         parent::__construct(
             "Invalid source type `$type`, it must be an iterable.",

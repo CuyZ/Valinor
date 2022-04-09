@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type;
 
-use Stringable;
-
-/** @api */
-interface Type extends Stringable
+/**
+ * @PHP8.0 extend Stringable
+ *
+ * @api
+ */
+interface Type
 {
     /**
      * @param mixed $value
@@ -15,4 +17,6 @@ interface Type extends Stringable
     public function accepts($value): bool;
 
     public function matches(self $other): bool;
+
+    public function __toString(): string;
 }

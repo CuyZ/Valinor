@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types\Exception;
 
 use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Utility\Polyfill;
 use RuntimeException;
-
-use function get_debug_type;
 
 /** @api */
 final class CannotCastValue extends RuntimeException implements CastError
@@ -17,7 +16,7 @@ final class CannotCastValue extends RuntimeException implements CastError
      */
     public function __construct($value, ScalarType $type)
     {
-        $baseType = get_debug_type($value);
+        $baseType = Polyfill::get_debug_type($value);
 
         parent::__construct(
             "Cannot cast from `$baseType` to `$type`.",

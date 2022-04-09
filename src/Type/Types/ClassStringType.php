@@ -10,11 +10,12 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidClassString;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
-use Stringable;
 
 use function class_exists;
 use function interface_exists;
+use function is_object;
 use function is_string;
+use function method_exists;
 
 /** @api */
 final class ClassStringType implements StringType
@@ -102,7 +103,8 @@ final class ClassStringType implements StringType
     public function canCast($value): bool
     {
         return is_string($value)
-            || $value instanceof Stringable;
+            // @PHP8.0 `$value instanceof Stringable`
+            || (is_object($value) && method_exists($value, '__toString'));
     }
 
     public function cast($value): string
