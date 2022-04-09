@@ -11,6 +11,7 @@ use CuyZ\Valinor\Tests\Fake\Cache\Compiled\FakeCacheValidationCompiler;
 use DateTime;
 use FilesystemIterator;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use SplFileInfo;
 
 use function file_put_contents;
@@ -227,9 +228,13 @@ final class CompiledPhpFileCacheTest extends TestCase
 
     private function currentCacheFile(): SplFileInfo
     {
-        $iterator = (new FilesystemIterator($this->cacheDir));
-        $iterator->next();
+        foreach ((new FilesystemIterator($this->cacheDir)) as $file) {
+            /** @var SplFileInfo $file */
+            if ($file->getExtension() === 'php') {
+                return $file;
+            }
+        }
 
-        return $iterator->current(); // @phpstan-ignore-line
+        throw new RuntimeException('Cache file not found.');
     }
 }
