@@ -78,7 +78,7 @@ final class Container
     {
         $this->factories = [
             TreeMapper::class => fn () => new TreeMapperContainer(
-                $this->get(TypeParser::class),
+                $this->typeParser(),
                 new RootNodeBuilder($this->get(NodeBuilder::class))
             ),
 
@@ -103,7 +103,7 @@ final class Container
 
                 $builder = new ClassNodeBuilder(
                     $builder,
-                    $this->get(ClassDefinitionRepository::class),
+                    $this->classDefinitionRepository(),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectBuilderFilterer::class),
                 );
@@ -114,7 +114,7 @@ final class Container
                         $this->get(FunctionDefinitionRepository::class),
                         $settings->interfaceMapping
                     ),
-                    $this->get(TypeParser::class),
+                    $this->typeParser(),
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);

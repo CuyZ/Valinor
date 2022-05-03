@@ -9,8 +9,10 @@ use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\TreeMapper;
+use CuyZ\Valinor\Type\Types\ClassType;
 use Psr\SimpleCache\CacheInterface;
 
+use function array_unshift;
 use function is_callable;
 
 /** @api */
@@ -272,12 +274,43 @@ final class MapperBuilder
 
     public function mapper(): TreeMapper
     {
-        return ($this->container ??= new Container($this->settings))->treeMapper();
+        return $this->container()->treeMapper();
+    }
+
+    /**
+     * Warms up the type-parser cache for the provided signatures.
+     *
+     * @param class-string $signature
+     * @param class-string ...$additionalSignatures
+     */
+    public function warmup(string $signature, string ...$additionalSignatures): void
+    {
+        array_unshift($additionalSignatures, $signature);
+        unset($signature);
+
+        $container = $this->container();
+        $typeParser = $container->typeParser();
+        $classDefinitionRepository = $container->classDefinitionRepository();
+
+        foreach ($additionalSignatures as $signature) {
+            $type = $typeParser->parse($signature);
+
+            if (!$type instanceof ClassType) {
+                continue;
+            }
+
+            $classDefinitionRepository->for($type);
+        }
     }
 
     public function __clone()
     {
         $this->settings = clone $this->settings;
         unset($this->container);
+    }
+
+    private function container(): Container
+    {
+        return ($this->container ??= new Container($this->settings));
     }
 }
