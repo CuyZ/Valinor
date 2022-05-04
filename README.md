@@ -782,6 +782,12 @@ final class SomeClass
         /** @var array<SomeInterface|AnotherInterface> */
         private array $unionInsideArray,
         
+        /** @var int|true */
+        private int|bool $unionWithLiteralTrueType;
+        
+        /** @var int|false */
+        private int|bool $unionWithLiteralFalseType;
+        
         /** @var 404.42|1337.42 */
         private string $unionOfFloatValues,
         
