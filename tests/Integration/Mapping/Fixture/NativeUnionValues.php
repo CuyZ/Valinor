@@ -18,6 +18,10 @@ class NativeUnionValues
     public string|null $nullableWithString = 'Schwifty!';
 
     public string|null $nullableWithNull = 'Schwifty!';
+
+    public int|bool $intOrLiteralTrue = 42;
+
+    public int|bool $intOrLiteralFalse = 42;
 }
 
 class NativeUnionValuesWithConstructor extends NativeUnionValues
@@ -28,7 +32,9 @@ class NativeUnionValuesWithConstructor extends NativeUnionValues
         bool|float|int|string $scalarWithInteger = 'Schwifty!',
         bool|float|int|string $scalarWithString = 'Schwifty!',
         string|null $nullableWithString = 'Schwifty!',
-        string|null $nullableWithNull = 'Schwifty!'
+        string|null $nullableWithNull = 'Schwifty!',
+        int|bool $intOrLiteralTrue = 42,
+        int|bool $intOrLiteralFalse = 42
     ) {
         $this->scalarWithBoolean = $scalarWithBoolean;
         $this->scalarWithFloat = $scalarWithFloat;
@@ -36,5 +42,7 @@ class NativeUnionValuesWithConstructor extends NativeUnionValues
         $this->scalarWithString = $scalarWithString;
         $this->nullableWithString = $nullableWithString;
         $this->nullableWithNull = $nullableWithNull;
+        $this->intOrLiteralTrue = $intOrLiteralTrue;
+        $this->intOrLiteralFalse = $intOrLiteralFalse;
     }
 }

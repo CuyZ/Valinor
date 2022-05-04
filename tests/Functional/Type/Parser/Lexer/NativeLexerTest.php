@@ -40,6 +40,7 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\FalseType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
@@ -55,6 +56,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\TrueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
@@ -105,6 +107,26 @@ final class NativeLexerTest extends TestCase
                 'raw' => 'null lorem ipsum',
                 'transformed' => 'null',
                 'type' => NullType::class,
+            ],
+            'True type' => [
+                'raw' => 'true',
+                'transformed' => 'true',
+                'type' => TrueType::class,
+            ],
+            'True type - uppercase' => [
+                'raw' => 'TRUE',
+                'transformed' => 'true',
+                'type' => TrueType::class,
+            ],
+            'False type' => [
+                'raw' => 'false',
+                'transformed' => 'false',
+                'type' => FalseType::class,
+            ],
+            'False type - uppercase' => [
+                'raw' => 'FALSE',
+                'transformed' => 'false',
+                'type' => FalseType::class,
             ],
             'Mixed type' => [
                 'raw' => 'mixed',
