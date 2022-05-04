@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\FalseType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
@@ -32,6 +33,7 @@ use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\TrueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -50,6 +52,8 @@ final class TypeCompiler
 
         switch (true) {
             case $type instanceof NullType:
+            case $type instanceof TrueType:
+            case $type instanceof FalseType:
             case $type instanceof BooleanType:
             case $type instanceof NativeFloatType:
             case $type instanceof NativeIntegerType:
