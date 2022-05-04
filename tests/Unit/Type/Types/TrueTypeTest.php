@@ -61,7 +61,7 @@ final class TrueTypeTest extends TestCase
         self::assertTrue((new TrueType())->matches(new MixedType()));
     }
 
-    public function test_matches_union_type_containing_null_type(): void
+    public function test_matches_union_type_containing_true_type(): void
     {
         $unionType = new UnionType(
             new FakeType(),
@@ -72,7 +72,7 @@ final class TrueTypeTest extends TestCase
         self::assertTrue($this->trueType->matches($unionType));
     }
 
-    public function test_does_not_match_union_type_not_containing_null_type(): void
+    public function test_does_not_match_union_type_not_containing_true_type(): void
     {
         $unionType = new UnionType(new FakeType(), new FakeType());
 
