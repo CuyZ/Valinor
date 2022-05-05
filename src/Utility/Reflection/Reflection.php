@@ -129,10 +129,10 @@ final class Reflection
                 continue;
             }
 
-            return $matches['type'][$index];
+            return trim($matches['type'][$index]);
         }
 
-        return $matches['type'][0];
+        return trim($matches['type'][0]);
     }
 
     public static function docBlockReturnType(ReflectionFunctionAbstract $reflection): ?string
@@ -205,6 +205,6 @@ final class Reflection
     {
         $docComment = preg_replace('#^\s*/\*\*([^/]+)/\s*$#', '$1', $reflection->getDocComment() ?: '');
 
-        return preg_replace('/\s*\*\s*(\S*)/', '$1', $docComment); // @phpstan-ignore-line
+        return trim(preg_replace('/\s*\*\s*(\S*)/', "\n\$1", $docComment)); // @phpstan-ignore-line
     }
 }
