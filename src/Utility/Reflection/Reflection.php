@@ -110,28 +110,28 @@ final class Reflection
     {
         if ($reflection instanceof ReflectionProperty) {
             $docComment = self::sanitizeDocComment($reflection);
-            $regex = "@var\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)";
+            $regex = "@(psalm-|phpstan-)?var\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)";
         } else {
             $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
-            $regex = "@param\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)\s+\\$$reflection->name(\W+|$)";
+            $regex = "@(psalm-|phpstan-)?param\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)\s+\\$$reflection->name(\W+|$)";
         }
 
         if (! preg_match("/$regex/", $docComment, $matches)) {
             return null;
         }
 
-        return $matches[1];
+        return $matches['type'];
     }
 
     public static function docBlockReturnType(ReflectionFunctionAbstract $reflection): ?string
     {
         $docComment = self::sanitizeDocComment($reflection);
 
-        if (! preg_match("/@return\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
+        if (! preg_match("/@(psalm-|phpstan-)?return\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
             return null;
         }
 
-        return trim($matches[1]);
+        return trim($matches['type']);
     }
 
     /**
