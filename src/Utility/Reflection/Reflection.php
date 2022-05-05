@@ -139,13 +139,21 @@ final class Reflection
     {
         $docComment = self::sanitizeDocComment($reflection);
 
-        $expression = sprintf('/@%s?return\s+%s(\W*|$)/', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
+        $expression = sprintf('/@%s?return\s+%s/', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
 
-        if (! preg_match($expression, $docComment, $matches)) {
+        if (! preg_match_all($expression, $docComment, $matches)) {
             return null;
         }
 
-        return trim($matches['type']);
+        foreach ($matches['tool'] as $index => $tool) {
+            if ($tool === self::TOOL_NONE) {
+                continue;
+            }
+
+            return trim($matches['type'][$index]);
+        }
+
+        return trim($matches['type'][0]);
     }
 
     /**
