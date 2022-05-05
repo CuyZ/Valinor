@@ -223,7 +223,7 @@ final class ReflectionTest extends TestCase
             'string',
         ];
 
-        yield 'psalm @var' => [
+        yield 'psalm @var standalone' => [
             new ReflectionProperty(new class () {
                 /**
                  * @psalm-var string
@@ -233,7 +233,29 @@ final class ReflectionTest extends TestCase
             'string',
         ];
 
-        yield 'phpstan @var' => [
+        yield 'psalm @var leading' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @psalm-var non-empty-string
+                 * @var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'psalm @var trailing' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 * @psalm-var non-empty-string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @var standalone' => [
             new ReflectionProperty(new class () {
                 /**
                  * @phpstan-var string
@@ -241,6 +263,28 @@ final class ReflectionTest extends TestCase
                 public $foo;
             }, 'foo'),
             'string',
+        ];
+
+        yield 'phpstan @var leading' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @phpstan-var non-empty-string
+                 * @var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @var trailing' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 * @phpstan-var non-empty-string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
         ];
 
         yield 'phpdoc @param' => [
@@ -253,7 +297,7 @@ final class ReflectionTest extends TestCase
             'string',
         ];
 
-        yield 'psalm @param' => [
+        yield 'psalm @param standalone' => [
             new ReflectionParameter(
                 /** @psalm-param string $string */
                 static function ($string): void {
@@ -263,7 +307,33 @@ final class ReflectionTest extends TestCase
             'string',
         ];
 
-        yield 'phpstan @param' => [
+        yield 'psalm @param leading' => [
+            new ReflectionParameter(
+                /**
+                 * @psalm-param non-empty-string $string
+                 * @param string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'psalm @param trailing' => [
+            new ReflectionParameter(
+                /**
+                 * @param string $string
+                 * @psalm-param non-empty-string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @param standalone' => [
             new ReflectionParameter(
                 /** @phpstan-param string $string */
                 static function ($string): void {
@@ -271,6 +341,32 @@ final class ReflectionTest extends TestCase
                 'string',
             ),
             'string',
+        ];
+
+        yield 'phpstan @param leading' => [
+            new ReflectionParameter(
+                /**
+                 * @phpstan-param non-empty-string $string
+                 * @param string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @param trailing' => [
+            new ReflectionParameter(
+                /**
+                 * @param string $string
+                 * @phpstan-param non-empty-string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
         ];
     }
 }
