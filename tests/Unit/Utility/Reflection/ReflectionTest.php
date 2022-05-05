@@ -186,32 +186,20 @@ final class ReflectionTest extends TestCase
     public function callables_with_docblock_typed_return_type(): iterable
     {
         yield 'phpdoc' => [
-            /**
-             * @return int
-             */
-            static function () {
-                return 42;
-            },
+            /** @return int */
+            fn () => 42,
             'int',
         ];
 
         yield 'phpdoc literal string' => [
-            /**
-             * @return 'foo'
-             */
-            static function () {
-                return 'foo';
-            },
+            /** @return 'foo' */
+            fn () => 'foo',
             '\'foo\'',
         ];
 
         yield 'psalm' => [
-            /**
-             * @psalm-return int
-             */
-            static function () {
-                return 42;
-            },
+            /** @psalm-return int */
+            fn () => 42,
             'int',
         ];
 
@@ -220,9 +208,7 @@ final class ReflectionTest extends TestCase
              * @return int
              * @psalm-return positive-int
              */
-            static function () {
-                return 42;
-            },
+            fn () => 42,
             'positive-int',
         ];
 
@@ -231,19 +217,13 @@ final class ReflectionTest extends TestCase
              * @psalm-return positive-int
              * @return int
              */
-            static function () {
-                return 42;
-            },
+            fn () => 42,
             'positive-int',
         ];
 
         yield 'phpstan' => [
-            /**
-             * @phpstan-return int
-             */
-            static function () {
-                return 42;
-            },
+            /** @phpstan-return int */
+            fn () => 42,
             'int',
         ];
 
@@ -252,9 +232,7 @@ final class ReflectionTest extends TestCase
              * @return int
              * @phpstan-return positive-int
              */
-            static function () {
-                return 42;
-            },
+            fn () => 42,
             'positive-int',
         ];
 
@@ -263,9 +241,7 @@ final class ReflectionTest extends TestCase
              * @phpstan-return positive-int
              * @return int
              */
-            static function () {
-                return 42;
-            },
+            fn () => 42,
             'positive-int',
         ];
     }
@@ -277,9 +253,7 @@ final class ReflectionTest extends TestCase
     {
         yield 'phpdoc @var' => [
             new ReflectionProperty(new class () {
-                /**
-                 * @var string
-                 */
+                /** @var string */
                 public $foo;
             }, 'foo'),
             'string',
@@ -287,9 +261,7 @@ final class ReflectionTest extends TestCase
 
         yield 'psalm @var standalone' => [
             new ReflectionProperty(new class () {
-                /**
-                 * @psalm-var string
-                 */
+                /** @psalm-var string */
                 public $foo;
             }, 'foo'),
             'string',
@@ -319,9 +291,7 @@ final class ReflectionTest extends TestCase
 
         yield 'phpstan @var standalone' => [
             new ReflectionProperty(new class () {
-                /**
-                 * @phpstan-var string
-                 */
+                /** @phpstan-var string */
                 public $foo;
             }, 'foo'),
             'string',
