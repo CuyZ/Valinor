@@ -11,8 +11,10 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
+use Reflector;
 use RuntimeException;
 use stdClass;
 
@@ -142,19 +144,17 @@ final class ReflectionTest extends TestCase
         self::assertSame('Countable&Iterator', Reflection::flattenType($type));
     }
 
-    public function test_docblock_return_type_is_fetched_correctly(): void
-    {
-        $callable =
-            /**
-             * @return int
-             */
-            static function () {
-                return 42;
-            };
+    /**
+     * @param non-empty-string $expectedType
+     * @dataProvider callables_with_docblock_typed_return_type
+     */
+    public function test_docblock_return_type_is_fetched_correctly(
+        callable $dockblockTypedCallable,
+        string $expectedType
+    ): void {
+        $type = Reflection::docBlockReturnType(new ReflectionFunction($dockblockTypedCallable));
 
-        $type = Reflection::docBlockReturnType(new ReflectionFunction($callable));
-
-        self::assertSame('int', $type);
+        self::assertSame($expectedType, $type);
     }
 
     public function test_docblock_return_type_with_no_docblock_returns_null(): void
@@ -165,5 +165,112 @@ final class ReflectionTest extends TestCase
         $type = Reflection::docBlockReturnType(new ReflectionFunction($callable));
 
         self::assertNull($type);
+    }
+
+    /**
+     * @param non-empty-string $expectedType
+     * @dataProvider objects_with_docblock_typed_properties
+     */
+    public function test_docblock_var_type_is_fetched_correctly(
+        Reflector $property,
+        string $expectedType
+    ): void {
+        self::assertEquals($expectedType, Reflection::docBlockType($property));
+    }
+
+    public function callables_with_docblock_typed_return_type(): iterable
+    {
+        yield 'phpdoc' => [
+            /**
+             * @return int
+             */
+            static function () {
+                return 42;
+            },
+            'int',
+        ];
+
+        yield 'psalm' => [
+            /**
+             * @psalm-return int
+             */
+            static function () {
+                return 42;
+            },
+            'int',
+        ];
+
+        yield 'phpstan' => [
+            /**
+             * @phpstan-return int
+             */
+            static function () {
+                return 42;
+            },
+            'int',
+        ];
+    }
+
+    public function objects_with_docblock_typed_properties(): iterable
+    {
+        yield 'phpdoc @var' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'psalm @var' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @psalm-var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'phpstan @var' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @phpstan-var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'phpdoc @param' => [
+            new ReflectionParameter(
+                /** @param string $string */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'string',
+        ];
+
+        yield 'psalm @param' => [
+            new ReflectionParameter(
+                /** @psalm-param string $string */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'string',
+        ];
+
+        yield 'phpstan @param' => [
+            new ReflectionParameter(
+                /** @phpstan-param string $string */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'string',
+        ];
     }
 }
