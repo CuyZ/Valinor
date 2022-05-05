@@ -29,6 +29,10 @@ use function trim;
 /** @internal */
 final class Reflection
 {
+    private const TOOL_NONE = '';
+    private const TOOL_SPECIFIC_EXPRESSION = '((?<tool>psalm|phpstan)-)';
+    private const VARIABLE_TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}]+)';
+
     /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
 
@@ -110,24 +114,36 @@ final class Reflection
     {
         if ($reflection instanceof ReflectionProperty) {
             $docComment = self::sanitizeDocComment($reflection);
-            $regex = "@(psalm-|phpstan-)?var\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)";
+            $regex = sprintf('@%s?var\s+%s', self::TOOL_SPECIFIC_EXPRESSION, self::VARIABLE_TYPE_EXPRESSION);
         } else {
             $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
-            $regex = "@(psalm-|phpstan-)?param\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)\s+\\$$reflection->name(\W+|$)";
+            $regex = sprintf('@%s?param\s+%s\s+\$%s', self::TOOL_SPECIFIC_EXPRESSION, self::VARIABLE_TYPE_EXPRESSION, $reflection->name);
         }
 
-        if (! preg_match("/$regex/", $docComment, $matches)) {
+        if (! preg_match_all("/$regex/", $docComment, $matches)) {
             return null;
         }
 
-        return $matches['type'];
+        if (count($matches['tool']) === 1) {
+            return $matches['type'][0];
+        }
+
+        foreach ($matches['tool'] as $index => $tool) {
+            if ($tool === self::TOOL_NONE) {
+                continue;
+            }
+
+            return $matches['type'][$index];
+        }
+
+        return $matches['type'][0];
     }
 
     public static function docBlockReturnType(ReflectionFunctionAbstract $reflection): ?string
     {
         $docComment = self::sanitizeDocComment($reflection);
 
-        if (! preg_match("/@(psalm-|phpstan-)?return\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
+        if (! preg_match("/@(?<tool>psalm-|phpstan-)?return\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
             return null;
         }
 
