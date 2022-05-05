@@ -30,8 +30,8 @@ use function trim;
 final class Reflection
 {
     private const TOOL_NONE = '';
-    private const TOOL_SPECIFIC_EXPRESSION = '((?<tool>psalm|phpstan)-)';
-    private const VARIABLE_TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}]+)';
+    private const TOOL_EXPRESSION = '((?<tool>psalm|phpstan)-)';
+    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}]+)';
 
     /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
@@ -114,13 +114,13 @@ final class Reflection
     {
         if ($reflection instanceof ReflectionProperty) {
             $docComment = self::sanitizeDocComment($reflection);
-            $regex = sprintf('@%s?var\s+%s', self::TOOL_SPECIFIC_EXPRESSION, self::VARIABLE_TYPE_EXPRESSION);
+            $expression = sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
         } else {
             $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
-            $regex = sprintf('@%s?param\s+%s\s+\$%s', self::TOOL_SPECIFIC_EXPRESSION, self::VARIABLE_TYPE_EXPRESSION, $reflection->name);
+            $expression = sprintf('@%s?param\s+%s\s+\$%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION, $reflection->name);
         }
 
-        if (! preg_match_all("/$regex/", $docComment, $matches)) {
+        if (! preg_match_all("/$expression/", $docComment, $matches)) {
             return null;
         }
 
@@ -143,7 +143,9 @@ final class Reflection
     {
         $docComment = self::sanitizeDocComment($reflection);
 
-        if (! preg_match("/@(?<tool>psalm-|phpstan-)?return\s+(?<type>[\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
+        $expression = sprintf('/@%s?return\s+%s(\W*|$)/', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
+
+        if (! preg_match($expression, $docComment, $matches)) {
             return null;
         }
 
@@ -159,7 +161,9 @@ final class Reflection
         $types = [];
         $docComment = self::sanitizeDocComment($reflection);
 
-        preg_match_all('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*([\w\s?|&<>\'",-:\\\\\[\]{}]+)/', $docComment, $matches);
+        $expression = sprintf('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*%s/', self::TYPE_EXPRESSION);
+
+        preg_match_all($expression, $docComment, $matches);
 
         foreach ($matches[2] as $key => $name) {
             $types[(string)$name] = $matches[3][$key];
@@ -177,7 +181,8 @@ final class Reflection
         $types = [];
         $docComment = self::sanitizeDocComment($reflection);
 
-        preg_match_all('/@(phpstan|psalm)-import-type\s+([a-zA-Z]\w*)\s*from\s*([\w\s?|&<>\'",-:\\\\\[\]{}]+)/', $docComment, $matches);
+        $expression = sprintf('/@(phpstan|psalm)-import-type\s+([a-zA-Z]\w*)\s*from\s*%s/', self::TYPE_EXPRESSION);
+        preg_match_all($expression, $docComment, $matches);
 
         foreach ($matches[2] as $key => $name) {
             /** @var class-string $classString */
