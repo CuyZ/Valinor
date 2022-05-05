@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -148,5 +149,27 @@ final class NonEmptyArrayTypeTest extends TestCase
         );
 
         self::assertFalse(NonEmptyArrayType::native()->matches($unionType));
+    }
+
+    public function test_traverse_type_yields_sub_type(): void
+    {
+        $subType = new FakeType();
+
+        $type = new NonEmptyArrayType(ArrayKeyType::default(), $subType);
+
+        self::assertCount(1, $type->traverse());
+        self::assertContains($subType, $type->traverse());
+    }
+
+    public function test_traverse_type_yields_types_recursively(): void
+    {
+        $subType = new FakeType();
+        $compositeType = new FakeCompositeType($subType);
+
+        $type = new NonEmptyArrayType(ArrayKeyType::default(), $compositeType);
+
+        self::assertCount(2, $type->traverse());
+        self::assertContains($subType, $type->traverse());
+        self::assertContains($compositeType, $type->traverse());
     }
 }

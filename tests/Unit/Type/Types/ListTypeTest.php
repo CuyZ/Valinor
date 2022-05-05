@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
@@ -187,5 +188,27 @@ final class ListTypeTest extends TestCase
         );
 
         self::assertFalse(ListType::native()->matches($unionType));
+    }
+
+    public function test_traverse_type_yields_sub_type(): void
+    {
+        $subType = new FakeType();
+
+        $type = new ListType($subType);
+
+        self::assertCount(1, $type->traverse());
+        self::assertContains($subType, $type->traverse());
+    }
+
+    public function test_traverse_type_yields_types_recursively(): void
+    {
+        $subType = new FakeType();
+        $compositeType = new FakeCompositeType($subType);
+
+        $type = new ListType($compositeType);
+
+        self::assertCount(2, $type->traverse());
+        self::assertContains($subType, $type->traverse());
+        self::assertContains($compositeType, $type->traverse());
     }
 }

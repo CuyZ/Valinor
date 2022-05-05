@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
@@ -132,5 +133,33 @@ final class IntersectionTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($intersectionType->matches($unionType));
+    }
+
+    public function test_traverse_type_yields_sub_types(): void
+    {
+        $objectTypeA = new FakeObjectType();
+        $objectTypeB = new FakeObjectType();
+
+        $type = new IntersectionType($objectTypeA, $objectTypeB);
+
+        self::assertCount(2, $type->traverse());
+        self::assertContains($objectTypeA, $type->traverse());
+        self::assertContains($objectTypeB, $type->traverse());
+    }
+
+    public function test_traverse_type_yields_types_recursively(): void
+    {
+        $subTypeA = new FakeType();
+        $subTypeB = new FakeType();
+        $objectTypeA = new FakeObjectCompositeType(stdClass::class, ['Template' => $subTypeA]);
+        $objectTypeB = new FakeObjectCompositeType(stdClass::class, ['Template' => $subTypeB]);
+
+        $type = new IntersectionType($objectTypeA, $objectTypeB);
+
+        self::assertCount(4, $type->traverse());
+        self::assertContains($subTypeA, $type->traverse());
+        self::assertContains($subTypeB, $type->traverse());
+        self::assertContains($objectTypeA, $type->traverse());
+        self::assertContains($objectTypeB, $type->traverse());
     }
 }
