@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
-use CuyZ\Valinor\Type\TraversableType;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_diff;
@@ -18,7 +18,7 @@ use function in_array;
 use function is_array;
 
 /** @api */
-final class ShapedArrayType implements TraversableType
+final class ShapedArrayType implements CompositeType
 {
     /** @var ShapedArrayElement[] */
     private array $elements;
@@ -118,6 +118,17 @@ final class ShapedArrayType implements TraversableType
         }
 
         return true;
+    }
+
+    public function traverse(): iterable
+    {
+        foreach ($this->elements as $element) {
+            yield $type = $element->type();
+
+            if ($type instanceof CompositeType) {
+                yield from $type->traverse();
+            }
+        }
     }
 
     /**

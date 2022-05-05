@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\CombiningType;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
@@ -80,6 +81,17 @@ final class UnionType implements CombiningType
         }
 
         return false;
+    }
+
+    public function traverse(): iterable
+    {
+        foreach ($this->types as $type) {
+            yield $type;
+
+            if ($type instanceof CompositeType) {
+                yield from $type->traverse();
+            }
+        }
     }
 
     public function types(): array

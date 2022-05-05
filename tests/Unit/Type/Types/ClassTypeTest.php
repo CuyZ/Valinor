@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -105,5 +106,32 @@ final class ClassTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($classType->matches($unionType));
+    }
+
+    public function test_traverse_type_yields_sub_types(): void
+    {
+        $subTypeA = new FakeType();
+        $subTypeB = new FakeType();
+
+        $type = new ClassType(stdClass::class, [
+            'TemplateA' => $subTypeA,
+            'TemplateB' => $subTypeB,
+        ]);
+
+        self::assertCount(2, $type->traverse());
+        self::assertContains($subTypeA, $type->traverse());
+        self::assertContains($subTypeB, $type->traverse());
+    }
+
+    public function test_traverse_type_yields_types_recursively(): void
+    {
+        $subType = new FakeType();
+        $compositeType = new FakeCompositeType($subType);
+
+        $type = new ClassType(stdClass::class, ['Template' => $compositeType]);
+
+        self::assertCount(2, $type->traverse());
+        self::assertContains($subType, $type->traverse());
+        self::assertContains($compositeType, $type->traverse());
     }
 }

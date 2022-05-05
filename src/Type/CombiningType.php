@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type;
 
 /** @api */
-interface CombiningType extends Type
+interface CombiningType extends CompositeType
 {
     public function isMatchedBy(Type $other): bool;
 

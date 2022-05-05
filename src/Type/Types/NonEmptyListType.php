@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\CompositeTraversableType;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function count;
@@ -97,6 +98,15 @@ final class NonEmptyListType implements CompositeTraversableType
     public function subType(): Type
     {
         return $this->subType;
+    }
+
+    public function traverse(): iterable
+    {
+        yield $this->subType;
+
+        if ($this->subType instanceof CompositeType) {
+            yield from $this->subType->traverse();
+        }
     }
 
     public function __toString(): string

@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Tests\Fake\Type;
+
+use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\Type;
+
+final class FakeCompositeType implements CompositeType
+{
+    /** @var Type[] */
+    private array $types;
+
+    public function __construct(Type ...$types)
+    {
+        $this->types = $types;
+    }
+
+    public function traverse(): iterable
+    {
+        yield from $this->types;
+    }
+
+    public function accepts($value): bool
+    {
+        return true;
+    }
+
+    public function matches(Type $other): bool
+    {
+        return true;
+    }
+
+    public function __toString(): string
+    {
+        return 'FakeCompositeType';
+    }
+}

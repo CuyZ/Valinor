@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function implode;
@@ -63,6 +64,17 @@ final class IntersectionType implements CombiningType
         }
 
         return true;
+    }
+
+    public function traverse(): iterable
+    {
+        foreach ($this->types as $type) {
+            yield $type;
+
+            if ($type instanceof CompositeType) {
+                yield from $type->traverse();
+            }
+        }
     }
 
     /**

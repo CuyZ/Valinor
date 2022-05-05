@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 
 /** @api */
-interface CompositeTraversableType extends Type
+interface CompositeTraversableType extends CompositeType
 {
     public function keyType(): ArrayKeyType;
 

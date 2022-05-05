@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function is_a;
 
 /** @api */
-final class ClassType implements ObjectType
+final class ClassType implements ObjectType, CompositeType
 {
     /** @var class-string */
     private string $className;
@@ -62,6 +63,17 @@ final class ClassType implements ObjectType
         }
 
         return is_a($this->className, $other->className(), true);
+    }
+
+    public function traverse(): iterable
+    {
+        foreach ($this->generics as $type) {
+            yield $type;
+
+            if ($type instanceof CompositeType) {
+                yield from $type->traverse();
+            }
+        }
     }
 
     public function __toString(): string

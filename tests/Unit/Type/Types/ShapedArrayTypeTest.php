@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -167,5 +168,39 @@ final class ShapedArrayTypeTest extends TestCase
         );
 
         self::assertFalse($this->type->matches($unionType));
+    }
+
+    public function test_traverse_type_yields_sub_types(): void
+    {
+        $subTypeA = new FakeType();
+        $subTypeB = new FakeType();
+
+        $type = new ShapedArrayType(
+            new ShapedArrayElement(new StringValueType('foo'), $subTypeA),
+            new ShapedArrayElement(new StringValueType('bar'), $subTypeB),
+        );
+
+        self::assertCount(2, $type->traverse());
+        self::assertContains($subTypeA, $type->traverse());
+        self::assertContains($subTypeB, $type->traverse());
+    }
+
+    public function test_traverse_type_yields_types_recursively(): void
+    {
+        $subTypeA = new FakeType();
+        $subTypeB = new FakeType();
+        $compositeTypeA = new FakeCompositeType($subTypeA);
+        $compositeTypeB = new FakeCompositeType($subTypeB);
+
+        $type = new ShapedArrayType(
+            new ShapedArrayElement(new StringValueType('foo'), $compositeTypeA),
+            new ShapedArrayElement(new StringValueType('bar'), $compositeTypeB),
+        );
+
+        self::assertCount(4, $type->traverse());
+        self::assertContains($subTypeA, $type->traverse());
+        self::assertContains($subTypeB, $type->traverse());
+        self::assertContains($compositeTypeA, $type->traverse());
+        self::assertContains($compositeTypeB, $type->traverse());
     }
 }
