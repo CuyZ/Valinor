@@ -117,7 +117,7 @@ final class Reflection
             $expression = sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
         } else {
             $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
-            $expression = sprintf('@%s?param\s+%s\s+\$%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION, $reflection->name);
+            $expression = sprintf('@%s?param\s+%s\s+\$\b%s\b', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION, $reflection->name);
         }
 
         if (! preg_match_all("/$expression/", $docComment, $matches)) {
