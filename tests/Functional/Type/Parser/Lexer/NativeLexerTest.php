@@ -100,6 +100,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'null',
                 'type' => NullType::class,
             ],
+            'Null type followed by description' => [
+                'raw' => 'null lorem ipsum',
+                'transformed' => 'null',
+                'type' => NullType::class,
+            ],
             'Mixed type' => [
                 'raw' => 'mixed',
                 'transformed' => 'mixed',
@@ -107,6 +112,11 @@ final class NativeLexerTest extends TestCase
             ],
             'Mixed type - uppercase' => [
                 'raw' => 'MIXED',
+                'transformed' => 'mixed',
+                'type' => MixedType::class,
+            ],
+            'Mixed type followed by description' => [
+                'raw' => 'mixed lorem ipsum',
                 'transformed' => 'mixed',
                 'type' => MixedType::class,
             ],
@@ -120,6 +130,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'float',
                 'type' => FloatType::class,
             ],
+            'Float type followed by description' => [
+                'raw' => 'float lorem ipsum',
+                'transformed' => 'float',
+                'type' => FloatType::class,
+            ],
             'Integer type' => [
                 'raw' => 'int',
                 'transformed' => 'int',
@@ -127,6 +142,11 @@ final class NativeLexerTest extends TestCase
             ],
             'Integer type - uppercase' => [
                 'raw' => 'INT',
+                'transformed' => 'int',
+                'type' => IntegerType::class,
+            ],
+            'Integer type followed by description' => [
+                'raw' => 'int lorem ipsum',
                 'transformed' => 'int',
                 'type' => IntegerType::class,
             ],
@@ -150,6 +170,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'positive-int',
                 'type' => IntegerType::class,
             ],
+            'Positive integer type followed by description' => [
+                'raw' => 'positive-int lorem ipsum',
+                'transformed' => 'positive-int',
+                'type' => IntegerType::class,
+            ],
             'Negative integer type' => [
                 'raw' => 'negative-int',
                 'transformed' => 'negative-int',
@@ -160,13 +185,28 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'negative-int',
                 'type' => IntegerType::class,
             ],
+            'Negative integer type followed by description' => [
+                'raw' => 'negative-int lorem ipsum',
+                'transformed' => 'negative-int',
+                'type' => IntegerType::class,
+            ],
             'Positive integer value' => [
                 'raw' => '1337',
                 'transformed' => '1337',
                 'type' => IntegerValueType::class,
             ],
+            'Positive integer value followed by description' => [
+                'raw' => '1337 lorem ipsum',
+                'transformed' => '1337',
+                'type' => IntegerValueType::class,
+            ],
             'Negative integer value' => [
                 'raw' => '-1337',
+                'transformed' => '-1337',
+                'type' => IntegerValueType::class,
+            ],
+            'Negative integer value followed by description' => [
+                'raw' => '-1337 lorem ipsum',
                 'transformed' => '-1337',
                 'type' => IntegerValueType::class,
             ],
@@ -185,6 +225,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'int<min, max>',
                 'type' => IntegerRangeType::class,
             ],
+            'Integer range followed by description' => [
+                'raw' => 'int<42, 1337> lorem ipsum',
+                'transformed' => 'int<42, 1337>',
+                'type' => IntegerRangeType::class,
+            ],
             'String type' => [
                 'raw' => 'string',
                 'transformed' => 'string',
@@ -192,6 +237,11 @@ final class NativeLexerTest extends TestCase
             ],
             'String type - uppercase' => [
                 'raw' => 'STRING',
+                'transformed' => 'string',
+                'type' => StringType::class,
+            ],
+            'String type followed by description' => [
+                'raw' => 'string lorem ipsum',
                 'transformed' => 'string',
                 'type' => StringType::class,
             ],
@@ -205,13 +255,28 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'non-empty-string',
                 'type' => NonEmptyStringType::class,
             ],
+            'Non empty string type followed by description' => [
+                'raw' => 'non-empty-string lorem ipsum',
+                'transformed' => 'non-empty-string',
+                'type' => NonEmptyStringType::class,
+            ],
             'String value with single quote' => [
                 'raw' => "'foo'",
                 'transformed' => "'foo'",
                 'type' => StringValueType::class,
             ],
+            'String value with single quote followed by description' => [
+                'raw' => "'foo' lorem ipsum",
+                'transformed' => "'foo'",
+                'type' => StringValueType::class,
+            ],
             'String value with double quote' => [
                 'raw' => '"foo"',
+                'transformed' => '"foo"',
+                'type' => StringValueType::class,
+            ],
+            'String value with double quote followed by description' => [
+                'raw' => '"foo" lorem ipsum',
                 'transformed' => '"foo"',
                 'type' => StringValueType::class,
             ],
@@ -235,6 +300,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'bool',
                 'type' => BooleanType::class,
             ],
+            'Boolean type followed by description' => [
+                'raw' => 'bool lorem ipsum',
+                'transformed' => 'bool',
+                'type' => BooleanType::class,
+            ],
             'Undefined object type' => [
                 'raw' => 'object',
                 'transformed' => 'object',
@@ -242,6 +312,11 @@ final class NativeLexerTest extends TestCase
             ],
             'Undefined object type - uppercase' => [
                 'raw' => 'OBJECT',
+                'transformed' => 'object',
+                'type' => UndefinedObjectType::class,
+            ],
+            'Undefined object type followed by description' => [
+                'raw' => 'object lorem ipsum',
                 'transformed' => 'object',
                 'type' => UndefinedObjectType::class,
             ],
@@ -255,8 +330,18 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'array',
                 'type' => ArrayType::class,
             ],
+            'Array native type followed by description' => [
+                'raw' => 'array lorem ipsum',
+                'transformed' => 'array',
+                'type' => ArrayType::class,
+            ],
             'Simple array type' => [
                 'raw' => 'float[]',
+                'transformed' => 'float[]',
+                'type' => ArrayType::class,
+            ],
+            'Simple array type followed by description' => [
+                'raw' => 'float[] lorem ipsum',
                 'transformed' => 'float[]',
                 'type' => ArrayType::class,
             ],
@@ -280,6 +365,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'array<float>',
                 'type' => ArrayType::class,
             ],
+            'Array without array-key followed by description' => [
+                'raw' => 'array<float> lorem ipsum',
+                'transformed' => 'array<float>',
+                'type' => ArrayType::class,
+            ],
             'Non empty native array' => [
                 'raw' => 'non-empty-array',
                 'transformed' => 'non-empty-array',
@@ -287,6 +377,11 @@ final class NativeLexerTest extends TestCase
             ],
             'Non empty native array - uppercase' => [
                 'raw' => 'NON-EMPTY-ARRAY',
+                'transformed' => 'non-empty-array',
+                'type' => NonEmptyArrayType::class,
+            ],
+            'Non empty native array followed by description' => [
+                'raw' => 'non-empty-array lorem ipsum',
                 'transformed' => 'non-empty-array',
                 'type' => NonEmptyArrayType::class,
             ],
@@ -310,6 +405,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'non-empty-array<float>',
                 'type' => NonEmptyArrayType::class,
             ],
+            'Non empty array without array-key followed by description' => [
+                'raw' => 'non-empty-array<float> lorem ipsum',
+                'transformed' => 'non-empty-array<float>',
+                'type' => NonEmptyArrayType::class,
+            ],
             'List native type' => [
                 'raw' => 'list',
                 'transformed' => 'list',
@@ -320,8 +420,18 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'list',
                 'type' => ListType::class,
             ],
+            'List native type followed by description' => [
+                'raw' => 'list lorem ipsum',
+                'transformed' => 'list',
+                'type' => ListType::class,
+            ],
             'List type' => [
                 'raw' => 'list<float>',
+                'transformed' => 'list<float>',
+                'type' => ListType::class,
+            ],
+            'List type followed by description' => [
+                'raw' => 'list<float> lorem ipsum',
                 'transformed' => 'list<float>',
                 'type' => ListType::class,
             ],
@@ -335,8 +445,18 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'non-empty-list',
                 'type' => NonEmptyListType::class,
             ],
+            'Non empty list native type followed by description' => [
+                'raw' => 'non-empty-list lorem ipsum',
+                'transformed' => 'non-empty-list',
+                'type' => NonEmptyListType::class,
+            ],
             'Non empty list' => [
                 'raw' => 'non-empty-list<float>',
+                'transformed' => 'non-empty-list<float>',
+                'type' => NonEmptyListType::class,
+            ],
+            'Non empty list followed by description' => [
+                'raw' => 'non-empty-list<float> lorem ipsum',
                 'transformed' => 'non-empty-list<float>',
                 'type' => NonEmptyListType::class,
             ],
@@ -380,6 +500,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'array{string: string}',
                 'type' => ShapedArrayType::class,
             ],
+            'Shaped array followed by description' => [
+                'raw' => 'array{foo: string} lorem ipsum',
+                'transformed' => 'array{foo: string}',
+                'type' => ShapedArrayType::class,
+            ],
             'Iterable type' => [
                 'raw' => 'iterable',
                 'transformed' => 'iterable',
@@ -410,13 +535,28 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'iterable<float>',
                 'type' => IterableType::class,
             ],
+            'Iterable without array-key followed by description' => [
+                'raw' => 'iterable<float> lorem ipsum',
+                'transformed' => 'iterable<float>',
+                'type' => IterableType::class,
+            ],
             'Class string' => [
                 'raw' => 'class-string',
                 'transformed' => 'class-string',
                 'type' => ClassStringType::class,
             ],
+            'Class string followed by description' => [
+                'raw' => 'class-string lorem ipsum',
+                'transformed' => 'class-string',
+                'type' => ClassStringType::class,
+            ],
             'Class string of class' => [
                 'raw' => 'class-string<stdClass>',
+                'transformed' => 'class-string<stdClass>',
+                'type' => ClassStringType::class,
+            ],
+            'Class string of class followed by description' => [
+                'raw' => 'class-string<stdClass> lorem ipsum',
                 'transformed' => 'class-string<stdClass>',
                 'type' => ClassStringType::class,
             ],
@@ -435,6 +575,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => stdClass::class,
                 'type' => ClassType::class,
             ],
+            'Class name followed by description' => [
+                'raw' => 'stdClass lorem ipsum',
+                'transformed' => stdClass::class,
+                'type' => ClassType::class,
+            ],
             'Abstract class name' => [
                 'raw' => AbstractObject::class,
                 'transformed' => AbstractObject::class,
@@ -447,6 +592,11 @@ final class NativeLexerTest extends TestCase
             ],
             'Nullable type' => [
                 'raw' => '?string',
+                'transformed' => 'null|string',
+                'type' => UnionType::class,
+            ],
+            'Nullable type followed by description' => [
+                'raw' => '?string lorem ipsum',
                 'transformed' => 'null|string',
                 'type' => UnionType::class,
             ],
@@ -480,8 +630,18 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'class-string|int',
                 'type' => UnionType::class,
             ],
+            'Union type followed by description' => [
+                'raw' => 'int|float lorem ipsum',
+                'transformed' => 'int|float',
+                'type' => UnionType::class,
+            ],
             'Intersection type' => [
                 'raw' => 'stdClass&DateTimeInterface',
+                'transformed' => 'stdClass&DateTimeInterface',
+                'type' => IntersectionType::class,
+            ],
+            'Intersection type followed by description' => [
+                'raw' => 'stdClass&DateTimeInterface lorem ipsum',
                 'transformed' => 'stdClass&DateTimeInterface',
                 'type' => IntersectionType::class,
             ],
