@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
+use Closure;
 use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
@@ -152,7 +153,7 @@ final class ReflectionTest extends TestCase
         callable $dockblockTypedCallable,
         string $expectedType
     ): void {
-        $type = Reflection::docBlockReturnType(new ReflectionFunction($dockblockTypedCallable));
+        $type = Reflection::docBlockReturnType(new ReflectionFunction(Closure::fromCallable($dockblockTypedCallable)));
 
         self::assertSame($expectedType, $type);
     }
@@ -168,6 +169,7 @@ final class ReflectionTest extends TestCase
     }
 
     /**
+     * @param ReflectionParameter|ReflectionProperty $property
      * @param non-empty-string $expectedType
      * @dataProvider objects_with_docblock_typed_properties
      */
@@ -178,6 +180,9 @@ final class ReflectionTest extends TestCase
         self::assertEquals($expectedType, Reflection::docBlockType($property));
     }
 
+    /**
+     * @return iterable<non-empty-string,array{0:callable,1:non-empty-string}>
+     */
     public function callables_with_docblock_typed_return_type(): iterable
     {
         yield 'phpdoc' => [
@@ -265,6 +270,9 @@ final class ReflectionTest extends TestCase
         ];
     }
 
+    /**
+     * @return iterable<non-empty-string,array{0:ReflectionProperty|ReflectionParameter,1:non-empty-string}>
+     */
     public function objects_with_docblock_typed_properties(): iterable
     {
         yield 'phpdoc @var' => [
