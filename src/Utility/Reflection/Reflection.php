@@ -124,10 +124,6 @@ final class Reflection
             return null;
         }
 
-        if (count($matches['tool']) === 1) {
-            return $matches['type'][0];
-        }
-
         foreach ($matches['tool'] as $index => $tool) {
             if ($tool === self::TOOL_NONE) {
                 continue;
