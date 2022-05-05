@@ -21,7 +21,12 @@ use function strncmp;
 use function strpos;
 use function substr_compare;
 
-/** @internal */
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ * @infection-ignore-all
+ */
 final class Polyfill
 {
     /**
