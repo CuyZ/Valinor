@@ -191,6 +191,15 @@ final class ReflectionTest extends TestCase
             'int',
         ];
 
+        yield 'phpdoc followed by new line' => [
+            /**
+             * @return int
+             *
+             */
+            fn () => 42,
+            'int',
+        ];
+
         yield 'phpdoc literal string' => [
             /** @return 'foo' */
             fn () => 'foo',
@@ -254,6 +263,17 @@ final class ReflectionTest extends TestCase
         yield 'phpdoc @var' => [
             new ReflectionProperty(new class () {
                 /** @var string */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'phpdoc @var followed by new line' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 *
+                 */
                 public $foo;
             }, 'foo'),
             'string',
