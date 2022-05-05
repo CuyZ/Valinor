@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
+use Closure;
 use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
@@ -11,8 +12,10 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
+use Reflector;
 use RuntimeException;
 use stdClass;
 
@@ -142,19 +145,17 @@ final class ReflectionTest extends TestCase
         self::assertSame('Countable&Iterator', Reflection::flattenType($type));
     }
 
-    public function test_docblock_return_type_is_fetched_correctly(): void
-    {
-        $callable =
-            /**
-             * @return int
-             */
-            static function () {
-                return 42;
-            };
+    /**
+     * @param non-empty-string $expectedType
+     * @dataProvider callables_with_docblock_typed_return_type
+     */
+    public function test_docblock_return_type_is_fetched_correctly(
+        callable $dockblockTypedCallable,
+        string $expectedType
+    ): void {
+        $type = Reflection::docBlockReturnType(new ReflectionFunction(Closure::fromCallable($dockblockTypedCallable)));
 
-        $type = Reflection::docBlockReturnType(new ReflectionFunction($callable));
-
-        self::assertSame('int', $type);
+        self::assertSame($expectedType, $type);
     }
 
     public function test_docblock_return_type_with_no_docblock_returns_null(): void
@@ -165,5 +166,259 @@ final class ReflectionTest extends TestCase
         $type = Reflection::docBlockReturnType(new ReflectionFunction($callable));
 
         self::assertNull($type);
+    }
+
+    /**
+     * @param ReflectionParameter|ReflectionProperty $property
+     * @param non-empty-string $expectedType
+     * @dataProvider objects_with_docblock_typed_properties
+     */
+    public function test_docblock_var_type_is_fetched_correctly(
+        Reflector $property,
+        string $expectedType
+    ): void {
+        self::assertEquals($expectedType, Reflection::docBlockType($property));
+    }
+
+    /**
+     * @return iterable<non-empty-string,array{0:callable,1:non-empty-string}>
+     */
+    public function callables_with_docblock_typed_return_type(): iterable
+    {
+        yield 'phpdoc' => [
+            /** @return int */
+            fn () => 42,
+            'int',
+        ];
+
+        yield 'phpdoc followed by new line' => [
+            /**
+             * @return int
+             *
+             */
+            fn () => 42,
+            'int',
+        ];
+
+        yield 'phpdoc literal string' => [
+            /** @return 'foo' */
+            fn () => 'foo',
+            '\'foo\'',
+        ];
+
+        yield 'psalm' => [
+            /** @psalm-return int */
+            fn () => 42,
+            'int',
+        ];
+
+        yield 'psalm trailing' => [
+            /**
+             * @return int
+             * @psalm-return positive-int
+             */
+            fn () => 42,
+            'positive-int',
+        ];
+
+        yield 'psalm leading' => [
+            /**
+             * @psalm-return positive-int
+             * @return int
+             */
+            fn () => 42,
+            'positive-int',
+        ];
+
+        yield 'phpstan' => [
+            /** @phpstan-return int */
+            fn () => 42,
+            'int',
+        ];
+
+        yield 'phpstan trailing' => [
+            /**
+             * @return int
+             * @phpstan-return positive-int
+             */
+            fn () => 42,
+            'positive-int',
+        ];
+
+        yield 'phpstan leading' => [
+            /**
+             * @phpstan-return positive-int
+             * @return int
+             */
+            fn () => 42,
+            'positive-int',
+        ];
+    }
+
+    /**
+     * @return iterable<non-empty-string,array{0:ReflectionProperty|ReflectionParameter,1:non-empty-string}>
+     */
+    public function objects_with_docblock_typed_properties(): iterable
+    {
+        yield 'phpdoc @var' => [
+            new ReflectionProperty(new class () {
+                /** @var string */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'phpdoc @var followed by new line' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 *
+                 */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'psalm @var standalone' => [
+            new ReflectionProperty(new class () {
+                /** @psalm-var string */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'psalm @var leading' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @psalm-var non-empty-string
+                 * @var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'psalm @var trailing' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 * @psalm-var non-empty-string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @var standalone' => [
+            new ReflectionProperty(new class () {
+                /** @phpstan-var string */
+                public $foo;
+            }, 'foo'),
+            'string',
+        ];
+
+        yield 'phpstan @var leading' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @phpstan-var non-empty-string
+                 * @var string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @var trailing' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 * @phpstan-var non-empty-string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'phpdoc @param' => [
+            new ReflectionParameter(
+                /** @param string $string */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'string',
+        ];
+
+        yield 'psalm @param standalone' => [
+            new ReflectionParameter(
+                /** @psalm-param string $string */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'string',
+        ];
+
+        yield 'psalm @param leading' => [
+            new ReflectionParameter(
+                /**
+                 * @psalm-param non-empty-string $string
+                 * @param string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'psalm @param trailing' => [
+            new ReflectionParameter(
+                /**
+                 * @param string $string
+                 * @psalm-param non-empty-string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @param standalone' => [
+            new ReflectionParameter(
+                /** @phpstan-param string $string */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'string',
+        ];
+
+        yield 'phpstan @param leading' => [
+            new ReflectionParameter(
+                /**
+                 * @phpstan-param non-empty-string $string
+                 * @param string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'phpstan @param trailing' => [
+            new ReflectionParameter(
+                /**
+                 * @param string $string
+                 * @phpstan-param non-empty-string $string
+                 */
+                static function ($string): void {
+                },
+                'string',
+            ),
+            'non-empty-string',
+        ];
     }
 }

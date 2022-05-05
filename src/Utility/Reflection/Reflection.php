@@ -20,7 +20,6 @@ use RuntimeException;
 
 use function get_class;
 use function implode;
-use function preg_match;
 use function preg_match_all;
 use function preg_replace;
 use function spl_object_hash;
@@ -29,6 +28,10 @@ use function trim;
 /** @internal */
 final class Reflection
 {
+    private const TOOL_NONE = '';
+    private const TOOL_EXPRESSION = '((?<tool>psalm|phpstan)-)';
+    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}]+)';
+
     /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
 
@@ -110,28 +113,46 @@ final class Reflection
     {
         if ($reflection instanceof ReflectionProperty) {
             $docComment = self::sanitizeDocComment($reflection);
-            $regex = "@var\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)";
+            $expression = sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
         } else {
             $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
-            $regex = "@param\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)\s+\\$$reflection->name(\W+|$)";
+            $expression = sprintf('@%s?param\s+%s\s+\$\b%s\b', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION, $reflection->name);
         }
 
-        if (! preg_match("/$regex/", $docComment, $matches)) {
+        if (! preg_match_all("/$expression/", $docComment, $matches)) {
             return null;
         }
 
-        return $matches[1];
+        foreach ($matches['tool'] as $index => $tool) {
+            if ($tool === self::TOOL_NONE) {
+                continue;
+            }
+
+            return trim($matches['type'][$index]);
+        }
+
+        return trim($matches['type'][0]);
     }
 
     public static function docBlockReturnType(ReflectionFunctionAbstract $reflection): ?string
     {
         $docComment = self::sanitizeDocComment($reflection);
 
-        if (! preg_match("/@return\s+([\w\s?|&<>'\",-:\\\\\[\]{}]+)(\W*|$)/", $docComment, $matches)) {
+        $expression = sprintf('/@%s?return\s+%s/', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
+
+        if (! preg_match_all($expression, $docComment, $matches)) {
             return null;
         }
 
-        return trim($matches[1]);
+        foreach ($matches['tool'] as $index => $tool) {
+            if ($tool === self::TOOL_NONE) {
+                continue;
+            }
+
+            return trim($matches['type'][$index]);
+        }
+
+        return trim($matches['type'][0]);
     }
 
     /**
@@ -143,7 +164,9 @@ final class Reflection
         $types = [];
         $docComment = self::sanitizeDocComment($reflection);
 
-        preg_match_all('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*([\w\s?|&<>\'",-:\\\\\[\]{}]+)/', $docComment, $matches);
+        $expression = sprintf('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*%s/', self::TYPE_EXPRESSION);
+
+        preg_match_all($expression, $docComment, $matches);
 
         foreach ($matches[2] as $key => $name) {
             $types[(string)$name] = $matches[3][$key];
@@ -161,7 +184,8 @@ final class Reflection
         $types = [];
         $docComment = self::sanitizeDocComment($reflection);
 
-        preg_match_all('/@(phpstan|psalm)-import-type\s+([a-zA-Z]\w*)\s*from\s*([\w\s?|&<>\'",-:\\\\\[\]{}]+)/', $docComment, $matches);
+        $expression = sprintf('/@(phpstan|psalm)-import-type\s+([a-zA-Z]\w*)\s*from\s*%s/', self::TYPE_EXPRESSION);
+        preg_match_all($expression, $docComment, $matches);
 
         foreach ($matches[2] as $key => $name) {
             /** @var class-string $classString */
@@ -180,6 +204,6 @@ final class Reflection
     {
         $docComment = preg_replace('#^\s*/\*\*([^/]+)/\s*$#', '$1', $reflection->getDocComment() ?: '');
 
-        return preg_replace('/\s*\*\s*(\S*)/', '$1', $docComment); // @phpstan-ignore-line
+        return trim(preg_replace('/\s*\*\s*(\S*)/', "\n\$1", $docComment)); // @phpstan-ignore-line
     }
 }
