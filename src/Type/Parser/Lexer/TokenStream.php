@@ -43,7 +43,6 @@ final class TokenStream
             $token = $this->next();
 
             if (! $token instanceof LeftTraversingToken) {
-                /** @infection-ignore-all */
                 break;
             }
 
