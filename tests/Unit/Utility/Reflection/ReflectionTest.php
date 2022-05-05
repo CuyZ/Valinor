@@ -190,6 +190,16 @@ final class ReflectionTest extends TestCase
             'int',
         ];
 
+        yield 'phpdoc literal string' => [
+            /**
+             * @return 'foo'
+             */
+            static function () {
+                return 'foo';
+            },
+            '\'foo\'',
+        ];
+
         yield 'psalm' => [
             /**
              * @psalm-return int
@@ -200,6 +210,28 @@ final class ReflectionTest extends TestCase
             'int',
         ];
 
+        yield 'psalm trailing' => [
+            /**
+             * @return int
+             * @psalm-return positive-int
+             */
+            static function () {
+                return 42;
+            },
+            'positive-int',
+        ];
+
+        yield 'psalm leading' => [
+            /**
+             * @psalm-return positive-int
+             * @return int
+             */
+            static function () {
+                return 42;
+            },
+            'positive-int',
+        ];
+
         yield 'phpstan' => [
             /**
              * @phpstan-return int
@@ -208,6 +240,28 @@ final class ReflectionTest extends TestCase
                 return 42;
             },
             'int',
+        ];
+
+        yield 'phpstan trailing' => [
+            /**
+             * @return int
+             * @phpstan-return positive-int
+             */
+            static function () {
+                return 42;
+            },
+            'positive-int',
+        ];
+
+        yield 'phpstan leading' => [
+            /**
+             * @phpstan-return positive-int
+             * @return int
+             */
+            static function () {
+                return 42;
+            },
+            'positive-int',
         ];
     }
 
