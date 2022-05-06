@@ -14,6 +14,6 @@ final class Package
     public static function version(): string
     {
         /** @infection-ignore-all */
-        return self::$version ??= InstalledVersions::getVersion('cuyz/valinor');
+        return self::$version ??= InstalledVersions::getVersion('cuyz/valinor') ?? 'unknown';
     }
 }

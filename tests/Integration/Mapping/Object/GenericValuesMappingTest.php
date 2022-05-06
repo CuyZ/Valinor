@@ -50,10 +50,10 @@ final class GenericValuesMappingTest extends IntegrationTest
             self::assertSame(true, $result->genericWithBoolean->value);
             self::assertSame(42.404, $result->genericWithFloat->value);
             self::assertSame(1337, $result->genericWithInteger->value);
-            self::assertSame(1337, $result->genericWithIntegerValue->value);
+            self::assertSame(1337, $result->genericWithIntegerValue->value); // @phpstan-ignore-line
             self::assertSame('foo', $result->genericWithString->value);
-            self::assertSame('foo', $result->genericWithSingleQuoteStringValue->value);
-            self::assertSame('foo', $result->genericWithDoubleQuoteStringValue->value);
+            self::assertSame('foo', $result->genericWithSingleQuoteStringValue->value); // @phpstan-ignore-line
+            self::assertSame('foo', $result->genericWithDoubleQuoteStringValue->value); // @phpstan-ignore-line
             self::assertSame(['foo', 'bar', 'baz'], $result->genericWithArrayOfStrings->value);
             self::assertSame(['foo', 'bar', 'baz'], $result->genericWithSimpleArrayOfStrings->value);
             self::assertSame('foo', $result->genericWithUnionOfScalar->value);
@@ -65,8 +65,8 @@ final class GenericValuesMappingTest extends IntegrationTest
             self::assertSame(42, $result->genericWithTwoTemplatesOnSeveralLines->valueB);
             self::assertSame('foo', $result->genericWithSpecifiedTypeWithString->value);
             self::assertSame('foo', $result->genericWithSpecifiedTypeWithObject->value->value);
-            self::assertSame(42, $result->genericWithSpecifiedTypeWithIntegerValue->value);
-            self::assertSame('foo', $result->genericWithSpecifiedTypeWithStringValue->value);
+            self::assertSame(42, $result->genericWithSpecifiedTypeWithIntegerValue->value); // @phpstan-ignore-line
+            self::assertSame('foo', $result->genericWithSpecifiedTypeWithStringValue->value); // @phpstan-ignore-line
         }
     }
 }
@@ -94,7 +94,6 @@ final class GenericObjectWithTwoTemplates
 }
 
 /**
- * @phpstan-ignore-next-line
  * @template T of string|object|42|'foo'
  */
 final class GenericObjectWithSpecifiedType

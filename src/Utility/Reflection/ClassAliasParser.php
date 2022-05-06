@@ -12,6 +12,7 @@ use Reflector;
 
 use function array_shift;
 use function explode;
+use function get_class;
 use function implode;
 use function strtolower;
 
@@ -20,7 +21,7 @@ final class ClassAliasParser
 {
     use IsSingleton;
 
-    /** @var array<class-string, array<string, string>> */
+    /** @var array<string, array<string, string>> */
     private array $aliases = [];
 
     /**
@@ -62,6 +63,6 @@ final class ClassAliasParser
     private function aliases(Reflector $reflection): array
     {
         /** @infection-ignore-all */
-        return $this->aliases[$reflection->name] ??= Singleton::phpParser()->parseUseStatements($reflection);
+        return $this->aliases[get_class($reflection) . $reflection->name] ??= Singleton::phpParser()->parseUseStatements($reflection);
     }
 }

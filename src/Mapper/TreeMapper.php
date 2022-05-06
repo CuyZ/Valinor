@@ -12,9 +12,7 @@ interface TreeMapper
      *
      * @param string|class-string<T> $signature
      * @param mixed $source
-     * @return T|mixed
-     *
-     * @psalm-return (
+     * @return (
      *     $signature is class-string<T>
      *         ? T
      *         : mixed

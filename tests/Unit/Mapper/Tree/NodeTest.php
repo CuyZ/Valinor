@@ -146,10 +146,8 @@ final class NodeTest extends TestCase
 
         self::assertNotSame($nodeA, $nodeB);
         self::assertTrue($nodeB->isValid());
-        self::assertSame(
-            ['some message A', 'some message B'],
-            [(string)$nodeB->messages()[0], (string)$nodeB->messages()[1]]
-        );
+        self::assertSame('some message A', (string)$nodeB->messages()[0]);
+        self::assertSame('some message B', (string)$nodeB->messages()[1]);
     }
 
     public function test_node_with_error_message_returns_invalid_node(): void
@@ -162,9 +160,7 @@ final class NodeTest extends TestCase
 
         self::assertNotSame($nodeA, $nodeB);
         self::assertFalse($nodeB->isValid());
-        self::assertSame(
-            [(string)$message, (string)$errorMessage],
-            [(string)$nodeB->messages()[0], (string)$nodeB->messages()[1]]
-        );
+        self::assertSame((string)$message, (string)$nodeB->messages()[0]);
+        self::assertSame((string)$errorMessage, (string)$nodeB->messages()[1]);
     }
 }
