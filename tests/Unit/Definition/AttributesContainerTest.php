@@ -21,7 +21,10 @@ final class AttributesContainerTest extends TestCase
 
     public function test_attributes_are_traversable(): void
     {
-        self::assertIsIterable(new AttributesContainer());
+        $attributes = [new stdClass(), new stdClass(), new stdClass()];
+        $container = new AttributesContainer(...$attributes);
+
+        self::assertSame($attributes, iterator_to_array($container));
     }
 
     public function test_attributes_has_type_checks_all_attributes(): void

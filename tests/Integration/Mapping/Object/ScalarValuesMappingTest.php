@@ -51,11 +51,11 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->integerRangeWithPositiveValue);
             self::assertSame(-1337, $result->integerRangeWithNegativeValue);
             self::assertSame(42, $result->integerRangeWithMinAndMax);
-            self::assertSame(42, $result->integerValue);
+            self::assertSame(42, $result->integerValue); // @phpstan-ignore-line
             self::assertSame('foo', $result->string);
             self::assertSame('bar', $result->nonEmptyString);
-            self::assertSame('baz', $result->stringValueWithSingleQuote);
-            self::assertSame('fiz', $result->stringValueWithDoubleQuote);
+            self::assertSame('baz', $result->stringValueWithSingleQuote); // @phpstan-ignore-line
+            self::assertSame('fiz', $result->stringValueWithDoubleQuote); // @phpstan-ignore-line
             self::assertSame(self::class, $result->classString);
             self::assertSame(DateTimeImmutable::class, $result->classStringOfDateTime);
             self::assertSame(stdClass::class, $result->classStringOfAlias);

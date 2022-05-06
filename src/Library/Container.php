@@ -73,16 +73,10 @@ use function call_user_func;
 /** @internal */
 final class Container
 {
-    /**
-     * @template T of object
-     * @var array<class-string<T>, T>
-     */
+    /** @var array<class-string, object> */
     private array $services = [];
 
-    /**
-     * @template T of object
-     * @var array<class-string<T>, callable(): T>
-     */
+    /** @var array<class-string, callable(): object> */
     private array $factories;
 
     public function __construct(Settings $settings)
@@ -255,8 +249,11 @@ final class Container
      */
     private function wrapCache(CacheInterface $cache): CacheInterface
     {
+        /** @var RuntimeCache<EntryType> $runtimeCache */
+        $runtimeCache = new RuntimeCache();
+
         return new VersionedCache(
-            new ChainCache(new RuntimeCache(), $cache)
+            new ChainCache($runtimeCache, $cache)
         );
     }
 }

@@ -34,7 +34,7 @@ final class ArrayTypeTest extends TestCase
 
     public function test_native_returns_same_instance(): void
     {
-        self::assertSame(ArrayType::native(), ArrayType::native()); // @phpstan-ignore-line
+        self::assertSame(ArrayType::native(), ArrayType::native());
     }
 
     public function test_native_subtype_is_correct(): void
