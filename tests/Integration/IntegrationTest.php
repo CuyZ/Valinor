@@ -7,50 +7,23 @@ namespace CuyZ\Valinor\Tests\Integration;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\MapperBuilder;
-use FilesystemIterator;
+use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 
 use function implode;
-use function is_dir;
 use function iterator_to_array;
 
 abstract class IntegrationTest extends TestCase
 {
     protected MapperBuilder $mapperBuilder;
 
-    private string $cacheDir;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'valinor-integration-test' . DIRECTORY_SEPARATOR . uniqid();
-        $this->mapperBuilder = (new MapperBuilder())->withCacheDir($this->cacheDir);
-    }
+        vfsStream::setup();
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        if (! is_dir($this->cacheDir)) {
-            return;
-        }
-
-        /** @var FilesystemIterator $file */
-        foreach (new FilesystemIterator($this->cacheDir) as $file) {
-            /** @var string $path */
-            $path = $file->getRealPath();
-
-            if ($file->isFile()) {
-                unlink($path);
-            }
-
-            if ($file->isDir()) {
-                rmdir($path);
-            }
-        }
-
-        rmdir($this->cacheDir);
+        $this->mapperBuilder = new MapperBuilder();
     }
 
     /**

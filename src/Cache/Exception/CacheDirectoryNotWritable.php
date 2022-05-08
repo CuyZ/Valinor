@@ -6,12 +6,7 @@ namespace CuyZ\Valinor\Cache\Exception;
 
 use RuntimeException;
 
-/**
- * @internal
- *
- * @codeCoverageIgnore
- * @infection-ignore-all
- */
+/** @internal */
 final class CacheDirectoryNotWritable extends RuntimeException
 {
     public function __construct(string $directory)
