@@ -11,7 +11,7 @@ use stdClass;
 
 final class FunctionDefinitionCompilerTest extends TestCase
 {
-    public function test_todo(): void
+    public function test_compile_wrong_type_fails_assertion(): void
     {
         $this->expectException(AssertionError::class);
 
