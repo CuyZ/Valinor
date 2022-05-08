@@ -9,25 +9,28 @@ use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithParameterDefaultObjectValue;
 use CuyZ\Valinor\Type\Types\NativeStringType;
-use DateTime;
 use Error;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-use function file_put_contents;
 use function get_class;
 use function implode;
-use function sys_get_temp_dir;
-use function touch;
+use function time;
 use function unlink;
 
 final class ClassDefinitionCompilerTest extends TestCase
 {
+    private vfsStreamDirectory $files;
+
     private ClassDefinitionCompiler $compiler;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->files = vfsStream::setup();
 
         $this->compiler = new ClassDefinitionCompiler();
     }
@@ -109,23 +112,22 @@ final class ClassDefinitionCompilerTest extends TestCase
         /** @var class-string $className */
         $className = 'SomeClassDefinitionForTest';
 
-        $filename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "$className.php";
+        $file = (vfsStream::newFile("$className.php"))
+            ->withContent("<?php final class $className {}")
+            ->at($this->files);
 
-        file_put_contents($filename, "<?php final class $className {}");
-
-        include $filename;
+        include $file->url();
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($className));
 
         $validationCode = $this->compiler->compileValidation($class);
         $firstValidation = $this->eval($validationCode);
 
-        unlink($filename);
-        touch($filename, (new DateTime('+5 seconds'))->getTimestamp());
+        unlink($file->url());
+
+        $file->lastModified(time() + 5)->at($this->files);
 
         $secondValidation = $this->eval($validationCode);
-
-        unlink($filename);
 
         self::assertTrue($firstValidation);
         self::assertFalse($secondValidation);

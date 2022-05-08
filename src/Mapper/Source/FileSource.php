@@ -32,11 +32,9 @@ final class FileSource implements IteratorAggregate, IdentifiableSource
         $content = $file->fread($file->getSize());
 
         /** @infection-ignore-all */
-        // @codeCoverageIgnoreStart
-        if ($content === false) {
+        if ($content === false || $content === '') {
             throw new UnableToReadFile($this->filePath);
         }
-        // @codeCoverageIgnoreEnd
 
         switch (strtolower($file->getExtension())) {
             case 'json':

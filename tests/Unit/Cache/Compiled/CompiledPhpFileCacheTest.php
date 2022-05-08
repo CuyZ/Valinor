@@ -5,28 +5,24 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Cache\Compiled;
 
 use CuyZ\Valinor\Cache\Compiled\CompiledPhpFileCache;
+use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
+use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
 use CuyZ\Valinor\Tests\Fake\Cache\Compiled\FakeCacheCompiler;
 use CuyZ\Valinor\Tests\Fake\Cache\Compiled\FakeCacheValidationCompiler;
 use DateTime;
-use FilesystemIterator;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use SplFileInfo;
 
-use function file_put_contents;
-use function glob;
-use function is_dir;
 use function iterator_to_array;
-use function mkdir;
-use function rmdir;
-use function sys_get_temp_dir;
-use function uniqid;
-use function unlink;
+use function substr;
 
 final class CompiledPhpFileCacheTest extends TestCase
 {
-    private string $cacheDir;
+    private vfsStreamDirectory $files;
 
     /** @var CompiledPhpFileCache<mixed> */
     private CompiledPhpFileCache $cache;
@@ -35,36 +31,9 @@ final class CompiledPhpFileCacheTest extends TestCase
     {
         parent::setUp();
 
-        $this->cacheDir = sys_get_temp_dir();
-        $this->cacheDir .= DIRECTORY_SEPARATOR . 'compiled-php-cache';
-        $this->cacheDir .= DIRECTORY_SEPARATOR . uniqid('', true);
+        $this->files = vfsStream::setup('cache-dir');
 
-        $this->cache = new CompiledPhpFileCache($this->cacheDir, new FakeCacheCompiler());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        if (! is_dir($this->cacheDir)) {
-            return;
-        }
-
-        /** @var FilesystemIterator $file */
-        foreach (new FilesystemIterator($this->cacheDir) as $file) {
-            /** @var string $path */
-            $path = $file->getRealPath();
-
-            if ($file->isFile()) {
-                unlink($path);
-            }
-
-            if ($file->isDir()) {
-                rmdir($path);
-            }
-        }
-
-        rmdir($this->cacheDir);
+        $this->cache = new CompiledPhpFileCache(vfsStream::url('cache-dir'), new FakeCacheCompiler());
     }
 
     public function test_set_cache_sets_cache(): void
@@ -116,6 +85,15 @@ final class CompiledPhpFileCacheTest extends TestCase
         self::assertTrue($this->cache->delete('non-existing-entry'));
     }
 
+    public function test_cannot_delete_cache_file_returns_false(): void
+    {
+        $this->cache->set('foo', 'foo');
+
+        $this->files->chmod(0444);
+
+        self::assertFalse($this->cache->delete('foo'));
+    }
+
     public function test_clear_caches_clears_all_entries(): void
     {
         $this->cache->set('foo', 'foo');
@@ -126,6 +104,15 @@ final class CompiledPhpFileCacheTest extends TestCase
         self::assertTrue($cleared);
         self::assertFalse($this->cache->has('foo'));
         self::assertFalse($this->cache->has('bar'));
+    }
+
+    public function test_clear_cannot_delete_cache_file_returns_false(): void
+    {
+        $this->cache->set('foo', 'foo');
+
+        $this->files->chmod(0444);
+
+        self::assertFalse($this->cache->clear());
     }
 
     public function test_set_multiple_values_sets_values(): void
@@ -159,12 +146,24 @@ final class CompiledPhpFileCacheTest extends TestCase
         self::assertFalse($this->cache->has('baz'));
     }
 
+    public function test_cannot_delete_cache_files_returns_false(): void
+    {
+        $this->cache->setMultiple([
+            'foo' => 'foo',
+            'bar' => 'bar',
+        ]);
+
+        $this->files->chmod(0444);
+
+        self::assertFalse($this->cache->deleteMultiple(['foo', 'bar']));
+    }
+
     public function test_failing_validation_compilation_invalidates_cache_entry(): void
     {
         $compiler = new FakeCacheValidationCompiler();
         $compiler->compileValidation = false;
 
-        $cache = new CompiledPhpFileCache($this->cacheDir, $compiler);
+        $cache = new CompiledPhpFileCache('cache-dir', $compiler);
         $cache->set('foo', 'foo');
 
         self::assertFalse($cache->has('foo'));
@@ -172,65 +171,71 @@ final class CompiledPhpFileCacheTest extends TestCase
 
     public function test_clear_cache_does_not_delete_unrelated_files(): void
     {
-        if (! is_dir($this->cacheDir)) {
-            mkdir($this->cacheDir);
-        }
-
-        touch($filenameA = $this->cacheDir . DIRECTORY_SEPARATOR . 'foo.php');
-        touch($filenameB = $this->cacheDir . DIRECTORY_SEPARATOR . 'bar.php');
+        (vfsStream::newFile('some-unrelated-file.php'))->withContent('foo')->at($this->files);
 
         $this->cache->set('foo', 'foo');
         $this->cache->clear();
 
-        self::assertFileExists($filenameA);
-        self::assertFileExists($filenameB);
-        self::assertCount(2, glob($this->cacheDir . DIRECTORY_SEPARATOR . '*')); // @phpstan-ignore-line
-
-        unlink($filenameA);
-        unlink($filenameB);
+        self::assertCount(2, $this->files->getChildren());
+        self::assertTrue($this->files->hasChild('some-unrelated-file.php'));
     }
 
     public function test_corrupted_file_throws_exception(): void
     {
         $this->cache->set('foo', 'foo');
 
-        /** @var string $filename */
-        $filename = $this->currentCacheFile()->getPathname();
-
-        file_put_contents($filename, '<?php throw new Exception()');
+        $file = $this->currentCacheFile();
+        $file->setContent('<?php invalid php code');
 
         $this->expectException(CorruptedCompiledPhpCacheFile::class);
         $this->expectExceptionCode(1628949607);
-        $this->expectExceptionMessage("Compiled php cache file `$filename` has corrupted value.");
+        $this->expectExceptionMessage("Compiled php cache file `{$file->url()}` has corrupted value.");
 
         $this->cache->get('foo');
-
-        unlink($filename);
     }
 
     public function test_invalid_cache_entry_type_throws_exception(): void
     {
         $this->cache->set('foo', 'foo');
 
-        /** @var string $filename */
-        $filename = $this->currentCacheFile()->getPathname();
-
-        file_put_contents($filename, '<?php return 1;');
+        $file = $this->currentCacheFile();
+        $file->setContent('<?php return 1;');
 
         $this->expectException(CorruptedCompiledPhpCacheFile::class);
         $this->expectExceptionCode(1628949607);
-        $this->expectExceptionMessage("Compiled php cache file `$filename` has corrupted value.");
+        $this->expectExceptionMessage("Compiled php cache file `{$file->url()}` has corrupted value.");
 
         $this->cache->get('foo');
-
-        unlink($filename);
     }
 
-    private function currentCacheFile(): SplFileInfo
+    public function test_cache_directory_not_writable_throws_exception(): void
     {
-        foreach ((new FilesystemIterator($this->cacheDir)) as $file) {
-            /** @var SplFileInfo $file */
-            if ($file->getExtension() === 'php') {
+        $this->expectException(CacheDirectoryNotWritable::class);
+        $this->expectExceptionCode(1616445016);
+        $this->expectExceptionMessage("Provided directory `{$this->files->url()}` is not writable.");
+
+        $this->files->chmod(0444);
+
+        $this->cache->set('foo', 'foo');
+    }
+
+    public function test_cache_file_not_writable_throws_exception(): void
+    {
+        $this->expectException(CompiledPhpCacheFileNotWritten::class);
+        $this->expectExceptionCode(1616445695);
+        $this->expectExceptionMessageMatches('/^File `[^`]+` could not be written\.$/');
+
+        (vfsStream::newDirectory('.valinor.tmp'))
+            ->chmod(0444)
+            ->at($this->files);
+
+        $this->cache->set('foo', 'foo');
+    }
+
+    private function currentCacheFile(): vfsStreamFile
+    {
+        foreach ($this->files->getChildren() as $file) {
+            if ($file instanceof vfsStreamFile && substr($file->getName(), -3) === 'php') {
                 return $file;
             }
         }

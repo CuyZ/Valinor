@@ -5,39 +5,50 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Source;
 
 use CuyZ\Valinor\Mapper\Source\Exception\FileExtensionNotHandled;
+use CuyZ\Valinor\Mapper\Source\Exception\UnableToReadFile;
 use CuyZ\Valinor\Mapper\Source\FileSource;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 
-use function file_put_contents;
 use function function_exists;
 use function iterator_to_array;
-use function sys_get_temp_dir;
-use function uniqid;
 
 final class FileSourceTest extends TestCase
 {
+    private vfsStreamDirectory $files;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->files = vfsStream::setup();
+    }
+
     /**
      * @dataProvider file_is_handled_properly_data_provider
      */
-    public function test_file_is_handled_properly(string $filename): void
+    public function test_file_is_handled_properly(string $filename, string $content): void
     {
-        $source = new FileSource(new SplFileObject($filename));
+        $file = (vfsStream::newFile($filename))->withContent($content)->at($this->files);
+
+        $source = new FileSource(new SplFileObject($file->url()));
 
         self::assertSame(['foo' => 'bar'], iterator_to_array($source));
-        self::assertSame($filename, $source->sourceName());
+        self::assertSame($file->url(), $source->sourceName());
     }
 
     public function file_is_handled_properly_data_provider(): iterable
     {
-        yield [$this->file('test-json.json', '{"foo": "bar"}')];
-        yield [$this->file('test-json.JSON', '{"foo": "bar"}')];
+        yield ['test-json.json', '{"foo": "bar"}'];
+        yield ['test-json.JSON', '{"foo": "bar"}'];
 
         if (function_exists('yaml_parse')) {
-            yield [$this->file('test-yaml.yaml', 'foo: bar')];
-            yield [$this->file('test-yaml.YAML', 'foo: bar')];
-            yield [$this->file('test-yml.yml', 'foo: bar')];
-            yield [$this->file('test-yml.YML', 'foo: bar')];
+            yield ['test-yaml.yaml', 'foo: bar'];
+            yield ['test-yaml.YAML', 'foo: bar'];
+            yield ['test-yml.yml', 'foo: bar'];
+            yield ['test-yml.YML', 'foo: bar'];
         }
     }
 
@@ -47,16 +58,27 @@ final class FileSourceTest extends TestCase
         $this->expectExceptionCode(1629991744);
         $this->expectExceptionMessage('The file extension `foo` is not handled.');
 
-        $filename = $this->file('some-unhandled-extension.foo', 'foo');
+        $file = (vfsStream::newFile('some-unhandled-extension.foo'))
+            ->withContent('foo')
+            ->at($this->files);
 
-        new FileSource(new SplFileObject($filename));
+        new FileSource(new SplFileObject($file->url()));
     }
 
-    private function file(string $name, string $data): string
+    public function test_unreadable_file_throws_exception(): void
     {
-        $filename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('', true) . $name;
-        file_put_contents($filename, $data);
+        $file = (vfsStream::newFile('some-file.json'))
+            ->withContent('{"foo": "bar"}')
+            ->at($this->files);
 
-        return $filename;
+        $fileObject = new SplFileObject($file->url());
+
+        $file->chmod(0000);
+
+        $this->expectException(UnableToReadFile::class);
+        $this->expectExceptionCode(1629993117);
+        $this->expectExceptionMessage("Unable to read the file `{$file->url()}`.");
+
+        new FileSource($fileObject);
     }
 }

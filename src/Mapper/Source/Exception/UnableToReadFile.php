@@ -6,12 +6,7 @@ namespace CuyZ\Valinor\Mapper\Source\Exception;
 
 use RuntimeException;
 
-/**
- * @internal
- *
- * @codeCoverageIgnore
- * @infection-ignore-all
- */
+/** @internal */
 final class UnableToReadFile extends RuntimeException implements SourceException
 {
     public function __construct(string $filename)
