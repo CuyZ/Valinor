@@ -40,7 +40,8 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
@@ -123,17 +124,37 @@ final class NativeLexerTest extends TestCase
             'Float type' => [
                 'raw' => 'float',
                 'transformed' => 'float',
-                'type' => FloatType::class,
+                'type' => NativeFloatType::class,
             ],
             'Float type - uppercase' => [
                 'raw' => 'FLOAT',
                 'transformed' => 'float',
-                'type' => FloatType::class,
+                'type' => NativeFloatType::class,
             ],
             'Float type followed by description' => [
                 'raw' => 'float lorem ipsum',
                 'transformed' => 'float',
-                'type' => FloatType::class,
+                'type' => NativeFloatType::class,
+            ],
+            'Positive float value' => [
+                'raw' => '1337.42',
+                'transformed' => '1337.42',
+                'type' => FloatValueType::class,
+            ],
+            'Positive float value followed by description' => [
+                'raw' => '1337.42 lorem ipsum',
+                'transformed' => '1337.42',
+                'type' => FloatValueType::class,
+            ],
+            'Negative float value' => [
+                'raw' => '-1337.42',
+                'transformed' => '-1337.42',
+                'type' => FloatValueType::class,
+            ],
+            'Negative float value followed by description' => [
+                'raw' => '-1337.42 lorem ipsum',
+                'transformed' => '-1337.42',
+                'type' => FloatValueType::class,
             ],
             'Integer type' => [
                 'raw' => 'int',
@@ -659,7 +680,7 @@ final class NativeLexerTest extends TestCase
         $types = $unionType->types();
 
         self::assertInstanceOf(IntegerType::class, $types[0]);
-        self::assertInstanceOf(FloatType::class, $types[1]);
+        self::assertInstanceOf(NativeFloatType::class, $types[1]);
         self::assertInstanceOf(StringType::class, $types[2]);
     }
 

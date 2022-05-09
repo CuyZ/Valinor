@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Utility\IsSingleton;
@@ -13,7 +13,7 @@ use function is_float;
 use function is_numeric;
 
 /** @api */
-final class FloatType implements ScalarType
+final class NativeFloatType implements FloatType
 {
     use IsSingleton;
 

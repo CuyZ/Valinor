@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanType;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -47,7 +47,7 @@ final class UnionScalarNarrowerTest extends TestCase
     {
         $scalarUnion = new UnionType(
             NativeIntegerType::get(),
-            FloatType::get(),
+            NativeFloatType::get(),
             NativeStringType::get(),
             BooleanType::get(),
         );
@@ -61,12 +61,12 @@ final class UnionScalarNarrowerTest extends TestCase
             'int|float|string|bool with float value' => [
                 'Union type' => $scalarUnion,
                 'Source' => 1337.42,
-                'Expected type' => FloatType::class,
+                'Expected type' => NativeFloatType::class,
             ],
             'int|float with stringed-float value' => [
-                'Union type' => new UnionType(NativeIntegerType::get(), FloatType::get()),
+                'Union type' => new UnionType(NativeIntegerType::get(), NativeFloatType::get()),
                 'Source' => '1337.42',
-                'Expected type' => FloatType::class,
+                'Expected type' => NativeFloatType::class,
             ],
             'int|float|string|bool with string value' => [
                 'Union type' => $scalarUnion,
@@ -88,7 +88,7 @@ final class UnionScalarNarrowerTest extends TestCase
 
     public function test_integer_type_is_narrowed_over_float_when_an_integer_value_is_given(): void
     {
-        $unionType = new UnionType(FloatType::get(), NativeIntegerType::get());
+        $unionType = new UnionType(NativeFloatType::get(), NativeIntegerType::get());
 
         $type = $this->unionScalarNarrower->narrow($unionType, 42);
 
@@ -97,7 +97,7 @@ final class UnionScalarNarrowerTest extends TestCase
 
     public function test_several_possible_types_throws_exception(): void
     {
-        $unionType = new UnionType(BooleanType::get(), NativeIntegerType::get(), FloatType::get());
+        $unionType = new UnionType(BooleanType::get(), NativeIntegerType::get(), NativeFloatType::get());
 
         $this->expectException(CannotResolveTypeFromUnion::class);
         $this->expectExceptionCode(1607027306);

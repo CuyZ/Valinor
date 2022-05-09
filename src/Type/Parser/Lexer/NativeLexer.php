@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CommaToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\EnumNameToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\FloatValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntersectionToken;
@@ -33,6 +34,7 @@ use UnitEnum;
 use function class_exists;
 use function filter_var;
 use function interface_exists;
+use function is_numeric;
 use function strtolower;
 use function substr;
 
@@ -95,6 +97,10 @@ final class NativeLexer implements TypeLexer
 
         if (filter_var($symbol, FILTER_VALIDATE_INT) !== false) {
             return new IntegerValueToken((int)$symbol);
+        }
+
+        if (is_numeric($symbol)) {
+            return new FloatValueToken((float)$symbol);
         }
 
         /** @infection-ignore-all */
