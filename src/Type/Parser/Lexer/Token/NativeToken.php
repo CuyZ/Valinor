@@ -7,9 +7,10 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\BooleanType;
-use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -57,6 +58,10 @@ final class NativeToken implements TraversingToken
         switch (strtolower($symbol)) {
             case 'null':
                 return NullType::get();
+            case 'true':
+                return BooleanValueType::true();
+            case 'false':
+                return BooleanValueType::false();
             case 'mixed':
                 return MixedType::get();
             case 'float':
@@ -71,7 +76,7 @@ final class NativeToken implements TraversingToken
                 return NonEmptyStringType::get();
             case 'bool':
             case 'boolean':
-                return BooleanType::get();
+                return NativeBooleanType::get();
             case 'array-key':
                 return ArrayKeyType::default();
             case 'object':

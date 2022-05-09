@@ -6,24 +6,24 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
-use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class BooleanTypeTest extends TestCase
+final class NativeBooleanTypeTest extends TestCase
 {
     use TestIsSingleton;
 
-    private BooleanType $booleanType;
+    private NativeBooleanType $booleanType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->booleanType = new BooleanType();
+        $this->booleanType = new NativeBooleanType();
     }
 
     public function test_accepts_correct_values(): void
@@ -123,7 +123,7 @@ final class BooleanTypeTest extends TestCase
 
     public function test_matches_same_type(): void
     {
-        self::assertTrue((new BooleanType())->matches(new BooleanType()));
+        self::assertTrue((new NativeBooleanType())->matches(new NativeBooleanType()));
     }
 
     public function test_does_not_match_other_type(): void
@@ -140,7 +140,7 @@ final class BooleanTypeTest extends TestCase
     {
         $unionType = new UnionType(
             new FakeType(),
-            new BooleanType(),
+            new NativeBooleanType(),
             new FakeType(),
         );
 

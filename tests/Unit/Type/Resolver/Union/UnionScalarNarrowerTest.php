@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveTypeFromUnion;
 use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -49,7 +49,7 @@ final class UnionScalarNarrowerTest extends TestCase
             NativeIntegerType::get(),
             NativeFloatType::get(),
             NativeStringType::get(),
-            BooleanType::get(),
+            NativeBooleanType::get(),
         );
 
         return [
@@ -76,7 +76,7 @@ final class UnionScalarNarrowerTest extends TestCase
             'int|float|string|bool with boolean value' => [
                 'Union type' => $scalarUnion,
                 'Source' => true,
-                'Expected type' => BooleanType::class,
+                'Expected type' => NativeBooleanType::class,
             ],
             'int|object with object value' => [
                 'Union type' => new UnionType(NativeIntegerType::get(), UndefinedObjectType::get()),
@@ -97,7 +97,7 @@ final class UnionScalarNarrowerTest extends TestCase
 
     public function test_several_possible_types_throws_exception(): void
     {
-        $unionType = new UnionType(BooleanType::get(), NativeIntegerType::get(), NativeFloatType::get());
+        $unionType = new UnionType(NativeBooleanType::get(), NativeIntegerType::get(), NativeFloatType::get());
 
         $this->expectException(CannotResolveTypeFromUnion::class);
         $this->expectExceptionCode(1607027306);

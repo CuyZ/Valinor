@@ -7,11 +7,10 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\TypeCompiler;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\ArrayType;
+use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -20,6 +19,8 @@ use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
@@ -73,7 +74,9 @@ final class TypeCompilerTest extends TestCase
     public function type_is_compiled_correctly_data_provider(): iterable
     {
         yield [NullType::get()];
-        yield [BooleanType::get()];
+        yield [BooleanValueType::true()];
+        yield [BooleanValueType::false()];
+        yield [NativeBooleanType::get()];
         yield [NativeFloatType::get()];
         yield [new FloatValueType(1337.42)];
         yield [new FloatValueType(-1337.42)];
