@@ -21,9 +21,9 @@ abstract class IntegrationTest extends TestCase
     {
         parent::setUp();
 
-        vfsStream::setup();
+        vfsStream::setup('cache-dir');
 
-        $this->mapperBuilder = new MapperBuilder();
+        $this->mapperBuilder = (new MapperBuilder())->withCacheDir(vfsStream::url('cache-dir'));
     }
 
     /**
