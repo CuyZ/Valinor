@@ -12,7 +12,7 @@ use CuyZ\Valinor\Utility\IsSingleton;
 use function is_bool;
 
 /** @api */
-final class BooleanType implements ScalarType
+final class NativeBooleanType implements ScalarType
 {
     use IsSingleton;
 

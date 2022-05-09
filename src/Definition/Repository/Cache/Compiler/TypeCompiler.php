@@ -7,13 +7,11 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\Exception\TypeCannotBeCompiled;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\ArrayType;
+use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
-use CuyZ\Valinor\Type\Types\FalseType;
-use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -22,6 +20,8 @@ use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
@@ -33,7 +33,6 @@ use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
-use CuyZ\Valinor\Type\Types\TrueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -52,9 +51,7 @@ final class TypeCompiler
 
         switch (true) {
             case $type instanceof NullType:
-            case $type instanceof TrueType:
-            case $type instanceof FalseType:
-            case $type instanceof BooleanType:
+            case $type instanceof NativeBooleanType:
             case $type instanceof NativeFloatType:
             case $type instanceof NativeIntegerType:
             case $type instanceof PositiveIntegerType:
@@ -64,6 +61,10 @@ final class TypeCompiler
             case $type instanceof UndefinedObjectType:
             case $type instanceof MixedType:
                 return "$class::get()";
+            case $type instanceof BooleanValueType:
+                return $type->value() === true
+                    ? "$class::true()"
+                    : "$class::false()";
             case $type instanceof IntegerRangeType:
                 return "new $class({$type->min()}, {$type->max()})";
             case $type instanceof StringValueType:

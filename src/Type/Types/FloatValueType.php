@@ -58,7 +58,7 @@ final class FloatValueType implements FloatType, FixedType
         return $value;
     }
 
-    public function value()
+    public function value(): float
     {
         return $this->value;
     }

@@ -16,7 +16,7 @@ use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
-use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -61,7 +61,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertTrue($properties->get('propertyWithDefaultValue')->hasDefaultValue());
         self::assertSame('Default value for property', $properties->get('propertyWithDefaultValue')->defaultValue());
 
-        self::assertInstanceOf(BooleanType::class, $properties->get('propertyWithDocBlockType')->type());
+        self::assertInstanceOf(NativeBooleanType::class, $properties->get('propertyWithDocBlockType')->type());
 
         self::assertInstanceOf(MixedType::class, $properties->get('propertyWithNoType')->type());
 
@@ -71,7 +71,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertInstanceOf(StringType::class, $properties->get('protectedProperty')->type());
         self::assertFalse($properties->get('protectedProperty')->isPublic());
 
-        self::assertInstanceOf(BooleanType::class, $properties->get('privateProperty')->type());
+        self::assertInstanceOf(NativeBooleanType::class, $properties->get('privateProperty')->type());
         self::assertFalse($properties->get('privateProperty')->isPublic());
     }
 
@@ -140,7 +140,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertSame($className . '::publicMethod($parameterWithDocBlockType)', $parameterWithDocBlockType->signature());
         self::assertSame($className . '::publicMethod($optionalParameter)', $optionalParameter->signature());
 
-        self::assertInstanceOf(BooleanType::class, $mandatoryParameter->type());
+        self::assertInstanceOf(NativeBooleanType::class, $mandatoryParameter->type());
         self::assertFalse($mandatoryParameter->isOptional());
 
         self::assertInstanceOf(MixedType::class, $parameterWithNoType->type());

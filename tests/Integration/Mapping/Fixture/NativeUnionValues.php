@@ -19,13 +19,19 @@ class NativeUnionValues
 
     public string|null $nullableWithNull = 'Schwifty!';
 
+    /** @var int|true */
     public int|bool $intOrLiteralTrue = 42;
 
+    /** @var int|false */
     public int|bool $intOrLiteralFalse = 42;
 }
 
 class NativeUnionValuesWithConstructor extends NativeUnionValues
 {
+    /**
+     * @param int|true $intOrLiteralTrue
+     * @param int|false $intOrLiteralFalse
+     */
     public function __construct(
         bool|float|int|string $scalarWithBoolean = 'Schwifty!',
         bool|float|int|string $scalarWithFloat = 'Schwifty!',

@@ -37,11 +37,9 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\BooleanType;
+use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\FalseType;
-use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -50,13 +48,14 @@ use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
-use CuyZ\Valinor\Type\Types\TrueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
@@ -111,22 +110,22 @@ final class NativeLexerTest extends TestCase
             'True type' => [
                 'raw' => 'true',
                 'transformed' => 'true',
-                'type' => TrueType::class,
+                'type' => BooleanValueType::class,
             ],
             'True type - uppercase' => [
                 'raw' => 'TRUE',
                 'transformed' => 'true',
-                'type' => TrueType::class,
+                'type' => BooleanValueType::class,
             ],
             'False type' => [
                 'raw' => 'false',
                 'transformed' => 'false',
-                'type' => FalseType::class,
+                'type' => BooleanValueType::class,
             ],
             'False type - uppercase' => [
                 'raw' => 'FALSE',
                 'transformed' => 'false',
-                'type' => FalseType::class,
+                'type' => BooleanValueType::class,
             ],
             'Mixed type' => [
                 'raw' => 'mixed',
@@ -326,27 +325,27 @@ final class NativeLexerTest extends TestCase
             'Boolean type' => [
                 'raw' => 'bool',
                 'transformed' => 'bool',
-                'type' => BooleanType::class,
+                'type' => NativeBooleanType::class,
             ],
             'Boolean type - uppercase' => [
                 'raw' => 'BOOL',
                 'transformed' => 'bool',
-                'type' => BooleanType::class,
+                'type' => NativeBooleanType::class,
             ],
             'Boolean type (longer version)' => [
                 'raw' => 'boolean',
                 'transformed' => 'bool',
-                'type' => BooleanType::class,
+                'type' => NativeBooleanType::class,
             ],
             'Boolean type (longer version) - uppercase' => [
                 'raw' => 'BOOLEAN',
                 'transformed' => 'bool',
-                'type' => BooleanType::class,
+                'type' => NativeBooleanType::class,
             ],
             'Boolean type followed by description' => [
                 'raw' => 'bool lorem ipsum',
                 'transformed' => 'bool',
-                'type' => BooleanType::class,
+                'type' => NativeBooleanType::class,
             ],
             'Undefined object type' => [
                 'raw' => 'object',
