@@ -20,7 +20,8 @@ final class UnionValuesMappingTest extends IntegrationTest
             'scalarWithString' => 'foo',
             'nullableWithString' => 'bar',
             'nullableWithNull' => null,
-            'integerValue' => 1337,
+            'positiveIntegerValue' => 1337,
+            'negativeIntegerValue' => -1337,
             'stringValueWithSingleQuote' => 'bar',
             'stringValueWithDoubleQuote' => 'fiz',
         ];
@@ -47,7 +48,8 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame(null, $result->nullableWithNull);
 
             if ($result instanceof UnionValues) {
-                self::assertSame(1337, $result->integerValue);
+                self::assertSame(1337, $result->positiveIntegerValue);
+                self::assertSame(-1337, $result->negativeIntegerValue);
                 self::assertSame('bar', $result->stringValueWithSingleQuote);
                 self::assertSame('fiz', $result->stringValueWithDoubleQuote);
             }
@@ -76,7 +78,10 @@ class UnionValues
     public $nullableWithNull = 'Schwifty!';
 
     /** @var 42|1337 */
-    public int $integerValue = 42;
+    public int $positiveIntegerValue = 42;
+
+    /** @var -42|-1337 */
+    public int $negativeIntegerValue = -42;
 
     /** @var 'foo'|'bar' */
     public string $stringValueWithSingleQuote;
@@ -94,7 +99,8 @@ class UnionValuesWithConstructor extends UnionValues
      * @param bool|float|int|string $scalarWithString
      * @param string|null|float $nullableWithString
      * @param string|null|float $nullableWithNull
-     * @param 42|1337 $integerValue
+     * @param 42|1337 $positiveIntegerValue
+     * @param -42|-1337 $negativeIntegerValue
      * @param 'foo'|'bar' $stringValueWithSingleQuote
      * @param "baz"|"fiz" $stringValueWithDoubleQuote
      */
@@ -105,7 +111,8 @@ class UnionValuesWithConstructor extends UnionValues
         $scalarWithString = 'Schwifty!',
         $nullableWithString = 'Schwifty!',
         $nullableWithNull = 'Schwifty!',
-        int $integerValue = 42,
+        int $positiveIntegerValue = 42,
+        int $negativeIntegerValue = -42,
         string $stringValueWithSingleQuote = 'foo',
         string $stringValueWithDoubleQuote = 'baz'
     ) {
@@ -115,7 +122,8 @@ class UnionValuesWithConstructor extends UnionValues
         $this->scalarWithString = $scalarWithString;
         $this->nullableWithString = $nullableWithString;
         $this->nullableWithNull = $nullableWithNull;
-        $this->integerValue = $integerValue;
+        $this->positiveIntegerValue = $positiveIntegerValue;
+        $this->negativeIntegerValue = $negativeIntegerValue;
         $this->stringValueWithSingleQuote = $stringValueWithSingleQuote;
         $this->stringValueWithDoubleQuote = $stringValueWithDoubleQuote;
     }
