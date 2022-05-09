@@ -7,23 +7,23 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class FloatTypeTest extends TestCase
+final class NativeFloatTypeTest extends TestCase
 {
     use TestIsSingleton;
 
-    private FloatType $floatType;
+    private NativeFloatType $floatType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->floatType = new FloatType();
+        $this->floatType = new NativeFloatType();
     }
 
     public function test_accepts_correct_values(): void
@@ -101,8 +101,8 @@ final class FloatTypeTest extends TestCase
 
     public function test_matches_valid_types(): void
     {
-        $floatTypeA = new FloatType();
-        $floatTypeB = new FloatType();
+        $floatTypeA = new NativeFloatType();
+        $floatTypeB = new NativeFloatType();
 
         self::assertTrue($floatTypeA->matches($floatTypeB));
     }
@@ -121,7 +121,7 @@ final class FloatTypeTest extends TestCase
     {
         $unionType = new UnionType(
             new FakeType(),
-            new FloatType(),
+            new NativeFloatType(),
             new FakeType(),
         );
 

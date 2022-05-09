@@ -9,7 +9,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
@@ -105,7 +105,7 @@ final class ShapedArrayTypeTest extends TestCase
     public function test_does_not_match_invalid_array_shaped_type(): void
     {
         $otherA = new ShapedArrayType(
-            new ShapedArrayElement(new StringValueType('foo'), new FloatType()),
+            new ShapedArrayElement(new StringValueType('foo'), new NativeFloatType()),
         );
 
         $otherB = new ShapedArrayType(

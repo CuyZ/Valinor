@@ -20,6 +20,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
         $source = [
             'boolean' => true,
             'float' => 42.404,
+            'positiveFloatValue' => 42.404,
+            'negativeFloatValue' => -42.404,
             'integer' => 1337,
             'positiveInteger' => 1337,
             'negativeInteger' => -1337,
@@ -46,6 +48,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
 
             self::assertSame(true, $result->boolean);
             self::assertSame(42.404, $result->float);
+            self::assertSame(42.404, $result->positiveFloatValue); // @phpstan-ignore-line
+            self::assertSame(-42.404, $result->negativeFloatValue); // @phpstan-ignore-line
             self::assertSame(1337, $result->integer);
             self::assertSame(1337, $result->positiveInteger);
             self::assertSame(-1337, $result->negativeInteger);
@@ -99,6 +103,12 @@ class ScalarValues
 
     public float $float = -1.0;
 
+    /** @var 42.404 */
+    public float $positiveFloatValue;
+
+    /** @var -42.404 */
+    public float $negativeFloatValue;
+
     public int $integer = -1;
 
     /** @var positive-int */
@@ -146,6 +156,8 @@ class ScalarValues
 class ScalarValuesWithConstructor extends ScalarValues
 {
     /**
+     * @param 42.404 $positiveFloatValue
+     * @param -42.404 $negativeFloatValue
      * @param positive-int $positiveInteger
      * @param negative-int $negativeInteger
      * @param int<-1337, 1337> $integerRangeWithPositiveValue
@@ -163,6 +175,8 @@ class ScalarValuesWithConstructor extends ScalarValues
     public function __construct(
         bool $boolean,
         float $float,
+        float $positiveFloatValue,
+        float $negativeFloatValue,
         int $integer,
         int $positiveInteger,
         int $negativeInteger,
@@ -181,6 +195,8 @@ class ScalarValuesWithConstructor extends ScalarValues
     ) {
         $this->boolean = $boolean;
         $this->float = $float;
+        $this->positiveFloatValue = $positiveFloatValue;
+        $this->negativeFloatValue = $negativeFloatValue;
         $this->integer = $integer;
         $this->positiveInteger = $positiveInteger;
         $this->negativeInteger = $negativeInteger;

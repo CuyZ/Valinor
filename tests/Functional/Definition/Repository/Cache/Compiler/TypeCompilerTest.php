@@ -11,7 +11,8 @@ use CuyZ\Valinor\Type\Types\BooleanType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
@@ -73,10 +74,14 @@ final class TypeCompilerTest extends TestCase
     {
         yield [NullType::get()];
         yield [BooleanType::get()];
-        yield [FloatType::get()];
+        yield [NativeFloatType::get()];
+        yield [new FloatValueType(1337.42)];
+        yield [new FloatValueType(-1337.42)];
         yield [NativeIntegerType::get()];
         yield [PositiveIntegerType::get()];
         yield [NegativeIntegerType::get()];
+        yield [new IntegerValueType(1337)];
+        yield [new IntegerValueType(-1337)];
         yield [new IntegerRangeType(42, 1337)];
         yield [new IntegerRangeType(-1337, -42)];
         yield [new IntegerRangeType(PHP_INT_MIN, PHP_INT_MAX)];
@@ -87,28 +92,28 @@ final class TypeCompilerTest extends TestCase
         yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
         yield [new ClassType(stdClass::class, ['Template' => NativeStringType::get()])];
         yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new ClassType(DateTime::class))];
-        yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), FloatType::get())];
+        yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), NativeFloatType::get())];
         yield [ArrayType::native()];
-        yield [new ArrayType(ArrayKeyType::default(), FloatType::get())];
+        yield [new ArrayType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new ArrayType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new ArrayType(ArrayKeyType::string(), NativeStringType::get())];
         yield [NonEmptyArrayType::native()];
-        yield [new NonEmptyArrayType(ArrayKeyType::default(), FloatType::get())];
+        yield [new NonEmptyArrayType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new NonEmptyArrayType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new NonEmptyArrayType(ArrayKeyType::string(), NativeStringType::get())];
         yield [ListType::native()];
-        yield [new ListType(FloatType::get())];
+        yield [new ListType(NativeFloatType::get())];
         yield [new ListType(NativeIntegerType::get())];
         yield [new ListType(NativeStringType::get())];
         yield [NonEmptyListType::native()];
-        yield [new NonEmptyListType(FloatType::get())];
+        yield [new NonEmptyListType(NativeFloatType::get())];
         yield [new NonEmptyListType(NativeIntegerType::get())];
         yield [new NonEmptyListType(NativeStringType::get())];
         yield [new ShapedArrayType(
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
         )];
-        yield [new IterableType(ArrayKeyType::default(), FloatType::get())];
+        yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new IterableType(ArrayKeyType::string(), NativeStringType::get())];
         yield [new ClassStringType()];

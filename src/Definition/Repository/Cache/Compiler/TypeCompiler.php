@@ -12,7 +12,8 @@ use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
@@ -50,7 +51,7 @@ final class TypeCompiler
         switch (true) {
             case $type instanceof NullType:
             case $type instanceof BooleanType:
-            case $type instanceof FloatType:
+            case $type instanceof NativeFloatType:
             case $type instanceof NativeIntegerType:
             case $type instanceof PositiveIntegerType:
             case $type instanceof NegativeIntegerType:
@@ -63,6 +64,7 @@ final class TypeCompiler
                 return "new $class({$type->min()}, {$type->max()})";
             case $type instanceof StringValueType:
             case $type instanceof IntegerValueType:
+            case $type instanceof FloatValueType:
                 $value = var_export($type->value(), true);
 
                 return "new $class($value)";

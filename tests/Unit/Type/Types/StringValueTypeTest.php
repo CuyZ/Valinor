@@ -25,6 +25,11 @@ final class StringValueTypeTest extends TestCase
         $this->type = new StringValueType('Schwifty!');
     }
 
+    public function test_value_can_be_retrieved(): void
+    {
+        self::assertSame('Schwifty!', $this->type->value());
+    }
+
     public function test_accepts_correct_values(): void
     {
         $type = new StringValueType('Schwifty!');

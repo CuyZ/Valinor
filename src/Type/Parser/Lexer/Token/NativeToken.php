@@ -8,7 +8,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\BooleanType;
-use CuyZ\Valinor\Type\Types\FloatType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
@@ -60,7 +60,7 @@ final class NativeToken implements TraversingToken
             case 'mixed':
                 return MixedType::get();
             case 'float':
-                return FloatType::get();
+                return NativeFloatType::get();
             case 'positive-int':
                 return PositiveIntegerType::get();
             case 'negative-int':

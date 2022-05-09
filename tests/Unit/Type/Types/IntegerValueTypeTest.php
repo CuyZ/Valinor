@@ -27,6 +27,11 @@ final class IntegerValueTypeTest extends TestCase
         $this->type = new IntegerValueType(1337);
     }
 
+    public function test_value_can_be_retrieved(): void
+    {
+        self::assertSame(1337, $this->type->value());
+    }
+
     public function test_accepts_correct_values(): void
     {
         self::assertTrue($this->type->accepts(1337));
@@ -104,7 +109,7 @@ final class IntegerValueTypeTest extends TestCase
         $this->expectExceptionCode(1631090798);
         $this->expectExceptionMessage('Value `42` does not match integer value `1337`.');
 
-        $this->type->cast(42);
+        $this->type->cast('42');
     }
 
     public function test_string_value_is_correct(): void
