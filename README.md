@@ -781,6 +781,12 @@ final class SomeClass
         
         /** @var array<SomeInterface|AnotherInterface> */
         private array $unionInsideArray,
+        
+        /** @var 42|1337 */
+        private string $unionOfIntegerValues,
+        
+        /** @var 'foo'|'bar' */
+        private string $unionOfStringValues,
     ) {}
 }
 ```
