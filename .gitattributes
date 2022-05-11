@@ -12,7 +12,6 @@
 /phpstan.neon.dist export-ignore
 /psalm.xml export-ignore
 /phpunit.xml.dist export-ignore
+/rector.php export-ignore
 
 *.stub linguist-language=PHP
-
-/rector.php
