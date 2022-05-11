@@ -22,7 +22,7 @@ final class ShapedArrayCommaMissing extends RuntimeException implements InvalidT
 
         parent::__construct(
             "Comma missing in shaped array signature `$signature`.",
-            1631286589
+            1_631_286_589
         );
     }
 }

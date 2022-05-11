@@ -71,7 +71,7 @@ final class ReflectionObjectBuilderTest extends TestCase
         $objectBuilder = new ReflectionObjectBuilder($class);
 
         $this->expectException(MissingPropertyArgument::class);
-        $this->expectExceptionCode(1629469529);
+        $this->expectExceptionCode(1_629_469_529);
         $this->expectExceptionMessage("Missing value `Signature::value` of type `string`.");
 
         $objectBuilder->build([]);

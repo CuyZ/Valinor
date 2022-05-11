@@ -99,7 +99,7 @@ final class NativeAttributesTest extends TestCase
     public function test_throws_on_incompatible_reflection(): void
     {
         $this->expectException(InvalidReflectionParameter::class);
-        $this->expectExceptionCode(1534263918);
+        $this->expectExceptionCode(1_534_263_918);
 
         new NativeAttributes(new FakeReflector());
     }

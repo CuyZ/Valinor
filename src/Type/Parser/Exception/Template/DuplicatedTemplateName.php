@@ -13,7 +13,7 @@ final class DuplicatedTemplateName extends LogicException implements InvalidTemp
     {
         parent::__construct(
             "The template `$template` was defined at least twice.",
-            1604612898
+            1_604_612_898
         );
     }
 }

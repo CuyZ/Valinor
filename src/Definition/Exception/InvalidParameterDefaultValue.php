@@ -18,7 +18,7 @@ final class InvalidParameterDefaultValue extends LogicException
 
         parent::__construct(
             "Default value of parameter `$signature` is not accepted by `$type`.",
-            1629210903
+            1_629_210_903
         );
     }
 }

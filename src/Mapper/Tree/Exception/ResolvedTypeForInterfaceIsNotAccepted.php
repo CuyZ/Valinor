@@ -14,7 +14,7 @@ final class ResolvedTypeForInterfaceIsNotAccepted extends RuntimeException
     {
         parent::__construct(
             "The implementation `$type` is not accepted by the interface `$interfaceName`.",
-            1618049487
+            1_618_049_487
         );
     }
 }

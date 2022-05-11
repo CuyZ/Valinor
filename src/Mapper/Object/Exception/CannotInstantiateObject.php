@@ -15,7 +15,7 @@ final class CannotInstantiateObject extends RuntimeException implements Suitable
     {
         parent::__construct(
             "No available constructor found for class `{$class->name()}`.",
-            1646916477
+            1_646_916_477
         );
     }
 }

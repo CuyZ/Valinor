@@ -13,7 +13,7 @@ final class InvalidYaml extends RuntimeException implements SourceException
     {
         parent::__construct(
             "The given value is not a valid YAML entry.",
-            1629990223
+            1_629_990_223
         );
     }
 }

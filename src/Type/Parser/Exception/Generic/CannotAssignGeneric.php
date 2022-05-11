@@ -19,7 +19,7 @@ final class CannotAssignGeneric extends RuntimeException implements InvalidType
 
         parent::__construct(
             "Could not find a template to assign the generic(s) `$list` for the class `$className`.",
-            1604660485
+            1_604_660_485
         );
     }
 }

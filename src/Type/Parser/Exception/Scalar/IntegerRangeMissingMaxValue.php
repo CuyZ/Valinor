@@ -15,7 +15,7 @@ final class IntegerRangeMissingMaxValue extends RuntimeException implements Inva
     {
         parent::__construct(
             "Missing max value for integer range, its signature must match `int<$min, max>`.",
-            1638788092
+            1_638_788_092
         );
     }
 }

@@ -14,7 +14,7 @@ final class InvalidTypeResolvedForInterface extends RuntimeException
     {
         parent::__construct(
             "Invalid type `$wrongType`; it must be the name of a class that implements `$interfaceName`.",
-            1618049224
+            1_618_049_224
         );
     }
 }

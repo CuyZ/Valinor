@@ -23,7 +23,7 @@ final class InvalidReflectionParameter extends LogicException
 
         parent::__construct(
             "Invalid parameter given (type `$class`), it must be an instance of `$allowed`.",
-            1534263918
+            1_534_263_918
         );
     }
 }

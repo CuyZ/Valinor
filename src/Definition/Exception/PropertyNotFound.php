@@ -13,7 +13,7 @@ final class PropertyNotFound extends LogicException
     {
         parent::__construct(
             "The property `$property` does not exist.",
-            1510936145
+            1_510_936_145
         );
     }
 }

@@ -14,7 +14,7 @@ final class MissingMethodArgument extends RuntimeException
     {
         parent::__construct(
             "Missing argument `{$parameter->signature()}` of type `{$parameter->type()}`.",
-            1629468609
+            1_629_468_609
         );
     }
 }

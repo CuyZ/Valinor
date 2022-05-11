@@ -19,7 +19,7 @@ final class InvalidAssignedGeneric extends RuntimeException implements InvalidTy
         parent::__construct(
             "The generic `$generic` is not a subtype of `$template` for " .
             "the template `$name` of the class `$className`.",
-            1604613633
+            1_604_613_633
         );
     }
 }

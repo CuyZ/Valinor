@@ -31,7 +31,7 @@ final class MethodsTest extends TestCase
     public function test_get_non_existing_method_throws_exception(): void
     {
         $this->expectException(MethodNotFound::class);
-        $this->expectExceptionCode(1510936269);
+        $this->expectExceptionCode(1_510_936_269);
         $this->expectExceptionMessage('The method `unknownMethod` does not exist.');
 
         (new Methods())->get('unknownMethod');

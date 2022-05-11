@@ -174,7 +174,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         });
 
         $this->expectException(InvalidPropertyDefaultValue::class);
-        $this->expectExceptionCode(1629211093);
+        $this->expectExceptionCode(1_629_211_093);
         $this->expectExceptionMessage("Default value of property `$class::\$propertyWithInvalidDefaultValue` is not accepted by `string`.");
 
         $this->repository->for(new ClassType($class));
@@ -191,7 +191,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         });
 
         $this->expectException(TypesDoNotMatch::class);
-        $this->expectExceptionCode(1638471381);
+        $this->expectExceptionCode(1_638_471_381);
         $this->expectExceptionMessage("Types for property `$class::\$propertyWithNotMatchingTypes` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->repository->for(new ClassType($class));
@@ -232,7 +232,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         });
 
         $this->expectException(InvalidParameterDefaultValue::class);
-        $this->expectExceptionCode(1629210903);
+        $this->expectExceptionCode(1_629_210_903);
         $this->expectExceptionMessage("Default value of parameter `$class::publicMethod(\$parameterWithInvalidDefaultValue)` is not accepted by `string`.");
 
         $this->repository->for(new ClassType($class));
@@ -251,7 +251,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         });
 
         $this->expectException(TypesDoNotMatch::class);
-        $this->expectExceptionCode(1638471381);
+        $this->expectExceptionCode(1_638_471_381);
         $this->expectExceptionMessage("Types for parameter `$class::publicMethod(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->repository->for(new ClassType($class));
@@ -271,7 +271,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         });
 
         $this->expectException(TypesDoNotMatch::class);
-        $this->expectExceptionCode(1638471381);
+        $this->expectExceptionCode(1_638_471_381);
         $this->expectExceptionMessage("Return types for method `$class::publicMethod()` do not match: `bool` (docblock) does not accept `string` (native).");
 
         $this->repository->for(new ClassType($class));
@@ -290,7 +290,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         );
 
         $this->expectException(ClassTypeAliasesDuplication::class);
-        $this->expectExceptionCode(1638477604);
+        $this->expectExceptionCode(1_638_477_604);
         $this->expectExceptionMessage("The following type aliases already exist in class `$class`: `T`, `AnotherTemplate`.");
 
         $this->repository->for(new ClassType($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
@@ -306,7 +306,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         );
 
         $this->expectException(InvalidTypeAliasImportClass::class);
-        $this->expectExceptionCode(1638535486);
+        $this->expectExceptionCode(1_638_535_486);
         $this->expectExceptionMessage("Cannot import a type alias from unknown class `UnknownType` in class `$class`.");
 
         $this->repository->for(new ClassType($class));
@@ -322,7 +322,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         );
 
         $this->expectException(InvalidTypeAliasImportClassType::class);
-        $this->expectExceptionCode(1638535608);
+        $this->expectExceptionCode(1_638_535_608);
         $this->expectExceptionMessage("Importing a type alias can only be done with classes, `string` was given in class `$class`.");
 
         $this->repository->for(new ClassType($class));
@@ -338,7 +338,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         );
 
         $this->expectException(UnknownTypeAliasImport::class);
-        $this->expectExceptionCode(1638535757);
+        $this->expectExceptionCode(1_638_535_757);
         $this->expectExceptionMessage("Type alias `T` imported in `$class` could not be found in `stdClass`");
 
         $this->repository->for(new ClassType($class));

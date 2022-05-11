@@ -14,7 +14,7 @@ final class ConstructorMethodIsNotStatic extends RuntimeException
     {
         parent::__construct(
             "Invalid constructor method `{$method->signature()}`: it is neither the constructor nor a static constructor.",
-            1634044370
+            1_634_044_370
         );
     }
 }

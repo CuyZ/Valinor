@@ -17,7 +17,7 @@ final class TokenStreamTest extends TestCase
     public function test_reading_finished_stream_throws_exception(): void
     {
         $this->expectException(TryingToReadFinishedStream::class);
-        $this->expectExceptionCode(1618160196);
+        $this->expectExceptionCode(1_618_160_196);
         $this->expectExceptionMessage('Trying to read a finished stream.');
 
         (new TokenStream())->read();
@@ -26,7 +26,7 @@ final class TokenStreamTest extends TestCase
     public function test_invalid_token_encountered_throws_exception(): void
     {
         $this->expectException(WrongTokenType::class);
-        $this->expectExceptionCode(1618160414);
+        $this->expectExceptionCode(1_618_160_414);
         $this->expectExceptionMessage('Wrong token type `' . FakeToken::class . '`, it should be an instance of `' . TraversingToken::class . '`.');
 
         (new TokenStream(new FakeToken()))->read();
@@ -35,7 +35,7 @@ final class TokenStreamTest extends TestCase
     public function test_getting_outbound_next_token_throws_exception(): void
     {
         $this->expectException(TryingToAccessOutboundToken::class);
-        $this->expectExceptionCode(1618160479);
+        $this->expectExceptionCode(1_618_160_479);
         $this->expectExceptionMessage('Trying to access outbound token.');
 
         (new TokenStream())->next();
@@ -44,7 +44,7 @@ final class TokenStreamTest extends TestCase
     public function test_getting_outbound_forward_token_throws_exception(): void
     {
         $this->expectException(TryingToAccessOutboundToken::class);
-        $this->expectExceptionCode(1618160479);
+        $this->expectExceptionCode(1_618_160_479);
         $this->expectExceptionMessage('Trying to access outbound token.');
 
         (new TokenStream())->forward();

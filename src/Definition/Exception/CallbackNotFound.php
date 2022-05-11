@@ -14,7 +14,7 @@ final class CallbackNotFound extends RuntimeException
     {
         parent::__construct(
             "The callback associated to `{$function->signature()}` could not be found.",
-            1647523495
+            1_647_523_495
         );
     }
 }

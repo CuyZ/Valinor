@@ -14,7 +14,7 @@ final class NoCasterForType extends RuntimeException
     {
         parent::__construct(
             "No caster was found to convert to type `$type`.",
-            1630693475
+            1_630_693_475
         );
     }
 }

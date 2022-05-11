@@ -30,7 +30,7 @@ final class MissingGenerics extends RuntimeException implements InvalidType
 
         parent::__construct(
             "There are $missing missing generics for `$signature`.",
-            1618054357
+            1_618_054_357
         );
     }
 }

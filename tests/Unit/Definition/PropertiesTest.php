@@ -30,7 +30,7 @@ final class PropertiesTest extends TestCase
     public function test_get_non_existing_property_throws_exception(): void
     {
         $this->expectException(PropertyNotFound::class);
-        $this->expectExceptionCode(1510936145);
+        $this->expectExceptionCode(1_510_936_145);
         $this->expectExceptionMessage('The property `unknownProperty` does not exist.');
 
         (new Properties())->get('unknownProperty');

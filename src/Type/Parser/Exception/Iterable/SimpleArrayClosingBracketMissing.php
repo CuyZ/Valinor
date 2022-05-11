@@ -15,7 +15,7 @@ final class SimpleArrayClosingBracketMissing extends RuntimeException implements
     {
         parent::__construct(
             "The closing bracket is missing for the array expression `{$subType}[]`.",
-            1606474266
+            1_606_474_266
         );
     }
 }

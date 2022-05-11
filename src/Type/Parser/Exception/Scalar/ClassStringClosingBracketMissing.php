@@ -15,7 +15,7 @@ final class ClassStringClosingBracketMissing extends RuntimeException implements
     {
         parent::__construct(
             "The closing bracket is missing for the class string expression `class-string<$type>`.",
-            1606484169
+            1_606_484_169
         );
     }
 }

@@ -28,7 +28,7 @@ final class TreeMapperContainerTest extends TestCase
     public function test_invalid_mapping_type_signature_throws_exception(): void
     {
         $this->expectException(InvalidMappingTypeSignature::class);
-        $this->expectExceptionCode(1630959692);
+        $this->expectExceptionCode(1_630_959_692);
         $this->expectExceptionMessageMatches('/^Could not parse the type `foo` that should be mapped: .*/');
 
         $this->mapper->map('foo', []);

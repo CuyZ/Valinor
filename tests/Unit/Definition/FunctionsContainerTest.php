@@ -18,7 +18,7 @@ final class FunctionsContainerTest extends TestCase
     public function test_get_unknown_function_throws_exception(): void
     {
         $this->expectException(FunctionNotFound::class);
-        $this->expectExceptionCode(1647523444);
+        $this->expectExceptionCode(1_647_523_444);
         $this->expectExceptionMessage('The function `unknown` was not found.');
 
         (new FunctionsContainer(new FakeFunctionDefinitionRepository(), []))->get('unknown');
@@ -29,7 +29,7 @@ final class FunctionsContainerTest extends TestCase
         $function = FakeFunctionDefinition::new();
 
         $this->expectException(CallbackNotFound::class);
-        $this->expectExceptionCode(1647523495);
+        $this->expectExceptionCode(1_647_523_495);
         $this->expectExceptionMessage("The callback associated to `{$function->signature()}` could not be found.");
 
         (new FunctionsContainer(new FakeFunctionDefinitionRepository(), []))->callback($function);

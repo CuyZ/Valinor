@@ -47,7 +47,7 @@ final class BasicTemplateParserTest extends TestCase
     public function test_duplicated_template_name_throws_exception(): void
     {
         $this->expectException(DuplicatedTemplateName::class);
-        $this->expectExceptionCode(1604612898);
+        $this->expectExceptionCode(1_604_612_898);
         $this->expectExceptionMessage('The template `TemplateA` was defined at least twice.');
 
         $this->parser->templates(
@@ -62,7 +62,7 @@ final class BasicTemplateParserTest extends TestCase
     public function test_invalid_template_type_throws_exception(): void
     {
         $this->expectException(InvalidTemplateType::class);
-        $this->expectExceptionCode(1607445951);
+        $this->expectExceptionCode(1_607_445_951);
         $this->expectExceptionMessageMatches('/^Invalid type `InvalidType` for the template `T`: .*$/');
 
         $this->parser->templates('@template T of InvalidType', new FakeTypeParser());

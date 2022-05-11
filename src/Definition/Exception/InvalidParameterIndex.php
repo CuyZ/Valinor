@@ -16,7 +16,7 @@ final class InvalidParameterIndex extends OutOfBoundsException
 
         parent::__construct(
             "Index $index is out of range, it should be between 0 and $max.",
-            1644936619
+            1_644_936_619
         );
     }
 }

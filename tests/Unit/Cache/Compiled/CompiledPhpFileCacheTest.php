@@ -188,7 +188,7 @@ final class CompiledPhpFileCacheTest extends TestCase
         $file->setContent('<?php invalid php code');
 
         $this->expectException(CorruptedCompiledPhpCacheFile::class);
-        $this->expectExceptionCode(1628949607);
+        $this->expectExceptionCode(1_628_949_607);
         $this->expectExceptionMessage("Compiled php cache file `{$file->url()}` has corrupted value.");
 
         $this->cache->get('foo');
@@ -202,7 +202,7 @@ final class CompiledPhpFileCacheTest extends TestCase
         $file->setContent('<?php return 1;');
 
         $this->expectException(CorruptedCompiledPhpCacheFile::class);
-        $this->expectExceptionCode(1628949607);
+        $this->expectExceptionCode(1_628_949_607);
         $this->expectExceptionMessage("Compiled php cache file `{$file->url()}` has corrupted value.");
 
         $this->cache->get('foo');
@@ -211,7 +211,7 @@ final class CompiledPhpFileCacheTest extends TestCase
     public function test_cache_directory_not_writable_throws_exception(): void
     {
         $this->expectException(CacheDirectoryNotWritable::class);
-        $this->expectExceptionCode(1616445016);
+        $this->expectExceptionCode(1_616_445_016);
         $this->expectExceptionMessage("Provided directory `{$this->files->url()}` is not writable.");
 
         $this->files->chmod(0444);
@@ -222,7 +222,7 @@ final class CompiledPhpFileCacheTest extends TestCase
     public function test_cache_file_not_writable_throws_exception(): void
     {
         $this->expectException(CompiledPhpCacheFileNotWritten::class);
-        $this->expectExceptionCode(1616445695);
+        $this->expectExceptionCode(1_616_445_695);
         $this->expectExceptionMessageMatches('/^File `[^`]+` could not be written\.$/');
 
         (vfsStream::newDirectory('.valinor.tmp'))

@@ -23,7 +23,7 @@ final class TooManyObjectBuilderFactoryAttributes extends RuntimeException
 
         parent::__construct(
             "Only one attribute of type `$factoryClass` is allowed, class `{$class->name()}` contains $count.",
-            1634044714
+            1_634_044_714
         );
     }
 }

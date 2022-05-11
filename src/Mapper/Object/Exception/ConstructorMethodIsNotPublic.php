@@ -17,6 +17,6 @@ final class ConstructorMethodIsNotPublic extends LogicException
             ? "The constructor of the class `{$class->name()}` is not public."
             : "The named constructor `{$method->signature()}` is not public.";
 
-        parent::__construct($message, 1630937169);
+        parent::__construct($message, 1_630_937_169);
     }
 }

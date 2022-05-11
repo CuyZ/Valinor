@@ -13,7 +13,7 @@ final class MethodNotFound extends LogicException
     {
         parent::__construct(
             "The method `$method` does not exist.",
-            1510936269
+            1_510_936_269
         );
     }
 }

@@ -13,7 +13,7 @@ final class UnableToReadFile extends RuntimeException implements SourceException
     {
         parent::__construct(
             "Unable to read the file `$filename`.",
-            1629993117
+            1_629_993_117
         );
     }
 }

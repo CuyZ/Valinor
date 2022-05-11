@@ -56,7 +56,7 @@ final class MethodObjectBuilderTest extends TestCase
     public function test_not_existing_method_throws_exception(): void
     {
         $this->expectException(MethodNotFound::class);
-        $this->expectExceptionCode(1634044209);
+        $this->expectExceptionCode(1_634_044_209);
         $this->expectExceptionMessage('Method `notExistingMethod` was not found in class `stdClass`.');
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass(stdClass::class));
@@ -66,7 +66,7 @@ final class MethodObjectBuilderTest extends TestCase
     public function test_invalid_constructor_method_throws_exception(): void
     {
         $this->expectException(ConstructorMethodIsNotStatic::class);
-        $this->expectExceptionCode(1634044370);
+        $this->expectExceptionCode(1_634_044_370);
         $this->expectExceptionMessage('Invalid constructor method `Signature::invalidConstructor`: it is neither the constructor nor a static constructor.');
 
         $object = new class () {
@@ -89,7 +89,7 @@ final class MethodObjectBuilderTest extends TestCase
         };
 
         $this->expectException(InvalidConstructorMethodClassReturnType::class);
-        $this->expectExceptionCode(1638094499);
+        $this->expectExceptionCode(1_638_094_499);
         $this->expectExceptionMessage('Method `Signature::invalidConstructor` must return `' . get_class($object) . '` to be a valid constructor but returns `bool`.');
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
@@ -106,7 +106,7 @@ final class MethodObjectBuilderTest extends TestCase
         };
 
         $this->expectException(InvalidConstructorMethodClassReturnType::class);
-        $this->expectExceptionCode(1638094499);
+        $this->expectExceptionCode(1_638_094_499);
         $this->expectExceptionMessage('Method `Signature::invalidConstructor` must return `' . get_class($object) . '` to be a valid constructor but returns `stdClass`.');
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
@@ -128,7 +128,7 @@ final class MethodObjectBuilderTest extends TestCase
     public function test_constructor_builder_for_class_with_private_constructor_throws_exception(): void
     {
         $this->expectException(ConstructorMethodIsNotPublic::class);
-        $this->expectExceptionCode(1630937169);
+        $this->expectExceptionCode(1_630_937_169);
         $this->expectExceptionMessage('The constructor of the class `' . ObjectWithPrivateNativeConstructor::class . '` is not public.');
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithPrivateNativeConstructor::class));
@@ -145,7 +145,7 @@ final class MethodObjectBuilderTest extends TestCase
         };
 
         $this->expectException(ConstructorMethodIsNotPublic::class);
-        $this->expectExceptionCode(1630937169);
+        $this->expectExceptionCode(1_630_937_169);
         $this->expectExceptionMessage('The named constructor `Signature::someConstructor` is not public.');
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($classWithPrivateNativeConstructor));

@@ -18,7 +18,7 @@ final class AssignedGenericNotFound extends RuntimeException implements InvalidT
 
         parent::__construct(
             "No generic was assigned to the template(s) `$list` for the class `$className`.",
-            1604656730
+            1_604_656_730
         );
     }
 }

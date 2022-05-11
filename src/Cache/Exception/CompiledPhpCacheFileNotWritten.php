@@ -13,7 +13,7 @@ final class CompiledPhpCacheFileNotWritten extends RuntimeException
     {
         parent::__construct(
             "File `$file` could not be written.",
-            1616445695
+            1_616_445_695
         );
     }
 }

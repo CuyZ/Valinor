@@ -13,7 +13,7 @@ final class CacheDirectoryNotWritable extends RuntimeException
     {
         parent::__construct(
             "Provided directory `$directory` is not writable.",
-            1616445016
+            1_616_445_016
         );
     }
 }

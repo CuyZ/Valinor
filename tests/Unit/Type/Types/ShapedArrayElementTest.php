@@ -41,7 +41,7 @@ final class ShapedArrayElementTest extends TestCase
     public function test_fixed_type_throws_exception(): void
     {
         $this->expectException(InvalidShapeElementType::class);
-        $this->expectExceptionCode(1631294135);
+        $this->expectExceptionCode(1_631_294_135);
         $this->expectExceptionMessage('The shaped array element `foo` cannot contain a fixed type `bar`.');
 
         new ShapedArrayElement(new StringValueType('foo'), new FakeFixedType('bar'));

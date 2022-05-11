@@ -13,7 +13,7 @@ final class FileExtensionNotHandled extends RuntimeException implements SourceEx
     {
         parent::__construct(
             "The file extension `$extension` is not handled.",
-            1629991744
+            1_629_991_744
         );
     }
 }

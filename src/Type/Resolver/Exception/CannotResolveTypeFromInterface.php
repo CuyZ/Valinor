@@ -13,7 +13,7 @@ final class CannotResolveTypeFromInterface extends RuntimeException
     {
         parent::__construct(
             "Impossible to resolve an implementation for the interface `$interfaceName`.",
-            1618049116
+            1_618_049_116
         );
     }
 }

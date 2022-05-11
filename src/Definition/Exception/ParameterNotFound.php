@@ -13,7 +13,7 @@ final class ParameterNotFound extends LogicException
     {
         parent::__construct(
             "The parameter `$parameter` does not exist.",
-            1514302629
+            1_514_302_629
         );
     }
 }

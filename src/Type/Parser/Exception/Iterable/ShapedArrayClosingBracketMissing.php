@@ -22,7 +22,7 @@ final class ShapedArrayClosingBracketMissing extends RuntimeException implements
 
         parent::__construct(
             "Missing closing curly bracket in shaped array signature `$signature`.",
-            1631283658
+            1_631_283_658
         );
     }
 }

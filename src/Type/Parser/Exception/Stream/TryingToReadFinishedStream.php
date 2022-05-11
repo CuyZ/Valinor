@@ -13,7 +13,7 @@ final class TryingToReadFinishedStream extends OverflowException
     {
         parent::__construct(
             'Trying to read a finished stream.',
-            1618160196
+            1_618_160_196
         );
     }
 }

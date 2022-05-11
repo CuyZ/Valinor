@@ -16,7 +16,7 @@ final class IntegerRangeInvalidMaxValue extends RuntimeException implements Inva
     {
         parent::__construct(
             "Invalid type `$type` for max value of integer range `int<$min, ?>`, it must be either `max` or an integer value.",
-            1638788172
+            1_638_788_172
         );
     }
 }

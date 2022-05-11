@@ -13,7 +13,7 @@ final class InvalidJson extends RuntimeException implements SourceException
     {
         parent::__construct(
             "The given value is not a valid JSON entry.",
-            1566307185
+            1_566_307_185
         );
     }
 }

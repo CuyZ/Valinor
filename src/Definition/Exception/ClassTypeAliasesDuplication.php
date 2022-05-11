@@ -20,7 +20,7 @@ final class ClassTypeAliasesDuplication extends LogicException
 
         parent::__construct(
             "The following type aliases already exist in class `$className`: `$names`.",
-            1638477604
+            1_638_477_604
         );
     }
 }

@@ -14,7 +14,7 @@ final class MethodNotFound extends RuntimeException
     {
         parent::__construct(
             "Method `$methodName` was not found in class `{$class->name()}`.",
-            1634044209
+            1_634_044_209
         );
     }
 }
