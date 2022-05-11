@@ -14,3 +14,5 @@
 /phpunit.xml.dist export-ignore
 
 *.stub linguist-language=PHP
+
+/rector.php
