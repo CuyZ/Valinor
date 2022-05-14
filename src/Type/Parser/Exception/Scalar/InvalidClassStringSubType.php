@@ -15,7 +15,7 @@ final class InvalidClassStringSubType extends RuntimeException implements Invali
     {
         parent::__construct(
             "Invalid class string type `$type`, it must be a class name or an interface name.",
-            1_608_034_138
+            1608034138
         );
     }
 }

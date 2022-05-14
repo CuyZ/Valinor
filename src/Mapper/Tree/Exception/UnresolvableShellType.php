@@ -14,7 +14,7 @@ final class UnresolvableShellType extends RuntimeException
     {
         parent::__construct(
             $type->getMessage(),
-            1_630_943_848,
+            1630943848,
             $type
         );
     }

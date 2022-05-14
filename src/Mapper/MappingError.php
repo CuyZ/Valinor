@@ -18,7 +18,7 @@ final class MappingError extends RuntimeException
 
         parent::__construct(
             "Could not map type `{$node->type()}` with the given source.",
-            1_617_193_185
+            1617193185
         );
     }
 

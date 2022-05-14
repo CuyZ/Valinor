@@ -20,7 +20,7 @@ final class ArrayClosingBracketMissing extends RuntimeException implements Inval
     {
         parent::__construct(
             "The closing bracket is missing for `$arrayType`.",
-            1_606_483_975
+            1606483975
         );
     }
 }

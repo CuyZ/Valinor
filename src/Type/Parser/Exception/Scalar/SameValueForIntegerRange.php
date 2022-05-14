@@ -14,7 +14,7 @@ final class SameValueForIntegerRange extends RuntimeException implements Invalid
     {
         parent::__construct(
             "The min and max values for integer range must be different, `$value` was given.",
-            1_638_786_927
+            1638786927
         );
     }
 }

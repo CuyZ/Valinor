@@ -13,7 +13,7 @@ final class DuplicatedNodeChild extends RuntimeException
     {
         parent::__construct(
             "The child `$name` is duplicated in the branch.",
-            1_634_045_114
+            1634045114
         );
     }
 }

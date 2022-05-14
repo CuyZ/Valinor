@@ -15,7 +15,7 @@ final class IterableCommaMissing extends RuntimeException implements InvalidType
     {
         parent::__construct(
             "A comma is missing for `iterable<$type, ?>`.",
-            1_618_994_669
+            1618994669
         );
     }
 }

@@ -20,7 +20,7 @@ final class WrongTokenType extends LogicException
 
         parent::__construct(
             "Wrong token type `$class`, it should be an instance of `$wanted`.",
-            1_618_160_414
+            1618160414
         );
     }
 }

@@ -23,7 +23,7 @@ final class GenericClosingBracketMissing extends RuntimeException implements Inv
 
         parent::__construct(
             "The closing bracket is missing for the generic `$signature`.",
-            1_604_333_677
+            1604333677
         );
     }
 }

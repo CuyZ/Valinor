@@ -16,7 +16,7 @@ final class InvalidIterableKey extends RuntimeException implements InvalidType
         parent::__construct(
             "Invalid key type `$keyType` for `iterable<$keyType, $subType>`. " .
             "It must be one of `array-key`, `int` or `string`.",
-            1_618_994_708
+            1618994708
         );
     }
 }

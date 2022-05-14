@@ -42,7 +42,7 @@ final class ShellTest extends TestCase
         $type = new UnresolvableType('some message');
 
         $this->expectException(UnresolvableShellType::class);
-        $this->expectExceptionCode(1_630_943_848);
+        $this->expectExceptionCode(1630943848);
         $this->expectExceptionMessage('some message');
 
         Shell::root($type, []);
@@ -54,7 +54,7 @@ final class ShellTest extends TestCase
         $typeB = new FakeType();
 
         $this->expectException(NewShellTypeDoesNotMatch::class);
-        $this->expectExceptionCode(1_628_845_224);
+        $this->expectExceptionCode(1628845224);
         $this->expectExceptionMessage("Trying to change the type of the shell at path ``: `$typeB` is not a valid subtype of `$typeA`.");
 
         (Shell::root($typeA, []))->withType($typeB);
@@ -83,7 +83,7 @@ final class ShellTest extends TestCase
     public function test_get_root_shell_parent_throws_exception(): void
     {
         $this->expectException(CannotGetParentOfRootShell::class);
-        $this->expectExceptionCode(1_630_674_894);
+        $this->expectExceptionCode(1630674894);
         $this->expectExceptionMessage('Impossible to get the parent of a root shell.');
 
         $shell = Shell::root(new FakeType(), []);

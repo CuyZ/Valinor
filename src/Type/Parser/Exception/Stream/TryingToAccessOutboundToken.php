@@ -13,7 +13,7 @@ final class TryingToAccessOutboundToken extends OutOfBoundsException
     {
         parent::__construct(
             'Trying to access outbound token.',
-            1_618_160_479
+            1618160479
         );
     }
 }

@@ -14,7 +14,7 @@ final class InvalidMappingTypeSignature extends RuntimeException
     {
         parent::__construct(
             "Could not parse the type `$raw` that should be mapped: {$exception->getMessage()}",
-            1_630_959_692
+            1630959692
         );
     }
 }

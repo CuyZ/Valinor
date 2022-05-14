@@ -14,7 +14,7 @@ final class ForbiddenMixedType extends LogicException implements InvalidType
     {
         parent::__construct(
             "Type `mixed` can only be used as a standalone type and not as a union member.",
-            1_608_146_262
+            1608146262
         );
     }
 }

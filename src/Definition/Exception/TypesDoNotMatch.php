@@ -30,6 +30,6 @@ final class TypesDoNotMatch extends LogicException
             $message = "Return types for method `$signature` do not match: `$typeFromDocBlock` (docblock) does not accept `$typeFromReflection` (native).";
         }
 
-        parent::__construct($message, 1_638_471_381);
+        parent::__construct($message, 1638471381);
     }
 }

@@ -35,7 +35,7 @@ final class ShapedArrayElementTypeMissing extends RuntimeException implements In
 
         parent::__construct(
             "Missing element type in shaped array signature `$signature`.",
-            1_631_286_250
+            1631286250
         );
     }
 }

@@ -31,7 +31,7 @@ final class ParametersTest extends TestCase
     public function test_get_non_existing_parameter_throws_exception(): void
     {
         $this->expectException(ParameterNotFound::class);
-        $this->expectExceptionCode(1_514_302_629);
+        $this->expectExceptionCode(1514302629);
         $this->expectExceptionMessage('The parameter `unknownParameter` does not exist.');
 
         (new Parameters())->get('unknownParameter');
@@ -50,7 +50,7 @@ final class ParametersTest extends TestCase
     public function test_get_parameter_at_index_out_of_range_throws_exception(): void
     {
         $this->expectException(InvalidParameterIndex::class);
-        $this->expectExceptionCode(1_644_936_619);
+        $this->expectExceptionCode(1644936619);
         $this->expectExceptionMessage('Index 1 is out of range, it should be between 0 and 0.');
 
         (new Parameters(FakeParameterDefinition::new()))->at(1);

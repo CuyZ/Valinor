@@ -118,7 +118,7 @@ final class DateTimeMappingTest extends IntegrationTest
 
     private function buildRandomTimestamp(): int
     {
-        return random_int(1, 32_503_726_800);
+        return random_int(1, 32503726800);
     }
 }
 

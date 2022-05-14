@@ -15,7 +15,7 @@ final class InvalidUnionOfClassString extends LogicException implements InvalidT
     {
         parent::__construct(
             "Type `$type` contains invalid class string element(s).",
-            1_648_830_951
+            1648830951
         );
     }
 }

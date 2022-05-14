@@ -13,7 +13,7 @@ final class CorruptedCompiledPhpCacheFile extends RuntimeException
     {
         parent::__construct(
             "Compiled php cache file `$filename` has corrupted value.",
-            1_628_949_607
+            1628949607
         );
     }
 }

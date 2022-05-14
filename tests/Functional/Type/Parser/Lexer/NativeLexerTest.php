@@ -708,7 +708,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_right_union_type_throws_exception(): void
     {
         $this->expectException(RightUnionTypeMissing::class);
-        $this->expectExceptionCode(1_631_294_715);
+        $this->expectExceptionCode(1631294715);
         $this->expectExceptionMessage('Right type is missing for union `string|?`.');
 
         $this->parser->parse('string|');
@@ -737,7 +737,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_right_intersection_type_throws_exception(): void
     {
         $this->expectException(RightIntersectionTypeMissing::class);
-        $this->expectExceptionCode(1_631_612_575);
+        $this->expectExceptionCode(1631612575);
         $this->expectExceptionMessage('Right type is missing for intersection `DateTimeInterface&?`.');
 
         $this->parser->parse('DateTimeInterface&');
@@ -746,7 +746,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_simple_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(SimpleArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1_606_474_266);
+        $this->expectExceptionCode(1606474266);
         $this->expectExceptionMessage('The closing bracket is missing for the array expression `string[]`.');
 
         $this->parser->parse('string[');
@@ -755,7 +755,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_array_key_throws_exception(): void
     {
         $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionCode(1_604_335_007);
+        $this->expectExceptionCode(1604335007);
         $this->expectExceptionMessage('Invalid key type `float` for `array<float, string>`. It must be one of `array-key`, `int` or `string`.');
 
         $this->parser->parse('array<float, string>');
@@ -764,7 +764,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_non_empty_array_key_throws_exception(): void
     {
         $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionCode(1_604_335_007);
+        $this->expectExceptionCode(1604335007);
         $this->expectExceptionMessage('Invalid key type `float` for `non-empty-array<float, string>`. It must be one of `array-key`, `int` or `string`.');
 
         $this->parser->parse('non-empty-array<float, string>');
@@ -773,7 +773,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_array_comma_throws_exception(): void
     {
         $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionCode(1_606_483_614);
+        $this->expectExceptionCode(1606483614);
         $this->expectExceptionMessage('A comma is missing for `array<int, ?>`.');
 
         $this->parser->parse('array<int string>');
@@ -782,7 +782,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_non_empty_array_comma_throws_exception(): void
     {
         $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionCode(1_606_483_614);
+        $this->expectExceptionCode(1606483614);
         $this->expectExceptionMessage('A comma is missing for `non-empty-array<int, ?>`.');
 
         $this->parser->parse('non-empty-array<int string>');
@@ -791,7 +791,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1_606_483_975);
+        $this->expectExceptionCode(1606483975);
         $this->expectExceptionMessage('The closing bracket is missing for `array<int, string>`.');
 
         $this->parser->parse('array<int, string');
@@ -800,7 +800,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_non_empty_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1_606_483_975);
+        $this->expectExceptionCode(1606483975);
         $this->expectExceptionMessage('The closing bracket is missing for `non-empty-array<int, string>`.');
 
         $this->parser->parse('non-empty-array<int, string');
@@ -809,7 +809,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_list_closing_bracket_throws_exception(): void
     {
         $this->expectException(ListClosingBracketMissing::class);
-        $this->expectExceptionCode(1_634_035_071);
+        $this->expectExceptionCode(1634035071);
         $this->expectExceptionMessage('The closing bracket is missing for `list<string>`.');
 
         $this->parser->parse('list<string');
@@ -818,7 +818,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_non_empty_list_closing_bracket_throws_exception(): void
     {
         $this->expectException(ListClosingBracketMissing::class);
-        $this->expectExceptionCode(1_634_035_071);
+        $this->expectExceptionCode(1634035071);
         $this->expectExceptionMessage('The closing bracket is missing for `non-empty-list<string>`.');
 
         $this->parser->parse('non-empty-list<string');
@@ -827,7 +827,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_iterable_key_throws_exception(): void
     {
         $this->expectException(InvalidIterableKey::class);
-        $this->expectExceptionCode(1_618_994_708);
+        $this->expectExceptionCode(1618994708);
         $this->expectExceptionMessage('Invalid key type `float` for `iterable<float, string>`. It must be one of `array-key`, `int` or `string`.');
 
         $this->parser->parse('iterable<float, string>');
@@ -836,7 +836,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_iterable_comma_throws_exception(): void
     {
         $this->expectException(IterableCommaMissing::class);
-        $this->expectExceptionCode(1_618_994_669);
+        $this->expectExceptionCode(1618994669);
         $this->expectExceptionMessage('A comma is missing for `iterable<int, ?>`.');
 
         $this->parser->parse('iterable<int string>');
@@ -845,7 +845,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_iterable_closing_bracket_throws_exception(): void
     {
         $this->expectException(IterableClosingBracketMissing::class);
-        $this->expectExceptionCode(1_618_994_728);
+        $this->expectExceptionCode(1618994728);
         $this->expectExceptionMessage('The closing bracket is missing for `iterable<int, string>`.');
 
         $this->parser->parse('iterable<int, string');
@@ -854,7 +854,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_class_string_closing_bracket_throws_exception(): void
     {
         $this->expectException(ClassStringClosingBracketMissing::class);
-        $this->expectExceptionCode(1_606_484_169);
+        $this->expectExceptionCode(1606484169);
         $this->expectExceptionMessage('The closing bracket is missing for the class string expression `class-string<DateTimeInterface>`.');
 
         $this->parser->parse('class-string<DateTimeInterface');
@@ -863,7 +863,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_class_string_type_throws_exception(): void
     {
         $this->expectException(InvalidClassStringSubType::class);
-        $this->expectExceptionCode(1_608_034_138);
+        $this->expectExceptionCode(1608034138);
         $this->expectExceptionMessage('Invalid class string type `int`, it must be a class name or an interface name.');
 
         $this->parser->parse('class-string<int');
@@ -872,7 +872,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_left_intersection_member_throws_exception(): void
     {
         $this->expectException(InvalidIntersectionType::class);
-        $this->expectExceptionCode(1_608_030_163);
+        $this->expectExceptionCode(1608030163);
         $this->expectExceptionMessage('Invalid intersection member `int`, it must be a class name or an interface name.');
 
         $this->parser->parse('int&DateTimeInterface');
@@ -881,7 +881,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_right_intersection_member_throws_exception(): void
     {
         $this->expectException(InvalidIntersectionType::class);
-        $this->expectExceptionCode(1_608_030_163);
+        $this->expectExceptionCode(1608030163);
         $this->expectExceptionMessage('Invalid intersection member `int`, it must be a class name or an interface name.');
 
         $this->parser->parse('DateTimeInterface&int');
@@ -890,7 +890,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_empty_elements_throws_exception(): void
     {
         $this->expectException(ShapedArrayEmptyElements::class);
-        $this->expectExceptionCode(1_631_286_932);
+        $this->expectExceptionCode(1631286932);
         $this->expectExceptionMessage('Shaped array must define one or more elements, for instance `array{foo: string}`.');
 
         $this->parser->parse('array{}');
@@ -899,7 +899,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1_631_283_658);
+        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: string`.');
 
         $this->parser->parse('array{string');
@@ -908,7 +908,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_after_other_element_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1_631_283_658);
+        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.');
 
         $this->parser->parse('array{int, foo: string');
@@ -917,7 +917,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_colon_missing_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionCode(1_631_283_847);
+        $this->expectExceptionCode(1631283847);
         $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{string?`.');
 
         $this->parser->parse('array{string?');
@@ -926,7 +926,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_colon_missing_after_other_element_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionCode(1_631_283_847);
+        $this->expectExceptionCode(1631283847);
         $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{0: int, foo?`.');
 
         $this->parser->parse('array{int, foo?');
@@ -935,7 +935,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_after_unfinished_element_throws_exception(): void
     {
         $this->expectException(ShapedArrayElementTypeMissing::class);
-        $this->expectExceptionCode(1_631_286_250);
+        $this->expectExceptionCode(1631286250);
         $this->expectExceptionMessage('Missing element type in shaped array signature `array{0: int, foo?:`.');
 
         $this->parser->parse('array{int, foo?:');
@@ -944,7 +944,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_colon_expected_but_other_symbol_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionCode(1_631_283_847);
+        $this->expectExceptionCode(1631283847);
         $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{0: int, foo?`.');
 
         $this->parser->parse('array{int, foo?;');
@@ -953,7 +953,7 @@ final class NativeLexerTest extends TestCase
     public function test_shaped_array_comma_expected_but_other_symbol_throws_exception(): void
     {
         $this->expectException(ShapedArrayCommaMissing::class);
-        $this->expectExceptionCode(1_631_286_589);
+        $this->expectExceptionCode(1631286589);
         $this->expectExceptionMessage('Comma missing in shaped array signature `array{0: int, 1: string`.');
 
         $this->parser->parse('array{int, string]');
@@ -962,7 +962,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_min_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingMinValue::class);
-        $this->expectExceptionCode(1_638_787_061);
+        $this->expectExceptionCode(1638787061);
         $this->expectExceptionMessage('Missing min value for integer range, its signature must match `int<min, max>`.');
 
         $this->parser->parse('int<');
@@ -971,7 +971,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_min_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeInvalidMinValue::class);
-        $this->expectExceptionCode(1_638_787_807);
+        $this->expectExceptionCode(1638787807);
         $this->expectExceptionMessage('Invalid type `string` for min value of integer range, it must be either `min` or an integer value.');
 
         $this->parser->parse('int<string, 1337>');
@@ -980,7 +980,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_comma_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingComma::class);
-        $this->expectExceptionCode(1_638_787_915);
+        $this->expectExceptionCode(1638787915);
         $this->expectExceptionMessage('Missing comma in integer range signature `int<42, ?>`.');
 
         $this->parser->parse('int<42 1337>');
@@ -989,7 +989,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_max_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingMaxValue::class);
-        $this->expectExceptionCode(1_638_788_092);
+        $this->expectExceptionCode(1638788092);
         $this->expectExceptionMessage('Missing max value for integer range, its signature must match `int<42, max>`.');
 
         $this->parser->parse('int<42,');
@@ -998,7 +998,7 @@ final class NativeLexerTest extends TestCase
     public function test_invalid_max_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeInvalidMaxValue::class);
-        $this->expectExceptionCode(1_638_788_172);
+        $this->expectExceptionCode(1638788172);
         $this->expectExceptionMessage('Invalid type `string` for max value of integer range `int<42, ?>`, it must be either `max` or an integer value.');
 
         $this->parser->parse('int<42, string>');
@@ -1007,7 +1007,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_closing_bracket_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingClosingBracket::class);
-        $this->expectExceptionCode(1_638_788_306);
+        $this->expectExceptionCode(1638788306);
         $this->expectExceptionMessage('Missing closing bracket in integer range signature `int<42, 1337>`.');
 
         $this->parser->parse('int<42, 1337');
@@ -1016,7 +1016,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_closing_single_quote_throws_exception(): void
     {
         $this->expectException(UnknownSymbol::class);
-        $this->expectExceptionCode(1_632_918_723);
+        $this->expectExceptionCode(1632918723);
         $this->expectExceptionMessage("Cannot parse unknown symbol `'foo`.");
 
         $this->parser->parse("'foo");
@@ -1025,7 +1025,7 @@ final class NativeLexerTest extends TestCase
     public function test_missing_closing_double_quote_throws_exception(): void
     {
         $this->expectException(UnknownSymbol::class);
-        $this->expectExceptionCode(1_632_918_723);
+        $this->expectExceptionCode(1632918723);
         $this->expectExceptionMessage('Cannot parse unknown symbol `"foo`.');
 
         $this->parser->parse('"foo');

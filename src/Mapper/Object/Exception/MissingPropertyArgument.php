@@ -14,7 +14,7 @@ final class MissingPropertyArgument extends RuntimeException
     {
         parent::__construct(
             "Missing value `{$property->signature()}` of type `{$property->type()}`.",
-            1_629_469_529
+            1629469529
         );
     }
 }

@@ -18,7 +18,7 @@ final class InvalidPropertyDefaultValue extends LogicException
 
         parent::__construct(
             "Default value of property `$signature` is not accepted by `$type`.",
-            1_629_211_093
+            1629211093
         );
     }
 }

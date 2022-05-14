@@ -315,7 +315,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_non_registered_named_constructors_are_ignored(): void
     {
         $this->expectException(CannotInstantiateObject::class);
-        $this->expectExceptionCode(1_646_916_477);
+        $this->expectExceptionCode(1646916477);
         $this->expectExceptionMessage('No available constructor found for class `' . SomeClassWithPrivateNativeConstructor::class . '`');
 
         $this->mapperBuilder
@@ -334,8 +334,8 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             ->mapper();
 
         try {
-            $result = $mapper->map(DateTime::class, 1_357_047_105);
-            $resultImmutable = $mapper->map(DateTimeImmutable::class, 1_357_047_105);
+            $result = $mapper->map(DateTime::class, 1357047105);
+            $resultImmutable = $mapper->map(DateTimeImmutable::class, 1357047105);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -350,7 +350,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             $result = $this->mapperBuilder
                 ->registerConstructor(fn (string $foo, int $bar): DateTimeInterface => new DateTimeImmutable())
                 ->mapper()
-                ->map(DateTimeInterface::class, 1_647_781_015);
+                ->map(DateTimeInterface::class, 1647781015);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

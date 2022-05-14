@@ -16,7 +16,7 @@ final class InvalidClassTemplate extends LogicException implements InvalidTempla
     {
         parent::__construct(
             "Template error for class `$className`: {$exception->getMessage()}",
-            1_630_092_678,
+            1630092678,
             $exception
         );
     }

@@ -18,7 +18,7 @@ final class YamlExtensionNotEnabled extends RuntimeException implements SourceEx
     {
         parent::__construct(
             "The PHP YAML extension is not enabled.",
-            1_629_990_959
+            1629990959
         );
     }
 }

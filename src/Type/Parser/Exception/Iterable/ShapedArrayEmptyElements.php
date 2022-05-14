@@ -14,7 +14,7 @@ final class ShapedArrayEmptyElements extends RuntimeException implements Invalid
     {
         parent::__construct(
             "Shaped array must define one or more elements, for instance `array{foo: string}`.",
-            1_631_286_932
+            1631286932
         );
     }
 }

@@ -16,7 +16,7 @@ final class NewShellTypeDoesNotMatch extends RuntimeException
         parent::__construct(
             "Trying to change the type of the shell at path `{$shell->path()}`: `$newType` is not a valid " .
             "subtype of `{$shell->type()}`.",
-            1_628_845_224
+            1628845224
         );
     }
 }

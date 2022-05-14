@@ -134,7 +134,7 @@ final class DoctrineAnnotationsTest extends TestCase
         };
 
         $this->expectException(InvalidReflectionParameter::class);
-        $this->expectExceptionCode(1_534_263_918);
+        $this->expectExceptionCode(1534263918);
         $this->expectExceptionMessage('Invalid parameter given (type `' . get_class($wrongReflector) . '`), it must be an instance of `' . ReflectionClass::class . '`, `' . ReflectionProperty::class . '`, `' . ReflectionMethod::class . '`.');
 
         new DoctrineAnnotations($wrongReflector);

@@ -106,7 +106,7 @@ final class GenericLexerTest extends TestCase
         $genericClassName = $this->classWithThreeTemplates();
 
         $this->expectException(MissingGenerics::class);
-        $this->expectExceptionCode(1_618_054_357);
+        $this->expectExceptionCode(1618054357);
         $this->expectExceptionMessage("There are 2 missing generics for `$genericClassName<int, ?, ?>`.");
 
         $this->parser->parse("$genericClassName<int,");
@@ -117,7 +117,7 @@ final class GenericLexerTest extends TestCase
         $genericClassName = stdClass::class;
 
         $this->expectException(GenericClosingBracketMissing::class);
-        $this->expectExceptionCode(1_604_333_677);
+        $this->expectExceptionCode(1604333677);
         $this->expectExceptionMessage("The closing bracket is missing for the generic `$genericClassName<string>`.");
 
         $this->parser->parse("$genericClassName<string");
@@ -128,7 +128,7 @@ final class GenericLexerTest extends TestCase
         $className = $this->classWithThreeTemplates();
 
         $this->expectException(GenericCommaMissing::class);
-        $this->expectExceptionCode(1_615_829_484);
+        $this->expectExceptionCode(1615829484);
         $this->expectExceptionMessage("A comma is missing for the generic `$className<int, string, ?>`.");
 
         $this->parser->parse("$className<int, string bool>");
@@ -139,7 +139,7 @@ final class GenericLexerTest extends TestCase
         $className = $this->classWithThreeTemplates();
 
         $this->expectException(AssignedGenericNotFound::class);
-        $this->expectExceptionCode(1_604_656_730);
+        $this->expectExceptionCode(1604656730);
         $this->expectExceptionMessage("No generic was assigned to the template(s) `TemplateB`, `TemplateC` for the class `$className`.");
 
         $this->parser->parse("$className<int>");
@@ -150,7 +150,7 @@ final class GenericLexerTest extends TestCase
         $className = $this->classWithOneTemplate();
 
         $this->expectException(CannotAssignGeneric::class);
-        $this->expectExceptionCode(1_604_660_485);
+        $this->expectExceptionCode(1604660485);
         $this->expectExceptionMessage("Could not find a template to assign the generic(s) `string`, `bool` for the class `$className`.");
 
         $this->parser->parse("$className<int, string, bool>");
@@ -167,7 +167,7 @@ final class GenericLexerTest extends TestCase
         $className = get_class($object);
 
         $this->expectException(InvalidAssignedGeneric::class);
-        $this->expectExceptionCode(1_604_613_633);
+        $this->expectExceptionCode(1604613633);
         $this->expectExceptionMessage("The generic `bool` is not a subtype of `string` for the template `Template` of the class `$className`.");
 
         $this->parser->parse("$className<bool>");
@@ -185,7 +185,7 @@ final class GenericLexerTest extends TestCase
         $className = get_class($object);
 
         $this->expectException(InvalidClassTemplate::class);
-        $this->expectExceptionCode(1_630_092_678);
+        $this->expectExceptionCode(1630092678);
         $this->expectExceptionMessage("Template error for class `$className`: The template `TemplateA` was defined at least twice.");
 
         $this->parser->parse("$className<int, string>");
@@ -202,7 +202,7 @@ final class GenericLexerTest extends TestCase
         $className = get_class($object);
 
         $this->expectException(InvalidClassTemplate::class);
-        $this->expectExceptionCode(1_630_092_678);
+        $this->expectExceptionCode(1630092678);
         $this->expectExceptionMessageMatches("/Template error for class `.*`: Invalid type `InvalidType` for the template `Template`: .*/");
 
         $this->parser->parse("$className<int, string>");

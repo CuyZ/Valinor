@@ -29,7 +29,7 @@ final class ShapedArrayColonTokenMissing extends RuntimeException implements Inv
 
         parent::__construct(
             "A colon symbol is missing in shaped array signature `$signature`.",
-            1_631_283_847
+            1631283847
         );
     }
 }

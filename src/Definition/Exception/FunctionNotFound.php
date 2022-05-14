@@ -16,7 +16,7 @@ final class FunctionNotFound extends RuntimeException
     {
         parent::__construct(
             "The function `$key` was not found.",
-            1_647_523_444
+            1647523444
         );
     }
 }

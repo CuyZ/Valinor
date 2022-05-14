@@ -13,7 +13,7 @@ final class CannotGetParentOfRootShell extends RuntimeException
     {
         parent::__construct(
             'Impossible to get the parent of a root shell.',
-            1_630_674_894
+            1630674894
         );
     }
 }

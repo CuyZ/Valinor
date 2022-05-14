@@ -18,7 +18,7 @@ final class IncompatibleAttributes extends LogicException
 
         parent::__construct(
             "The Attributes class of type `$class` cannot be compiled.",
-            1_616_925_611
+            1616925611
         );
     }
 }

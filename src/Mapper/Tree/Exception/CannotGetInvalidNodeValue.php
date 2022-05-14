@@ -14,7 +14,7 @@ final class CannotGetInvalidNodeValue extends LogicException
     {
         parent::__construct(
             "Trying to get value of an invalid node at path `{$node->path()}`.",
-            1_630_680_246
+            1630680246
         );
     }
 }

@@ -20,7 +20,7 @@ final class ListClosingBracketMissing extends RuntimeException implements Invali
     {
         parent::__construct(
             "The closing bracket is missing for `$listType`.",
-            1_634_035_071
+            1634035071
         );
     }
 }

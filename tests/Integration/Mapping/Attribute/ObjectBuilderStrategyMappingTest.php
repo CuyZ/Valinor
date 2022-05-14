@@ -50,7 +50,7 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
         $objectClass = ObjectWithSeveralBuilderStrategyAttributes::class;
 
         $this->expectException(TooManyObjectBuilderFactoryAttributes::class);
-        $this->expectExceptionCode(1_634_044_714);
+        $this->expectExceptionCode(1634044714);
         $this->expectExceptionMessage("Only one attribute of type `$factoryClass` is allowed, class `$objectClass` contains 2.");
 
         $this->mapperBuilder->mapper()->map($objectClass, 'foo');

@@ -15,7 +15,7 @@ final class IterableClosingBracketMissing extends RuntimeException implements In
     {
         parent::__construct(
             "The closing bracket is missing for `iterable<$keyType, $subtype>`.",
-            1_618_994_728
+            1618994728
         );
     }
 }

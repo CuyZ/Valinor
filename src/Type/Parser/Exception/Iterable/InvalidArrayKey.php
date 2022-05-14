@@ -26,7 +26,7 @@ final class InvalidArrayKey extends RuntimeException implements InvalidType
 
         parent::__construct(
             "Invalid key type `$keyType` for `$signature`. It must be one of `array-key`, `int` or `string`.",
-            1_604_335_007
+            1604335007
         );
     }
 }

@@ -18,7 +18,7 @@ final class JsonExtensionNotEnabled extends RuntimeException implements SourceEx
     {
         parent::__construct(
             "The PHP JSON extension is not enabled.",
-            1_629_990_932
+            1629990932
         );
     }
 }
