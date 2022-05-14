@@ -29,7 +29,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         /**
          * @param string $parameterWithDocBlockType
          */
-        $callback = fn(string $foo, $parameterWithDocBlockType): string => $foo . $parameterWithDocBlockType;
+        $callback = fn (string $foo, $parameterWithDocBlockType): string => $foo . $parameterWithDocBlockType;
 
         $function = $this->repository->for($callback);
         $parameters = $function->parameters();

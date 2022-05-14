@@ -149,7 +149,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     {
         try {
             $this->mapperBuilder
-                ->infer(SomeInterface::class, fn(string $type, int $key): string => SomeClassThatInheritsInterfaceA::class)
+                ->infer(SomeInterface::class, fn (string $type, int $key): string => SomeClassThatInheritsInterfaceA::class)
                 ->mapper()
                 ->map(SomeInterface::class, 42);
         } catch (MappingError $exception) {
@@ -164,7 +164,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     {
         try {
             $this->mapperBuilder
-                ->infer(SomeInterface::class, fn(int $key): string => SomeClassThatInheritsInterfaceA::class)
+                ->infer(SomeInterface::class, fn (int $key): string => SomeClassThatInheritsInterfaceA::class)
                 ->mapper()
                 ->map(SomeInterface::class, 'foo');
         } catch (MappingError $exception) {

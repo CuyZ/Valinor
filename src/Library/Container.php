@@ -82,12 +82,12 @@ final class Container
     public function __construct(Settings $settings)
     {
         $this->factories = [
-            TreeMapper::class => fn(): TreeMapper => new TreeMapperContainer(
+            TreeMapper::class => fn (): TreeMapper => new TreeMapperContainer(
                 $this->get(TypeParser::class),
                 new RootNodeBuilder($this->get(NodeBuilder::class))
             ),
 
-            ShellVisitor::class => fn(): ShellVisitor => new AttributeShellVisitor(),
+            ShellVisitor::class => fn (): ShellVisitor => new AttributeShellVisitor(),
 
             NodeBuilder::class => function () use ($settings): NodeBuilder {
                 $listNodeBuilder = new ListNodeBuilder();
@@ -203,7 +203,7 @@ final class Container
                 return new DoctrineAnnotationsRepository(); // @codeCoverageIgnoreEnd
             },
 
-            TypeParserFactory::class => fn(): TypeParserFactory => new LexingTypeParserFactory(
+            TypeParserFactory::class => fn (): TypeParserFactory => new LexingTypeParserFactory(
                 $this->get(TemplateParser::class)
             ),
 
@@ -214,7 +214,7 @@ final class Container
                 return new CachedParser($parser);
             },
 
-            TemplateParser::class => fn(): TemplateParser => new BasicTemplateParser(),
+            TemplateParser::class => fn (): TemplateParser => new BasicTemplateParser(),
         ];
     }
 

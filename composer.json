@@ -48,10 +48,12 @@
             "phpunit",
             "php-cs-fixer fix --dry-run",
             "phpstan",
-            "psalm"
+            "psalm",
+            "rector --dry-run"
         ],
         "fix": [
-            "php-cs-fixer fix"
+            "php-cs-fixer fix",
+            "rector"
         ],
         "mutation": [
             "@putenv XDEBUG_MODE=coverage",
