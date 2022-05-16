@@ -9,10 +9,12 @@ use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\TreeMapper;
+use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use Psr\SimpleCache\CacheInterface;
 
-use function array_unshift;
+use function array_merge;
 use function is_callable;
 
 /** @api */
@@ -279,28 +281,42 @@ final class MapperBuilder
 
     /**
      * Warms up the type-parser cache for the provided signatures.
+     * By passing a signature which contains recursive objects, these recursive signatures will be cached
+     * as well.
      *
      * @param class-string $signature
      * @param class-string ...$additionalSignatures
+     * @throws InvalidType In case one of the provided signatures contain invalid types.
      */
     public function warmup(string $signature, string ...$additionalSignatures): void
     {
-        array_unshift($additionalSignatures, $signature);
-        unset($signature);
+        $signaturesToWarmup = array_merge([$signature], $additionalSignatures);
+        $this->warmupSignatures($signaturesToWarmup, []);
+    }
 
+    /**
+     * @param list<class-string> $signatures
+     * @param list<class-string> $alreadyKnownSignatures
+     * @return list<class-string>
+     */
+    private function warmupSignatures(array $signatures, array $alreadyKnownSignatures): array
+    {
+        $signaturesWarmedUp = $alreadyKnownSignatures;
         $container = $this->container();
         $typeParser = $container->typeParser();
-        $classDefinitionRepository = $container->classDefinitionRepository();
 
-        foreach ($additionalSignatures as $signature) {
-            $type = $typeParser->parse($signature);
-
-            if (!$type instanceof ClassType) {
+        foreach ($signatures as $signature) {
+            if (in_array($signature, $signaturesWarmedUp, true)) {
                 continue;
             }
 
-            $classDefinitionRepository->for($type);
+            $type = $typeParser->parse($signature);
+            $signaturesWarmedUp[] = $signature;
+
+            $signaturesWarmedUp = $this->warmupSignatureByType($type, $signaturesWarmedUp);
         }
+
+        return $signaturesWarmedUp;
     }
 
     public function __clone()
@@ -312,5 +328,57 @@ final class MapperBuilder
     private function container(): Container
     {
         return ($this->container ??= new Container($this->settings));
+    }
+
+    /**
+     * @param list<class-string> $alreadyKnownSignatures
+     * @return list<class-string>
+     */
+    private function extractSignaturesFromClassDefinition(Definition\ClassDefinition $classDefinition, array $alreadyKnownSignatures): array
+    {
+        $recursiveSignatures = [];
+        foreach ($classDefinition->properties() as $property) {
+            $propertyType = $property->type();
+            if (!$propertyType instanceof ClassType) {
+                continue;
+            }
+
+            $className = $propertyType->className();
+            if (in_array($className, $alreadyKnownSignatures, true)) {
+                continue;
+            }
+
+            $recursiveSignatures[] = $className;
+        }
+
+        return $recursiveSignatures;
+    }
+
+    /**
+     * @param list<class-string> $alreadyKnownSignatures
+     *
+     * @return list<class-string>
+     */
+    private function warmupSignatureByType(Type\Type $type, array $alreadyKnownSignatures): array
+    {
+        if ($type instanceof ClassType) {
+            $classDefinitionRepository = $this->container()->classDefinitionRepository();
+            $classDefinition = $classDefinitionRepository->for($type);
+            $recursiveSignaturesToWarmup = $this->extractSignaturesFromClassDefinition($classDefinition, $alreadyKnownSignatures);
+
+            return $this->warmupSignatures($recursiveSignaturesToWarmup, $alreadyKnownSignatures);
+        }
+
+        if ($type instanceof CompositeType) {
+            $types = $type;
+            unset($type);
+            foreach ($types->traverse() as $type) {
+                $alreadyKnownSignatures = $this->warmupSignatureByType($type, $alreadyKnownSignatures);
+            }
+
+            return $alreadyKnownSignatures;
+        }
+
+        return $alreadyKnownSignatures;
     }
 }

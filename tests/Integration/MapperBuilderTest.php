@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration;
 
 use CuyZ\Valinor\Cache\Compiled\CompiledPhpFileCache;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithNestedObjectsProperties;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithNonEmptyStringProperty;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPositiveIntProperty;
 use org\bovigo\vfs\vfsStream;
@@ -49,6 +50,22 @@ final class MapperBuilderTest extends IntegrationTest
         $builder->warmup(ObjectWithNonEmptyStringProperty::class, ObjectWithPositiveIntProperty::class);
         self::assertTrue($this->cacheDirectoryRoot->hasChild(CompiledPhpFileCache::CACHE_DIRECTORY_NAME));
         self::assertCount(2, array_filter(
+            iterator_to_array($this->cacheDirectoryRoot),
+            $this->cacheFileFilterCallback()
+        ));
+    }
+
+    public function test_will_warmup_nested_class_definitions(): void
+    {
+        self::assertEmpty(array_filter(
+            iterator_to_array($this->cacheDirectoryRoot),
+            $this->cacheFileFilterCallback()
+        ));
+
+        $builder = $this->mapperBuilder->withCacheDir($this->cacheDirectoryRoot->url());
+        $builder->warmup(ObjectWithNestedObjectsProperties::class);
+        self::assertTrue($this->cacheDirectoryRoot->hasChild(CompiledPhpFileCache::CACHE_DIRECTORY_NAME));
+        self::assertCount(5, array_filter(
             iterator_to_array($this->cacheDirectoryRoot),
             $this->cacheFileFilterCallback()
         ));
