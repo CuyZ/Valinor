@@ -199,6 +199,14 @@ final class MapperBuilder
         return $clone;
     }
 
+    public function withDisabledCacheSourceValidation(): self
+    {
+        $clone = clone $this;
+        $clone->settings->validateCacheSource = false;
+
+        return $clone;
+    }
+
     /**
      * @deprecated It is not advised to use DoctrineAnnotation when using
      *             PHP >= 8, you should use built-in PHP attributes instead.

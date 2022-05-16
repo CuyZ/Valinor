@@ -28,13 +28,16 @@ final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCom
 
     private PropertyDefinitionCompiler $propertyCompiler;
 
-    public function __construct()
+    private bool $validateCacheSource;
+
+    public function __construct(bool $validateCacheSource)
     {
         $this->typeCompiler = new TypeCompiler();
         $this->attributesCompiler = new AttributesCompiler();
 
         $this->methodCompiler = new MethodDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
         $this->propertyCompiler = new PropertyDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
+        $this->validateCacheSource = $validateCacheSource;
     }
 
     public function compile($value): string
@@ -71,6 +74,10 @@ final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCom
     public function compileValidation($value): string
     {
         assert($value instanceof ClassDefinition);
+
+        if ($this->validateCacheSource === false) {
+            return 'true';
+        }
 
         $filename = (Reflection::class($value->name()))->getFileName();
 

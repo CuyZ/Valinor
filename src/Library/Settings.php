@@ -32,6 +32,8 @@ final class Settings
 
     public bool $enableLegacyDoctrineAnnotations = PHP_VERSION_ID < 8_00_00;
 
+    public bool $validateCacheSource = true;
+
     public function __construct()
     {
         $this->cacheDir = sys_get_temp_dir();

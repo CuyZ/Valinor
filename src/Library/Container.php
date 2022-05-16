@@ -173,7 +173,7 @@ final class Container
                 );
 
                 /** @var CacheInterface<ClassDefinition> $cache */
-                $cache = new CompiledPhpFileCache($settings->cacheDir, new ClassDefinitionCompiler());
+                $cache = new CompiledPhpFileCache($settings->cacheDir, new ClassDefinitionCompiler($settings->validateCacheSource));
                 $cache = $this->wrapCache($cache);
 
                 return new CacheClassDefinitionRepository($repository, $cache);

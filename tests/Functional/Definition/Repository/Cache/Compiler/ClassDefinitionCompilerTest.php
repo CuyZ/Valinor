@@ -32,7 +32,7 @@ final class ClassDefinitionCompilerTest extends TestCase
 
         $this->files = vfsStream::setup();
 
-        $this->compiler = new ClassDefinitionCompiler();
+        $this->compiler = new ClassDefinitionCompiler(true);
     }
 
     public function test_class_definition_is_compiled_correctly(): void
