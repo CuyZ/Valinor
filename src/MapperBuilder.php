@@ -291,13 +291,14 @@ final class MapperBuilder
     public function warmup(string $signature, string ...$additionalSignatures): void
     {
         $signaturesToWarmup = array_merge([$signature], $additionalSignatures);
-        $this->warmupSignatures($signaturesToWarmup, []);
+        $this->warmupSignatures(array_values($signaturesToWarmup), []);
     }
 
     /**
      * @param list<class-string> $signatures
      * @param list<class-string> $alreadyKnownSignatures
      * @return list<class-string>
+     * @throws InvalidType In case one of the provided signatures contain invalid types.
      */
     private function warmupSignatures(array $signatures, array $alreadyKnownSignatures): array
     {
@@ -358,6 +359,7 @@ final class MapperBuilder
      * @param list<class-string> $alreadyKnownSignatures
      *
      * @return list<class-string>
+     * @throws InvalidType In case one of the provided signatures contain invalid types.
      */
     private function warmupSignatureByType(Type\Type $type, array $alreadyKnownSignatures): array
     {
