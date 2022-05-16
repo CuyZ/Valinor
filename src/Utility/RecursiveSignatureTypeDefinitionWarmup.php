@@ -13,14 +13,8 @@ use CuyZ\Valinor\Definition;
 /** @internal */
 final class RecursiveSignatureTypeDefinitionWarmup
 {
-    /**
-     * @var \CuyZ\Valinor\Type\Parser\TypeParser
-     */
     private Type\Parser\TypeParser $parser;
 
-    /**
-     * @var \CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository
-     */
     private Definition\Repository\ClassDefinitionRepository $classDefinitionRepository;
 
     public function __construct(Type\Parser\TypeParser $parser, Definition\Repository\ClassDefinitionRepository $classDefinitionRepository)
