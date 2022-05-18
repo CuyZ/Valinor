@@ -5,78 +5,82 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Mapper\Tree\Node;
+use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\String\StringFormatter;
+use CuyZ\Valinor\Utility\TypeHelper;
+use CuyZ\Valinor\Utility\ValueDumper;
 use Throwable;
-
-use function sprintf;
 
 /** @api */
 final class NodeMessage implements Message, HasCode
 {
-    private Node $node;
+    private Shell $shell;
 
     private Message $message;
 
-    public function __construct(Node $node, Message $message)
+    private string $body;
+
+    private string $locale = StringFormatter::DEFAULT_LOCALE;
+
+    public function __construct(Shell $shell, Message $message)
     {
-        $this->node = $node;
+        $this->shell = $shell;
         $this->message = $message;
+
+        if ($this->message instanceof TranslatableMessage) {
+            $this->body = $this->message->body();
+        } elseif ($this->message instanceof Throwable) {
+            $this->body = $this->message->getMessage();
+        } else {
+            $this->body = (string)$this->message;
+        }
     }
 
-    /**
-     * Performs a placeholders replace operation on the given content.
-     *
-     * The values to be replaced will be the ones given as second argument; if
-     * none is given these values will be used instead, in order:
-     *
-     * 1. The original code of this message
-     * 2. The original content of this message
-     * 3. A string representation of the node type
-     * 4. The name of the node
-     * 5. The path of the node
-     *
-     * See usage examples below:
-     *
-     * ```php
-     * $content = $message->format('the previous code was: %1$s');
-     *
-     * $content = $message->format(
-     *     '%1$s / new message content (type: %2$s)',
-     *     'some parameter',
-     *     $message->type(),
-     * );
-     * ```
-     */
-    public function format(string $content, string ...$values): string
+    public function withLocale(string $locale): self
     {
-        return sprintf($content, ...$values ?: [
-            $this->code(),
-            (string)$this,
-            (string)$this->type(),
-            $this->name(),
-            $this->path(),
-        ]);
+        $clone = clone $this;
+        $clone->locale = $locale;
+
+        return $clone;
+    }
+
+    public function locale(): string
+    {
+        return $this->locale;
+    }
+
+    public function withBody(string $body): self
+    {
+        $clone = clone $this;
+        $clone->body = $body;
+
+        return $clone;
+    }
+
+    public function body(): string
+    {
+        return $this->body;
     }
 
     public function name(): string
     {
-        return $this->node->name();
+        return $this->shell->name();
     }
 
     public function path(): string
     {
-        return $this->node->path();
+        return $this->shell->path();
     }
 
     public function type(): Type
     {
-        return $this->node->type();
+        return $this->shell->type();
     }
 
     public function attributes(): Attributes
     {
-        return $this->node->attributes();
+        return $this->shell->attributes();
     }
 
     /**
@@ -84,11 +88,7 @@ final class NodeMessage implements Message, HasCode
      */
     public function value()
     {
-        if (! $this->node->isValid()) {
-            return null;
-        }
-
-        return $this->node->value();
+        return $this->shell->value();
     }
 
     public function originalMessage(): Message
@@ -116,10 +116,27 @@ final class NodeMessage implements Message, HasCode
 
     public function __toString(): string
     {
-        if ($this->message instanceof Throwable) {
-            return $this->message->getMessage();
+        return StringFormatter::format($this->locale, $this->body, $this->parameters());
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function parameters(): array
+    {
+        $parameters = [
+            'message_code' => $this->code(),
+            'node_name' => $this->shell->name(),
+            'node_path' => $this->shell->path(),
+            'node_type' => TypeHelper::dump($this->shell->type()),
+            'original_value' => ValueDumper::dump($this->shell->value()),
+            'original_message' => $this->message instanceof Throwable ? $this->message->getMessage() : $this->message->__toString(),
+        ];
+
+        if ($this->message instanceof TranslatableMessage) {
+            $parameters += $this->message->parameters();
         }
 
-        return (string)$this->message;
+        return $parameters;
     }
 }

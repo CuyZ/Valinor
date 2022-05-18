@@ -139,10 +139,10 @@ final class Node
 
     public function withMessage(Message $message): self
     {
-        $message = new NodeMessage($this, $message);
+        $message = new NodeMessage($this->shell, $message);
 
         $clone = clone $this;
-        $clone->messages = [...$this->messages, $message];
+        $clone->messages[] = $message;
         $clone->valid = $clone->valid && ! $message->isError();
 
         return $clone;

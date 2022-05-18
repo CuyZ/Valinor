@@ -76,7 +76,7 @@ final class ArrayValuesMappingTest extends IntegrationTest
             $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
 
             self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match expected `non-empty-array<string>`.', (string)$error);
+            self::assertSame('Value array (empty) does not match type `non-empty-array<string>`.', (string)$error);
         }
     }
 

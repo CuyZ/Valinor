@@ -92,7 +92,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             $error = $exception->node()->children()['value']->messages()[0];
 
             self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot be empty and must be filled with a value of type `string`.', (string)$error);
+            self::assertSame('Cannot be empty and must be filled with a value matching type `string`.', (string)$error);
         }
     }
 }

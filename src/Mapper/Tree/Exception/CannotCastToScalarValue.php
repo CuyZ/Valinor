@@ -4,26 +4,45 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
 use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Utility\String\StringFormatter;
+use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
-final class CannotCastToScalarValue extends RuntimeException implements Message
+final class CannotCastToScalarValue extends RuntimeException implements TranslatableMessage
 {
+    private string $body;
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param mixed $value
      */
     public function __construct($value, ScalarType $type)
     {
-        if ($value === null || $value === []) {
-            $message = "Cannot be empty and must be filled with a value of type `$type`.";
-        } else {
-            $value = ValueDumper::dump($value);
-            $message = "Cannot cast $value to `$type`.";
-        }
+        $this->parameters = [
+            'value' => ValueDumper::dump($value),
+            'expected_type' => TypeHelper::dump($type),
+        ];
 
-        parent::__construct($message, 1618736242);
+        $this->body = $value === null || $value === []
+            ? 'Cannot be empty and must be filled with a value matching type {expected_type}.'
+            : 'Cannot cast {value} to {expected_type}.';
+
+        parent::__construct(StringFormatter::for($this), 1618736242);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }

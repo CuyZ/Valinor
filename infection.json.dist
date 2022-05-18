@@ -5,6 +5,7 @@
             "src"
         ]
     },
+    "tmpDir": "var/cache/infection",
     "logs": {
         "text": "var/infection/infection.log",
         "summary": "var/infection/summary.log",

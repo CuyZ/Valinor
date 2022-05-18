@@ -5,23 +5,38 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
-final class SeveralObjectBuildersFound extends RuntimeException implements Message, SuitableObjectBuilderNotFound
+final class SeveralObjectBuildersFound extends RuntimeException implements TranslatableMessage, SuitableObjectBuilderNotFound
 {
+    private string $body = 'Invalid value {value}.';
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param mixed $source
      */
     public function __construct($source)
     {
-        $value = ValueDumper::dump($source);
+        $this->parameters = [
+            'value' => ValueDumper::dump($source),
+        ];
 
-        parent::__construct(
-            "Value $value is not accepted.",
-            1642787246
-        );
+        parent::__construct(StringFormatter::for($this), 1642787246);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }
