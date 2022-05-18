@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use BackedEnum;
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 use UnitEnum;
@@ -14,27 +15,41 @@ use function array_map;
 use function implode;
 
 /** @api */
-final class InvalidEnumValue extends RuntimeException implements Message
+final class InvalidEnumValue extends RuntimeException implements TranslatableMessage
 {
+    private string $body = 'Value {value} does not match any of {allowed_values}.';
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param class-string<UnitEnum> $enumName
      * @param mixed $value
      */
     public function __construct(string $enumName, $value)
     {
-        $values = array_map(
-            static function (UnitEnum $case) {
-                return ValueDumper::dump($case instanceof BackedEnum ? $case->value : $case->name);
-            },
-            $enumName::cases()
-        );
+        $this->parameters = [
+            'value' => ValueDumper::dump($value),
+            'allowed_values' => (function () use ($enumName) {
+                $values = array_map(
+                    fn (UnitEnum $case) => ValueDumper::dump($case instanceof BackedEnum ? $case->value : $case->name),
+                    $enumName::cases()
+                );
 
-        $values = implode(', ', $values);
-        $value = ValueDumper::dump($value);
+                return implode(', ', $values);
+            })(),
+        ];
 
-        parent::__construct(
-            "Invalid value $value, it must be one of $values.",
-            1633093113
-        );
+        parent::__construct(StringFormatter::for($this), 1633093113);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }

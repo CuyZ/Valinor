@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
-use CuyZ\Valinor\Utility\Polyfill;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 

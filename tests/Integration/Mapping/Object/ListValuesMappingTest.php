@@ -76,7 +76,7 @@ final class ListValuesMappingTest extends IntegrationTest
             $error = $exception->node()->children()['nonEmptyListOfStrings']->messages()[0];
 
             self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match expected `non-empty-list<string>`.', (string)$error);
+            self::assertSame('Value array (empty) does not match type `non-empty-list<string>`.', (string)$error);
         }
     }
 

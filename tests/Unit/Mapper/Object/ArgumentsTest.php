@@ -39,6 +39,9 @@ final class ArgumentsTest extends TestCase
             Argument::optional('someOptionalArgument', $typeD, 'defaultValue')
         );
 
-        self::assertSame("array{someArgument: $typeA, someArgumentOfObject: ?, someArgumentWithUnionOfObject: ?, someOptionalArgument?: $typeD}", $arguments->signature());
+        self::assertSame(
+            "`array{someArgument: $typeA, someArgumentOfObject: ?, someArgumentWithUnionOfObject: ?, someOptionalArgument?: $typeD}`",
+            $arguments->signature()
+        );
     }
 }

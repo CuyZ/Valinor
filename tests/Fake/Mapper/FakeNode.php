@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Fake\Mapper;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
@@ -26,7 +25,7 @@ final class FakeNode
      */
     public static function leaf(Type $type, $value): Node
     {
-        $shell = Shell::root($type, $value);
+        $shell = FakeShell::new($type, $value);
 
         return Node::leaf($shell, $value);
     }
@@ -37,7 +36,7 @@ final class FakeNode
      */
     public static function branch(array $children, Type $type = null, $value = null): Node
     {
-        $shell = Shell::root($type ?? FakeType::permissive(), $value);
+        $shell = FakeShell::new($type ?? FakeType::permissive(), $value);
         $nodes = [];
 
         foreach ($children as $key => $child) {
@@ -65,7 +64,7 @@ final class FakeNode
      */
     public static function error(Throwable $error = null): Node
     {
-        $shell = Shell::root(FakeType::permissive(), []);
+        $shell = FakeShell::new(FakeType::permissive(), []);
 
         return Node::error($shell, $error ?? new FakeErrorMessage());
     }

@@ -41,14 +41,14 @@ final class Arguments implements IteratorAggregate, Countable
                 $name = $argument->name();
                 $type = $argument->type();
 
-                $signature = TypeHelper::containsObject($type) ? '?' : $type;
+                $signature = TypeHelper::dump($type, false);
 
                 return $argument->isRequired() ? "$name: $signature" : "$name?: $signature";
             },
             $this->arguments
         );
 
-        return 'array{' . implode(', ', $parameters) . '}';
+        return '`array{' . implode(', ', $parameters) . '}`';
     }
 
     public function count(): int

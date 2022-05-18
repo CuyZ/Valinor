@@ -290,7 +290,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1642787246', $error->code());
-            self::assertSame('Value array (empty) is not accepted.', (string)$error);
+            self::assertSame('Invalid value array (empty).', (string)$error);
         }
     }
 
@@ -299,8 +299,8 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         try {
             $this->mapperBuilder
                 ->registerConstructor(
-                    fn (string $foo): stdClass => new stdClass(),
                     fn (int $bar, float $baz = 1337.404): stdClass => new stdClass(),
+                    fn (string $foo): stdClass => new stdClass(),
                 )
                 ->mapper()
                 ->map(stdClass::class, []);

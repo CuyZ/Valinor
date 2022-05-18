@@ -112,7 +112,7 @@ final class UnionScalarNarrowerTest extends TestCase
 
         $this->expectException(CannotResolveTypeFromUnion::class);
         $this->expectExceptionCode(1607027306);
-        $this->expectExceptionMessage("Value 'foo' is not accepted.");
+        $this->expectExceptionMessage("Invalid value 'foo'.");
 
         $this->unionScalarNarrower->narrow($unionType, 'foo');
     }

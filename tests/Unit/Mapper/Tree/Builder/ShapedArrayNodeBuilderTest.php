@@ -9,7 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\ShapedArrayElementMissing;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
-use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
@@ -23,7 +23,7 @@ final class ShapedArrayNodeBuilderTest extends TestCase
     {
         $this->expectException(AssertionError::class);
 
-        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root(new FakeType(), []));
+        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(FakeShell::any());
     }
 
     public function test_build_with_invalid_source_throws_exception(): void
@@ -32,9 +32,9 @@ final class ShapedArrayNodeBuilderTest extends TestCase
 
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage("Value 'foo' does not match expected `array{foo: SomeType}`.");
+        $this->expectExceptionMessage("Value 'foo' does not match type `array{foo: SomeType}`.");
 
-        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, 'foo'));
+        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(FakeShell::new($type, 'foo'));
     }
 
     public function test_build_with_invalid_source_for_shaped_array_containing_object_type_throws_exception(): void
@@ -43,9 +43,9 @@ final class ShapedArrayNodeBuilderTest extends TestCase
 
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage("Value 'foo' is not accepted.");
+        $this->expectExceptionMessage("Invalid value 'foo'.");
 
-        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, 'foo'));
+        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(FakeShell::new($type, 'foo'));
     }
 
     public function test_build_with_null_source_throws_exception(): void
@@ -54,19 +54,19 @@ final class ShapedArrayNodeBuilderTest extends TestCase
 
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage("Cannot be empty and must be filled with a value matching `array{foo: SomeType}`.");
+        $this->expectExceptionMessage("Cannot be empty and must be filled with a value matching type `array{foo: SomeType}`.");
 
-        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, null));
+        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(FakeShell::new($type));
     }
 
     public function test_build_with_missing_key_throws_exception(): void
     {
         $this->expectException(ShapedArrayElementMissing::class);
         $this->expectExceptionCode(1631613641);
-        $this->expectExceptionMessage("Missing element `foo` of type `SomeType`.");
+        $this->expectExceptionMessage("Missing element `foo` matching type `SomeType`.");
 
         $type = new ShapedArrayType(new ShapedArrayElement(new StringValueType('foo'), new FakeType('SomeType')));
 
-        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(Shell::root($type, []));
+        (new RootNodeBuilder(new ShapedArrayNodeBuilder()))->build(FakeShell::new($type, []));
     }
 }

@@ -37,7 +37,7 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 'foo' does not match expected `$type`.");
+        $this->expectExceptionMessage("Value 'foo' does not match type `$type`.");
 
         FakeNode::leaf($type, 'foo');
     }
@@ -82,7 +82,7 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 'foo' does not match expected `$type`.");
+        $this->expectExceptionMessage("Value 'foo' does not match type `$type`.");
 
         FakeNode::branch([], $type, 'foo');
     }
@@ -93,7 +93,7 @@ final class NodeTest extends TestCase
         $node = FakeNode::error($message);
 
         self::assertFalse($node->isValid());
-        self::assertSame((string)$message, (string)$node->messages()[0]);
+        self::assertSame('some error message', (string)$node->messages()[0]);
     }
 
     public function test_get_value_from_invalid_node_throws_exception(): void
@@ -133,7 +133,7 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 1337 does not match expected `$type`.");
+        $this->expectExceptionMessage("Value 1337 does not match type `$type`.");
 
         FakeNode::leaf($type, 'foo')->withValue(1337);
     }
@@ -145,7 +145,7 @@ final class NodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 1337 is not accepted.");
+        $this->expectExceptionMessage('Invalid value 1337.');
 
         FakeNode::leaf($type, $object)->withValue(1337);
     }
@@ -174,7 +174,7 @@ final class NodeTest extends TestCase
 
         self::assertNotSame($nodeA, $nodeB);
         self::assertFalse($nodeB->isValid());
-        self::assertSame((string)$message, (string)$nodeB->messages()[0]);
-        self::assertSame((string)$errorMessage, (string)$nodeB->messages()[1]);
+        self::assertSame('some message', (string)$nodeB->messages()[0]);
+        self::assertSame('some error message', (string)$nodeB->messages()[1]);
     }
 }

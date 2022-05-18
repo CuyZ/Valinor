@@ -5,22 +5,39 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types\Exception;
 
 use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Utility\String\StringFormatter;
+use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
 final class CannotCastValue extends RuntimeException implements CastError
 {
+    private string $body = 'Cannot cast {value} to {expected_type}.';
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param mixed $value
      */
     public function __construct($value, ScalarType $type)
     {
-        $value = ValueDumper::dump($value);
+        $this->parameters = [
+            'value' => ValueDumper::dump($value),
+            'expected_type' => TypeHelper::dump($type),
+        ];
 
-        parent::__construct(
-            "Cannot cast $value to `$type`.",
-            1603216198
-        );
+        parent::__construct(StringFormatter::for($this), 1603216198);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }

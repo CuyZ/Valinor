@@ -4,22 +4,38 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
 final class InvalidIntegerValueType extends RuntimeException implements CastError
 {
+    private string $body = 'Value {value} does not match integer value {expected_value}.';
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param mixed $value
      */
-    public function __construct($value, int $integerValue)
+    public function __construct($value, int $expected)
     {
-        $value = ValueDumper::dump($value);
+        $this->parameters = [
+            'value' => ValueDumper::dump($value),
+            'expected_value' => (string)$expected,
+        ];
 
-        parent::__construct(
-            "Value $value does not match integer value $integerValue.",
-            1631267159
-        );
+        parent::__construct(StringFormatter::for($this), 1631267159);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }

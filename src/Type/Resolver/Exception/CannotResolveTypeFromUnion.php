@@ -4,27 +4,52 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Resolver\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
 use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
+use function array_map;
 use function implode;
 
 /** @api */
-final class CannotResolveTypeFromUnion extends RuntimeException implements Message
+final class CannotResolveTypeFromUnion extends RuntimeException implements TranslatableMessage
 {
+    private string $body;
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param mixed $value
      */
     public function __construct(UnionType $unionType, $value)
     {
-        $value = ValueDumper::dump($value);
-        $message = TypeHelper::containsObject($unionType)
-            ? "Value $value is not accepted."
-            : "Value $value does not match any of `" . implode('`, `', $unionType->types()) . "`.";
+        $this->parameters = [
+            'value' => ValueDumper::dump($value),
+            'allowed_types' => implode(
+                ', ',
+                // @PHP8.1 First-class callable syntax
+                array_map([TypeHelper::class, 'dump'], $unionType->types())
+            ),
+        ];
 
-        parent::__construct($message, 1607027306);
+        $this->body = TypeHelper::containsObject($unionType)
+            ? 'Invalid value {value}.'
+            : 'Value {value} does not match any of {allowed_types}.';
+
+        parent::__construct(StringFormatter::for($this), 1607027306);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }

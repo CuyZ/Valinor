@@ -158,7 +158,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1645283485', $error->code());
-            self::assertSame('Invalid value 42, it must be an iterable.', (string)$error);
+            self::assertSame('Invalid value 42: it must be an array.', (string)$error);
         }
     }
 

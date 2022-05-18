@@ -84,7 +84,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
 
         if (! $date) {
             // @PHP8.0 use throw exception expression
-            throw new CannotParseToDateTime((string)$datetime);
+            throw new CannotParseToDateTime($datetime);
         }
 
         return $date;

@@ -4,24 +4,41 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Utility\String\StringFormatter;
+use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @api */
-final class InvalidTraversableKey extends RuntimeException implements Message
+final class InvalidTraversableKey extends RuntimeException implements TranslatableMessage
 {
+    private string $body = 'Key {key} does not match type {expected_type}.';
+
+    /** @var array<string, string> */
+    private array $parameters;
+
     /**
      * @param string|int $key
      */
     public function __construct($key, ArrayKeyType $type)
     {
-        $key = ValueDumper::dump($key);
+        $this->parameters = [
+            'key' => ValueDumper::dump($key),
+            'expected_type' => TypeHelper::dump($type),
+        ];
 
-        parent::__construct(
-            "Invalid key $key, it must be of type `$type`.",
-            1630946163
-        );
+        parent::__construct(StringFormatter::for($this), 1630946163);
+    }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 }
