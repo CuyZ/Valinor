@@ -82,14 +82,14 @@ final class Container
     public function __construct(Settings $settings)
     {
         $this->factories = [
-            TreeMapper::class => fn (): TreeMapper => new TreeMapperContainer(
+            TreeMapper::class => fn () => new TreeMapperContainer(
                 $this->get(TypeParser::class),
                 new RootNodeBuilder($this->get(NodeBuilder::class))
             ),
 
-            ShellVisitor::class => fn (): ShellVisitor => new AttributeShellVisitor(),
+            ShellVisitor::class => fn () => new AttributeShellVisitor(),
 
-            NodeBuilder::class => function () use ($settings): NodeBuilder {
+            NodeBuilder::class => function () use ($settings) {
                 $listNodeBuilder = new ListNodeBuilder();
                 $arrayNodeBuilder = new ArrayNodeBuilder();
 
@@ -136,7 +136,7 @@ final class Container
                 return new ErrorCatcherNodeBuilder($builder);
             },
 
-            ObjectBuilderFactory::class => function () use ($settings): ObjectBuilderFactory {
+            ObjectBuilderFactory::class => function () use ($settings) {
                 $constructors = new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
                     $settings->customConstructors
@@ -162,7 +162,7 @@ final class Container
 
             ObjectBuilderFilterer::class => fn () => new ObjectBuilderFilterer(),
 
-            ClassDefinitionRepository::class => function () use ($settings): ClassDefinitionRepository {
+            ClassDefinitionRepository::class => function () use ($settings) {
                 $repository = new ReflectionClassDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     $this->get(AttributesRepository::class),
@@ -175,7 +175,7 @@ final class Container
                 return new CacheClassDefinitionRepository($repository, $cache);
             },
 
-            FunctionDefinitionRepository::class => function () use ($settings): FunctionDefinitionRepository {
+            FunctionDefinitionRepository::class => function () use ($settings) {
                 $repository = new ReflectionFunctionDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     $this->get(AttributesRepository::class),
@@ -188,7 +188,7 @@ final class Container
                 return new CacheFunctionDefinitionRepository($repository, $cache);
             },
 
-            AttributesRepository::class => function () use ($settings): AttributesRepository {
+            AttributesRepository::class => function () use ($settings) {
                 if (! $settings->enableLegacyDoctrineAnnotations) {
                     return new NativeAttributesRepository();
                 }
@@ -203,18 +203,18 @@ final class Container
                 return new DoctrineAnnotationsRepository(); // @codeCoverageIgnoreEnd
             },
 
-            TypeParserFactory::class => fn (): TypeParserFactory => new LexingTypeParserFactory(
+            TypeParserFactory::class => fn () => new LexingTypeParserFactory(
                 $this->get(TemplateParser::class)
             ),
 
-            TypeParser::class => function (): TypeParser {
+            TypeParser::class => function () {
                 $factory = $this->get(TypeParserFactory::class);
                 $parser = $factory->get(new HandleClassGenericSpecification());
 
                 return new CachedParser($parser);
             },
 
-            TemplateParser::class => fn (): TemplateParser => new BasicTemplateParser(),
+            TemplateParser::class => fn () => new BasicTemplateParser(),
         ];
     }
 
