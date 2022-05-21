@@ -96,7 +96,7 @@ final class ReflectionTest extends TestCase
     public function test_nullable_scalar_type_is_handled(): void
     {
         $object = new class () {
-            public ?string $someProperty;
+            public ?string $someProperty = null;
         };
 
         /** @var ReflectionType $type */
