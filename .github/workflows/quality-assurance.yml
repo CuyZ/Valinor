@@ -47,14 +47,14 @@ jobs:
 
       - uses: "ramsey/composer-install@v2"
 
-      - name: Running PHP Coding Standards Fixer
-        run: php vendor/bin/php-cs-fixer fix --dry-run
-
       - name: Running PHPStan
         run: php vendor/bin/phpstan
 
       - name: Running Psalm
         run: php vendor/bin/psalm
+
+      - name: Running PHP Coding Standards Fixer
+        run: php vendor/bin/php-cs-fixer fix --dry-run
 
       - name: Running Rector
         run: php vendor/bin/rector --dry-run

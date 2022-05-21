@@ -46,9 +46,9 @@
     "scripts": {
         "check": [
             "phpunit",
-            "php-cs-fixer fix --dry-run",
             "phpstan",
             "psalm",
+            "php-cs-fixer fix --dry-run",
             "rector --dry-run"
         ],
         "fix": [
