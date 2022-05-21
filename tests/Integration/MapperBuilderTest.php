@@ -20,15 +20,13 @@ final class MapperBuilderTest extends IntegrationTest
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->cacheDirectoryRoot = vfsStream::setup('valinor');
     }
 
     public function test_will_warmup_type_parser_cache(): void
     {
-        self::assertEmpty(array_filter(
-            iterator_to_array($this->cacheDirectoryRoot),
-            $this->cacheFileFilterCallback()
-        ));
+        $this->assertCacheDirectoryIsEmpty();
 
         $builder = $this->mapperBuilder->withCacheDir($this->cacheDirectoryRoot->url());
         $builder->warmup(ObjectWithNonEmptyStringProperty::class);
@@ -41,10 +39,7 @@ final class MapperBuilderTest extends IntegrationTest
 
     public function test_will_warmup_type_parser_cache_with_multiple_signatures(): void
     {
-        self::assertEmpty(array_filter(
-            iterator_to_array($this->cacheDirectoryRoot),
-            $this->cacheFileFilterCallback()
-        ));
+        $this->assertCacheDirectoryIsEmpty();
 
         $builder = $this->mapperBuilder->withCacheDir($this->cacheDirectoryRoot->url());
         $builder->warmup(ObjectWithNonEmptyStringProperty::class, ObjectWithPositiveIntProperty::class);
@@ -57,10 +52,7 @@ final class MapperBuilderTest extends IntegrationTest
 
     public function test_will_warmup_nested_class_definitions(): void
     {
-        self::assertEmpty(array_filter(
-            iterator_to_array($this->cacheDirectoryRoot),
-            $this->cacheFileFilterCallback()
-        ));
+        $this->assertCacheDirectoryIsEmpty();
 
         $builder = $this->mapperBuilder->withCacheDir($this->cacheDirectoryRoot->url());
         $builder->warmup(ObjectWithNestedObjectsProperties::class);
@@ -71,8 +63,16 @@ final class MapperBuilderTest extends IntegrationTest
         ));
     }
 
+    private function assertCacheDirectoryIsEmpty(): void
+    {
+        self::assertEmpty(array_filter(
+            iterator_to_array($this->cacheDirectoryRoot),
+            $this->cacheFileFilterCallback()
+        ));
+    }
+
     /**
-     * @return callable(vfsStreamContent):bool
+     * @return callable(vfsStreamContent): bool
      */
     private function cacheFileFilterCallback(): callable
     {

@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility;
 
-use CuyZ\Valinor\Type;
+use CuyZ\Valinor\Definition;
+use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
+use CuyZ\Valinor\Type\Parser\TypeParser;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Definition;
 
 /** @internal */
 final class RecursiveSignatureTypeDefinitionWarmup
 {
-    private Type\Parser\TypeParser $parser;
+    private TypeParser $parser;
 
-    private Definition\Repository\ClassDefinitionRepository $classDefinitionRepository;
+    private ClassDefinitionRepository $classDefinitionRepository;
 
-    public function __construct(Type\Parser\TypeParser $parser, Definition\Repository\ClassDefinitionRepository $classDefinitionRepository)
+    public function __construct(TypeParser $parser, ClassDefinitionRepository $classDefinitionRepository)
     {
         $this->parser = $parser;
         $this->classDefinitionRepository = $classDefinitionRepository;
@@ -27,6 +29,7 @@ final class RecursiveSignatureTypeDefinitionWarmup
      * @param list<class-string> $signatures
      * @param list<class-string> $alreadyKnownSignatures
      * @return list<class-string>
+     *
      * @throws InvalidType In case one of the provided signatures contain invalid types.
      */
     public function warmupSignatures(array $signatures, array $alreadyKnownSignatures): array
@@ -57,7 +60,7 @@ final class RecursiveSignatureTypeDefinitionWarmup
         $recursiveSignatures = [];
         foreach ($classDefinition->properties() as $property) {
             $propertyType = $property->type();
-            if (!$propertyType instanceof ClassType) {
+            if (! $propertyType instanceof ClassType) {
                 continue;
             }
 
@@ -74,11 +77,11 @@ final class RecursiveSignatureTypeDefinitionWarmup
 
     /**
      * @param list<class-string> $alreadyKnownSignatures
-     *
      * @return list<class-string>
+     *
      * @throws InvalidType In case one of the provided signatures contain invalid types.
      */
-    private function warmupSignatureByType(Type\Type $type, array $alreadyKnownSignatures): array
+    private function warmupSignatureByType(Type $type, array $alreadyKnownSignatures): array
     {
         if ($type instanceof ClassType) {
             $classDefinition = $this->classDefinitionRepository->for($type);
@@ -89,7 +92,7 @@ final class RecursiveSignatureTypeDefinitionWarmup
 
         if ($type instanceof CompositeType) {
             $types = $type;
-            unset($type);
+
             foreach ($types->traverse() as $type) {
                 $alreadyKnownSignatures = $this->warmupSignatureByType($type, $alreadyKnownSignatures);
             }

@@ -218,6 +218,16 @@ final class Container
         return $this->get(TreeMapper::class);
     }
 
+    public function typeParser(): TypeParser
+    {
+        return $this->get(TypeParser::class);
+    }
+
+    public function classDefinitionRepository(): ClassDefinitionRepository
+    {
+        return $this->get(ClassDefinitionRepository::class);
+    }
+
     /**
      * @template T of object
      * @param class-string<T> $name

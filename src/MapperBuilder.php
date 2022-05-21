@@ -286,6 +286,7 @@ final class MapperBuilder
      *
      * @param class-string $signature
      * @param class-string ...$additionalSignatures
+     *
      * @throws InvalidType In case one of the provided signatures contain invalid types.
      */
     public function warmup(string $signature, string ...$additionalSignatures): void
