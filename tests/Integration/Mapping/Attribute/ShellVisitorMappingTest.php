@@ -8,6 +8,7 @@ use Attribute;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
@@ -16,7 +17,7 @@ final class ShellVisitorMappingTest extends IntegrationTest
     public function test_shell_visitor_attributes_are_called_during_mapping(): void
     {
         try {
-            $result = $this->mapperBuilder->enableLegacyDoctrineAnnotations()->mapper()->map(
+            $result = (new MapperBuilder())->enableLegacyDoctrineAnnotations()->mapper()->map(
                 ObjectWithShellVisitorAttributes::class,
                 [
                     'valueA' => 'foo',

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidInterfaceResolverReturnType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTypeResolvedForInterface;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedTypeForInterfaceIsNotAccepted;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveTypeFromInterface;
 use DateTime;
@@ -20,7 +21,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     public function test_override_date_time_interface_inferring_overrides_correctly(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->infer(DateTimeInterface::class, fn () => DateTime::class)
                 ->mapper()
                 ->map(DateTimeInterface::class, 1645279176);
@@ -35,7 +36,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     public function test_infer_interface_with_single_argument_works_properly(): void
     {
         try {
-            [$resultA, $resultB] = $this->mapperBuilder
+            [$resultA, $resultB] = (new MapperBuilder())
                 ->infer(SomeInterface::class, function (string $type): string {
                     // @PHP8.0 use `match` with short closure
                     switch ($type) {
@@ -65,7 +66,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     public function test_infer_interface_with_several_arguments_works_properly(): void
     {
         try {
-            [$resultA, $resultB] = $this->mapperBuilder
+            [$resultA, $resultB] = (new MapperBuilder())
                 ->infer(SomeInterface::class, function (string $type, int $key): string {
                     if ($type === 'classA' && $key === 42) {
                         return SomeClassThatInheritsInterfaceA::class;
@@ -104,7 +105,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         $this->expectExceptionCode(1618049116);
         $this->expectExceptionMessage('Impossible to resolve an implementation for the interface `' . SomeInterface::class . '`.');
 
-        $this->mapperBuilder
+        (new MapperBuilder())
             ->mapper()
             ->map(SomeInterface::class, []);
     }
@@ -115,7 +116,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         $this->expectExceptionCode(1630091260);
         $this->expectExceptionMessage('Invalid value 42; it must be the name of a class that implements `DateTimeInterface`.');
 
-        $this->mapperBuilder
+        (new MapperBuilder())
             ->infer(DateTimeInterface::class, fn () => 42)
             ->mapper()
             ->map(DateTimeInterface::class, []);
@@ -127,7 +128,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         $this->expectExceptionCode(1618049224);
         $this->expectExceptionMessage('Invalid type `int`; it must be the name of a class that implements `DateTimeInterface`.');
 
-        $this->mapperBuilder
+        (new MapperBuilder())
             ->infer(DateTimeInterface::class, fn () => 'int')
             ->mapper()
             ->map(DateTimeInterface::class, []);
@@ -139,7 +140,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         $this->expectExceptionCode(1618049487);
         $this->expectExceptionMessage('The implementation `stdClass` is not accepted by the interface `DateTimeInterface`.');
 
-        $this->mapperBuilder
+        (new MapperBuilder())
             ->infer(DateTimeInterface::class, fn () => stdClass::class)
             ->mapper()
             ->map(DateTimeInterface::class, []);
@@ -148,7 +149,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     public function test_invalid_source_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->infer(SomeInterface::class, fn (string $type, int $key): string => SomeClassThatInheritsInterfaceA::class)
                 ->mapper()
                 ->map(SomeInterface::class, 42);
@@ -163,7 +164,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     public function test_invalid_source_value_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->infer(SomeInterface::class, fn (int $key): string => SomeClassThatInheritsInterfaceA::class)
                 ->mapper()
                 ->map(SomeInterface::class, 'foo');
@@ -178,7 +179,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     public function test_exception_thrown_is_caught_and_throws_message_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->infer(DateTimeInterface::class, function () {
                     // @PHP8.0 use short closure
                     throw new DomainException('some error message', 1645303304);

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Node;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
@@ -18,7 +19,7 @@ final class VisitorMappingTest extends IntegrationTest
         $error = new FakeErrorMessage();
 
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->visit(function (Node $node) use (&$visits): void {
                     if ($node->isRoot()) {
                         $visits[] = '#1';

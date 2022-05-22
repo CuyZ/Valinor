@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionOfObjects;
 
@@ -16,10 +17,10 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_object_type_is_narrowed_correctly_for_simple_case(): void
     {
         try {
-            $resultFoo = $this->mapperBuilder->mapper()->map(NativeUnionOfObjects::class, [
+            $resultFoo = (new MapperBuilder())->mapper()->map(NativeUnionOfObjects::class, [
                 'foo' => 'foo',
             ]);
-            $resultBar = $this->mapperBuilder->mapper()->map(NativeUnionOfObjects::class, [
+            $resultBar = (new MapperBuilder())->mapper()->map(NativeUnionOfObjects::class, [
                 'bar' => 'bar',
             ]);
         } catch (MappingError $error) {
@@ -33,7 +34,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_object_type_is_narrowed_correctly_for_simple_array_case(): void
     {
         try {
-            $result = $this->mapperBuilder->mapper()->map(UnionOfFooAndBar::class, [
+            $result = (new MapperBuilder())->mapper()->map(UnionOfFooAndBar::class, [
                 'foo' => ['foo' => 'foo'],
                 'bar' => ['bar' => 'bar'],
             ]);
@@ -48,7 +49,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_source_matching_two_unions_maps_the_one_with_most_arguments(): void
     {
         try {
-            $result = $this->mapperBuilder->mapper()->map(UnionOfBarAndFizAndFoo::class, [
+            $result = (new MapperBuilder())->mapper()->map(UnionOfBarAndFizAndFoo::class, [
                 ['foo' => 'foo', 'bar' => 'bar', 'fiz' => 'fiz'],
             ]);
         } catch (MappingError $error) {
@@ -65,7 +66,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_objects_sharing_one_property_are_resolved_correctly(): void
     {
         try {
-            $result = $this->mapperBuilder->mapper()->map(UnionOfFooAndBarAndFoo::class, [
+            $result = (new MapperBuilder())->mapper()->map(UnionOfFooAndBarAndFoo::class, [
                 ['foo' => 'foo'],
                 ['foo' => 'foo', 'bar' => 'bar'],
             ]);
@@ -80,7 +81,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_one_failing_union_type_does_not_stop_union_inferring(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 // @PHP8.1 first-class callable syntax
                 ->registerConstructor(
                     [SomeClassWithTwoIdenticalNamedConstructors::class, 'constructorA'],
@@ -107,7 +108,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     public function test_mapping_error_when_cannot_resolve_union(string $className, array $source): void
     {
         try {
-            $this->mapperBuilder->mapper()->map($className, $source);
+            (new MapperBuilder())->mapper()->map($className, $source);
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {

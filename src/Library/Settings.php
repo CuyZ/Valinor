@@ -7,8 +7,7 @@ namespace CuyZ\Valinor\Library;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use DateTimeImmutable;
 use DateTimeInterface;
-
-use function sys_get_temp_dir;
+use Psr\SimpleCache\CacheInterface;
 
 /** @internal */
 final class Settings
@@ -28,13 +27,13 @@ final class Settings
     /** @var array<callable(Node): void> */
     public array $nodeVisitors = [];
 
-    public string $cacheDir;
+    /** @var CacheInterface<mixed> */
+    public CacheInterface $cache;
 
     public bool $enableLegacyDoctrineAnnotations = PHP_VERSION_ID < 8_00_00;
 
     public function __construct()
     {
-        $this->cacheDir = sys_get_temp_dir();
         $this->interfaceMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
     }
 }

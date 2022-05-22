@@ -6,8 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\MapperBuilder;
-use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 
 use function implode;
@@ -15,17 +13,6 @@ use function iterator_to_array;
 
 abstract class IntegrationTest extends TestCase
 {
-    protected MapperBuilder $mapperBuilder;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        vfsStream::setup('cache-dir');
-
-        $this->mapperBuilder = (new MapperBuilder())->withCacheDir(vfsStream::url('cache-dir'));
-    }
-
     /**
      * @return never-return
      */

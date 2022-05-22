@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class CamelCaseKeysMappingTest extends IntegrationTest
@@ -13,7 +14,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
     public function test_underscore_key_is_modified_to_camel_case(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithCamelCaseProperty::class,
                 new CamelCaseKeys(['some_value' => 'foo'])
             );
@@ -27,7 +28,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
     public function test_dash_key_is_modified_to_camel_case(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithCamelCaseProperty::class,
                 new CamelCaseKeys(['some-value' => 'foo'])
             );
@@ -41,7 +42,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
     public function test_spaced_key_is_modified_to_camel_case(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithCamelCaseProperty::class,
                 new CamelCaseKeys(['some value' => 'foo'])
             );
@@ -55,7 +56,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
     public function test_nested_camel_case_keys_are_modified(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithNestedProperty::class,
                 new CamelCaseKeys([
                     'some_nested_value' => ['some_value' => 'foo'],
@@ -71,7 +72,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
     public function test_existing_camel_case_key_is_not_overridden(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithCamelCaseProperty::class,
                 new CamelCaseKeys([
                     'someValue' => 'bar',
@@ -88,7 +89,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
     public function test_multiple_camel_case_keys_are_modified(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithCamelCaseProperty::class,
                 new CamelCaseKeys([
                     'some_value' => 'foo',

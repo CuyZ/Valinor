@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTime;
 use DateTimeImmutable;
@@ -22,7 +23,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         $object = new stdClass();
 
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor(fn (): stdClass => $object)
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -41,7 +42,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         };
 
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor(/** @return stdClass */ fn () => $object)
                 ->mapper()
                 ->map(get_class($class), []);
@@ -55,7 +56,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_named_constructor_is_used(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 // @PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithNamedConstructors::class, 'namedConstructor'])
                 ->mapper()
@@ -80,7 +81,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         };
 
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor($constructor)
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -104,7 +105,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         };
 
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 // @PHP8.1 first-class callable syntax
                 ->registerConstructor([$constructor, 'build'])
                 ->mapper()
@@ -119,7 +120,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_native_constructor_is_not_called_if_not_registered_but_other_constructors_are_registered(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 // @PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
                 ->mapper()
@@ -134,7 +135,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_native_constructor_is_called_if_registered_and_other_constructors_are_registered(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 // @PHP8.1 first-class callable syntax
                 ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class)
                 ->registerConstructor([SomeClassWithDifferentNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
@@ -156,7 +157,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         $object = new stdClass();
 
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor(fn (): DateTime => new DateTime())
                 // This constructor is surrounded by other ones to ensure it is
                 // still used correctly.
@@ -174,7 +175,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_constructor_with_one_argument_is_used(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor(function (int $int): stdClass {
                     $class = new stdClass();
                     $class->int = $int;
@@ -193,7 +194,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_constructor_with_several_arguments_is_used(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor(function (string $string, int $int, float $float = 1337.404): stdClass {
                     $class = new stdClass();
                     $class->string = $string;
@@ -218,7 +219,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
     public function test_registered_constructors_for_same_class_are_filtered_correctly(): void
     {
-        $mapper = $this->mapperBuilder
+        $mapper = (new MapperBuilder())
             // Basic constructor
             ->registerConstructor(function (string $foo): stdClass {
                 $class = new stdClass();
@@ -279,7 +280,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_identical_registered_constructors_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->registerConstructor(
                     fn (): stdClass => new stdClass(),
                     fn (): stdClass => new stdClass(),
@@ -297,7 +298,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_source_not_matching_registered_constructors_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->registerConstructor(
                     fn (int $bar, float $baz = 1337.404): stdClass => new stdClass(),
                     fn (string $foo): stdClass => new stdClass(),
@@ -318,7 +319,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         $this->expectExceptionCode(1646916477);
         $this->expectExceptionMessage('No available constructor found for class `' . SomeClassWithPrivateNativeConstructor::class . '`');
 
-        $this->mapperBuilder
+        (new MapperBuilder())
             ->mapper()
             ->map(SomeClassWithPrivateNativeConstructor::class, []);
     }
@@ -328,7 +329,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         $default = new DateTime('@1356097062');
         $defaultImmutable = new DateTimeImmutable('@1356097062');
 
-        $mapper = $this->mapperBuilder
+        $mapper = (new MapperBuilder())
             ->registerConstructor(fn (int $timestamp): DateTime => $default)
             ->registerConstructor(fn (int $timestamp): DateTimeImmutable => $defaultImmutable)
             ->mapper();
@@ -347,7 +348,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_datetime_constructor_not_matching_source_uses_default_constructor(): void
     {
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->registerConstructor(fn (string $foo, int $bar): DateTimeInterface => new DateTimeImmutable())
                 ->mapper()
                 ->map(DateTimeInterface::class, 1647781015);
@@ -361,7 +362,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_constructor_throwing_exception_fails_mapping_with_message(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->registerConstructor(function (): stdClass {
                     // @PHP8.0 use short closure
                     throw new DomainException('some domain exception');
@@ -380,7 +381,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         $object = new stdClass();
 
         try {
-            $result = $this->mapperBuilder
+            $result = (new MapperBuilder())
                 ->bind(fn (): stdClass => $object)
                 ->mapper()
                 ->map(stdClass::class, []);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class LocalTypeAliasMappingTest extends IntegrationTest
@@ -23,7 +24,7 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
 
         foreach ([PhpStanLocalAliases::class, PsalmLocalAliases::class] as $class) {
             try {
-                $result = $this->mapperBuilder
+                $result = (new MapperBuilder())
                     ->mapper()
                     ->map($class, $source);
 
@@ -41,7 +42,7 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
     {
         foreach ([PhpStanAliasImport::class, PsalmAliasImport::class] as $class) {
             try {
-                $result = $this->mapperBuilder
+                $result = (new MapperBuilder())
                     ->mapper()
                     ->map($class, [
                         'importedType' => 42,

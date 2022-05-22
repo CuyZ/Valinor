@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use DateTime;
@@ -41,7 +42,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
 
         foreach ([ScalarValues::class, ScalarValuesWithConstructor::class] as $class) {
             try {
-                $result = $this->mapperBuilder->mapper()->map($class, $source);
+                $result = (new MapperBuilder())->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -71,7 +72,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
     public function test_value_that_cannot_be_casted_throws_exception(): void
     {
         try {
-            $this->mapperBuilder->mapper()->map(SimpleObject::class, [
+            (new MapperBuilder())->mapper()->map(SimpleObject::class, [
                 'value' => new stdClass(),
             ]);
         } catch (MappingError $exception) {
@@ -85,7 +86,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
     public function test_empty_mandatory_value_throws_exception(): void
     {
         try {
-            $this->mapperBuilder->mapper()->map(SimpleObject::class, [
+            (new MapperBuilder())->mapper()->map(SimpleObject::class, [
                 'value' => null,
             ]);
         } catch (MappingError $exception) {

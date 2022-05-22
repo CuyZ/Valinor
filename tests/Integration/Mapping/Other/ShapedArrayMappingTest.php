@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class ShapedArrayMappingTest extends IntegrationTest
@@ -18,7 +19,7 @@ final class ShapedArrayMappingTest extends IntegrationTest
         ];
 
         try {
-            $result = $this->mapperBuilder->mapper()->map('array{foo: string, bar: int, fiz: float}', $source);
+            $result = (new MapperBuilder())->mapper()->map('array{foo: string, bar: int, fiz: float}', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -38,7 +39,7 @@ final class ShapedArrayMappingTest extends IntegrationTest
 
         foreach (['array{foo: string, bar: int}', 'array{bar: int, fiz:float}'] as $signature) {
             try {
-                $result = $this->mapperBuilder->mapper()->map($signature, $source);
+                $result = (new MapperBuilder())->mapper()->map($signature, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }

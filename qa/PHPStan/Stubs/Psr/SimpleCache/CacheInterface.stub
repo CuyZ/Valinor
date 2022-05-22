@@ -11,8 +11,8 @@ interface CacheInterface
 {
     /**
      * @param string $key
-     * @param EntryType $default
-     * @return EntryType
+     * @param EntryType|null $default
+     * @return EntryType|null
      */
     public function get(string $key, $default = null);
 
@@ -26,7 +26,7 @@ interface CacheInterface
     /**
      * @param iterable<string> $keys
      * @param EntryType $default
-     * @return iterable<string, EntryType>
+     * @return iterable<string, EntryType|null>
      */
     public function getMultiple(iterable $keys, $default = null): iterable;
 

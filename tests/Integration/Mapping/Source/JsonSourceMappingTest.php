@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\JsonSource;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
@@ -14,7 +15,7 @@ final class JsonSourceMappingTest extends IntegrationTest
     public function test_json_source_is_mapped_correctly(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SimpleObject::class,
                 new JsonSource('{"value": "foo"}')
             );
