@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use stdClass;
@@ -45,7 +46,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
 
         foreach ([ShapedArrayValues::class, ShapedArrayValuesWithConstructor::class] as $class) {
             try {
-                $result = $this->mapperBuilder->mapper()->map($class, $source);
+                $result = (new MapperBuilder())->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -65,7 +66,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
     public function test_value_that_cannot_be_casted_throws_exception(): void
     {
         try {
-            $this->mapperBuilder->mapper()->map(ShapedArrayValues::class, [
+            (new MapperBuilder())->mapper()->map(ShapedArrayValues::class, [
                 'basicShapedArrayWithStringKeys' => [
                     'foo' => new stdClass(),
                     'bar' => 42,

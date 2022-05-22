@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class PathMappingTest extends IntegrationTest
@@ -35,7 +36,7 @@ final class PathMappingTest extends IntegrationTest
         }
 
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeRootClass::class,
                 new PathMapping(
                     [

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
@@ -45,7 +46,7 @@ final class ListValuesMappingTest extends IntegrationTest
 
         foreach ([ListValues::class, ListValuesWithConstructor::class] as $class) {
             try {
-                $result = $this->mapperBuilder->mapper()->map($class, $source);
+                $result = (new MapperBuilder())->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -69,7 +70,7 @@ final class ListValuesMappingTest extends IntegrationTest
     public function test_empty_list_in_non_empty_list_throws_exception(): void
     {
         try {
-            $this->mapperBuilder->mapper()->map(ListValues::class, [
+            (new MapperBuilder())->mapper()->map(ListValues::class, [
                 'nonEmptyListOfStrings' => [],
             ]);
         } catch (MappingError $exception) {
@@ -83,7 +84,7 @@ final class ListValuesMappingTest extends IntegrationTest
     public function test_value_that_cannot_be_casted_throws_exception(): void
     {
         try {
-            $this->mapperBuilder->mapper()->map(ListValues::class, [
+            (new MapperBuilder())->mapper()->map(ListValues::class, [
                 'integers' => ['foo'],
             ]);
         } catch (MappingError $exception) {

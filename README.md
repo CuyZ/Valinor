@@ -888,6 +888,28 @@ final class SomeClass
 }
 ```
 
+## Performance & caching
+
+This library needs to parse a lot of information in order to handle all provided
+features. Therefore, it is strongly advised to activate the cache to reduce
+heavy workload between runtimes, especially when the application runs in a
+production environment.
+
+The library provides a cache implementation out of the box, which saves
+cache entries into the file system.
+
+> **Note** It is also possible to use any PSR-16 compliant implementation, as
+> long as it is capable of caching the entries handled by the library.
+
+```php
+$cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->withCache($cache)
+    ->mapper()
+    ->map(SomeClass::class, [/* … */]);
+```
+
 ## Static analysis
 
 To help static analysis of a codebase using this library, an extension for

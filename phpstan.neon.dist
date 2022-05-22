@@ -25,6 +25,9 @@ parameters:
         - message: '#Template type T of method CuyZ\\Valinor\\Mapper\\TreeMapper::map\(\) is not referenced in a parameter#'
           path: src/Mapper/TreeMapper.php
 
+        - message: '#Method CuyZ\\Valinor\\MapperBuilder::withCache\(\) has parameter \$cache with generic interface Psr\\SimpleCache\\\CacheInterface but does not specify its types: EntryType#'
+          path: src/MapperBuilder.php
+
     stubFiles:
         - qa/PHPStan/Stubs/Psr/SimpleCache/CacheInterface.stub
     tmpDir: var/cache/phpstan

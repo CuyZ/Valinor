@@ -5,17 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Library;
 
 use CuyZ\Valinor\Cache\ChainCache;
-use CuyZ\Valinor\Cache\Compiled\CompiledPhpFileCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\VersionedCache;
-use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
-use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\CombinedAttributesRepository;
@@ -162,31 +157,21 @@ final class Container
 
             ObjectBuilderFilterer::class => fn () => new ObjectBuilderFilterer(),
 
-            ClassDefinitionRepository::class => function () use ($settings) {
-                $repository = new ReflectionClassDefinitionRepository(
+            ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
+                new ReflectionClassDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     $this->get(AttributesRepository::class),
-                );
+                ),
+                $this->get(CacheInterface::class)
+            ),
 
-                /** @var CacheInterface<ClassDefinition> $cache */
-                $cache = new CompiledPhpFileCache($settings->cacheDir, new ClassDefinitionCompiler());
-                $cache = $this->wrapCache($cache);
-
-                return new CacheClassDefinitionRepository($repository, $cache);
-            },
-
-            FunctionDefinitionRepository::class => function () use ($settings) {
-                $repository = new ReflectionFunctionDefinitionRepository(
+            FunctionDefinitionRepository::class => fn () => new CacheFunctionDefinitionRepository(
+                new ReflectionFunctionDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     $this->get(AttributesRepository::class),
-                );
-
-                /** @var CacheInterface<FunctionDefinition> $cache */
-                $cache = new CompiledPhpFileCache($settings->cacheDir, new FunctionDefinitionCompiler());
-                $cache = $this->wrapCache($cache);
-
-                return new CacheFunctionDefinitionRepository($repository, $cache);
-            },
+                ),
+                $this->get(CacheInterface::class)
+            ),
 
             AttributesRepository::class => function () use ($settings) {
                 if (! $settings->enableLegacyDoctrineAnnotations) {
@@ -215,6 +200,16 @@ final class Container
             },
 
             TemplateParser::class => fn () => new BasicTemplateParser(),
+
+            CacheInterface::class => function () use ($settings) {
+                $cache = new RuntimeCache();
+
+                if (isset($settings->cache)) {
+                    $cache = new ChainCache($cache, $settings->cache);
+                }
+
+                return new VersionedCache($cache);
+            },
         ];
     }
 
@@ -231,21 +226,5 @@ final class Container
     private function get(string $name): object
     {
         return $this->services[$name] ??= call_user_func($this->factories[$name]); // @phpstan-ignore-line
-    }
-
-    /**
-     * @template EntryType
-     *
-     * @param CacheInterface<EntryType> $cache
-     * @return CacheInterface<EntryType>
-     */
-    private function wrapCache(CacheInterface $cache): CacheInterface
-    {
-        /** @var RuntimeCache<EntryType> $runtimeCache */
-        $runtimeCache = new RuntimeCache();
-
-        return new VersionedCache(
-            new ChainCache($runtimeCache, $cache)
-        );
     }
 }

@@ -57,7 +57,7 @@ final class VersionedCache implements CacheInterface
     }
 
     /**
-     * @return Traversable<string, EntryType>
+     * @return Traversable<string, EntryType|null>
      */
     public function getMultiple($keys, $default = null): Traversable
     {

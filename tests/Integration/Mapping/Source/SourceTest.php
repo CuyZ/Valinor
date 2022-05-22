@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Source;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use IteratorAggregate;
 use Traversable;
@@ -15,7 +16,7 @@ final class SourceTest extends IntegrationTest
     public function test_iterable_source(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::iterable(new SomeIterableClass())
             );
@@ -29,7 +30,7 @@ final class SourceTest extends IntegrationTest
     public function test_array_source(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::array(['someNestedValue' => ['someValue' => 'foo']])
             );
@@ -43,7 +44,7 @@ final class SourceTest extends IntegrationTest
     public function test_json_source(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::json('{"someNestedValue": {"someValue": "foo"}}')
             );
@@ -60,7 +61,7 @@ final class SourceTest extends IntegrationTest
     public function test_yaml_source(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::yaml("someNestedValue:\n someValue: foo")
             );
@@ -74,7 +75,7 @@ final class SourceTest extends IntegrationTest
     public function test_camel_case_keys(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::json('{"some nested value": {"some value": "foo"}}')
                     ->camelCaseKeys()
@@ -89,7 +90,7 @@ final class SourceTest extends IntegrationTest
     public function test_path_mapping(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::json('{"A": {"B": "foo"}}')
                     ->map([
@@ -107,7 +108,7 @@ final class SourceTest extends IntegrationTest
     public function test_camel_case_keys_then_path_mapping(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::json('{"level-one": {"level-two": "foo"}}')
                     ->camelCaseKeys()
@@ -126,7 +127,7 @@ final class SourceTest extends IntegrationTest
     public function test_path_mapping_then_camel_case_keys(): void
     {
         try {
-            $object = $this->mapperBuilder->mapper()->map(
+            $object = (new MapperBuilder())->mapper()->map(
                 SomeClassWithSubProperty::class,
                 Source::json('{"level-one": {"level-two": "foo"}}')
                     ->map([

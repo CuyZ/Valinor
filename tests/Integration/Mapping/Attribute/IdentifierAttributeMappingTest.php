@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Attribute;
 
 use CuyZ\Valinor\Attribute\Identifier;
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 use function get_class;
@@ -39,7 +40,7 @@ final class IdentifierAttributeMappingTest extends IntegrationTest
         ];
 
         try {
-            $result = $this->mapperBuilder->mapper()->map(get_class($class), $source);
+            $result = (new MapperBuilder())->mapper()->map(get_class($class), $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -65,7 +66,7 @@ final class IdentifierAttributeMappingTest extends IntegrationTest
             'baz' => [],
         ]];
 
-        $result = $this->mapperBuilder->enableLegacyDoctrineAnnotations()->mapper()->map(get_class($class), $source);
+        $result = (new MapperBuilder())->enableLegacyDoctrineAnnotations()->mapper()->map(get_class($class), $source);
 
         self::assertSame('foo', $result->identifierDoctrineAnnotation['foo']->identifier);
         self::assertSame('bar', $result->identifierDoctrineAnnotation['bar']->identifier);

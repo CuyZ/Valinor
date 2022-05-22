@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -29,7 +30,7 @@ final class EnumValuesMappingTest extends IntegrationTest
 
         foreach ([EnumValues::class, EnumValuesWithConstructor::class] as $class) {
             try {
-                $result = $this->mapperBuilder->mapper()->map($class, $source);
+                $result = (new MapperBuilder())->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }

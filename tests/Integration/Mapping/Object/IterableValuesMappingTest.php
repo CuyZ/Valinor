@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
@@ -35,7 +36,7 @@ final class IterableValuesMappingTest extends IntegrationTest
 
         foreach ([IterableValues::class, IterableValuesWithConstructor::class] as $class) {
             try {
-                $result = $this->mapperBuilder->mapper()->map($class, $source);
+                $result = (new MapperBuilder())->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }

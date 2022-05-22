@@ -32,7 +32,11 @@ final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepos
         $key = "function-definition-{$reflection->getFileName()}-{$reflection->getStartLine()}-{$reflection->getEndLine()}";
 
         if ($this->cache->has($key)) {
-            return $this->cache->get($key);
+            $entry = $this->cache->get($key);
+
+            if ($entry) {
+                return $entry;
+            }
         }
 
         $definition = $this->delegate->for($function);

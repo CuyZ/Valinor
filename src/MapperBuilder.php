@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
+use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\TreeMapper;
+use Psr\SimpleCache\CacheInterface;
 
 use function is_callable;
 
@@ -170,6 +172,36 @@ final class MapperBuilder
     }
 
     /**
+     * Inject a cache implementation that will be in charge of caching heavy
+     * data used by the mapper.
+     *
+     * An implementation is provided by the library, which writes cache entries
+     * in the file system; it is strongly recommended to use it when the
+     * application runs in production environment.
+     *
+     * It is also possible to use any PSR-16 compliant implementation, as long
+     * as it is capable of caching the entries handled by the library.
+     *
+     * ```php
+     * $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
+     *
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->withCache($cache)
+     *     ->mapper()
+     *     ->map(SomeClass::class, [
+     *         // …
+     *     ]);
+     * ```
+     */
+    public function withCache(CacheInterface $cache): self
+    {
+        $clone = clone $this;
+        $clone->settings->cache = $cache;
+
+        return $clone;
+    }
+
+    /**
      * @template T
      * @param callable(T): T $callback
      */
@@ -191,12 +223,21 @@ final class MapperBuilder
         return $this;
     }
 
+    /**
+     * @deprecated instead, use:
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->withCache(new FileSystemCache('cache-directory'))
+     *     ->mapper()
+     *     ->map(SomeClass::class, [
+     *         // …
+     *     ]);
+     * ```
+     */
     public function withCacheDir(string $cacheDir): self
     {
-        $clone = clone $this;
-        $clone->settings->cacheDir = $cacheDir;
-
-        return $clone;
+        return $this->withCache(new FileSystemCache($cacheDir));
     }
 
     /**

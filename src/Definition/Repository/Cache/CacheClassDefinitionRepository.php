@@ -31,7 +31,11 @@ final class CacheClassDefinitionRepository implements ClassDefinitionRepository
         $key = "class-definition-$type";
 
         if ($this->cache->has($key)) {
-            return $this->cache->get($key);
+            $entry = $this->cache->get($key);
+
+            if ($entry) {
+                return $entry;
+            }
         }
 
         $class = $this->delegate->for($type);

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\DateTimeObjectBuilder;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTime;
 use DateTimeImmutable;
@@ -36,7 +37,7 @@ final class DateTimeMappingTest extends IntegrationTest
         $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
 
         try {
-            $result = $this->mapperBuilder->mapper()->map(AllDateTimeValues::class, [
+            $result = (new MapperBuilder())->mapper()->map(AllDateTimeValues::class, [
                 'dateTimeInterface' => $dateTimeInterface,
                 'dateTimeImmutable' => $dateTimeImmutable,
                 'dateTimeFromTimestamp' => $dateTimeFromTimestamp,
@@ -67,7 +68,7 @@ final class DateTimeMappingTest extends IntegrationTest
     public function test_invalid_datetime_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->mapper()
                 ->map(SimpleDateTimeValues::class, [
                     'dateTime' => 'invalid datetime',
@@ -83,7 +84,7 @@ final class DateTimeMappingTest extends IntegrationTest
     public function test_invalid_datetime_from_array_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->mapper()
                 ->map(SimpleDateTimeValues::class, [
                     'dateTime' => [
@@ -102,7 +103,7 @@ final class DateTimeMappingTest extends IntegrationTest
     public function test_invalid_array_source_throws_exception(): void
     {
         try {
-            $this->mapperBuilder
+            (new MapperBuilder())
                 ->mapper()
                 ->map(SimpleDateTimeValues::class, [
                     'dateTime' => [

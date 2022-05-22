@@ -11,6 +11,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\TooManyObjectBuilderFactoryAttributes;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Object\FakeObjectBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use RuntimeException;
@@ -20,7 +21,7 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
     public function test_object_builder_attribute_is_used(): void
     {
         try {
-            $result = $this->mapperBuilder->mapper()->map(ObjectWithBuilderStrategyAttribute::class, [
+            $result = (new MapperBuilder())->mapper()->map(ObjectWithBuilderStrategyAttribute::class, [
                 'foo' => 'foo',
                 'bar' => 'bar',
             ]);
@@ -36,7 +37,7 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
     public function test_named_constructor_throwing_exception_is_caught_by_mapper(): void
     {
         try {
-            $this->mapperBuilder->mapper()->map(ObjectWithFailingBuilderStrategyAttribute::class, []);
+            (new MapperBuilder())->mapper()->map(ObjectWithFailingBuilderStrategyAttribute::class, []);
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
@@ -53,7 +54,7 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
         $this->expectExceptionCode(1634044714);
         $this->expectExceptionMessage("Only one attribute of type `$factoryClass` is allowed, class `$objectClass` contains 2.");
 
-        $this->mapperBuilder->mapper()->map($objectClass, 'foo');
+        (new MapperBuilder())->mapper()->map($objectClass, 'foo');
     }
 }
 
