@@ -901,8 +901,18 @@ cache entries into the file system.
 > **Note** It is also possible to use any PSR-16 compliant implementation, as
 > long as it is capable of caching the entries handled by the library.
 
+When the application runs in a development environment, the cache implementation
+should be decorated with `FileWatchingCache`, which will watch the files of the
+application and invalidate cache entries when a PHP file is modified by a
+developer — preventing the library not behaving as expected when the signature
+of a property or a method changes.
+
 ```php
 $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');
+
+if ($isApplicationInDevelopmentEnvironment) {
+    $cache = new \CuyZ\Valinor\Cache\FileWatchingCache($cache);
+}
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->withCache($cache)

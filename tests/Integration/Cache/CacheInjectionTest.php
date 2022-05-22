@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Cache;
 
 use CuyZ\Valinor\Cache\FileSystemCache;
+use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
@@ -19,6 +20,7 @@ final class CacheInjectionTest extends IntegrationTest
         $files = vfsStream::setup('cache-dir');
 
         $cache = new FileSystemCache($files->url());
+        $cache = new FileWatchingCache($cache);
 
         self::assertFalse($files->hasChildren());
 

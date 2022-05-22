@@ -6,8 +6,6 @@ namespace CuyZ\Valinor\Tests\Fake\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 
-use function array_keys;
-
 /**
  * @implements CacheInterface<mixed>
  */
@@ -16,24 +14,36 @@ final class FakeCache implements CacheInterface
     /** @var mixed[] */
     private array $entries = [];
 
-    /**
-     * @param mixed $value
-     */
-    public function replaceAllBy($value): void
+    /** @var array<string, int> */
+    private array $timesEntryWasSet = [];
+
+    /** @var array<string, int> */
+    private array $timesEntryWasFetched = [];
+
+    public function timesEntryWasSet(string $key): int
     {
-        foreach (array_keys($this->entries) as $key) {
-            $this->entries[$key] = $value;
-        }
+        return $this->timesEntryWasSet[$key] ?? 0;
+    }
+
+    public function timesEntryWasFetched(string $key): int
+    {
+        return $this->timesEntryWasFetched[$key] ?? 0;
     }
 
     public function get($key, $default = null)
     {
+        $this->timesEntryWasFetched[$key] ??= 0;
+        $this->timesEntryWasFetched[$key]++;
+
         return $this->entries[$key] ?? $default;
     }
 
     public function set($key, $value, $ttl = null): bool
     {
         $this->entries[$key] = $value;
+
+        $this->timesEntryWasSet[$key] ??= 0;
+        $this->timesEntryWasSet[$key]++;
 
         return true;
     }

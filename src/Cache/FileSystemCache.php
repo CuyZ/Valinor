@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Cache;
 
 use CuyZ\Valinor\Cache\Compiled\CompiledPhpFileCache;
+use CuyZ\Valinor\Cache\Compiled\MixedValueCacheCompiler;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
@@ -14,17 +15,19 @@ use Traversable;
 
 use function current;
 use function get_class;
+use function is_object;
 use function next;
 use function sys_get_temp_dir;
 
 /**
  * @api
  *
- * @implements CacheInterface<ClassDefinition|FunctionDefinition>
+ * @template EntryType
+ * @implements CacheInterface<EntryType>
  */
 final class FileSystemCache implements CacheInterface
 {
-    /** @var array<string, CacheInterface<ClassDefinition|FunctionDefinition>> */
+    /** @var array<string, CacheInterface<EntryType>> */
     private array $delegates;
 
     public function __construct(string $cacheDir = null)
@@ -33,6 +36,7 @@ final class FileSystemCache implements CacheInterface
 
         // @infection-ignore-all
         $this->delegates = [
+            '*' => new CompiledPhpFileCache($cacheDir . DIRECTORY_SEPARATOR . 'mixed', new MixedValueCacheCompiler()),
             ClassDefinition::class => new CompiledPhpFileCache($cacheDir . DIRECTORY_SEPARATOR . 'classes', new ClassDefinitionCompiler()),
             FunctionDefinition::class => new CompiledPhpFileCache($cacheDir . DIRECTORY_SEPARATOR . 'functions', new FunctionDefinitionCompiler()),
         ];
@@ -65,7 +69,13 @@ final class FileSystemCache implements CacheInterface
 
     public function set($key, $value, $ttl = null): bool
     {
-        return $this->delegates[get_class($value)]->set($key, $value, $ttl);
+        $delegate = $this->delegates['*'];
+
+        if (is_object($value) && isset($this->delegates[get_class($value)])) {
+            $delegate = $this->delegates[get_class($value)];
+        }
+
+        return $delegate->set($key, $value, $ttl);
     }
 
     public function delete($key): bool
@@ -91,7 +101,7 @@ final class FileSystemCache implements CacheInterface
     }
 
     /**
-     * @return Traversable<string, ClassDefinition|FunctionDefinition|null>
+     * @return Traversable<string, EntryType|null>
      */
     public function getMultiple($keys, $default = null): Traversable
     {

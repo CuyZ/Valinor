@@ -21,6 +21,7 @@ final class FileSystemCacheTest extends TestCase
 {
     private vfsStreamDirectory $files;
 
+    /** @var FileSystemCache<mixed> */
     private FileSystemCache $cache;
 
     protected function setUp(): void
@@ -139,6 +140,7 @@ final class FileSystemCacheTest extends TestCase
     {
         (function () use ($withFailingCache) {
             $this->delegates = [
+                '*' => new FakeCache(),
                 ClassDefinition::class => new FakeCache(),
                 FunctionDefinition::class => $withFailingCache ? new FakeFailingCache() : new FakeCache(),
             ];
