@@ -26,11 +26,4 @@ final class ClassDefinitionCompilerTest extends TestCase
 
         $this->compiler->compile(new stdClass());
     }
-
-    public function test_compile_validation_for_wrong_type_fails_assertion(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->compiler->compileValidation(new stdClass());
-    }
 }

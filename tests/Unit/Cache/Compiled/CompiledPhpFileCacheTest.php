@@ -9,7 +9,6 @@ use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
 use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
 use CuyZ\Valinor\Tests\Fake\Cache\Compiled\FakeCacheCompiler;
-use CuyZ\Valinor\Tests\Fake\Cache\Compiled\FakeCacheValidationCompiler;
 use DateTime;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -156,17 +155,6 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->files->chmod(0444);
 
         self::assertFalse($this->cache->deleteMultiple(['foo', 'bar']));
-    }
-
-    public function test_failing_validation_compilation_invalidates_cache_entry(): void
-    {
-        $compiler = new FakeCacheValidationCompiler();
-        $compiler->compileValidation = false;
-
-        $cache = new CompiledPhpFileCache('cache-dir', $compiler);
-        $cache->set('foo', 'foo');
-
-        self::assertFalse($cache->has('foo'));
     }
 
     public function test_clear_cache_does_not_delete_unrelated_files(): void

@@ -10,27 +10,19 @@ use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithParameterDefaultObjectValue;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 use function get_class;
 use function implode;
-use function time;
-use function unlink;
 
 final class ClassDefinitionCompilerTest extends TestCase
 {
-    private vfsStreamDirectory $files;
-
     private ClassDefinitionCompiler $compiler;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->files = vfsStream::setup();
 
         $this->compiler = new ClassDefinitionCompiler();
     }
@@ -105,39 +97,6 @@ final class ClassDefinitionCompilerTest extends TestCase
 
         self::assertInstanceOf(ClassDefinition::class, $class);
         self::assertSame(ObjectWithParameterDefaultObjectValue::class, $class->name());
-    }
-
-    public function test_modifying_class_definition_file_invalids_compiled_class_definition(): void
-    {
-        /** @var class-string $className */
-        $className = 'SomeClassDefinitionForTest';
-
-        $file = (vfsStream::newFile("$className.php"))
-            ->withContent("<?php final class $className {}")
-            ->at($this->files);
-
-        include $file->url();
-
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass($className));
-
-        $validationCode = $this->compiler->compileValidation($class);
-        $firstValidation = $this->eval($validationCode);
-
-        unlink($file->url());
-
-        $file->lastModified(time() + 5)->at($this->files);
-
-        $secondValidation = $this->eval($validationCode);
-
-        self::assertTrue($firstValidation);
-        self::assertFalse($secondValidation);
-    }
-
-    public function test_compile_validation_for_internal_class_returns_true(): void
-    {
-        $code = $this->compiler->compileValidation(FakeClassDefinition::new());
-
-        self::assertSame('true', $code);
     }
 
     /**

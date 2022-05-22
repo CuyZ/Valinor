@@ -9,28 +9,18 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function time;
-use function unlink;
-
 final class FunctionDefinitionCompilerTest extends TestCase
 {
-    private vfsStreamDirectory $files;
-
     private FunctionDefinitionCompiler $compiler;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->files = vfsStream::setup();
 
         $this->compiler = new FunctionDefinitionCompiler();
     }
@@ -66,27 +56,6 @@ final class FunctionDefinitionCompilerTest extends TestCase
         self::assertSame(stdClass::class, $compiledFunction->class());
         self::assertTrue($compiledFunction->parameters()->has('bar'));
         self::assertInstanceOf(NativeStringType::class, $compiledFunction->returnType());
-    }
-
-    public function test_modifying_function_definition_file_invalids_compiled_function_definition(): void
-    {
-        $file = (vfsStream::newFile('foo.php'))
-            ->withContent('<?php function _valinor_test_modifying_function_definition_file_invalids_compiled_function_definition() {}')
-            ->at($this->files);
-
-        $class = FakeFunctionDefinition::new($file->url());
-        $validationCode = $this->compiler->compileValidation($class);
-
-        $firstValidation = $this->eval($validationCode);
-
-        unlink($file->url());
-
-        $file->lastModified(time() + 5)->at($this->files);
-
-        $secondValidation = $this->eval($validationCode);
-
-        self::assertTrue($firstValidation);
-        self::assertFalse($secondValidation);
     }
 
     /**

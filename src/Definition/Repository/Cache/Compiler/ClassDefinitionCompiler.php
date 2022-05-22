@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Cache\Compiled\CacheCompiler;
-use CuyZ\Valinor\Cache\Compiled\CacheValidationCompiler;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\PropertyDefinition;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function array_map;
 use function assert;
-use function filemtime;
 use function implode;
 use function iterator_to_array;
 
 /** @internal */
-final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCompiler
+final class ClassDefinitionCompiler implements CacheCompiler
 {
     private TypeCompiler $typeCompiler;
 
@@ -66,22 +63,5 @@ final class ClassDefinitionCompiler implements CacheCompiler, CacheValidationCom
             new \CuyZ\Valinor\Definition\Methods($methods)
         )
         PHP;
-    }
-
-    public function compileValidation($value): string
-    {
-        assert($value instanceof ClassDefinition);
-
-        $filename = (Reflection::class($value->name()))->getFileName();
-
-        // If the file does not exist it means it's a native class so the
-        // definition is always valid (for a given PHP version).
-        if (false === $filename) {
-            return 'true';
-        }
-
-        $time = filemtime($filename);
-
-        return "\\filemtime('$filename') === $time";
     }
 }

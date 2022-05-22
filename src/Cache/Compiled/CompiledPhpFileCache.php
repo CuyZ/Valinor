@@ -17,7 +17,6 @@ use Traversable;
 
 use function file_exists;
 use function file_put_contents;
-use function implode;
 use function is_dir;
 use function mkdir;
 use function rename;
@@ -163,26 +162,19 @@ final class CompiledPhpFileCache implements CacheInterface
      */
     private function compile($value, $ttl = null): string
     {
-        $validation = [];
+        $validationCode = 'true';
 
         if ($ttl) {
             $time = $ttl instanceof DateInterval
                 ? (new DateTime())->add($ttl)->getTimestamp()
                 : time() + $ttl;
 
-            $validation[] = "time() < $time";
-        }
-
-        if ($this->compiler instanceof CacheValidationCompiler) {
-            $validation[] = $this->compiler->compileValidation($value);
+            $validationCode = "time() < $time";
         }
 
         $generatedMessage = self::GENERATED_MESSAGE;
 
         $code = $this->compiler->compile($value);
-        $validationCode = empty($validation)
-            ? 'true'
-            : '(' . implode(' && ', $validation) . ')';
 
         return <<<PHP
         <?php // $generatedMessage
