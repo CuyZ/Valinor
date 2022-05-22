@@ -127,7 +127,7 @@ public function getThread(int $id): Thread
 
 ### Mapping advanced types
 
-Although it is recommended to map an input to a value object, in some cases 
+Although it is recommended to map an input to a value object, in some cases
 mapping to another type can be easier/more flexible.
 
 It is for instance possible to map to an array of objects:
@@ -222,7 +222,7 @@ try {
 The content of a message can be changed to fit custom use cases; it can contain
 placeholders that will be replaced with useful information.
 
-The placeholders below are always available; even more may be used depending 
+The placeholders below are always available; even more may be used depending
 on the original message.
 
 | Placeholder          | Description                                          |
@@ -282,10 +282,11 @@ try {
 }
 ```
 
-See [ICU documentation] for more information on available syntax. 
+See [ICU documentation] for more information on available syntax.
 
-If the `intl` extension is not installed, a shim will be available to replace
-the placeholders, but it won't handle advanced syntax as described above.
+> **Warning** If the `intl` extension is not installed, a shim will be
+> available to replace the placeholders, but it won't handle advanced syntax as
+> described above.
 
 ### Deeper message customization / translation
 
@@ -321,7 +322,7 @@ be filled or modified with custom translations.
 #### Replacement map
 
 The formatter `MessageMapFormatter` can be used to provide a list of messages
-replacements. It can be instantiated with an array where each key represents 
+replacements. It can be instantiated with an array where each key represents
 either:
 
 - The code of the message to be replaced
@@ -337,7 +338,7 @@ takes the message as a parameter and returns a string; it is for instance
 advised to use a callable in cases where a custom translation service is used —
 to avoid useless greedy operations.
 
-In any case, the content can contain placeholders as described 
+In any case, the content can contain placeholders as described
 [above](#message-customization).
 
 ```php
@@ -371,8 +372,8 @@ In any case, the content can contain placeholders as described
 
 #### Several formatters
 
-It is possible to join several formatters into one formatter by using the 
-`AggregateMessageFormatter`. This instance can then easily be injected in a 
+It is possible to join several formatters into one formatter by using the
+`AggregateMessageFormatter`. This instance can then easily be injected in a
 service that will handle messages.
 
 The formatters will be called in the same order they are given to the aggregate.
@@ -393,22 +394,30 @@ Any source can be given to the mapper, be it an array, some json, yaml or even a
 file:
 
 ```php
-function map($source) {
-    return (new \CuyZ\Valinor\MapperBuilder())
-        ->mapper()
-        ->map(SomeClass::class, $source);
-}
+$mapper = (new \CuyZ\Valinor\MapperBuilder())->mapper();
 
-map(\CuyZ\Valinor\Mapper\Source\Source::array($someData));
+$mapper->map(
+    SomeClass::class,
+    \CuyZ\Valinor\Mapper\Source\Source::array($someData)
+);
 
-map(\CuyZ\Valinor\Mapper\Source\Source::json($jsonString));
+$mapper->map(
+    SomeClass::class,
+    \CuyZ\Valinor\Mapper\Source\Source::json($jsonString)
+);
 
-map(\CuyZ\Valinor\Mapper\Source\Source::yaml($yamlString));
+$mapper->map(
+    SomeClass::class,
+    \CuyZ\Valinor\Mapper\Source\Source::yaml($yamlString)
+);
 
-// File containing valid Json or Yaml content and with valid extension
-map(new \CuyZ\Valinor\Mapper\Source\Source::file(
-    new SplFileObject('path/to/my/file.json')
-));
+$mapper->map(
+    SomeClass::class,
+    // File containing valid Json or Yaml content and with valid extension
+    \CuyZ\Valinor\Mapper\Source\Source::file(
+        new SplFileObject('path/to/my/file.json')
+    )
+);
 ```
 
 #### Modifiers
@@ -438,13 +447,13 @@ $source = \CuyZ\Valinor\Mapper\Source\Source::array([
    ->camelCaseKeys();
 
 (new \CuyZ\Valinor\MapperBuilder())
-        ->mapper()
-        ->map(SomeClass::class, $source);
+    ->mapper()
+    ->map(SomeClass::class, $source);
 ```
 
 ##### Path mapping
 
-This modifier can be used to change paths in the source data using a dot 
+This modifier can be used to change paths in the source data using a dot
 notation.
 
 The mapping is done using an associative array of path mappings. This array must
@@ -517,8 +526,9 @@ final class AcmeSource implements IteratorAggregate
     }
 }
 
-$source = \CuyZ\Valinor\Mapper\Source\Source::iterable(new AcmeSource(['value' => 'foo']))
-    ->camelCaseKeys();
+$source = \CuyZ\Valinor\Mapper\Source\Source::iterable(
+        new AcmeSource(['value' => 'foo'])
+    )->camelCaseKeys();
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->mapper()
@@ -559,12 +569,12 @@ callable that can be either:
 
 In any case, the return type of the callable will be resolved by the mapper to
 know when to use it. Any argument can be provided and will automatically be
-mapped using the given source. These arguments can then be used to instantiate 
+mapped using the given source. These arguments can then be used to instantiate
 the object in the desired way.
 
 Registering any constructor will disable the native constructor — the
-`__construct` method — of the targeted class. If for some reason it still needs 
-to be handled as well, the name of the class must be given to the 
+`__construct` method — of the targeted class. If for some reason it still needs
+to be handled as well, the name of the class must be given to the
 registration method.
 
 ```php
@@ -585,7 +595,7 @@ registration method.
          * @param 'red'|'green'|'blue' $color
          * @param 'dark'|'light' $darkness
          */
-        function (string $color, string $darkness): stdClass {
+        function (string $color, string $darkness): Color {
             $main = $darkness === 'dark' ? 128 : 255;
             $other = $darkness === 'dark' ? 0 : 128;
  
@@ -653,7 +663,7 @@ When the mapper meets an interface, it needs to understand which implementation
 (a class that implements this interface) will be used — this information must be
 provided in the mapper builder, using the method `infer()`.
 
-The callback given to this method must return the name of a class that 
+The callback given to this method must return the name of a class that
 implements the interface. Any arguments can be required by the callback; they
 will be mapped properly using the given source.
 
@@ -700,7 +710,7 @@ final class SecondImplementation implements SomeInterface
 ### Modifiers
 
 Sometimes the source is not in the same format and/or organised in the same
-way as a value object. Modifiers can be used to change a source before the 
+way as a value object. Modifiers can be used to change a source before the
 mapping occurs.
 
 #### Camel case keys
@@ -723,8 +733,8 @@ $source = new \CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys([
 ]);
 
 (new \CuyZ\Valinor\MapperBuilder())
-        ->mapper()
-        ->map(SomeClass::class, $source);
+    ->mapper()
+    ->map(SomeClass::class, $source);
 ```
 
 ## Handled types
