@@ -46,16 +46,12 @@ final class ClassType implements ObjectType, CompositeType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof MixedType) {
+        if ($other instanceof MixedType || $other instanceof UndefinedObjectType) {
             return true;
         }
 
         if ($other instanceof UnionType) {
             return $other->isMatchedBy($this);
-        }
-
-        if ($other instanceof UndefinedObjectType) {
-            return true;
         }
 
         if (! $other instanceof ObjectType) {

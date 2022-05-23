@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeImmutable;
@@ -82,6 +83,11 @@ final class InterfaceTypeTest extends TestCase
         $interfaceTypeB = new InterfaceType(Iterator::class);
 
         self::assertFalse($interfaceTypeA->matches($interfaceTypeB));
+    }
+
+    public function test_matches_undefined_object_type(): void
+    {
+        self::assertTrue((new InterfaceType(DateTimeInterface::class))->matches(new UndefinedObjectType()));
     }
 
     public function test_matches_mixed_type(): void

@@ -44,7 +44,7 @@ final class InterfaceType implements ObjectType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof MixedType) {
+        if ($other instanceof MixedType || $other instanceof UndefinedObjectType) {
             return true;
         }
 
