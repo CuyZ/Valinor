@@ -9,12 +9,8 @@ use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
-use CuyZ\Valinor\Type\Types\ClassType;
 use Psr\SimpleCache\CacheInterface;
 
-use CuyZ\Valinor\Utility\RecursiveSignatureTypeDefinitionWarmup;
-use function array_merge;
 use function is_callable;
 
 /** @api */
@@ -255,6 +251,17 @@ final class MapperBuilder
     }
 
     /**
+     * Warms up the injected cache implementation with the provided class names.
+     *
+     * By passing a class which contains recursive objects, every nested object
+     * will be cached as well.
+     */
+    public function warmup(string ...$signatures): void
+    {
+        $this->container()->cacheWarmupService()->warmup(...$signatures);
+    }
+
+    /**
      * @deprecated It is not advised to use DoctrineAnnotation when using
      *             PHP >= 8, you should use built-in PHP attributes instead.
      */
@@ -277,24 +284,6 @@ final class MapperBuilder
     public function mapper(): TreeMapper
     {
         return $this->container()->treeMapper();
-    }
-
-    /**
-     * Warms up the type-parser cache for the provided signatures.
-     * By passing a signature which contains recursive objects, these recursive signatures will be cached
-     * as well.
-     *
-     * @param class-string $signature
-     * @param class-string ...$additionalSignatures
-     *
-     * @throws InvalidType In case one of the provided signatures contain invalid types.
-     */
-    public function warmup(string $signature, string ...$additionalSignatures): void
-    {
-        $signaturesToWarmup = array_merge([$signature], $additionalSignatures);
-        $container = $this->container();
-        (new RecursiveSignatureTypeDefinitionWarmup($container->typeParser(), $container->classDefinitionRepository()))
-            ->warmupSignatures(array_values($signaturesToWarmup), []);
     }
 
     public function __clone()

@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Library;
 use CuyZ\Valinor\Cache\ChainCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\VersionedCache;
+use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
@@ -78,7 +79,7 @@ final class Container
     {
         $this->factories = [
             TreeMapper::class => fn () => new TreeMapperContainer(
-                $this->typeParser(),
+                $this->get(TypeParser::class),
                 new RootNodeBuilder($this->get(NodeBuilder::class))
             ),
 
@@ -103,7 +104,7 @@ final class Container
 
                 $builder = new ClassNodeBuilder(
                     $builder,
-                    $this->classDefinitionRepository(),
+                    $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectBuilderFilterer::class),
                 );
@@ -114,7 +115,7 @@ final class Container
                         $this->get(FunctionDefinitionRepository::class),
                         $settings->interfaceMapping
                     ),
-                    $this->typeParser(),
+                    $this->get(TypeParser::class),
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
@@ -201,6 +202,11 @@ final class Container
 
             TemplateParser::class => fn () => new BasicTemplateParser(),
 
+            RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
+                $this->get(TypeParser::class),
+                $this->get(ClassDefinitionRepository::class),
+            ),
+
             CacheInterface::class => function () use ($settings) {
                 $cache = new RuntimeCache();
 
@@ -218,14 +224,9 @@ final class Container
         return $this->get(TreeMapper::class);
     }
 
-    public function typeParser(): TypeParser
+    public function cacheWarmupService(): RecursiveCacheWarmupService
     {
-        return $this->get(TypeParser::class);
-    }
-
-    public function classDefinitionRepository(): ClassDefinitionRepository
-    {
-        return $this->get(ClassDefinitionRepository::class);
+        return $this->get(RecursiveCacheWarmupService::class);
     }
 
     /**

@@ -6,6 +6,8 @@ namespace CuyZ\Valinor\Tests\Fake\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 
+use function count;
+
 /**
  * @implements CacheInterface<mixed>
  */
@@ -13,6 +15,8 @@ final class FakeCache implements CacheInterface
 {
     /** @var mixed[] */
     private array $entries = [];
+
+    private int $timesSetWasCalled = 0;
 
     /** @var array<string, int> */
     private array $timesEntryWasSet = [];
@@ -30,6 +34,16 @@ final class FakeCache implements CacheInterface
         return $this->timesEntryWasFetched[$key] ?? 0;
     }
 
+    public function timeSetWasCalled(): int
+    {
+        return $this->timesSetWasCalled;
+    }
+
+    public function countEntries(): int
+    {
+        return count($this->entries);
+    }
+
     public function get($key, $default = null)
     {
         $this->timesEntryWasFetched[$key] ??= 0;
@@ -42,6 +56,7 @@ final class FakeCache implements CacheInterface
     {
         $this->entries[$key] = $value;
 
+        $this->timesSetWasCalled++;
         $this->timesEntryWasSet[$key] ??= 0;
         $this->timesEntryWasSet[$key]++;
 
