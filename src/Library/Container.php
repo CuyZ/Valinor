@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Library;
 use CuyZ\Valinor\Cache\ChainCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\VersionedCache;
+use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
@@ -201,6 +202,11 @@ final class Container
 
             TemplateParser::class => fn () => new BasicTemplateParser(),
 
+            RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
+                $this->get(TypeParser::class),
+                $this->get(ClassDefinitionRepository::class),
+            ),
+
             CacheInterface::class => function () use ($settings) {
                 $cache = new RuntimeCache();
 
@@ -216,6 +222,11 @@ final class Container
     public function treeMapper(): TreeMapper
     {
         return $this->get(TreeMapper::class);
+    }
+
+    public function cacheWarmupService(): RecursiveCacheWarmupService
+    {
+        return $this->get(RecursiveCacheWarmupService::class);
     }
 
     /**

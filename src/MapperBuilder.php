@@ -251,6 +251,17 @@ final class MapperBuilder
     }
 
     /**
+     * Warms up the injected cache implementation with the provided class names.
+     *
+     * By passing a class which contains recursive objects, every nested object
+     * will be cached as well.
+     */
+    public function warmup(string ...$signatures): void
+    {
+        $this->container()->cacheWarmupService()->warmup(...$signatures);
+    }
+
+    /**
      * @deprecated It is not advised to use DoctrineAnnotation when using
      *             PHP >= 8, you should use built-in PHP attributes instead.
      */
@@ -272,12 +283,17 @@ final class MapperBuilder
 
     public function mapper(): TreeMapper
     {
-        return ($this->container ??= new Container($this->settings))->treeMapper();
+        return $this->container()->treeMapper();
     }
 
     public function __clone()
     {
         $this->settings = clone $this->settings;
         unset($this->container);
+    }
+
+    private function container(): Container
+    {
+        return ($this->container ??= new Container($this->settings));
     }
 }
