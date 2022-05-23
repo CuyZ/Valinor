@@ -4,7 +4,264 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.9.0](https://github.com/CuyZ/Valinor/compare/0.8.0...0.9.0) (2022-05-23)
+
+### Notable changes
+
+**Cache injection and warmup**
+
+The cache feature has been revisited, to give more control to the user on how
+and when to use it.
+
+The method `MapperBuilder::withCacheDir()` has been deprecated in favor of a new
+method `MapperBuilder::withCache()` which accepts any PSR-16 compliant
+implementation.
+
+> **Warning**
+>
+> These changes lead up to the default cache not being automatically
+> registered anymore. If you still want to enable the cache (which you should),
+> you will have to explicitly inject it (see below).
+
+A default implementation is provided out of the box, which saves cache entries
+into the file system.
+
+When the application runs in a development environment, the cache implementation
+should be decorated with `FileWatchingCache`, which will watch the files of the
+application and invalidate cache entries when a PHP file is modified by a
+developer — preventing the library not behaving as expected when the signature
+of a property or a method changes.
+
+
+The cache can be warmed up, for instance in a pipeline during the build and
+deployment of the application — kudos to @boesing for the feature!
+
+> **Note** The cache has to be registered first, otherwise the warmup will end
+> up being useless.
+
+```php
+$cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');
+
+if ($isApplicationInDevelopmentEnvironment) {
+    $cache = new \CuyZ\Valinor\Cache\FileWatchingCache($cache);
+}
+
+$mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())->withCache($cache);
+
+// During the build:
+$mapperBuilder->warmup(SomeClass::class, SomeOtherClass::class);
+
+// In the application:
+$mapperBuilder->mapper()->map(SomeClass::class, [/* … */]);
+```
+
+---
+
+**Message formatting & translation**
+
+Major changes have been made to the messages being returned in case of a mapping
+error: the actual texts are now more accurate and show better information.
+
+> **Warning** 
+> 
+> The method `NodeMessage::format` has been removed, message formatters should 
+> be used instead. If needed, the old behaviour can be retrieved with the
+> formatter `PlaceHolderMessageFormatter`, although it is strongly advised to 
+> use the new placeholders feature (see below).
+> 
+> The signature of the method `MessageFormatter::format` has changed as well.
+
+It is now also easier to format the messages, for instance when they need to be
+translated. Placeholders can now be used in a message body, and will be replaced 
+with useful information.
+
+| Placeholder          | Description                                          |
+|----------------------|:-----------------------------------------------------|
+| `{message_code}`     | the code of the message                              |
+| `{node_name}`        | name of the node to which the message is bound       |
+| `{node_path}`        | path of the node to which the message is bound       |
+| `{node_type}`        | type of the node to which the message is bound       |
+| `{original_value}`   | the source value that was given to the node          |
+| `{original_message}` | the original message before being customized         |
+
+```php
+try {
+    (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(SomeClass::class, [/* … */]);
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    $node = $error->node();
+    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+
+    foreach ($messages as $message) {
+        if ($message->code() === 'some_code') {
+            $message = $message->withBody('new message / {original_message}');
+        }
+
+        echo $message;
+    }
+}
+```
+
+The messages are formatted using the [ICU library], enabling the placeholders to
+use advanced syntax to perform proper translations, for instance currency
+support.
+
+```php
+try {
+    (new \CuyZ\Valinor\MapperBuilder())->mapper()->map('int<0, 100>', 1337);
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    $message = $error->node()->messages()[0];
+
+    if (is_numeric($message->value())) {
+        $message = $message->withBody(
+            'Invalid amount {original_value, number, currency}'
+        );    
+    } 
+
+    // Invalid amount: $1,337.00
+    echo $message->withLocale('en_US');
+    
+    // Invalid amount: £1,337.00
+    echo $message->withLocale('en_GB');
+    
+    // Invalid amount: 1 337,00 €
+    echo $message->withLocale('fr_FR');
+}
+```
+
+See [ICU documentation] for more information on available syntax.
+
+> **Warning** If the `intl` extension is not installed, a shim will be
+> available to replace the placeholders, but it won't handle advanced syntax as
+> described above.
+
+The formatter `TranslationMessageFormatter` can be used to translate the content
+of messages.
+
+The library provides a list of all messages that can be returned; this list can
+be filled or modified with custom translations.
+
+```php
+\CuyZ\Valinor\Mapper\Tree\Message\Formatter\TranslationMessageFormatter::default()
+    // Create/override a single entry…
+    ->withTranslation('fr', 'some custom message', 'un message personnalisé')
+    // …or several entries.
+    ->withTranslations([
+        'some custom message' => [
+            'en' => 'Some custom message',
+            'fr' => 'Un message personnalisé',
+            'es' => 'Un mensaje personalizado',
+        ], 
+        'some other message' => [
+            // …
+        ], 
+    ])
+    ->format($message);
+```
+
+It is possible to join several formatters into one formatter by using the
+`AggregateMessageFormatter`. This instance can then easily be injected in a
+service that will handle messages.
+
+The formatters will be called in the same order they are given to the aggregate.
+
+```php
+(new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\AggregateMessageFormatter(
+    new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\LocaleMessageFormatter('fr'),
+    new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter([
+        // …
+    ],
+    \CuyZ\Valinor\Mapper\Tree\Message\Formatter\TranslationMessageFormatter::default(),
+))->format($message)
+```
+
+[ICU library]: https://unicode-org.github.io/icu/
+
+[ICU documentation]: https://unicode-org.github.io/icu/userguide/format_parse/messages/
+
+### ⚠ BREAKING CHANGES
+
+* Improve message customization with formatters ([60a665](https://github.com/CuyZ/Valinor/commit/60a66561413fc0d366cae9acf57ac553bb1a919d))
+* Revoke `ObjectBuilder` API access ([11e126](https://github.com/CuyZ/Valinor/commit/11e12624aad2378465122b987e53e76c744d2179))
+
+### Features
+
+* Allow injecting a cache implementation that is used by the mapper ([69ad3f](https://github.com/CuyZ/Valinor/commit/69ad3f47777f2bec4e565b98035f07696cd16d35))
+* Extract file watching feature in own cache implementation ([2d70ef](https://github.com/CuyZ/Valinor/commit/2d70efbfbb73dfe02987de82ee7fc5bb38b3e486))
+* Improve mapping error messages ([05cf4a](https://github.com/CuyZ/Valinor/commit/05cf4a4a4dc40af735ba12af5bc986ffec015c6c))
+* Introduce method to warm the cache up ([ccf09f](https://github.com/CuyZ/Valinor/commit/ccf09fd33433e065ca7ad26cc90e433dc8d1ae84))
+
+### Bug Fixes
+
+* Make interface type match undefined object type ([105eef](https://github.com/CuyZ/Valinor/commit/105eef473821f6f6990a080c5e14a78ed5be24db))
+
+### Other
+
+* Change `InvalidParameterIndex` exception inheritance type ([b75adb](https://github.com/CuyZ/Valinor/commit/b75adb7c7ceba2382cab5f265d93ed46bcfd8f4e))
+* Introduce layer for object builder arguments ([48f936](https://github.com/CuyZ/Valinor/commit/48f936275e7f8af937e0740cdbbac0f9557ab4a3))
+
+
+---
+
 ## [0.8.0](https://github.com/CuyZ/Valinor/compare/0.7.1...0.8.0) (2022-05-09)
+
+### Notable changes
+
+**Float values handling**
+
+Allows the usage of float values, as follows:
+
+```php
+class Foo
+{
+    /** @var 404.42|1337.42 */
+    public readonly float $value;
+}
+```
+
+---
+
+**Literal boolean `true` / `false` values handling**
+
+Thanks @danog for this feature!
+
+Allows the usage of boolean values, as follows:
+
+```php
+class Foo
+{
+    /** @var int|false */
+    public readonly int|bool $value;
+}
+```
+
+---
+
+**Class string of union of object handling**
+
+Allows to declare several class names in a `class-string`:
+
+```php
+class Foo
+{
+    /** @var class-string<SomeClass|SomeOtherClass> */
+    public readonly string $className;
+}
+```
+
+---
+
+**Allow `psalm` and `phpstan` prefix in docblocks**
+
+Thanks @boesing for this feature!
+
+The following annotations are now properly handled: `@psalm-param`,
+`@phpstan-param`, `@psalm-return` and `@phpstan-return`.
+
+If one of those is found along with a basic `@param` or `@return` annotation, it
+will take precedence over the basic value.
+
 ### Features
 
 * Allow `psalm` and `phpstan` prefix in docblocks ([64e0a2](https://github.com/CuyZ/Valinor/commit/64e0a2d5ac727062c7c9c45f636081d1065f2bb9))
@@ -32,6 +289,78 @@ All notable changes to this project will be documented in this file.
 ---
 
 ## [0.7.0](https://github.com/CuyZ/Valinor/compare/0.6.0...0.7.0) (2022-03-24)
+
+### Notable changes
+
+> **Warning** This release introduces a major breaking change that must be
+considered before updating
+
+**Constructor registration**
+
+**The automatic named constructor discovery has been disabled**. It is now
+mandatory to explicitly register custom constructors that can be used by the
+mapper.
+
+This decision was made because of a security issue reported by @Ocramius and
+described in advisory [GHSA-xhr8-mpwq-2rr2].
+
+As a result, existing code must list all named constructors that were previously
+automatically used by the mapper, and registerer them using the
+method `MapperBuilder::registerConstructor()`.
+
+The method `MapperBuilder::bind()` has been deprecated in favor of the method
+above that should be used instead.
+
+```php
+final class SomeClass
+{
+    public static function namedConstructor(string $foo): self
+    {
+        // …
+    }
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConstructor(
+        SomeClass::namedConstructor(...),
+        // …or for PHP < 8.1:
+        [SomeClass::class, 'namedConstructor'],
+    )
+    ->mapper()
+    ->map(SomeClass::class, [
+        // …
+    ]);
+```
+
+See [documentation](https://github.com/CuyZ/Valinor#custom-constructor) for more
+information.
+
+---
+
+**Source builder**
+
+The `Source` class is a new entry point for sources that are not plain array or
+iterable. It allows accessing other features like camel-case keys or custom
+paths mapping in a convenient way.
+
+It should be used as follows:
+
+```php
+$source = \CuyZ\Valinor\Mapper\Source\Source::json($jsonString)
+    ->camelCaseKeys()
+    ->map([
+        'towns' => 'cities',
+        'towns.*.label' => 'name',
+    ]);
+
+$result = (new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(SomeClass::class, $source);
+```
+
+See [documentation](https://github.com/CuyZ/Valinor#source) for more details
+about its usage.
+
 ### ⚠ BREAKING CHANGES
 
 * Change `Attributes::ofType` return type to `array` ([1a599b](https://github.com/CuyZ/Valinor/commit/1a599b0bdf5cf07385ed120817f1a4720064e4dc))
@@ -105,6 +434,156 @@ All notable changes to this project will be documented in this file.
 ---
 
 ## [0.4.0](https://github.com/CuyZ/Valinor/compare/0.3.0...0.4.0) (2022-01-07)
+
+### Notable changes
+
+**Allow mapping to any type**
+
+Previously, the method `TreeMapper::map` would allow mapping only to an object.
+It is now possible to map to any type handled by the library.
+
+It is for instance possible to map to an array of objects:
+
+```php
+$objects = (new MapperBuilder())->mapper()->map(
+    'array<' . SomeClass::class . '>',
+    [/* … */]
+);
+```
+
+For simple use-cases, an array shape can be used:
+
+```php
+$array = (new MapperBuilder())->mapper()->map(
+    'array{foo: string, bar: int}',
+    [/* … */]
+);
+
+echo $array['foo'];
+echo $array['bar'] * 2;
+```
+
+This new feature changes the possible behaviour of the mapper, meaning static
+analysis tools need help to understand the types correctly. An extension for
+PHPStan and a plugin for Psalm are now provided and can be included in a project
+to automatically increase the type coverage.
+
+---
+
+**Better handling of messages**
+
+When working with messages, it can sometimes be useful to customize the content
+of a message — for instance to translate it.
+
+The helper
+class `\CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter` can be
+used to provide a list of new formats. It can be instantiated with an array
+where each key represents either:
+
+- The code of the message to be replaced
+- The content of the message to be replaced
+- The class name of the message to be replaced
+
+If none of those is found, the content of the message will stay unchanged unless
+a default one is given to the class.
+
+If one of these keys is found, the array entry will be used to replace the
+content of the message. This entry can be either a plain text or a callable that
+takes the message as a parameter and returns a string; it is for instance
+advised to use a callable in cases where a translation service is used — to
+avoid useless greedy operations.
+
+In any case, the content can contain placeholders that will automatically be
+replaced by, in order:
+
+1. The original code of the message
+2. The original content of the message
+3. A string representation of the node type
+4. The name of the node
+5. The path of the node
+
+```php
+try {
+    (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(SomeClass::class, [/* … */]);
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    $node = $error->node();
+    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+
+    $formatter = (new MessageMapFormatter([
+        // Will match if the given message has this exact code
+        'some_code' => 'new content / previous code was: %1$s',
+    
+        // Will match if the given message has this exact content
+        'Some message content' => 'new content / previous message: %2$s',
+    
+        // Will match if the given message is an instance of `SomeError`
+        SomeError::class => '
+            - Original code of the message: %1$s
+            - Original content of the message: %2$s
+            - Node type: %3$s
+            - Node name: %4$s
+            - Node path: %5$s
+        ',
+    
+        // A callback can be used to get access to the message instance
+        OtherError::class => function (NodeMessage $message): string {
+            if ((string)$message->type() === 'string|int') {
+                // …
+            }
+    
+            return 'Some message content';
+        },
+    
+        // For greedy operation, it is advised to use a lazy-callback
+        'bar' => fn () => $this->translator->translate('foo.bar'),
+    ]))
+        ->defaultsTo('some default message')
+        // …or…
+        ->defaultsTo(fn () => $this->translator->translate('default_message'));
+
+    foreach ($messages as $message) {
+        echo $formatter->format($message);    
+    }
+}
+```
+
+---
+
+**Automatic union of objects inferring during mapping**
+
+When the mapper needs to map a source to a union of objects, it will try to
+guess which object it will map to, based on the needed arguments of the objects,
+and the values contained in the source.
+
+```php
+final class UnionOfObjects
+{
+    public readonly SomeFooObject|SomeBarObject $object;
+}
+
+final class SomeFooObject
+{
+    public readonly string $foo;
+}
+
+final class SomeBarObject
+{
+    public readonly string $bar;
+}
+
+// Will map to an instance of `SomeFooObject`
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(UnionOfObjects::class, ['foo' => 'foo']);
+
+// Will map to an instance of `SomeBarObject`
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(UnionOfObjects::class, ['bar' => 'bar']);
+```
+
 ### ⚠ BREAKING CHANGES
 
 * Add access to root node when error occurs during mapping ([54f608](https://github.com/CuyZ/Valinor/commit/54f608e5b1a4bbd508246c063a3e79df48c1ddeb))
