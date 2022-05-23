@@ -920,6 +920,26 @@ if ($isApplicationInDevelopmentEnvironment) {
     ->map(SomeClass::class, [/* … */]);
 ```
 
+### Warming up cache
+
+The cache can be warmed up, for instance in a pipeline during the build and
+deployment of the application.
+
+> **Note** The cache has to be registered first, otherwise the warmup will end
+> up being useless. 
+
+```php
+$cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
+
+$mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())->withCache($cache);
+
+// During the build:
+$mapperBuilder->warmup(SomeClass::class, SomeOtherClass::class);
+
+// In the application:
+$mapper->mapper()->map(SomeClass::class, [/* … */]);
+```
+
 ## Static analysis
 
 To help static analysis of a codebase using this library, an extension for
