@@ -6,12 +6,14 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
 use Closure;
 use CuyZ\Valinor\Tests\Fake\FakeReflector;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyPromotion;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
@@ -178,6 +180,17 @@ final class ReflectionTest extends TestCase
         string $expectedType
     ): void {
         self::assertEquals($expectedType, Reflection::docBlockType($property));
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_docblock_var_type_is_fetched_correctly_with_property_promotion(): void {
+
+        $class = ObjectWithPropertyPromotion::class;
+        $type = Reflection::docBlockType((new ReflectionMethod($class, '__construct'))->getParameters()[0]);
+
+        self::assertEquals('non-empty-string', $type);
     }
 
     /**
