@@ -103,11 +103,11 @@ final class DateTimeObjectBuilder implements ObjectBuilder
 
             if ($date instanceof DateTimeInterface) {
                 if ($date instanceof DateTime) {
-                    return DateTimeJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone());
+                    return DateTimeJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone()) ?: null;
                 }
 
                 if ($date instanceof \DateTimeImmutable) {
-                    return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone());
+                    return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone()) ?: null;
                 }
             }
         }

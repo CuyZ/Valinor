@@ -3,6 +3,8 @@
 namespace CuyZ\Valinor\Mapper\Object;
 
 use DateTimeZone;
+use Exception;
+use Throwable;
 
 /** @internal */
 final class DateTimeImmutableJsonSerializable extends \DateTimeImmutable implements \JsonSerializable
@@ -15,14 +17,27 @@ final class DateTimeImmutableJsonSerializable extends \DateTimeImmutable impleme
         $this->jsonFormat = $jsonFormat;
     }
 
+    /**
+     * @param string $format
+     * @param string $datetime
+     * @return DateTimeImmutableJsonSerializable|false
+     * @throws Exception
+     */
     public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null)
     {
-        return new self($datetime, $timezone, $format);
+        try {
+            return new self($datetime, $timezone, $format);
+        } catch (Throwable $exception) {
+            return false;
+        }
     }
 
+    /**
+     * @return int|string
+     */
     public function jsonSerialize()
     {
         $dateString = $this->format($this->jsonFormat);
-        return (preg_match("/^\d+$/", $dateString)) ? (int)($dateString) : $dateString;
+        return (preg_match("/^(([1-9]\d*)|0)$/", $dateString)) ? (int)($dateString) : $dateString;
     }
 }
