@@ -101,14 +101,12 @@ final class DateTimeObjectBuilder implements ObjectBuilder
         foreach ($formats as $format) {
             $date = $this->tryFormat($value, $format);
 
-            if ($date instanceof DateTimeInterface) {
-                if ($date instanceof DateTime) {
-                    return DateTimeJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone()) ?: null;
-                }
+            if ($date instanceof DateTime) {
+                return DateTimeJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone()) ?: null;
+            }
 
-                if ($date instanceof \DateTimeImmutable) {
-                    return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone()) ?: null;
-                }
+            if ($date instanceof DateTimeImmutable) {
+                return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone()) ?: null;
             }
         }
 
@@ -125,8 +123,8 @@ final class DateTimeObjectBuilder implements ObjectBuilder
             return DateTimeJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone()) ?: null;
         }
 
-        if ($this->className === \DateTimeImmutable::class) {
-            $date = \DateTimeImmutable::createFromFormat($format, $value);
+        if ($this->className === DateTimeImmutable::class) {
+            $date = DateTimeImmutable::createFromFormat($format, $value);
             if ($date === false) {
                 return null;
             }
