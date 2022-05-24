@@ -62,7 +62,91 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $result->dateTimeFromAtomFormat);
         self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
         self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
+    }
+
+    public function test_datetime_json_serialization(): void
+    {
+        $dateTimeInterface = (new DateTimeImmutable('@' . $this->buildRandomTimestamp()))->format(DATE_ATOM);
+        $dateTimeImmutable = (new DateTimeImmutable('@' . $this->buildRandomTimestamp()))->format(DATE_ATOM);
+
+        $dateTimeFromTimestamp = $this->buildRandomTimestamp();
+        $dateTimeFromTimestampWithOutFormat = [
+            'datetime' => $this->buildRandomTimestamp(),
+        ];
+        $dateTimeFromTimestampWithFormat = [
+            'datetime' => $this->buildRandomTimestamp(),
+            'format' => 'U',
+        ];
+        $dateTimeFromAtomFormat = (new DateTime())->setTimestamp($this->buildRandomTimestamp())->format(DATE_ATOM);
+        $dateTimeFromArray = [
+            'datetime' => (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s'),
+            'format' => 'Y-m-d H:i:s',
+        ];
+        $mysqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s');
+        $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
+
+        $data = [
+            'dateTimeInterface' => $dateTimeInterface,
+            'dateTimeImmutable' => $dateTimeImmutable,
+            'dateTimeFromTimestamp' => $dateTimeFromTimestamp,
+            'dateTimeFromTimestampWithOutFormat' => $dateTimeFromTimestampWithOutFormat,
+            'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
+            'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
+            'dateTimeFromArray' => $dateTimeFromArray,
+            'mysqlDate' => $mysqlDate,
+            'pgsqlDate' => $pgsqlDate,
+
+        ];
+
+        try {
+            $result = (new MapperBuilder())->mapper()->map(AllDateTimeValues::class, [
+                'dateTimeInterface' => $dateTimeInterface,
+                'dateTimeImmutable' => $dateTimeImmutable,
+                'dateTimeFromTimestamp' => $dateTimeFromTimestamp,
+                'dateTimeFromTimestampWithOutFormat' => $dateTimeFromTimestampWithOutFormat,
+                'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
+                'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
+                'dateTimeFromArray' => $dateTimeFromArray,
+                'mysqlDate' => $mysqlDate,
+                'pgsqlDate' => $pgsqlDate,
+
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(DateTimeImmutable::class, $result->dateTimeInterface);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeInterface), $result->dateTimeInterface);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeImmutable), $result->dateTimeImmutable);
+        self::assertEquals(new DateTimeImmutable("@$dateTimeFromTimestamp"), $result->dateTimeFromTimestamp);
+        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithFormat['datetime']}"), $result->dateTimeFromTimestampWithFormat);
+        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithOutFormat['datetime']}"), $result->dateTimeFromTimestampWithOutFormat);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $result->dateTimeFromAtomFormat);
+        self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
         self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $result->pgsqlDate);
+
+        $jsonEncoded = json_encode($result);
+        $dataFromJson = json_decode($jsonEncoded, true);
+
+        try {
+            $resultFromJson = (new MapperBuilder())->mapper()->map(AllDateTimeValues::class, $dataFromJson);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(DateTimeImmutable::class, $resultFromJson->dateTimeInterface);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeInterface), $resultFromJson->dateTimeInterface);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeImmutable), $resultFromJson->dateTimeImmutable);
+        self::assertEquals(new DateTimeImmutable("@$dateTimeFromTimestamp"), $resultFromJson->dateTimeFromTimestamp);
+        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithFormat['datetime']}"), $resultFromJson->dateTimeFromTimestampWithFormat);
+        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithOutFormat['datetime']}"), $resultFromJson->dateTimeFromTimestampWithOutFormat);
+
+        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $resultFromJson->dateTimeFromAtomFormat);
+        self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $resultFromJson->dateTimeFromArray);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $resultFromJson->mysqlDate);
+        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $resultFromJson->pgsqlDate);
+
     }
 
     public function test_invalid_datetime_throws_exception(): void

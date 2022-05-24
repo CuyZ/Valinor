@@ -102,7 +102,14 @@ final class DateTimeObjectBuilder implements ObjectBuilder
             $date = $this->tryFormat($value, $format);
 
             if ($date instanceof DateTimeInterface) {
-                return $date;
+
+                if ($date instanceof DateTime) {
+                    return DateTimeJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone());
+                }
+
+                if ($date instanceof \DateTimeImmutable) {
+                    return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format($format), $date->getTimezone());
+                }
             }
         }
 
@@ -111,6 +118,23 @@ final class DateTimeObjectBuilder implements ObjectBuilder
 
     private function tryFormat(string $value, string $format): ?DateTimeInterface
     {
-        return ($this->className)::createFromFormat($format, $value) ?: null;
+        if ($this->className === DateTime::class) {
+            $date = DateTime::createFromFormat($format, $value);
+            if($date === false) {
+                return null;
+            }
+            return DateTimeJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone())?: null;
+        }
+
+        if ($this->className === \DateTimeImmutable::class) {
+            $date = \DateTimeImmutable::createFromFormat($format, $value);
+            if($date === false) {
+                return null;
+            }
+
+            return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone())?: null;
+        }
+
+        return null;
     }
 }
