@@ -23,7 +23,7 @@ final class DateTimeJsonSerializable extends \DateTime implements \JsonSerializa
      * @return DateTimeJsonSerializable|false
      * @throws Exception
      */
-    public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null)
+    public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null) /* @phpstan-ignore-line */
     {
         try {
             return new self($datetime, $timezone, $format);
