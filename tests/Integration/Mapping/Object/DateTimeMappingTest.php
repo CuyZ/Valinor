@@ -127,6 +127,8 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $result->pgsqlDate);
 
         $jsonEncoded = json_encode($result);
+        self::assertIsString($jsonEncoded);
+
         $dataFromJson = json_decode($jsonEncoded, true);
 
         try {

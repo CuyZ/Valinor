@@ -9,15 +9,16 @@ final class DateTimeImmutableJsonSerializable extends \DateTimeImmutable impleme
 {
     private string $jsonFormat;
 
-    public function __construct($datetime = 'now', DateTimeZone $timezone = null, string $jsonFormat = DATE_RFC3339)
+    public function __construct(string $datetime = 'now', DateTimeZone $timezone = null, string $jsonFormat = DATE_RFC3339)
     {
         parent::__construct($datetime, $timezone);
         $this->jsonFormat = $jsonFormat;
     }
 
-    public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null): self
+    public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null): ?self
     {
-        return new self($datetime, $timezone, $format);
+        $instance = new self($datetime, $timezone, $format);
+        return $instance?: null;
     }
 
     public function jsonSerialize()
