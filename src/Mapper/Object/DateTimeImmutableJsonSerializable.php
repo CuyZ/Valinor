@@ -15,10 +15,9 @@ final class DateTimeImmutableJsonSerializable extends \DateTimeImmutable impleme
         $this->jsonFormat = $jsonFormat;
     }
 
-    public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null): ?self
+    public static function createFromFormat($format, $datetime, ?DateTimeZone $timezone = null)
     {
-        $instance = new self($datetime, $timezone, $format);
-        return $instance?: null;
+        return new self($datetime, $timezone, $format);
     }
 
     public function jsonSerialize()

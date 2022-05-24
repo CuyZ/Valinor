@@ -122,7 +122,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
             if ($date === false) {
                 return null;
             }
-            return DateTimeJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone());
+            return DateTimeJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone()) ?: null;
         }
 
         if ($this->className === \DateTimeImmutable::class) {
@@ -131,7 +131,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
                 return null;
             }
 
-            return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone());
+            return DateTimeImmutableJsonSerializable::createFromFormat($format, $date->format(DateTime::ATOM), $date->getTimezone()) ?: null;
         }
 
         return null;
