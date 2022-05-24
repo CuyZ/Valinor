@@ -4,7 +4,8 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use DateTimeZone;
 
-class DateTimeImmutableJsonSerializable extends \DateTimeImmutable implements \JsonSerializable
+/** @internal */
+final class DateTimeImmutableJsonSerializable extends \DateTimeImmutable implements \JsonSerializable
 {
     private string $jsonFormat;
 
@@ -19,7 +20,7 @@ class DateTimeImmutableJsonSerializable extends \DateTimeImmutable implements \J
         return new self($datetime, $timezone, $format);
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize()
     {
         $dateString = $this->format($this->jsonFormat);
         return (preg_match("/^\d+$/", $dateString)) ? (int)($dateString) : $dateString;
