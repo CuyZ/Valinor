@@ -36,6 +36,8 @@ final class DateTimeMappingTest extends IntegrationTest
         $mysqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s');
         $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
 
+        $sqlDateNotTime = '2022-04-30';
+
         try {
             $result = (new MapperBuilder())->mapper()->map(AllDateTimeValues::class, [
                 'dateTimeInterface' => $dateTimeInterface,
@@ -47,6 +49,7 @@ final class DateTimeMappingTest extends IntegrationTest
                 'dateTimeFromArray' => $dateTimeFromArray,
                 'mysqlDate' => $mysqlDate,
                 'pgsqlDate' => $pgsqlDate,
+                'sqlDateNotTime' => $sqlDateNotTime,
 
             ]);
         } catch (MappingError $error) {
@@ -63,6 +66,7 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
         self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
         self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $result->pgsqlDate);
+        self::assertSame($sqlDateNotTime . ' 00:00:00', $result->sqlDateNotTime->format(DateTimeObjectBuilder::DATE_MYSQL));
     }
 
     public function test_invalid_datetime_throws_exception(): void
@@ -151,4 +155,6 @@ final class AllDateTimeValues
     public DateTimeInterface $mysqlDate;
 
     public DateTimeInterface $pgsqlDate;
+
+    public DateTimeImmutable $sqlDateNotTime;
 }
