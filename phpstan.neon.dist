@@ -30,4 +30,4 @@ parameters:
 
     stubFiles:
         - qa/PHPStan/Stubs/Psr/SimpleCache/CacheInterface.stub
-    tmpDir: var/cache/phpstan
+    tmpDir: c:\Temp\cache\phpstan

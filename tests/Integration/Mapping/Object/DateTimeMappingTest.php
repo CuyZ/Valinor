@@ -85,19 +85,6 @@ final class DateTimeMappingTest extends IntegrationTest
         $mysqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s');
         $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
 
-        $data = [
-            'dateTimeInterface' => $dateTimeInterface,
-            'dateTimeImmutable' => $dateTimeImmutable,
-            'dateTimeFromTimestamp' => $dateTimeFromTimestamp,
-            'dateTimeFromTimestampWithOutFormat' => $dateTimeFromTimestampWithOutFormat,
-            'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
-            'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
-            'dateTimeFromArray' => $dateTimeFromArray,
-            'mysqlDate' => $mysqlDate,
-            'pgsqlDate' => $pgsqlDate,
-
-        ];
-
         try {
             $result = (new MapperBuilder())->mapper()->map(AllDateTimeValues::class, [
                 'dateTimeInterface' => $dateTimeInterface,
