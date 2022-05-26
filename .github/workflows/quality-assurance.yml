@@ -33,11 +33,11 @@ jobs:
           extensions: ${{ env.php-extensions }}
           ini-values: zend.assertions=1
 
-      - name: Cache PHPStan results
+      - name: Cache QA results
         uses: actions/cache@v3.0.2
         with:
-          path: var/cache/phpstan
-          key: phpstan
+          path: var/cache
+          key: qa-${{ hashFiles('composer.lock') }}
 
       - name: Checking Composer
         run: composer validate --strict
