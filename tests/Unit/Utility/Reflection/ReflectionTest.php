@@ -185,8 +185,8 @@ final class ReflectionTest extends TestCase
     /**
      * @requires PHP >= 8
      */
-    public function test_docblock_var_type_is_fetched_correctly_with_property_promotion(): void {
-
+    public function test_docblock_var_type_is_fetched_correctly_with_property_promotion(): void
+    {
         $class = ObjectWithPropertyPromotion::class;
         $type = Reflection::docBlockType((new ReflectionMethod($class, '__construct'))->getParameters()[0]);
 

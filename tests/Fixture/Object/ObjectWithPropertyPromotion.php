@@ -10,6 +10,6 @@ final class ObjectWithPropertyPromotion
     public function __construct(
         /** @var non-empty-string */
         public string $someProperty
-    ){
+    ) {
     }
 }
