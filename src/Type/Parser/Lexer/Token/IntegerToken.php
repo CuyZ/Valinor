@@ -70,4 +70,9 @@ final class IntegerToken implements TraversingToken
 
         return new IntegerRangeType($min->value(), $max->value());
     }
+
+    public function symbol(): string
+    {
+        return 'int';
+    }
 }

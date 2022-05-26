@@ -23,4 +23,9 @@ final class UnionToken implements LeftTraversingToken
 
         return new UnionType($type, $stream->read());
     }
+
+    public function symbol(): string
+    {
+        return '|';
+    }
 }

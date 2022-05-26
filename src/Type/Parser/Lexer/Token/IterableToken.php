@@ -56,4 +56,9 @@ final class IterableToken implements TraversingToken
 
         return $iterableType;
     }
+
+    public function symbol(): string
+    {
+        return 'iterable';
+    }
 }

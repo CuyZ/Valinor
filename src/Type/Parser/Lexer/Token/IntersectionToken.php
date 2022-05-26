@@ -39,4 +39,9 @@ final class IntersectionToken implements LeftTraversingToken
 
         return new IntersectionType($type, $rightType);
     }
+
+    public function symbol(): string
+    {
+        return '&';
+    }
 }

@@ -31,6 +31,8 @@ final class ArrayToken implements TraversingToken
     /** @var class-string<ArrayType|NonEmptyArrayType> */
     private string $arrayType;
 
+    private string $symbol;
+
     private static self $array;
 
     private static self $nonEmptyArray;
@@ -38,19 +40,20 @@ final class ArrayToken implements TraversingToken
     /**
      * @param class-string<ArrayType|NonEmptyArrayType> $arrayType
      */
-    private function __construct(string $arrayType)
+    private function __construct(string $arrayType, string $symbol)
     {
         $this->arrayType = $arrayType;
+        $this->symbol = $symbol;
     }
 
     public static function array(): self
     {
-        return self::$array ??= new self(ArrayType::class);
+        return self::$array ??= new self(ArrayType::class, 'array');
     }
 
     public static function nonEmptyArray(): self
     {
-        return self::$nonEmptyArray ??= new self(NonEmptyArrayType::class);
+        return self::$nonEmptyArray ??= new self(NonEmptyArrayType::class, 'non-empty-array');
     }
 
     public function traverse(TokenStream $stream): Type
@@ -68,6 +71,11 @@ final class ArrayToken implements TraversingToken
         }
 
         return ($this->arrayType)::native();
+    }
+
+    public function symbol(): string
+    {
+        return $this->symbol;
     }
 
     private function arrayType(TokenStream $stream): CompositeTraversableType
@@ -130,9 +138,7 @@ final class ArrayToken implements TraversingToken
             $optional = false;
 
             if ($stream->next() instanceof UnknownSymbolToken) {
-                /** @var UnknownSymbolToken $token */
-                $token = $stream->forward();
-                $type = new StringValueType($token->symbol());
+                $type = new StringValueType($stream->forward()->symbol());
             } else {
                 $type = $stream->read();
             }

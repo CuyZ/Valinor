@@ -29,23 +29,27 @@ final class NativeToken implements TraversingToken
 
     private Type $type;
 
-    private function __construct(Type $type)
+    private string $symbol;
+
+    private function __construct(Type $type, string $symbol)
     {
         $this->type = $type;
+        $this->symbol = $symbol;
     }
 
     public static function accepts(string $symbol): bool
     {
-        return (bool)self::type($symbol);
+        return (bool)self::type(strtolower($symbol));
     }
 
     public static function from(string $symbol): self
     {
+        $symbol = strtolower($symbol);
         $type = self::type($symbol);
 
         assert($type instanceof Type);
 
-        return self::$map[$symbol] ??= new self($type);
+        return self::$map[$symbol] ??= new self($type, $symbol);
     }
 
     public function traverse(TokenStream $stream): Type
@@ -53,10 +57,15 @@ final class NativeToken implements TraversingToken
         return $this->type;
     }
 
+    public function symbol(): string
+    {
+        return $this->symbol;
+    }
+
     private static function type(string $symbol): ?Type
     {
         // @PHP8.0 match
-        switch (strtolower($symbol)) {
+        switch ($symbol) {
             case 'null':
                 return NullType::get();
             case 'true':

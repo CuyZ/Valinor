@@ -10,4 +10,9 @@ use CuyZ\Valinor\Utility\IsSingleton;
 final class OpeningCurlyBracketToken implements Token
 {
     use IsSingleton;
+
+    public function symbol(): string
+    {
+        return '{';
+    }
 }

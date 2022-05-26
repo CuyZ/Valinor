@@ -10,4 +10,9 @@ use CuyZ\Valinor\Utility\IsSingleton;
 final class OpeningBracketToken implements Token
 {
     use IsSingleton;
+
+    public function symbol(): string
+    {
+        return '<';
+    }
 }

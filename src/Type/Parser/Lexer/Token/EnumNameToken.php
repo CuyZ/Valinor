@@ -27,4 +27,9 @@ final class EnumNameToken implements TraversingToken
     {
         return new EnumType($this->enumName);
     }
+
+    public function symbol(): string
+    {
+        return $this->enumName;
+    }
 }

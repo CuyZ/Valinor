@@ -78,6 +78,11 @@ final class GenericClassNameToken implements TraversingToken
             : new ClassType($this->className, $generics);
     }
 
+    public function symbol(): string
+    {
+        return $this->className;
+    }
+
     /**
      * @param array<string, Type> $templates
      * @return Type[]

@@ -32,4 +32,9 @@ final class StringValueToken implements TraversingToken
     {
         return $this->type;
     }
+
+    public function symbol(): string
+    {
+        return $this->type->toString();
+    }
 }

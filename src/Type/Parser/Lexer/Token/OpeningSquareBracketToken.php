@@ -23,4 +23,9 @@ final class OpeningSquareBracketToken implements LeftTraversingToken
 
         return ArrayType::simple($type);
     }
+
+    public function symbol(): string
+    {
+        return '[';
+    }
 }
