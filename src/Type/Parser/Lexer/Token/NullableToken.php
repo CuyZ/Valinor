@@ -19,4 +19,9 @@ final class NullableToken implements TraversingToken
     {
         return new UnionType(NullType::get(), $stream->read());
     }
+
+    public function symbol(): string
+    {
+        return '?';
+    }
 }

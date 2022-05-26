@@ -22,4 +22,9 @@ final class FloatValueToken implements TraversingToken
     {
         return new FloatValueType($this->value);
     }
+
+    public function symbol(): string
+    {
+        return (string)$this->value;
+    }
 }

@@ -12,13 +12,21 @@ final class TypeToken implements TraversingToken
 {
     private Type $type;
 
-    public function __construct(Type $type)
+    private string $symbol;
+
+    public function __construct(Type $type, string $symbol)
     {
         $this->type = $type;
+        $this->symbol = $symbol;
     }
 
     public function traverse(TokenStream $stream): Type
     {
         return $this->type;
+    }
+
+    public function symbol(): string
+    {
+        return $this->symbol;
     }
 }

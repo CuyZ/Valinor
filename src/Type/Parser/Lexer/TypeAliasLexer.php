@@ -28,7 +28,7 @@ final class TypeAliasLexer implements TypeLexer
     public function tokenize(string $symbol): Token
     {
         if (isset($this->aliases[$symbol])) {
-            return new TypeToken($this->aliases[$symbol]);
+            return new TypeToken($this->aliases[$symbol], $symbol);
         }
 
         return $this->delegate->tokenize($symbol);

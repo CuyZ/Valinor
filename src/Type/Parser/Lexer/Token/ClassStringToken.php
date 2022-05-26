@@ -38,4 +38,9 @@ final class ClassStringToken implements TraversingToken
 
         return new ClassStringType($type);
     }
+
+    public function symbol(): string
+    {
+        return 'class-string';
+    }
 }

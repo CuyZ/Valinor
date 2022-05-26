@@ -40,4 +40,9 @@ final class ClassNameToken implements TraversingToken
     {
         return $this->className;
     }
+
+    public function symbol(): string
+    {
+        return $this->className;
+    }
 }

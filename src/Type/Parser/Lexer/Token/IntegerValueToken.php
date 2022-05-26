@@ -22,4 +22,9 @@ final class IntegerValueToken implements TraversingToken
     {
         return new IntegerValueType($this->value);
     }
+
+    public function symbol(): string
+    {
+        return (string)$this->value;
+    }
 }

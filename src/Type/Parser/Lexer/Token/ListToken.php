@@ -16,6 +16,8 @@ final class ListToken implements TraversingToken
     /** @var class-string<ListType|NonEmptyListType> */
     private string $listType;
 
+    private string $symbol;
+
     private static self $list;
 
     private static self $nonEmptyList;
@@ -23,19 +25,20 @@ final class ListToken implements TraversingToken
     /**
      * @param class-string<ListType|NonEmptyListType> $listType
      */
-    private function __construct(string $listType)
+    private function __construct(string $listType, string $symbol)
     {
         $this->listType = $listType;
+        $this->symbol = $symbol;
     }
 
     public static function list(): self
     {
-        return self::$list ??= new self(ListType::class);
+        return self::$list ??= new self(ListType::class, 'list');
     }
 
     public static function nonEmptyList(): self
     {
-        return self::$nonEmptyList ??= new self(NonEmptyListType::class);
+        return self::$nonEmptyList ??= new self(NonEmptyListType::class, 'non-empty-list');
     }
 
     public function traverse(TokenStream $stream): Type
@@ -57,5 +60,10 @@ final class ListToken implements TraversingToken
         }
 
         return ($this->listType)::native();
+    }
+
+    public function symbol(): string
+    {
+        return $this->symbol;
     }
 }
