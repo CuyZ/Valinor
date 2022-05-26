@@ -112,13 +112,32 @@ final class Reflection
     public static function docBlockType(Reflector $reflection): ?string
     {
         if ($reflection instanceof ReflectionProperty) {
-            $docComment = self::sanitizeDocComment($reflection);
-            $expression = sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
-        } else {
-            $docComment = self::sanitizeDocComment($reflection->getDeclaringFunction());
-            $expression = sprintf('@%s?param\s+%s\s+\$\b%s\b', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION, $reflection->name);
+            return self::parseDocBlock(
+                self::sanitizeDocComment($reflection),
+                sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION)
+            );
         }
 
+        if (PHP_VERSION_ID >= 8_00_00 && $reflection->isPromoted()) {
+            $type = self::parseDocBlock(
+                // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
+                self::sanitizeDocComment($reflection->getDeclaringClass()->getProperty($reflection->name)),
+                sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION)
+            );
+
+            if ($type !== null) {
+                return $type;
+            }
+        }
+
+        return self::parseDocBlock(
+            self::sanitizeDocComment($reflection->getDeclaringFunction()),
+            sprintf('@%s?param\s+%s\s+\$\b%s\b', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION, $reflection->name)
+        );
+    }
+
+    private static function parseDocBlock(string $docComment, string $expression): ?string
+    {
         if (! preg_match_all("/$expression/", $docComment, $matches)) {
             return null;
         }
