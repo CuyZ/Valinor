@@ -21,8 +21,6 @@ use function array_filter;
 use function array_key_exists;
 use function count;
 use function is_array;
-use function is_iterable;
-use function iterator_to_array;
 
 /** @internal */
 final class ClassNodeBuilder implements NodeBuilder
@@ -133,10 +131,6 @@ final class ClassNodeBuilder implements NodeBuilder
     {
         if ($source === null || count($arguments) === 0) {
             return [];
-        }
-
-        if (is_iterable($source) && ! is_array($source)) {
-            $source = iterator_to_array($source);
         }
 
         if (count($arguments) === 1) {

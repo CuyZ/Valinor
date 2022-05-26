@@ -29,6 +29,25 @@ final class ShapedArrayMappingTest extends IntegrationTest
         self::assertSame(1337.404, $result['fiz']);
     }
 
+    public function test_mapping_from_iterable_to_shaped_array_works_properly(): void
+    {
+        $iterator = (static function () {
+            yield 'foo' => 'foo';
+            yield 'bar' => '42';
+            yield 'fiz' => '1337.404';
+        })();
+
+        try {
+            $result = (new MapperBuilder())->mapper()->map('array{foo: string, bar: int, fiz: float}', $iterator);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result['foo']);
+        self::assertSame(42, $result['bar']);
+        self::assertSame(1337.404, $result['fiz']);
+    }
+
     public function test_shared_values_are_mapped_properly(): void
     {
         $source = [
