@@ -32,6 +32,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\EnumNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
@@ -119,6 +120,7 @@ final class Container
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
+                $builder = new IterableNodeBuilder($builder);
                 $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
                 $builder = new ValueAlteringNodeBuilder(
                     $builder,

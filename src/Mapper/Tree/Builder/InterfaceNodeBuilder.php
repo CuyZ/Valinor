@@ -119,10 +119,6 @@ final class InterfaceNodeBuilder implements NodeBuilder
             return [];
         }
 
-        if (is_iterable($source) && ! is_array($source)) {
-            $source = iterator_to_array($source);
-        }
-
         if (count($parameters) === 1) {
             $name = $parameters->at(0)->name();
 
