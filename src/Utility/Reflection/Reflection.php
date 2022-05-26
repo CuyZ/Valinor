@@ -120,6 +120,7 @@ final class Reflection
 
         if (method_exists($reflection, 'isPromoted') && $reflection->isPromoted()) {
             $type = self::parseDocBlock(
+                // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
                 self::sanitizeDocComment($reflection->getDeclaringClass()->getProperty($reflection->name)),
                 sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION)
             );
