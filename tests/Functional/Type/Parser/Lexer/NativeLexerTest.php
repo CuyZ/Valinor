@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Type\Parser\Lexer;
 
+use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
+use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
+use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObject;
 use CuyZ\Valinor\Type\IntegerType;
+use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
+use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
+use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumColon;
+use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
@@ -40,6 +47,7 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -49,6 +57,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
@@ -90,640 +99,827 @@ final class NativeLexerTest extends TestCase
         self::assertInstanceOf($type, $result);
     }
 
-    public function parse_valid_types_returns_valid_result_data_provider(): array
+    public function parse_valid_types_returns_valid_result_data_provider(): iterable
     {
-        return [
-            'Null type' => [
-                'raw' => 'null',
-                'transformed' => 'null',
-                'type' => NullType::class,
-            ],
-            'Null type - uppercase' => [
-                'raw' => 'NULL',
-                'transformed' => 'null',
-                'type' => NullType::class,
-            ],
-            'Null type followed by description' => [
-                'raw' => 'null lorem ipsum',
-                'transformed' => 'null',
-                'type' => NullType::class,
-            ],
-            'True type' => [
-                'raw' => 'true',
-                'transformed' => 'true',
-                'type' => BooleanValueType::class,
-            ],
-            'True type - uppercase' => [
-                'raw' => 'TRUE',
-                'transformed' => 'true',
-                'type' => BooleanValueType::class,
-            ],
-            'False type' => [
-                'raw' => 'false',
-                'transformed' => 'false',
-                'type' => BooleanValueType::class,
-            ],
-            'False type - uppercase' => [
-                'raw' => 'FALSE',
-                'transformed' => 'false',
-                'type' => BooleanValueType::class,
-            ],
-            'Mixed type' => [
-                'raw' => 'mixed',
-                'transformed' => 'mixed',
-                'type' => MixedType::class,
-            ],
-            'Mixed type - uppercase' => [
-                'raw' => 'MIXED',
-                'transformed' => 'mixed',
-                'type' => MixedType::class,
-            ],
-            'Mixed type followed by description' => [
-                'raw' => 'mixed lorem ipsum',
-                'transformed' => 'mixed',
-                'type' => MixedType::class,
-            ],
-            'Float type' => [
-                'raw' => 'float',
-                'transformed' => 'float',
-                'type' => NativeFloatType::class,
-            ],
-            'Float type - uppercase' => [
-                'raw' => 'FLOAT',
-                'transformed' => 'float',
-                'type' => NativeFloatType::class,
-            ],
-            'Float type followed by description' => [
-                'raw' => 'float lorem ipsum',
-                'transformed' => 'float',
-                'type' => NativeFloatType::class,
-            ],
-            'Positive float value' => [
-                'raw' => '1337.42',
-                'transformed' => '1337.42',
-                'type' => FloatValueType::class,
-            ],
-            'Positive float value followed by description' => [
-                'raw' => '1337.42 lorem ipsum',
-                'transformed' => '1337.42',
-                'type' => FloatValueType::class,
-            ],
-            'Negative float value' => [
-                'raw' => '-1337.42',
-                'transformed' => '-1337.42',
-                'type' => FloatValueType::class,
-            ],
-            'Negative float value followed by description' => [
-                'raw' => '-1337.42 lorem ipsum',
-                'transformed' => '-1337.42',
-                'type' => FloatValueType::class,
-            ],
-            'Integer type' => [
-                'raw' => 'int',
-                'transformed' => 'int',
-                'type' => IntegerType::class,
-            ],
-            'Integer type - uppercase' => [
-                'raw' => 'INT',
-                'transformed' => 'int',
-                'type' => IntegerType::class,
-            ],
-            'Integer type followed by description' => [
-                'raw' => 'int lorem ipsum',
-                'transformed' => 'int',
-                'type' => IntegerType::class,
-            ],
-            'Integer type (longer version)' => [
-                'raw' => 'integer',
-                'transformed' => 'int',
-                'type' => IntegerType::class,
-            ],
-            'Integer type (longer version) - uppercase' => [
-                'raw' => 'INTEGER',
-                'transformed' => 'int',
-                'type' => IntegerType::class,
-            ],
-            'Positive integer type' => [
-                'raw' => 'positive-int',
-                'transformed' => 'positive-int',
-                'type' => IntegerType::class,
-            ],
-            'Positive integer type - uppercase' => [
-                'raw' => 'POSITIVE-INT',
-                'transformed' => 'positive-int',
-                'type' => IntegerType::class,
-            ],
-            'Positive integer type followed by description' => [
-                'raw' => 'positive-int lorem ipsum',
-                'transformed' => 'positive-int',
-                'type' => IntegerType::class,
-            ],
-            'Negative integer type' => [
-                'raw' => 'negative-int',
-                'transformed' => 'negative-int',
-                'type' => IntegerType::class,
-            ],
-            'Negative integer type - uppercase' => [
-                'raw' => 'NEGATIVE-INT',
-                'transformed' => 'negative-int',
-                'type' => IntegerType::class,
-            ],
-            'Negative integer type followed by description' => [
-                'raw' => 'negative-int lorem ipsum',
-                'transformed' => 'negative-int',
-                'type' => IntegerType::class,
-            ],
-            'Positive integer value' => [
-                'raw' => '1337',
-                'transformed' => '1337',
-                'type' => IntegerValueType::class,
-            ],
-            'Positive integer value followed by description' => [
-                'raw' => '1337 lorem ipsum',
-                'transformed' => '1337',
-                'type' => IntegerValueType::class,
-            ],
-            'Negative integer value' => [
-                'raw' => '-1337',
-                'transformed' => '-1337',
-                'type' => IntegerValueType::class,
-            ],
-            'Negative integer value followed by description' => [
-                'raw' => '-1337 lorem ipsum',
-                'transformed' => '-1337',
-                'type' => IntegerValueType::class,
-            ],
-            'Integer range' => [
-                'raw' => 'int<42, 1337>',
-                'transformed' => 'int<42, 1337>',
-                'type' => IntegerRangeType::class,
-            ],
-            'Integer range with negative values' => [
-                'raw' => 'int<-1337, -42>',
-                'transformed' => 'int<-1337, -42>',
-                'type' => IntegerRangeType::class,
-            ],
-            'Integer range with min and max values' => [
-                'raw' => 'int<min, max>',
-                'transformed' => 'int<min, max>',
-                'type' => IntegerRangeType::class,
-            ],
-            'Integer range followed by description' => [
-                'raw' => 'int<42, 1337> lorem ipsum',
-                'transformed' => 'int<42, 1337>',
-                'type' => IntegerRangeType::class,
-            ],
-            'String type' => [
-                'raw' => 'string',
-                'transformed' => 'string',
-                'type' => StringType::class,
-            ],
-            'String type - uppercase' => [
-                'raw' => 'STRING',
-                'transformed' => 'string',
-                'type' => StringType::class,
-            ],
-            'String type followed by description' => [
-                'raw' => 'string lorem ipsum',
-                'transformed' => 'string',
-                'type' => StringType::class,
-            ],
-            'Non empty string type' => [
-                'raw' => 'non-empty-string',
-                'transformed' => 'non-empty-string',
-                'type' => NonEmptyStringType::class,
-            ],
-            'Non empty string type - uppercase' => [
-                'raw' => 'NON-EMPTY-STRING',
-                'transformed' => 'non-empty-string',
-                'type' => NonEmptyStringType::class,
-            ],
-            'Non empty string type followed by description' => [
-                'raw' => 'non-empty-string lorem ipsum',
-                'transformed' => 'non-empty-string',
-                'type' => NonEmptyStringType::class,
-            ],
-            'Numeric string type' => [
-                'raw' => 'numeric-string',
-                'transformed' => 'numeric-string',
-                'type' => NumericStringType::class,
-            ],
-            'Numeric string type - uppercase' => [
-                'raw' => 'NUMERIC-STRING',
-                'transformed' => 'numeric-string',
-                'type' => NumericStringType::class,
-            ],
-            'Numeric string type followed by description' => [
-                'raw' => 'numeric-string lorem ipsum',
-                'transformed' => 'numeric-string',
-                'type' => NumericStringType::class,
-            ],
-            'String value with single quote' => [
-                'raw' => "'foo'",
-                'transformed' => "'foo'",
-                'type' => StringValueType::class,
-            ],
-            'String value with single quote followed by description' => [
-                'raw' => "'foo' lorem ipsum",
-                'transformed' => "'foo'",
-                'type' => StringValueType::class,
-            ],
-            'String value with double quote' => [
-                'raw' => '"foo"',
-                'transformed' => '"foo"',
-                'type' => StringValueType::class,
-            ],
-            'String value with double quote followed by description' => [
-                'raw' => '"foo" lorem ipsum',
-                'transformed' => '"foo"',
-                'type' => StringValueType::class,
-            ],
-            'Boolean type' => [
-                'raw' => 'bool',
-                'transformed' => 'bool',
-                'type' => NativeBooleanType::class,
-            ],
-            'Boolean type - uppercase' => [
-                'raw' => 'BOOL',
-                'transformed' => 'bool',
-                'type' => NativeBooleanType::class,
-            ],
-            'Boolean type (longer version)' => [
-                'raw' => 'boolean',
-                'transformed' => 'bool',
-                'type' => NativeBooleanType::class,
-            ],
-            'Boolean type (longer version) - uppercase' => [
-                'raw' => 'BOOLEAN',
-                'transformed' => 'bool',
-                'type' => NativeBooleanType::class,
-            ],
-            'Boolean type followed by description' => [
-                'raw' => 'bool lorem ipsum',
-                'transformed' => 'bool',
-                'type' => NativeBooleanType::class,
-            ],
-            'Undefined object type' => [
-                'raw' => 'object',
-                'transformed' => 'object',
-                'type' => UndefinedObjectType::class,
-            ],
-            'Undefined object type - uppercase' => [
-                'raw' => 'OBJECT',
-                'transformed' => 'object',
-                'type' => UndefinedObjectType::class,
-            ],
-            'Undefined object type followed by description' => [
-                'raw' => 'object lorem ipsum',
-                'transformed' => 'object',
-                'type' => UndefinedObjectType::class,
-            ],
-            'Array native type' => [
-                'raw' => 'array',
-                'transformed' => 'array',
-                'type' => ArrayType::class,
-            ],
-            'Array native type - uppercase' => [
-                'raw' => 'ARRAY',
-                'transformed' => 'array',
-                'type' => ArrayType::class,
-            ],
-            'Array native type followed by description' => [
-                'raw' => 'array lorem ipsum',
-                'transformed' => 'array',
-                'type' => ArrayType::class,
-            ],
-            'Simple array type' => [
-                'raw' => 'float[]',
-                'transformed' => 'float[]',
-                'type' => ArrayType::class,
-            ],
-            'Simple array type followed by description' => [
-                'raw' => 'float[] lorem ipsum',
-                'transformed' => 'float[]',
-                'type' => ArrayType::class,
-            ],
-            'Array type with string array-key' => [
-                'raw' => 'array<string, float>',
-                'transformed' => 'array<string, float>',
-                'type' => ArrayType::class,
-            ],
-            'Array type with int array-key' => [
-                'raw' => 'array<int, float>',
-                'transformed' => 'array<int, float>',
-                'type' => ArrayType::class,
-            ],
-            'Array type with array-key' => [
-                'raw' => 'array<array-key, float>',
-                'transformed' => 'array<float>',
-                'type' => ArrayType::class,
-            ],
-            'Array without array-key' => [
-                'raw' => 'array<float>',
-                'transformed' => 'array<float>',
-                'type' => ArrayType::class,
-            ],
-            'Array without array-key followed by description' => [
-                'raw' => 'array<float> lorem ipsum',
-                'transformed' => 'array<float>',
-                'type' => ArrayType::class,
-            ],
-            'Non empty native array' => [
-                'raw' => 'non-empty-array',
-                'transformed' => 'non-empty-array',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty native array - uppercase' => [
-                'raw' => 'NON-EMPTY-ARRAY',
-                'transformed' => 'non-empty-array',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty native array followed by description' => [
-                'raw' => 'non-empty-array lorem ipsum',
-                'transformed' => 'non-empty-array',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty array type with string array-key' => [
-                'raw' => 'non-empty-array<string, float>',
-                'transformed' => 'non-empty-array<string, float>',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty array type with int array-key' => [
-                'raw' => 'non-empty-array<int, float>',
-                'transformed' => 'non-empty-array<int, float>',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty array type with array-key' => [
-                'raw' => 'non-empty-array<array-key, float>',
-                'transformed' => 'non-empty-array<float>',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty array without array-key' => [
-                'raw' => 'non-empty-array<float>',
-                'transformed' => 'non-empty-array<float>',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'Non empty array without array-key followed by description' => [
-                'raw' => 'non-empty-array<float> lorem ipsum',
-                'transformed' => 'non-empty-array<float>',
-                'type' => NonEmptyArrayType::class,
-            ],
-            'List native type' => [
-                'raw' => 'list',
-                'transformed' => 'list',
-                'type' => ListType::class,
-            ],
-            'List native type - uppercase' => [
-                'raw' => 'LIST',
-                'transformed' => 'list',
-                'type' => ListType::class,
-            ],
-            'List native type followed by description' => [
-                'raw' => 'list lorem ipsum',
-                'transformed' => 'list',
-                'type' => ListType::class,
-            ],
-            'List type' => [
-                'raw' => 'list<float>',
-                'transformed' => 'list<float>',
-                'type' => ListType::class,
-            ],
-            'List type followed by description' => [
-                'raw' => 'list<float> lorem ipsum',
-                'transformed' => 'list<float>',
-                'type' => ListType::class,
-            ],
-            'Non empty list native type' => [
-                'raw' => 'non-empty-list',
-                'transformed' => 'non-empty-list',
-                'type' => NonEmptyListType::class,
-            ],
-            'Non empty list native type - uppercase' => [
-                'raw' => 'NON-EMPTY-LIST',
-                'transformed' => 'non-empty-list',
-                'type' => NonEmptyListType::class,
-            ],
-            'Non empty list native type followed by description' => [
-                'raw' => 'non-empty-list lorem ipsum',
-                'transformed' => 'non-empty-list',
-                'type' => NonEmptyListType::class,
-            ],
-            'Non empty list' => [
-                'raw' => 'non-empty-list<float>',
-                'transformed' => 'non-empty-list<float>',
-                'type' => NonEmptyListType::class,
-            ],
-            'Non empty list followed by description' => [
-                'raw' => 'non-empty-list<float> lorem ipsum',
-                'transformed' => 'non-empty-list<float>',
-                'type' => NonEmptyListType::class,
-            ],
-            'Shaped array' => [
-                'raw' => 'array{foo: string}',
-                'transformed' => 'array{foo: string}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with single quote key' => [
-                'raw' => "array{'foo': string}",
-                'transformed' => "array{'foo': string}",
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with double quote key' => [
-                'raw' => 'array{"foo": string}',
-                'transformed' => 'array{"foo": string}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with several keys' => [
-                'raw' => 'array{foo: string, bar: int}',
-                'transformed' => 'array{foo: string, bar: int}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with several quote keys' => [
-                'raw' => 'array{\'foo\': string, "bar": int}',
-                'transformed' => 'array{\'foo\': string, "bar": int}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with no key' => [
-                'raw' => 'array{string, int}',
-                'transformed' => 'array{0: string, 1: int}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with optional key' => [
-                'raw' => 'array{foo: string, bar?: int}',
-                'transformed' => 'array{foo: string, bar?: int}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with trailing comma' => [
-                'raw' => 'array{foo: string, bar: int,}',
-                'transformed' => 'array{foo: string, bar: int}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with reserved keyword as key' => [
-                'raw' => 'array{string: string}',
-                'transformed' => 'array{string: string}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array followed by description' => [
-                'raw' => 'array{foo: string} lorem ipsum',
-                'transformed' => 'array{foo: string}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Shaped array with key equal to class name' => [
-                'raw' => 'array{stdclass: string}',
-                'transformed' => 'array{stdclass: string}',
-                'type' => ShapedArrayType::class,
-            ],
-            'Iterable type' => [
-                'raw' => 'iterable',
-                'transformed' => 'iterable',
-                'type' => IterableType::class,
-            ],
-            'Iterable type - uppercase' => [
-                'raw' => 'ITERABLE',
-                'transformed' => 'iterable',
-                'type' => IterableType::class,
-            ],
-            'Iterable type with string array-key' => [
-                'raw' => 'iterable<string, float>',
-                'transformed' => 'iterable<string, float>',
-                'type' => IterableType::class,
-            ],
-            'Iterable type with int array-key' => [
-                'raw' => 'iterable<int, float>',
-                'transformed' => 'iterable<int, float>',
-                'type' => IterableType::class,
-            ],
-            'Iterable type with array-key' => [
-                'raw' => 'iterable<array-key, float>',
-                'transformed' => 'iterable<float>',
-                'type' => IterableType::class,
-            ],
-            'Iterable without array-key' => [
-                'raw' => 'iterable<float>',
-                'transformed' => 'iterable<float>',
-                'type' => IterableType::class,
-            ],
-            'Iterable without array-key followed by description' => [
-                'raw' => 'iterable<float> lorem ipsum',
-                'transformed' => 'iterable<float>',
-                'type' => IterableType::class,
-            ],
-            'Class string' => [
-                'raw' => 'class-string',
-                'transformed' => 'class-string',
-                'type' => ClassStringType::class,
-            ],
-            'Class string followed by description' => [
-                'raw' => 'class-string lorem ipsum',
-                'transformed' => 'class-string',
-                'type' => ClassStringType::class,
-            ],
-            'Class string of class' => [
-                'raw' => 'class-string<stdClass>',
-                'transformed' => 'class-string<stdClass>',
-                'type' => ClassStringType::class,
-            ],
-            'Class string of class followed by description' => [
-                'raw' => 'class-string<stdClass> lorem ipsum',
-                'transformed' => 'class-string<stdClass>',
-                'type' => ClassStringType::class,
-            ],
-            'Class string of interface' => [
-                'raw' => 'class-string<DateTimeInterface>',
-                'transformed' => 'class-string<DateTimeInterface>',
-                'type' => ClassStringType::class,
-            ],
-            'Class string of union' => [
-                'raw' => 'class-string<DateTimeInterface|stdClass>',
-                'transformed' => 'class-string<DateTimeInterface|stdClass>',
-                'type' => ClassStringType::class,
-            ],
-            'Class name' => [
-                'raw' => stdClass::class,
-                'transformed' => stdClass::class,
-                'type' => ClassType::class,
-            ],
-            'Class name followed by description' => [
-                'raw' => 'stdClass lorem ipsum',
-                'transformed' => stdClass::class,
-                'type' => ClassType::class,
-            ],
-            'Abstract class name' => [
-                'raw' => AbstractObject::class,
-                'transformed' => AbstractObject::class,
-                'type' => InterfaceType::class,
-            ],
-            'Interface name' => [
-                'raw' => DateTimeInterface::class,
-                'transformed' => DateTimeInterface::class,
-                'type' => InterfaceType::class,
-            ],
-            'Nullable type' => [
-                'raw' => '?string',
-                'transformed' => 'null|string',
-                'type' => UnionType::class,
-            ],
-            'Nullable type followed by description' => [
-                'raw' => '?string lorem ipsum',
-                'transformed' => 'null|string',
-                'type' => UnionType::class,
-            ],
-            'Union type' => [
-                'raw' => 'int|float',
-                'transformed' => 'int|float',
-                'type' => UnionType::class,
-            ],
-            'Union type with native array' => [
-                'raw' => 'array|int',
-                'transformed' => 'array|int',
-                'type' => UnionType::class,
-            ],
-            'Union type with simple iterable' => [
-                'raw' => 'iterable|int',
-                'transformed' => 'iterable|int',
-                'type' => UnionType::class,
-            ],
-            'Union type with simple array' => [
-                'raw' => 'int[]|float',
-                'transformed' => 'int[]|float',
-                'type' => UnionType::class,
-            ],
-            'Union type with array' => [
-                'raw' => 'array<int>|float',
-                'transformed' => 'array<int>|float',
-                'type' => UnionType::class,
-            ],
-            'Union type with class-string' => [
-                'raw' => 'class-string|int',
-                'transformed' => 'class-string|int',
-                'type' => UnionType::class,
-            ],
-            'Union type with shaped array' => [
-                'raw' => 'array{foo: string, bar: int}|string',
-                'transformed' => 'array{foo: string, bar: int}|string',
-                'type' => UnionType::class,
-            ],
-            'Union type with shaped array with trailing comma' => [
-                'raw' => 'array{foo: string, bar: int,}|string',
-                'transformed' => 'array{foo: string, bar: int}|string',
-                'type' => UnionType::class,
-            ],
-            'Union type followed by description' => [
-                'raw' => 'int|float lorem ipsum',
-                'transformed' => 'int|float',
-                'type' => UnionType::class,
-            ],
-            'Intersection type' => [
-                'raw' => 'stdClass&DateTimeInterface',
-                'transformed' => 'stdClass&DateTimeInterface',
-                'type' => IntersectionType::class,
-            ],
-            'Intersection type followed by description' => [
-                'raw' => 'stdClass&DateTimeInterface lorem ipsum',
-                'transformed' => 'stdClass&DateTimeInterface',
-                'type' => IntersectionType::class,
-            ],
+        yield 'Null type' => [
+            'raw' => 'null',
+            'transformed' => 'null',
+            'type' => NullType::class,
         ];
+
+        yield 'Null type - uppercase' => [
+            'raw' => 'NULL',
+            'transformed' => 'null',
+            'type' => NullType::class,
+        ];
+
+        yield 'Null type followed by description' => [
+            'raw' => 'null lorem ipsum',
+            'transformed' => 'null',
+            'type' => NullType::class,
+        ];
+
+        yield 'True type' => [
+            'raw' => 'true',
+            'transformed' => 'true',
+            'type' => BooleanValueType::class,
+        ];
+
+        yield 'True type - uppercase' => [
+            'raw' => 'TRUE',
+            'transformed' => 'true',
+            'type' => BooleanValueType::class,
+        ];
+
+        yield 'False type' => [
+            'raw' => 'false',
+            'transformed' => 'false',
+            'type' => BooleanValueType::class,
+        ];
+
+        yield 'False type - uppercase' => [
+            'raw' => 'FALSE',
+            'transformed' => 'false',
+            'type' => BooleanValueType::class,
+        ];
+
+        yield 'Mixed type' => [
+            'raw' => 'mixed',
+            'transformed' => 'mixed',
+            'type' => MixedType::class,
+        ];
+
+        yield 'Mixed type - uppercase' => [
+            'raw' => 'MIXED',
+            'transformed' => 'mixed',
+            'type' => MixedType::class,
+        ];
+
+        yield 'Mixed type followed by description' => [
+            'raw' => 'mixed lorem ipsum',
+            'transformed' => 'mixed',
+            'type' => MixedType::class,
+        ];
+
+        yield 'Float type' => [
+            'raw' => 'float',
+            'transformed' => 'float',
+            'type' => NativeFloatType::class,
+        ];
+
+        yield 'Float type - uppercase' => [
+            'raw' => 'FLOAT',
+            'transformed' => 'float',
+            'type' => NativeFloatType::class,
+        ];
+
+        yield 'Float type followed by description' => [
+            'raw' => 'float lorem ipsum',
+            'transformed' => 'float',
+            'type' => NativeFloatType::class,
+        ];
+
+        yield 'Positive float value' => [
+            'raw' => '1337.42',
+            'transformed' => '1337.42',
+            'type' => FloatValueType::class,
+        ];
+
+        yield 'Positive float value followed by description' => [
+            'raw' => '1337.42 lorem ipsum',
+            'transformed' => '1337.42',
+            'type' => FloatValueType::class,
+        ];
+
+        yield 'Negative float value' => [
+            'raw' => '-1337.42',
+            'transformed' => '-1337.42',
+            'type' => FloatValueType::class,
+        ];
+
+        yield 'Negative float value followed by description' => [
+            'raw' => '-1337.42 lorem ipsum',
+            'transformed' => '-1337.42',
+            'type' => FloatValueType::class,
+        ];
+
+        yield 'Integer type' => [
+            'raw' => 'int',
+            'transformed' => 'int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Integer type - uppercase' => [
+            'raw' => 'INT',
+            'transformed' => 'int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Integer type followed by description' => [
+            'raw' => 'int lorem ipsum',
+            'transformed' => 'int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Integer type (longer version)' => [
+            'raw' => 'integer',
+            'transformed' => 'int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Integer type (longer version) - uppercase' => [
+            'raw' => 'INTEGER',
+            'transformed' => 'int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Positive integer type' => [
+            'raw' => 'positive-int',
+            'transformed' => 'positive-int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Positive integer type - uppercase' => [
+            'raw' => 'POSITIVE-INT',
+            'transformed' => 'positive-int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Positive integer type followed by description' => [
+            'raw' => 'positive-int lorem ipsum',
+            'transformed' => 'positive-int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Negative integer type' => [
+            'raw' => 'negative-int',
+            'transformed' => 'negative-int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Negative integer type - uppercase' => [
+            'raw' => 'NEGATIVE-INT',
+            'transformed' => 'negative-int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Negative integer type followed by description' => [
+            'raw' => 'negative-int lorem ipsum',
+            'transformed' => 'negative-int',
+            'type' => IntegerType::class,
+        ];
+
+        yield 'Positive integer value' => [
+            'raw' => '1337',
+            'transformed' => '1337',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'Positive integer value followed by description' => [
+            'raw' => '1337 lorem ipsum',
+            'transformed' => '1337',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'Negative integer value' => [
+            'raw' => '-1337',
+            'transformed' => '-1337',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'Negative integer value followed by description' => [
+            'raw' => '-1337 lorem ipsum',
+            'transformed' => '-1337',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'Integer range' => [
+            'raw' => 'int<42, 1337>',
+            'transformed' => 'int<42, 1337>',
+            'type' => IntegerRangeType::class,
+        ];
+
+        yield 'Integer range with negative values' => [
+            'raw' => 'int<-1337, -42>',
+            'transformed' => 'int<-1337, -42>',
+            'type' => IntegerRangeType::class,
+        ];
+
+        yield 'Integer range with min and max values' => [
+            'raw' => 'int<min, max>',
+            'transformed' => 'int<min, max>',
+            'type' => IntegerRangeType::class,
+        ];
+
+        yield 'Integer range followed by description' => [
+            'raw' => 'int<42, 1337> lorem ipsum',
+            'transformed' => 'int<42, 1337>',
+            'type' => IntegerRangeType::class,
+        ];
+
+        yield 'String type' => [
+            'raw' => 'string',
+            'transformed' => 'string',
+            'type' => StringType::class,
+        ];
+
+        yield 'String type - uppercase' => [
+            'raw' => 'STRING',
+            'transformed' => 'string',
+            'type' => StringType::class,
+        ];
+
+        yield 'String type followed by description' => [
+            'raw' => 'string lorem ipsum',
+            'transformed' => 'string',
+            'type' => StringType::class,
+        ];
+
+        yield 'Non empty string type' => [
+            'raw' => 'non-empty-string',
+            'transformed' => 'non-empty-string',
+            'type' => NonEmptyStringType::class,
+        ];
+
+        yield 'Non empty string type - uppercase' => [
+            'raw' => 'NON-EMPTY-STRING',
+            'transformed' => 'non-empty-string',
+            'type' => NonEmptyStringType::class,
+        ];
+
+        yield 'Non empty string type followed by description' => [
+            'raw' => 'non-empty-string lorem ipsum',
+            'transformed' => 'non-empty-string',
+            'type' => NonEmptyStringType::class,
+        ];
+
+        yield 'Numeric string type' => [
+            'raw' => 'numeric-string',
+            'transformed' => 'numeric-string',
+            'type' => NumericStringType::class,
+        ];
+
+        yield 'Numeric string type - uppercase' => [
+            'raw' => 'NUMERIC-STRING',
+            'transformed' => 'numeric-string',
+            'type' => NumericStringType::class,
+        ];
+
+        yield 'Numeric string type followed by description' => [
+            'raw' => 'numeric-string lorem ipsum',
+            'transformed' => 'numeric-string',
+            'type' => NumericStringType::class,
+        ];
+
+        yield 'String value with single quote' => [
+            'raw' => "'foo'",
+            'transformed' => "'foo'",
+            'type' => StringValueType::class,
+        ];
+
+        yield 'String value with single quote followed by description' => [
+            'raw' => "'foo' lorem ipsum",
+            'transformed' => "'foo'",
+            'type' => StringValueType::class,
+        ];
+
+        yield 'String value with double quote' => [
+            'raw' => '"foo"',
+            'transformed' => '"foo"',
+            'type' => StringValueType::class,
+        ];
+
+        yield 'String value with double quote followed by description' => [
+            'raw' => '"foo" lorem ipsum',
+            'transformed' => '"foo"',
+            'type' => StringValueType::class,
+        ];
+
+        yield 'Boolean type' => [
+            'raw' => 'bool',
+            'transformed' => 'bool',
+            'type' => NativeBooleanType::class,
+        ];
+
+        yield 'Boolean type - uppercase' => [
+            'raw' => 'BOOL',
+            'transformed' => 'bool',
+            'type' => NativeBooleanType::class,
+        ];
+
+        yield 'Boolean type (longer version)' => [
+            'raw' => 'boolean',
+            'transformed' => 'bool',
+            'type' => NativeBooleanType::class,
+        ];
+
+        yield 'Boolean type (longer version) - uppercase' => [
+            'raw' => 'BOOLEAN',
+            'transformed' => 'bool',
+            'type' => NativeBooleanType::class,
+        ];
+
+        yield 'Boolean type followed by description' => [
+            'raw' => 'bool lorem ipsum',
+            'transformed' => 'bool',
+            'type' => NativeBooleanType::class,
+        ];
+
+        yield 'Undefined object type' => [
+            'raw' => 'object',
+            'transformed' => 'object',
+            'type' => UndefinedObjectType::class,
+        ];
+
+        yield 'Undefined object type - uppercase' => [
+            'raw' => 'OBJECT',
+            'transformed' => 'object',
+            'type' => UndefinedObjectType::class,
+        ];
+
+        yield 'Undefined object type followed by description' => [
+            'raw' => 'object lorem ipsum',
+            'transformed' => 'object',
+            'type' => UndefinedObjectType::class,
+        ];
+
+        yield 'Array native type' => [
+            'raw' => 'array',
+            'transformed' => 'array',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array native type - uppercase' => [
+            'raw' => 'ARRAY',
+            'transformed' => 'array',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array native type followed by description' => [
+            'raw' => 'array lorem ipsum',
+            'transformed' => 'array',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Simple array type' => [
+            'raw' => 'float[]',
+            'transformed' => 'float[]',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Simple array type followed by description' => [
+            'raw' => 'float[] lorem ipsum',
+            'transformed' => 'float[]',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array type with string array-key' => [
+            'raw' => 'array<string, float>',
+            'transformed' => 'array<string, float>',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array type with int array-key' => [
+            'raw' => 'array<int, float>',
+            'transformed' => 'array<int, float>',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array type with array-key' => [
+            'raw' => 'array<array-key, float>',
+            'transformed' => 'array<float>',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array without array-key' => [
+            'raw' => 'array<float>',
+            'transformed' => 'array<float>',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Array without array-key followed by description' => [
+            'raw' => 'array<float> lorem ipsum',
+            'transformed' => 'array<float>',
+            'type' => ArrayType::class,
+        ];
+
+        yield 'Non empty native array' => [
+            'raw' => 'non-empty-array',
+            'transformed' => 'non-empty-array',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty native array - uppercase' => [
+            'raw' => 'NON-EMPTY-ARRAY',
+            'transformed' => 'non-empty-array',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty native array followed by description' => [
+            'raw' => 'non-empty-array lorem ipsum',
+            'transformed' => 'non-empty-array',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty array type with string array-key' => [
+            'raw' => 'non-empty-array<string, float>',
+            'transformed' => 'non-empty-array<string, float>',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty array type with int array-key' => [
+            'raw' => 'non-empty-array<int, float>',
+            'transformed' => 'non-empty-array<int, float>',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty array type with array-key' => [
+            'raw' => 'non-empty-array<array-key, float>',
+            'transformed' => 'non-empty-array<float>',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty array without array-key' => [
+            'raw' => 'non-empty-array<float>',
+            'transformed' => 'non-empty-array<float>',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'Non empty array without array-key followed by description' => [
+            'raw' => 'non-empty-array<float> lorem ipsum',
+            'transformed' => 'non-empty-array<float>',
+            'type' => NonEmptyArrayType::class,
+        ];
+
+        yield 'List native type' => [
+            'raw' => 'list',
+            'transformed' => 'list',
+            'type' => ListType::class,
+        ];
+
+        yield 'List native type - uppercase' => [
+            'raw' => 'LIST',
+            'transformed' => 'list',
+            'type' => ListType::class,
+        ];
+
+        yield 'List native type followed by description' => [
+            'raw' => 'list lorem ipsum',
+            'transformed' => 'list',
+            'type' => ListType::class,
+        ];
+
+        yield 'List type' => [
+            'raw' => 'list<float>',
+            'transformed' => 'list<float>',
+            'type' => ListType::class,
+        ];
+
+        yield 'List type followed by description' => [
+            'raw' => 'list<float> lorem ipsum',
+            'transformed' => 'list<float>',
+            'type' => ListType::class,
+        ];
+
+        yield 'Non empty list native type' => [
+            'raw' => 'non-empty-list',
+            'transformed' => 'non-empty-list',
+            'type' => NonEmptyListType::class,
+        ];
+
+        yield 'Non empty list native type - uppercase' => [
+            'raw' => 'NON-EMPTY-LIST',
+            'transformed' => 'non-empty-list',
+            'type' => NonEmptyListType::class,
+        ];
+
+        yield 'Non empty list native type followed by description' => [
+            'raw' => 'non-empty-list lorem ipsum',
+            'transformed' => 'non-empty-list',
+            'type' => NonEmptyListType::class,
+        ];
+
+        yield 'Non empty list' => [
+            'raw' => 'non-empty-list<float>',
+            'transformed' => 'non-empty-list<float>',
+            'type' => NonEmptyListType::class,
+        ];
+
+        yield 'Non empty list followed by description' => [
+            'raw' => 'non-empty-list<float> lorem ipsum',
+            'transformed' => 'non-empty-list<float>',
+            'type' => NonEmptyListType::class,
+        ];
+
+        yield 'Shaped array' => [
+            'raw' => 'array{foo: string}',
+            'transformed' => 'array{foo: string}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with single quote key' => [
+            'raw' => "array{'foo': string}",
+            'transformed' => "array{'foo': string}",
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with double quote key' => [
+            'raw' => 'array{"foo": string}',
+            'transformed' => 'array{"foo": string}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with several keys' => [
+            'raw' => 'array{foo: string, bar: int}',
+            'transformed' => 'array{foo: string, bar: int}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with several quote keys' => [
+            'raw' => 'array{\'foo\': string, "bar": int}',
+            'transformed' => 'array{\'foo\': string, "bar": int}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with no key' => [
+            'raw' => 'array{string, int}',
+            'transformed' => 'array{0: string, 1: int}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with optional key' => [
+            'raw' => 'array{foo: string, bar?: int}',
+            'transformed' => 'array{foo: string, bar?: int}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with trailing comma' => [
+            'raw' => 'array{foo: string, bar: int,}',
+            'transformed' => 'array{foo: string, bar: int}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with reserved keyword as key' => [
+            'raw' => 'array{string: string}',
+            'transformed' => 'array{string: string}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array followed by description' => [
+            'raw' => 'array{foo: string} lorem ipsum',
+            'transformed' => 'array{foo: string}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped array with key equal to class name' => [
+            'raw' => 'array{stdclass: string}',
+            'transformed' => 'array{stdclass: string}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Iterable type' => [
+            'raw' => 'iterable',
+            'transformed' => 'iterable',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Iterable type - uppercase' => [
+            'raw' => 'ITERABLE',
+            'transformed' => 'iterable',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Iterable type with string array-key' => [
+            'raw' => 'iterable<string, float>',
+            'transformed' => 'iterable<string, float>',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Iterable type with int array-key' => [
+            'raw' => 'iterable<int, float>',
+            'transformed' => 'iterable<int, float>',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Iterable type with array-key' => [
+            'raw' => 'iterable<array-key, float>',
+            'transformed' => 'iterable<float>',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Iterable without array-key' => [
+            'raw' => 'iterable<float>',
+            'transformed' => 'iterable<float>',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Iterable without array-key followed by description' => [
+            'raw' => 'iterable<float> lorem ipsum',
+            'transformed' => 'iterable<float>',
+            'type' => IterableType::class,
+        ];
+
+        yield 'Class string' => [
+            'raw' => 'class-string',
+            'transformed' => 'class-string',
+            'type' => ClassStringType::class,
+        ];
+
+        yield 'Class string followed by description' => [
+            'raw' => 'class-string lorem ipsum',
+            'transformed' => 'class-string',
+            'type' => ClassStringType::class,
+        ];
+
+        yield 'Class string of class' => [
+            'raw' => 'class-string<stdClass>',
+            'transformed' => 'class-string<stdClass>',
+            'type' => ClassStringType::class,
+        ];
+
+        yield 'Class string of class followed by description' => [
+            'raw' => 'class-string<stdClass> lorem ipsum',
+            'transformed' => 'class-string<stdClass>',
+            'type' => ClassStringType::class,
+        ];
+
+        yield 'Class string of interface' => [
+            'raw' => 'class-string<DateTimeInterface>',
+            'transformed' => 'class-string<DateTimeInterface>',
+            'type' => ClassStringType::class,
+        ];
+
+        yield 'Class string of union' => [
+            'raw' => 'class-string<DateTimeInterface|stdClass>',
+            'transformed' => 'class-string<DateTimeInterface|stdClass>',
+            'type' => ClassStringType::class,
+        ];
+
+        yield 'Class name' => [
+            'raw' => stdClass::class,
+            'transformed' => stdClass::class,
+            'type' => ClassType::class,
+        ];
+
+        yield 'Class name followed by description' => [
+            'raw' => 'stdClass lorem ipsum',
+            'transformed' => stdClass::class,
+            'type' => ClassType::class,
+        ];
+
+        yield 'Abstract class name' => [
+            'raw' => AbstractObject::class,
+            'transformed' => AbstractObject::class,
+            'type' => InterfaceType::class,
+        ];
+
+        yield 'Interface name' => [
+            'raw' => DateTimeInterface::class,
+            'transformed' => DateTimeInterface::class,
+            'type' => InterfaceType::class,
+        ];
+
+        yield 'Nullable type' => [
+            'raw' => '?string',
+            'transformed' => 'null|string',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Nullable type followed by description' => [
+            'raw' => '?string lorem ipsum',
+            'transformed' => 'null|string',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type' => [
+            'raw' => 'int|float',
+            'transformed' => 'int|float',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type with native array' => [
+            'raw' => 'array|int',
+            'transformed' => 'array|int',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type with simple iterable' => [
+            'raw' => 'iterable|int',
+            'transformed' => 'iterable|int',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type with simple array' => [
+            'raw' => 'int[]|float',
+            'transformed' => 'int[]|float',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type with array' => [
+            'raw' => 'array<int>|float',
+            'transformed' => 'array<int>|float',
+            'type' => UnionType::class,
+        ];
+
+        if (PHP_VERSION_ID >= 8_01_00) {
+            yield 'Union type with enum' => [
+                'raw' => PureEnum::class . '|' . BackedStringEnum::class,
+                'transformed' => PureEnum::class . '|' . BackedStringEnum::class,
+                'type' => UnionType::class,
+            ];
+        }
+
+        yield 'Union type with class-string' => [
+            'raw' => 'class-string|int',
+            'transformed' => 'class-string|int',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type with shaped array' => [
+            'raw' => 'array{foo: string, bar: int}|string',
+            'transformed' => 'array{foo: string, bar: int}|string',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type with shaped array with trailing comma' => [
+            'raw' => 'array{foo: string, bar: int,}|string',
+            'transformed' => 'array{foo: string, bar: int}|string',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union type followed by description' => [
+            'raw' => 'int|float lorem ipsum',
+            'transformed' => 'int|float',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Intersection type' => [
+            'raw' => 'stdClass&DateTimeInterface',
+            'transformed' => 'stdClass&DateTimeInterface',
+            'type' => IntersectionType::class,
+        ];
+
+        yield 'Intersection type followed by description' => [
+            'raw' => 'stdClass&DateTimeInterface lorem ipsum',
+            'transformed' => 'stdClass&DateTimeInterface',
+            'type' => IntersectionType::class,
+        ];
+
+        if (PHP_VERSION_ID >= 8_01_00) {
+            yield 'Pure enum' => [
+                'raw' => PureEnum::class,
+                'transformed' => PureEnum::class,
+                'type' => NativeEnumType::class,
+            ];
+
+            yield 'Backed integer enum' => [
+                'raw' => BackedIntegerEnum::class,
+                'transformed' => BackedIntegerEnum::class,
+                'type' => NativeEnumType::class,
+            ];
+
+            yield 'Backed string enum' => [
+                'raw' => BackedStringEnum::class,
+                'transformed' => BackedStringEnum::class,
+                'type' => NativeEnumType::class,
+            ];
+
+            yield 'Pure enum value' => [
+                'raw' => PureEnum::class . '::FOO',
+                'transformed' => PureEnum::class . '::FOO',
+                'type' => EnumValueType::class,
+            ];
+
+            yield 'Backed integer enum value' => [
+                'raw' => BackedIntegerEnum::class . '::FOO',
+                'transformed' => BackedIntegerEnum::class . '::FOO',
+                'type' => EnumValueType::class,
+            ];
+
+            yield 'Backed string enum value' => [
+                'raw' => BackedStringEnum::class . '::FOO',
+                'transformed' => BackedStringEnum::class . '::FOO',
+                'type' => EnumValueType::class,
+            ];
+
+            yield 'Pure enum value with pattern with wildcard at the beginning' => [
+                'raw' => PureEnum::class . '::*OO',
+                'transformed' => PureEnum::class . '::FOO',
+                'type' => EnumValueType::class,
+            ];
+
+            yield 'Pure enum value with pattern with wildcard at the end' => [
+                'raw' => PureEnum::class . '::FO*',
+                'transformed' => PureEnum::class . '::FOO',
+                'type' => EnumValueType::class,
+            ];
+
+            yield 'Pure enum value with pattern with wildcard at the beginning and end' => [
+                'raw' => PureEnum::class . '::*A*',
+                'transformed' => PureEnum::class . '::BAR|' . PureEnum::class . '::BAZ',
+                'type' => UnionType::class,
+            ];
+        }
     }
 
     public function test_multiple_union_types_are_parsed(): void
@@ -1065,5 +1261,89 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Cannot parse unknown symbol `"foo`.');
 
         $this->parser->parse('"foo');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_missing_enum_case_throws_exception(): void
+    {
+        $this->expectException(MissingEnumCase::class);
+        $this->expectExceptionCode(1653468431);
+        $this->expectExceptionMessage('Missing case name for enum `' . PureEnum::class . '::?`.');
+
+        $this->parser->parse(PureEnum::class . '::');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_no_enum_case_found_throws_exception(): void
+    {
+        $this->expectException(EnumCaseNotFound::class);
+        $this->expectExceptionCode(1653468428);
+        $this->expectExceptionMessage('Unknown enum case `' . PureEnum::class . '::ABC`.');
+
+        $this->parser->parse(PureEnum::class . '::ABC');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_no_enum_case_found_with_wildcard_throws_exception(): void
+    {
+        $this->expectException(EnumCaseNotFound::class);
+        $this->expectExceptionCode(1653468428);
+        $this->expectExceptionMessage('Cannot find enum case with pattern `' . PureEnum::class . '::ABC*`.');
+
+        $this->parser->parse(PureEnum::class . '::ABC*');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_no_enum_case_found_with_several_wildcards_in_a_row_throws_exception(): void
+    {
+        $this->expectException(EnumCaseNotFound::class);
+        $this->expectExceptionCode(1653468428);
+        $this->expectExceptionMessage('Cannot find enum case with pattern `' . PureEnum::class . '::F**O`.');
+
+        $this->parser->parse(PureEnum::class . '::F**O');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_missing_specific_enum_case_throws_exception(): void
+    {
+        $this->expectException(MissingSpecificEnumCase::class);
+        $this->expectExceptionCode(1653468438);
+        $this->expectExceptionMessage('Missing specific case for enum `' . PureEnum::class . '::?` (cannot be `*`).');
+
+        $this->parser->parse(PureEnum::class . '::*');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_missing_enum_colon_and_case_throws_exception(): void
+    {
+        $this->expectException(MissingEnumColon::class);
+        $this->expectExceptionCode(1653468435);
+        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::?`.');
+
+        $this->parser->parse(PureEnum::class . ':');
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_missing_enum_colon_throws_exception(): void
+    {
+        $this->expectException(MissingEnumColon::class);
+        $this->expectExceptionCode(1653468435);
+        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::FOO`.');
+
+        $this->parser->parse(PureEnum::class . ':FOO');
     }
 }

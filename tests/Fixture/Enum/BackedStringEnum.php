@@ -8,4 +8,5 @@ enum BackedStringEnum: string
 {
     case FOO = 'foo';
     case BAR = 'bar';
+    case BAZ = 'baz';
 }

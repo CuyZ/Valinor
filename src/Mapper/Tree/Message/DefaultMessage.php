@@ -17,6 +17,9 @@ interface DefaultMessage
         'Value {source_value} does not match type {expected_type}.' => [
             'en' => 'Value {source_value} does not match type {expected_type}.',
         ],
+        'Value {source_value} does not match {expected_value}.' => [
+            'en' => 'Value {source_value} does not match {expected_value}.',
+        ],
         'Value {source_value} does not match boolean value {expected_value}.' => [
             'en' => 'Value {source_value} does not match boolean value {expected_value}.',
         ],

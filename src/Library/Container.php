@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Library;
 
 use CuyZ\Valinor\Cache\ChainCache;
-use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\KeySanitizerCache;
+use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
@@ -32,7 +32,6 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\EnumNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
@@ -61,7 +60,6 @@ use CuyZ\Valinor\Type\Resolver\Union\UnionNullNarrower;
 use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
@@ -95,7 +93,6 @@ final class Container
                 $arrayNodeBuilder = new ArrayNodeBuilder($settings->flexible);
 
                 $builder = new CasterNodeBuilder([
-                    EnumType::class => new EnumNodeBuilder($settings->flexible),
                     ListType::class => $listNodeBuilder,
                     NonEmptyListType::class => $listNodeBuilder,
                     ArrayType::class => $arrayNodeBuilder,
@@ -155,7 +152,7 @@ final class Container
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
                 $factory = new DateTimeObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new AttributeObjectBuilderFactory($factory);
-                $factory =  new CollisionObjectBuilderFactory($factory);
+                $factory = new CollisionObjectBuilderFactory($factory);
 
                 if (! $settings->flexible) {
                     $factory = new StrictTypesObjectBuilderFactory($factory);

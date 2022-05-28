@@ -151,3 +151,27 @@ final class SomeClass
     ) {}
 }
 ```
+
+### Enums
+
+```php
+enum SomeEnum
+{
+    case FOO;
+    case BAR;
+    case BAZ;
+}
+
+final class SomeClass
+{
+    public function __construct(
+        private SomeEnum $enum,
+
+        /** @var SomeEnum::FOO|SomeEnum::BAR */
+        private SomeEnum $oneOfTwoCasesOfEnum,
+
+        /** @var SomeEnum::BA* (matches BAR or BAZ) */
+        private SomeEnum $casesOfEnumMatchingPattern,
+    ) {}
+}
+```

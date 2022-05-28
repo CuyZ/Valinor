@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use CuyZ\Valinor\Tests\Fake\Type\FakeFixedType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidShapeElementType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use PHPUnit\Framework\TestCase;
@@ -36,14 +34,5 @@ final class ShapedArrayElementTest extends TestCase
 
         self::assertSame("foo: {$type->toString()}", $element->toString());
         self::assertSame("foo?: {$type->toString()}", $optionalElement->toString());
-    }
-
-    public function test_fixed_type_throws_exception(): void
-    {
-        $this->expectException(InvalidShapeElementType::class);
-        $this->expectExceptionCode(1631294135);
-        $this->expectExceptionMessage('The shaped array element `foo` cannot contain a fixed type `bar`.');
-
-        new ShapedArrayElement(new StringValueType('foo'), new FakeFixedType('bar'));
     }
 }

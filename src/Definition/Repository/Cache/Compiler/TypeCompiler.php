@@ -11,7 +11,8 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\EnumValueType;
+use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -145,8 +146,10 @@ final class TypeCompiler
                 $subType = $this->compile($type->subType());
 
                 return "new $class($subType)";
-            case $type instanceof EnumType:
+            case $type instanceof NativeEnumType:
                 return "new $class({$type->className()}::class)";
+            case $type instanceof EnumValueType:
+                return "new $class({$type->toString()})";
             case $type instanceof UnresolvableType:
                 $raw = var_export($type->toString(), true);
                 $message = var_export($type->getMessage(), true);

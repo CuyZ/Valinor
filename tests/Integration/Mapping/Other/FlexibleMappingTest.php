@@ -225,8 +225,7 @@ final class FlexibleMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('1633093113', $error->code());
-            self::assertSame("Value 'foo' does not match any of 'FOO', 'BAR'.", (string)$error);
+            self::assertSame("Value 'foo' does not match any of 'FOO', 'BAR', 'BAZ'.", (string)$error);
         }
     }
 
@@ -240,8 +239,7 @@ final class FlexibleMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('1633093113', $error->code());
-            self::assertSame("Value object(stdClass) does not match any of 'foo', 'bar'.", (string)$error);
+            self::assertSame("Value object(stdClass) does not match any of 'foo', 'bar', 'baz'.", (string)$error);
         }
     }
 
@@ -255,8 +253,7 @@ final class FlexibleMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('1633093113', $error->code());
-            self::assertSame("Value false does not match any of 42, 1337.", (string)$error);
+            self::assertSame("Value false does not match any of 42, 404, 1337.", (string)$error);
         }
     }
 

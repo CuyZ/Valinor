@@ -8,4 +8,5 @@ enum PureEnum
 {
     case FOO;
     case BAR;
+    case BAZ;
 }

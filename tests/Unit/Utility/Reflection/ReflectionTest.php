@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
 use Closure;
 use CuyZ\Valinor\Tests\Fake\FakeReflector;
+use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyPromotion;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
@@ -228,6 +229,14 @@ final class ReflectionTest extends TestCase
             fn () => 'foo',
             '\'foo\'',
         ];
+
+        if (PHP_VERSION_ID >= 8_01_00) {
+            yield 'phpdoc enum with joker' => [
+                /** @return BackedStringEnum::BA* */
+                fn () => BackedStringEnum::BAR,
+                'BackedStringEnum::BA*',
+            ];
+        }
 
         yield 'psalm' => [
             /** @psalm-return int */

@@ -6,7 +6,9 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Iterable;
 
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
+use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use RuntimeException;
 
 use function implode;
@@ -15,6 +17,7 @@ use function implode;
 final class ShapedArrayElementTypeMissing extends RuntimeException implements InvalidType
 {
     /**
+     * @param StringValueType|IntegerValueType $key
      * @param ShapedArrayElement[] $elements
      */
     public function __construct(array $elements, FixedType $key, bool $optional)
