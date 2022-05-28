@@ -111,7 +111,7 @@ final class StrictMappingTest extends IntegrationTest
             self::assertSame('Unexpected key(s) `unexpectedKey`, expected `value`.', (string)$errorA);
 
             self::assertSame('1655449641', $errorB->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `?`.', (string)$errorB);
+            self::assertSame('Cannot be empty and must be filled with a value matching type `foo|bar|baz`.', (string)$errorB);
         }
     }
 }

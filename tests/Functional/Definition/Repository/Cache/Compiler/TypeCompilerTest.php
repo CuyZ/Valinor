@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\TypeCompiler;
+use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -20,6 +22,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -97,6 +100,12 @@ final class TypeCompilerTest extends TestCase
         yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
         yield [new ClassType(stdClass::class, ['Template' => NativeStringType::get()])];
         yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new ClassType(DateTime::class))];
+
+        if (PHP_VERSION_ID >= 8_01_00) {
+            yield [new NativeEnumType(PureEnum::class)];
+            yield [new EnumValueType(PureEnum::FOO)];
+        }
+
         yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), NativeFloatType::get())];
         yield [ArrayType::native()];
         yield [new ArrayType(ArrayKeyType::default(), NativeFloatType::get())];

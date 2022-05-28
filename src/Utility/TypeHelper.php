@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Utility;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\EnumType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -17,7 +18,13 @@ final class TypeHelper
 {
     public static function dump(Type $type, bool $surround = true): string
     {
-        $text = self::containsObject($type) ? '?' : $type->toString();
+        if ($type instanceof EnumType) {
+            $text = $type->readableSignature();
+        } elseif (self::containsObject($type)) {
+            $text = '?';
+        } else {
+            $text = $type->toString();
+        }
 
         return $surround ? "`$text`" : $text;
     }

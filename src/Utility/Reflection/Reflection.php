@@ -33,7 +33,7 @@ final class Reflection
 {
     private const TOOL_NONE = '';
     private const TOOL_EXPRESSION = '((?<tool>psalm|phpstan)-)';
-    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}]+)';
+    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}*]+)';
 
     /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
@@ -247,8 +247,8 @@ final class Reflection
      */
     private static function sanitizeDocComment(Reflector $reflection): string
     {
-        $docComment = preg_replace('#^\s*/\*\*([^/]+)/\s*$#', '$1', $reflection->getDocComment() ?: '');
+        $docComment = preg_replace('#^\s*/\*\*([^/]+)\*/\s*$#', '$1', $reflection->getDocComment() ?: '');
 
-        return trim(preg_replace('/\s*\*\s*(\S*)/', "\n\$1", $docComment)); // @phpstan-ignore-line
+        return trim(preg_replace('/^\s*\*\s*(\S*)/m', '$1', $docComment)); // @phpstan-ignore-line
     }
 }
