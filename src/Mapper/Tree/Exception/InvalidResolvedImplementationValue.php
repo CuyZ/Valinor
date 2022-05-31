@@ -8,17 +8,17 @@ use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class InvalidInterfaceResolverReturnType extends RuntimeException
+final class InvalidResolvedImplementationValue extends RuntimeException
 {
     /**
      * @param mixed $value
      */
-    public function __construct(string $interfaceName, $value)
+    public function __construct(string $name, $value)
     {
         $value = ValueDumper::dump($value);
 
         parent::__construct(
-            "Invalid value $value; it must be the name of a class that implements `$interfaceName`.",
+            "Invalid value $value, expected a subtype of `$name`.",
             1630091260
         );
     }

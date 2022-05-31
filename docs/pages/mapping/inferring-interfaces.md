@@ -8,14 +8,21 @@ The callback given to this method must return the name of a class that
 implements the interface. Any arguments can be required by the callback; they
 will be mapped properly using the given source.
 
+If the callback can return several class names, it needs to provide a return
+signature with the list of all class-strings that can be returned (see below).
+
 ```php
 $mapper = (new \CuyZ\Valinor\MapperBuilder())
     ->infer(UuidInterface::class, fn () => MyUuid::class)
-    ->infer(SomeInterface::class, fn (string $type) => match($type) {
-        'first' => FirstImplementation::class,
-        'second' => SecondImplementation::class,
-        default => throw new DomainException("Unhandled type `$type`.")
-    })->mapper();
+    ->infer(
+        SomeInterface::class, 
+        /** @return class-string<FirstImplementation|SecondImplementation> */
+        fn (string $type) => match($type) {
+            'first' => FirstImplementation::class,
+            'second' => SecondImplementation::class,
+            default => throw new DomainException("Unhandled type `$type`.")
+        }
+    )->mapper();
 
 // Will return an instance of `FirstImplementation`
 $mapper->map(SomeInterface::class, [
