@@ -12,7 +12,7 @@ use Psr\SimpleCache\CacheInterface;
 /** @internal */
 final class Settings
 {
-    /** @var array<class-string, callable> */
+    /** @var array<interface-string, callable> */
     public array $interfaceMapping = [];
 
     /** @var array<class-string, null> */

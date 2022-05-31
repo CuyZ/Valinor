@@ -15,7 +15,7 @@ use function array_keys;
 /**
  * @internal
  *
- * @implements IteratorAggregate<FunctionDefinition>
+ * @implements IteratorAggregate<string|int, FunctionDefinition>
  */
 final class FunctionsContainer implements IteratorAggregate
 {

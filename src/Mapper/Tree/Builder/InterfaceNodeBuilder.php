@@ -5,35 +5,27 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForInterface;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidInterfaceResolverReturnType;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTypeResolvedForInterface;
-use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedTypeForInterfaceIsNotAccepted;
+use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\Parser\TypeParser;
-use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveTypeFromInterface;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
-use Exception;
+
+use function count;
 
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
 
-    private FunctionsContainer $functions;
+    private ObjectImplementations $implementations;
 
-    private TypeParser $typeParser;
-
-    public function __construct(NodeBuilder $delegate, FunctionsContainer $functions, TypeParser $typeParser)
+    public function __construct(NodeBuilder $delegate, ObjectImplementations $implementations)
     {
         $this->delegate = $delegate;
-        $this->functions = $functions;
-        $this->typeParser = $typeParser;
+        $this->implementations = $implementations;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
@@ -46,13 +38,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         $interfaceName = $type->className();
 
-        if (! $this->functions->has($interfaceName)) {
-            throw new CannotResolveTypeFromInterface($interfaceName);
-        }
-
-        $function = $this->functions->get($interfaceName);
-        $callback = $this->functions->callback($function);
-
+        $function = $this->implementations->function($interfaceName);
         $children = $this->children($shell, $function, $rootBuilder);
         $arguments = [];
 
@@ -65,23 +51,9 @@ final class InterfaceNodeBuilder implements NodeBuilder
         }
 
         try {
-            $signature = $callback(...$arguments);
-        } catch (Exception $exception) {
-            throw ThrowableMessage::from($exception);
-        }
-
-        if (! is_string($signature)) {
-            throw new InvalidInterfaceResolverReturnType($interfaceName, $signature);
-        }
-
-        $classType = $this->typeParser->parse($signature);
-
-        if (! $classType instanceof ClassType) {
-            throw new InvalidTypeResolvedForInterface($interfaceName, $classType);
-        }
-
-        if (! $type->matches($classType)) {
-            throw new ResolvedTypeForInterfaceIsNotAccepted($interfaceName, $classType);
+            $classType = $this->implementations->implementation($interfaceName, $arguments);
+        } catch (ObjectImplementationCallbackError $exception) {
+            throw ThrowableMessage::from($exception->original());
         }
 
         return $rootBuilder->build($shell->withType($classType));
