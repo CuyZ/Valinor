@@ -31,7 +31,7 @@ jobs:
           key: tests-php-extensions-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.dependencies }}
 
       - name: Cache PHP extensions
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.3
         with:
           path: ${{ steps.extcache.outputs.dir }}
           key: ${{ steps.extcache.outputs.key }}
