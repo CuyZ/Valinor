@@ -211,7 +211,7 @@ try {
 
     // Should print something similar to:
     // > Expected a value to start with "foo_". Got: "bar_baz"
-    foreach ($errorsMessages as $message) {
+    foreach ($errorMessages as $message) {
         echo $message;
     }
 }
