@@ -1,0 +1,96 @@
+name: Publish docs
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  check:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.check.outputs.status }}
+      version: ${{ steps.check.outputs.version }}
+      tag: ${{ steps.check.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Find version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Version format check
+        id: check
+        run: |
+          if [ "${{ steps.get_version.outputs.is-semver }}" == "true" ]
+          then
+            echo "::set-output name=status::ok"
+            echo "::set-output name=version::${{ steps.get_version.outputs.major }}.${{ steps.get_version.outputs.minor }}"
+            echo "::set-output name=tag::${{ steps.get_version.outputs.version-without-v }}"
+          fi
+
+  build:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.status == 'ok'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Set up git author
+        uses: oleksiyrudenko/gha-git-credentials@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find latest release
+        id: latest
+        uses: pozetroninc/github-action-get-latest-release@v0.6.0
+        with:
+          repository: ${{ github.repository }}
+          excludes: draft
+
+      - name: Deploy docs
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        run: |
+          # Setup SSH deploy key
+          mkdir -p ~/.ssh
+          echo "${SSH_DEPLOY_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H github.com > ~/.ssh/known_hosts
+
+      - run: git remote add doc git@github.com:CuyZ/Valinor-Documentation.git
+      - run: git fetch doc gh-pages --verbose
+
+      - run: |
+          # Check if the "latest" alias exists
+          VALINOR_HAS_LATEST=$(mike list --config-file docs/mkdocs.yml --rebase --remote doc | grep latest) || true
+          
+          # If so then it is set as the default version (to enable the index redirect)
+          if [ "${VALINOR_HAS_LATEST}" != "" ]
+          then
+            echo "Set latest as default"
+            mike set-default latest --config-file docs/mkdocs.yml --remote doc
+          fi
+
+      - run: |
+          if [ "${{ steps.latest.outputs.release }}" = "${{ needs.check.outputs.tag }}" ]
+          then
+            # Here we deploy a new latest version
+            mike deploy ${{ needs.check.outputs.version }} latest --config-file docs/mkdocs.yml --update-aliases --push --remote doc
+          else
+            # Here we deploy a version that's not the latest one
+            mike deploy ${{ needs.check.outputs.version }} --config-file docs/mkdocs.yml --push --remote doc
+          fi

@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: Valinor
+repo_url: https://github.com/CuyZ/Valinor
+repo_name: CuyZ/Valinor
+edit_uri: edit/master/docs/
+docs_dir: pages
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/CuyZ
+    - icon: fontawesome/solid/globe
+      link: https://cuyz.io
+  version:
+    provider: mike
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/pine-tree
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - meta
+  - pymdownx.highlight:
+      anchor_linenums: true
+      extend_pygments_lang:
+        - name: php
+          lang: php
+          options:
+            startinline: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      auto_append:
+        - docs/includes/links.md
+  - pymdownx.superfences
+  - admonition
+
+nav:
+  - Introduction: index.md
+  - Getting Started: getting-started.md
+  - Credits: credits.md
+  - Usage:
+      - Validation: validation.md
+      - Message customization: message-customization.md
+      - Source: source.md
+  - Mapping:
+      - Construction strategy: mapping/construction-strategy.md
+      - Inferring interfaces: mapping/inferring-interfaces.md
+      - Handled types: mapping/handled-types.md
+  - Other:
+      - Performance & caching: other/performance-and-cache.md
+      - Static analysis: other/static-analysis.md
