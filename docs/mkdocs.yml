@@ -17,9 +17,9 @@ extra:
 
 theme:
   name: material
-  icon:
-    repo: fontawesome/brands/github
-    logo: material/pine-tree
+  custom_dir: overrides
+  favicon: img/valinor-icon.svg
+  logo: img/valinor-icon.svg
   features:
     - navigation.sections
     - navigation.top
@@ -28,15 +28,15 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: deep purple
-      accent: deep purple
+      primary: blue grey
+      accent: blue grey
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: deep purple
-      accent: deep purple
+      primary: blue grey
+      accent: blue grey
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -61,6 +61,7 @@ nav:
   - Introduction: index.md
   - Getting Started: getting-started.md
   - Credits: credits.md
+  - Changelog: changelog.md
   - Usage:
       - Validation: validation.md
       - Message customization: message-customization.md
