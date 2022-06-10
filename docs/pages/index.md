@@ -6,9 +6,9 @@ hide:
 Valinor • PHP object mapper with strong type support
 ====================================================
 
-[![Total Downloads](http://poser.pugx.org/cuyz/valinor/downloads)][link-packagist]
-[![Latest Stable Version](http://poser.pugx.org/cuyz/valinor/v)][link-packagist]
-[![PHP Version Require](http://poser.pugx.org/cuyz/valinor/require/php)][link-packagist]
+[![Total Downloads](https://poser.pugx.org/cuyz/valinor/downloads)][link-packagist]
+[![Latest Stable Version](https://poser.pugx.org/cuyz/valinor/v)][link-packagist]
+[![PHP Version Require](https://poser.pugx.org/cuyz/valinor/require/php)][link-packagist]
 
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FCuyZ%2FValinor%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/CuyZ/Valinor/master)
 
