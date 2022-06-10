@@ -7,6 +7,8 @@ Valinor • PHP object mapper with strong type support
 
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FCuyZ%2FValinor%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/CuyZ/Valinor/master)
 
+<img src="docs/pages/img/valinor-logo.svg" align="left" width="100"/>
+
 Valinor is a PHP library that helps to map any input into a strongly-typed value
 object structure.
 
@@ -21,7 +23,7 @@ composer require cuyz/valinor
 
 ## Documentation
 
-Documentation can be found at [valinor.cuyz.io](valinor.cuyz.io).
+Documentation can be found at [valinor.cuyz.io](https://valinor.cuyz.io).
 
 ## Credits & thank you
 

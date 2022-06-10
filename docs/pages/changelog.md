@@ -1,8 +1,27 @@
+---
+toc_depth: 2
+---
+
 <!--- BEGIN HEADER -->
 # Changelog
 
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
+
+## [0.10.0](https://github.com/romm/Valinor/compare/0.9.0...0.10.0) (2022-06-10)
+
+### Notable changes
+
+Documentation is now available at [valinor.cuyz.io](https://valinor.cuyz.io).
+
+### Features
+
+* Support mapping to dates with no time ([e0a529](https://github.com/romm/Valinor/commit/e0a529a7e546c2e3ffb929f819256b90a5f7859a))
+
+### Bug Fixes
+
+* Allow declaring promoted parameter type with `@var` annotation ([d8eb4d](https://github.com/romm/Valinor/commit/d8eb4d830bd0817a5de2d61c8cfa81e7e025064a))
+* Allow mapping iterable to shaped array ([628baf](https://github.com/romm/Valinor/commit/628baf1294aaf3ce65bc5af969073604e2005af8))
 
 ## [0.9.0](https://github.com/CuyZ/Valinor/compare/0.8.0...0.9.0) (2022-05-23)
 
