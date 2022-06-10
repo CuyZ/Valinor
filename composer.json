@@ -59,6 +59,11 @@
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --coverage-xml='var/cache/phpunit/coverage' --log-junit='var/cache/phpunit/coverage/junit.xml'",
             "infection --threads=12 --skip-initial-tests --coverage='var/cache/phpunit/coverage'"
+        ],
+        "doc": [
+            "Composer\\Config::disableProcessTimeout",
+            "pip install -r docs/requirements.txt",
+            "mkdocs serve --config-file docs/mkdocs.yml"
         ]
     },
     "config": {
