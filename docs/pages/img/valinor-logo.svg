@@ -2,11 +2,11 @@
     <circle fill="#E2E8F0" cx="65" cy="65" r="65"/>
 
     <line stroke-width="14" x1="33" x2="61" y1="49" y2="101" stroke="#A1C181"/>
+    <line stroke-width="14" x1="69" x2="85" y1="49" y2="75" stroke="#BCDC9C"/>
     <line stroke-width="14" x1="97" x2="69" y1="49" y2="101" stroke="#A1C181"/>
-    <line stroke-width="14" x1="69" x2="85" y1="49" y2="75" stroke="#A1C181"/>
 
     <ellipse cx="65" cy="109" rx="12" ry="12" stroke-width="8" stroke="#619B8A" fill="none"/>
     <ellipse cx="31" cy="41" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
     <ellipse cx="99" cy="41" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
-    <ellipse cx="65" cy="41" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
+    <ellipse cx="65" cy="41" rx="12" ry="12" stroke-width="8" stroke="#BCDC9C" fill="none"/>
 </svg>

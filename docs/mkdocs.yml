@@ -3,7 +3,7 @@
 site_name: Valinor
 repo_url: https://github.com/CuyZ/Valinor
 repo_name: CuyZ/Valinor
-edit_uri: edit/master/docs/
+edit_uri: edit/master/docs/pages/
 docs_dir: pages
 
 extra:
@@ -14,6 +14,8 @@ extra:
       link: https://cuyz.io
   version:
     provider: mike
+extra_css:
+  - stylesheets/extra.css
 
 theme:
   name: material
@@ -28,15 +30,15 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: blue grey
-      accent: blue grey
+      primary: teal
+      accent: teal
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: blue grey
-      accent: blue grey
+      primary: teal
+      accent: teal
       toggle:
         icon: material/brightness-4
         name: Switch to light mode

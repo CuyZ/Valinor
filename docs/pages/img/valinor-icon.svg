@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <line stroke-width="14" x1="18" x2="46" y1="24" y2="76" stroke="#a1c181"/>
-    <line stroke-width="14" x1="82" x2="54" y1="24" y2="76" stroke="#a1c181"/>
-    <line stroke-width="14" x1="54" x2="70" y1="24" y2="50" stroke="#a1c181"/>
+    <line stroke-width="14" x1="18" x2="46" y1="24" y2="76" stroke="#A1C181"/>
+    <line stroke-width="14" x1="54" x2="70" y1="24" y2="50" stroke="#BCDC9C"/>
+    <line stroke-width="14" x1="82" x2="54" y1="24" y2="76" stroke="#A1C181"/>
 
-    <ellipse cx="50" cy="84" rx="12" ry="12" stroke-width="8" stroke="#619b8a" fill="none"/>
-    <ellipse cx="16" cy="16" rx="12" ry="12" stroke-width="8" stroke="#a1c181" fill="none"/>
-    <ellipse cx="84" cy="16" rx="12" ry="12" stroke-width="8" stroke="#a1c181" fill="none"/>
-    <ellipse cx="50" cy="16" rx="12" ry="12" stroke-width="8" stroke="#a1c181" fill="none"/>
+    <ellipse cx="50" cy="84" rx="12" ry="12" stroke-width="8" stroke="#619B8A" fill="none"/>
+    <ellipse cx="16" cy="16" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
+    <ellipse cx="84" cy="16" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
+    <ellipse cx="50" cy="16" rx="12" ry="12" stroke-width="8" stroke="#BCDC9C" fill="none"/>
 </svg>
