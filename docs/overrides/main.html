@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<meta name="description" content="{{ config.extra.meta.description }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ config.site_url }}">
+<meta property="og:title" content="{{ config.extra.meta.title }}">
+<meta property="og:description" content="{{ config.extra.meta.description }}">
+<meta property="og:image" content="{{ config.site_url }}{{ config.extra.meta.image }}">
+{% endblock %}

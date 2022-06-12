@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="160" viewBox="0 0 360 200">
     <defs>
         <style>
             @font-face {
@@ -8,20 +8,20 @@
         </style>
     </defs>
 
-    <line stroke-width="14" x1="18" x2="46" y1="24" y2="76" stroke="#A1C181"/>
-    <line stroke-width="14" x1="54" x2="70" y1="24" y2="50" stroke="#BCDC9C"/>
-    <line stroke-width="14" x1="82" x2="54" y1="24" y2="76" stroke="#A1C181"/>
+    <line stroke-width="14" x1="38" x2="66" y1="44" y2="96" stroke="#A1C181"/>
+    <line stroke-width="14" x1="74" x2="90" y1="44" y2="70" stroke="#BCDC9C"/>
+    <line stroke-width="14" x1="102" x2="74" y1="44" y2="96" stroke="#A1C181"/>
 
-    <ellipse cx="50" cy="84" rx="12" ry="12" stroke-width="8" stroke="#619B8A" fill="none"/>
-    <ellipse cx="16" cy="16" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
-    <ellipse cx="84" cy="16" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
-    <ellipse cx="50" cy="16" rx="12" ry="12" stroke-width="8" stroke="#BCDC9C" fill="none"/>
+    <ellipse cx="70" cy="104" rx="12" ry="12" stroke-width="8" stroke="#619B8A" fill="none"/>
+    <ellipse cx="36" cy="36" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
+    <ellipse cx="104" cy="36" rx="12" ry="12" stroke-width="8" stroke="#A1C181" fill="none"/>
+    <ellipse cx="70" cy="36" rx="12" ry="12" stroke-width="8" stroke="#BCDC9C" fill="none"/>
 
-    <text font-family="mustica-pro" x="80" y="97" font-size="90" fill="#A1C181">
+    <text font-family="mustica-pro" x="100" y="117" font-size="90" fill="#A1C181">
         <tspan font-size="1" fill="none">V</tspan>alin<tspan fill="#619B8A">o</tspan>r
     </text>
 
-    <line stroke-width="4" x1="0" x2="313" y1="115" y2="115" stroke="#BCDC9C"/>
+    <line stroke-width="4" x1="20" x2="333" y1="135" y2="135" stroke="#BCDC9C"/>
 
-    <text font-family="mustica-pro" x="0" y="157" font-size="35" fill="#BCDC9C">PHP object mapper</text>
+    <text font-family="mustica-pro" x="20" y="177" font-size="35" fill="#BCDC9C">PHP object mapper</text>
 </svg>
