@@ -1,12 +1,17 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
 site_name: Valinor
+site_url: https://valinor.cuyz.io/
 repo_url: https://github.com/CuyZ/Valinor
 repo_name: CuyZ/Valinor
 edit_uri: edit/master/docs/pages/
 docs_dir: pages
 
 extra:
+  meta:
+    title: Valinor • PHP object mapper with strong type support
+    description: PHP library that helps to map any input into a strongly-typed value object structure.
+    image: img/valinor-banner.png
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/CuyZ
