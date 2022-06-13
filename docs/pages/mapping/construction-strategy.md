@@ -40,6 +40,10 @@ Registering any constructor will disable the native constructor — the
 to be handled as well, the name of the class must be given to the
 registration method.
 
+If several constructors are registered, they must provide distinct signatures to
+prevent collision during mapping — meaning that if two constructors require 
+several arguments with the exact same names, the mapping will fail.
+
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     ->registerConstructor(

@@ -19,4 +19,11 @@ final class DateTimeObjectBuilderTest extends TestCase
 
         self::assertSame($argumentsA, $argumentsB);
     }
+
+    public function test_signature_is_correct(): void
+    {
+        $objectBuilder = new DateTimeObjectBuilder(DateTimeImmutable::class);
+
+        self::assertSame('Internal date object builder', $objectBuilder->signature());
+    }
 }

@@ -15,9 +15,9 @@ use PHPUnit\Framework\TestCase;
 
 final class ListNodeBuilderTest extends TestCase
 {
-    public function test_build_with_null_value_returns_empty_branch_node(): void
+    public function test_build_with_null_value_in_flexible_mode_returns_empty_branch_node(): void
     {
-        $node = (new RootNodeBuilder(new ListNodeBuilder()))->build(FakeShell::new(ListType::native()));
+        $node = (new RootNodeBuilder(new ListNodeBuilder(true)))->build(FakeShell::new(ListType::native()));
 
         self::assertSame([], $node->value());
         self::assertEmpty($node->children());
@@ -27,7 +27,7 @@ final class ListNodeBuilderTest extends TestCase
     {
         $this->expectException(AssertionError::class);
 
-        (new RootNodeBuilder(new ListNodeBuilder()))->build(FakeShell::new(new FakeType()));
+        (new RootNodeBuilder(new ListNodeBuilder(true)))->build(FakeShell::new(new FakeType()));
     }
 
     public function test_build_with_invalid_source_throws_exception(): void
@@ -36,6 +36,6 @@ final class ListNodeBuilderTest extends TestCase
         $this->expectExceptionCode(1618739163);
         $this->expectExceptionMessage("Value 'foo' does not match type `list`.");
 
-        (new RootNodeBuilder(new ListNodeBuilder()))->build(FakeShell::new(ListType::native(), 'foo'));
+        (new RootNodeBuilder(new ListNodeBuilder(true)))->build(FakeShell::new(ListType::native(), 'foo'));
     }
 }

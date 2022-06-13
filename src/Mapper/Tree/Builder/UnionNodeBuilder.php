@@ -25,13 +25,12 @@ final class UnionNodeBuilder implements NodeBuilder
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
-        $value = $shell->value();
 
-        if (! $type instanceof UnionType) {
+        if (! $type instanceof UnionType || ! $shell->hasValue()) {
             return $this->delegate->build($shell, $rootBuilder);
         }
 
-        $narrowedType = $this->unionNarrower->narrow($type, $value);
+        $narrowedType = $this->unionNarrower->narrow($type, $shell->value());
 
         return $rootBuilder->build($shell->withType($narrowedType));
     }

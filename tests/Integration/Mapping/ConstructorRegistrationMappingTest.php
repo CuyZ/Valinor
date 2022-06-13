@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
+use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTime;
@@ -13,8 +14,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DomainException;
 use stdClass;
-
-use function get_class;
 
 final class ConstructorRegistrationMappingTest extends IntegrationTest
 {
@@ -37,20 +36,17 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     public function test_registered_anonymous_function_constructor_with_docblock_is_used(): void
     {
         $object = new stdClass();
-        $class = new class () {
-            public stdClass $object;
-        };
 
         try {
             $result = (new MapperBuilder())
                 ->registerConstructor(/** @return stdClass */ fn () => $object)
                 ->mapper()
-                ->map(get_class($class), []);
+                ->map(stdClass::class, []);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
 
-        self::assertSame($object, $result->object);
+        self::assertSame($object, $result);
     }
 
     public function test_registered_named_constructor_is_used(): void
@@ -277,22 +273,89 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame('fiz', $resultC->fiz);
     }
 
-    public function test_identical_registered_constructors_throws_exception(): void
+    public function test_several_constructors_with_same_arguments_number_are_filtered_correctly(): void
     {
-        try {
-            (new MapperBuilder())
-                ->registerConstructor(
-                    fn (): stdClass => new stdClass(),
-                    fn (): stdClass => new stdClass(),
-                )
-                ->mapper()
-                ->map(stdClass::class, []);
-        } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
+        $mapper = (new MapperBuilder())
+            ->registerConstructor(function (string $foo, string $bar): stdClass {
+                $class = new stdClass();
+                $class->foo = $foo;
+                $class->bar = $bar;
 
-            self::assertSame('1642787246', $error->code());
-            self::assertSame('Invalid value array (empty).', (string)$error);
+                return $class;
+            })
+            ->registerConstructor(function (string $foo, string $baz): stdClass {
+                $class = new stdClass();
+                $class->foo = $foo;
+                $class->baz = $baz;
+
+                return $class;
+            })->mapper();
+
+        try {
+            $resultA = $mapper->map(stdClass::class, [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ]);
+
+            $resultB = $mapper->map(stdClass::class, [
+                'foo' => 'foo',
+                'baz' => 'baz',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
         }
+
+        self::assertSame('foo', $resultA->foo);
+        self::assertSame('bar', $resultA->bar);
+        self::assertSame('foo', $resultB->foo);
+        self::assertSame('baz', $resultB->baz);
+    }
+
+    public function test_identical_registered_constructors_with_no_argument_throws_exception(): void
+    {
+        $this->expectException(ObjectBuildersCollision::class);
+        $this->expectExceptionCode(1654955787);
+        $this->expectExceptionMessageMatches('/A collision was detected between the following constructors of the class `stdClass`: `Closure .*`, `Closure .*`\./');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                fn (string $foo): stdClass => new stdClass(),
+                fn (): stdClass => new stdClass(),
+                fn (): stdClass => new stdClass(),
+            )
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
+    public function test_identical_registered_constructors_with_one_argument_throws_exception(): void
+    {
+        $this->expectException(ObjectBuildersCollision::class);
+        $this->expectExceptionCode(1654955787);
+        $this->expectExceptionMessageMatches('/A collision was detected between the following constructors of the class `stdClass`: `Closure .*`, `Closure .*`\./');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                fn (int $int): stdClass => new stdClass(),
+                fn (float $float): stdClass => new stdClass(),
+            )
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
+    public function test_identical_registered_constructors_with_several_argument_throws_exception(): void
+    {
+        $this->expectException(ObjectBuildersCollision::class);
+        $this->expectExceptionCode(1654955787);
+        $this->expectExceptionMessage('A collision was detected between the following constructors of the class `stdClass`: `CuyZ\Valinor\Tests\Integration\Mapping\constructorA()`, `CuyZ\Valinor\Tests\Integration\Mapping\constructorB()`.');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                __NAMESPACE__ . '\constructorA', // @PHP8.1 First-class callable syntax
+                fn (int $other, float $arguments): stdClass => new stdClass(),
+                __NAMESPACE__ . '\constructorB', // @PHP8.1 First-class callable syntax
+            )
+            ->mapper()
+            ->map(stdClass::class, []);
     }
 
     public function test_source_not_matching_registered_constructors_throws_exception(): void
@@ -309,7 +372,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1642183169', $error->code());
-            self::assertSame('Value array (empty) does not match any of `array{foo: string}`, `array{bar: int, baz?: float}`.', (string)$error);
+            self::assertSame('Value array (empty) does not match any of `string`, `array{bar: int, baz?: float}`.', (string)$error);
         }
     }
 
@@ -460,4 +523,14 @@ final class SomeClassWithPrivateNativeConstructor
     {
         return new self($foo);
     }
+}
+
+function constructorA(int $argumentA, float $argumentB): stdClass
+{
+    return new stdClass();
+}
+
+function constructorB(int $argumentA, float $argumentB): stdClass
+{
+    return new stdClass();
 }

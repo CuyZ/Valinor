@@ -15,10 +15,6 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
     public function test_values_are_mapped_properly(): void
     {
         $source = [
-            'basicShapedArrayWithExcessiveKey' => [
-                'foo' => 'foo',
-                'bar' => 42,
-            ],
             'basicShapedArrayWithStringKeys' => [
                 'foo' => 'fiz',
                 'bar' => 42,
@@ -40,7 +36,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             'advancedShapedArray' => [
                 'mandatoryString' => 'bar',
                 1337,
-                '42.404',
+                42.404,
             ],
         ];
 
@@ -51,7 +47,6 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 $this->mappingFail($error);
             }
 
-            self::assertSame(['foo' => 'foo'], $result->basicShapedArrayWithExcessiveKey);
             self::assertSame($source['basicShapedArrayWithStringKeys'], $result->basicShapedArrayWithStringKeys);
             self::assertSame($source['basicShapedArrayWithIntegerKeys'], $result->basicShapedArrayWithIntegerKeys);
             self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']); // @phpstan-ignore-line
@@ -63,7 +58,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_value_that_cannot_be_casted_throws_exception(): void
+    public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
             (new MapperBuilder())->mapper()->map(ShapedArrayValues::class, [
@@ -75,17 +70,14 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
 
-            self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot cast object(stdClass) to `string`.', (string)$error);
+            self::assertSame('1655030601', $error->code());
+            self::assertSame('Value object(stdClass) does not match type `string`.', (string)$error);
         }
     }
 }
 
 class ShapedArrayValues
 {
-    /** @var array{foo: string} */
-    public array $basicShapedArrayWithExcessiveKey;
-
     /** @var array{foo: string, bar: int} */
     public array $basicShapedArrayWithStringKeys;
 
@@ -113,7 +105,6 @@ class ShapedArrayValues
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
 {
     /**
-     * @param array{foo: string} $basicShapedArrayWithExcessiveKey
      * @param array{foo: string, bar: int} $basicShapedArrayWithStringKeys
      * @param array{0: string, 1: float} $basicShapedArrayWithIntegerKeys
      * @param array{foo: SimpleObject} $shapedArrayWithObject
@@ -125,7 +116,6 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      */
     public function __construct(
-        array $basicShapedArrayWithExcessiveKey,
         array $basicShapedArrayWithStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,
@@ -133,7 +123,6 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayOnSeveralLines,
         array $advancedShapedArray
     ) {
-        $this->basicShapedArrayWithExcessiveKey = $basicShapedArrayWithExcessiveKey;
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
         $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
         $this->shapedArrayWithObject = $shapedArrayWithObject;

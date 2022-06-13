@@ -62,15 +62,25 @@ final class ReflectionTest extends TestCase
             }
         });
 
+        $functions = require_once 'FakeFunctions.php';
+
         $reflectionClass = new ReflectionClass($class);
         $reflectionProperty = $reflectionClass->getProperty('property');
         $reflectionMethod = $reflectionClass->getMethod('method');
         $reflectionParameter = $reflectionMethod->getParameters()[0];
+        $reflectionFunction = new ReflectionFunction(__NAMESPACE__ . '\some_function'); // @PHP8.1 First-class callable syntax
+        $reflectionFunctionMethod = new ReflectionFunction(Closure::fromCallable([self::class, 'test_reflection_signatures_are_correct'])); // @PHP8.1 First-class callable syntax
+        $reflectionFunctionOnOneLineClosure = new ReflectionFunction($functions['function_on_one_line']);
+        $reflectionFunctionOnSeveralLinesClosure = new ReflectionFunction($functions['function_on_several_lines']);
 
         self::assertSame($class, Reflection::signature($reflectionClass));
         self::assertSame($class . '::$property', Reflection::signature($reflectionProperty));
         self::assertSame($class . '::method()', Reflection::signature($reflectionMethod));
         self::assertSame($class . '::method($parameter)', Reflection::signature($reflectionParameter));
+        self::assertSame(__NAMESPACE__ . '\some_function()', Reflection::signature($reflectionFunction));
+        self::assertSame(self::class . '::test_reflection_signatures_are_correct()', Reflection::signature($reflectionFunctionMethod));
+        self::assertSame('Closure (line 8 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnOneLineClosure));
+        self::assertSame('Closure (lines 10 to 12 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnSeveralLinesClosure));
     }
 
     public function test_invalid_reflection_signature_throws_exception(): void
@@ -434,4 +444,8 @@ final class ReflectionTest extends TestCase
             'non-empty-string',
         ];
     }
+}
+
+function some_function(): void
+{
 }

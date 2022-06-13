@@ -46,23 +46,6 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
         self::assertInstanceOf(SomeBarObject::class, $result->objects['bar']);
     }
 
-    public function test_source_matching_two_unions_maps_the_one_with_most_arguments(): void
-    {
-        try {
-            $result = (new MapperBuilder())->mapper()->map(UnionOfBarAndFizAndFoo::class, [
-                ['foo' => 'foo', 'bar' => 'bar', 'fiz' => 'fiz'],
-            ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        $object = $result->objects[0];
-
-        self::assertInstanceOf(SomeBarAndFizObject::class, $object);
-        self::assertSame('bar', $object->bar);
-        self::assertSame('fiz', $object->fiz);
-    }
-
     public function test_objects_sharing_one_property_are_resolved_correctly(): void
     {
         try {
@@ -76,26 +59,6 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
 
         self::assertInstanceOf(SomeFooObject::class, $result->objects[0]);
         self::assertInstanceOf(SomeFooAndBarObject::class, $result->objects[1]);
-    }
-
-    public function test_one_failing_union_type_does_not_stop_union_inferring(): void
-    {
-        try {
-            $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
-                ->registerConstructor(
-                    [SomeClassWithTwoIdenticalNamedConstructors::class, 'constructorA'],
-                    [SomeClassWithTwoIdenticalNamedConstructors::class, 'constructorB'],
-                )
-                ->mapper()
-                ->map(SomeClassWithOneFailingUnionType::class, [
-                    'object' => ['foo' => 'foo'],
-                ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $result->object->foo);
     }
 
     /**
@@ -153,13 +116,6 @@ final class UnionOfFooAndBarAndFoo
 }
 
 // @PHP8.1 Readonly properties
-final class UnionOfBarAndFizAndFoo
-{
-    /** @var array<SomeBarAndFizObject|SomeFooObject> */
-    public array $objects;
-}
-
-// @PHP8.1 Readonly properties
 final class SomeFooObject
 {
     public string $foo;
@@ -183,43 +139,4 @@ final class SomeFooAndBarObject
     public string $foo;
 
     public string $bar;
-}
-
-// @PHP8.1 Readonly properties
-final class SomeBarAndFizObject
-{
-    public string $bar;
-
-    public string $fiz;
-}
-
-final class SomeClassWithOneFailingUnionType
-{
-    // @PHP8.0 native union
-    // @PHP8.0 Promoted property
-    // @PHP8.1 Readonly property
-    /** @var SomeClassWithTwoIdenticalNamedConstructors|SomeFooObject */
-    public object $object;
-}
-
-final class SomeClassWithTwoIdenticalNamedConstructors
-{
-    public string $foo;
-
-    // @PHP8.0 Promoted properties
-    // @PHP8.1 Readonly properties
-    public function __construct(string $foo)
-    {
-        $this->foo = $foo;
-    }
-
-    public static function constructorA(string $foo): self
-    {
-        return new self($foo);
-    }
-
-    public static function constructorB(string $foo): self
-    {
-        return new self($foo);
-    }
 }

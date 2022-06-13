@@ -8,7 +8,6 @@ use Attribute;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 
 /**
  * @api
@@ -30,8 +29,8 @@ final class StaticMethodConstructor implements ObjectBuilderFactory
         $this->methodName = $methodName;
     }
 
-    public function for(ClassDefinition $class, $source): ObjectBuilder
+    public function for(ClassDefinition $class): iterable
     {
-        return new MethodObjectBuilder($class, $this->methodName);
+        return [new MethodObjectBuilder($class, $this->methodName)];
     }
 }

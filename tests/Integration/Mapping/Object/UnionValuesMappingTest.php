@@ -23,12 +23,6 @@ final class UnionValuesMappingTest extends IntegrationTest
             'nullableWithNull' => null,
             'intOrLiteralTrue' => true,
             'intOrLiteralFalse' => false,
-            'positiveFloatValue' => 1337.42,
-            'negativeFloatValue' => -1337.42,
-            'positiveIntegerValue' => 1337,
-            'negativeIntegerValue' => -1337,
-            'stringValueWithSingleQuote' => 'bar',
-            'stringValueWithDoubleQuote' => 'fiz',
         ];
 
         $classes = [UnionValues::class, UnionValuesWithConstructor::class];
@@ -53,15 +47,30 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame(null, $result->nullableWithNull);
             self::assertSame(true, $result->intOrLiteralTrue);
             self::assertSame(false, $result->intOrLiteralFalse);
+        }
 
-            if ($result instanceof UnionValues) {
-                self::assertSame(1337.42, $result->positiveFloatValue);
-                self::assertSame(-1337.42, $result->negativeFloatValue);
-                self::assertSame(1337, $result->positiveIntegerValue);
-                self::assertSame(-1337, $result->negativeIntegerValue);
-                self::assertSame('bar', $result->stringValueWithSingleQuote);
-                self::assertSame('fiz', $result->stringValueWithDoubleQuote);
+        $source = [
+            'positiveFloatValue' => 1337.42,
+            'negativeFloatValue' => -1337.42,
+            'positiveIntegerValue' => 1337,
+            'negativeIntegerValue' => -1337,
+            'stringValueWithSingleQuote' => 'bar',
+            'stringValueWithDoubleQuote' => 'fiz',
+        ];
+
+        foreach ([UnionOfFixedValues::class, UnionOfFixedValuesWithConstructor::class] as $class) {
+            try {
+                $result = (new MapperBuilder())->mapper()->map($class, $source);
+            } catch (MappingError $error) {
+                $this->mappingFail($error);
             }
+
+            self::assertSame(1337.42, $result->positiveFloatValue);
+            self::assertSame(-1337.42, $result->negativeFloatValue);
+            self::assertSame(1337, $result->positiveIntegerValue);
+            self::assertSame(-1337, $result->negativeIntegerValue);
+            self::assertSame('bar', $result->stringValueWithSingleQuote);
+            self::assertSame('fiz', $result->stringValueWithDoubleQuote);
         }
     }
 }
@@ -91,7 +100,10 @@ class UnionValues
 
     /** @var int|false */
     public $intOrLiteralFalse = 42;
+}
 
+class UnionOfFixedValues
+{
     /** @var 404.42|1337.42 */
     public float $positiveFloatValue = 404.42;
 
@@ -122,12 +134,6 @@ class UnionValuesWithConstructor extends UnionValues
      * @param string|null|float $nullableWithNull
      * @param int|true $intOrLiteralTrue
      * @param int|false $intOrLiteralFalse
-     * @param 404.42|1337.42 $positiveFloatValue
-     * @param -404.42|-1337.42 $negativeFloatValue
-     * @param 42|1337 $positiveIntegerValue
-     * @param -42|-1337 $negativeIntegerValue
-     * @param 'foo'|'bar' $stringValueWithSingleQuote
-     * @param "baz"|"fiz" $stringValueWithDoubleQuote
      */
     public function __construct(
         $scalarWithBoolean = 'Schwifty!',
@@ -137,13 +143,7 @@ class UnionValuesWithConstructor extends UnionValues
         $nullableWithString = 'Schwifty!',
         $nullableWithNull = 'Schwifty!',
         $intOrLiteralTrue = 42,
-        $intOrLiteralFalse = 42,
-        float $positiveFloatValue = 404.42,
-        float $negativeFloatValue = -404.42,
-        int $positiveIntegerValue = 42,
-        int $negativeIntegerValue = -42,
-        string $stringValueWithSingleQuote = 'foo',
-        string $stringValueWithDoubleQuote = 'baz'
+        $intOrLiteralFalse = 42
     ) {
         $this->scalarWithBoolean = $scalarWithBoolean;
         $this->scalarWithFloat = $scalarWithFloat;
@@ -153,6 +153,27 @@ class UnionValuesWithConstructor extends UnionValues
         $this->nullableWithNull = $nullableWithNull;
         $this->intOrLiteralTrue = $intOrLiteralTrue;
         $this->intOrLiteralFalse = $intOrLiteralFalse;
+    }
+}
+
+class UnionOfFixedValuesWithConstructor extends UnionOfFixedValues
+{
+    /**
+     * @param 404.42|1337.42 $positiveFloatValue
+     * @param -404.42|-1337.42 $negativeFloatValue
+     * @param 42|1337 $positiveIntegerValue
+     * @param -42|-1337 $negativeIntegerValue
+     * @param 'foo'|'bar' $stringValueWithSingleQuote
+     * @param "baz"|"fiz" $stringValueWithDoubleQuote
+     */
+    public function __construct(
+        float $positiveFloatValue = 404.42,
+        float $negativeFloatValue = -404.42,
+        int $positiveIntegerValue = 42,
+        int $negativeIntegerValue = -42,
+        string $stringValueWithSingleQuote = 'foo',
+        string $stringValueWithDoubleQuote = 'baz'
+    ) {
         $this->positiveFloatValue = $positiveFloatValue;
         $this->negativeFloatValue = $negativeFloatValue;
         $this->positiveIntegerValue = $positiveIntegerValue;

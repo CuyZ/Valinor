@@ -16,6 +16,6 @@ final class ScalarNodeBuilderTest extends TestCase
     {
         $this->expectException(AssertionError::class);
 
-        (new RootNodeBuilder(new ScalarNodeBuilder()))->build(FakeShell::any());
+        (new RootNodeBuilder(new ScalarNodeBuilder(true)))->build(FakeShell::any());
     }
 }

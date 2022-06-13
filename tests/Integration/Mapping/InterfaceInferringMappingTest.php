@@ -326,8 +326,8 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('1645283485', $error->code());
-            self::assertSame('Invalid value 42: it must be an array.', (string)$error);
+            self::assertSame('1632903281', $error->code());
+            self::assertSame('Value 42 does not match type `array{type: string, key: int}`.', (string)$error);
         }
     }
 
@@ -345,8 +345,8 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['key']->messages()[0];
 
-            self::assertSame('1618736242', $error->code());
-            self::assertSame("Cannot cast 'foo' to `int`.", (string)$error);
+            self::assertSame('1655030601', $error->code());
+            self::assertSame("Value 'foo' does not match type `int`.", (string)$error);
         }
     }
 
@@ -369,6 +369,28 @@ final class InterfaceInferringMappingTest extends IntegrationTest
 
             self::assertSame('1645303304', $error->code());
             self::assertSame('some error message', (string)$error);
+        }
+    }
+
+    public function test_superfluous_values_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())
+                ->infer(
+                    SomeInterface::class,
+                    /** @return class-string<SomeClassThatInheritsInterfaceA> */
+                    fn (string $valueA) => SomeClassThatInheritsInterfaceA::class
+                )
+                ->mapper()
+                ->map(SomeInterface::class, [
+                    'valueA' => 'foo',
+                    'superfluousValue' => 'bar',
+                ]);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1655149208', $error->code());
+            self::assertSame('Unexpected key(s) `superfluousValue`, expected `valueA`.', (string)$error);
         }
     }
 }

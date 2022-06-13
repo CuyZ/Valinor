@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\EmptyAttributes;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetParentOfRootShell;
 use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
+use CuyZ\Valinor\Mapper\Tree\Exception\ShellHasNoValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -15,12 +16,14 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use function array_unshift;
 use function implode;
 
-/** @api */
+/** @internal */
 final class Shell
 {
     private string $name;
 
     private Type $type;
+
+    private bool $hasValue = false;
 
     /** @var mixed */
     private $value;
@@ -29,13 +32,9 @@ final class Shell
 
     private self $parent;
 
-    /**
-     * @param mixed $value
-     */
-    private function __construct(Type $type, $value)
+    private function __construct(Type $type)
     {
         $this->type = $type;
-        $this->value = $value;
 
         if ($type instanceof UnresolvableType) {
             throw new UnresolvableShellType($type);
@@ -47,15 +46,12 @@ final class Shell
      */
     public static function root(Type $type, $value): self
     {
-        return new self($type, $value);
+        return (new self($type))->withValue($value);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function child(string $name, Type $type, $value, Attributes $attributes = null): self
+    public function child(string $name, Type $type, Attributes $attributes = null): self
     {
-        $instance = new self($type, $value);
+        $instance = new self($type);
         $instance->name = $name;
         $instance->parent = $this;
 
@@ -108,9 +104,15 @@ final class Shell
     public function withValue($value): self
     {
         $clone = clone $this;
+        $clone->hasValue = true;
         $clone->value = $value;
 
         return $clone;
+    }
+
+    public function hasValue(): bool
+    {
+        return $this->hasValue;
     }
 
     /**
@@ -118,6 +120,10 @@ final class Shell
      */
     public function value()
     {
+        if (! $this->hasValue) {
+            throw new ShellHasNoValue();
+        }
+
         return $this->value;
     }
 

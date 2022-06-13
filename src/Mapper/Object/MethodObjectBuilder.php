@@ -6,17 +6,12 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\MethodDefinition;
-use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use Exception;
-
-use function array_map;
-use function array_values;
-use function iterator_to_array;
 
 /** @api */
 final class MethodObjectBuilder implements ObjectBuilder
@@ -57,15 +52,7 @@ final class MethodObjectBuilder implements ObjectBuilder
 
     public function describeArguments(): Arguments
     {
-        return $this->arguments ??= new Arguments(
-            ...array_map(function (ParameterDefinition $parameter) {
-                $argument = $parameter->isOptional()
-                    ? Argument::optional($parameter->name(), $parameter->type(), $parameter->defaultValue())
-                    : Argument::required($parameter->name(), $parameter->type());
-
-                return $argument->withAttributes($parameter->attributes());
-            }, array_values(iterator_to_array($this->method->parameters()))) // @PHP8.1 array unpacking
-        );
+        return $this->arguments ??= Arguments::fromParameters($this->method->parameters());
     }
 
     public function build(array $arguments): object
@@ -81,5 +68,10 @@ final class MethodObjectBuilder implements ObjectBuilder
         } catch (Exception $exception) {
             throw ThrowableMessage::from($exception);
         }
+    }
+
+    public function signature(): string
+    {
+        return $this->method->signature();
     }
 }

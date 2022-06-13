@@ -69,7 +69,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_value_that_cannot_be_casted_throws_exception(): void
+    public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
             (new MapperBuilder())->mapper()->map(SimpleObject::class, [
@@ -78,22 +78,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['value']->messages()[0];
 
-            self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot cast object(stdClass) to `string`.', (string)$error);
-        }
-    }
-
-    public function test_empty_mandatory_value_throws_exception(): void
-    {
-        try {
-            (new MapperBuilder())->mapper()->map(SimpleObject::class, [
-                'value' => null,
-            ]);
-        } catch (MappingError $exception) {
-            $error = $exception->node()->children()['value']->messages()[0];
-
-            self::assertSame('1618736242', $error->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `string`.', (string)$error);
+            self::assertSame('1655030601', $error->code());
+            self::assertSame('Value object(stdClass) does not match type `string`.', (string)$error);
         }
     }
 }

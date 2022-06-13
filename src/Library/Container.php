@@ -20,26 +20,30 @@ use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\CollisionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
+use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\EnumNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShellVisitorNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\StrictNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
@@ -88,18 +92,18 @@ final class Container
             ShellVisitor::class => fn () => new AttributeShellVisitor(),
 
             NodeBuilder::class => function () use ($settings) {
-                $listNodeBuilder = new ListNodeBuilder();
-                $arrayNodeBuilder = new ArrayNodeBuilder();
+                $listNodeBuilder = new ListNodeBuilder($settings->flexible);
+                $arrayNodeBuilder = new ArrayNodeBuilder($settings->flexible);
 
                 $builder = new CasterNodeBuilder([
-                    EnumType::class => new EnumNodeBuilder(),
+                    EnumType::class => new EnumNodeBuilder($settings->flexible),
                     ListType::class => $listNodeBuilder,
                     NonEmptyListType::class => $listNodeBuilder,
                     ArrayType::class => $arrayNodeBuilder,
                     NonEmptyArrayType::class => $arrayNodeBuilder,
                     IterableType::class => $arrayNodeBuilder,
-                    ShapedArrayType::class => new ShapedArrayNodeBuilder(),
-                    ScalarType::class => new ScalarNodeBuilder(),
+                    ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->flexible),
+                    ScalarType::class => new ScalarNodeBuilder($settings->flexible),
                 ]);
 
                 $builder = new UnionNodeBuilder($builder, new UnionNullNarrower(new UnionScalarNarrower()));
@@ -108,7 +112,7 @@ final class Container
                     $builder,
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
-                    $this->get(ObjectBuilderFilterer::class),
+                    $settings->flexible
                 );
 
                 $builder = new InterfaceNodeBuilder(
@@ -119,7 +123,10 @@ final class Container
                             $settings->interfaceMapping
                         ),
                         $this->get(TypeParser::class),
-                    )
+                    ),
+                    $this->get(ClassDefinitionRepository::class),
+                    $this->get(ObjectBuilderFactory::class),
+                    $settings->flexible
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
@@ -132,6 +139,7 @@ final class Container
                         $settings->valueModifier
                     )
                 );
+                $builder = new StrictNodeBuilder($builder, $settings->flexible);
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
                 return new ErrorCatcherNodeBuilder($builder);
@@ -144,24 +152,20 @@ final class Container
                 );
 
                 $factory = new ReflectionObjectBuilderFactory();
+                $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
+                $factory = new DateTimeObjectBuilderFactory($factory, $constructors);
+                $factory = new AttributeObjectBuilderFactory($factory);
+                $factory =  new CollisionObjectBuilderFactory($factory);
 
-                $factory = new ConstructorObjectBuilderFactory(
-                    $factory,
-                    $settings->nativeConstructors,
-                    $constructors,
-                    $this->get(ObjectBuilderFilterer::class),
-                );
+                if (! $settings->flexible) {
+                    $factory = new StrictTypesObjectBuilderFactory($factory);
+                }
 
-                $factory = new DateTimeObjectBuilderFactory(
-                    $factory,
-                    $constructors,
-                    $this->get(ObjectBuilderFilterer::class),
-                );
+                /** @var RuntimeCache<iterable<ObjectBuilder>> $cache */
+                $cache = new RuntimeCache();
 
-                return new AttributeObjectBuilderFactory($factory);
+                return new CacheObjectBuilderFactory($factory, $cache);
             },
-
-            ObjectBuilderFilterer::class => fn () => new ObjectBuilderFilterer(),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
                 new ReflectionClassDefinitionRepository(

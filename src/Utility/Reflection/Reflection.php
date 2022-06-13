@@ -23,6 +23,7 @@ use function implode;
 use function preg_match_all;
 use function preg_replace;
 use function spl_object_hash;
+use function str_contains;
 use function trim;
 
 /** @internal */
@@ -69,7 +70,18 @@ final class Reflection
         }
 
         if ($reflection instanceof ReflectionFunction) {
-            return "$reflection->name:{$reflection->getStartLine()}-{$reflection->getEndLine()}";
+            if (str_contains($reflection->name, '{closure}')) {
+                $startLine = $reflection->getStartLine();
+                $endLine = $reflection->getEndLine();
+
+                return $startLine === $endLine
+                    ? "Closure (line $startLine of {$reflection->getFileName()})"
+                    : "Closure (lines $startLine to $endLine of {$reflection->getFileName()})";
+            }
+
+            return $reflection->getClosureScopeClass()
+                ? $reflection->getClosureScopeClass()->name . '::' . $reflection->name . '()'
+                : $reflection->name . '()';
         }
 
         if ($reflection instanceof ReflectionParameter) {

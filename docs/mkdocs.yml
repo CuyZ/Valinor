@@ -78,6 +78,7 @@ nav:
       - Message customization: message-customization.md
       - Source: source.md
   - Mapping:
+      - Type strictness: mapping/type-strictness.md
       - Construction strategy: mapping/construction-strategy.md
       - Inferring interfaces: mapping/inferring-interfaces.md
       - Handled types: mapping/handled-types.md

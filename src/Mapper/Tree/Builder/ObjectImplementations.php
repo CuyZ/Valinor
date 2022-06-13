@@ -38,7 +38,8 @@ final class ObjectImplementations
         $this->functions = $functions;
 
         foreach ($functions as $name => $function) {
-            $this->implementations[(string)$name] = $this->implementations((string)$name);
+            /** @var string $name */
+            $this->implementations[$name] = $this->implementations($name);
         }
     }
 

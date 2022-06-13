@@ -32,9 +32,6 @@ interface DefaultMessage
         'Invalid value {value}.' => [
             'en' => 'Invalid value {value}.',
         ],
-        'Invalid value {value}: it must be an array.' => [
-            'en' => 'Invalid value {value}: it must be an array.',
-        ],
         'Invalid value {value}: it must be an integer between {min} and {max}.' => [
             'en' => 'Invalid value {value}: it must be an integer between {min} and {max}.',
         ],
@@ -43,6 +40,9 @@ interface DefaultMessage
         ],
         'Invalid value {value}: it must be a positive integer.' => [
             'en' => 'Invalid value {value}: it must be a positive integer.',
+        ],
+        'Invalid sequential key {key}, expected {expected}.' => [
+            'en' => 'Invalid sequential key {key}, expected {expected}.',
         ],
         'Cannot cast {value} to {expected_type}.' => [
             'en' => 'Cannot cast {value} to {expected_type}.',
@@ -58,9 +58,6 @@ interface DefaultMessage
         ],
         'Key {key} does not match type {expected_type}.' => [
             'en' => 'Key {key} does not match type {expected_type}.',
-        ],
-        'Missing element {element} matching type {expected_type}.' => [
-            'en' => 'Missing element {element} matching type {expected_type}.',
         ],
         'Value {value} does not match a valid date format.' => [
             'en' => 'Value {value} does not match a valid date format.',

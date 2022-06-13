@@ -11,9 +11,7 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 interface ObjectBuilderFactory
 {
     /**
-     * @param mixed $source
-     *
-     * @throws SuitableObjectBuilderNotFound
+     * @return iterable<ObjectBuilder>
      */
-    public function for(ClassDefinition $class, $source): ObjectBuilder;
+    public function for(ClassDefinition $class): iterable;
 }

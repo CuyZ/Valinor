@@ -30,6 +30,8 @@ final class Settings
     /** @var CacheInterface<mixed> */
     public CacheInterface $cache;
 
+    public bool $flexible = false;
+
     public bool $enableLegacyDoctrineAnnotations = PHP_VERSION_ID < 8_00_00;
 
     public function __construct()

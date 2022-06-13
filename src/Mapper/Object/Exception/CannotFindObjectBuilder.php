@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
-use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
 use CuyZ\Valinor\Utility\String\StringFormatter;
+use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
@@ -16,7 +16,7 @@ use function count;
 use function ksort;
 
 /** @api */
-final class CannotFindObjectBuilder extends RuntimeException implements TranslatableMessage, SuitableObjectBuilderNotFound
+final class CannotFindObjectBuilder extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Value {value} does not match any of {allowed_types}.';
 
@@ -38,7 +38,7 @@ final class CannotFindObjectBuilder extends RuntimeException implements Translat
                 foreach ($builders as $builder) {
                     $arguments = $builder->describeArguments();
                     $count = count($arguments);
-                    $signature = $arguments->signature();
+                    $signature = TypeHelper::dumpArguments($arguments);
 
                     $signatures[$count][$signature] = null;
                 }

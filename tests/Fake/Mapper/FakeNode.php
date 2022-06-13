@@ -41,13 +41,13 @@ final class FakeNode
 
         foreach ($children as $key => $child) {
             $childValue = $child['value'] ?? [];
-
-            $node = Node::leaf($shell->child(
+            $childShell = $shell->child(
                 $child['name'] ?? (string)$key,
                 $child['type'] ?? FakeType::permissive(),
-                $childValue,
                 $child['attributes'] ?? new FakeAttributes(),
-            ), $childValue);
+            )->withValue($childValue);
+
+            $node = Node::leaf($childShell, $childValue);
 
             if (isset($child['message'])) {
                 $node = $node->withMessage($child['message']);

@@ -53,6 +53,20 @@ final class MethodObjectBuilderTest extends TestCase
         self::assertSame('valueC', $result->valueC); // @phpstan-ignore-line
     }
 
+    public function test_signature_is_method_signature(): void
+    {
+        $object = new class () {
+            public function __construct()
+            {
+            }
+        };
+
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
+        $objectBuilder = new MethodObjectBuilder($class, '__construct');
+
+        self::assertSame('Signature::__construct', $objectBuilder->signature());
+    }
+
     public function test_not_existing_method_throws_exception(): void
     {
         $this->expectException(MethodNotFound::class);

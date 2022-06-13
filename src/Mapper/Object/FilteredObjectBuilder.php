@@ -6,18 +6,50 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\Exception\SeveralObjectBuildersFound;
-use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
+
+use function count;
+use function is_array;
 
 /** @internal */
-final class ObjectBuilderFilterer
+final class FilteredObjectBuilder implements ObjectBuilder
 {
+    private ObjectBuilder $delegate;
+
+    private Arguments $arguments;
+
     /**
      * @param mixed $source
-     *
-     * @throws SuitableObjectBuilderNotFound
      */
-    public function filter($source, ObjectBuilder ...$builders): ObjectBuilder
+    public function __construct($source, ObjectBuilder ...$builders)
     {
+        $this->delegate = $this->filterBuilder($source, ...$builders);
+        $this->arguments = $this->delegate->describeArguments();
+    }
+
+    public function describeArguments(): Arguments
+    {
+        return $this->arguments;
+    }
+
+    public function build(array $arguments): object
+    {
+        return $this->delegate->build($arguments);
+    }
+
+    public function signature(): string
+    {
+        return $this->delegate->signature();
+    }
+
+    /**
+     * @param mixed $source
+     */
+    private function filterBuilder($source, ObjectBuilder ...$builders): ObjectBuilder
+    {
+        if (count($builders) === 1) {
+            return $builders[0];
+        }
+
         /** @var non-empty-list<ObjectBuilder> $builders */
         $constructors = [];
 
@@ -50,14 +82,14 @@ final class ObjectBuilderFilterer
      * @PHP8.0 union
      *
      * @param mixed $source
-     * @return bool|int<0, max>
+     * @return false|int<0, max>
      */
     private function filledArguments(ObjectBuilder $builder, $source)
     {
         $arguments = $builder->describeArguments();
 
         if (! is_array($source)) {
-            return count($arguments) === 1;
+            return count($arguments) === 1 ? 1 : false;
         }
 
         /** @infection-ignore-all */
@@ -71,7 +103,6 @@ final class ObjectBuilderFilterer
             }
         }
 
-        /** @var int<0, max> $filled */
         return $filled;
     }
 }

@@ -12,11 +12,7 @@ final class ArrayOfScalarMappingTest extends IntegrationTest
 {
     public function test_values_are_mapped_properly(): void
     {
-        $source = [
-            'foo',
-            42,
-            1337.404,
-        ];
+        $source = ['foo', 'bar', 'baz'];
 
         try {
             $result = (new MapperBuilder())->mapper()->map('string[]', $source);
@@ -24,6 +20,6 @@ final class ArrayOfScalarMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        self::assertSame(['foo', '42', '1337.404'], $result);
+        self::assertSame($source, $result);
     }
 }

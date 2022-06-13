@@ -13,4 +13,6 @@ interface ObjectBuilder
      * @param array<string, mixed> $arguments
      */
     public function build(array $arguments): object;
+
+    public function signature(): string;
 }

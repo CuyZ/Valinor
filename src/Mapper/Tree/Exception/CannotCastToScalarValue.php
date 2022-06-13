@@ -29,7 +29,7 @@ final class CannotCastToScalarValue extends RuntimeException implements Translat
             'expected_type' => TypeHelper::dump($type),
         ];
 
-        $this->body = $value === null || $value === []
+        $this->body = $value === null
             ? 'Cannot be empty and must be filled with a value matching type {expected_type}.'
             : 'Cannot cast {value} to {expected_type}.';
 
