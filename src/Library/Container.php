@@ -117,13 +117,7 @@ final class Container
 
                 $builder = new InterfaceNodeBuilder(
                     $builder,
-                    new ObjectImplementations(
-                        new FunctionsContainer(
-                            $this->get(FunctionDefinitionRepository::class),
-                            $settings->interfaceMapping
-                        ),
-                        $this->get(TypeParser::class),
-                    ),
+                    $this->get(ObjectImplementations::class),
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $settings->flexible
@@ -144,6 +138,14 @@ final class Container
 
                 return new ErrorCatcherNodeBuilder($builder);
             },
+
+            ObjectImplementations::class => fn () => new ObjectImplementations(
+                new FunctionsContainer(
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->interfaceMapping
+                ),
+                $this->get(TypeParser::class),
+            ),
 
             ObjectBuilderFactory::class => function () use ($settings) {
                 $constructors = new FunctionsContainer(
@@ -213,7 +215,9 @@ final class Container
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),
+                $this->get(ObjectImplementations::class),
                 $this->get(ClassDefinitionRepository::class),
+                $this->get(ObjectBuilderFactory::class)
             ),
 
             CacheInterface::class => function () use ($settings) {

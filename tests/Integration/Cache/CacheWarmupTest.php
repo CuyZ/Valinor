@@ -24,13 +24,44 @@ final class CacheWarmupTest extends IntegrationTest
         $this->mapper = (new MapperBuilder())->withCache($this->cache);
     }
 
-    public function test_will_warmup_type_parser_cache(): void
+    public function test_will_warmup_type_parser_cache_for_object_with_properties(): void
     {
-        $this->mapper->warmup(ObjectToWarmup::class);
-        $this->mapper->warmup(ObjectToWarmup::class, SomeObjectJ::class);
+        $this->mapper->warmup(ObjectToWarmupWithProperties::class);
+        $this->mapper->warmup(ObjectToWarmupWithProperties::class, SomeObjectJ::class);
 
-        self::assertSame(11, $this->cache->countEntries());
-        self::assertSame(11, $this->cache->timeSetWasCalled());
+        self::assertSame(10, $this->cache->countEntries());
+        self::assertSame(10, $this->cache->timeSetWasCalled());
+    }
+
+    public function test_will_warmup_type_parser_cache_for_object_with_constructor(): void
+    {
+        // @PHP8.1 first-class callable syntax
+        $mapper = $this->mapper->registerConstructor(
+            [ObjectToWarmupWithConstructors::class, 'constructorA'],
+            [ObjectToWarmupWithConstructors::class, 'constructorB'],
+        );
+
+        $mapper->warmup(ObjectToWarmupWithConstructors::class);
+        $mapper->warmup(ObjectToWarmupWithConstructors::class, SomeObjectC::class);
+
+        self::assertSame(7, $this->cache->countEntries());
+        self::assertSame(7, $this->cache->timeSetWasCalled());
+    }
+
+    public function test_will_warmup_type_parser_cache_for_interface(): void
+    {
+        $mapper = $this->mapper
+            ->infer(
+                SomeInterface::class,
+                /** @return class-string<ObjectToWarmupWithProperties|ObjectToWarmupWithConstructors> */
+                fn (string $foo, SomeObjectI $objectI) => $foo === 'foo' ? ObjectToWarmupWithProperties::class : ObjectToWarmupWithConstructors::class
+            );
+
+        $mapper->warmup(SomeInterface::class);
+        $mapper->warmup(SomeInterface::class, SomeObjectJ::class);
+
+        self::assertSame(13, $this->cache->countEntries());
+        self::assertSame(13, $this->cache->timeSetWasCalled());
     }
 
     public function test_warmup_invalid_signature_throws_exception(): void
@@ -43,7 +74,11 @@ final class CacheWarmupTest extends IntegrationTest
     }
 }
 
-final class ObjectToWarmup
+interface SomeInterface
+{
+}
+
+final class ObjectToWarmupWithProperties implements SomeInterface
 {
     public string $string;
 
@@ -70,9 +105,22 @@ final class ObjectToWarmup
     /** @var SomeObjectG&DateTimeInterface */
     public object $intersectionOfObjects;
 
-    public static function someMethod(string $string, SomeObjectH $object): SomeObjectI
+    public static function someUnnecessaryMethod(string $string, SomeObjectH $object): SomeObjectI
     {
         return new SomeObjectI();
+    }
+}
+
+final class ObjectToWarmupWithConstructors implements SomeInterface
+{
+    public static function constructorA(string $string, SomeObjectA $objectA): self
+    {
+        return new self();
+    }
+
+    public static function constructorB(string $string, SomeObjectB $objectb): self
+    {
+        return new self();
     }
 }
 

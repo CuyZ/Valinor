@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
@@ -18,7 +19,7 @@ use function is_string;
 use function method_exists;
 
 /** @api */
-final class ClassStringType implements StringType
+final class ClassStringType implements StringType, CompositeType
 {
     /** @var ObjectType|UnionType|null */
     private ?Type $subType;
@@ -128,6 +129,19 @@ final class ClassStringType implements StringType
     public function subType(): ?Type
     {
         return $this->subType;
+    }
+
+    public function traverse(): iterable
+    {
+        if (! $this->subType) {
+            return [];
+        }
+
+        yield $this->subType;
+
+        if ($this->subType instanceof CompositeType) {
+            yield from $this->subType->traverse();
+        }
     }
 
     public function __toString(): string
