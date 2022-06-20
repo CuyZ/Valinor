@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Mapper\Object\Exception;
+namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Object\Argument;
-use CuyZ\Valinor\Mapper\Object\Arguments;
+use CuyZ\Valinor\Mapper\Object\FilledArguments;
 use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
-use function array_filter;
-use function array_keys;
+use function array_map;
+use function implode;
 
 /** @api */
 final class UnexpectedArrayKeysForClass extends RuntimeException implements TranslatableMessage
@@ -22,11 +22,10 @@ final class UnexpectedArrayKeysForClass extends RuntimeException implements Tran
     private array $parameters;
 
     /**
-     * @param array<mixed> $value
+     * @param array<string> $keys
      */
-    public function __construct(array $value, Arguments $arguments)
+    public function __construct(array $keys, FilledArguments $arguments)
     {
-        $keys = array_filter(array_keys($value), fn ($key) => ! $arguments->has((string)$key));
         $expected = array_map(fn (Argument $argument) => $argument->name(), [...$arguments]);
 
         $this->parameters = [

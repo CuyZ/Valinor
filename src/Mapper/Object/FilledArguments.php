@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\SourceIsNotAnArray;
-use CuyZ\Valinor\Mapper\Object\Exception\UnexpectedArrayKeysForClass;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use IteratorAggregate;
 use Traversable;
@@ -55,13 +54,20 @@ final class FilledArguments implements IteratorAggregate
 
         if ($self->hasValue) {
             $self->value = $self->transform($shell->value());
-
-            if (! $flexible && count($self->value) > count($arguments)) {
-                throw new UnexpectedArrayKeysForClass($self->value, $arguments);
-            }
         }
 
         return $self;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function superfluousKeys(): array
+    {
+        return array_filter(
+            array_keys($this->value),
+            fn ($key) => ! $this->arguments->has((string)$key)
+        );
     }
 
     public function has(string $name): bool

@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\FilledArguments;
 use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedArrayKeysForClass;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
@@ -69,7 +70,13 @@ final class ClassNodeBuilder implements NodeBuilder
 
         $object = $this->buildObject($builder, $children);
 
-        return Node::branch($shell, $object, $children);
+        $node = Node::branch($shell, $object, $children);
+
+        if (! $this->flexible) {
+            $node = $this->checkForUnexpectedKeys($arguments, $node);
+        }
+
+        return $node;
     }
 
     /**
@@ -117,5 +124,16 @@ final class ClassNodeBuilder implements NodeBuilder
         }
 
         return $builder->build($arguments);
+    }
+
+    private function checkForUnexpectedKeys(FilledArguments $arguments, Node $node): Node
+    {
+        $superfluousKeys = $arguments->superfluousKeys();
+
+        if (count($superfluousKeys) > 0) {
+            $node = $node->withMessage(new UnexpectedArrayKeysForClass($superfluousKeys, $arguments));
+        }
+
+        return $node;
     }
 }
