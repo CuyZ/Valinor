@@ -16,7 +16,7 @@ precise enough.
 ## Flexible mode
 
 If the limitations are too restrictive, the mapper can be made more flexible to
-cancel all strict rules declared above and enable value casting when possible.
+disable all strict rules declared above and enable value casting when possible.
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
