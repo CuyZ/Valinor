@@ -1,7 +1,7 @@
 # Type strictness
 
 The mapper is sensitive to the types of the data that is recursively populated —
-for instance a string `"42"` given to a node that awaits an integer will make
+for instance a string `"42"` given to a node that expects an integer will make
 the mapping fail because the type is not strictly respected.
 
 Array keys that are not bound to any node are forbidden. Mapping an array
