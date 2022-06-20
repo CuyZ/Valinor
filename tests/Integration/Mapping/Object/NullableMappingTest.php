@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
+
+use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+
+final class NullableMappingTest extends IntegrationTest
+{
+    public function test_nullable_property_with_null_default_value_is_handled_properly(): void
+    {
+        try {
+            $result = (new MapperBuilder())->mapper()->map(NullablePropertyWithNullDefaultValue::class, []);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(null, $result->nullableWithNull);
+    }
+}
+
+final class NullablePropertyWithNullDefaultValue
+{
+    public ?string $nullableWithNull = null;
+}

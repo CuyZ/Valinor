@@ -7,9 +7,13 @@ namespace CuyZ\Valinor\Definition\Repository\Reflection;
 use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
+use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionProperty;
+
+use function array_key_exists;
 
 /** @internal */
 final class ReflectionPropertyDefinitionBuilder
@@ -26,7 +30,7 @@ final class ReflectionPropertyDefinitionBuilder
         $name = $reflection->name;
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);
-        $hasDefaultValue = $this->hasDefaultValue($reflection);
+        $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
         $defaultValue = $this->defaultValue($reflection);
         $isPublic = $reflection->isPublic();
         $attributes = $this->attributesRepository->for($reflection);
@@ -49,12 +53,16 @@ final class ReflectionPropertyDefinitionBuilder
         );
     }
 
-    private function hasDefaultValue(ReflectionProperty $reflection): bool
+    private function hasDefaultValue(ReflectionProperty $reflection, Type $type): bool
     {
         // @PHP8.0 `$reflection->hasDefaultValue()`
         $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
 
-        return isset($defaultProperties[$reflection->name]);
+        if (! $reflection->hasType() && $defaultProperties[$reflection->name] === null && ! NullType::get()->matches($type)) {
+            return false;
+        }
+
+        return array_key_exists($reflection->name, $defaultProperties);
     }
 
     /**
