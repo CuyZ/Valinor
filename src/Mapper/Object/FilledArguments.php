@@ -83,9 +83,9 @@ final class FilledArguments implements IteratorAggregate
      */
     private function transform($source): array
     {
-        $argumentsNumber = count($this->arguments);
+        $argumentsCount = count($this->arguments);
 
-        if ($argumentsNumber === 1 && $source !== [] && $source !== null) {
+        if ($argumentsCount === 1 && $source !== [] && $source !== null) {
             $name = $this->arguments->at(0)->name();
 
             if (! is_array($source) || ! array_key_exists($name, $source)) {
@@ -93,7 +93,7 @@ final class FilledArguments implements IteratorAggregate
             }
         }
 
-        if ($argumentsNumber === 0 && $this->flexible && ! is_array($source)) {
+        if ($argumentsCount === 0 && $this->flexible && ! is_array($source)) {
             return [];
         }
 
