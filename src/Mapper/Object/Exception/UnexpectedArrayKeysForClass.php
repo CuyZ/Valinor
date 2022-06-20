@@ -26,7 +26,7 @@ final class UnexpectedArrayKeysForClass extends RuntimeException implements Tran
      */
     public function __construct(array $value, Arguments $arguments)
     {
-        $keys = array_filter(array_keys($value), fn ($key) => ! $arguments->has($key));
+        $keys = array_filter(array_keys($value), fn ($key) => ! $arguments->has((string)$key));
         $expected = array_map(fn (Argument $argument) => $argument->name(), [...$arguments]);
 
         $this->parameters = [
