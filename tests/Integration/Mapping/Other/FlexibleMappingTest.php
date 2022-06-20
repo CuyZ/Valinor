@@ -169,6 +169,26 @@ final class FlexibleMappingTest extends IntegrationTest
             self::assertSame('Cannot be empty and must be filled with a value matching type `int`.', (string)$error);
         }
     }
+
+    public function test_missing_value_throws_exception(): void
+    {
+        $class = new class () {
+            public string $foo;
+
+            public string $bar;
+        };
+
+        try {
+            (new MapperBuilder())->flexible()->mapper()->map(get_class($class), [
+                'foo' => 'foo',
+            ]);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()['bar']->messages()[0];
+
+            self::assertSame('1655449641', $error->code());
+            self::assertSame('Cannot be empty and must be filled with a value matching type `string`.', (string)$error);
+        }
+    }
 }
 
 // @PHP8.1 Readonly properties

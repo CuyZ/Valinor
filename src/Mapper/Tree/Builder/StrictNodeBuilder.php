@@ -29,11 +29,11 @@ final class StrictNodeBuilder implements NodeBuilder
         }
 
         if (! $shell->hasValue()) {
-            if (! $this->flexible) {
-                throw new MissingNodeValue($shell->type());
+            if ($this->flexible && $shell->type()->accepts(null)) {
+                return Node::leaf($shell, null);
             }
 
-            $shell = $shell->withValue(null);
+            throw new MissingNodeValue($shell->type());
         }
 
         return $this->delegate->build($shell, $rootBuilder);
