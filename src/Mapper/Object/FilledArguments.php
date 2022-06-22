@@ -6,11 +6,13 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\SourceIsNotAnArray;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\CompositeType;
 use IteratorAggregate;
 use Traversable;
 
 use function array_key_exists;
 use function count;
+use function is_array;
 
 /**
  * @internal
@@ -89,32 +91,42 @@ final class FilledArguments implements IteratorAggregate
      */
     private function transform($source): array
     {
+        $isArray = is_array($source);
         $argumentsCount = count($this->arguments);
 
         if ($argumentsCount === 1 && $source !== [] && $source !== null) {
-            $name = $this->arguments->at(0)->name();
+            /** @var array<mixed> $source */
+            $argument = $this->arguments->at(0);
+            $name = $argument->name();
+            $type = $argument->type();
 
-            if (! is_array($source) || ! array_key_exists($name, $source)) {
+            if ($isArray && ! $type instanceof CompositeType) {
+                return $source;
+            }
+
+            if (! $isArray || ! array_key_exists($name, $source)) {
                 return [$name => $source];
             }
         }
 
-        if ($argumentsCount === 0 && $this->flexible && ! is_array($source)) {
+        if ($argumentsCount === 0 && $this->flexible && ! $isArray) {
             return [];
         }
 
-        if (! is_array($source)) {
+        if (! $isArray) {
             throw new SourceIsNotAnArray($source, $this->arguments);
         }
 
         foreach ($this->arguments as $argument) {
             $name = $argument->name();
 
+            /** @var array<mixed> $source */
             if (! array_key_exists($name, $source) && ! $argument->isRequired()) {
                 $source[$name] = $argument->defaultValue();
             }
         }
 
+        /** @var array<mixed> $source */
         return $source;
     }
 
