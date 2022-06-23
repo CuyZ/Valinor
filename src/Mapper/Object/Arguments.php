@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use Countable;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidArgumentIndex;
-use CuyZ\Valinor\Utility\TypeHelper;
+use CuyZ\Valinor\Definition\ParameterDefinition;
+use CuyZ\Valinor\Definition\Parameters;
+use CuyZ\Valinor\Definition\Properties;
+use CuyZ\Valinor\Definition\PropertyDefinition;
 use IteratorAggregate;
 use Traversable;
+
+use function array_map;
+use function array_values;
+use function iterator_to_array;
 
 /**
  * @internal
@@ -25,30 +31,42 @@ final class Arguments implements IteratorAggregate, Countable
         $this->arguments = $arguments;
     }
 
+    public static function fromParameters(Parameters $parameters): self
+    {
+        return new self(...array_map(function (ParameterDefinition $parameter) {
+            $argument = $parameter->isOptional()
+                ? Argument::optional($parameter->name(), $parameter->type(), $parameter->defaultValue())
+                : Argument::required($parameter->name(), $parameter->type());
+
+            return $argument->withAttributes($parameter->attributes());
+        }, array_values(iterator_to_array($parameters)))); // @PHP8.1 array unpacking
+    }
+
+    public static function fromProperties(Properties $properties): self
+    {
+        return new self(...array_map(function (PropertyDefinition $property) {
+            $argument = $property->hasDefaultValue()
+                ? Argument::optional($property->name(), $property->type(), $property->defaultValue())
+                : Argument::required($property->name(), $property->type());
+
+            return $argument->withAttributes($property->attributes());
+        }, array_values(iterator_to_array($properties)))); // @PHP8.1 array unpacking
+    }
+
     public function at(int $index): Argument
     {
-        if ($index >= count($this->arguments)) {
-            throw new InvalidArgumentIndex($index, $this);
-        }
-
         return $this->arguments[$index];
     }
 
-    public function signature(): string
+    public function has(string $name): bool
     {
-        $parameters = array_map(
-            function (Argument $argument) {
-                $name = $argument->name();
-                $type = $argument->type();
+        foreach ($this->arguments as $argument) {
+            if ($argument->name() === $name) {
+                return true;
+            }
+        }
 
-                $signature = TypeHelper::dump($type, false);
-
-                return $argument->isRequired() ? "$name: $signature" : "$name?: $signature";
-            },
-            $this->arguments
-        );
-
-        return '`array{' . implode(', ', $parameters) . '}`';
+        return false;
     }
 
     public function count(): int

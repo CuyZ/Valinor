@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Mapper\Object\Arguments;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForObject;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
+use CuyZ\Valinor\Mapper\Object\FilledArguments;
+use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
+use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedArrayKeysForClass;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
@@ -18,9 +17,6 @@ use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
 use function array_filter;
-use function array_key_exists;
-use function count;
-use function is_array;
 
 /** @internal */
 final class ClassNodeBuilder implements NodeBuilder
@@ -31,18 +27,18 @@ final class ClassNodeBuilder implements NodeBuilder
 
     private ObjectBuilderFactory $objectBuilderFactory;
 
-    private ObjectBuilderFilterer $objectBuilderFilterer;
+    private bool $flexible;
 
     public function __construct(
         NodeBuilder $delegate,
         ClassDefinitionRepository $classDefinitionRepository,
         ObjectBuilderFactory $objectBuilderFactory,
-        ObjectBuilderFilterer $objectBuilderFilterer
+        bool $flexible
     ) {
         $this->delegate = $delegate;
         $this->classDefinitionRepository = $classDefinitionRepository;
         $this->objectBuilderFactory = $objectBuilderFactory;
-        $this->objectBuilderFilterer = $objectBuilderFilterer;
+        $this->flexible = $flexible;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
@@ -53,27 +49,34 @@ final class ClassNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
-        $source = $shell->value();
+        $builder = $this->builder($shell, ...$classTypes);
+        $arguments = FilledArguments::forClass($builder->describeArguments(), $shell, $this->flexible);
 
-        $builder = $this->builder($source, ...$classTypes);
-        $arguments = $builder->describeArguments();
-
-        $source = $this->transformSource($source, $arguments);
         $children = [];
 
         foreach ($arguments as $argument) {
             $name = $argument->name();
             $type = $argument->type();
             $attributes = $argument->attributes();
-            $value = array_key_exists($name, $source) ? $source[$name] : $argument->defaultValue();
 
-            $child = $shell->child($name, $type, $value, $attributes);
+            $child = $shell->child($name, $type, $attributes);
+
+            if ($arguments->has($name)) {
+                $child = $child->withValue($arguments->get($name));
+            }
+
             $children[] = $rootBuilder->build($child);
         }
 
         $object = $this->buildObject($builder, $children);
 
-        return Node::branch($shell, $object, $children);
+        $node = Node::branch($shell, $object, $children);
+
+        if (! $this->flexible) {
+            $node = $this->checkForUnexpectedKeys($arguments, $node);
+        }
+
+        return $node;
     }
 
     /**
@@ -92,60 +95,17 @@ final class ClassNodeBuilder implements NodeBuilder
         return [];
     }
 
-    /**
-     * @param mixed $source
-     */
-    private function builder($source, ClassType ...$classTypes): ObjectBuilder
+    private function builder(Shell $shell, ClassType ...$classTypes): ObjectBuilder
     {
         $builders = [];
 
         foreach ($classTypes as $classType) {
             $class = $this->classDefinitionRepository->for($classType);
 
-            try {
-                $builders[] = $this->objectBuilderFactory->for($class, $source);
-            } catch (SuitableObjectBuilderNotFound $exception) {
-                if (count($classTypes) === 1) {
-                    throw $exception;
-                }
-            }
+            $builders = [...$builders, ...$this->objectBuilderFactory->for($class)];
         }
 
-        // If only one builder remains, there is no need to filter the list.
-        // This is mostly to prevent an error happening if the given source does
-        // not match the arguments of the builder, in which case the error would
-        // not be precise. Returning this builder leaves the responsibility
-        // of the errors to the builder itself, which will be more precise.
-        if (count($builders) === 1) {
-            return $builders[0];
-        }
-
-        return $this->objectBuilderFilterer->filter($source, ...$builders);
-    }
-
-    /**
-     * @param mixed $source
-     * @return mixed[]
-     */
-    private function transformSource($source, Arguments $arguments): array
-    {
-        if ($source === null || count($arguments) === 0) {
-            return [];
-        }
-
-        if (count($arguments) === 1) {
-            $name = $arguments->at(0)->name();
-
-            if (! is_array($source) || ! array_key_exists($name, $source)) {
-                $source = [$name => $source];
-            }
-        }
-
-        if (! is_array($source)) {
-            throw new InvalidSourceForObject($source, $arguments);
-        }
-
-        return $source;
+        return new FilteredObjectBuilder($shell->value(), ...$builders);
     }
 
     /**
@@ -164,5 +124,16 @@ final class ClassNodeBuilder implements NodeBuilder
         }
 
         return $builder->build($arguments);
+    }
+
+    private function checkForUnexpectedKeys(FilledArguments $arguments, Node $node): Node
+    {
+        $superfluousKeys = $arguments->superfluousKeys();
+
+        if (count($superfluousKeys) > 0) {
+            $node = $node->withMessage(new UnexpectedArrayKeysForClass($superfluousKeys, $arguments));
+        }
+
+        return $node;
     }
 }

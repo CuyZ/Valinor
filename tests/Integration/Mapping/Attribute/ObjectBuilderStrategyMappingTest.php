@@ -10,7 +10,6 @@ use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\TooManyObjectBuilderFactoryAttributes;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Object\FakeObjectBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
@@ -72,9 +71,9 @@ final class ForeignAttribute
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
 final class ObjectBuilderStrategyAttribute implements ObjectBuilderFactory
 {
-    public function for(ClassDefinition $class, $source): ObjectBuilder
+    public function for(ClassDefinition $class): iterable
     {
-        return new FakeObjectBuilder();
+        return [new FakeObjectBuilder()];
     }
 }
 

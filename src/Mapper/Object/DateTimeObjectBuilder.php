@@ -91,6 +91,11 @@ final class DateTimeObjectBuilder implements ObjectBuilder
         return $date;
     }
 
+    public function signature(): string
+    {
+        return 'Internal date object builder';
+    }
+
     private function tryAllFormats(string $value): ?DateTimeInterface
     {
         $formats = [

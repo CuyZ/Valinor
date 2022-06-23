@@ -13,7 +13,7 @@ use RuntimeException;
 /** @api */
 final class ShapedArrayElementMissing extends RuntimeException implements TranslatableMessage
 {
-    private string $body = 'Missing element {element} matching type {expected_type}.';
+    private string $body = 'Cannot be empty and must be filled with a value matching type {expected_type}.';
 
     /** @var array<string, string> */
     private array $parameters;
@@ -21,7 +21,6 @@ final class ShapedArrayElementMissing extends RuntimeException implements Transl
     public function __construct(ShapedArrayElement $element)
     {
         $this->parameters = [
-            'element' => "`{$element->key()}`",
             'expected_type' => TypeHelper::dump($element->type()),
         ];
 

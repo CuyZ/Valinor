@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
+use stdClass;
 
 final class ObjectValuesMappingTest extends IntegrationTest
 {
@@ -46,6 +47,35 @@ final class ObjectValuesMappingTest extends IntegrationTest
             }
         }
     }
+
+    public function test_unexpected_key_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map(ObjectWithTwoProperties::class, [
+                'stringA' => 'fooA',
+                'stringB' => 'fooB',
+                'unexpectedValueA' => 'foo',
+                'unexpectedValueB' => 'bar',
+            ]);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1655149208', $error->code());
+            self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, expected `stringA`, `stringB`.', (string)$error);
+        }
+    }
+
+    public function test_object_with_no_argument_build_with_non_array_source_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map(stdClass::class, 'foo');
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1632903281', $error->code());
+            self::assertSame("Value 'foo' does not match type array.", (string)$error);
+        }
+    }
 }
 
 class ObjectValues
@@ -62,4 +92,11 @@ class ObjectValuesWithConstructor extends ObjectValues
         $this->object = $object;
         $this->string = $string;
     }
+}
+
+final class ObjectWithTwoProperties
+{
+    public string $stringA;
+
+    public string $stringB;
 }

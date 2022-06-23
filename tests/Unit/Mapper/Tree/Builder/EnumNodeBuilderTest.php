@@ -27,7 +27,7 @@ final class EnumNodeBuilderTest extends TestCase
     {
         parent::setUp();
 
-        $this->builder = new RootNodeBuilder(new EnumNodeBuilder());
+        $this->builder = new RootNodeBuilder(new EnumNodeBuilder(true));
     }
 
     public function test_invalid_type_fails_assertion(): void

@@ -16,15 +16,15 @@ final class SingleNodeMappingTest extends IntegrationTest
 
         // Note that the key `value` is missing from the source
         $scalarSource = 'foo';
-        $arraySource = ['foo', 42.404, 1337];
+        $arraySource = ['foo', '42.404', '1337'];
 
         try {
             $singleScalarProperty = $mapper->map(SingleScalarProperty::class, $scalarSource);
             $singleConstructorScalarParameter = $mapper->map(SingleConstructorScalarParameter::class, $scalarSource);
             $singleArrayProperty = $mapper->map(SingleArrayProperty::class, $arraySource);
             $singleConstructorArrayParameter = $mapper->map(SingleConstructorArrayParameter::class, $arraySource);
-            $singleScalarPropertyWithDefaultValue = $mapper->map(SingleScalarPropertyWithDefaultValue::class, null);
-            $singleConstructorParameterWithDefaultValue = $mapper->map(SingleConstructorParameterWithDefaultValue::class, null);
+            $singleScalarPropertyWithDefaultValue = $mapper->map(SingleScalarPropertyWithDefaultValue::class, []);
+            $singleConstructorParameterWithDefaultValue = $mapper->map(SingleConstructorParameterWithDefaultValue::class, []);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

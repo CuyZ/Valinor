@@ -16,27 +16,30 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 
 use function assert;
-use function is_iterable;
+use function is_array;
 
 /** @internal */
 final class ArrayNodeBuilder implements NodeBuilder
 {
+    private bool $flexible;
+
+    public function __construct(bool $flexible)
+    {
+        $this->flexible = $flexible;
+    }
+
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
-        $value = $shell->value();
+        $value = $shell->hasValue() ? $shell->value() : null;
 
-        assert(
-            $type instanceof ArrayType
-            || $type instanceof NonEmptyArrayType
-            || $type instanceof IterableType
-        );
+        assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
-        if (null === $value) {
+        if (null === $value && $this->flexible) {
             return Node::branch($shell, [], []);
         }
 
-        if (! is_iterable($value)) {
+        if (! is_array($value)) {
             throw new SourceMustBeIterable($value, $type);
         }
 
@@ -51,7 +54,7 @@ final class ArrayNodeBuilder implements NodeBuilder
      */
     private function children(CompositeTraversableType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
     {
-        /** @var iterable<mixed> $values */
+        /** @var array<mixed> $values */
         $values = $shell->value();
         $keyType = $type->keyType();
         $subType = $type->subType();
@@ -59,14 +62,11 @@ final class ArrayNodeBuilder implements NodeBuilder
         $children = [];
 
         foreach ($values as $key => $value) {
-            if (! $keyType->canCast($key)) {
-                /** @var string|int $key */
+            if (! $keyType->accepts($key)) {
                 throw new InvalidTraversableKey($key, $keyType);
             }
 
-            $key = $keyType->cast($key);
-
-            $child = $shell->child((string)$key, $subType, $value);
+            $child = $shell->child((string)$key, $subType)->withValue($value);
             $children[$key] = $rootBuilder->build($child);
         }
 

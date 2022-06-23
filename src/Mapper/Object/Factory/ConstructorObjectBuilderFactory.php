@@ -10,7 +10,6 @@ use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilderFilterer;
 
 use function array_key_exists;
 use function array_unshift;
@@ -26,8 +25,6 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 
     private FunctionsContainer $constructors;
 
-    private ObjectBuilderFilterer $objectBuilderFilterer;
-
     /** @var array<string, ObjectBuilder[]> */
     private array $builders = [];
 
@@ -37,16 +34,14 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
     public function __construct(
         ObjectBuilderFactory $delegate,
         array $nativeConstructors,
-        FunctionsContainer $constructors,
-        ObjectBuilderFilterer $objectBuilderFilterer
+        FunctionsContainer $constructors
     ) {
         $this->delegate = $delegate;
         $this->nativeConstructors = $nativeConstructors;
         $this->constructors = $constructors;
-        $this->objectBuilderFilterer = $objectBuilderFilterer;
     }
 
-    public function for(ClassDefinition $class, $source): ObjectBuilder
+    public function for(ClassDefinition $class): iterable
     {
         $builders = $this->listBuilders($class);
 
@@ -55,14 +50,10 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
                 throw new CannotInstantiateObject($class);
             }
 
-            return $this->delegate->for($class, $source);
+            return $this->delegate->for($class);
         }
 
-        if (count($builders) === 1) {
-            return $builders[0];
-        }
-
-        return $this->objectBuilderFilterer->filter($source, ...$builders);
+        return $builders;
     }
 
     /**

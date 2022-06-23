@@ -14,8 +14,8 @@ final class ShapedArrayMappingTest extends IntegrationTest
     {
         $source = [
             'foo' => 'foo',
-            'bar' => '42',
-            'fiz' => '1337.404',
+            'bar' => 42,
+            'fiz' => 1337.404,
         ];
 
         try {
@@ -33,8 +33,8 @@ final class ShapedArrayMappingTest extends IntegrationTest
     {
         $iterator = (static function () {
             yield 'foo' => 'foo';
-            yield 'bar' => '42';
-            yield 'fiz' => '1337.404';
+            yield 'bar' => 42;
+            yield 'fiz' => 1337.404;
         })();
 
         try {
@@ -48,22 +48,33 @@ final class ShapedArrayMappingTest extends IntegrationTest
         self::assertSame(1337.404, $result['fiz']);
     }
 
-    public function test_shared_values_are_mapped_properly(): void
+    public function test_missing_element_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map('array{foo: string, bar: int}', ['foo' => 'foo']);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()['bar']->messages()[0];
+
+            self::assertSame('1631613641', $error->code());
+            self::assertSame('Cannot be empty and must be filled with a value matching type `int`.', (string)$error);
+        }
+    }
+
+    public function test_superfluous_values_throws_exception(): void
     {
         $source = [
             'foo' => 'foo',
-            'bar' => '42',
-            'fiz' => '1337.404',
+            'bar' => 42,
+            'fiz' => 1337.404,
         ];
 
-        foreach (['array{foo: string, bar: int}', 'array{bar: int, fiz:float}'] as $signature) {
-            try {
-                $result = (new MapperBuilder())->mapper()->map($signature, $source);
-            } catch (MappingError $error) {
-                $this->mappingFail($error);
-            }
+        try {
+            (new MapperBuilder())->mapper()->map('array{foo: string, bar: int}', $source);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
 
-            self::assertSame(42, $result['bar']);
+            self::assertSame('1655117782', $error->code());
+            self::assertSame('Unexpected key(s) `fiz`, expected `foo`, `bar`.', (string)$error);
         }
     }
 }

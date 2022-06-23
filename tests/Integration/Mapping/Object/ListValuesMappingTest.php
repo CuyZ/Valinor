@@ -10,8 +10,6 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
 
-use function array_values;
-
 final class ListValuesMappingTest extends IntegrationTest
 {
     public function test_values_are_mapped_properly(): void
@@ -31,17 +29,8 @@ final class ListValuesMappingTest extends IntegrationTest
                 ['value' => 'bar'],
                 ['value' => 'baz'],
             ],
+            'listOfStrings' => ['foo', 'bar', 'baz',],
             'nonEmptyListOfStrings' => ['foo', 'bar', 'baz'],
-            'listOfStringsWithKeys' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
-                'baz' => 'baz',
-            ],
-            'nonEmptyListOfStringsWithKeys' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
-                'baz' => 'baz',
-            ],
         ];
 
         foreach ([ListValues::class, ListValuesWithConstructor::class] as $class) {
@@ -61,9 +50,8 @@ final class ListValuesMappingTest extends IntegrationTest
             self::assertSame('foo', $result->objectsWithAlias[0]->value);
             self::assertSame('bar', $result->objectsWithAlias[1]->value);
             self::assertSame('baz', $result->objectsWithAlias[2]->value);
+            self::assertSame($source['listOfStrings'], $result->listOfStrings);
             self::assertSame($source['nonEmptyListOfStrings'], $result->nonEmptyListOfStrings);
-            self::assertSame(array_values($source['listOfStringsWithKeys']), $result->listOfStringsWithKeys);
-            self::assertSame(array_values($source['nonEmptyListOfStringsWithKeys']), $result->nonEmptyListOfStringsWithKeys);
         }
     }
 
@@ -81,7 +69,22 @@ final class ListValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_value_that_cannot_be_casted_throws_exception(): void
+    public function test_map_array_with_non_sequential_keys_to_list_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map('list<string>', [
+                0 => 'foo',
+                2 => 'bar',
+            ]);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()[2]->messages()[0];
+
+            self::assertSame('1654273010', $error->code());
+            self::assertSame('Invalid sequential key 2, expected 1.', (string)$error);
+        }
+    }
+
+    public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
             (new MapperBuilder())->mapper()->map(ListValues::class, [
@@ -90,8 +93,8 @@ final class ListValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['integers']->children()['0']->messages()[0];
 
-            self::assertSame('1618736242', $error->code());
-            self::assertSame("Cannot cast 'foo' to `int`.", (string)$error);
+            self::assertSame('1655030601', $error->code());
+            self::assertSame("Value 'foo' does not match type `int`.", (string)$error);
         }
     }
 }
@@ -116,14 +119,11 @@ class ListValues
     /** @var list<SimpleObjectAlias> */
     public array $objectsWithAlias;
 
+    /** @var list<string> */
+    public array $listOfStrings;
+
     /** @var non-empty-list<string> */
     public array $nonEmptyListOfStrings = ['foo'];
-
-    /** @var list<string> */
-    public array $listOfStringsWithKeys;
-
-    /** @var non-empty-list<string> */
-    public array $nonEmptyListOfStringsWithKeys;
 }
 
 class ListValuesWithConstructor extends ListValues
@@ -135,9 +135,8 @@ class ListValuesWithConstructor extends ListValues
      * @param list<string> $strings
      * @param list<SimpleObject> $objects
      * @param list<SimpleObjectAlias> $objectsWithAlias
+     * @param list<string> $listOfStrings
      * @param non-empty-list<string> $nonEmptyListOfStrings
-     * @param list<string> $listOfStringsWithKeys
-     * @param non-empty-list<string> $nonEmptyListOfStringsWithKeys
      */
     public function __construct(
         array $booleans,
@@ -146,9 +145,8 @@ class ListValuesWithConstructor extends ListValues
         array $strings,
         array $objects,
         array $objectsWithAlias,
-        array $nonEmptyListOfStrings,
-        array $listOfStringsWithKeys,
-        array $nonEmptyListOfStringsWithKeys
+        array $listOfStrings,
+        array $nonEmptyListOfStrings
     ) {
         $this->booleans = $booleans;
         $this->floats = $floats;
@@ -156,8 +154,7 @@ class ListValuesWithConstructor extends ListValues
         $this->strings = $strings;
         $this->objects = $objects;
         $this->objectsWithAlias = $objectsWithAlias;
+        $this->listOfStrings = $listOfStrings;
         $this->nonEmptyListOfStrings = $nonEmptyListOfStrings;
-        $this->listOfStringsWithKeys = $listOfStringsWithKeys;
-        $this->nonEmptyListOfStringsWithKeys = $nonEmptyListOfStringsWithKeys;
     }
 }

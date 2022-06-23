@@ -22,7 +22,7 @@ final class MessageFormatterTest extends IntegrationTest
             $formatter = new AggregateMessageFormatter(
                 new LocaleMessageFormatter('fr'),
                 new MessageMapFormatter([
-                    'Cannot cast {value} to {expected_type}.' => 'New message: {value} / {expected_type}',
+                    'Value {value} does not match type {expected_type}.' => 'New message: {value} / {expected_type}',
                 ]),
                 (new TranslationMessageFormatter())->withTranslation(
                     'fr',

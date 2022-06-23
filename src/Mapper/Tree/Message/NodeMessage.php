@@ -129,7 +129,7 @@ final class NodeMessage implements Message, HasCode
             'node_name' => $this->shell->name(),
             'node_path' => $this->shell->path(),
             'node_type' => TypeHelper::dump($this->shell->type()),
-            'original_value' => ValueDumper::dump($this->shell->value()),
+            'original_value' => ValueDumper::dump($this->shell->hasValue() ? $this->shell->value() : '*missing*'),
             'original_message' => $this->message instanceof Throwable ? $this->message->getMessage() : $this->message->__toString(),
         ];
 

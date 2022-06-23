@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
-/** @internal  */
+/** @internal */
 final class CasterProxyNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
@@ -19,10 +19,12 @@ final class CasterProxyNodeBuilder implements NodeBuilder
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
-        $value = $shell->value();
+        if ($shell->hasValue()) {
+            $value = $shell->value();
 
-        if ($shell->type()->accepts($value)) {
-            return Node::leaf($shell, $value);
+            if ($shell->type()->accepts($value)) {
+                return Node::leaf($shell, $value);
+            }
         }
 
         return $this->delegate->build($shell, $rootBuilder);

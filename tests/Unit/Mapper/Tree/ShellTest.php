@@ -6,9 +6,11 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetParentOfRootShell;
 use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
+use CuyZ\Valinor\Mapper\Tree\Exception\ShellHasNoValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
+use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +37,15 @@ final class ShellTest extends TestCase
 
         self::assertNotSame($shellA, $shellB);
         self::assertSame($typeB, $shellB->type());
+    }
+
+    public function test_get_value_when_shell_has_no_value_throws_exception(): void
+    {
+        $this->expectException(ShellHasNoValue::class);
+        $this->expectExceptionCode(1655029618);
+        $this->expectExceptionMessage('Shell has no value.');
+
+        FakeShell::any()->child('foo', new FakeType())->value();
     }
 
     public function test_unresolvable_type_throws_exception(): void
@@ -97,7 +108,7 @@ final class ShellTest extends TestCase
         $attributes = new FakeAttributes();
 
         $shell = Shell::root(new FakeType(), []);
-        $child = $shell->child('foo', $type, $value, $attributes);
+        $child = $shell->child('foo', $type, $attributes)->withValue($value);
 
         self::assertSame('foo', $child->name());
         self::assertSame('foo', $child->path());

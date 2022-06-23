@@ -18,9 +18,9 @@ use PHPUnit\Framework\TestCase;
 
 final class ArrayNodeBuilderTest extends TestCase
 {
-    public function test_build_with_null_value_returns_empty_branch_node(): void
+    public function test_build_with_null_value_in_flexible_mode_returns_empty_branch_node(): void
     {
-        $node = (new RootNodeBuilder(new ArrayNodeBuilder()))->build(FakeShell::new(ArrayType::native()));
+        $node = (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new(ArrayType::native()));
 
         self::assertSame([], $node->value());
         self::assertEmpty($node->children());
@@ -30,7 +30,7 @@ final class ArrayNodeBuilderTest extends TestCase
     {
         $this->expectException(AssertionError::class);
 
-        (new RootNodeBuilder(new ArrayNodeBuilder()))->build(FakeShell::new(new FakeType()));
+        (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new(new FakeType()));
     }
 
     public function test_build_with_invalid_source_throws_exception(): void
@@ -39,7 +39,7 @@ final class ArrayNodeBuilderTest extends TestCase
         $this->expectExceptionCode(1618739163);
         $this->expectExceptionMessage("Value 'foo' does not match type `array`.");
 
-        (new RootNodeBuilder(new ArrayNodeBuilder()))->build(FakeShell::new(ArrayType::native(), 'foo'));
+        (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new(ArrayType::native(), 'foo'));
     }
 
     public function test_invalid_source_key_throws_exception(): void
@@ -53,6 +53,6 @@ final class ArrayNodeBuilderTest extends TestCase
             'foo' => 'key is not ok',
         ];
 
-        (new RootNodeBuilder(new ArrayNodeBuilder()))->build(FakeShell::new($type, $value));
+        (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new($type, $value));
     }
 }

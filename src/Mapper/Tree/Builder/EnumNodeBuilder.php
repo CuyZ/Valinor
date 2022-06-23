@@ -21,6 +21,13 @@ use function is_string;
 /** @internal */
 final class EnumNodeBuilder implements NodeBuilder
 {
+    private bool $flexible;
+
+    public function __construct(bool $flexible)
+    {
+        $this->flexible = $flexible;
+    }
+
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
@@ -44,6 +51,10 @@ final class EnumNodeBuilder implements NodeBuilder
     {
         if (! $case instanceof BackedEnum) {
             return $value === $case->name;
+        }
+
+        if (! $this->flexible) {
+            return $value === $case->value;
         }
 
         if (is_string($case->value)) {

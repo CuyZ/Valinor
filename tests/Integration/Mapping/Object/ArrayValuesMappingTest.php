@@ -81,7 +81,7 @@ final class ArrayValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_value_that_cannot_be_casted_throws_exception(): void
+    public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
             (new MapperBuilder())->mapper()->map(ArrayValues::class, [
@@ -90,8 +90,8 @@ final class ArrayValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
 
-            self::assertSame('1618736242', $error->code());
-            self::assertSame("Cannot cast 'foo' to `int`.", (string)$error);
+            self::assertSame('1655030601', $error->code());
+            self::assertSame("Value 'foo' does not match type `int`.", (string)$error);
         }
     }
 }

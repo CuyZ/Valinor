@@ -234,6 +234,30 @@ final class MapperBuilder
     }
 
     /**
+     * Enables flexible mode for the mapper:
+     *
+     * - Scalar types will be cast whenever possible, for instance an integer
+     *   node will accept any valid numeric value like the string "42".
+     *
+     * - Superfluous keys in source arrays will be ignored, preventing errors
+     *   when a value is not bound to any object property/parameter or shaped
+     *   array element.
+     *
+     * - Permissive types `mixed` and `object` are allowed.
+     */
+    public function flexible(): self
+    {
+        if ($this->settings->flexible) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->settings->flexible = true;
+
+        return $clone;
+    }
+
+    /**
      * @deprecated instead, use:
      *
      * ```php

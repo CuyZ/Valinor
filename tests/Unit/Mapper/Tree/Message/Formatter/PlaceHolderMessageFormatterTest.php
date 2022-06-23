@@ -18,7 +18,7 @@ final class PlaceHolderMessageFormatterTest extends TestCase
     public function test_format_message_replaces_placeholders_with_default_values(): void
     {
         $type = FakeType::permissive();
-        $shell = FakeShell::any()->child('foo', $type, 'some value');
+        $shell = FakeShell::any()->child('foo', $type)->withValue('some value');
 
         $message = new NodeMessage($shell, new FakeMessage('some message'));
         $message = (new FakeMessageFormatter('%1$s / %2$s / %3$s / %4$s / %5$s'))->format($message);

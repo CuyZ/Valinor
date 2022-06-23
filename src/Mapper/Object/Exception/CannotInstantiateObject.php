@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Mapper\Object\Factory\SuitableObjectBuilderNotFound;
 use RuntimeException;
 
 /** @internal */
-final class CannotInstantiateObject extends RuntimeException implements SuitableObjectBuilderNotFound
+final class CannotInstantiateObject extends RuntimeException
 {
     public function __construct(ClassDefinition $class)
     {

@@ -74,11 +74,9 @@ final class DateTimeMappingTest extends IntegrationTest
         try {
             (new MapperBuilder())
                 ->mapper()
-                ->map(SimpleDateTimeValues::class, [
-                    'dateTime' => 'invalid datetime',
-                ]);
+                ->map(DateTimeInterface::class, 'invalid datetime');
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['dateTime']->messages()[0];
+            $error = $exception->node()->messages()[0];
 
             self::assertSame('1630686564', $error->code());
             self::assertSame("Value 'invalid datetime' does not match a valid date format.", (string)$error);
@@ -90,14 +88,12 @@ final class DateTimeMappingTest extends IntegrationTest
         try {
             (new MapperBuilder())
                 ->mapper()
-                ->map(SimpleDateTimeValues::class, [
-                    'dateTime' => [
-                        'datetime' => 1337,
-                        'format' => 'H',
-                    ],
+                ->map(DateTimeInterface::class, [
+                    'datetime' => 1337,
+                    'format' => 'H',
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['dateTime']->messages()[0];
+            $error = $exception->node()->messages()[0];
 
             self::assertSame('1630686564', $error->code());
             self::assertSame("Value 1337 does not match a valid date format.", (string)$error);
@@ -109,13 +105,13 @@ final class DateTimeMappingTest extends IntegrationTest
         try {
             (new MapperBuilder())
                 ->mapper()
-                ->map(SimpleDateTimeValues::class, [
+                ->map(DateTimeInterface::class, [
                     'dateTime' => [
                         'invalid key' => '2012-12-21T13:37:42+00:00',
                     ],
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['dateTime']->children()['value']->messages()[0];
+            $error = $exception->node()->children()['value']->messages()[0];
 
             self::assertSame('1607027306', $error->code());
         }
@@ -125,15 +121,6 @@ final class DateTimeMappingTest extends IntegrationTest
     {
         return random_int(1, 32503726800);
     }
-}
-
-final class SimpleDateTimeValues
-{
-    public DateTimeInterface $dateTimeInterface;
-
-    public DateTimeImmutable $dateTimeImmutable;
-
-    public DateTime $dateTime;
 }
 
 final class AllDateTimeValues

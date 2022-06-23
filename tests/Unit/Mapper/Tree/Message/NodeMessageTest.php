@@ -24,7 +24,7 @@ final class NodeMessageTest extends TestCase
         $type = FakeType::permissive();
         $attributes = new FakeAttributes();
 
-        $shell = FakeShell::any()->child('foo', $type, 'some value', $attributes);
+        $shell = FakeShell::any()->child('foo', $type, $attributes)->withValue('some value');
         $message = new NodeMessage($shell, $originalMessage);
 
         self::assertSame('foo', $message->name());
@@ -49,7 +49,7 @@ final class NodeMessageTest extends TestCase
     {
         $originalMessage = new FakeTranslatableMessage('some original message', ['some_parameter' => 'some parameter value']);
         $type = FakeType::permissive();
-        $shell = FakeShell::any()->child('foo', $type, 'some value');
+        $shell = FakeShell::any()->child('foo', $type)->withValue('some value');
 
         $message = new NodeMessage($shell, $originalMessage);
         $message = $message->withBody('{message_code} / {node_name} / {node_path} / {node_type} / {original_value} / {original_message} / {some_parameter}');

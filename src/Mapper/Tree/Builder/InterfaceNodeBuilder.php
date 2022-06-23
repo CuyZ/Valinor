@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Definition\Parameters;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSourceForInterface;
+use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\Arguments;
+use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\FilledArguments;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 
-use function count;
+use function is_array;
 
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
@@ -22,10 +24,24 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
     private ObjectImplementations $implementations;
 
-    public function __construct(NodeBuilder $delegate, ObjectImplementations $implementations)
-    {
+    private ClassDefinitionRepository $classDefinitionRepository;
+
+    private ObjectBuilderFactory $objectBuilderFactory;
+
+    private bool $flexible;
+
+    public function __construct(
+        NodeBuilder $delegate,
+        ObjectImplementations $implementations,
+        ClassDefinitionRepository $classDefinitionRepository,
+        ObjectBuilderFactory $objectBuilderFactory,
+        bool $flexible
+    ) {
         $this->delegate = $delegate;
         $this->implementations = $implementations;
+        $this->classDefinitionRepository = $classDefinitionRepository;
+        $this->objectBuilderFactory = $objectBuilderFactory;
+        $this->flexible = $flexible;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
@@ -39,70 +55,79 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $interfaceName = $type->className();
 
         $function = $this->implementations->function($interfaceName);
-        $children = $this->children($shell, $function, $rootBuilder);
-        $arguments = [];
+        $arguments = Arguments::fromParameters($function->parameters());
+        $arguments = FilledArguments::forInterface($arguments, $shell, $this->flexible);
+
+        $children = $this->children($shell, $arguments, $rootBuilder);
+        $values = [];
 
         foreach ($children as $child) {
             if (! $child->isValid()) {
                 return Node::branch($shell, null, $children);
             }
 
-            $arguments[] = $child->value();
+            $values[] = $child->value();
         }
 
         try {
-            $classType = $this->implementations->implementation($interfaceName, $arguments);
+            $classType = $this->implementations->implementation($interfaceName, $values);
         } catch (ObjectImplementationCallbackError $exception) {
             throw ThrowableMessage::from($exception->original());
         }
 
-        return $rootBuilder->build($shell->withType($classType));
+        $shell = $shell->withType($classType);
+        $shell = $this->removeKeysFromSource($shell, $arguments, $classType);
+
+        return $rootBuilder->build($shell);
     }
 
     /**
      * @return Node[]
      */
-    private function children(Shell $shell, FunctionDefinition $definition, RootNodeBuilder $rootBuilder): array
+    private function children(Shell $shell, FilledArguments $arguments, RootNodeBuilder $rootBuilder): array
     {
-        $parameters = $definition->parameters();
-        $source = $this->transformSource($shell->value(), $parameters);
-
         $children = [];
 
-        foreach ($parameters as $parameter) {
-            $name = $parameter->name();
-            $type = $parameter->type();
-            $attributes = $parameter->attributes();
-            $value = array_key_exists($name, $source) ? $source[$name] : $parameter->defaultValue();
+        foreach ($arguments as $argument) {
+            $name = $argument->name();
+            $type = $argument->type();
+            $attributes = $argument->attributes();
 
-            $children[] = $rootBuilder->build($shell->child($name, $type, $value, $attributes));
+            $child = $shell->child($name, $type, $attributes);
+
+            if ($arguments->has($name)) {
+                $child = $child->withValue($arguments->get($name));
+            }
+
+            $children[] = $rootBuilder->build($child);
         }
 
         return $children;
     }
 
-    /**
-     * @param mixed $source
-     * @return mixed[]
-     */
-    private function transformSource($source, Parameters $parameters): array
+    private function removeKeysFromSource(Shell $shell, FilledArguments $arguments, ClassType $classType): Shell
     {
-        if ($source === null || count($parameters) === 0) {
-            return [];
+        $value = $shell->value();
+
+        if (! is_array($value)) {
+            return $shell;
         }
 
-        if (count($parameters) === 1) {
-            $name = $parameters->at(0)->name();
+        $class = $this->classDefinitionRepository->for($classType);
+        $builders = $this->objectBuilderFactory->for($class);
 
-            if (! is_array($source) || ! array_key_exists($name, $source)) {
-                $source = [$name => $source];
+        foreach ($arguments as $argument) {
+            $name = $argument->name();
+
+            foreach ($builders as $builder) {
+                if ($builder->describeArguments()->has($name)) {
+                    continue 2;
+                }
             }
+
+            unset($value[$name]);
         }
 
-        if (! is_array($source)) {
-            throw new InvalidSourceForInterface($source);
-        }
-
-        return $source;
+        return $shell->withValue($value);
     }
 }

@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingPropertyArgument;
 
 use function array_key_exists;
-use function array_map;
-use function array_values;
-use function iterator_to_array;
+use function count;
 
 /** @api */
 final class ReflectionObjectBuilder implements ObjectBuilder
@@ -27,15 +24,7 @@ final class ReflectionObjectBuilder implements ObjectBuilder
 
     public function describeArguments(): Arguments
     {
-        return $this->arguments ??= new Arguments(
-            ...array_map(function (PropertyDefinition $property) {
-                $argument = $property->hasDefaultValue()
-                    ? Argument::optional($property->name(), $property->type(), $property->defaultValue())
-                    : Argument::required($property->name(), $property->type());
-
-                return $argument->withAttributes($property->attributes());
-            }, array_values(iterator_to_array($this->class->properties()))) // @PHP8.1 array unpacking
-        );
+        return $this->arguments ??= Arguments::fromProperties($this->class->properties());
     }
 
     public function build(array $arguments): object
@@ -50,12 +39,19 @@ final class ReflectionObjectBuilder implements ObjectBuilder
         $className = $this->class->name();
         $object = new $className();
 
-        (function () use ($arguments): void {
-            foreach ($arguments as $name => $value) {
-                $this->{$name} = $value; // @phpstan-ignore-line
-            }
-        })->call($object);
+        if (count($arguments) > 0) {
+            (function () use ($arguments): void {
+                foreach ($arguments as $name => $value) {
+                    $this->{$name} = $value; // @phpstan-ignore-line
+                }
+            })->call($object);
+        }
 
         return $object;
+    }
+
+    public function signature(): string
+    {
+        return $this->class->name() . ' (properties)';
     }
 }

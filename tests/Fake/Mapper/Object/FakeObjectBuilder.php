@@ -19,4 +19,9 @@ final class FakeObjectBuilder implements ObjectBuilder
     {
         return new stdClass();
     }
+
+    public function signature(): string
+    {
+        return 'FakeObjectBuilder';
+    }
 }
