@@ -51,7 +51,7 @@ final class TranslationMessageFormatter implements MessageFormatter
      * list of locales with their associated translations.
      *
      * ```php
-     * (TranslationMessageFormatter::default())->withTranslations([
+     * $formatter = (TranslationMessageFormatter::default())->withTranslations([
      *     'Invalid value {value}.' => [
      *         'fr' => 'Valeur invalide {value}.',
      *         'es' => 'Valor inválido {value}.',
@@ -60,6 +60,8 @@ final class TranslationMessageFormatter implements MessageFormatter
      *         // …
      *     ],
      * ]);
+     *
+     * $message = $formatter->format($message);
      * ```
      *
      * @param array<string, array<string, string>> $translations

@@ -9,7 +9,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
-use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -132,9 +132,7 @@ final class MethodObjectBuilderTest extends TestCase
         $class = FakeClassDefinition::fromReflection(new ReflectionClass(ObjectWithConstructorThatThrowsException::class));
         $objectBuilder = new MethodObjectBuilder($class, '__construct');
 
-        $this->expectException(ThrowableMessage::class);
-        $this->expectExceptionCode(1337);
-        $this->expectExceptionMessage('some exception');
+        $this->expectException(UserlandError::class);
 
         $objectBuilder->build([]);
     }

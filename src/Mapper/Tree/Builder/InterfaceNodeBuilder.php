@@ -9,7 +9,7 @@ use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\FilledArguments;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
-use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ClassType;
@@ -72,7 +72,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         try {
             $classType = $this->implementations->implementation($interfaceName, $values);
         } catch (ObjectImplementationCallbackError $exception) {
-            throw ThrowableMessage::from($exception->original());
+            throw UserlandError::from($exception->original());
         }
 
         $shell = $shell->withType($classType);

@@ -136,7 +136,7 @@ final class Container
                 $builder = new StrictNodeBuilder($builder, $settings->flexible);
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
-                return new ErrorCatcherNodeBuilder($builder);
+                return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
 
             ObjectImplementations::class => fn () => new ObjectImplementations(

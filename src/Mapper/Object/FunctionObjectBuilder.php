@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use Exception;
 
 /** @internal */
@@ -39,7 +39,7 @@ final class FunctionObjectBuilder implements ObjectBuilder
         try {
             return ($this->callback)(...$arguments);
         } catch (Exception $exception) {
-            throw ThrowableMessage::from($exception);
+            throw UserlandError::from($exception);
         }
     }
 

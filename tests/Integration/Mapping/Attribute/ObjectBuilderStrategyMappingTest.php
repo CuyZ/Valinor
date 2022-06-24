@@ -12,8 +12,8 @@ use CuyZ\Valinor\Mapper\Object\Exception\TooManyObjectBuilderFactoryAttributes;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Object\FakeObjectBuilder;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use RuntimeException;
 
 final class ObjectBuilderStrategyMappingTest extends IntegrationTest
 {
@@ -40,7 +40,8 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('some exception', (string)$error);
+            self::assertSame('1656076067', $error->code());
+            self::assertSame('some error message', (string)$error);
         }
     }
 
@@ -114,7 +115,7 @@ final class ObjectWithFailingBuilderStrategyAttribute
 {
     public static function failingConstructor(): self
     {
-        throw new RuntimeException('some exception');
+        throw new FakeErrorMessage('some error message', 1656076067);
     }
 }
 

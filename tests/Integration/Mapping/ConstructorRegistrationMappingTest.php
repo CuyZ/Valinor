@@ -8,11 +8,11 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use DomainException;
 use stdClass;
 
 final class ConstructorRegistrationMappingTest extends IntegrationTest
@@ -428,14 +428,17 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             (new MapperBuilder())
                 ->registerConstructor(function (): stdClass {
                     // @PHP8.0 use short closure
-                    throw new DomainException('some domain exception');
+                    throw new FakeErrorMessage('some error message', 1656076090);
                 })
                 ->mapper()
                 ->map(stdClass::class, []);
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            self::assertSame('some domain exception', (string)$exception->node()->messages()[0]);
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1656076090', $error->code());
+            self::assertSame('some error message', (string)$error);
         }
     }
 

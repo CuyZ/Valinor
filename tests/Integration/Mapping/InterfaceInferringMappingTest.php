@@ -12,6 +12,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\A\ClassThatInheritsInterfaceA;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\B\ClassThatInheritsInterfaceB;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\ClassWithBothInterfaces;
@@ -399,7 +400,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                     /** @return class-string<DateTime> */
                     function (string $value) {
                         // @PHP8.0 use short closure
-                        throw new DomainException('some error message', 1645303304);
+                        throw new FakeErrorMessage('some error message', 1645303304);
                     }
                 )
                 ->mapper()

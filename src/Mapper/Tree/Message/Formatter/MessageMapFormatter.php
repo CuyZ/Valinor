@@ -55,7 +55,7 @@ use function is_callable;
  *     // …or…
  *     ->defaultsTo(fn () => $this->translator->translate('default_message'));
  *
- * $content = $formatter->format($message);
+ * $message = $formatter->format($message);
  * ```
  *
  * @api

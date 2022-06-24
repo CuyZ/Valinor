@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\Formatter\FakeMessageFormatter;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +30,7 @@ final class PlaceHolderMessageFormatterTest extends TestCase
 
     public function test_format_message_replaces_correct_original_value_if_throwable(): void
     {
-        $message = new NodeMessage(FakeShell::any(), new FakeErrorMessage('some error message'));
+        $message = FakeNodeMessage::with(new FakeErrorMessage('some error message'));
         $message = (new FakeMessageFormatter('original: %2$s'))->format($message);
         $message = (new PlaceHolderMessageFormatter())->format($message);
 
@@ -40,7 +41,7 @@ final class PlaceHolderMessageFormatterTest extends TestCase
     {
         $formatter = new PlaceHolderMessageFormatter('foo', 'bar');
 
-        $message = new NodeMessage(FakeShell::any(), new FakeMessage('%1$s / %2$s'));
+        $message = FakeNodeMessage::with(new FakeMessage('%1$s / %2$s'));
         $message = $formatter->format($message);
 
         self::assertSame('foo / bar', (string)$message);

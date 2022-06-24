@@ -10,7 +10,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
-use CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use Exception;
 
 /** @api */
@@ -66,7 +66,7 @@ final class MethodObjectBuilder implements ObjectBuilder
                 ? $className::$methodName(...$arguments) // @phpstan-ignore-line
                 : new $className(...$arguments);
         } catch (Exception $exception) {
-            throw ThrowableMessage::from($exception);
+            throw UserlandError::from($exception);
         }
     }
 

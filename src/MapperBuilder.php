@@ -7,9 +7,11 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use Psr\SimpleCache\CacheInterface;
+use Throwable;
 
 use function is_callable;
 
@@ -253,6 +255,49 @@ final class MapperBuilder
 
         $clone = clone $this;
         $clone->settings->flexible = true;
+
+        return $clone;
+    }
+
+    /**
+     * Filters which userland exceptions are allowed during the mapping.
+     *
+     * It is advised to use this feature with caution: userland exceptions may
+     * contain sensible information — for instance an SQL exception showing a
+     * part of a query should never be allowed. Therefore, only an exhaustive
+     * list of carefully chosen exceptions should be filtered.
+     *
+     * ```php
+     * final class SomeClass
+     * {
+     *     public function __construct(string $value)
+     *     {
+     *         \Webmozart\Assert\Assert::startsWith($value, 'foo_');
+     *     }
+     * }
+     *
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->filterExceptions(function (Throwable $exception) {
+     *         if ($exception instanceof \Webmozart\Assert\InvalidArgumentException) {
+     *             return \CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage::from($exception);
+     *         }
+     *
+     *         // If the exception should not be caught by this library, it must
+     *         // be thrown again.
+     *         throw $exception;
+     *     })
+     *     ->mapper()
+     *     ->map(SomeClass::class, [
+     *         // …
+     *     ]);
+     * ```
+     *
+     * @param callable(Throwable): ErrorMessage $filter
+     */
+    public function filterExceptions(callable $filter): self
+    {
+        $clone = clone $this;
+        $clone->settings->exceptionFilter = $filter;
 
         return $clone;
     }

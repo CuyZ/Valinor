@@ -66,7 +66,7 @@ try {
 See [ICU documentation] for more information on available syntax.
 
 !!! warning
-    
+
     If the `intl` extension is not installed, a shim will be
     available to replace the placeholders, but it won't handle advanced syntax as
     described above.

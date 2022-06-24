@@ -8,7 +8,7 @@ use RuntimeException;
 use Throwable;
 
 /** @api */
-final class ThrowableMessage extends RuntimeException implements Message, HasCode
+final class ThrowableMessage extends RuntimeException implements ErrorMessage, HasCode
 {
     public static function new(string $message, string $code): self
     {
@@ -18,16 +18,9 @@ final class ThrowableMessage extends RuntimeException implements Message, HasCod
         return $instance;
     }
 
-    /**
-     * @return Message&Throwable
-     */
-    public static function from(Throwable $message): Message
+    public static function from(Throwable $message): self
     {
-        if ($message instanceof Message) {
-            return $message;
-        }
-
-        /** @infection-ignore-all */
+        // @infection-ignore-all
         $instance = new self($message->getMessage(), 0, $message);
         $instance->code = (string)$message->getCode();
 
