@@ -23,8 +23,8 @@ extra_css:
   - stylesheets/extra.css
 
 plugins:
-  -   mike:
-        canonical_version: latest
+  - mike:
+      canonical_version: latest/
 
 theme:
   name: material
