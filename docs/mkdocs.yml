@@ -54,6 +54,8 @@ theme:
 
 markdown_extensions:
   - meta
+  - toc:
+      permalink: true
   - pymdownx.highlight:
       anchor_linenums: true
       extend_pygments_lang:
