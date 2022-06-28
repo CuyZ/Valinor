@@ -43,11 +43,13 @@ A schema representing the needed structure must be provided, using classes.
 ```php
 final class Thread
 {
+    /**
+     * @param Answer[] $answers
+     */
     public function __construct(
         public readonly int $id,
         public readonly string $content,
         public readonly DateTimeInterface $date,
-        /** @var Answer[] */
         public readonly array $answers, 
     ) {}
 }
