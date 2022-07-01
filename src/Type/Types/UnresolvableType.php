@@ -10,9 +10,13 @@ use LogicException;
 /** @api */
 final class UnresolvableType extends LogicException implements Type
 {
-    public function __construct(string $message)
+    private string $rawType;
+
+    public function __construct(string $rawType, string $message)
     {
         parent::__construct($message);
+
+        $this->rawType = $rawType;
     }
 
     public function accepts($value): bool
@@ -27,6 +31,6 @@ final class UnresolvableType extends LogicException implements Type
 
     public function __toString(): string
     {
-        return $this->message;
+        return $this->rawType;
     }
 }

@@ -117,7 +117,7 @@ final class ReflectionTypeResolver
                 $message = "The type `$raw` for return type of method `$signature` could not be resolved: {$exception->getMessage()}";
             }
 
-            return new UnresolvableType($message);
+            return new UnresolvableType($raw, $message);
         }
     }
 }

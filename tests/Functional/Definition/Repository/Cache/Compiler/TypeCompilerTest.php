@@ -122,6 +122,6 @@ final class TypeCompilerTest extends TestCase
         yield [new ClassStringType()];
         yield [new ClassStringType(new ClassType(stdClass::class))];
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
-        yield [new UnresolvableType('foo')];
+        yield [new UnresolvableType('some-type', 'some message')];
     }
 }
