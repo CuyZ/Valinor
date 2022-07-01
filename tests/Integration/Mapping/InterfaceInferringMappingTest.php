@@ -12,6 +12,13 @@ use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\A\ClassThatInheritsInterfaceA;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\B\ClassThatInheritsInterfaceB;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\ClassWithBothInterfaces;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceA;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceAInferer;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceB;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceBInferer;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveObjectType;
 use DateTime;
@@ -144,6 +151,39 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         self::assertInstanceOf(SomeClassThatInheritsInterfaceB::class, $resultB);
         self::assertSame('foo', $resultA->valueA);
         self::assertSame('bar', $resultB->valueB);
+    }
+
+    public function test_infer_with_two_functions_with_same_name_works_properly(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->infer(
+                    InterfaceA::class,
+                    // @PHP8.1 first-class callable syntax
+                    [InterfaceAInferer::class, 'infer']
+                )
+                ->infer(
+                    InterfaceB::class,
+                    // @PHP8.1 first-class callable syntax
+                    [InterfaceBInferer::class, 'infer']
+                )
+                ->mapper()
+                ->map(ClassWithBothInterfaces::class, [
+                    'a' => [
+                        'classic' => true,
+                        'value' => 'foo',
+                    ],
+                    'b' => [
+                        'classic' => true,
+                        'value' => 'bar',
+                    ],
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(ClassThatInheritsInterfaceA::class, $result->a);
+        self::assertInstanceOf(ClassThatInheritsInterfaceB::class, $result->b);
     }
 
     public function test_unresolvable_implementation_throws_exception(): void
