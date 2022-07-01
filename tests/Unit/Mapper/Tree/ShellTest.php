@@ -50,7 +50,7 @@ final class ShellTest extends TestCase
 
     public function test_unresolvable_type_throws_exception(): void
     {
-        $type = new UnresolvableType('some message');
+        $type = new UnresolvableType('some-type', 'some message');
 
         $this->expectException(UnresolvableShellType::class);
         $this->expectExceptionCode(1630943848);

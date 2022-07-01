@@ -128,6 +128,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
                 $raw = trim($raw);
 
                 $types[$name] = new UnresolvableType(
+                    $raw,
                     "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}"
                 );
             }

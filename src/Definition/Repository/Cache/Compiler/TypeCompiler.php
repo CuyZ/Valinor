@@ -146,7 +146,10 @@ final class TypeCompiler
             case $type instanceof EnumType:
                 return "new $class({$type->className()}::class)";
             case $type instanceof UnresolvableType:
-                return "new $class('{$type->getMessage()}')";
+                $raw = var_export((string)$type, true);
+                $message = var_export($type->getMessage(), true);
+
+                return "new $class($raw, $message)";
             default:
                 throw new TypeCannotBeCompiled($type);
         }
