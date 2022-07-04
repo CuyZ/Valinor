@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
-use CuyZ\Valinor\Definition\Exception\InvalidParameterDefaultValue;
-use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
 use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
@@ -16,11 +14,12 @@ use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
-use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 use function get_class;
 
@@ -173,11 +172,11 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             public $propertyWithInvalidDefaultValue = false; // @phpstan-ignore-line
         });
 
-        $this->expectException(InvalidPropertyDefaultValue::class);
-        $this->expectExceptionCode(1629211093);
-        $this->expectExceptionMessage("Default value of property `$class::\$propertyWithInvalidDefaultValue` is not accepted by `string`.");
+        $class = $this->repository->for(new ClassType($class));
+        $type = $class->properties()->get('propertyWithInvalidDefaultValue')->type();
 
-        $this->repository->for(new ClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->getMessage());
     }
 
     public function test_property_with_non_matching_types_throws_exception(): void
@@ -219,6 +218,26 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->getMessage());
     }
 
+    public function test_invalid_method_return_type_throws_exception(): void
+    {
+        $class = get_class(new class () {
+            /**
+             * @return InvalidType
+             * @phpstan-ignore-next-line
+             */
+            public function publicMethod($parameterWithInvalidType): void
+            {
+            }
+        });
+
+        $class = $this->repository->for(new ClassType($class));
+        $type = $class->methods()->get('publicMethod')->returnType();
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        /** @var UnresolvableType $type */
+        self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->getMessage());
+    }
+
     public function test_invalid_parameter_default_value_throws_exception(): void
     {
         $class = get_class(new class () {
@@ -231,11 +250,11 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             }
         });
 
-        $this->expectException(InvalidParameterDefaultValue::class);
-        $this->expectExceptionCode(1629210903);
-        $this->expectExceptionMessage("Default value of parameter `$class::publicMethod(\$parameterWithInvalidDefaultValue)` is not accepted by `string`.");
+        $class = $this->repository->for(new ClassType($class));
+        $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidDefaultValue')->type();
 
-        $this->repository->for(new ClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->getMessage());
     }
 
     public function test_parameter_with_non_matching_types_throws_exception(): void

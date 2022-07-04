@@ -110,14 +110,14 @@ final class ReflectionTypeResolver
             $signature = Reflection::signature($reflection);
 
             if ($reflection instanceof ReflectionProperty) {
-                $message = "The type `$raw` for property `$signature` could not be resolved: {$exception->getMessage()}";
-            } elseif ($reflection instanceof ReflectionParameter) {
-                $message = "The type `$raw` for parameter `$signature` could not be resolved: {$exception->getMessage()}";
-            } else {
-                $message = "The type `$raw` for return type of method `$signature` could not be resolved: {$exception->getMessage()}";
+                return UnresolvableType::forProperty($raw, $signature, $exception);
             }
 
-            return new UnresolvableType($raw, $message);
+            if ($reflection instanceof ReflectionParameter) {
+                return UnresolvableType::forParameter($raw, $signature, $exception);
+            }
+
+            return UnresolvableType::forMethodReturnType($raw, $signature, $exception);
         }
     }
 }
