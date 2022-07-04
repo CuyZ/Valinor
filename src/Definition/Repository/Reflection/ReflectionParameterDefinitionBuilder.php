@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\Exception\InvalidParameterDefaultValue;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -42,7 +41,7 @@ final class ReflectionParameterDefinitionBuilder
             && ! $type instanceof UnresolvableType
             && ! $type->accepts($defaultValue)
         ) {
-            throw new InvalidParameterDefaultValue($reflection, $type);
+            $type = UnresolvableType::forInvalidParameterDefaultValue($signature, $type, $defaultValue);
         }
 
         return new ParameterDefinition($name, $signature, $type, $isOptional, $isVariadic, $defaultValue, $attributes);

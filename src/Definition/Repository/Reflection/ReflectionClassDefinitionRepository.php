@@ -127,10 +127,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             } catch (InvalidType $exception) {
                 $raw = trim($raw);
 
-                $types[$name] = new UnresolvableType(
-                    $raw,
-                    "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}"
-                );
+                $types[$name] = UnresolvableType::forLocalAlias($raw, $name, $type, $exception);
             }
         }
 

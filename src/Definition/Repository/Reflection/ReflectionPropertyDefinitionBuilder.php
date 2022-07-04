@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\Exception\InvalidPropertyDefaultValue;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Type\Type;
@@ -39,7 +38,7 @@ final class ReflectionPropertyDefinitionBuilder
             && ! $type instanceof UnresolvableType
             && ! $type->accepts($defaultValue)
         ) {
-            throw new InvalidPropertyDefaultValue($reflection, $type);
+            $type = UnresolvableType::forInvalidPropertyDefaultValue($signature, $type, $defaultValue);
         }
 
         return new PropertyDefinition(
