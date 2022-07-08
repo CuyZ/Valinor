@@ -8,7 +8,6 @@ use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
@@ -223,16 +222,6 @@ final class MapperBuilder
         $clone->settings->valueModifier[] = $callback;
 
         return $clone;
-    }
-
-    /**
-     * @param callable(Node): void $callback
-     */
-    public function visit(callable $callback): self
-    {
-        $this->settings->nodeVisitors[] = $callback;
-
-        return $this;
     }
 
     /**

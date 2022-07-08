@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Library;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -25,9 +24,6 @@ final class Settings
 
     /** @var list<callable> */
     public array $valueModifier = [];
-
-    /** @var array<callable(Node): void> */
-    public array $nodeVisitors = [];
 
     /** @var CacheInterface<mixed> */
     public CacheInterface $cache;
