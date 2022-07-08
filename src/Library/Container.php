@@ -46,7 +46,6 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ShellVisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\StrictNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\VisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -125,7 +124,6 @@ final class Container
 
                 $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new IterableNodeBuilder($builder);
-                $builder = new VisitorNodeBuilder($builder, $settings->nodeVisitors);
                 $builder = new ValueAlteringNodeBuilder(
                     $builder,
                     new FunctionsContainer(
