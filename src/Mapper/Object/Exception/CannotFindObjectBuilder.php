@@ -15,7 +15,7 @@ use function array_keys;
 use function count;
 use function ksort;
 
-/** @api */
+/** @internal */
 final class CannotFindObjectBuilder extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Value {value} does not match any of {allowed_types}.';

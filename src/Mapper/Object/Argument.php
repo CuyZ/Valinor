@@ -8,7 +8,7 @@ use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\EmptyAttributes;
 use CuyZ\Valinor\Type\Type;
 
-/** @api */
+/** @internal */
 final class Argument
 {
     private string $name;

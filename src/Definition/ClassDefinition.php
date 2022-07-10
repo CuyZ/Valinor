@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Definition;
 
 use CuyZ\Valinor\Type\Types\ClassType;
 
-/** @api */
+/** @internal */
 final class ClassDefinition
 {
     private ClassType $type;

@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type;
 /**
  * @PHP8.0 extend Stringable
  *
- * @api
+ * @internal
  */
 interface Type
 {

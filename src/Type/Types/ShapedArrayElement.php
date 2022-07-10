@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Type;
 /**
  * @PHP8.0 implement Stringable
  *
- * @api
+ * @internal
  */
 final class ShapedArrayElement
 {

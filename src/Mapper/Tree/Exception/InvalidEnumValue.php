@@ -14,7 +14,7 @@ use UnitEnum;
 use function array_map;
 use function implode;
 
-/** @api */
+/** @internal */
 final class InvalidEnumValue extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Value {value} does not match any of {allowed_values}.';

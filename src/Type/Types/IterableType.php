@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function is_iterable;
 
-/** @api */
+/** @internal */
 final class IterableType implements CompositeTraversableType
 {
     private static self $native;

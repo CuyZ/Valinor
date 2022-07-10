@@ -10,7 +10,7 @@ use IteratorAggregate;
 use Traversable;
 
 /**
- * @api
+ * @internal
  *
  * @implements IteratorAggregate<string, PropertyDefinition>
  */

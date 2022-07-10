@@ -8,7 +8,7 @@ use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidStringValueType extends RuntimeException implements CastError
 {
     private string $body = 'Value {value} does not match string value {expected_value}.';

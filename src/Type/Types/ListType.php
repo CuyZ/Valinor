@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function is_array;
 
-/** @api */
+/** @internal */
 final class ListType implements CompositeTraversableType
 {
     private static self $native;

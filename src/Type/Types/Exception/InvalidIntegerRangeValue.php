@@ -8,7 +8,7 @@ use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidIntegerRangeValue extends RuntimeException implements CastError
 {
     private string $body = 'Invalid value {value}: it must be an integer between {min} and {max}.';

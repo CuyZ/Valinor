@@ -18,7 +18,7 @@ use function is_object;
 use function is_string;
 use function method_exists;
 
-/** @api */
+/** @internal */
 final class ClassStringType implements StringType, CompositeType
 {
     /** @var ObjectType|UnionType|null */

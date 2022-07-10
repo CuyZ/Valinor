@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidEmptyStringValue extends RuntimeException implements CastError
 {
     private string $body = 'Cannot be empty and must be filled with a valid string value.';

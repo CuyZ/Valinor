@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidFloatValue extends RuntimeException implements CastError
 {
     private string $body = 'Value {value} does not match expected {expected_value}.';

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
-/** @api */
+/** @internal */
 interface DefaultMessage
 {
     public const TRANSLATIONS = [

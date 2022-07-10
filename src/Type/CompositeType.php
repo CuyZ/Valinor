@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type;
 
-/** @api */
+/** @internal */
 interface CompositeType extends Type
 {
     /**

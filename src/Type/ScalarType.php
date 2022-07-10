@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Type;
 
 use CuyZ\Valinor\Type\Types\Exception\CastError;
 
-/** @api */
+/** @internal */
 interface ScalarType extends Type
 {
     /**

@@ -13,7 +13,7 @@ use LogicException;
 use function count;
 use function implode;
 
-/** @api */
+/** @internal */
 final class InvalidClassString extends LogicException implements CastError
 {
     private string $body;

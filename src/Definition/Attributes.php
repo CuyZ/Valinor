@@ -8,7 +8,7 @@ use Countable;
 use IteratorAggregate;
 
 /**
- * @api
+ * @internal
  *
  * @extends IteratorAggregate<object>
  */

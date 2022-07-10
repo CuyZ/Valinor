@@ -9,7 +9,7 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 
-/** @api */
+/** @internal */
 final class BooleanValueType implements BooleanType, FixedType
 {
     private static self $true;

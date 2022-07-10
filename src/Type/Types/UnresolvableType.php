@@ -9,7 +9,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
 use LogicException;
 
-/** @api */
+/** @internal */
 final class UnresolvableType extends LogicException implements Type
 {
     private string $rawType;

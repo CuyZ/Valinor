@@ -10,7 +10,7 @@ use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class CannotCastValue extends RuntimeException implements CastError
 {
     private string $body = 'Cannot cast {value} to {expected_type}.';

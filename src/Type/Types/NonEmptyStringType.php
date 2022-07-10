@@ -15,7 +15,7 @@ use function is_object;
 use function is_string;
 use function method_exists;
 
-/** @api */
+/** @internal */
 final class NonEmptyStringType implements StringType
 {
     use IsSingleton;

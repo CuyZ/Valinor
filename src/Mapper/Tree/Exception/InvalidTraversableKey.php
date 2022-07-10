@@ -11,7 +11,7 @@ use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidTraversableKey extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Key {key} does not match type {expected_type}.';

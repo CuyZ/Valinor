@@ -13,7 +13,7 @@ use Traversable;
 use function array_values;
 
 /**
- * @api
+ * @internal
  *
  * @implements IteratorAggregate<string, ParameterDefinition>
  */
