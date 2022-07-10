@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Type;
 use function count;
 use function is_array;
 
-/** @api */
+/** @internal */
 final class NonEmptyListType implements CompositeTraversableType
 {
     private static self $native;

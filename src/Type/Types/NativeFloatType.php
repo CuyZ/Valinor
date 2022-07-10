@@ -12,7 +12,7 @@ use CuyZ\Valinor\Utility\IsSingleton;
 use function is_float;
 use function is_numeric;
 
-/** @api */
+/** @internal */
 final class NativeFloatType implements FloatType
 {
     use IsSingleton;

@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\InvalidFloatValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidFloatValueType;
 
-/** @api */
+/** @internal */
 final class FloatValueType implements FloatType, FixedType
 {
     private float $value;

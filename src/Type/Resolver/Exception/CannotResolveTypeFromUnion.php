@@ -14,7 +14,7 @@ use RuntimeException;
 use function array_map;
 use function implode;
 
-/** @api */
+/** @internal */
 final class CannotResolveTypeFromUnion extends RuntimeException implements TranslatableMessage
 {
     private string $body;

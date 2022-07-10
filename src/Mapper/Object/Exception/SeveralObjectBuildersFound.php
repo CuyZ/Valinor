@@ -9,7 +9,7 @@ use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class SeveralObjectBuildersFound extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Invalid value {value}.';

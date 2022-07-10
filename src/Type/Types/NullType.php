@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
-/** @api */
+/** @internal */
 final class NullType implements Type
 {
     use IsSingleton;

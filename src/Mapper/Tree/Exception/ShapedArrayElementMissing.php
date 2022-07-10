@@ -10,7 +10,7 @@ use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class ShapedArrayElementMissing extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Cannot be empty and must be filled with a value matching type {expected_type}.';

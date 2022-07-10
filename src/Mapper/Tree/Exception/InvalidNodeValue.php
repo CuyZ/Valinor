@@ -11,7 +11,7 @@ use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidNodeValue extends RuntimeException implements TranslatableMessage
 {
     private string $body;

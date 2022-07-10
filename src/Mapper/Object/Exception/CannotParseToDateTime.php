@@ -9,7 +9,7 @@ use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class CannotParseToDateTime extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Value {value} does not match a valid date format.';

@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function is_a;
 
-/** @api */
+/** @internal */
 final class ClassType implements ObjectType, CompositeType
 {
     /** @var class-string */

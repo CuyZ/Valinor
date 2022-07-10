@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type\Types\Exception;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class InvalidNegativeIntegerValue extends RuntimeException implements CastError
 {
     private string $body = 'Invalid value {value}: it must be a negative integer.';

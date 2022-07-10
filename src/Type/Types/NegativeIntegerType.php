@@ -14,7 +14,7 @@ use function filter_var;
 use function is_bool;
 use function is_int;
 
-/** @api */
+/** @internal */
 final class NegativeIntegerType implements IntegerType
 {
     use IsSingleton;

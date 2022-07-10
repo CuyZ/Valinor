@@ -11,7 +11,7 @@ use UnitEnum;
 
 use function in_array;
 
-/** @api */
+/** @internal */
 final class EnumType implements ObjectType
 {
     /** @var class-string<UnitEnum> */

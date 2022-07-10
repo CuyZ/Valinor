@@ -13,7 +13,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use Exception;
 
-/** @api */
+/** @internal */
 final class MethodObjectBuilder implements ObjectBuilder
 {
     private ClassDefinition $class;

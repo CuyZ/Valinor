@@ -12,7 +12,7 @@ use RuntimeException;
 use function array_map;
 use function implode;
 
-/** @api */
+/** @internal */
 final class UnexpectedShapedArrayKeys extends RuntimeException implements TranslatableMessage
 {
     private string $body = 'Unexpected key(s) {keys}, expected {expected_keys}.';

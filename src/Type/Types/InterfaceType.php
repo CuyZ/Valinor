@@ -8,7 +8,7 @@ use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
-/** @api */
+/** @internal */
 final class InterfaceType implements ObjectType
 {
     /** @var class-string */
