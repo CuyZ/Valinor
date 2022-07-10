@@ -6,17 +6,25 @@ namespace CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
-use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\FakeNode;
 
 final class FakeNodeMessage
 {
     public static function any(): NodeMessage
     {
-        return self::with(new FakeMessage());
+        return self::build(new FakeMessage());
     }
 
-    public static function with(Message $message): NodeMessage
+    public static function withMessage(Message $message): NodeMessage
     {
-        return new NodeMessage(FakeShell::any(), $message);
+        return self::build($message);
+    }
+
+    private static function build(Message $message): NodeMessage
+    {
+        return new NodeMessage(
+            FakeNode::any(),
+            $message
+        );
     }
 }

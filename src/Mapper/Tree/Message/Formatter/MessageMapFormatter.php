@@ -37,7 +37,7 @@ use function is_callable;
  *     'Some message content' => 'New content / previous: {original_message}',
  *
  *     // Will match if the given message is an instance of `SomeError`
- *     SomeError::class => 'New content / value: {original_value}',
+ *     SomeError::class => 'New content / value: {source_value}',
  *
  *     // A callback can be used to get access to the message instance
  *     OtherError::class => function (NodeMessage $message): string {

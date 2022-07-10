@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Resolver\Union\UnionNarrower;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -22,7 +21,7 @@ final class UnionNodeBuilder implements NodeBuilder
         $this->unionNarrower = $unionNarrower;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
 

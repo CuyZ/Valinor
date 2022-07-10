@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotCastToScalarValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\ValueNotAcceptedByScalarType;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ScalarType;
 
@@ -22,7 +21,7 @@ final class ScalarNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
         $value = $shell->hasValue() ? $shell->value() : null;
@@ -37,6 +36,6 @@ final class ScalarNodeBuilder implements NodeBuilder
             throw new CannotCastToScalarValue($value, $type);
         }
 
-        return Node::leaf($shell, $type->cast($value));
+        return TreeNode::leaf($shell, $type->cast($value));
     }
 }

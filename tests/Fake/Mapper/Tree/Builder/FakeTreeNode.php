@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Fake\Mapper;
+namespace CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
+use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
 use Throwable;
 
-final class FakeNode
+final class FakeTreeNode
 {
-    public static function any(): Node
+    public static function any(): TreeNode
     {
         return self::leaf(FakeType::permissive(), []);
     }
@@ -23,18 +24,18 @@ final class FakeNode
     /**
      * @param mixed $value
      */
-    public static function leaf(Type $type, $value): Node
+    public static function leaf(Type $type, $value): TreeNode
     {
         $shell = FakeShell::new($type, $value);
 
-        return Node::leaf($shell, $value);
+        return TreeNode::leaf($shell, $value);
     }
 
     /**
      * @param array<array{name?: string, type?: Type, value?: mixed, attributes?: Attributes, message?: Message}> $children
      * @param mixed $value
      */
-    public static function branch(array $children, Type $type = null, $value = null): Node
+    public static function branch(array $children, Type $type = null, $value = null): TreeNode
     {
         $shell = FakeShell::new($type ?? FakeType::permissive(), $value);
         $nodes = [];
@@ -47,7 +48,7 @@ final class FakeNode
                 $child['attributes'] ?? new FakeAttributes(),
             )->withValue($childValue);
 
-            $node = Node::leaf($childShell, $childValue);
+            $node = TreeNode::leaf($childShell, $childValue);
 
             if (isset($child['message'])) {
                 $node = $node->withMessage($child['message']);
@@ -56,16 +57,16 @@ final class FakeNode
             $nodes[] = $node;
         }
 
-        return Node::branch($shell, $value, $nodes);
+        return TreeNode::branch($shell, $value, $nodes);
     }
 
     /**
      * @param Throwable&Message $error
      */
-    public static function error(Throwable $error = null): Node
+    public static function error(Throwable $error = null): TreeNode
     {
         $shell = FakeShell::new(FakeType::permissive(), []);
 
-        return Node::error($shell, $error ?? new FakeErrorMessage());
+        return TreeNode::error($shell, $error ?? new FakeErrorMessage());
     }
 }

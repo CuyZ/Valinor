@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidListKey;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Types\ListType;
@@ -25,7 +24,7 @@ final class ListNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
         $value = $shell->hasValue() ? $shell->value() : null;
@@ -33,7 +32,7 @@ final class ListNodeBuilder implements NodeBuilder
         assert($type instanceof ListType || $type instanceof NonEmptyListType);
 
         if (null === $value && $this->flexible) {
-            return Node::branch($shell, [], []);
+            return TreeNode::branch($shell, [], []);
         }
 
         if (! is_array($value)) {
@@ -43,11 +42,11 @@ final class ListNodeBuilder implements NodeBuilder
         $children = $this->children($type, $shell, $rootBuilder);
         $array = $this->buildArray($children);
 
-        return Node::branch($shell, $array, $children);
+        return TreeNode::branch($shell, $array, $children);
     }
 
     /**
-     * @return array<Node>
+     * @return array<TreeNode>
      */
     private function children(CompositeTraversableType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
     {
@@ -64,7 +63,7 @@ final class ListNodeBuilder implements NodeBuilder
                 $children[$expected] = $rootBuilder->build($child->withValue($value));
             } else {
                 $child = $shell->child((string)$key, $subType);
-                $children[$key] = Node::error($child, new InvalidListKey($key, $expected));
+                $children[$key] = TreeNode::error($child, new InvalidListKey($key, $expected));
             }
 
             $expected++;
@@ -74,7 +73,7 @@ final class ListNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @param array<Node> $children
+     * @param array<TreeNode> $children
      * @return mixed[]|null
      */
     private function buildArray(array $children): ?array

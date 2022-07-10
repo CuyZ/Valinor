@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingNodeValue;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Utility\TypeHelper;
 
@@ -22,7 +21,7 @@ final class StrictNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         if (! $this->flexible) {
             TypeHelper::checkPermissiveType($shell->type());
@@ -30,7 +29,7 @@ final class StrictNodeBuilder implements NodeBuilder
 
         if (! $shell->hasValue()) {
             if ($this->flexible && $shell->type()->accepts(null)) {
-                return Node::leaf($shell, null);
+                return TreeNode::leaf($shell, null);
             }
 
             throw new MissingNodeValue($shell->type());

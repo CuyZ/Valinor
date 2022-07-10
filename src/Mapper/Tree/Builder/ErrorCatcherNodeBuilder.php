@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use Throwable;
 
@@ -28,7 +27,7 @@ final class ErrorCatcherNodeBuilder implements NodeBuilder
         $this->exceptionFilter = $exceptionFilter;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         try {
             return $this->delegate->build($shell, $rootBuilder);
@@ -37,7 +36,7 @@ final class ErrorCatcherNodeBuilder implements NodeBuilder
                 $exception = ($this->exceptionFilter)($exception->previous());
             }
 
-            return Node::error($shell, $exception);
+            return TreeNode::error($shell, $exception);
         }
     }
 }

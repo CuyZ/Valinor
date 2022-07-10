@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use BackedEnum;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidEnumValue;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\EnumType;
 use Stringable;
@@ -28,7 +27,7 @@ final class EnumNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
         $value = $shell->value();
@@ -37,7 +36,7 @@ final class EnumNodeBuilder implements NodeBuilder
 
         foreach ($type->className()::cases() as $case) {
             if ($this->valueMatchesEnumCase($value, $case)) {
-                return Node::leaf($shell, $case);
+                return TreeNode::leaf($shell, $case);
             }
         }
 

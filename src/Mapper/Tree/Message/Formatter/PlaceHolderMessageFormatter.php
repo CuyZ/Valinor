@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Message\Formatter;
 
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
-use CuyZ\Valinor\Utility\TypeHelper;
 use Throwable;
 
 /**
@@ -44,9 +43,9 @@ final class PlaceHolderMessageFormatter implements MessageFormatter
         $body = sprintf($message->body(), ...$this->values ?: [
             $message->code(),
             $originalMessage instanceof Throwable ? $originalMessage->getMessage() : $originalMessage->__toString(),
-            TypeHelper::dump($message->type()),
-            $message->name(),
-            $message->path(),
+            "`{$message->node()->type()}`",
+            $message->node()->name(),
+            $message->node()->path(),
         ]);
 
         return $message->withBody($body);

@@ -10,7 +10,6 @@ use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\FilledArguments;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
@@ -44,7 +43,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
 
@@ -63,7 +62,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         foreach ($children as $child) {
             if (! $child->isValid()) {
-                return Node::branch($shell, null, $children);
+                return TreeNode::branch($shell, null, $children);
             }
 
             $values[] = $child->value();
@@ -82,7 +81,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @return Node[]
+     * @return TreeNode[]
      */
     private function children(Shell $shell, FilledArguments $arguments, RootNodeBuilder $rootBuilder): array
     {
