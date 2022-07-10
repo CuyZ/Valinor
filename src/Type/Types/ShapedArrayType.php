@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\CompositeTraversableType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\Type;
 
 use function array_diff;
@@ -28,7 +28,10 @@ final class ShapedArrayType implements CompositeType
     public function __construct(ShapedArrayElement ...$elements)
     {
         $this->elements = $elements;
-        $this->signature = 'array{' . implode(', ', $elements) . '}';
+        $this->signature =
+            'array{' .
+            implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements))
+            . '}';
 
         $keys = [];
 
@@ -139,7 +142,7 @@ final class ShapedArrayType implements CompositeType
         return $this->elements;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

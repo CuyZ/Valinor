@@ -108,7 +108,7 @@ final class IntegerRangeType implements IntegerType
         return $this->max;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

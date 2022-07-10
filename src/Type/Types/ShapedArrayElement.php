@@ -8,11 +8,7 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidShapeElementType;
 use CuyZ\Valinor\Type\Type;
 
-/**
- * @PHP8.0 implement Stringable
- *
- * @internal
- */
+/** @internal */
 final class ShapedArrayElement
 {
     /** @var StringValueType|IntegerValueType */
@@ -54,10 +50,10 @@ final class ShapedArrayElement
         return $this->optional;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->isOptional()
-            ? "$this->key?: $this->type"
-            : "$this->key: $this->type";
+            ? "{$this->key->toString()}?: {$this->type->toString()}"
+            : "{$this->key->toString()}: {$this->type->toString()}";
     }
 }

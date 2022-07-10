@@ -52,7 +52,7 @@ final class FakeObjectCompositeType implements ObjectType, CompositeType
         yield from $this->generics;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->className;
     }

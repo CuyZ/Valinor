@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+use function array_map;
 use function implode;
 
 /** @internal */
@@ -19,7 +20,7 @@ final class GenericClosingBracketMissing extends RuntimeException implements Inv
      */
     public function __construct(string $className, array $generics)
     {
-        $signature = $className . '<' . implode(', ', $generics) . '>';
+        $signature = $className . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $generics)) . '>';
 
         parent::__construct(
             "The closing bracket is missing for the generic `$signature`.",

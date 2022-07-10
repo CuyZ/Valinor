@@ -51,7 +51,7 @@ final class NativeStringType implements StringType
         return (string)$value; // @phpstan-ignore-line
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'string';
     }

@@ -53,8 +53,8 @@ final class UnresolvableType extends LogicException implements Type
         $value = ValueDumper::dump($defaultValue);
 
         return new self(
-            (string)$type,
-            "Property `$signature` of type `$type` has invalid default value $value."
+            $type->toString(),
+            "Property `$signature` of type `{$type->toString()}` has invalid default value $value."
         );
     }
 
@@ -66,8 +66,8 @@ final class UnresolvableType extends LogicException implements Type
         $value = ValueDumper::dump($defaultValue);
 
         return new self(
-            (string)$type,
-            "Parameter `$signature` of type `$type` has invalid default value $value."
+            $type->toString(),
+            "Parameter `$signature` of type `{$type->toString()}` has invalid default value $value."
         );
     }
 
@@ -89,7 +89,7 @@ final class UnresolvableType extends LogicException implements Type
         throw $this;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->rawType;
     }

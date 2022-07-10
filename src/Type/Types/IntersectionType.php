@@ -22,7 +22,7 @@ final class IntersectionType implements CombiningType
     public function __construct(ObjectType ...$types)
     {
         $this->types = $types;
-        $this->signature = implode('&', $this->types);
+        $this->signature = implode('&', array_map(fn (Type $type) => $type->toString(), $types));
     }
 
     public function accepts($value): bool
@@ -85,7 +85,7 @@ final class IntersectionType implements CombiningType
         return $this->types;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

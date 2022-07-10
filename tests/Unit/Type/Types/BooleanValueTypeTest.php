@@ -23,8 +23,8 @@ final class BooleanValueTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('true', (string)BooleanValueType::true());
-        self::assertSame('false', (string)BooleanValueType::false());
+        self::assertSame('true', BooleanValueType::true()->toString());
+        self::assertSame('false', BooleanValueType::false()->toString());
     }
 
     public function test_accepts_correct_values(): void

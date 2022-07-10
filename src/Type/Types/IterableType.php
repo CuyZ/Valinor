@@ -27,8 +27,8 @@ final class IterableType implements CompositeTraversableType
         $this->subType = $subType;
 
         $this->signature = $keyType === ArrayKeyType::default()
-            ? "iterable<$this->subType>"
-            : "iterable<$this->keyType, $this->subType>";
+            ? "iterable<{$this->subType->toString()}>"
+            : "iterable<{$this->keyType->toString()}, {$this->subType->toString()}>";
     }
 
     public static function native(): self
@@ -94,7 +94,7 @@ final class IterableType implements CompositeTraversableType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

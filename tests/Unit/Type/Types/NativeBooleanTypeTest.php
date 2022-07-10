@@ -118,7 +118,7 @@ final class NativeBooleanTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('bool', (string)$this->booleanType);
+        self::assertSame('bool', $this->booleanType->toString());
     }
 
     public function test_matches_same_type(): void

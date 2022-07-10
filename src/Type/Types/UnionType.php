@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
+use function array_map;
 use function implode;
 
 /** @internal */
@@ -21,7 +22,7 @@ final class UnionType implements CombiningType
 
     public function __construct(Type ...$types)
     {
-        $this->signature = implode('|', $types);
+        $this->signature = implode('|', array_map(fn (Type $type) => $type->toString(), $types));
 
         foreach ($types as $type) {
             if ($type instanceof self) {
@@ -99,7 +100,7 @@ final class UnionType implements CombiningType
         return $this->types;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

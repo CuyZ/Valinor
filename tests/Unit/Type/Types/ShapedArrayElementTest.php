@@ -34,8 +34,8 @@ final class ShapedArrayElementTest extends TestCase
         $element = new ShapedArrayElement($key, $type);
         $optionalElement = new ShapedArrayElement($key, $type, true);
 
-        self::assertSame("foo: $type", (string)$element);
-        self::assertSame("foo?: $type", (string)$optionalElement);
+        self::assertSame("foo: {$type->toString()}", $element->toString());
+        self::assertSame("foo?: {$type->toString()}", $optionalElement->toString());
     }
 
     public function test_fixed_type_throws_exception(): void

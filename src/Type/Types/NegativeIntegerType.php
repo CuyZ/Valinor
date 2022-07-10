@@ -55,7 +55,7 @@ final class NegativeIntegerType implements IntegerType
         return $value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'negative-int';
     }

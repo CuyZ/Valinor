@@ -14,7 +14,7 @@ final class IntegerRangeMissingClosingBracket extends RuntimeException implement
     public function __construct(IntegerValueType $min, IntegerValueType $max)
     {
         parent::__construct(
-            "Missing closing bracket in integer range signature `int<$min, $max>`.",
+            "Missing closing bracket in integer range signature `int<{$min->value()}, {$max->value()}>`.",
             1638788306
         );
     }

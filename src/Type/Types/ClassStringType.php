@@ -41,7 +41,7 @@ final class ClassStringType implements StringType, CompositeType
 
         $this->subType = $subType;
         $this->signature = $this->subType
-            ? "class-string<$this->subType>"
+            ? "class-string<{$this->subType->toString()}>"
             : 'class-string';
     }
 
@@ -144,7 +144,7 @@ final class ClassStringType implements StringType, CompositeType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

@@ -44,7 +44,7 @@ final class ClassStringTypeTest extends TestCase
 
         $this->expectException(InvalidUnionOfClassString::class);
         $this->expectExceptionCode(1648830951);
-        $this->expectExceptionMessage("Type `$type` contains invalid class string element(s).");
+        $this->expectExceptionMessage("Type `{$type->toString()}` contains invalid class string element(s).");
 
         new ClassStringType($type);
     }
@@ -168,7 +168,7 @@ final class ClassStringTypeTest extends TestCase
 
         $this->expectException(InvalidClassString::class);
         $this->expectExceptionCode(1608132562);
-        $this->expectExceptionMessage("Invalid class string `DateTimeInterface`, it must be a subtype of `$objectType`.");
+        $this->expectExceptionMessage("Invalid class string `DateTimeInterface`, it must be a subtype of `{$objectType->toString()}`.");
 
         (new ClassStringType($objectType))->cast($classStringObject);
     }
@@ -189,8 +189,8 @@ final class ClassStringTypeTest extends TestCase
     {
         $objectType = new FakeObjectType();
 
-        self::assertSame('class-string', (string)new ClassStringType());
-        self::assertSame("class-string<$objectType>", (string)new ClassStringType($objectType));
+        self::assertSame('class-string', (new ClassStringType())->toString());
+        self::assertSame("class-string<{$objectType->toString()}>", (new ClassStringType($objectType))->toString());
     }
 
     public function test_matches_same_type(): void

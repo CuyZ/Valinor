@@ -59,7 +59,7 @@ final class UnionTypeTest extends TestCase
 
         $unionType = new UnionType($typeA, $typeB, $typeC);
 
-        self::assertSame("$typeA|$typeB|$typeC", (string)$unionType);
+        self::assertSame("{$typeA->toString()}|{$typeB->toString()}|{$typeC->toString()}", $unionType->toString());
     }
 
     public function test_accepts_correct_values(): void

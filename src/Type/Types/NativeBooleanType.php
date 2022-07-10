@@ -55,7 +55,7 @@ final class NativeBooleanType implements ScalarType
         return (bool)$value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'bool';
     }

@@ -32,6 +32,6 @@ final class UnresolvableTypeTest extends TestCase
     {
         $type = new UnresolvableType('some-type', 'some message');
 
-        self::assertSame('some-type', (string)$type);
+        self::assertSame('some-type', $type->toString());
     }
 }

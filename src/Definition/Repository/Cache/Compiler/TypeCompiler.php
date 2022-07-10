@@ -83,11 +83,11 @@ final class TypeCompiler
                 return "new $class(" . implode(', ', $subTypes) . ')';
             case $type instanceof ArrayKeyType:
                 // @PHP8.0 match
-                if ((string)$type === 'string') {
+                if ($type->toString() === 'string') {
                     return "$class::string()";
                 }
 
-                if ((string)$type === 'int') {
+                if ($type->toString() === 'int') {
                     return "$class::integer()";
                 }
 
@@ -102,7 +102,7 @@ final class TypeCompiler
                 return "new $class(...[$shapes])";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
-                if ((string)$type === 'array' || (string)$type === 'non-empty-array') {
+                if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {
                     return "$class::native()";
                 }
 
@@ -112,7 +112,7 @@ final class TypeCompiler
                 return "new $class($keyType, $subType)";
             case $type instanceof ListType:
             case $type instanceof NonEmptyListType:
-                if ((string)$type === 'list' || (string)$type === 'non-empty-list') {
+                if ($type->toString() === 'list' || $type->toString() === 'non-empty-list') {
                     return "$class::native()";
                 }
 
@@ -146,7 +146,7 @@ final class TypeCompiler
             case $type instanceof EnumType:
                 return "new $class({$type->className()}::class)";
             case $type instanceof UnresolvableType:
-                $raw = var_export((string)$type, true);
+                $raw = var_export($type->toString(), true);
                 $message = var_export($type->getMessage(), true);
 
                 return "new $class($raw, $message)";

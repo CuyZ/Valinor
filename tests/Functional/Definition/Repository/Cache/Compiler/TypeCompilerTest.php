@@ -68,7 +68,7 @@ final class TypeCompilerTest extends TestCase
         }
 
         self::assertInstanceOf(get_class($type), $compiledType);
-        self::assertSame((string)$type, (string)$compiledType);
+        self::assertSame($type->toString(), $compiledType->toString());
     }
 
     public function type_is_compiled_correctly_data_provider(): iterable

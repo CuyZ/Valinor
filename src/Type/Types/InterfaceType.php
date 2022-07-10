@@ -8,6 +8,8 @@ use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
+use function array_map;
+
 /** @internal */
 final class InterfaceType implements ObjectType
 {
@@ -59,10 +61,10 @@ final class InterfaceType implements ObjectType
         return is_a($other->className(), $this->interfaceName, true);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return empty($this->generics)
             ? $this->interfaceName
-            : $this->interfaceName . '<' . implode(', ', $this->generics) . '>';
+            : $this->interfaceName . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $this->generics)) . '>';
     }
 }

@@ -23,7 +23,7 @@ final class NonEmptyListType implements CompositeTraversableType
     public function __construct(Type $subType)
     {
         $this->subType = $subType;
-        $this->signature = "non-empty-list<$this->subType>";
+        $this->signature = "non-empty-list<{$this->subType->toString()}>";
     }
 
     /**
@@ -109,7 +109,7 @@ final class NonEmptyListType implements CompositeTraversableType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

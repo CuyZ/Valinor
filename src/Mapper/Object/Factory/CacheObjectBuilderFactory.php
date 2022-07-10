@@ -27,7 +27,7 @@ final class CacheObjectBuilderFactory implements ObjectBuilderFactory
 
     public function for(ClassDefinition $class): iterable
     {
-        $signature = (string)$class->type();
+        $signature = $class->type()->toString();
 
         if ($this->cache->has($signature)) {
             $entry = $this->cache->get($signature);

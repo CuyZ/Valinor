@@ -30,7 +30,7 @@ final class TreeNodeTest extends TestCase
         self::assertTrue($node->isRoot());
         self::assertSame('', $node->name());
         self::assertSame('', $node->path());
-        self::assertSame((string)$type, $node->type());
+        self::assertSame($type->toString(), $node->type());
         self::assertTrue($node->sourceFilled());
         self::assertSame('some source value', $node->sourceValue());
         self::assertTrue($node->isValid());
@@ -43,7 +43,7 @@ final class TreeNodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 'foo' does not match type `$type`.");
+        $this->expectExceptionMessage("Value 'foo' does not match type `{$type->toString()}`.");
 
         FakeTreeNode::leaf($type, 'foo');
     }
@@ -86,7 +86,7 @@ final class TreeNodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 'foo' does not match type `$type`.");
+        $this->expectExceptionMessage("Value 'foo' does not match type `{$type->toString()}`.");
 
         FakeTreeNode::branch([], $type, 'foo');
     }
@@ -135,7 +135,7 @@ final class TreeNodeTest extends TestCase
 
         $this->expectException(InvalidNodeValue::class);
         $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 1337 does not match type `$type`.");
+        $this->expectExceptionMessage("Value 1337 does not match type `{$type->toString()}`.");
 
         FakeTreeNode::leaf($type, 'foo')->withValue(1337);
     }

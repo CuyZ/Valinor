@@ -26,7 +26,7 @@ final class UnexpectedShapedArrayKeys extends RuntimeException implements Transl
      */
     public function __construct(array $keys, array $elements)
     {
-        $expected = array_map(fn (ShapedArrayElement $element) => $element->key(), $elements);
+        $expected = array_map(fn (ShapedArrayElement $element) => $element->key()->toString(), $elements);
 
         $this->parameters = [
             'keys' => '`' . implode('`, `', $keys) . '`',

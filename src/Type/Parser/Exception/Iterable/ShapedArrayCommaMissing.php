@@ -18,7 +18,7 @@ final class ShapedArrayCommaMissing extends RuntimeException implements InvalidT
      */
     public function __construct(array $elements)
     {
-        $signature = 'array{' . implode(', ', $elements);
+        $signature = 'array{' . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements));
 
         parent::__construct(
             "Comma missing in shaped array signature `$signature`.",

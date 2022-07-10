@@ -26,8 +26,8 @@ final class ArrayType implements CompositeTraversableType
         $this->keyType = $keyType;
         $this->subType = $subType;
         $this->signature = $keyType === ArrayKeyType::default()
-            ? "array<$subType>"
-            : "array<$keyType, $subType>";
+            ? "array<{$subType->toString()}>"
+            : "array<{$keyType->toString()}, {$subType->toString()}>";
     }
 
     /**
@@ -47,7 +47,7 @@ final class ArrayType implements CompositeTraversableType
     public static function simple(Type $type): self
     {
         $instance = new self(ArrayKeyType::default(), $type);
-        $instance->signature = $instance->subType . '[]';
+        $instance->signature = $instance->subType->toString() . '[]';
 
         return $instance;
     }
@@ -108,7 +108,7 @@ final class ArrayType implements CompositeTraversableType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

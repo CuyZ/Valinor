@@ -47,7 +47,7 @@ final class NativeIntegerType implements IntegerType
         return (int)$value; // @phpstan-ignore-line
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'int';
     }

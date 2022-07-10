@@ -14,7 +14,7 @@ final class IntegerRangeInvalidMinValue extends RuntimeException implements Inva
     public function __construct(Type $type)
     {
         parent::__construct(
-            "Invalid type `$type` for min value of integer range, it must be either `min` or an integer value.",
+            "Invalid type `{$type->toString()}` for min value of integer range, it must be either `min` or an integer value.",
             1638787807
         );
     }

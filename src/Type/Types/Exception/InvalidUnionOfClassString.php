@@ -14,7 +14,7 @@ final class InvalidUnionOfClassString extends LogicException implements InvalidT
     public function __construct(UnionType $type)
     {
         parent::__construct(
-            "Type `$type` contains invalid class string element(s).",
+            "Type `{$type->toString()}` contains invalid class string element(s).",
             1648830951
         );
     }

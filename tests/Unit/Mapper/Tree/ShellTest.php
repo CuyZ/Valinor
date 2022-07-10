@@ -66,7 +66,7 @@ final class ShellTest extends TestCase
 
         $this->expectException(NewShellTypeDoesNotMatch::class);
         $this->expectExceptionCode(1628845224);
-        $this->expectExceptionMessage("Trying to change the type of the shell at path ``: `$typeB` is not a valid subtype of `$typeA`.");
+        $this->expectExceptionMessage("Trying to change the type of the shell at path ``: `{$typeB->toString()}` is not a valid subtype of `{$typeA->toString()}`.");
 
         (Shell::root($typeA, []))->withType($typeB);
     }

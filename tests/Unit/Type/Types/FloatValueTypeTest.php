@@ -88,7 +88,7 @@ final class FloatValueTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('1337.42', (string)$this->floatValueType);
+        self::assertSame('1337.42', $this->floatValueType->toString());
     }
 
     public function test_matches_native_float_type(): void

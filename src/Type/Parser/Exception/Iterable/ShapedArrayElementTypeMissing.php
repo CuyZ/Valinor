@@ -19,7 +19,7 @@ final class ShapedArrayElementTypeMissing extends RuntimeException implements In
      */
     public function __construct(array $elements, FixedType $key, bool $optional)
     {
-        $signature = 'array{' . implode(', ', $elements);
+        $signature = 'array{' . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements));
 
         if (! empty($elements)) {
             $signature .= ', ';

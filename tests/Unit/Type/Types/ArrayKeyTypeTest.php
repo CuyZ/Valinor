@@ -21,9 +21,9 @@ final class ArrayKeyTypeTest extends TestCase
 
     public function test_string_values_are_correct(): void
     {
-        self::assertSame('array-key', (string)ArrayKeyType::default());
-        self::assertSame('int', (string)ArrayKeyType::integer());
-        self::assertSame('string', (string)ArrayKeyType::string());
+        self::assertSame('array-key', ArrayKeyType::default()->toString());
+        self::assertSame('int', ArrayKeyType::integer()->toString());
+        self::assertSame('string', ArrayKeyType::string()->toString());
     }
 
     public function test_accepts_correct_values(): void

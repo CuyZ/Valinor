@@ -115,7 +115,7 @@ final class NativeIntegerTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('int', (string)$this->integerType);
+        self::assertSame('int', $this->integerType->toString());
     }
 
     public function test_matches_same_type(): void

@@ -121,7 +121,7 @@ final class NegativeIntegerTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('negative-int', (string)$this->negativeIntegerType);
+        self::assertSame('negative-int', $this->negativeIntegerType->toString());
     }
 
     public function test_matches_valid_integer_type(): void

@@ -28,7 +28,7 @@ final class IterableTypeTest extends TestCase
 
     public function test_native_string_value_is_correct(): void
     {
-        self::assertSame('iterable', (string)IterableType::native());
+        self::assertSame('iterable', IterableType::native()->toString());
     }
 
     public function test_native_returns_same_instance(): void
@@ -45,7 +45,7 @@ final class IterableTypeTest extends TestCase
     {
         $subType = new FakeType();
 
-        self::assertSame("iterable<$subType>", (string)new IterableType(ArrayKeyType::default(), $subType));
+        self::assertSame("iterable<{$subType->toString()}>", (new IterableType(ArrayKeyType::default(), $subType))->toString());
     }
 
     public function test_subtype_is_correct(): void

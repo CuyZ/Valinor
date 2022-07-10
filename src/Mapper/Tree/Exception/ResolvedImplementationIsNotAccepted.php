@@ -13,7 +13,7 @@ final class ResolvedImplementationIsNotAccepted extends RuntimeException
     public function __construct(string $name, Type $incorrectType)
     {
         parent::__construct(
-            "Invalid implementation type `$incorrectType`, expected a subtype of `$name`.",
+            "Invalid implementation type `{$incorrectType->toString()}`, expected a subtype of `$name`.",
             1618049487
         );
     }

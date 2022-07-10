@@ -25,7 +25,7 @@ final class MixedTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('mixed', (string)$this->mixedType);
+        self::assertSame('mixed', $this->mixedType->toString());
     }
 
     public function test_accepts_every_value(): void

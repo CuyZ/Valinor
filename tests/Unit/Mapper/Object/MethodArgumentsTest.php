@@ -18,7 +18,7 @@ final class MethodArgumentsTest extends TestCase
 
         $this->expectException(MissingMethodArgument::class);
         $this->expectExceptionCode(1629468609);
-        $this->expectExceptionMessage("Missing argument `foo` of type `{$parameter->type()}`.");
+        $this->expectExceptionMessage("Missing argument `foo` of type `{$parameter->type()->toString()}`.");
 
         (new MethodArguments(
             new Parameters($parameter),

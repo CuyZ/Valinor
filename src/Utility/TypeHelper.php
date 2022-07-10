@@ -17,7 +17,7 @@ final class TypeHelper
 {
     public static function dump(Type $type, bool $surround = true): string
     {
-        $text = self::containsObject($type) ? '?' : (string)$type;
+        $text = self::containsObject($type) ? '?' : $type->toString();
 
         return $surround ? "`$text`" : $text;
     }

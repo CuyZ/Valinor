@@ -16,7 +16,7 @@ final class InvalidConstructorMethodClassReturnType extends RuntimeException
     public function __construct(MethodDefinition $method, string $expectedClass)
     {
         parent::__construct(
-            "Method `{$method->signature()}` must return `$expectedClass` to be a valid constructor but returns `{$method->returnType()}`.",
+            "Method `{$method->signature()}` must return `$expectedClass` to be a valid constructor but returns `{$method->returnType()->toString()}`.",
             1638094499
         );
     }

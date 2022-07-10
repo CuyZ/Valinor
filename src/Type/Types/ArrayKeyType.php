@@ -35,7 +35,7 @@ final class ArrayKeyType implements ScalarType
     {
         $this->types = $types;
         $this->signature = count($this->types) === 1
-            ? (string)$this->types[0]
+            ? $this->types[0]->toString()
             : 'array-key';
     }
 
@@ -131,7 +131,7 @@ final class ArrayKeyType implements ScalarType
         throw new CannotCastValue($value, $this);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

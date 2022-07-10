@@ -64,7 +64,7 @@ final class FakeObjectType implements ObjectType
         return $other === ($this->matching ?? null);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->className;
     }

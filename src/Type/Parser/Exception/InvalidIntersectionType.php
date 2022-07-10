@@ -13,7 +13,7 @@ final class InvalidIntersectionType extends RuntimeException implements InvalidT
     public function __construct(Type $type)
     {
         parent::__construct(
-            "Invalid intersection member `$type`, it must be a class name or an interface name.",
+            "Invalid intersection member `{$type->toString()}`, it must be a class name or an interface name.",
             1608030163
         );
     }

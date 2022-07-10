@@ -31,7 +31,7 @@ final class FakeFixedType implements FixedType
         return $other instanceof self && $other->value === $this->value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value;
     }

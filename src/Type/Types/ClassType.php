@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
+use function array_map;
 use function is_a;
 
 /** @internal */
@@ -72,10 +73,10 @@ final class ClassType implements ObjectType, CompositeType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return empty($this->generics)
             ? $this->className
-            : $this->className . '<' . implode(', ', $this->generics) . '>';
+            : $this->className . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $this->generics)) . '>';
     }
 }

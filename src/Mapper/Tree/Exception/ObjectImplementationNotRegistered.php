@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 use CuyZ\Valinor\Type\Types\ClassType;
 use RuntimeException;
 
+use function array_map;
 use function implode;
 
 /** @internal */
@@ -17,7 +18,7 @@ final class ObjectImplementationNotRegistered extends RuntimeException
      */
     public function __construct(string $implementation, string $name, array $allowed)
     {
-        $allowed = implode('`, `', $allowed);
+        $allowed = implode('`, `', array_map(fn (ClassType $type) => $type->toString(), $allowed));
 
         parent::__construct(
             "Invalid implementation `$implementation` for `$name`, it should be one of `$allowed`.",

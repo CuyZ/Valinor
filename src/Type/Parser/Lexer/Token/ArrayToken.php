@@ -154,7 +154,7 @@ final class ArrayToken implements TraversingToken
                 $type = null;
 
                 if (! $key instanceof StringValueType && ! $key instanceof IntegerValueType) {
-                    $key = new StringValueType((string)$key);
+                    $key = new StringValueType($key->toString());
                 }
 
                 if ($key instanceof IntegerValueType) {

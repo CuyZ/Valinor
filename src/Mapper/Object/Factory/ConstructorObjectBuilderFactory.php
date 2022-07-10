@@ -62,7 +62,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
     private function listBuilders(ClassDefinition $class): array
     {
         $type = $class->type();
-        $key = $type->__toString();
+        $key = $type->toString();
 
         if (! array_key_exists($key, $this->builders)) {
             $builders = [];

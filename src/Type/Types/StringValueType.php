@@ -94,7 +94,7 @@ final class StringValueType implements StringType, FixedType
         return $this->value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         if (isset($this->quoteChar)) {
             return $this->quoteChar . $this->value . $this->quoteChar;
