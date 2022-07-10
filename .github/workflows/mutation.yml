@@ -21,7 +21,7 @@ jobs:
         id: extcache
         uses: shivammathur/cache-extensions@v1
         with:
-          php-version: ${{ matrix.php }}
+          php-version: ${{ env.php-version }}
           extensions: ${{ env.php-extensions }}
           key: mutation-php-extensions-${{ runner.os }}-${{ env.php-version }}
 
