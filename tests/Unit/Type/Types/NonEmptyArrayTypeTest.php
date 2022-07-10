@@ -29,7 +29,7 @@ final class NonEmptyArrayTypeTest extends TestCase
 
     public function test_native_string_value_is_correct(): void
     {
-        self::assertSame('non-empty-array', (string)NonEmptyArrayType::native());
+        self::assertSame('non-empty-array', NonEmptyArrayType::native()->toString());
     }
 
     public function test_native_returns_same_instance(): void
@@ -46,7 +46,7 @@ final class NonEmptyArrayTypeTest extends TestCase
     {
         $subType = new FakeType();
 
-        self::assertSame("non-empty-array<$subType>", (string)new NonEmptyArrayType(ArrayKeyType::default(), $subType));
+        self::assertSame("non-empty-array<{$subType->toString()}>", (new NonEmptyArrayType(ArrayKeyType::default(), $subType))->toString());
     }
 
     public function test_subtype_is_correct(): void

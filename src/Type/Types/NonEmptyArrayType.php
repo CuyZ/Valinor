@@ -26,8 +26,8 @@ final class NonEmptyArrayType implements CompositeTraversableType
         $this->keyType = $keyType;
         $this->subType = $subType;
         $this->signature = $keyType === ArrayKeyType::default()
-            ? "non-empty-array<$subType>"
-            : "non-empty-array<$keyType, $subType>";
+            ? "non-empty-array<{$subType->toString()}>"
+            : "non-empty-array<{$keyType->toString()}, {$subType->toString()}>";
     }
 
     /**
@@ -104,7 +104,7 @@ final class NonEmptyArrayType implements CompositeTraversableType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

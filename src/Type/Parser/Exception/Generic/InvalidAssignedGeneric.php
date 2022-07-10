@@ -17,7 +17,7 @@ final class InvalidAssignedGeneric extends RuntimeException implements InvalidTy
     public function __construct(Type $generic, Type $template, string $name, string $className)
     {
         parent::__construct(
-            "The generic `$generic` is not a subtype of `$template` for " .
+            "The generic `{$generic->toString()}` is not a subtype of `{$template->toString()}` for " .
             "the template `$name` of the class `$className`.",
             1604613633
         );

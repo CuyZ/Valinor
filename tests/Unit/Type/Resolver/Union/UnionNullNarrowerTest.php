@@ -54,7 +54,7 @@ final class UnionNullNarrowerTest extends TestCase
 
         $this->expectException(UnionTypeDoesNotAllowNull::class);
         $this->expectExceptionCode(1618742357);
-        $this->expectExceptionMessage("Cannot be empty and must be filled with a value matching type `$unionType`.");
+        $this->expectExceptionMessage("Cannot be empty and must be filled with a value matching type `{$unionType->toString()}`.");
 
         $this->unionNullNarrower->narrow($unionType, null);
     }

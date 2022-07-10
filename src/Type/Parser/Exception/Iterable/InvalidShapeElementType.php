@@ -14,7 +14,7 @@ final class InvalidShapeElementType extends RuntimeException implements InvalidT
     public function __construct(ShapedArrayElement $element)
     {
         parent::__construct(
-            "The shaped array element `{$element->key()}` cannot contain a fixed type `{$element->type()}`.",
+            "The shaped array element `{$element->key()->toString()}` cannot contain a fixed type `{$element->type()->toString()}`.",
             1631294135
         );
     }

@@ -14,7 +14,7 @@ final class InvalidTypeAliasImportClassType extends LogicException
     public function __construct(ClassType $classType, Type $type)
     {
         parent::__construct(
-            "Importing a type alias can only be done with classes, `$type` was given in class `{$classType->className()}`.",
+            "Importing a type alias can only be done with classes, `{$type->toString()}` was given in class `{$classType->className()}`.",
             1638535608
         );
     }

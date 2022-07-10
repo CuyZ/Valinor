@@ -19,13 +19,13 @@ final class ShapedArrayColonTokenMissing extends RuntimeException implements Inv
      */
     public function __construct(array $elements, Type $type)
     {
-        $signature = 'array{' . implode(', ', $elements);
+        $signature = 'array{' . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements));
 
         if (! empty($elements)) {
             $signature .= ', ';
         }
 
-        $signature .= "$type?";
+        $signature .= "{$type->toString()}?";
 
         parent::__construct(
             "A colon symbol is missing in shaped array signature `$signature`.",

@@ -113,7 +113,7 @@ final class NonEmptyStringTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('non-empty-string', (string)$this->nonEmptyStringType);
+        self::assertSame('non-empty-string', $this->nonEmptyStringType->toString());
     }
 
     public function test_matches_same_type(): void

@@ -13,7 +13,7 @@ final class RightUnionTypeMissing extends RuntimeException implements InvalidTyp
     public function __construct(Type $type)
     {
         parent::__construct(
-            "Right type is missing for union `$type|?`.",
+            "Right type is missing for union `{$type->toString()}|?`.",
             1631294715
         );
     }

@@ -6,11 +6,11 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Type\Types\Exception\InvalidStringValueType;
 use CuyZ\Valinor\Type\Types\Exception\InvalidStringValue;
+use CuyZ\Valinor\Type\Types\Exception\InvalidStringValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
-use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -120,9 +120,8 @@ final class StringValueTypeTest extends TestCase
         $this->expectExceptionMessage("Value 'Schwifty?' does not match expected 'Schwifty!'.");
 
         $typeA = new StringValueType('Schwifty!');
-        $typeB = new StringValueType('Schwifty?');
 
-        $typeA->cast($typeB);
+        $typeA->cast(new StringableObject('Schwifty?'));
     }
 
     public function test_string_value_is_correct(): void
@@ -131,9 +130,9 @@ final class StringValueTypeTest extends TestCase
         $typeSingleQuote = StringValueType::singleQuote('Schwifty!');
         $typeDoubleQuote = StringValueType::doubleQuote('Schwifty!');
 
-        self::assertSame('Schwifty!', (string)$type);
-        self::assertSame("'Schwifty!'", (string)$typeSingleQuote);
-        self::assertSame('"Schwifty!"', (string)$typeDoubleQuote);
+        self::assertSame('Schwifty!', $type->toString());
+        self::assertSame("'Schwifty!'", $typeSingleQuote->toString());
+        self::assertSame('"Schwifty!"', $typeDoubleQuote->toString());
     }
 
     public function test_matches_same_type_with_same_value(): void

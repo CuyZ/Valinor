@@ -46,7 +46,7 @@ final class NativeFloatType implements FloatType
         return (float)$value; // @phpstan-ignore-line
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'float';
     }

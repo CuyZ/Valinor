@@ -121,7 +121,7 @@ final class PositiveIntegerTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('positive-int', (string)$this->positiveIntegerType);
+        self::assertSame('positive-int', $this->positiveIntegerType->toString());
     }
 
     public function test_matches_valid_integer_type(): void

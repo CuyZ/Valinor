@@ -19,7 +19,7 @@ final class CasterNodeBuilderTest extends TestCase
 
         $this->expectException(NoCasterForType::class);
         $this->expectExceptionCode(1630693475);
-        $this->expectExceptionMessage("No caster was found to convert to type `$type`.");
+        $this->expectExceptionMessage("No caster was found to convert to type `{$type->toString()}`.");
 
         (new RootNodeBuilder(new CasterNodeBuilder([])))->build(FakeShell::new($type));
     }

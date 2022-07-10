@@ -98,7 +98,7 @@ final class FakeType implements Type
             || $other === ($this->matching ?? null);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->name;
     }

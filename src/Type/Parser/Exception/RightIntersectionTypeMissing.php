@@ -13,7 +13,7 @@ final class RightIntersectionTypeMissing extends RuntimeException implements Inv
     public function __construct(Type $type)
     {
         parent::__construct(
-            "Right type is missing for intersection `$type&?`.",
+            "Right type is missing for intersection `{$type->toString()}&?`.",
             1631612575
         );
     }

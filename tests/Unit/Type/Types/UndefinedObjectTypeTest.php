@@ -29,7 +29,7 @@ final class UndefinedObjectTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('object', (string)$this->undefinedObjectType);
+        self::assertSame('object', $this->undefinedObjectType->toString());
     }
 
     public function test_accepts_correct_values(): void

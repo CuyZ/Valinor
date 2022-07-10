@@ -29,7 +29,7 @@ final class ClassTypeTest extends TestCase
         $generic = new FakeType();
         $type = new ClassType(stdClass::class, ['Template' => $generic]);
 
-        self::assertSame(stdClass::class . "<$generic>", (string)$type);
+        self::assertSame(stdClass::class . "<{$generic->toString()}>", $type->toString());
     }
 
     public function test_accepts_correct_values(): void

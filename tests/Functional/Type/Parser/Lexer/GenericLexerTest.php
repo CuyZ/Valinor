@@ -51,7 +51,7 @@ final class GenericLexerTest extends TestCase
     {
         $result = $this->parser->parse($raw);
 
-        self::assertSame($transformed, (string)$result);
+        self::assertSame($transformed, $result->toString());
         self::assertInstanceOf($type, $result);
     }
 

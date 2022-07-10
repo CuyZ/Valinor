@@ -59,7 +59,7 @@ final class NonEmptyStringType implements StringType
         return $value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'non-empty-string';
     }

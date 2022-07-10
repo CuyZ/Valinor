@@ -59,7 +59,7 @@ final class ShapedArrayTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('array{foo: string, 1337?: int}', (string)$this->type);
+        self::assertSame('array{foo: string, 1337?: int}', $this->type->toString());
     }
 
     public function test_accepts_correct_values(): void

@@ -115,7 +115,7 @@ final class IntegerRangeTypeTest extends TestCase
     {
         $this->expectException(CannotCastValue::class);
         $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast 'foo' to `$this->type`.");
+        $this->expectExceptionMessage("Cannot cast 'foo' to `{$this->type->toString()}`.");
 
         $this->type->cast('foo');
     }
@@ -131,9 +131,9 @@ final class IntegerRangeTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('int<42, 1337>', (string)new IntegerRangeType(42, 1337));
-        self::assertSame('int<-1337, -42>', (string)new IntegerRangeType(-1337, -42));
-        self::assertSame('int<min, max>', (string)new IntegerRangeType(PHP_INT_MIN, PHP_INT_MAX));
+        self::assertSame('int<42, 1337>', (new IntegerRangeType(42, 1337))->toString());
+        self::assertSame('int<-1337, -42>', (new IntegerRangeType(-1337, -42))->toString());
+        self::assertSame('int<min, max>', (new IntegerRangeType(PHP_INT_MIN, PHP_INT_MAX))->toString());
     }
 
     public function test_matches_same_type_with_same_range(): void

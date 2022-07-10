@@ -19,7 +19,7 @@ final class ListClosingBracketMissing extends RuntimeException implements Invali
     public function __construct(Type $listType)
     {
         parent::__construct(
-            "The closing bracket is missing for `$listType`.",
+            "The closing bracket is missing for `{$listType->toString()}`.",
             1634035071
         );
     }

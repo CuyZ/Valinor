@@ -14,7 +14,7 @@ final class IntegerRangeMissingComma extends RuntimeException implements Invalid
     public function __construct(IntegerValueType $min)
     {
         parent::__construct(
-            "Missing comma in integer range signature `int<$min, ?>`.",
+            "Missing comma in integer range signature `int<{$min->value()}, ?>`.",
             1638787915
         );
     }

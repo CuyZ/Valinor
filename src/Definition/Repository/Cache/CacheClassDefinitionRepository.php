@@ -28,7 +28,7 @@ final class CacheClassDefinitionRepository implements ClassDefinitionRepository
 
     public function for(ClassType $type): ClassDefinition
     {
-        $key = "class-definition-$type";
+        $key = "class-definition-{$type->toString()}";
 
         if ($this->cache->has($key)) {
             $entry = $this->cache->get($key);

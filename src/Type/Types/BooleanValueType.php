@@ -79,7 +79,7 @@ final class BooleanValueType implements BooleanType, FixedType
         return $this->value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value ? 'true' : 'false';
     }

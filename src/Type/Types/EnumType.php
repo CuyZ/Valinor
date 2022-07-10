@@ -57,7 +57,7 @@ final class EnumType implements ObjectType
             || $other instanceof MixedType;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->enumName;
     }

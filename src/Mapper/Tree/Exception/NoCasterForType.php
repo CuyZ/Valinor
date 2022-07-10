@@ -13,7 +13,7 @@ final class NoCasterForType extends RuntimeException
     public function __construct(Type $type)
     {
         parent::__construct(
-            "No caster was found to convert to type `$type`.",
+            "No caster was found to convert to type `{$type->toString()}`.",
             1630693475
         );
     }

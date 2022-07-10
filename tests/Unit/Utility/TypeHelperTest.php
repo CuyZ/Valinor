@@ -29,7 +29,7 @@ final class TypeHelperTest extends TestCase
         );
 
         self::assertSame(
-            "`array{someArgument: $typeA, someArgumentOfObject: ?, someArgumentWithUnionOfObject: ?, someOptionalArgument?: $typeD}`",
+            "`array{someArgument: {$typeA->toString()}, someArgumentOfObject: ?, someArgumentWithUnionOfObject: ?, someOptionalArgument?: {$typeD->toString()}}`",
             TypeHelper::dumpArguments($arguments)
         );
     }

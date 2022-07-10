@@ -14,7 +14,7 @@ final class IterableClosingBracketMissing extends RuntimeException implements In
     public function __construct(Type $keyType, Type $subtype)
     {
         parent::__construct(
-            "The closing bracket is missing for `iterable<$keyType, $subtype>`.",
+            "The closing bracket is missing for `iterable<{$keyType->toString()}, {$subtype->toString()}>`.",
             1618994728
         );
     }

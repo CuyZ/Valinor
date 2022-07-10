@@ -47,7 +47,7 @@ final class EnumTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame(PureEnum::class, (string)$this->enumType);
+        self::assertSame(PureEnum::class, $this->enumType->toString());
     }
 
     public function test_matches_same_enum_type(): void

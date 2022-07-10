@@ -27,7 +27,7 @@ final class NullType implements Type
             || $other instanceof MixedType;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'null';
     }

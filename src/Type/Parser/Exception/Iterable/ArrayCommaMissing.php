@@ -18,10 +18,10 @@ final class ArrayCommaMissing extends RuntimeException implements InvalidType
      */
     public function __construct(string $arrayType, Type $type)
     {
-        $signature = "array<$type, ?>";
+        $signature = "array<{$type->toString()}, ?>";
 
         if ($arrayType === NonEmptyArrayType::class) {
-            $signature = "non-empty-array<$type, ?>";
+            $signature = "non-empty-array<{$type->toString()}, ?>";
         }
 
         parent::__construct(

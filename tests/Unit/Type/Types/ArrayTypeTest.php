@@ -30,7 +30,7 @@ final class ArrayTypeTest extends TestCase
 
     public function test_native_string_value_is_correct(): void
     {
-        self::assertSame('array', (string)ArrayType::native());
+        self::assertSame('array', ArrayType::native()->toString());
     }
 
     public function test_native_returns_same_instance(): void
@@ -47,7 +47,7 @@ final class ArrayTypeTest extends TestCase
     {
         $subType = new FakeType();
 
-        self::assertSame("array<$subType>", (string)new ArrayType(ArrayKeyType::default(), $subType));
+        self::assertSame("array<{$subType->toString()}>", (new ArrayType(ArrayKeyType::default(), $subType))->toString());
     }
 
     public function test_subtype_is_correct(): void
@@ -61,7 +61,7 @@ final class ArrayTypeTest extends TestCase
     {
         $subType = new FakeType();
 
-        self::assertSame($subType . '[]', (string)ArrayType::simple($subType));
+        self::assertSame($subType->toString() . '[]', ArrayType::simple($subType)->toString());
     }
 
     public function test_simple_array_subtype_is_correct(): void

@@ -23,11 +23,11 @@ final class TypesDoNotMatch extends LogicException
         $signature = Reflection::signature($reflection);
 
         if ($reflection instanceof ReflectionProperty) {
-            $message = "Types for property `$signature` do not match: `$typeFromDocBlock` (docblock) does not accept `$typeFromReflection` (native).";
+            $message = "Types for property `$signature` do not match: `{$typeFromDocBlock->toString()}` (docblock) does not accept `{$typeFromReflection->toString()}` (native).";
         } elseif ($reflection instanceof ReflectionParameter) {
-            $message = "Types for parameter `$signature` do not match: `$typeFromDocBlock` (docblock) does not accept `$typeFromReflection` (native).";
+            $message = "Types for parameter `$signature` do not match: `{$typeFromDocBlock->toString()}` (docblock) does not accept `{$typeFromReflection->toString()}` (native).";
         } else {
-            $message = "Return types for method `$signature` do not match: `$typeFromDocBlock` (docblock) does not accept `$typeFromReflection` (native).";
+            $message = "Return types for method `$signature` do not match: `{$typeFromDocBlock->toString()}` (docblock) does not accept `{$typeFromReflection->toString()}` (native).";
         }
 
         parent::__construct($message, 1638471381);

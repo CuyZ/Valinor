@@ -48,7 +48,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
      */
     private function builders(Type $type, string $className): array
     {
-        $key = $type->__toString();
+        $key = $type->toString();
 
         if (! isset($this->builders[$key])) {
             $overridesDefault = false;

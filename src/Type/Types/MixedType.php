@@ -22,7 +22,7 @@ final class MixedType implements Type
         return $other instanceof self;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'mixed';
     }

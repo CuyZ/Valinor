@@ -18,14 +18,14 @@ final class InvalidArrayKey extends RuntimeException implements InvalidType
      */
     public function __construct(string $arrayType, Type $keyType, Type $subType)
     {
-        $signature = "array<$keyType, $subType>";
+        $signature = "array<{$keyType->toString()}, {$subType->toString()}>";
 
         if ($arrayType === NonEmptyArrayType::class) {
-            $signature = "non-empty-array<$keyType, $subType>";
+            $signature = "non-empty-array<{$keyType->toString()}, {$subType->toString()}>";
         }
 
         parent::__construct(
-            "Invalid key type `$keyType` for `$signature`. It must be one of `array-key`, `int` or `string`.",
+            "Invalid key type `{$keyType->toString()}` for `$signature`. It must be one of `array-key`, `int` or `string`.",
             1604335007
         );
     }

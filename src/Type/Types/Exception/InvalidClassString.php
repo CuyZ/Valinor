@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use LogicException;
 
+use function array_map;
 use function count;
 use function implode;
 
@@ -35,7 +36,7 @@ final class InvalidClassString extends LogicException implements CastError
         }
 
         $expectedString = count($expected) !== 0
-            ? '`' . implode('`, `', $expected) . '`'
+            ? '`' . implode('`, `', array_map(fn (Type $type) => $type->toString(), $expected)) . '`'
             : '';
 
         $this->parameters = [

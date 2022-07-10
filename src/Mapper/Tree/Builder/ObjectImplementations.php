@@ -136,7 +136,7 @@ final class ObjectImplementations
             $class = $this->call($name, []);
             $classType = $this->typeParser->parse($class);
 
-            return [(string)$classType => $classType];
+            return [$classType->toString() => $classType];
         }
 
         $types = $returnType instanceof UnionType
@@ -161,7 +161,7 @@ final class ObjectImplementations
                 : [$subType];
 
             foreach ($subTypes as $classType) {
-                $classes[(string)$classType] = $classType;
+                $classes[$classType->toString()] = $classType;
             }
         }
 

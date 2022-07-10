@@ -36,7 +36,7 @@ final class IntersectionTypeTest extends TestCase
 
         $intersectionType = new IntersectionType($typeA, $typeB, $typeC);
 
-        self::assertSame("$typeA&$typeB&$typeC", (string)$intersectionType);
+        self::assertSame("{$typeA->toString()}&{$typeB->toString()}&{$typeC->toString()}", $intersectionType->toString());
     }
 
     public function test_accepts_correct_values(): void

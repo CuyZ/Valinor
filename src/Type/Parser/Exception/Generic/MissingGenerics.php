@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
 use function array_fill;
+use function array_map;
 use function count;
 use function implode;
 
@@ -24,6 +25,7 @@ final class MissingGenerics extends RuntimeException implements InvalidType
     {
         /** @var positive-int $missing */
         $missing = count($templates) - count($generics);
+        $generics = array_map(fn (Type $type) => $type->toString(), $generics);
         $generics += array_fill(count($generics), $missing, '?');
 
         $signature = $className . '<' . implode(', ', $generics) . '>';

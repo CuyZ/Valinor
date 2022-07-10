@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type;
 
-/**
- * @PHP8.0 extend Stringable
- *
- * @internal
- */
+/** @internal */
 interface Type
 {
     /**
@@ -18,5 +14,5 @@ interface Type
 
     public function matches(self $other): bool;
 
-    public function __toString(): string;
+    public function toString(): string;
 }

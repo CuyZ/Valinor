@@ -32,7 +32,7 @@ final class NonEmptyListTypeTest extends TestCase
 
     public function test_native_string_value_is_correct(): void
     {
-        self::assertSame('non-empty-list', (string)NonEmptyListType::native());
+        self::assertSame('non-empty-list', NonEmptyListType::native()->toString());
     }
 
     public function test_native_returns_same_instance(): void
@@ -49,7 +49,7 @@ final class NonEmptyListTypeTest extends TestCase
     {
         $subType = new FakeType();
 
-        self::assertSame("non-empty-list<$subType>", (string)new NonEmptyListType($subType));
+        self::assertSame("non-empty-list<{$subType->toString()}>", (new NonEmptyListType($subType))->toString());
     }
 
     public function test_subtype_is_correct(): void

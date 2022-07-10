@@ -22,7 +22,7 @@ final class ListType implements CompositeTraversableType
     public function __construct(Type $subType)
     {
         $this->subType = $subType;
-        $this->signature = "list<$this->subType>";
+        $this->signature = "list<{$this->subType->toString()}>";
     }
 
     /**
@@ -101,7 +101,7 @@ final class ListType implements CompositeTraversableType
         }
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->signature;
     }

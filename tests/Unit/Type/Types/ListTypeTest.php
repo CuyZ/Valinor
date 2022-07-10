@@ -30,7 +30,7 @@ final class ListTypeTest extends TestCase
 
     public function test_native_string_value_is_correct(): void
     {
-        self::assertSame('list', (string)ListType::native());
+        self::assertSame('list', ListType::native()->toString());
     }
 
     public function test_native_returns_same_instance(): void
@@ -47,7 +47,7 @@ final class ListTypeTest extends TestCase
     {
         $subType = new FakeType();
 
-        self::assertSame("list<$subType>", (string)new ListType($subType));
+        self::assertSame("list<{$subType->toString()}>", (new ListType($subType))->toString());
     }
 
     public function test_subtype_is_correct(): void

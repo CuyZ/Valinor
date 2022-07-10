@@ -101,7 +101,7 @@ final class NativeStringTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('string', (string)$this->stringType);
+        self::assertSame('string', $this->stringType->toString());
     }
 
     public function test_matches_same_type(): void

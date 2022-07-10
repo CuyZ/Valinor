@@ -96,7 +96,7 @@ final class NativeFloatTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('float', (string)$this->floatType);
+        self::assertSame('float', $this->floatType->toString());
     }
 
     public function test_matches_valid_types(): void

@@ -18,7 +18,7 @@ final class ShapedArrayClosingBracketMissing extends RuntimeException implements
      */
     public function __construct(array $elements)
     {
-        $signature = 'array{' . implode(', ', $elements);
+        $signature = 'array{' . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements));
 
         parent::__construct(
             "Missing closing curly bracket in shaped array signature `$signature`.",

@@ -32,7 +32,7 @@ final class FakeCompositeType implements CompositeType
         return true;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return 'FakeCompositeType';
     }

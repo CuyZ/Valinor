@@ -155,7 +155,7 @@ final class TreeNode
             $self->shell->isRoot(),
             $self->shell->name(),
             $self->shell->path(),
-            (string)$self->shell->type(),
+            $self->shell->type()->toString(),
             $this->shell->hasValue(),
             $this->shell->hasValue() ? $this->shell->value() : null,
             $self->valid ? $self->value : null,

@@ -27,7 +27,7 @@ final class NullTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('null', (string)$this->nullType);
+        self::assertSame('null', $this->nullType->toString());
     }
 
     public function test_accepts_correct_values(): void

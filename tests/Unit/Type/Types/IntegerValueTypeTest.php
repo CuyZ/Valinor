@@ -114,7 +114,7 @@ final class IntegerValueTypeTest extends TestCase
 
     public function test_string_value_is_correct(): void
     {
-        self::assertSame('1337', (string)$this->type);
+        self::assertSame('1337', $this->type->toString());
     }
 
     public function test_matches_same_type_with_same_value(): void
