@@ -17,21 +17,6 @@ jobs:
         with:
           fetch-depth: 0 # Needed for the `git diff` used below for Infection
 
-      - name: Setup cache environment
-        id: extcache
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.php-extensions }}
-          key: mutation-php-extensions-${{ runner.os }}-${{ env.php-version }}
-
-      - name: Cache PHP extensions
-        uses: actions/cache@v3.0.4
-        with:
-          path: ${{ steps.extcache.outputs.dir }}
-          key: ${{ steps.extcache.outputs.key }}
-          restore-keys: ${{ steps.extcache.outputs.key }}
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
