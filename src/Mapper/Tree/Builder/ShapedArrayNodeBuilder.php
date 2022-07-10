@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Mapper\Tree\Exception\ShapedArrayElementMissing;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedShapedArrayKeys;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
@@ -27,7 +26,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
         $value = $shell->hasValue() ? $shell->value() : null;
@@ -41,11 +40,11 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         $children = $this->children($type, $shell, $rootBuilder);
         $array = $this->buildArray($children);
 
-        return Node::branch($shell, $array, $children);
+        return TreeNode::branch($shell, $array, $children);
     }
 
     /**
-     * @return array<Node>
+     * @return array<TreeNode>
      */
     private function children(ShapedArrayType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
     {
@@ -62,7 +61,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
             if (! array_key_exists($key, $value)) {
                 if (! $element->isOptional()) {
-                    $children[$key] = Node::error($child, new ShapedArrayElementMissing($element));
+                    $children[$key] = TreeNode::error($child, new ShapedArrayElementMissing($element));
                 }
 
                 continue;
@@ -82,7 +81,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @param array<Node> $children
+     * @param array<TreeNode> $children
      * @return mixed[]|null
      */
     private function buildArray(array $children): ?array

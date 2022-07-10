@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 /** @internal */
@@ -17,7 +16,7 @@ final class RootNodeBuilder
         $this->root = $root;
     }
 
-    public function build(Shell $shell): Node
+    public function build(Shell $shell): TreeNode
     {
         return $this->root->build($shell, $this);
     }

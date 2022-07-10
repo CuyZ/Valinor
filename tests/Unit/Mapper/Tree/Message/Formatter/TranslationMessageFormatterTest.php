@@ -20,7 +20,7 @@ final class TranslationMessageFormatterTest extends TestCase
             ],
         ]);
 
-        $message = FakeNodeMessage::with(new FakeMessage('some key'));
+        $message = FakeNodeMessage::withMessage(new FakeMessage('some key'));
         $message = $formatter->format($message);
 
         self::assertSame('some message', (string)$message);
@@ -38,7 +38,7 @@ final class TranslationMessageFormatterTest extends TestCase
             'some other message'
         );
 
-        $message = FakeNodeMessage::with(new FakeMessage('some key'));
+        $message = FakeNodeMessage::withMessage(new FakeMessage('some key'));
         $message = $formatter->format($message);
 
         self::assertSame('some other message', (string)$message);
@@ -57,7 +57,7 @@ final class TranslationMessageFormatterTest extends TestCase
                 ],
             ]);
 
-        $message = FakeNodeMessage::with(new FakeMessage('some key'));
+        $message = FakeNodeMessage::withMessage(new FakeMessage('some key'));
         $message = $formatter->format($message);
 
         self::assertSame('some other message', (string)$message);
@@ -79,7 +79,7 @@ final class TranslationMessageFormatterTest extends TestCase
                 ],
             ]);
 
-        $message = FakeNodeMessage::with(new FakeMessage('some other key'));
+        $message = FakeNodeMessage::withMessage(new FakeMessage('some other key'));
         $message = $formatter->format($message);
 
         self::assertSame('some other message', (string)$message);
@@ -94,7 +94,7 @@ final class TranslationMessageFormatterTest extends TestCase
         );
 
         $originalMessage = new FakeTranslatableMessage('Value {value} is not accepted.', ['value' => 'foo']);
-        $message = FakeNodeMessage::with($originalMessage);
+        $message = FakeNodeMessage::withMessage($originalMessage);
         $message = $formatter->format($message);
 
         self::assertSame('Value foo is not accepted!', (string)$message);

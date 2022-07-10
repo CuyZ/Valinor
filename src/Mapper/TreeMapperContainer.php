@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Mapper;
 
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Node;
+use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
@@ -29,7 +29,7 @@ final class TreeMapperContainer implements TreeMapper
         $node = $this->node($signature, $source);
 
         if (! $node->isValid()) {
-            throw new MappingError($node);
+            throw new MappingError($node->node());
         }
 
         return $node->value();
@@ -38,7 +38,7 @@ final class TreeMapperContainer implements TreeMapper
     /**
      * @param mixed $source
      */
-    private function node(string $signature, $source): Node
+    private function node(string $signature, $source): TreeNode
     {
         try {
             $type = $this->typeParser->parse($signature);

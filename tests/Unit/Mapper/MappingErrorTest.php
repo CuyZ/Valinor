@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Tests\Fake\Mapper\FakeNode;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\FakeNode;
 use PHPUnit\Framework\TestCase;
 
 final class MappingErrorTest extends TestCase

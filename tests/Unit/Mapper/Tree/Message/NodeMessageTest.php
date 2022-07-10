@@ -6,14 +6,11 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Message;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
-use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\FakeNode;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeTranslatableMessage;
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\Formatter\FakeMessageFormatter;
-use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
 
 final class NodeMessageTest extends TestCase
@@ -21,24 +18,27 @@ final class NodeMessageTest extends TestCase
     public function test_node_properties_can_be_accessed(): void
     {
         $originalMessage = new FakeMessage();
-        $type = FakeType::permissive();
-        $attributes = new FakeAttributes();
 
-        $shell = FakeShell::any()->child('foo', $type, $attributes)->withValue('some value');
-        $message = new NodeMessage($shell, $originalMessage);
+        $message = new NodeMessage(FakeNode::any(), $originalMessage);
 
-        self::assertSame('foo', $message->name());
-        self::assertSame('foo', $message->path());
+        self::assertSame('nodeName', $message->node()->name());
+        self::assertSame('nodeName', $message->name());
+        self::assertSame('some.node.path', $message->node()->path());
+        self::assertSame('some.node.path', $message->path());
+        self::assertSame('string', $message->node()->type());
+        self::assertSame('string', $message->type());
+        self::assertSame('some source value', $message->node()->sourceValue());
+        self::assertSame('some value', $message->node()->mappedValue());
+        self::assertSame('some value', $message->node()->value());
         self::assertSame('some value', $message->value());
-        self::assertSame($type, $message->type());
-        self::assertSame($attributes, $message->attributes());
         self::assertSame($originalMessage, $message->originalMessage());
+        self::assertFalse($message->isError());
     }
 
     public function test_message_is_error_if_original_message_is_throwable(): void
     {
         $originalMessage = new FakeErrorMessage();
-        $message = new NodeMessage(FakeShell::any(), $originalMessage);
+        $message = FakeNodeMessage::withMessage($originalMessage);
 
         self::assertTrue($message->isError());
         self::assertSame('1652883436', $message->code());
@@ -48,32 +48,21 @@ final class NodeMessageTest extends TestCase
     public function test_parameters_are_replaced_in_body(): void
     {
         $originalMessage = new FakeTranslatableMessage('some original message', ['some_parameter' => 'some parameter value']);
-        $type = FakeType::permissive();
-        $shell = FakeShell::any()->child('foo', $type)->withValue('some value');
 
-        $message = new NodeMessage($shell, $originalMessage);
-        $message = $message->withBody('{message_code} / {node_name} / {node_path} / {node_type} / {original_value} / {original_message} / {some_parameter}');
+        $message = new NodeMessage(FakeNode::any(), $originalMessage);
+        $message = $message->withBody('{message_code} / {node_name} / {node_path} / {node_type} / {original_value} / {source_value} / {original_message} / {some_parameter}');
 
-        self::assertSame("1652902453 / foo / foo / `$type` / 'some value' / some original message (toString) / some parameter value", (string)$message);
+        self::assertSame("1652902453 / nodeName / some.node.path / `string` / 'some source value' / 'some source value' / some original message (toString) / some parameter value", (string)$message);
     }
 
     public function test_replaces_correct_original_message_if_throwable(): void
     {
-        $message = new NodeMessage(FakeShell::any(), new FakeErrorMessage('some error message'));
+        $originalMessage = new FakeErrorMessage('some error message');
+
+        $message = FakeNodeMessage::withMessage($originalMessage);
         $message = $message->withBody('original: {original_message}');
 
         self::assertSame('original: some error message', (string)$message);
-    }
-
-    public function test_format_message_uses_formatter_to_replace_content(): void
-    {
-        $originalMessage = new FakeMessage('some message');
-
-        $message = new NodeMessage(FakeShell::any(), $originalMessage);
-        $formattedMessage = (new FakeMessageFormatter())->format($message);
-
-        self::assertNotSame($message, $formattedMessage);
-        self::assertSame('formatted: some message', (string)$formattedMessage);
     }
 
     public function test_custom_body_returns_clone(): void
@@ -96,7 +85,7 @@ final class NodeMessageTest extends TestCase
     {
         $originalMessage = new FakeTranslatableMessage('un message: {value, spellout}', ['value' => '42']);
 
-        $message = new NodeMessage(FakeShell::any(), $originalMessage);
+        $message = FakeNodeMessage::withMessage($originalMessage);
         $message = $message->withLocale('fr');
 
         self::assertSame('un message: quarante-deux', (string)$message);
@@ -111,7 +100,7 @@ final class NodeMessageTest extends TestCase
             }
         };
 
-        $message = new NodeMessage(FakeShell::any(), $originalMessage);
+        $message = FakeNodeMessage::withMessage($originalMessage);
 
         self::assertSame('unknown', $message->code());
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 
@@ -22,7 +21,7 @@ final class ShellVisitorNodeBuilder implements NodeBuilder
         $this->visitors = $visitors;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         foreach ($this->visitors as $visitor) {
             $shell = $visitor->visit($shell);

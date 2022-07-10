@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\NoCasterForType;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 /** @internal */
@@ -22,7 +21,7 @@ final class CasterNodeBuilder implements NodeBuilder
         $this->builders = $builders;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
 

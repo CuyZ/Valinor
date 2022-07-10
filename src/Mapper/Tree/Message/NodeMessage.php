@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
-use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Utility\String\StringFormatter;
-use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 use Throwable;
 
 /** @api */
 final class NodeMessage implements Message, HasCode
 {
-    private Shell $shell;
+    private Node $node;
 
     private Message $message;
 
@@ -23,9 +20,9 @@ final class NodeMessage implements Message, HasCode
 
     private string $locale = StringFormatter::DEFAULT_LOCALE;
 
-    public function __construct(Shell $shell, Message $message)
+    public function __construct(Node $node, Message $message)
     {
-        $this->shell = $shell;
+        $this->node = $node;
         $this->message = $message;
 
         if ($this->message instanceof TranslatableMessage) {
@@ -35,6 +32,11 @@ final class NodeMessage implements Message, HasCode
         } else {
             $this->body = (string)$this->message;
         }
+    }
+
+    public function node(): Node
+    {
+        return $this->node;
     }
 
     public function withLocale(string $locale): self
@@ -63,32 +65,38 @@ final class NodeMessage implements Message, HasCode
         return $this->body;
     }
 
+    /**
+     * @deprecated use `$message->node()->name()` instead
+     */
     public function name(): string
     {
-        return $this->shell->name();
-    }
-
-    public function path(): string
-    {
-        return $this->shell->path();
-    }
-
-    public function type(): Type
-    {
-        return $this->shell->type();
-    }
-
-    public function attributes(): Attributes
-    {
-        return $this->shell->attributes();
+        return $this->node->name();
     }
 
     /**
+     * @deprecated use `$message->node()->path()` instead
+     */
+    public function path(): string
+    {
+        return $this->node->path();
+    }
+
+    /**
+     * @deprecated use `$message->node()->type()` instead
+     */
+    public function type(): string
+    {
+        return $this->node->type();
+    }
+
+    /**
+     * @deprecated use `$message->node()->mappedValue()` instead
+     *
      * @return mixed
      */
     public function value()
     {
-        return $this->shell->value();
+        return $this->node->mappedValue();
     }
 
     public function originalMessage(): Message
@@ -126,10 +134,11 @@ final class NodeMessage implements Message, HasCode
     {
         $parameters = [
             'message_code' => $this->code(),
-            'node_name' => $this->shell->name(),
-            'node_path' => $this->shell->path(),
-            'node_type' => TypeHelper::dump($this->shell->type()),
-            'original_value' => ValueDumper::dump($this->shell->hasValue() ? $this->shell->value() : '*missing*'),
+            'node_name' => $this->node->name(),
+            'node_path' => $this->node->path(),
+            'node_type' => "`{$this->node->type()}`",
+            'source_value' => $sourceValue = $this->node->sourceFilled() ? ValueDumper::dump($this->node->sourceValue()) : '*missing*',
+            'original_value' => $sourceValue, // @deprecated
             'original_message' => $this->message instanceof Throwable ? $this->message->getMessage() : $this->message->__toString(),
         ];
 

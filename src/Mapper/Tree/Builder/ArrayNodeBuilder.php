@@ -6,12 +6,9 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTraversableKey;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
-
 use CuyZ\Valinor\Type\Types\ArrayType;
-
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 
@@ -28,7 +25,7 @@ final class ArrayNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
         $value = $shell->hasValue() ? $shell->value() : null;
@@ -36,7 +33,7 @@ final class ArrayNodeBuilder implements NodeBuilder
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
         if (null === $value && $this->flexible) {
-            return Node::branch($shell, [], []);
+            return TreeNode::branch($shell, [], []);
         }
 
         if (! is_array($value)) {
@@ -46,11 +43,11 @@ final class ArrayNodeBuilder implements NodeBuilder
         $children = $this->children($type, $shell, $rootBuilder);
         $array = $this->buildArray($children);
 
-        return Node::branch($shell, $array, $children);
+        return TreeNode::branch($shell, $array, $children);
     }
 
     /**
-     * @return array<Node>
+     * @return array<TreeNode>
      */
     private function children(CompositeTraversableType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
     {
@@ -74,7 +71,7 @@ final class ArrayNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @param array<Node> $children
+     * @param array<TreeNode> $children
      * @return mixed[]|null
      */
     private function buildArray(array $children): ?array

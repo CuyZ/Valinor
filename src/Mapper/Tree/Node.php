@@ -4,148 +4,134 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree;
 
-use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetInvalidNodeValue;
-use CuyZ\Valinor\Mapper\Tree\Exception\DuplicatedNodeChild;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeHasNoMappedValue;
+use CuyZ\Valinor\Mapper\Tree\Exception\SourceValueWasNotFilled;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
-use CuyZ\Valinor\Type\Type;
-use Throwable;
 
 /** @api */
 final class Node
 {
-    private Shell $shell;
+    private bool $isRoot;
+
+    private string $name;
+
+    private string $path;
+
+    private string $type;
+
+    private bool $sourceFilled;
 
     /** @var mixed */
-    private $value;
+    private $sourceValue;
 
-    /** @var array<Node> */
-    private array $children = [];
+    private bool $isValid = true;
+
+    /** @var mixed */
+    private $mappedValue;
 
     /** @var array<NodeMessage> */
     private array $messages = [];
 
-    private bool $valid = true;
+    /** @var array<self> */
+    private array $children;
 
     /**
-     * @param mixed $value
+     * @param mixed $sourceValue
+     * @param mixed $mappedValue
+     * @param array<Message> $messages
+     * @param array<self> $children
      */
-    private function __construct(Shell $shell, $value)
-    {
-        $this->shell = $shell;
-        $this->value = $value;
-    }
+    public function __construct(
+        bool $isRoot,
+        string $name,
+        string $path,
+        string $type,
+        bool $sourceFilled,
+        $sourceValue,
+        $mappedValue,
+        array $messages,
+        array $children
+    ) {
+        $this->isRoot = $isRoot;
+        $this->name = $name;
+        $this->path = $path;
+        $this->type = $type;
+        $this->sourceFilled = $sourceFilled;
+        $this->sourceValue = $sourceValue;
+        $this->mappedValue = $mappedValue;
+        $this->children = $children;
 
-    /**
-     * @param mixed $value
-     */
-    public static function leaf(Shell $shell, $value): self
-    {
-        $instance = new self($shell, $value);
-        $instance->check();
+        foreach ($messages as $message) {
+            $message = new NodeMessage($this, $message);
 
-        return $instance;
-    }
-
-    /**
-     * @param mixed $value
-     * @param array<Node> $children
-     */
-    public static function branch(Shell $shell, $value, array $children): self
-    {
-        $instance = new self($shell, $value);
-
-        foreach ($children as $child) {
-            $name = $child->name();
-
-            if (isset($instance->children[$name])) {
-                throw new DuplicatedNodeChild($name);
-            }
-
-            $instance->children[$name] = $child;
+            $this->messages[] = $message;
+            $this->isValid = $this->isValid && ! $message->isError();
         }
-
-        $instance->check();
-
-        return $instance;
-    }
-
-    /**
-     * @param Throwable&Message $message
-     */
-    public static function error(Shell $shell, Throwable $message): self
-    {
-        return (new self($shell, null))->withMessage($message);
-    }
-
-    public function name(): string
-    {
-        return $this->shell->name();
     }
 
     public function isRoot(): bool
     {
-        return $this->shell->isRoot();
+        return $this->isRoot;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
     }
 
     public function path(): string
     {
-        return $this->shell->path();
+        return $this->path;
     }
 
-    public function type(): Type
+    public function type(): string
     {
-        return $this->shell->type();
+        return $this->type;
     }
 
-    public function attributes(): Attributes
+    public function sourceFilled(): bool
     {
-        return $this->shell->attributes();
-    }
-
-    /**
-     * @param mixed $value
-     */
-    public function withValue($value): self
-    {
-        $clone = clone $this;
-        $clone->value = $value;
-        $clone->check();
-
-        return $clone;
+        return $this->sourceFilled;
     }
 
     /**
      * @return mixed
      */
-    public function value()
+    public function sourceValue()
     {
-        if (! $this->valid) {
-            throw new CannotGetInvalidNodeValue($this);
+        if (! $this->sourceFilled) {
+            throw new SourceValueWasNotFilled($this->path);
         }
 
-        return $this->value;
+        return $this->sourceValue;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->isValid;
     }
 
     /**
-     * @return array<Node>
+     * @return mixed
      */
-    public function children(): array
+    public function mappedValue()
     {
-        return $this->children;
+        if (! $this->isValid) {
+            throw new InvalidNodeHasNoMappedValue($this->path);
+        }
+
+        return $this->mappedValue;
     }
 
-    public function withMessage(Message $message): self
+    /**
+     * @deprecated use `$node->mappedValue()` instead
+     *
+     * @return mixed
+     */
+    public function value()
     {
-        $message = new NodeMessage($this->shell, $message);
-
-        $clone = clone $this;
-        $clone->messages[] = $message;
-        $clone->valid = $clone->valid && ! $message->isError();
-
-        return $clone;
+        return $this->mappedValue();
     }
 
     /**
@@ -156,23 +142,11 @@ final class Node
         return $this->messages;
     }
 
-    public function isValid(): bool
+    /**
+     * @return array<self>
+     */
+    public function children(): array
     {
-        return $this->valid;
-    }
-
-    private function check(): void
-    {
-        foreach ($this->children as $child) {
-            if (! $child->valid) {
-                $this->valid = false;
-
-                return;
-            }
-        }
-
-        if ($this->valid && ! $this->shell->type()->accepts($this->value)) {
-            throw new InvalidNodeValue($this->value, $this->shell->type());
-        }
+        return $this->children;
     }
 }

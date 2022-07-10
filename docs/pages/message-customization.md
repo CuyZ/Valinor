@@ -12,7 +12,7 @@ on the original message.
 | `{node_name}`        | name of the node to which the message is bound       |
 | `{node_path}`        | path of the node to which the message is bound       |
 | `{node_type}`        | type of the node to which the message is bound       |
-| `{original_value}`   | the source value that was given to the node          |
+| `{source_value}`     | the source value that was given to the node          |
 | `{original_message}` | the original message before being customized         |
 
 Usage:
@@ -46,9 +46,9 @@ try {
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
     $message = $error->node()->messages()[0];
 
-    if (is_numeric($message->value())) {
+    if (is_numeric($message->node()->mappedValue())) {
         $message = $message->withBody(
-            'Invalid amount {original_value, number, currency}'
+            'Invalid amount {source_value, number, currency}'
         );    
     } 
 
@@ -133,7 +133,7 @@ In any case, the content can contain placeholders as described
     'Some message content' => 'New content / previous: {original_message}',
 
     // Will match if the given message is an instance of `SomeError`
-    SomeError::class => 'New content / value: {original_value}',
+    SomeError::class => 'New content / value: {source_value}',
 
     // A callback can be used to get access to the message instance
     OtherError::class => function (NodeMessage $message): string {

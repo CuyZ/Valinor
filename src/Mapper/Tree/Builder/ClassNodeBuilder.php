@@ -10,7 +10,6 @@ use CuyZ\Valinor\Mapper\Object\FilledArguments;
 use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedArrayKeysForClass;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
@@ -41,7 +40,7 @@ final class ClassNodeBuilder implements NodeBuilder
         $this->flexible = $flexible;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $classTypes = $this->classTypes($shell->type());
 
@@ -70,7 +69,7 @@ final class ClassNodeBuilder implements NodeBuilder
 
         $object = $this->buildObject($builder, $children);
 
-        $node = Node::branch($shell, $object, $children);
+        $node = TreeNode::branch($shell, $object, $children);
 
         if (! $this->flexible) {
             $node = $this->checkForUnexpectedKeys($arguments, $node);
@@ -109,7 +108,7 @@ final class ClassNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @param Node[] $children
+     * @param TreeNode[] $children
      */
     private function buildObject(ObjectBuilder $builder, array $children): ?object
     {
@@ -126,7 +125,7 @@ final class ClassNodeBuilder implements NodeBuilder
         return $builder->build($arguments);
     }
 
-    private function checkForUnexpectedKeys(FilledArguments $arguments, Node $node): Node
+    private function checkForUnexpectedKeys(FilledArguments $arguments, TreeNode $node): TreeNode
     {
         $superfluousKeys = $arguments->superfluousKeys();
 

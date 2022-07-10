@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 /** @internal */
@@ -21,7 +20,7 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         $this->functions = $functions;
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $node = $this->delegate->build($shell, $rootBuilder);
 
