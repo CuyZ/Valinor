@@ -10,7 +10,6 @@ use CuyZ\Valinor\Tests\Fake\Mapper\Tree\FakeNode;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeTranslatableMessage;
 use PHPUnit\Framework\TestCase;
 
 final class NodeMessageTest extends TestCase
@@ -47,12 +46,15 @@ final class NodeMessageTest extends TestCase
 
     public function test_parameters_are_replaced_in_body(): void
     {
-        $originalMessage = new FakeTranslatableMessage('some original message', ['some_parameter' => 'some parameter value']);
+        $originalMessage = (new FakeMessage('some original message'))->withParameters(['some_parameter' => 'some parameter value']);
 
         $message = new NodeMessage(FakeNode::any(), $originalMessage);
         $message = $message->withBody('{message_code} / {node_name} / {node_path} / {node_type} / {original_value} / {source_value} / {original_message} / {some_parameter}');
 
-        self::assertSame("1652902453 / nodeName / some.node.path / `string` / 'some source value' / 'some source value' / some original message (toString) / some parameter value", (string)$message);
+        $expected = "some_code / nodeName / some.node.path / `string` / 'some source value' / 'some source value' / some original message / some parameter value";
+
+        self::assertSame($expected, $message->toString());
+        self::assertSame($expected, (string)$message);
     }
 
     public function test_replaces_correct_original_message_if_throwable(): void
@@ -62,7 +64,10 @@ final class NodeMessageTest extends TestCase
         $message = FakeNodeMessage::withMessage($originalMessage);
         $message = $message->withBody('original: {original_message}');
 
-        self::assertSame('original: some error message', (string)$message);
+        $expected = 'original: some error message';
+
+        self::assertSame($expected, $message->toString());
+        self::assertSame($expected, (string)$message);
     }
 
     public function test_custom_body_returns_clone(): void
@@ -83,18 +88,21 @@ final class NodeMessageTest extends TestCase
 
     public function test_custom_locale_is_used(): void
     {
-        $originalMessage = new FakeTranslatableMessage('un message: {value, spellout}', ['value' => '42']);
+        $originalMessage = (new FakeMessage('un message: {value, spellout}'))->withParameters(['value' => '42']);
 
         $message = FakeNodeMessage::withMessage($originalMessage);
         $message = $message->withLocale('fr');
 
-        self::assertSame('un message: quarante-deux', (string)$message);
+        $expected = 'un message: quarante-deux';
+
+        self::assertSame($expected, $message->toString());
+        self::assertSame($expected, (string)$message);
     }
 
     public function test_message_with_no_code_returns_unknown(): void
     {
         $originalMessage = new class () implements Message {
-            public function __toString(): string
+            public function body(): string
             {
                 return 'some message';
             }

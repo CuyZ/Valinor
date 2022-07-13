@@ -5,20 +5,40 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message;
 
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 
-final class FakeMessage implements Message, HasCode
+final class FakeMessage implements Message, HasParameters, HasCode
 {
-    private string $message;
+    private string $body;
 
-    public function __construct(string $message = 'some message')
+    /** @var array<string, string> */
+    private array $parameters = [];
+
+    public function __construct(string $body = 'some message')
     {
-        $this->message = $message;
+        $this->body = $body;
     }
 
-    public function __toString(): string
+    public function body(): string
     {
-        return $this->message;
+        return $this->body;
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     */
+    public function withParameters(array $parameters): self
+    {
+        $clone = clone $this;
+        $clone->parameters = $parameters;
+
+        return $clone;
+    }
+
+    public function parameters(): array
+    {
+        return $this->parameters;
     }
 
     public function code(): string

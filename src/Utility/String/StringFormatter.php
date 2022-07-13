@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility\String;
 
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use MessageFormatter;
 
 use function class_exists;
@@ -27,7 +27,7 @@ final class StringFormatter
             : self::formatWithRegex($body, $parameters);
     }
 
-    public static function for(TranslatableMessage $message): string
+    public static function for(HasParameters $message): string
     {
         return self::formatWithRegex($message->body(), $message->parameters());
     }

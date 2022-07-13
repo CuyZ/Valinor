@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class CannotParseToDateTime extends RuntimeException implements TranslatableMessage
+final class CannotParseToDateTime extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body = 'Value {value} does not match a valid date format.';
 

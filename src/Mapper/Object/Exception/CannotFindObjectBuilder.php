@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
@@ -16,7 +17,7 @@ use function count;
 use function ksort;
 
 /** @internal */
-final class CannotFindObjectBuilder extends RuntimeException implements TranslatableMessage
+final class CannotFindObjectBuilder extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body = 'Value {value} does not match any of {allowed_types}.';
 

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use BackedEnum;
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
@@ -15,7 +16,7 @@ use function array_map;
 use function implode;
 
 /** @internal */
-final class InvalidEnumValue extends RuntimeException implements TranslatableMessage
+final class InvalidEnumValue extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body = 'Value {value} does not match any of {allowed_values}.';
 

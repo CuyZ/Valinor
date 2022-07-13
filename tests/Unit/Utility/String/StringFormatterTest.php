@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\String;
 
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeTranslatableMessage;
+use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\String\StringFormatterError;
 use PHPUnit\Framework\TestCase;
@@ -29,12 +29,12 @@ final class StringFormatterTest extends TestCase
         $this->expectExceptionMessage('Message formatter error using `some message with {invalid format}`.');
         $this->expectExceptionCode(1652901203);
 
-        StringFormatter::for(new FakeTranslatableMessage('some message with {invalid format}'));
+        StringFormatter::format('en', 'some message with {invalid format}');
     }
 
     public function test_parameters_are_replaced_correctly(): void
     {
-        $message = new FakeTranslatableMessage('some message with {valid_parameter}', [
+        $message = (new FakeMessage('some message with {valid_parameter}'))->withParameters([
             'invalid )( parameter' => 'invalid value',
             'valid_parameter' => 'valid value',
         ]);

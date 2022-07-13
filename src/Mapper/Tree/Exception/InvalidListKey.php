@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class InvalidListKey extends RuntimeException implements TranslatableMessage
+final class InvalidListKey extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body = 'Invalid sequential key {key}, expected {expected}.';
 

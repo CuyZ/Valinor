@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
@@ -12,7 +13,7 @@ use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class SourceMustBeIterable extends RuntimeException implements TranslatableMessage
+final class SourceMustBeIterable extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body;
 
