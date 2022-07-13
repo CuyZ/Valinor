@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Unit\Definition;
 
 use CuyZ\Valinor\Definition\DoctrineAnnotations;
 use CuyZ\Valinor\Definition\Exception\InvalidReflectionParameter;
+use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Annotation\AnnotationWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Annotation\BasicAnnotation;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
@@ -14,7 +15,6 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
-use Reflector;
 
 use function get_class;
 use function iterator_to_array;
@@ -121,17 +121,7 @@ final class DoctrineAnnotationsTest extends TestCase
 
     public function test_invalid_reflection_throws_exception(): void
     {
-        $wrongReflector = new class () implements Reflector {
-            public static function export(): string
-            {
-                return 'foo';
-            }
-
-            public function __toString(): string
-            {
-                return 'foo';
-            }
-        };
+        $wrongReflector = new FakeReflector();
 
         $this->expectException(InvalidReflectionParameter::class);
         $this->expectExceptionCode(1534263918);
