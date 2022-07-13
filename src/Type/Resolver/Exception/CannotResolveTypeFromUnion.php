@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Resolver\Exception;
 
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
@@ -15,7 +16,7 @@ use function array_map;
 use function implode;
 
 /** @internal */
-final class CannotResolveTypeFromUnion extends RuntimeException implements TranslatableMessage
+final class CannotResolveTypeFromUnion extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body;
 

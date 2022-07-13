@@ -45,8 +45,16 @@ the mapper, unless one of the three options below is used.
 
 ### 1. Custom exception classes
 
-An exception that implements the interface
-`\CuyZ\Valinor\Mapper\Tree\Message\Message` can be thrown.
+An exception that implements `\CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage`
+can be thrown. The body can contain placeholders, see [message customization 
+chapter] for more information.
+
+If more parameters can be provided, the exception can also implement the 
+interface `\CuyZ\Valinor\Mapper\Tree\Message\HasParameters` that returns a list
+of string values, using keys as parameters names.
+
+To help identifying an error, a unique code can be provided by implementing the 
+interface `CuyZ\Valinor\Mapper\Tree\Message\HasCode`.
 
 ```php
 final class SomeClass
@@ -54,19 +62,42 @@ final class SomeClass
     public function __construct(private string $value)
     {
         if ($this->value === 'foo') {
-            throw new SomeException();
+            throw new SomeException('some custom parameter');
         }
     }
 }
 
-final class SomeException extends DomainException implements \CuyZ\Valinor\Mapper\Tree\Message\Message
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
+
+final class SomeException extends DomainException implements ErrorMessage, HasParameters, HasCode
 {
-    public function __construct()
+    private string $someParameter;
+
+    public function __construct(string $someParameter)
     {
-        parent::__construct(
-            'Some custom error message.', 
-            1656081053 // A unique code that can help to identify the error
-        );
+        parent::__construct();
+
+        $this->someParameter = $someParameter;
+    }
+
+    public function body() : string
+    {
+        return 'Some custom message / {some_parameter} / {source_value}';
+    }
+
+    public function parameters(): array
+    {
+        return [
+            'some_parameter' => $this->someParameter,
+        ];
+    }
+
+    public function code() : string
+    {
+        // A unique code that can help to identify the error
+        return 'some_unique_code';
     }
 }
 
@@ -74,7 +105,7 @@ try {
    (new \CuyZ\Valinor\MapperBuilder())->mapper()->map(SomeClass::class, 'foo');
 } catch (\CuyZ\Valinor\Mapper\MappingError $exception) {
     // Should print:
-    // > Some custom error message.
+    // Some custom message / some custom parameter / 'foo'
     echo $exception->node()->messages()[0];
 }
 ```
@@ -145,3 +176,5 @@ try {
     echo $exception->node()->messages()[0];
 }
 ```
+
+[message customization chapter]: message-customization.md

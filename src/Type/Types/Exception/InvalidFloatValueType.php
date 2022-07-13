@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class InvalidFloatValueType extends RuntimeException implements CastError
+final class InvalidFloatValueType extends RuntimeException implements CastError, HasParameters
 {
     private string $body = 'Value {value} does not match float value {expected_value}.';
 

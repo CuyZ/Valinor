@@ -6,7 +6,8 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\FilledArguments;
-use CuyZ\Valinor\Mapper\Tree\Message\TranslatableMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
@@ -14,7 +15,7 @@ use function array_map;
 use function implode;
 
 /** @internal */
-final class UnexpectedArrayKeysForClass extends RuntimeException implements TranslatableMessage
+final class UnexpectedArrayKeysForClass extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body = 'Unexpected key(s) {keys}, expected {expected_keys}.';
 

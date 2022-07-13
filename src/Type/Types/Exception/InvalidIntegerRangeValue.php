@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
 /** @internal */
-final class InvalidIntegerRangeValue extends RuntimeException implements CastError
+final class InvalidIntegerRangeValue extends RuntimeException implements CastError, HasParameters
 {
     private string $body = 'Invalid value {value}: it must be an integer between {min} and {max}.';
 

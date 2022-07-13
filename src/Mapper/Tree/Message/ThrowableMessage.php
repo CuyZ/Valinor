@@ -27,13 +27,13 @@ final class ThrowableMessage extends RuntimeException implements ErrorMessage, H
         return $instance;
     }
 
+    public function body(): string
+    {
+        return $this->message;
+    }
+
     public function code(): string
     {
         return (string)$this->code;
-    }
-
-    public function __toString(): string
-    {
-        return $this->message;
     }
 }
