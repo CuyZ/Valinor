@@ -24,14 +24,7 @@ final class NodeMessage implements Message, HasCode
     {
         $this->node = $node;
         $this->message = $message;
-
-        if ($this->message instanceof TranslatableMessage) {
-            $this->body = $this->message->body();
-        } elseif ($this->message instanceof Throwable) {
-            $this->body = $this->message->getMessage();
-        } else {
-            $this->body = (string)$this->message;
-        }
+        $this->body = $message->body();
     }
 
     public function node(): Node
@@ -122,9 +115,22 @@ final class NodeMessage implements Message, HasCode
         return 'unknown';
     }
 
+    public function toString(): string
+    {
+        return $this->format($this->body, $this->parameters());
+    }
+
     public function __toString(): string
     {
-        return StringFormatter::format($this->locale, $this->body, $this->parameters());
+        return $this->toString();
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     */
+    private function format(string $body, array $parameters): string
+    {
+        return StringFormatter::format($this->locale, $body, $parameters);
     }
 
     /**
@@ -139,12 +145,13 @@ final class NodeMessage implements Message, HasCode
             'node_type' => "`{$this->node->type()}`",
             'source_value' => $sourceValue = $this->node->sourceFilled() ? ValueDumper::dump($this->node->sourceValue()) : '*missing*',
             'original_value' => $sourceValue, // @deprecated
-            'original_message' => $this->message instanceof Throwable ? $this->message->getMessage() : $this->message->__toString(),
         ];
 
-        if ($this->message instanceof TranslatableMessage) {
+        if ($this->message instanceof HasParameters) {
             $parameters += $this->message->parameters();
         }
+
+        $parameters['original_message'] = $this->format($this->message->body(), $parameters);
 
         return $parameters;
     }

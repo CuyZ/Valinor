@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
-/**
- * @PHP8.0 extend Stringable
- *
- * @api
- */
+/** @api */
 interface Message
 {
-    public function __toString();
+    public function body(): string;
 }

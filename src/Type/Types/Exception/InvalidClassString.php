@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -15,7 +16,7 @@ use function count;
 use function implode;
 
 /** @internal */
-final class InvalidClassString extends LogicException implements CastError
+final class InvalidClassString extends LogicException implements CastError, HasParameters
 {
     private string $body;
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
@@ -11,7 +12,7 @@ use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class CannotCastValue extends RuntimeException implements CastError
+final class CannotCastValue extends RuntimeException implements CastError, HasParameters
 {
     private string $body = 'Cannot cast {value} to {expected_type}.';
 

@@ -13,4 +13,9 @@ final class FakeErrorMessage extends Exception implements ErrorMessage
     {
         parent::__construct($message, $code);
     }
+
+    public function body(): string
+    {
+        return $this->getMessage();
+    }
 }

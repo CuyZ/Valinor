@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types\Exception;
 
+use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use RuntimeException;
 
 /** @internal */
-final class InvalidPositiveIntegerValue extends RuntimeException implements CastError
+final class InvalidPositiveIntegerValue extends RuntimeException implements CastError, HasParameters
 {
     private string $body = 'Invalid value {value}: it must be a positive integer.';
 

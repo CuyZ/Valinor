@@ -17,7 +17,7 @@ final class ThrowableMessageTest extends TestCase
 
         $codedError = ThrowableMessage::new($message, $code);
 
-        self::assertSame($message, (string)$codedError);
+        self::assertSame($message, $codedError->body());
         self::assertSame($code, $codedError->code());
     }
 
