@@ -29,6 +29,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -58,6 +59,7 @@ final class TypeCompiler
             case $type instanceof NegativeIntegerType:
             case $type instanceof NativeStringType:
             case $type instanceof NonEmptyStringType:
+            case $type instanceof NumericStringType:
             case $type instanceof UndefinedObjectType:
             case $type instanceof MixedType:
                 return "$class::get()";
