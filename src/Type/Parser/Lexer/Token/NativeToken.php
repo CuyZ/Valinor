@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 
@@ -74,6 +75,8 @@ final class NativeToken implements TraversingToken
                 return NativeStringType::get();
             case 'non-empty-string':
                 return NonEmptyStringType::get();
+            case 'numeric-string':
+                return NumericStringType::get();
             case 'bool':
             case 'boolean':
                 return NativeBooleanType::get();

@@ -28,6 +28,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -90,6 +91,7 @@ final class TypeCompilerTest extends TestCase
         yield [new IntegerRangeType(PHP_INT_MIN, PHP_INT_MAX)];
         yield [NativeStringType::get()];
         yield [NonEmptyStringType::get()];
+        yield [NumericStringType::get()];
         yield [UndefinedObjectType::get()];
         yield [MixedType::get()];
         yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
