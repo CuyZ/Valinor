@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition;
 
 use CuyZ\Valinor\Definition\Exception\InvalidReflectionParameter;
+use Error;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
@@ -28,9 +29,23 @@ final class NativeAttributes implements Attributes
     {
         $this->reflectionAttributes = $this->attributes($reflection);
 
-        $attributes = array_map(
-            static fn (ReflectionAttribute $attribute) => $attribute->newInstance(),
-            $this->reflectionAttributes
+        $attributes = array_filter(
+            array_map(
+                static function (ReflectionAttribute $attribute) {
+                    try {
+                        return $attribute->newInstance();
+                    } catch (Error) {
+                        // Race condition when the attribute is affected to a property/parameter
+                        // that was PROMOTED, in this case the attribute will be applied to both
+                        // ParameterReflection AND PropertyReflection, BUT the target arg inside the attribute
+                        // class is configured to support only ONE of them (parameter OR property)
+                        // https://wiki.php.net/rfc/constructor_promotion#attributes for more details.
+                        // Ignore attribute if the instantiation failed.
+                        return null;
+                    }
+                },
+                $this->reflectionAttributes,
+            ),
         );
 
         $this->delegate = new AttributesContainer(...$attributes);
