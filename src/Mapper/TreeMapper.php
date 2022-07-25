@@ -10,7 +10,7 @@ interface TreeMapper
     /**
      * @template T of object
      *
-     * @param string|class-string<T> $signature
+     * @param class-string<T> $signature
      * @param mixed $source
      * @return (
      *     $signature is class-string<T>
