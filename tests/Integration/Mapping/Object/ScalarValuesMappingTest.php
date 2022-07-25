@@ -33,6 +33,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'negativeIntegerValue' => -42,
             'string' => 'foo',
             'nonEmptyString' => 'bar',
+            'numericString' => '1337',
             'stringValueWithSingleQuote' => 'baz',
             'stringValueWithDoubleQuote' => 'fiz',
             'classString' => self::class,
@@ -61,6 +62,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame(-42, $result->negativeIntegerValue); // @phpstan-ignore-line
             self::assertSame('foo', $result->string);
             self::assertSame('bar', $result->nonEmptyString);
+            self::assertSame('1337', $result->numericString);
             self::assertSame('baz', $result->stringValueWithSingleQuote); // @phpstan-ignore-line
             self::assertSame('fiz', $result->stringValueWithDoubleQuote); // @phpstan-ignore-line
             self::assertSame(self::class, $result->classString);
@@ -124,6 +126,9 @@ class ScalarValues
     /** @var non-empty-string */
     public string $nonEmptyString = 'Schwifty!';
 
+    /** @var numeric-string */
+    public string $numericString = '42';
+
     /** @var 'baz' */
     public string $stringValueWithSingleQuote;
 
@@ -153,6 +158,7 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param 42 $positiveIntegerValue
      * @param -42 $negativeIntegerValue
      * @param non-empty-string $nonEmptyString
+     * @param numeric-string $numericString
      * @param 'baz' $stringValueWithSingleQuote
      * @param "fiz" $stringValueWithDoubleQuote
      * @param class-string $classString
@@ -174,6 +180,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         int $negativeIntegerValue,
         string $string,
         string $nonEmptyString,
+        string $numericString,
         string $stringValueWithSingleQuote,
         string $stringValueWithDoubleQuote,
         string $classString,
@@ -194,6 +201,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->negativeIntegerValue = $negativeIntegerValue;
         $this->string = $string;
         $this->nonEmptyString = $nonEmptyString;
+        $this->numericString = $numericString;
         $this->stringValueWithSingleQuote = $stringValueWithSingleQuote;
         $this->stringValueWithDoubleQuote = $stringValueWithDoubleQuote;
         $this->classString = $classString;
