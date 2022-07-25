@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidNumericStringValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
@@ -124,6 +125,11 @@ final class NumericStringTypeTest extends TestCase
     public function test_matches_native_string_type(): void
     {
         self::assertTrue($this->numericStringType->matches(new NativeStringType()));
+    }
+
+    public function test_matches_non_empty_string_type(): void
+    {
+        self::assertTrue($this->numericStringType->matches(new NonEmptyStringType()));
     }
 
     public function test_does_not_match_other_type(): void

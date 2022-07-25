@@ -31,6 +31,7 @@ final class NumericStringType implements StringType
 
         return $other instanceof self
             || $other instanceof NativeStringType
+            || $other instanceof NonEmptyStringType
             || $other instanceof MixedType;
     }
 
@@ -44,13 +45,13 @@ final class NumericStringType implements StringType
 
     public function cast($value): string
     {
-        if (!$this->canCast($value)) {
+        if (! $this->canCast($value)) {
             throw new CannotCastValue($value, $this);
         }
 
         $value = (string)$value; // @phpstan-ignore-line
 
-        if (!is_numeric($value)) {
+        if (! is_numeric($value)) {
             throw new InvalidNumericStringValue($value);
         }
 
