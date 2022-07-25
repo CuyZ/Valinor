@@ -35,6 +35,9 @@ final class SomeClass
         
         /** @var non-empty-string */
         private string $nonEmptyString,
+        
+        /** @var numeric-string */
+        private string $numericString,
 
         /** @var class-string */
         private string $classString,

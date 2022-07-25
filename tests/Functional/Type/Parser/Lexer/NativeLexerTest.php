@@ -54,6 +54,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -301,6 +302,21 @@ final class NativeLexerTest extends TestCase
                 'raw' => 'non-empty-string lorem ipsum',
                 'transformed' => 'non-empty-string',
                 'type' => NonEmptyStringType::class,
+            ],
+            'Numeric string type' => [
+                'raw' => 'numeric-string',
+                'transformed' => 'numeric-string',
+                'type' => NumericStringType::class,
+            ],
+            'Numeric string type - uppercase' => [
+                'raw' => 'NUMERIC-STRING',
+                'transformed' => 'numeric-string',
+                'type' => NumericStringType::class,
+            ],
+            'Numeric string type followed by description' => [
+                'raw' => 'numeric-string lorem ipsum',
+                'transformed' => 'numeric-string',
+                'type' => NumericStringType::class,
             ],
             'String value with single quote' => [
                 'raw' => "'foo'",
