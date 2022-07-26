@@ -28,6 +28,13 @@ final class ShellTest extends TestCase
         self::assertSame($value, $shell->value());
     }
 
+    public function test_root_path_is_fixed(): void
+    {
+        $shell = Shell::root(new FakeType(), 'foo');
+
+        self::assertSame('*root*', $shell->path());
+    }
+
     public function test_change_type_changes_type(): void
     {
         $typeA = FakeType::matching($typeB = new FakeType());
@@ -66,7 +73,7 @@ final class ShellTest extends TestCase
 
         $this->expectException(NewShellTypeDoesNotMatch::class);
         $this->expectExceptionCode(1628845224);
-        $this->expectExceptionMessage("Trying to change the type of the shell at path ``: `{$typeB->toString()}` is not a valid subtype of `{$typeA->toString()}`.");
+        $this->expectExceptionMessage("Trying to change the type of the shell at path `*root*`: `{$typeB->toString()}` is not a valid subtype of `{$typeA->toString()}`.");
 
         (Shell::root($typeA, []))->withType($typeB);
     }

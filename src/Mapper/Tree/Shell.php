@@ -134,6 +134,10 @@ final class Shell
 
     public function path(): string
     {
+        if (! isset($this->parent)) {
+            return '*root*';
+        }
+
         $node = $this;
         $path = [];
 
