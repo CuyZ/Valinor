@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
+use Countable;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\NodeTraverser;
 use IteratorAggregate;
 use Traversable;
 
 use function array_filter;
+use function count;
 
 /**
  * Will recursively flatten messages of a node and all its children.
@@ -34,7 +36,7 @@ use function array_filter;
  *
  * @implements IteratorAggregate<NodeMessage>
  */
-final class MessagesFlattener implements IteratorAggregate
+final class MessagesFlattener implements IteratorAggregate, Countable
 {
     /** @var array<NodeMessage> */
     private array $messages = [];
@@ -56,6 +58,11 @@ final class MessagesFlattener implements IteratorAggregate
         $clone->messages = array_filter($clone->messages, fn (NodeMessage $message) => $message->isError());
 
         return $clone;
+    }
+
+    public function count(): int
+    {
+        return count($this->messages);
     }
 
     /**
