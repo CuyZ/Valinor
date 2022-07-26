@@ -45,6 +45,25 @@ final class NodeMessage implements Message, HasCode
         return $this->locale;
     }
 
+    /**
+     * Allows to customize the body of the message. It can contain placeholders
+     * that will be replaced by their corresponding values, as described below:
+     *
+     * | Placeholder          | Description                                    |
+     * |----------------------|------------------------------------------------|
+     * | `{message_code}`     | The code of the message                        |
+     * | `{node_name}`        | Name of the node to which the message is bound |
+     * | `{node_path}`        | Path of the node to which the message is bound |
+     * | `{node_type}`        | Type of the node to which the message is bound |
+     * | `{source_value}`     | The source value that was given to the node    |
+     * | `{original_message}` | The original message before being customized   |
+     *
+     * Example:
+     *
+     * ```php
+     * $message = $message->withBody('new message for value: {source_value}');
+     * ```
+     */
     public function withBody(string $body): self
     {
         $clone = clone $this;
