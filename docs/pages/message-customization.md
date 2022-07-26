@@ -28,9 +28,12 @@ try {
 
     foreach ($messages as $message) {
         if ($message->code() === 'some_code') {
-            $message = $message->withBody('new message / {original_message}');
+            $message = $message
+                ->withParameter('some_parameter', 'some custom value')
+                ->withBody('new message / {message_code} / {some_parameter}');
         }
 
+        // new message / some_code / some custom value
         echo $message;
     }
 }

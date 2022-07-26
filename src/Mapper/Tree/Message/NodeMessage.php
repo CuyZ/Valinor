@@ -9,6 +9,8 @@ use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
 use Throwable;
 
+use function array_merge;
+
 /** @api */
 final class NodeMessage implements Message, HasCode
 {
@@ -17,6 +19,9 @@ final class NodeMessage implements Message, HasCode
     private Message $message;
 
     private string $body;
+
+    /** @var array<string, string> */
+    private array $parameters = [];
 
     private string $locale = StringFormatter::DEFAULT_LOCALE;
 
@@ -75,6 +80,19 @@ final class NodeMessage implements Message, HasCode
     public function body(): string
     {
         return $this->body;
+    }
+
+    /**
+     * Adds a parameter that can replace a placeholder in the message body.
+     *
+     * @see self::withBody()
+     */
+    public function withParameter(string $name, string $value): self
+    {
+        $clone = clone $this;
+        $clone->parameters[$name] = $value;
+
+        return $clone;
     }
 
     /**
@@ -172,6 +190,6 @@ final class NodeMessage implements Message, HasCode
 
         $parameters['original_message'] = $this->format($this->message->body(), $parameters);
 
-        return $parameters;
+        return array_merge($parameters, $this->parameters);
     }
 }
