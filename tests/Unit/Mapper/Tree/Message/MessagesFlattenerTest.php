@@ -36,6 +36,8 @@ final class MessagesFlattenerTest extends TestCase
 
         $messages = [...(new MessagesFlattener($node))->errors()];
 
+        self::assertCount(2, $messages);
+
         self::assertSame('some error message B', (string)$messages[0]);
         self::assertSame('some error message A', (string)$messages[1]);
     }
