@@ -57,6 +57,19 @@ final class NodeMessageTest extends TestCase
         self::assertSame($expected, (string)$message);
     }
 
+    public function test_custom_parameters_are_replaced_in_body(): void
+    {
+        $originalMessage = new FakeMessage('some original message / {some_parameter}');
+
+        $message = new NodeMessage(FakeNode::any(), $originalMessage);
+        $message = $message->withParameter('some_parameter', 'some value');
+
+        $expected = 'some original message / some value';
+
+        self::assertSame($expected, $message->toString());
+        self::assertSame($expected, (string)$message);
+    }
+
     public function test_replaces_correct_original_message_if_throwable(): void
     {
         $originalMessage = new FakeErrorMessage('some error message');
@@ -74,6 +87,14 @@ final class NodeMessageTest extends TestCase
     {
         $messageA = FakeNodeMessage::any();
         $messageB = $messageA->withBody('some other message');
+
+        self::assertNotSame($messageA, $messageB);
+    }
+
+    public function test_add_parameter_returns_clone(): void
+    {
+        $messageA = FakeNodeMessage::any();
+        $messageB = $messageA->withParameter('some_parameter', 'some value');
 
         self::assertNotSame($messageA, $messageB);
     }
