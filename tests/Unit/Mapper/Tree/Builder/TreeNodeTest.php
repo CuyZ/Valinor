@@ -29,7 +29,7 @@ final class TreeNodeTest extends TestCase
 
         self::assertTrue($node->isRoot());
         self::assertSame('', $node->name());
-        self::assertSame('', $node->path());
+        self::assertSame('*root*', $node->path());
         self::assertSame($type->toString(), $node->type());
         self::assertTrue($node->sourceFilled());
         self::assertSame('some source value', $node->sourceValue());
