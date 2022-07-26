@@ -7,8 +7,8 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 use Countable;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\NodeTraverser;
+use Iterator;
 use IteratorAggregate;
-use Traversable;
 
 use function array_filter;
 use function count;
@@ -66,9 +66,9 @@ final class MessagesFlattener implements IteratorAggregate, Countable
     }
 
     /**
-     * @return Traversable<NodeMessage>
+     * @return Iterator<NodeMessage>
      */
-    public function getIterator(): Traversable
+    public function getIterator(): Iterator
     {
         yield from $this->messages;
     }
