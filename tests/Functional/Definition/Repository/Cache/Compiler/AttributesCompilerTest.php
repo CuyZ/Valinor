@@ -14,12 +14,14 @@ use CuyZ\Valinor\Tests\Fixture\Annotation\BasicAnnotation;
 use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use CuyZ\Valinor\Tests\Fixture\Attribute\NestedAttribute;
+use CuyZ\Valinor\Tests\Fixture\Attribute\PropertyTargetAttribute;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithAttributes;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithNestedAttributes;
 use Error;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
+use ReflectionParameter;
 use ReflectionProperty;
 use stdClass;
 
@@ -320,6 +322,30 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(BasicAttribute::class));
         self::assertTrue($attributes->has(AttributeWithArguments::class));
         self::assertTrue($attributes->has(NestedAttribute::class));
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_compiles_native_php_attributes_for_promoted_property_with_property_target_attribute(): void
+    {
+        $reflection = new ReflectionProperty(ObjectWithAttributes::class, 'promotedProperty');
+        $attributes = $this->compile(new NativeAttributes($reflection));
+
+        self::assertCount(1, $attributes);
+        self::assertTrue($attributes->has(PropertyTargetAttribute::class));
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_compiles_an_empty_attributes_instance_for_promoted_parameter_with_property_target_attribute(): void
+    {
+        $reflection = new ReflectionParameter([ObjectWithAttributes::class, '__construct'], 'promotedProperty');
+        $attributes = $this->compile(new NativeAttributes($reflection));
+
+        self::assertCount(0, $attributes);
+        self::assertInstanceOf(EmptyAttributes::class, $attributes);
     }
 
     private function compile(Attributes $attributes): Attributes
