@@ -127,7 +127,6 @@ final class DateTimeMappingTest extends IntegrationTest
             'value' => '2022-08-01T00:00:00+00:00',
         ]);
 
-        self::assertInstanceOf(DateTimeImmutableValue::class, $result);
         self::assertSame('2022-08-01T00:00:00+00:00', $result->value->format(DateTimeInterface::RFC3339));
 
         try {
