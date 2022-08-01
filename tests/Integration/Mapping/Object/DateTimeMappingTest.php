@@ -138,7 +138,7 @@ final class DateTimeMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['value']->messages()[0];
 
-            self::assertStringContainsString('Impossible to convert `2022-08-01` to `DateTimeImmutable`', (string) $error);
+            self::assertStringContainsString('Value \'2022-08-01\' does not match a valid date format.', (string) $error);
         }
     }
 
