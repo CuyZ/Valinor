@@ -35,6 +35,11 @@ final class Settings
 
     public bool $enableLegacyDoctrineAnnotations = PHP_VERSION_ID < 8_00_00;
 
+    /**
+     * @var non-empty-list<non-empty-string>|null
+     */
+    public ?array $dateTimeFormats = null;
+
     public function __construct()
     {
         $this->interfaceMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;

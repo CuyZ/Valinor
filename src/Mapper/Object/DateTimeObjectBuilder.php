@@ -29,17 +29,28 @@ final class DateTimeObjectBuilder implements ObjectBuilder
     public const DATE_PGSQL = 'Y-m-d H:i:s.u';
     public const DATE_WITHOUT_TIME = '!Y-m-d';
 
+    private const DEFAULT_DATE_TIME_FORMATS = [
+        self::DATE_MYSQL, self::DATE_PGSQL, DATE_ATOM, DATE_RFC850, DATE_COOKIE,
+        DATE_RFC822, DATE_RFC1036, DATE_RFC1123, DATE_RFC2822, DATE_RFC3339,
+        DATE_RFC3339_EXTENDED, DATE_RFC7231, DATE_RSS, DATE_W3C, self::DATE_WITHOUT_TIME
+    ];
+
     /** @var class-string<DateTime|DateTimeImmutable> */
     private string $className;
 
     private Arguments $arguments;
 
+    /** @var non-empty-list<non-empty-string> */
+    private array $formats;
+
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
+     * @param non-empty-list<non-empty-string>|null $formats
      */
-    public function __construct(string $className)
+    public function __construct(string $className, ?array $formats = null)
     {
         $this->className = $className;
+        $this->formats = $formats ?? self::DEFAULT_DATE_TIME_FORMATS;
     }
 
     public function describeArguments(): Arguments
@@ -98,13 +109,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
 
     private function tryAllFormats(string $value): ?DateTimeInterface
     {
-        $formats = [
-            self::DATE_MYSQL, self::DATE_PGSQL, DATE_ATOM, DATE_RFC850, DATE_COOKIE,
-            DATE_RFC822, DATE_RFC1036, DATE_RFC1123, DATE_RFC2822, DATE_RFC3339,
-            DATE_RFC3339_EXTENDED, DATE_RFC7231, DATE_RSS, DATE_W3C, self::DATE_WITHOUT_TIME
-        ];
-
-        foreach ($formats as $format) {
+        foreach ($this->formats as $format) {
             $date = $this->tryFormat($value, $format);
 
             if ($date instanceof DateTimeInterface) {

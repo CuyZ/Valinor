@@ -344,6 +344,17 @@ final class MapperBuilder
         return $this->container()->treeMapper();
     }
 
+    /**
+     * @param non-empty-list<non-empty-string> $formats
+     */
+    public function withDateTimeFormats(array $formats): self
+    {
+        $clone = clone $this;
+        $clone->settings->dateTimeFormats = $formats;
+
+        return $clone;
+    }
+
     public function __clone()
     {
         $this->settings = clone $this->settings;

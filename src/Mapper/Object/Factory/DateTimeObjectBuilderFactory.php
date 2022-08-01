@@ -25,10 +25,17 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
     /** @var array<string, ObjectBuilder[]> */
     private array $builders = [];
 
-    public function __construct(ObjectBuilderFactory $delegate, FunctionsContainer $functions)
-    {
+    /**
+     * @param non-empty-list<non-empty-string>|null $dateTimeFormats
+     */
+    public function __construct(
+        ObjectBuilderFactory $delegate,
+        FunctionsContainer $functions,
+        ?array $dateTimeFormats = null
+    ) {
         $this->delegate = $delegate;
         $this->functions = $functions;
+        $this->dateTimeFormats = $dateTimeFormats;
     }
 
     public function for(ClassDefinition $class): iterable
@@ -68,7 +75,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
             }
 
             if (! $overridesDefault) {
-                $this->builders[$key][] = new DateTimeObjectBuilder($className);
+                $this->builders[$key][] = new DateTimeObjectBuilder($className, $this->dateTimeFormats);
             }
         }
 

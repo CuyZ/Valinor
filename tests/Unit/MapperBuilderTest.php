@@ -35,6 +35,7 @@ final class MapperBuilderTest extends TestCase
         $builderG = $builderA->filterExceptions(fn () => new FakeErrorMessage());
         $builderH = $builderA->withCacheDir(sys_get_temp_dir());
         $builderI = $builderA->enableLegacyDoctrineAnnotations();
+        $builderJ = $builderA->withDateTimeFormats([DateTimeInterface::RFC2822]);
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -44,6 +45,7 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderG);
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
+        self::assertNotSame($builderA, $builderJ);
     }
 
     public function test_mapper_instance_is_the_same(): void

@@ -117,10 +117,40 @@ final class DateTimeMappingTest extends IntegrationTest
         }
     }
 
+    public function test_will_only_map_provided_formats(): void
+    {
+        $mapper = (new MapperBuilder())
+            ->withDateTimeFormats([DateTimeInterface::RFC3339])
+            ->mapper();
+
+        $result = $mapper->map(DateTimeImmutableValue::class, [
+            'value' => '2022-08-01T00:00:00+00:00',
+        ]);
+
+        self::assertInstanceOf(DateTimeImmutableValue::class, $result);
+        self::assertSame('2022-08-01T00:00:00+00:00', $result->value->format(DateTimeInterface::RFC3339));
+
+        try {
+            $mapper->map(DateTimeImmutableValue::class, [
+                'value' => '2022-08-01'
+            ]);
+            self::fail('Mapper should throw an exception due to the fact that we did not explicitly allowed the MYSQL_DATE format to be parsed.');
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()['value']->messages()[0];
+
+            self::assertStringContainsString('Impossible to convert `2022-08-01` to `DateTimeImmutable`', (string) $error);
+        }
+    }
+
     private function buildRandomTimestamp(): int
     {
         return random_int(1, 32503726800);
     }
+}
+
+final class DateTimeImmutableValue
+{
+    public DateTimeImmutable $value;
 }
 
 final class AllDateTimeValues
