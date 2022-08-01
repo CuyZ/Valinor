@@ -25,6 +25,9 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
     /** @var array<string, ObjectBuilder[]> */
     private array $builders = [];
 
+    /** @var non-empty-list<non-empty-string>|null */
+    private ?array $dateTimeFormats;
+
     /**
      * @param non-empty-list<non-empty-string>|null $dateTimeFormats
      */
