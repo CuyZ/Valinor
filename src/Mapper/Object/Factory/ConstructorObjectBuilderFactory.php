@@ -7,9 +7,11 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidClassConstructorType;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Type\Types\ClassType;
 
 use function array_key_exists;
 use function array_unshift;
@@ -70,7 +72,13 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             $methods = $class->methods();
 
             foreach ($this->constructors as $constructor) {
-                if ($constructor->definition()->returnType()->matches($type)) {
+                $handledType = $constructor->definition()->returnType();
+
+                if (! $handledType instanceof ClassType) {
+                    throw new InvalidClassConstructorType($constructor->definition(), $handledType);
+                }
+
+                if ($handledType->matches($type)) {
                     $builders[] = new FunctionObjectBuilder($constructor);
                 }
             }

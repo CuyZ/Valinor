@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidClassConstructorType;
 use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
@@ -385,6 +386,18 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         (new MapperBuilder())
             ->mapper()
             ->map(SomeClassWithPrivateNativeConstructor::class, []);
+    }
+
+    public function test_invalid_constructor_type_throws_exception(): void
+    {
+        $this->expectException(InvalidClassConstructorType::class);
+        $this->expectExceptionCode(1659446121);
+        $this->expectExceptionMessageMatches('/Invalid type `string` handled by constructor `.*`\. It must be a valid class name\./');
+
+        (new MapperBuilder())
+            ->registerConstructor(fn (): string => 'foo')
+            ->mapper()
+            ->map(stdClass::class, []);
     }
 
     public function test_registered_datetime_constructor_is_used(): void
