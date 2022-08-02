@@ -70,8 +70,8 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             $methods = $class->methods();
 
             foreach ($this->constructors as $constructor) {
-                if ($constructor->returnType()->matches($type)) {
-                    $builders[] = new FunctionObjectBuilder($constructor, $this->constructors->callback($constructor));
+                if ($constructor->definition()->returnType()->matches($type)) {
+                    $builders[] = new FunctionObjectBuilder($constructor);
                 }
             }
 

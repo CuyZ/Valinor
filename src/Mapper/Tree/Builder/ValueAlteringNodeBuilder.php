@@ -31,7 +31,7 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         $value = $node->value();
 
         foreach ($this->functions as $function) {
-            $parameters = $function->parameters();
+            $parameters = $function->definition()->parameters();
 
             if (count($parameters) === 0) {
                 continue;
@@ -43,7 +43,7 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            $value = ($this->functions->callback($function))($value);
+            $value = ($function->callback())($value);
             $node = $node->withValue($value);
         }
 
