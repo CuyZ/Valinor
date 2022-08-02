@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
-use CuyZ\Valinor\Definition\Exception\CallbackNotFound;
-use CuyZ\Valinor\Definition\Exception\FunctionNotFound;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use IteratorAggregate;
 use Traversable;
@@ -15,7 +13,7 @@ use function array_keys;
 /**
  * @internal
  *
- * @implements IteratorAggregate<string|int, FunctionDefinition>
+ * @implements IteratorAggregate<string|int, FunctionObject>
  */
 final class FunctionsContainer implements IteratorAggregate
 {
@@ -24,7 +22,7 @@ final class FunctionsContainer implements IteratorAggregate
     /** @var array<callable> */
     private array $callables;
 
-    /** @var array<array{definition: FunctionDefinition, callback: callable}> */
+    /** @var array<FunctionObject> */
     private array $functions = [];
 
     /**
@@ -47,43 +45,26 @@ final class FunctionsContainer implements IteratorAggregate
     /**
      * @param string|int $key
      */
-    public function get($key): FunctionDefinition
+    public function get($key): FunctionObject
     {
-        if (! $this->has($key)) {
-            throw new FunctionNotFound($key);
-        }
-
-        return $this->function($key)['definition'];
-    }
-
-    public function callback(FunctionDefinition $function): callable
-    {
-        foreach ($this->functions as $data) {
-            if ($function === $data['definition']) {
-                return $data['callback'];
-            }
-        }
-
-        throw new CallbackNotFound($function);
+        return $this->function($key);
     }
 
     public function getIterator(): Traversable
     {
         foreach (array_keys($this->callables) as $key) {
-            yield $key => $this->function($key)['definition'];
+            yield $key => $this->function($key);
         }
     }
 
     /**
      * @param string|int $key
-     * @return array{definition: FunctionDefinition, callback: callable}
      */
-    private function function($key): array
+    private function function($key): FunctionObject
     {
-        /** @infection-ignore-all */
-        return $this->functions[$key] ??= [
-            'callback' => $this->callables[$key],
-            'definition' => $this->functionDefinitionRepository->for($this->callables[$key]),
-        ];
+        return $this->functions[$key] ??= new FunctionObject(
+            $this->functionDefinitionRepository->for($this->callables[$key]),
+            $this->callables[$key]
+        );
     }
 }

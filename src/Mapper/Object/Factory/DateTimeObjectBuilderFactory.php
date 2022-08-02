@@ -56,15 +56,17 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
             $this->builders[$key] = [];
 
             foreach ($this->functions as $function) {
-                if (! $function->returnType()->matches($type)) {
+                $definition = $function->definition();
+
+                if (! $definition->returnType()->matches($type)) {
                     continue;
                 }
 
-                if (count($function->parameters()) === 1) {
+                if (count($definition->parameters()) === 1) {
                     $overridesDefault = true;
                 }
 
-                $this->builders[$key][] = new FunctionObjectBuilder($function, $this->functions->callback($function));
+                $this->builders[$key][] = new FunctionObjectBuilder($function);
             }
 
             if (! $overridesDefault) {

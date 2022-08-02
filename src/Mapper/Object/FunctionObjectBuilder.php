@@ -4,40 +4,33 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
-use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use Exception;
 
 /** @internal */
 final class FunctionObjectBuilder implements ObjectBuilder
 {
-    private FunctionDefinition $function;
-
-    /** @var callable(): object */
-    private $callback;
+    private FunctionObject $function;
 
     private Arguments $arguments;
 
-    /**
-     * @param callable(): object $callback
-     */
-    public function __construct(FunctionDefinition $function, callable $callback)
+    public function __construct(FunctionObject $function)
     {
         $this->function = $function;
-        $this->callback = $callback;
     }
 
     public function describeArguments(): Arguments
     {
-        return $this->arguments ??= Arguments::fromParameters($this->function->parameters());
+        return $this->arguments ??= Arguments::fromParameters($this->function->definition()->parameters());
     }
 
     public function build(array $arguments): object
     {
-        $arguments = new MethodArguments($this->function->parameters(), $arguments);
+        $arguments = new MethodArguments($this->function->definition()->parameters(), $arguments);
 
         try {
-            return ($this->callback)(...$arguments);
+            return ($this->function->callback())(...$arguments);
         } catch (Exception $exception) {
             throw UserlandError::from($exception);
         }
@@ -45,6 +38,6 @@ final class FunctionObjectBuilder implements ObjectBuilder
 
     public function signature(): string
     {
-        return $this->function->signature();
+        return $this->function->definition()->signature();
     }
 }

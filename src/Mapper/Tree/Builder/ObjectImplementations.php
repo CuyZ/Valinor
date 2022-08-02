@@ -49,7 +49,7 @@ final class ObjectImplementations
             throw new CannotResolveObjectType($name);
         }
 
-        return $this->functions->get($name);
+        return $this->functions->get($name)->definition();
     }
 
     /**
@@ -72,11 +72,8 @@ final class ObjectImplementations
      */
     private function call(string $name, array $arguments): string
     {
-        $function = $this->functions->get($name);
-        $callback = $this->functions->callback($function);
-
         try {
-            $signature = $callback(...$arguments);
+            $signature = ($this->functions->get($name)->callback())(...$arguments);
         } catch (Exception $exception) {
             throw new ObjectImplementationCallbackError($name, $exception);
         }
@@ -93,7 +90,7 @@ final class ObjectImplementations
      */
     private function implementations(string $name): array
     {
-        $function = $this->functions->get($name);
+        $function = $this->functions->get($name)->definition();
 
         try {
             $type = $this->typeParser->parse($name);
