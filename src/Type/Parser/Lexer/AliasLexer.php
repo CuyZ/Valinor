@@ -6,14 +6,12 @@ namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Utility\Reflection\ClassAliasParser;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
-
 use ReflectionFunction;
-
 use Reflector;
 
-use function class_exists;
-use function interface_exists;
+use function strtolower;
 
 /** @internal */
 final class AliasLexer implements TypeLexer
@@ -43,7 +41,7 @@ final class AliasLexer implements TypeLexer
     {
         $alias = ClassAliasParser::get()->resolveAlias($symbol, $this->reflection);
 
-        if ($alias !== $symbol) {
+        if (strtolower($alias) !== strtolower($symbol)) {
             return $alias;
         }
 
@@ -77,7 +75,7 @@ final class AliasLexer implements TypeLexer
 
         $full = $namespace . '\\' . $symbol;
 
-        if (class_exists($full) || interface_exists($full)) {
+        if (Reflection::classOrInterfaceExists($full)) {
             return $full;
         }
 

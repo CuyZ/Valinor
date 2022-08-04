@@ -563,6 +563,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'array{foo: string}',
                 'type' => ShapedArrayType::class,
             ],
+            'Shaped array with key equal to class name' => [
+                'raw' => 'array{stdclass: string}',
+                'transformed' => 'array{stdclass: string}',
+                'type' => ShapedArrayType::class,
+            ],
             'Iterable type' => [
                 'raw' => 'iterable',
                 'transformed' => 'iterable',

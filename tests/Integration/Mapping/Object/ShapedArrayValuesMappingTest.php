@@ -38,6 +38,9 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 1337,
                 42.404,
             ],
+            'shapedArrayWithClassNameAsKey' => [
+                'stdclass' => 'foo',
+            ],
         ];
 
         foreach ([ShapedArrayValues::class, ShapedArrayValuesWithConstructor::class] as $class) {
@@ -55,6 +58,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertSame('bar', $result->advancedShapedArray['mandatoryString']);
             self::assertSame(1337, $result->advancedShapedArray[0]);
             self::assertSame(42.404, $result->advancedShapedArray[1]);
+            self::assertSame('foo', $result->shapedArrayWithClassNameAsKey['stdclass']);
         }
     }
 
@@ -100,6 +104,9 @@ class ShapedArrayValues
 
     /** @var array{0: int, float, optionalString?: string, mandatoryString: string} */
     public array $advancedShapedArray;
+
+    /** @var array{stdclass: string} */
+    public array $shapedArrayWithClassNameAsKey;
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
@@ -114,6 +121,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      *     bar: int
      * } $shapedArrayOnSeveralLines
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
+     * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      */
     public function __construct(
         array $basicShapedArrayWithStringKeys,
@@ -121,7 +129,8 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayWithObject,
         array $shapedArrayWithOptionalValue,
         array $shapedArrayOnSeveralLines,
-        array $advancedShapedArray
+        array $advancedShapedArray,
+        array $shapedArrayWithClassNameAsKey
     ) {
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
         $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
@@ -129,5 +138,6 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         $this->shapedArrayWithOptionalValue = $shapedArrayWithOptionalValue;
         $this->shapedArrayOnSeveralLines = $shapedArrayOnSeveralLines;
         $this->advancedShapedArray = $advancedShapedArray;
+        $this->shapedArrayWithClassNameAsKey = $shapedArrayWithClassNameAsKey;
     }
 }
