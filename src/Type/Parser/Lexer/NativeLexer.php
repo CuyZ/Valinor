@@ -29,11 +29,10 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
 use CuyZ\Valinor\Utility\Polyfill;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 use UnitEnum;
 
-use function class_exists;
 use function filter_var;
-use function interface_exists;
 use function is_numeric;
 use function strtolower;
 use function substr;
@@ -109,7 +108,8 @@ final class NativeLexer implements TypeLexer
             return new EnumNameToken($symbol);
         }
 
-        if (class_exists($symbol) || interface_exists($symbol)) {
+        if (Reflection::classOrInterfaceExists($symbol)) {
+            /** @var class-string $symbol */
             return new ClassNameToken($symbol);
         }
 

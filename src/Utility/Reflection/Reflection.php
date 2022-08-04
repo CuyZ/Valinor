@@ -18,8 +18,10 @@ use ReflectionUnionType;
 use Reflector;
 use RuntimeException;
 
+use function class_exists;
 use function get_class;
 use function implode;
+use function interface_exists;
 use function preg_match_all;
 use function preg_replace;
 use function spl_object_hash;
@@ -38,6 +40,18 @@ final class Reflection
 
     /** @var array<string, ReflectionFunction> */
     private static array $functionReflection = [];
+
+    /**
+     * Case-sensitive implementation of `class_exists` and `interface_exists`.
+     */
+    public static function classOrInterfaceExists(string $name): bool
+    {
+        if (! class_exists($name) && ! interface_exists($name)) {
+            return false;
+        }
+
+        return self::class($name)->name === ltrim($name, '\\');
+    }
 
     /**
      * @param class-string $className
@@ -132,7 +146,7 @@ final class Reflection
 
         if (PHP_VERSION_ID >= 8_00_00 && $reflection->isPromoted()) {
             $type = self::parseDocBlock(
-                // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
+            // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
                 self::sanitizeDocComment($reflection->getDeclaringClass()->getProperty($reflection->name)),
                 sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION)
             );

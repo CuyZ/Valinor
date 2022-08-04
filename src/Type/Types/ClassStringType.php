@@ -11,9 +11,8 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidClassString;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 
-use function class_exists;
-use function interface_exists;
 use function is_object;
 use function is_string;
 use function method_exists;
@@ -51,7 +50,7 @@ final class ClassStringType implements StringType, CompositeType
             return false;
         }
 
-        if (! class_exists($value) && ! interface_exists($value)) {
+        if (! Reflection::classOrInterfaceExists($value)) {
             return false;
         }
 
