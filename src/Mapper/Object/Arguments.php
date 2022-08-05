@@ -33,24 +33,18 @@ final class Arguments implements IteratorAggregate, Countable
 
     public static function fromParameters(Parameters $parameters): self
     {
-        return new self(...array_map(function (ParameterDefinition $parameter) {
-            $argument = $parameter->isOptional()
-                ? Argument::optional($parameter->name(), $parameter->type(), $parameter->defaultValue())
-                : Argument::required($parameter->name(), $parameter->type());
-
-            return $argument->withAttributes($parameter->attributes());
-        }, array_values(iterator_to_array($parameters)))); // @PHP8.1 array unpacking
+        return new self(...array_map(
+            fn (ParameterDefinition $parameter) => Argument::fromParameter($parameter),
+            array_values(iterator_to_array($parameters)) // @PHP8.1 array unpacking
+        ));
     }
 
     public static function fromProperties(Properties $properties): self
     {
-        return new self(...array_map(function (PropertyDefinition $property) {
-            $argument = $property->hasDefaultValue()
-                ? Argument::optional($property->name(), $property->type(), $property->defaultValue())
-                : Argument::required($property->name(), $property->type());
-
-            return $argument->withAttributes($property->attributes());
-        }, array_values(iterator_to_array($properties)))); // @PHP8.1 array unpacking
+        return new self(...array_map(
+            fn (PropertyDefinition $property) => Argument::fromProperty($property),
+            array_values(iterator_to_array($properties)) // @PHP8.1 array unpacking
+        ));
     }
 
     public function at(int $index): Argument
