@@ -8,7 +8,6 @@ use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotPublic;
 use CuyZ\Valinor\Mapper\Object\Exception\ConstructorMethodIsNotStatic;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodClassReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MethodNotFound;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use Exception;
@@ -37,16 +36,8 @@ final class MethodObjectBuilder implements ObjectBuilder
             throw new ConstructorMethodIsNotPublic($this->class, $this->method);
         }
 
-        if ($this->method->name() === '__construct') {
-            return;
-        }
-
         if (! $this->method->isStatic()) {
             throw new ConstructorMethodIsNotStatic($this->method);
-        }
-
-        if (! $this->method->returnType()->matches($this->class->type())) {
-            throw new InvalidConstructorMethodClassReturnType($this->method, $this->class->name());
         }
     }
 
@@ -62,9 +53,7 @@ final class MethodObjectBuilder implements ObjectBuilder
         $arguments = new MethodArguments($this->method->parameters(), $arguments);
 
         try {
-            return $this->method->isStatic()
-                ? $className::$methodName(...$arguments) // @phpstan-ignore-line
-                : new $className(...$arguments);
+            return $className::$methodName(...$arguments); // @phpstan-ignore-line
         } catch (Exception $exception) {
             throw UserlandError::from($exception);
         }

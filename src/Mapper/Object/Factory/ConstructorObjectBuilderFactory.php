@@ -9,7 +9,7 @@ use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidClassConstructorType;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Type\Types\ClassType;
 
@@ -87,7 +87,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
                 && $methods->hasConstructor()
                 && $methods->constructor()->isPublic()
             ) {
-                array_unshift($builders, new MethodObjectBuilder($class, '__construct'));
+                array_unshift($builders, new NativeConstructorObjectBuilder($class));
             }
 
             $this->builders[$key] = $builders;
