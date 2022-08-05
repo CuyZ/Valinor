@@ -150,6 +150,15 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertSame('Optional parameter value', $optionalParameter->defaultValue());
     }
 
+    public function test_private_parent_constructor_is_listed_in_methods(): void
+    {
+        $type = new ClassType(ClassWithInheritedPrivateConstructor::class);
+        $methods = $this->repository->for($type)->methods();
+
+        self::assertTrue($methods->hasConstructor());
+        self::assertFalse($methods->constructor()->isPublic());
+    }
+
     public function test_invalid_property_type_throws_exception(): void
     {
         $class = get_class(new class () {
@@ -362,4 +371,15 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         $this->repository->for(new ClassType($class));
     }
+}
+
+abstract class AbstractClassWithPrivateConstructor
+{
+    private function __construct()
+    {
+    }
+}
+
+final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor
+{
 }
