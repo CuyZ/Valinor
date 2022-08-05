@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
 use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
+use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
@@ -24,7 +25,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use ReflectionMethod;
+use ReflectionClass;
 use ReflectionProperty;
 
 use function array_filter;
@@ -61,17 +62,38 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $reflection->getProperties()
         );
 
-        $methods = array_map(
-            fn (ReflectionMethod $method) => $this->methodBuilder->for($method, $typeResolver),
-            $reflection->getMethods()
-        );
-
         return new ClassDefinition(
             $type,
             $this->attributesFactory->for($reflection),
             new Properties(...$properties),
-            new Methods(...$methods),
+            new Methods(...$this->methods($reflection, $typeResolver)),
         );
+    }
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return list<MethodDefinition>
+     */
+    private function methods(ReflectionClass $reflection, ReflectionTypeResolver $typeResolver): array
+    {
+        $methods = [];
+
+        // Because `ReflectionMethod::getMethods()` wont list the constructor if
+        // it comes from a parent class AND is not public, we need to manually
+        // fetch it and add it to the list.
+        if ($reflection->hasMethod('__construct')) {
+            $methods[] = $this->methodBuilder->for($reflection->getMethod('__construct'), $typeResolver);
+        }
+
+        foreach ($reflection->getMethods() as $method) {
+            if ($method->name === '__construct') {
+                continue;
+            }
+
+            $methods[] = $this->methodBuilder->for($method, $typeResolver);
+        }
+
+        return $methods;
     }
 
     private function typeResolver(ClassType $type): ReflectionTypeResolver
