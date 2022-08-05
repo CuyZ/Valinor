@@ -68,6 +68,10 @@ final class Node
             $this->messages[] = $message;
             $this->isValid = $this->isValid && ! $message->isError();
         }
+
+        foreach ($this->children as $child) {
+            $this->isValid = $this->isValid && $child->isValid();
+        }
     }
 
     public function isRoot(): bool

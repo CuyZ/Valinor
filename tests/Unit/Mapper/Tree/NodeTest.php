@@ -62,6 +62,37 @@ final class NodeTest extends TestCase
         self::assertSame(false, $node->isValid());
     }
 
+    public function test_invalid_child_makes_root_node_not_valid(): void
+    {
+        $message = new FakeErrorMessage();
+
+        $node = new Node(
+            true,
+            '',
+            '*root*',
+            'string',
+            true,
+            'some source value',
+            'some value',
+            [],
+            [
+                new Node(
+                    false,
+                    'nodeName',
+                    'some.node.path',
+                    'string',
+                    true,
+                    'some source value',
+                    'some value',
+                    [$message],
+                    []
+                )
+            ]
+        );
+
+        self::assertSame(false, $node->isValid());
+    }
+
     public function test_get_source_value_not_filled_throws_exception(): void
     {
         $this->expectException(SourceValueWasNotFilled::class);

@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 use AssertionError;
 use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
 use CuyZ\Valinor\Mapper\Tree\Exception\DuplicatedNodeChild;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder\FakeTreeNode;
@@ -37,15 +36,13 @@ final class TreeNodeTest extends TestCase
         self::assertSame('some value', $node->mappedValue());
     }
 
-    public function test_node_leaf_with_incorrect_value_throws_exception(): void
+    public function test_node_leaf_with_incorrect_value_is_invalid(): void
     {
         $type = new FakeType();
 
-        $this->expectException(InvalidNodeValue::class);
-        $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 'foo' does not match type `{$type->toString()}`.");
+        $node = FakeTreeNode::leaf($type, 'foo');
 
-        FakeTreeNode::leaf($type, 'foo');
+        self::assertFalse($node->isValid());
     }
 
     public function test_node_branch_values_can_be_retrieved(): void
@@ -84,11 +81,9 @@ final class TreeNodeTest extends TestCase
     {
         $type = new FakeType();
 
-        $this->expectException(InvalidNodeValue::class);
-        $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 'foo' does not match type `{$type->toString()}`.");
+        $node = FakeTreeNode::branch([], $type, 'foo');
 
-        FakeTreeNode::branch([], $type, 'foo');
+        self::assertFalse($node->isValid());
     }
 
     public function test_node_error_values_can_be_retrieved(): void
@@ -133,11 +128,9 @@ final class TreeNodeTest extends TestCase
     {
         $type = FakeType::accepting('foo');
 
-        $this->expectException(InvalidNodeValue::class);
-        $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage("Value 1337 does not match type `{$type->toString()}`.");
+        $node = FakeTreeNode::leaf($type, 'foo')->withValue(1337);
 
-        FakeTreeNode::leaf($type, 'foo')->withValue(1337);
+        self::assertFalse($node->isValid());
     }
 
     public function test_node_with_invalid_value_for_object_type_returns_invalid_node(): void
@@ -145,11 +138,9 @@ final class TreeNodeTest extends TestCase
         $object = new stdClass();
         $type = FakeObjectType::accepting($object);
 
-        $this->expectException(InvalidNodeValue::class);
-        $this->expectExceptionCode(1630678334);
-        $this->expectExceptionMessage('Invalid value 1337.');
+        $node = FakeTreeNode::leaf($type, $object)->withValue(1337);
 
-        FakeTreeNode::leaf($type, $object)->withValue(1337);
+        self::assertFalse($node->isValid());
     }
 
     public function test_node_with_messages_returns_node_with_messages(): void
