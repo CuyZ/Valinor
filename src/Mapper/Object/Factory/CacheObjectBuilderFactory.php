@@ -13,11 +13,11 @@ final class CacheObjectBuilderFactory implements ObjectBuilderFactory
 {
     private ObjectBuilderFactory $delegate;
 
-    /** @var CacheInterface<iterable<ObjectBuilder>> */
+    /** @var CacheInterface<list<ObjectBuilder>> */
     private CacheInterface $cache;
 
     /**
-     * @param CacheInterface<iterable<ObjectBuilder>> $cache
+     * @param CacheInterface<list<ObjectBuilder>> $cache
      */
     public function __construct(ObjectBuilderFactory $delegate, CacheInterface $cache)
     {
@@ -25,7 +25,7 @@ final class CacheObjectBuilderFactory implements ObjectBuilderFactory
         $this->cache = $cache;
     }
 
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         $signature = $class->type()->toString();
 

@@ -161,7 +161,7 @@ final class Container
                     $factory = new StrictTypesObjectBuilderFactory($factory);
                 }
 
-                /** @var RuntimeCache<iterable<ObjectBuilder>> $cache */
+                /** @var RuntimeCache<list<ObjectBuilder>> $cache */
                 $cache = new RuntimeCache();
 
                 return new CacheObjectBuilderFactory($factory, $cache);

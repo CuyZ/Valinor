@@ -11,7 +11,7 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 interface ObjectBuilderFactory
 {
     /**
-     * @return iterable<ObjectBuilder>
+     * @return list<ObjectBuilder>
      */
-    public function for(ClassDefinition $class): iterable;
+    public function for(ClassDefinition $class): array;
 }

@@ -22,7 +22,7 @@ final class CollisionObjectBuilderFactory implements ObjectBuilderFactory
         $this->delegate = $delegate;
     }
 
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         $builders = $this->delegate->for($class);
 

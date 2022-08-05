@@ -31,7 +31,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
         $this->functions = $functions;
     }
 
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         $className = $class->name();
 
