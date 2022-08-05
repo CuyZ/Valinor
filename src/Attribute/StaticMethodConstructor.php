@@ -29,7 +29,7 @@ final class StaticMethodConstructor implements ObjectBuilderFactory
         $this->methodName = $methodName;
     }
 
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         return [new MethodObjectBuilder($class, $this->methodName)];
     }

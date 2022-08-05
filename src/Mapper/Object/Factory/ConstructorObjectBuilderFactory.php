@@ -43,7 +43,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         $this->constructors = $constructors;
     }
 
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         $builders = $this->listBuilders($class);
 

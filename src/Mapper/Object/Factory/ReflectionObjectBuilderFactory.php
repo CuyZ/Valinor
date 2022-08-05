@@ -10,7 +10,7 @@ use CuyZ\Valinor\Mapper\Object\ReflectionObjectBuilder;
 /** @internal */
 final class ReflectionObjectBuilderFactory implements ObjectBuilderFactory
 {
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         return [new ReflectionObjectBuilder($class)];
     }

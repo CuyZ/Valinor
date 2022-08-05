@@ -10,7 +10,7 @@ use CuyZ\Valinor\Tests\Fake\Mapper\Object\FakeObjectBuilder;
 
 final class FakeObjectBuilderFactory implements ObjectBuilderFactory
 {
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         return [new FakeObjectBuilder()];
     }

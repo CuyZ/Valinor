@@ -72,7 +72,7 @@ final class ForeignAttribute
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
 final class ObjectBuilderStrategyAttribute implements ObjectBuilderFactory
 {
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         return [new FakeObjectBuilder()];
     }

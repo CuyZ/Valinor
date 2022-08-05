@@ -19,7 +19,7 @@ final class AttributeObjectBuilderFactory implements ObjectBuilderFactory
         $this->delegate = $delegate;
     }
 
-    public function for(ClassDefinition $class): iterable
+    public function for(ClassDefinition $class): array
     {
         $attributes = $class->attributes()->ofType(ObjectBuilderFactory::class);
 
