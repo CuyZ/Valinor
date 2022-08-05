@@ -145,7 +145,8 @@ final class TreeNode
         }
 
         if ($this->valid && ! $this->shell->type()->accepts($this->value)) {
-            throw new InvalidNodeValue($this->value, $this->shell->type());
+            $this->valid = false;
+            $this->messages[] = new InvalidNodeValue($this->value, $this->shell->type());
         }
     }
 
