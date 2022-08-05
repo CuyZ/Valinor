@@ -28,6 +28,22 @@ final class FakeParameterDefinition
         );
     }
 
+    /**
+     * @param mixed $defaultValue
+     */
+    public static function optional(string $name, Type $type, $defaultValue): ParameterDefinition
+    {
+        return new ParameterDefinition(
+            $name,
+            $name,
+            $type,
+            true,
+            false,
+            $defaultValue,
+            new FakeAttributes()
+        );
+    }
+
     public static function fromReflection(ReflectionParameter $reflection): ParameterDefinition
     {
         $type = new FakeType();

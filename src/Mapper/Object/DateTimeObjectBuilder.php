@@ -5,13 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\CannotParseToDateTime;
-use CuyZ\Valinor\Type\Types\NonEmptyStringType;
-use CuyZ\Valinor\Type\Types\NullType;
-use CuyZ\Valinor\Type\Types\PositiveIntegerType;
-use CuyZ\Valinor\Type\Types\ShapedArrayElement;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
-use CuyZ\Valinor\Type\Types\StringValueType;
-use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -44,22 +37,7 @@ final class DateTimeObjectBuilder implements ObjectBuilder
 
     public function describeArguments(): Arguments
     {
-        return $this->arguments ??= new Arguments(
-            Argument::required('value', new UnionType(
-                new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get()),
-                new ShapedArrayType(
-                    new ShapedArrayElement(
-                        new StringValueType('datetime'),
-                        new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get())
-                    ),
-                    new ShapedArrayElement(
-                        new StringValueType('format'),
-                        new UnionType(NullType::get(), NonEmptyStringType::get()),
-                        true
-                    ),
-                )
-            ))
-        );
+        return $this->arguments ??= new Arguments(Argument::forDateTime());
     }
 
     public function build(array $arguments): DateTimeInterface
