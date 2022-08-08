@@ -312,6 +312,33 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame('baz', $resultB->baz);
     }
 
+    public function test_inherited_static_constructor_is_used_to_map_child_class(): void
+    {
+        $class = get_class(new class () {
+            public SomeClassWithInheritedStaticConstructor $someChild;
+
+            public SomeOtherClassWithInheritedStaticConstructor $someOtherChild;
+        });
+
+        try {
+            $result = (new MapperBuilder())
+                // @PHP8.1 First-class callable syntax
+                ->registerConstructor([SomeAbstractClassWithStaticConstructor::class, 'from'])
+                ->mapper()
+                ->map($class, [
+                    'someChild' => ['foo' => 'foo', 'bar' => 42],
+                    'someOtherChild' => ['foo' => 'fiz', 'bar' => 1337],
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->someChild->foo);
+        self::assertSame(42, $result->someChild->bar);
+        self::assertSame('fiz', $result->someOtherChild->foo);
+        self::assertSame(1337, $result->someOtherChild->bar);
+    }
+
     public function test_identical_registered_constructors_with_no_argument_throws_exception(): void
     {
         $this->expectException(ObjectBuildersCollision::class);
@@ -549,4 +576,31 @@ function constructorA(int $argumentA, float $argumentB): stdClass
 function constructorB(int $argumentA, float $argumentB): stdClass
 {
     return new stdClass();
+}
+
+abstract class SomeAbstractClassWithStaticConstructor
+{
+    public string $foo;
+
+    public int $bar;
+
+    final private function __construct(string $foo, int $bar)
+    {
+        $this->foo = $foo;
+        $this->bar = $bar;
+    }
+
+    // @PHP8.0 return static
+    public static function from(string $foo, int $bar): self
+    {
+        return new static($foo, $bar);
+    }
+}
+
+final class SomeClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor
+{
+}
+
+final class SomeOtherClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor
+{
 }
