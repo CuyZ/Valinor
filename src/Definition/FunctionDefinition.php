@@ -18,6 +18,8 @@ final class FunctionDefinition
     /** @var class-string|null */
     private ?string $class;
 
+    private bool $isStatic;
+
     private Parameters $parameters;
 
     private Type $returnType;
@@ -30,6 +32,7 @@ final class FunctionDefinition
         string $signature,
         ?string $fileName,
         ?string $class,
+        bool $isStatic,
         Parameters $parameters,
         Type $returnType
     ) {
@@ -37,6 +40,7 @@ final class FunctionDefinition
         $this->signature = $signature;
         $this->fileName = $fileName;
         $this->class = $class;
+        $this->isStatic = $isStatic;
         $this->parameters = $parameters;
         $this->returnType = $returnType;
     }
@@ -62,6 +66,11 @@ final class FunctionDefinition
     public function class(): ?string
     {
         return $this->class;
+    }
+
+    public function isStatic(): bool
+    {
+        return $this->isStatic;
     }
 
     /**

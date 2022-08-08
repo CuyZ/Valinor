@@ -9,9 +9,11 @@ use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidClassConstructorType;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
 
 use function array_key_exists;
 use function array_unshift;
@@ -69,21 +71,30 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         if (! array_key_exists($key, $this->builders)) {
             $builders = [];
 
+            $className = $class->name();
             $methods = $class->methods();
 
             foreach ($this->constructors as $constructor) {
-                $handledType = $constructor->definition()->returnType();
+                $definition = $constructor->definition();
+                $handledType = $definition->returnType();
+                $functionClass = $definition->class();
 
-                if (! $handledType instanceof ClassType) {
+                if (! $handledType instanceof ClassType && ! $handledType instanceof InterfaceType) {
                     throw new InvalidClassConstructorType($constructor->definition(), $handledType);
                 }
 
-                if ($handledType->matches($type)) {
+                if (! $handledType->matches($type)) {
+                    continue;
+                }
+
+                if ($functionClass && $definition->isStatic()) {
+                    $builders[] = new MethodObjectBuilder($className, $definition->name(), $definition->parameters());
+                } else {
                     $builders[] = new FunctionObjectBuilder($constructor);
                 }
             }
 
-            if ((array_key_exists($class->name(), $this->nativeConstructors) || count($builders) === 0)
+            if ((array_key_exists($className, $this->nativeConstructors) || count($builders) === 0)
                 && $methods->hasConstructor()
                 && $methods->constructor()->isPublic()
             ) {

@@ -34,6 +34,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
 
         $fileName = var_export($value->fileName(), true);
         $class = var_export($value->class(), true);
+        $isStatic = var_export($value->isStatic(), true);
         $parameters = implode(', ', $parameters);
         $returnType = $this->typeCompiler->compile($value->returnType());
 
@@ -43,6 +44,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
                 '{$value->signature()}',
                 $fileName,
                 $class,
+                $isStatic,
                 new \CuyZ\Valinor\Definition\Parameters($parameters),
                 $returnType
             )

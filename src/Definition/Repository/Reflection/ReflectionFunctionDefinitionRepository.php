@@ -40,6 +40,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
             $reflection->getParameters()
         );
 
+        $class = $reflection->getClosureScopeClass();
         $returnType = $typeResolver->resolveType($reflection);
 
         return new FunctionDefinition(
@@ -47,7 +48,8 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
             Reflection::signature($reflection),
             $reflection->getFileName() ?: null,
             // @PHP 8.0 nullsafe operator
-            $reflection->getClosureScopeClass() ? $reflection->getClosureScopeClass()->name : null,
+            $class ? $class->name : null,
+            $reflection->getClosureThis() === null,
             new Parameters(...$parameters),
             $returnType
         );

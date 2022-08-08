@@ -31,6 +31,6 @@ final class StaticMethodConstructor implements ObjectBuilderFactory
 
     public function for(ClassDefinition $class): array
     {
-        return [new MethodObjectBuilder($class, $this->methodName)];
+        return [new MethodObjectBuilder($class->name(), $this->methodName, $class->methods()->get($this->methodName)->parameters())];
     }
 }
