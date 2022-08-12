@@ -86,8 +86,10 @@ final class CompiledPhpFileCache implements CacheInterface
         $tmpFilename = $tmpDir . DIRECTORY_SEPARATOR . uniqid('', true);
         $filename = $this->path($key);
 
-        if (! @file_put_contents($tmpFilename, $code) || ! @rename($tmpFilename, $filename)) {
-            throw new CompiledPhpCacheFileNotWritten($filename);
+        if (!file_exists($filename)) {
+            if (!@file_put_contents($tmpFilename, $code) || !@rename($tmpFilename, $filename)) {
+                throw new CompiledPhpCacheFileNotWritten($filename);
+            }
         }
 
         return true;
