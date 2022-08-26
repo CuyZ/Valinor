@@ -13,6 +13,8 @@ final class FunctionDefinition
 
     private string $signature;
 
+    private Attributes $attributes;
+
     private ?string $fileName;
 
     /** @var class-string|null */
@@ -30,6 +32,7 @@ final class FunctionDefinition
     public function __construct(
         string $name,
         string $signature,
+        Attributes $attributes,
         ?string $fileName,
         ?string $class,
         bool $isStatic,
@@ -38,6 +41,7 @@ final class FunctionDefinition
     ) {
         $this->name = $name;
         $this->signature = $signature;
+        $this->attributes = $attributes;
         $this->fileName = $fileName;
         $this->class = $class;
         $this->isStatic = $isStatic;
@@ -53,6 +57,11 @@ final class FunctionDefinition
     public function signature(): string
     {
         return $this->signature;
+    }
+
+    public function attributes(): Attributes
+    {
+        return $this->attributes;
     }
 
     public function fileName(): ?string

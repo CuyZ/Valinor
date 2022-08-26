@@ -15,11 +15,15 @@ final class FunctionDefinitionCompiler implements CacheCompiler
 {
     private TypeCompiler $typeCompiler;
 
+    private AttributesCompiler $attributesCompiler;
+
     private ParameterDefinitionCompiler $parameterCompiler;
 
     public function __construct()
     {
         $this->typeCompiler = new TypeCompiler();
+        $this->attributesCompiler = new AttributesCompiler();
+
         $this->parameterCompiler = new ParameterDefinitionCompiler($this->typeCompiler, new AttributesCompiler());
     }
 
@@ -32,6 +36,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
             iterator_to_array($value->parameters())
         );
 
+        $attributes = $this->attributesCompiler->compile($value->attributes());
         $fileName = var_export($value->fileName(), true);
         $class = var_export($value->class(), true);
         $isStatic = var_export($value->isStatic(), true);
@@ -42,6 +47,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
             new \CuyZ\Valinor\Definition\FunctionDefinition(
                 '{$value->name()}',
                 '{$value->signature()}',
+                $attributes,
                 $fileName,
                 $class,
                 $isStatic,

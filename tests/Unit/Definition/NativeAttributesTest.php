@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
-use CuyZ\Valinor\Definition\Exception\InvalidReflectionParameter;
 use CuyZ\Valinor\Definition\NativeAttributes;
-use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithAttributes;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
@@ -96,11 +95,16 @@ final class NativeAttributesTest extends TestCase
         self::assertCount(1, $attributes->ofType(BasicAttribute::class));
     }
 
-    public function test_throws_on_incompatible_reflection(): void
+    public function test_function_attributes_are_fetched_correctly(): void
     {
-        $this->expectException(InvalidReflectionParameter::class);
-        $this->expectExceptionCode(1534263918);
+        $reflection = new ReflectionFunction(
+            #[BasicAttribute]
+            fn () => 'foo'
+        );
+        $attributes = new NativeAttributes($reflection);
 
-        new NativeAttributes(new FakeReflector());
+        self::assertCount(1, $attributes);
+        self::assertTrue($attributes->has(BasicAttribute::class));
+        self::assertCount(1, $attributes->ofType(BasicAttribute::class));
     }
 }
