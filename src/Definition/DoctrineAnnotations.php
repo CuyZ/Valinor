@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Definition;
 use CuyZ\Valinor\Definition\Exception\InvalidReflectionParameter;
 use CuyZ\Valinor\Utility\Singleton;
 use ReflectionClass;
+use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
@@ -70,6 +71,10 @@ final class DoctrineAnnotations implements Attributes
         }
 
         if ($reflection instanceof ReflectionParameter) {
+            return [];
+        }
+
+        if ($reflection instanceof ReflectionFunction) {
             return [];
         }
 

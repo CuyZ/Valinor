@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
-use CuyZ\Valinor\Definition\Exception\InvalidReflectionParameter;
 use Error;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
 use Reflector;
-
 use Traversable;
 
 use function array_map;
@@ -25,6 +24,10 @@ final class NativeAttributes implements Attributes
     /** @var array<ReflectionAttribute<object>> */
     private array $reflectionAttributes;
 
+    /**
+     * @PHP8.0 union
+     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
+     */
     public function __construct(Reflector $reflection)
     {
         $this->reflectionAttributes = $this->attributes($reflection);
@@ -80,26 +83,12 @@ final class NativeAttributes implements Attributes
     }
 
     /**
+     * @PHP8.0 union
+     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
      * @return array<ReflectionAttribute<object>>
      */
     private function attributes(Reflector $reflection): array
     {
-        if ($reflection instanceof ReflectionClass) {
-            return $reflection->getAttributes();
-        }
-
-        if ($reflection instanceof ReflectionProperty) {
-            return $reflection->getAttributes();
-        }
-
-        if ($reflection instanceof ReflectionMethod) {
-            return $reflection->getAttributes();
-        }
-
-        if ($reflection instanceof ReflectionParameter) {
-            return $reflection->getAttributes();
-        }
-
-        throw new InvalidReflectionParameter($reflection);
+        return $reflection->getAttributes();
     }
 }

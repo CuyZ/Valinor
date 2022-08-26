@@ -18,6 +18,7 @@ final class FakeFunctionDefinition
         return new FunctionDefinition(
             'foo',
             'foo:42-1337',
+            new FakeAttributes(),
             $fileName ?? 'foo/bar',
             stdClass::class,
             true,

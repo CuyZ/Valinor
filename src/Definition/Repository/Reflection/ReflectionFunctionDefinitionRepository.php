@@ -23,9 +23,13 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
 
     private ReflectionParameterDefinitionBuilder $parameterBuilder;
 
+    private AttributesRepository $attributesRepository;
+
     public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesRepository)
     {
         $this->typeParserFactory = $typeParserFactory;
+        $this->attributesRepository = $attributesRepository;
+
         $this->parameterBuilder = new ReflectionParameterDefinitionBuilder($attributesRepository);
     }
 
@@ -46,6 +50,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         return new FunctionDefinition(
             $reflection->getName(),
             Reflection::signature($reflection),
+            $this->attributesRepository->for($reflection),
             $reflection->getFileName() ?: null,
             // @PHP 8.0 nullsafe operator
             $class ? $class->name : null,
