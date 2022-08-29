@@ -5,76 +5,68 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Factory;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Mapper\Object\DateTimeObjectBuilder;
+use CuyZ\Valinor\Definition\FunctionObject;
+use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Type\Types\ClassType;
-use DateTimeInterface;
+use DateTime;
+use DateTimeImmutable;
 
+use function array_filter;
 use function count;
-use function is_a;
 
 /** @internal */
 final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
 {
     private ObjectBuilderFactory $delegate;
 
-    private FunctionsContainer $functions;
+    private FunctionDefinitionRepository $functionDefinitionRepository;
 
-    /** @var array<string, ObjectBuilder[]> */
-    private array $builders = [];
-
-    public function __construct(ObjectBuilderFactory $delegate, FunctionsContainer $functions)
+    public function __construct(ObjectBuilderFactory $delegate, FunctionDefinitionRepository $functionDefinitionRepository)
     {
         $this->delegate = $delegate;
-        $this->functions = $functions;
+        $this->functionDefinitionRepository = $functionDefinitionRepository;
     }
 
     public function for(ClassDefinition $class): array
     {
         $className = $class->name();
 
-        if (! is_a($className, DateTimeInterface::class, true)) {
-            return $this->delegate->for($class);
+        $builders = $this->delegate->for($class);
+
+        if ($className !== DateTime::class && $className !== DateTimeImmutable::class) {
+            return $builders;
         }
 
-        return $this->builders($class->type());
+        // Remove `DateTime` & `DateTimeImmutable` native constructors
+        $builders = array_filter($builders, fn (ObjectBuilder $builder) => ! $builder instanceof NativeConstructorObjectBuilder);
+
+        $useDefaultBuilder = true;
+
+        foreach ($builders as $builder) {
+            if (count($builder->describeArguments()) === 1) {
+                $useDefaultBuilder = false;
+                // @infection-ignore-all
+                break;
+            }
+        }
+
+        if ($useDefaultBuilder) {
+            // @infection-ignore-all / Ignore memoization
+            $builders[] = $this->defaultBuilder($class->type());
+        }
+
+        return $builders;
     }
 
-    /**
-     * @return list<ObjectBuilder>
-     */
-    private function builders(ClassType $type): array
+    private function defaultBuilder(ClassType $type): FunctionObjectBuilder
     {
-        /** @var class-string<DateTimeInterface> $className */
-        $className = $type->className();
-        $key = $type->toString();
+        $constructor = new DateTimeFormatConstructor(DATE_ATOM, 'U');
+        $function = new FunctionObject($this->functionDefinitionRepository->for($constructor), $constructor);
 
-        if (! isset($this->builders[$key])) {
-            $overridesDefault = false;
-
-            $this->builders[$key] = [];
-
-            foreach ($this->functions as $function) {
-                $definition = $function->definition();
-
-                if (! $definition->returnType()->matches($type)) {
-                    continue;
-                }
-
-                if (count($definition->parameters()) === 1) {
-                    $overridesDefault = true;
-                }
-
-                $this->builders[$key][] = new FunctionObjectBuilder($function, $type);
-            }
-
-            if (! $overridesDefault) {
-                $this->builders[$key][] = new DateTimeObjectBuilder($className);
-            }
-        }
-
-        return $this->builders[$key];
+        return new FunctionObjectBuilder($function, $type);
     }
 }

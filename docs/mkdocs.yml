@@ -86,4 +86,5 @@ nav:
       - Handled types: mapping/handled-types.md
   - Other:
       - Performance & caching: other/performance-and-cache.md
+      - Dealing with dates: other/dealing-with-dates.md
       - Static analysis: other/static-analysis.md

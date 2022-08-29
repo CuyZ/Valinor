@@ -5,71 +5,67 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Object\DateTimeObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use DateTime;
-use DateTimeImmutable;
 use DateTimeInterface;
-
-use function random_int;
 
 final class DateTimeMappingTest extends IntegrationTest
 {
-    public function test_datetime_properties_are_converted_properly(): void
+    public function test_default_datetime_constructor_cannot_be_used(): void
     {
-        $dateTimeInterface = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
-        $dateTimeImmutable = new DateTimeImmutable('@' . $this->buildRandomTimestamp());
-        $dateTimeFromTimestamp = $this->buildRandomTimestamp();
-        $dateTimeFromTimestampWithOutFormat = [
-            'datetime' => $this->buildRandomTimestamp(),
-        ];
-        $dateTimeFromTimestampWithFormat = [
-            'datetime' => $this->buildRandomTimestamp(),
-            'format' => 'U',
-        ];
-        $dateTimeFromAtomFormat = (new DateTime())->setTimestamp($this->buildRandomTimestamp())->format(DATE_ATOM);
-        $dateTimeFromArray = [
-            'datetime' => (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s'),
-            'format' => 'Y-m-d H:i:s',
-        ];
-        $mysqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s');
-        $pgsqlDate = (new DateTime('@' . $this->buildRandomTimestamp()))->format('Y-m-d H:i:s.u');
-
-        $sqlDateNotTime = '2022-04-30';
-
         try {
-            $result = (new MapperBuilder())->mapper()->map(AllDateTimeValues::class, [
-                'dateTimeInterface' => $dateTimeInterface,
-                'dateTimeImmutable' => $dateTimeImmutable,
-                'dateTimeFromTimestamp' => $dateTimeFromTimestamp,
-                'dateTimeFromTimestampWithOutFormat' => $dateTimeFromTimestampWithOutFormat,
-                'dateTimeFromTimestampWithFormat' => $dateTimeFromTimestampWithFormat,
-                'dateTimeFromAtomFormat' => $dateTimeFromAtomFormat,
-                'dateTimeFromArray' => $dateTimeFromArray,
-                'mysqlDate' => $mysqlDate,
-                'pgsqlDate' => $pgsqlDate,
-                'sqlDateNotTime' => $sqlDateNotTime,
+            (new MapperBuilder())
+                ->mapper()
+                ->map(DateTimeInterface::class, ['datetime' => '2022/08/05', 'timezone' => 'Europe/Paris']);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()['value']->messages()[0];
 
-            ]);
+            self::assertSame('1607027306', $error->code());
+        }
+    }
+
+    public function test_default_date_constructor_with_valid_atom_format_source_returns_datetime(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->mapper()
+                ->map(DateTimeInterface::class, '2022-08-05T08:32:06+00:00');
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
 
-        self::assertInstanceOf(DateTimeImmutable::class, $result->dateTimeInterface);
-        self::assertEquals($dateTimeInterface, $result->dateTimeInterface);
-        self::assertEquals($dateTimeImmutable, $result->dateTimeImmutable);
-        self::assertEquals(new DateTimeImmutable("@$dateTimeFromTimestamp"), $result->dateTimeFromTimestamp);
-        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithFormat['datetime']}"), $result->dateTimeFromTimestampWithFormat);
-        self::assertEquals(new DateTimeImmutable("@{$dateTimeFromTimestampWithOutFormat['datetime']}"), $result->dateTimeFromTimestampWithOutFormat);
-        self::assertEquals(DateTimeImmutable::createFromFormat(DATE_ATOM, $dateTimeFromAtomFormat), $result->dateTimeFromAtomFormat);
-        self::assertEquals(DateTimeImmutable::createFromFormat($dateTimeFromArray['format'], $dateTimeFromArray['datetime']), $result->dateTimeFromArray);
-        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_MYSQL, $mysqlDate), $result->mysqlDate);
-        self::assertEquals(DateTimeImmutable::createFromFormat(DateTimeObjectBuilder::DATE_PGSQL, $pgsqlDate), $result->pgsqlDate);
-        self::assertSame($sqlDateNotTime . ' 00:00:00', $result->sqlDateNotTime->format(DateTimeObjectBuilder::DATE_MYSQL));
+        self::assertSame('2022-08-05T08:32:06+00:00', $result->format(DATE_ATOM));
     }
 
-    public function test_invalid_datetime_throws_exception(): void
+    public function test_default_date_constructor_with_valid_timestamp_format_source_returns_datetime(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->mapper()
+                ->map(DateTimeInterface::class, 1659688380);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('1659688380', $result->format('U'));
+    }
+
+    public function test_registered_date_constructor_with_valid_source_returns_datetime(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->registerConstructor(new DateTimeFormatConstructor('d/m/Y', 'Y/m/d'))
+                ->mapper()
+                ->map(DateTimeInterface::class, '2022/08/05');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('2022/08/05', $result->format('Y/m/d'));
+    }
+
+    public function test_default_date_constructor_with_invalid_source_throws_exception(): void
     {
         try {
             (new MapperBuilder())
@@ -79,69 +75,22 @@ final class DateTimeMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1630686564', $error->code());
-            self::assertSame("Value 'invalid datetime' does not match a valid date format.", (string)$error);
+            self::assertSame("Value 'invalid datetime' does not match any of the following formats: `Y-m-d\TH:i:sP`, `U`.", (string)$error);
         }
     }
 
-    public function test_invalid_datetime_from_array_throws_exception(): void
+    public function test_registered_date_constructor_with_invalid_source_throws_exception(): void
     {
         try {
             (new MapperBuilder())
+                ->registerConstructor(new DateTimeFormatConstructor('Y/m/d'))
                 ->mapper()
-                ->map(DateTimeInterface::class, [
-                    'datetime' => 1337,
-                    'format' => 'H',
-                ]);
+                ->map(DateTimeInterface::class, 'invalid datetime');
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1630686564', $error->code());
-            self::assertSame("Value 1337 does not match a valid date format.", (string)$error);
+            self::assertSame("Value 'invalid datetime' does not match any of the following formats: `Y/m/d`.", (string)$error);
         }
     }
-
-    public function test_invalid_array_source_throws_exception(): void
-    {
-        try {
-            (new MapperBuilder())
-                ->mapper()
-                ->map(DateTimeInterface::class, [
-                    'dateTime' => [
-                        'invalid key' => '2012-12-21T13:37:42+00:00',
-                    ],
-                ]);
-        } catch (MappingError $exception) {
-            $error = $exception->node()->children()['value']->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-        }
-    }
-
-    private function buildRandomTimestamp(): int
-    {
-        return random_int(1, 32503726800);
-    }
-}
-
-final class AllDateTimeValues
-{
-    public DateTimeInterface $dateTimeInterface;
-
-    public DateTimeImmutable $dateTimeImmutable;
-
-    public DateTime $dateTimeFromTimestamp;
-
-    public DateTime $dateTimeFromTimestampWithOutFormat;
-
-    public DateTime $dateTimeFromTimestampWithFormat;
-
-    public DateTimeInterface $dateTimeFromAtomFormat;
-
-    public DateTimeInterface $dateTimeFromArray;
-
-    public DateTimeInterface $mysqlDate;
-
-    public DateTimeInterface $pgsqlDate;
-
-    public DateTimeImmutable $sqlDateNotTime;
 }

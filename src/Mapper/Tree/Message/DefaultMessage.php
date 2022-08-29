@@ -62,6 +62,9 @@ interface DefaultMessage
         'Value {value} does not match a valid date format.' => [
             'en' => 'Value {value} does not match a valid date format.',
         ],
+        'Value {value} does not match any of the following formats: {formats}.' => [
+            'en' => 'Value {value} does not match any of the following formats: {formats}.',
+        ],
         'Invalid class string {value}, it must be one of {expected_class_strings}.' => [
             'en' => 'Invalid class string {value}, it must be one of {expected_class_strings}.',
         ],
