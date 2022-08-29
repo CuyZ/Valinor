@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\Exception\InvalidClassString;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
+use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function is_object;
@@ -20,6 +21,8 @@ use function method_exists;
 /** @internal */
 final class ClassStringType implements StringType, CompositeType
 {
+    use IsSingleton;
+
     /** @var ObjectType|UnionType|null */
     private ?Type $subType;
 
