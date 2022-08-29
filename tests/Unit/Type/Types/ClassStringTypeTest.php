@@ -8,6 +8,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
+use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
@@ -24,6 +25,8 @@ use stdClass;
 
 final class ClassStringTypeTest extends TestCase
 {
+    use TestIsSingleton;
+
     public function test_string_subtype_can_be_retrieved(): void
     {
         $subType = new FakeObjectType();
