@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidClassConstructorType;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorClassTypeParameter;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorReturnType;
+use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
@@ -112,6 +115,109 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         }
 
         self::assertSame('foo', $result->foo);
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_registered_constructor_with_injected_class_name_is_used_for_abstract_class(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->registerConstructor(
+                    /**
+                     * @param class-string<SomeAbstractClassWithStaticConstructor> $className
+                     */
+                    #[DynamicConstructor]
+                    fn (string $className, string $foo, int $bar): SomeAbstractClassWithStaticConstructor => $className::from($foo, $bar)
+                )
+                ->mapper()
+                ->map(SomeClassWithBothInheritedStaticConstructors::class, [
+                    'someChild' => ['foo' => 'foo', 'bar' => 42],
+                    'someOtherChild' => ['foo' => 'fiz', 'bar' => 1337],
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->someChild->foo);
+        self::assertSame(42, $result->someChild->bar);
+        self::assertSame('fiz', $result->someOtherChild->foo);
+        self::assertSame(1337, $result->someOtherChild->bar);
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_registered_constructor_with_injected_class_name_is_used_for_interface(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->registerConstructor(
+                    /**
+                     * @param class-string<SomeInterfaceWithStaticConstructor> $className
+                     */
+                    #[DynamicConstructor]
+                    fn (string $className, string $foo, int $bar): SomeInterfaceWithStaticConstructor => $className::from($foo, $bar)
+                )
+                ->mapper()
+                ->map(SomeClassWithBothInheritedStaticConstructors::class, [
+                    'someChild' => ['foo' => 'foo', 'bar' => 42],
+                    'someOtherChild' => ['foo' => 'fiz', 'bar' => 1337],
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->someChild->foo);
+        self::assertSame(42, $result->someChild->bar);
+        self::assertSame('fiz', $result->someOtherChild->foo);
+        self::assertSame(1337, $result->someOtherChild->bar);
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_registered_constructor_with_injected_class_name_without_class_string_type_is_used(): void
+    {
+        try {
+            $object = new stdClass();
+
+            $result = (new MapperBuilder())
+                ->registerConstructor(
+                    #[DynamicConstructor]
+                    fn (string $className, string $foo): stdClass => $object
+                )
+                ->mapper()
+                ->map(stdClass::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($object, $result);
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_registered_constructor_with_injected_class_name_with_previously_other_registered_constructor_is_used(): void
+    {
+        try {
+            $object = new stdClass();
+
+            $result = (new MapperBuilder())
+                ->registerConstructor(fn (): DateTimeInterface => new DateTime())
+                ->registerConstructor(
+                    #[DynamicConstructor]
+                    fn (string $className, string $foo): stdClass => $object
+                )
+                ->mapper()
+                ->map(stdClass::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($object, $result);
     }
 
     public function test_native_constructor_is_not_called_if_not_registered_but_other_constructors_are_registered(): void
@@ -415,14 +521,50 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             ->map(SomeClassWithPrivateNativeConstructor::class, []);
     }
 
-    public function test_invalid_constructor_type_throws_exception(): void
+    public function test_invalid_constructor_return_type_throws_exception(): void
     {
-        $this->expectException(InvalidClassConstructorType::class);
+        $this->expectException(InvalidConstructorReturnType::class);
         $this->expectExceptionCode(1659446121);
-        $this->expectExceptionMessageMatches('/Invalid type `string` handled by constructor `.*`\. It must be a valid class name\./');
+        $this->expectExceptionMessageMatches('/Invalid return type `string` for constructor `.*`\, it must be a valid class name\./');
 
         (new MapperBuilder())
             ->registerConstructor(fn (): string => 'foo')
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_missing_constructor_class_type_parameter_throws_exception(): void
+    {
+        $this->expectException(MissingConstructorClassTypeParameter::class);
+        $this->expectExceptionCode(1661516853);
+        $this->expectExceptionMessageMatches('/Missing first parameter of type `class-string` for the constructor `.*`\./');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                #[DynamicConstructor]
+                fn (): stdClass => new stdClass()
+            )
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
+    /**
+     * @requires PHP >= 8
+     */
+    public function test_invalid_constructor_class_type_parameter_throws_exception(): void
+    {
+        $this->expectException(InvalidConstructorClassTypeParameter::class);
+        $this->expectExceptionCode(1661517000);
+        $this->expectExceptionMessageMatches('/Invalid type `int` for the first parameter of the constructor `.*`, it should be of type `class-string`\./');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                #[DynamicConstructor]
+                fn (int $invalidParameterType): stdClass => new stdClass()
+            )
             ->mapper()
             ->map(stdClass::class, []);
     }
@@ -578,7 +720,13 @@ function constructorB(int $argumentA, float $argumentB): stdClass
     return new stdClass();
 }
 
-abstract class SomeAbstractClassWithStaticConstructor
+interface SomeInterfaceWithStaticConstructor
+{
+    // @PHP8.0 return static
+    public static function from(string $foo, int $bar): self;
+}
+
+abstract class SomeAbstractClassWithStaticConstructor implements SomeInterfaceWithStaticConstructor
 {
     public string $foo;
 
@@ -603,4 +751,11 @@ final class SomeClassWithInheritedStaticConstructor extends SomeAbstractClassWit
 
 final class SomeOtherClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor
 {
+}
+
+final class SomeClassWithBothInheritedStaticConstructors
+{
+    public SomeClassWithInheritedStaticConstructor $someChild;
+
+    public SomeOtherClassWithInheritedStaticConstructor $someOtherChild;
 }
