@@ -153,7 +153,7 @@ final class Container
 
                 $factory = new ReflectionObjectBuilderFactory();
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
-                $factory = new DateTimeObjectBuilderFactory($factory, $constructors);
+                $factory = new DateTimeObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new AttributeObjectBuilderFactory($factory);
                 $factory =  new CollisionObjectBuilderFactory($factory);
 

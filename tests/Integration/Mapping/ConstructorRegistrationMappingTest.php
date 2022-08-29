@@ -590,11 +590,32 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame($defaultImmutable, $resultImmutable);
     }
 
+    public function test_constructor_with_same_number_of_arguments_as_native_datetime_constructor_is_handled(): void
+    {
+        $default = new DateTime('@1659691266');
+        $defaultImmutable = new DateTimeImmutable('@1659691266');
+
+        $mapper = (new MapperBuilder())
+            ->registerConstructor(fn (int $timestamp, string $timezone): DateTime => $default)
+            ->registerConstructor(fn (int $timestamp, string $timezone): DateTimeImmutable => $defaultImmutable)
+            ->mapper();
+
+        try {
+            $result = $mapper->map(DateTime::class, ['timestamp' => 1659704697, 'timezone' => 'Europe/Paris']);
+            $resultImmutable = $mapper->map(DateTimeImmutable::class, ['timestamp' => 1659704697, 'timezone' => 'Europe/Paris']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($default, $result);
+        self::assertSame($defaultImmutable, $resultImmutable);
+    }
+
     public function test_registered_datetime_constructor_not_matching_source_uses_default_constructor(): void
     {
         try {
             $result = (new MapperBuilder())
-                ->registerConstructor(fn (string $foo, int $bar): DateTimeInterface => new DateTimeImmutable())
+                ->registerConstructor(fn (string $foo, int $bar): DateTimeImmutable => new DateTimeImmutable())
                 ->mapper()
                 ->map(DateTimeInterface::class, 1647781015);
         } catch (MappingError $error) {

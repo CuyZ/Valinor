@@ -11,25 +11,23 @@ use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class CannotParseToDateTime extends RuntimeException implements ErrorMessage, HasParameters
+final class CannotParseToBackwardCompatibilityDateTime extends RuntimeException implements ErrorMessage, HasParameters
 {
-    private string $body = 'Value {value} does not match any of the following formats: {formats}.';
+    private string $body = 'Value {value} does not match a valid date format.';
 
     /** @var array<string, string> */
     private array $parameters;
 
     /**
      * @param string|int $datetime
-     * @param non-empty-list<non-empty-string> $formats
      */
-    public function __construct($datetime, array $formats)
+    public function __construct($datetime)
     {
         $this->parameters = [
             'value' => ValueDumper::dump($datetime),
-            'formats' => '`' . implode('`, `', $formats) . '`'
         ];
 
-        parent::__construct(StringFormatter::for($this), 1630686564);
+        parent::__construct(StringFormatter::for($this), 1659706547);
     }
 
     public function body(): string
