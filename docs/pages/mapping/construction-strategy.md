@@ -114,6 +114,50 @@ final class Color
     [Color::class, 'fromHex'],
     ```
 
+### Dynamic constructors
+
+In some situations the type handled by a constructor is only known at runtime,
+in which case the constructor needs to know what class must be used to
+instantiate the object.
+
+For instance, an interface may declare a static constructor that is then
+implemented by several child classes. One solution would be to register the
+constructor for each child class, which leads to a lot of boilerplate code and
+would require a new registration each time a new child is created. Another way
+is to use the attribute `\CuyZ\Valinor\Mapper\Object\DynamicConstructor`.
+
+When a constructor uses this attribute, its first parameter must be a string and
+will be filled with the name of the actual class that the mapper needs to build
+when the constructor is called. Other arguments may be added and will be mapped
+normally, depending on the source given to the mapper.
+
+```php
+interface InterfaceWithStaticConstructor
+{
+    public static function from(string $value): self;
+}
+
+final class ClassWithInheritedStaticConstructor implements InterfaceWithStaticConstructor
+{
+    private function __construct(private SomeValueObject $value) {}
+
+    public static function from(string $value): self
+    {
+        return new self(new SomeValueObject($value));
+    }
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConstructor(
+        #[\CuyZ\Valinor\Attribute\DynamicConstructor]
+        function (string $className, string $value): InterfaceWithStaticConstructor {
+            return $className::from($value);
+        }
+    )
+    ->mapper()
+    ->map(ClassWithInheritedStaticConstructor::class, 'foo');
+```
+
 ## Properties
 
 If no constructor is registered, properties will determine which values are

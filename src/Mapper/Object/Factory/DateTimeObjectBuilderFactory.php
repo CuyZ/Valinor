@@ -9,7 +9,7 @@ use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Mapper\Object\DateTimeObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ClassType;
 use DateTimeInterface;
 
 use function count;
@@ -39,15 +39,16 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
             return $this->delegate->for($class);
         }
 
-        return $this->builders($class->type(), $className);
+        return $this->builders($class->type());
     }
 
     /**
-     * @param class-string<DateTimeInterface> $className
      * @return list<ObjectBuilder>
      */
-    private function builders(Type $type, string $className): array
+    private function builders(ClassType $type): array
     {
+        /** @var class-string<DateTimeInterface> $className */
+        $className = $type->className();
         $key = $type->toString();
 
         if (! isset($this->builders[$key])) {
@@ -66,7 +67,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
                     $overridesDefault = true;
                 }
 
-                $this->builders[$key][] = new FunctionObjectBuilder($function);
+                $this->builders[$key][] = new FunctionObjectBuilder($function, $type);
             }
 
             if (! $overridesDefault) {

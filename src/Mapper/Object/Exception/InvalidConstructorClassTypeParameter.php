@@ -6,16 +6,16 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Type\Type;
-use RuntimeException;
+use LogicException;
 
 /** @internal */
-final class InvalidClassConstructorType extends RuntimeException
+final class InvalidConstructorClassTypeParameter extends LogicException
 {
     public function __construct(FunctionDefinition $function, Type $type)
     {
         parent::__construct(
-            "Invalid type `{$type->toString()}` handled by constructor `{$function->signature()}`. It must be a valid class name.",
-            1659446121
+            "Invalid type `{$type->toString()}` for the first parameter of the constructor `{$function->signature()}`, it should be of type `class-string`.",
+            1661517000
         );
     }
 }
