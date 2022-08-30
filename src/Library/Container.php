@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Library;
 
 use CuyZ\Valinor\Cache\ChainCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
-use CuyZ\Valinor\Cache\VersionedCache;
+use CuyZ\Valinor\Cache\KeySanitizerCache;
 use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
@@ -222,10 +222,10 @@ final class Container
                 $cache = new RuntimeCache();
 
                 if (isset($settings->cache)) {
-                    $cache = new ChainCache($cache, $settings->cache);
+                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache));
                 }
 
-                return new VersionedCache($cache);
+                return $cache;
             },
         ];
     }
