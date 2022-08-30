@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\Config\RectorConfig;
 use Rector\Core\Configuration\Option;
 use Rector\Php74\Rector\LNumber\AddLiteralSeparatorToNumberRector;
@@ -14,7 +15,10 @@ return static function (RectorConfig $config): void {
         __DIR__ . '/tests',
     ]);
 
-    $config->parameters()->set(Option::CACHE_DIR, 'var/cache/rector');
+    $config->parameters()->set(Option::CACHE_DIR, './var/cache/rector');
+
+    // @see https://github.com/rectorphp/rector/issues/7341
+    $config->parameters()->set(Option::CACHE_CLASS, FileCacheStorage::class);
 
     $config->sets([
         LevelSetList::UP_TO_PHP_74,
