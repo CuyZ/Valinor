@@ -553,6 +553,11 @@ final class NativeLexerTest extends TestCase
                 'transformed' => 'array{foo: string, bar?: int}',
                 'type' => ShapedArrayType::class,
             ],
+            'Shaped array with trailing comma' => [
+                'raw' => 'array{foo: string, bar: int,}',
+                'transformed' => 'array{foo: string, bar: int}',
+                'type' => ShapedArrayType::class,
+            ],
             'Shaped array with reserved keyword as key' => [
                 'raw' => 'array{string: string}',
                 'transformed' => 'array{string: string}',
@@ -691,6 +696,16 @@ final class NativeLexerTest extends TestCase
             'Union type with class-string' => [
                 'raw' => 'class-string|int',
                 'transformed' => 'class-string|int',
+                'type' => UnionType::class,
+            ],
+            'Union type with shaped array' => [
+                'raw' => 'array{foo: string, bar: int}|string',
+                'transformed' => 'array{foo: string, bar: int}|string',
+                'type' => UnionType::class,
+            ],
+            'Union type with shaped array with trailing comma' => [
+                'raw' => 'array{foo: string, bar: int,}|string',
+                'transformed' => 'array{foo: string, bar: int}|string',
                 'type' => UnionType::class,
             ],
             'Union type followed by description' => [

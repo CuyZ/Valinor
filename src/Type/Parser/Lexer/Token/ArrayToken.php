@@ -122,6 +122,11 @@ final class ArrayToken implements TraversingToken
                 throw new ShapedArrayCommaMissing($elements);
             }
 
+            if ($stream->next() instanceof ClosingCurlyBracketToken) {
+                $stream->forward();
+                break;
+            }
+
             $optional = false;
 
             if ($stream->next() instanceof UnknownSymbolToken) {

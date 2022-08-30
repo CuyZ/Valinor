@@ -25,6 +25,7 @@ final class TokenStream
         $this->tokens = $tokens;
     }
 
+    /** @phpstan-impure */
     public function read(): Type
     {
         if ($this->done()) {
@@ -54,6 +55,7 @@ final class TokenStream
         return $type;
     }
 
+    /** @phpstan-impure */
     public function next(): Token
     {
         $peek = $this->peek + 1;
@@ -65,6 +67,7 @@ final class TokenStream
         return $this->tokens[$peek];
     }
 
+    /** @phpstan-impure */
     public function forward(): Token
     {
         $this->peek++;
