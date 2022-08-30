@@ -7,6 +7,7 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use Psr\SimpleCache\CacheInterface;
@@ -170,6 +171,28 @@ final class MapperBuilder
         }
 
         return $clone;
+    }
+
+    /**
+     * Describes which date formats will be supported during mapping.
+     *
+     * By default, the dates will accept any valid timestamp or ATOM-formatted
+     * value.
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     // Both `Cookie` and `ATOM` formats will be accepted
+     *     ->supportDateFormats(DATE_COOKIE, DATE_ATOM)
+     *     ->mapper()
+     *     ->map(DateTimeInterface::class, 'Monday, 08-Nov-1971 13:37:42 UTC');
+     * ```
+     *
+     * @param non-empty-string $format
+     * @param non-empty-string ...$formats
+     */
+    public function supportDateFormats(string $format, string ...$formats): self
+    {
+        return $this->registerConstructor(new DateTimeFormatConstructor($format, ...$formats));
     }
 
     /**

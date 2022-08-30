@@ -26,7 +26,7 @@ use DateTimeInterface;
  *     ->map(DateTimeInterface::class, 'Monday, 08-Nov-1971 13:37:42 UTC');
  * ```
  *
- * @api
+ * @internal
  */
 final class DateTimeFormatConstructor
 {

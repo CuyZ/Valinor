@@ -5,14 +5,12 @@ supported. By default, any valid timestamp or ATOM-formatted value will be
 accepted.
 
 If other formats are to be supported, they need to be registered using the
-following constructor:
+following method:
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     // Both `Cookie` and `ATOM` formats will be accepted
-    ->registerConstructor(
-        new \CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor(DATE_COOKIE, DATE_ATOM)
-    )
+    ->supportDateFormats(DATE_COOKIE, DATE_ATOM)
     ->mapper()
     ->map(DateTimeInterface::class, 'Monday, 08-Nov-1971 13:37:42 UTC');
 ```
