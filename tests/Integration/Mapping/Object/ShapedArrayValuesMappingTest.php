@@ -33,6 +33,10 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 'foo' => 'fiz',
                 'bar' => 42,
             ],
+            'shapedArrayOnSeveralLinesWithTrailingComma' => [
+                'foo' => 'fiz',
+                'bar' => 42,
+            ],
             'advancedShapedArray' => [
                 'mandatoryString' => 'bar',
                 1337,
@@ -55,6 +59,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']); // @phpstan-ignore-line
             self::assertSame($source['shapedArrayWithOptionalValue'], $result->shapedArrayWithOptionalValue);
             self::assertSame($source['shapedArrayOnSeveralLines'], $result->shapedArrayOnSeveralLines);
+            self::assertSame($source['shapedArrayOnSeveralLinesWithTrailingComma'], $result->shapedArrayOnSeveralLinesWithTrailingComma);
             self::assertSame('bar', $result->advancedShapedArray['mandatoryString']);
             self::assertSame(1337, $result->advancedShapedArray[0]);
             self::assertSame(42.404, $result->advancedShapedArray[1]);
@@ -102,6 +107,14 @@ class ShapedArrayValues
      */
     public array $shapedArrayOnSeveralLines;
 
+    /**
+     * @var array{
+     *     foo: string,
+     *     bar: int,
+     * }
+     */
+    public array $shapedArrayOnSeveralLinesWithTrailingComma;
+
     /** @var array{0: int, float, optionalString?: string, mandatoryString: string} */
     public array $advancedShapedArray;
 
@@ -120,6 +133,10 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      *     foo: string,
      *     bar: int
      * } $shapedArrayOnSeveralLines
+     * @param array{
+     *     foo: string,
+     *     bar: int,
+     * } $shapedArrayOnSeveralLinesWithTrailingComma
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      */
@@ -129,6 +146,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayWithObject,
         array $shapedArrayWithOptionalValue,
         array $shapedArrayOnSeveralLines,
+        array $shapedArrayOnSeveralLinesWithTrailingComma,
         array $advancedShapedArray,
         array $shapedArrayWithClassNameAsKey
     ) {
@@ -137,6 +155,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         $this->shapedArrayWithObject = $shapedArrayWithObject;
         $this->shapedArrayWithOptionalValue = $shapedArrayWithOptionalValue;
         $this->shapedArrayOnSeveralLines = $shapedArrayOnSeveralLines;
+        $this->shapedArrayOnSeveralLinesWithTrailingComma = $shapedArrayOnSeveralLinesWithTrailingComma;
         $this->advancedShapedArray = $advancedShapedArray;
         $this->shapedArrayWithClassNameAsKey = $shapedArrayWithClassNameAsKey;
     }
