@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit;
 
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use DateTime;
 use DateTimeInterface;
@@ -33,8 +34,9 @@ final class MapperBuilderTest extends TestCase
         $builderE = $builderA->alter(static fn (string $value): string => 'foo');
         $builderF = $builderA->flexible();
         $builderG = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderH = $builderA->withCacheDir(sys_get_temp_dir());
-        $builderI = $builderA->enableLegacyDoctrineAnnotations();
+        $builderH = $builderA->withCache(new FakeCache());
+        $builderI = $builderA->withCacheDir(sys_get_temp_dir());
+        $builderJ = $builderA->enableLegacyDoctrineAnnotations();
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -44,6 +46,7 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderG);
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
+        self::assertNotSame($builderA, $builderJ);
     }
 
     public function test_mapper_instance_is_the_same(): void
