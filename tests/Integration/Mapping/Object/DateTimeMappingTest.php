@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTimeInterface;
@@ -55,7 +54,7 @@ final class DateTimeMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                ->registerConstructor(new DateTimeFormatConstructor('d/m/Y', 'Y/m/d'))
+                ->supportDateFormats('d/m/Y', 'Y/m/d')
                 ->mapper()
                 ->map(DateTimeInterface::class, '2022/08/05');
         } catch (MappingError $error) {
@@ -83,7 +82,7 @@ final class DateTimeMappingTest extends IntegrationTest
     {
         try {
             (new MapperBuilder())
-                ->registerConstructor(new DateTimeFormatConstructor('Y/m/d'))
+                ->supportDateFormats('Y/m/d')
                 ->mapper()
                 ->map(DateTimeInterface::class, 'invalid datetime');
         } catch (MappingError $exception) {
