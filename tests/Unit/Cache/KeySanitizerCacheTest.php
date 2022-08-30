@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Cache;
 
-use CuyZ\Valinor\Cache\VersionedCache;
+use CuyZ\Valinor\Cache\KeySanitizerCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use PHPUnit\Framework\TestCase;
 
 use function iterator_to_array;
 
-final class VersionedCacheTest extends TestCase
+final class KeySanitizerCacheTest extends TestCase
 {
     private FakeCache $delegate;
 
-    /** @var VersionedCache<mixed> */
-    private VersionedCache $cache;
+    /** @var KeySanitizerCache<mixed> */
+    private KeySanitizerCache $cache;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->delegate = new FakeCache();
-        $this->cache = new VersionedCache($this->delegate);
+        $this->cache = new KeySanitizerCache($this->delegate);
     }
 
     public function test_set_value_sets_value_in_delegate_with_changed_key(): void
