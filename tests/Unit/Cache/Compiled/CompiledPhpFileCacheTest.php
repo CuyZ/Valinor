@@ -207,17 +207,46 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->cache->set('foo', 'foo');
     }
 
-    public function test_cache_file_not_writable_throws_exception(): void
+    public function test_temporary_cache_file_not_writable_throws_exception(): void
     {
         $this->expectException(CompiledPhpCacheFileNotWritten::class);
         $this->expectExceptionCode(1616445695);
-        $this->expectExceptionMessageMatches('/^File `[^`]+` could not be written\.$/');
+        $this->expectExceptionMessageMatches('/^File `[^`]+.valinor.tmp[^`]+` could not be written\.$/');
 
         (vfsStream::newDirectory('.valinor.tmp'))
             ->chmod(0444)
             ->at($this->files);
 
         $this->cache->set('foo', 'foo');
+    }
+
+    public function test_cache_file_not_writable_throws_exception(): void
+    {
+        $this->expectException(CompiledPhpCacheFileNotWritten::class);
+        $this->expectExceptionCode(1616445695);
+        $this->expectExceptionMessageMatches('/^File `[^`]+` could not be written\.$/');
+
+        (vfsStream::newDirectory('.valinor.tmp'))->at($this->files);
+
+        $this->files->chmod(0444);
+
+        $this->cache->set('foo', 'foo');
+    }
+
+    public function test_temporary_cache_file_is_always_deleted(): void
+    {
+        $tmpDirectory = vfsStream::newDirectory('.valinor.tmp');
+        $tmpDirectory->at($this->files);
+
+        $this->files->chmod(0444);
+
+        try {
+            $this->cache->set('foo', 'foo');
+        } catch (CompiledPhpCacheFileNotWritten $exception) {
+            // @PHP8.0 remove variable
+        }
+
+        self::assertEmpty($tmpDirectory->getChildren());
     }
 
     private function currentCacheFile(): vfsStreamFile
