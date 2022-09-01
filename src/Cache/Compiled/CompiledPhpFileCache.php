@@ -15,6 +15,7 @@ use FilesystemIterator;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
+use function assert;
 use function file_exists;
 use function file_put_contents;
 use function is_dir;
@@ -74,6 +75,10 @@ final class CompiledPhpFileCache implements CacheInterface
 
     public function set($key, $value, $ttl = null): bool
     {
+        $filename = $this->path($key);
+
+        assert(! file_exists($filename));
+
         $code = $this->compile($value, $ttl);
 
         $tmpDir = $this->cacheDir . DIRECTORY_SEPARATOR . '.valinor.tmp';
@@ -84,7 +89,6 @@ final class CompiledPhpFileCache implements CacheInterface
 
         /** @infection-ignore-all */
         $tmpFilename = $tmpDir . DIRECTORY_SEPARATOR . uniqid('', true);
-        $filename = $this->path($key);
 
         try {
             if (! @file_put_contents($tmpFilename, $code)) {

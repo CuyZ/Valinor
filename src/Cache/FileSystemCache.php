@@ -13,10 +13,8 @@ use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
-use function current;
 use function get_class;
 use function is_object;
-use function next;
 use function sys_get_temp_dir;
 
 /**
@@ -55,13 +53,10 @@ final class FileSystemCache implements CacheInterface
 
     public function get($key, $default = null)
     {
-        while ($delegate = current($this->delegates)) {
+        foreach ($this->delegates as $delegate) {
             if ($delegate->has($key)) {
                 return $delegate->get($key, $default);
             }
-
-            // @infection-ignore-all
-            next($this->delegates);
         }
 
         return $default;
