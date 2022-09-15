@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\IntegerType;
-use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 
 use function is_int;
 
 /** @internal */
-final class ArrayKeyType implements ScalarType
+final class ArrayKeyType implements Type
 {
     private static self $integer;
 
@@ -99,36 +97,6 @@ final class ArrayKeyType implements ScalarType
         }
 
         return false;
-    }
-
-    public function canCast($value): bool
-    {
-        foreach ($this->types as $type) {
-            if ($type->canCast($value)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return int|string
-     */
-    public function cast($value)
-    {
-        if ($this->accepts($value)) {
-            /** @var int|string $value */
-            return $value;
-        }
-
-        foreach ($this->types as $type) {
-            if ($type->canCast($value)) {
-                return $type->cast($value);
-            }
-        }
-
-        throw new CannotCastValue($value, $this);
     }
 
     public function toString(): string

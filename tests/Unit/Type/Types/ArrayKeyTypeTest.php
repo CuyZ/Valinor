@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -73,45 +72,5 @@ final class ArrayKeyTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse(ArrayKeyType::default()->matches(new FakeType()));
-    }
-
-    public function test_can_cast_correct_values(): void
-    {
-        $arrayKeyDefault = ArrayKeyType::default();
-        $arrayKeyInteger = ArrayKeyType::integer();
-        $arrayKeyString = ArrayKeyType::string();
-
-        self::assertTrue($arrayKeyDefault->canCast(42));
-        self::assertTrue($arrayKeyDefault->canCast('foo'));
-
-        self::assertTrue($arrayKeyInteger->canCast(42));
-        self::assertFalse($arrayKeyInteger->canCast('foo'));
-
-        self::assertTrue($arrayKeyString->canCast(42));
-        self::assertTrue($arrayKeyString->canCast('foo'));
-    }
-
-    public function test_cast_value_returns_correct_value(): void
-    {
-        $arrayKeyDefault = ArrayKeyType::default();
-        $arrayKeyInteger = ArrayKeyType::integer();
-        $arrayKeyString = ArrayKeyType::string();
-
-        self::assertSame(42, $arrayKeyDefault->cast(42));
-        self::assertSame('foo', $arrayKeyDefault->cast('foo'));
-
-        self::assertSame(42, $arrayKeyInteger->cast('42'));
-
-        self::assertSame(42, $arrayKeyString->cast(42));
-        self::assertSame('foo', $arrayKeyString->cast('foo'));
-    }
-
-    public function test_cast_unsupported_value_throws_exception(): void
-    {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast object(stdClass) to `array-key`.');
-
-        ArrayKeyType::default()->cast(new stdClass());
     }
 }
