@@ -57,6 +57,9 @@ final class FileWatchingCache implements CacheInterface
         return $this->delegate->has($key);
     }
 
+    /**
+     * @return EntryType|TimestampsArray|null
+     */
     public function get($key, $default = null)
     {
         return $this->delegate->get($key, $default);

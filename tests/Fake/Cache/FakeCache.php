@@ -44,6 +44,9 @@ final class FakeCache implements CacheInterface
         return count($this->entries);
     }
 
+    /**
+     * @return mixed
+     */
     public function get($key, $default = null)
     {
         $this->timesEntryWasFetched[$key] ??= 0;

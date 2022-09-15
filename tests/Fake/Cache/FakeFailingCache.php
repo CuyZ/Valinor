@@ -11,6 +11,9 @@ use Psr\SimpleCache\CacheInterface;
  */
 final class FakeFailingCache implements CacheInterface
 {
+    /**
+     * @return mixed
+     */
     public function get($key, $default = null)
     {
         return null;

@@ -62,6 +62,9 @@ final class CompiledPhpFileCache implements CacheInterface
         return $this->getFile($filename)->isValid();
     }
 
+    /**
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         if (! $this->has($key)) {

@@ -24,6 +24,9 @@ final class RuntimeCache implements CacheInterface
     /** @var array<string, EntryType> */
     private array $entries = [];
 
+    /**
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         return $this->entries[$key] ?? $default;

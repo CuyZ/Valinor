@@ -29,6 +29,9 @@ final class ChainCache implements CacheInterface
         $this->count = count($caches);
     }
 
+    /**
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         foreach ($this->delegates as $i => $delegate) {

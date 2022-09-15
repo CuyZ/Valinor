@@ -51,6 +51,9 @@ final class FileSystemCache implements CacheInterface
         return false;
     }
 
+    /**
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         foreach ($this->delegates as $delegate) {
