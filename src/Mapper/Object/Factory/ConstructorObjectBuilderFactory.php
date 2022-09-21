@@ -22,6 +22,7 @@ use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Utility\Polyfill;
 
 use function array_key_exists;
 use function count;
@@ -82,8 +83,10 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 
             $definition = $function->definition();
             $functionClass = $definition->class();
+            $isClosure = $definition->name() === '{closure}'
+                || Polyfill::str_ends_with($definition->name(), '\\{closure}');
 
-            if ($functionClass && $definition->isStatic()) {
+            if ($functionClass && $definition->isStatic() && ! $isClosure) {
                 $builders[] = new MethodObjectBuilder($className, $definition->name(), $definition->parameters());
             } else {
                 $builders[] = new FunctionObjectBuilder($function, $classType);
