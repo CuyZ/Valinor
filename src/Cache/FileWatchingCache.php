@@ -57,6 +57,11 @@ final class FileWatchingCache implements CacheInterface
         return $this->delegate->has($key);
     }
 
+    /**
+     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     *
+     * @return EntryType|TimestampsArray|null
+     */
     public function get($key, $default = null)
     {
         return $this->delegate->get($key, $default);

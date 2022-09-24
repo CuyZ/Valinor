@@ -51,6 +51,11 @@ final class FileSystemCache implements CacheInterface
         return false;
     }
 
+    /**
+     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     *
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         foreach ($this->delegates as $delegate) {

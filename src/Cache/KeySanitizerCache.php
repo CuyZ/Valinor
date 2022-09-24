@@ -43,6 +43,11 @@ final class KeySanitizerCache implements CacheInterface
         $this->sanitize = static fn (string $key) => sha1("$key." . self::$version ??= PHP_VERSION . '/' . Package::version());
     }
 
+    /**
+     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     *
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         return $this->delegate->get(($this->sanitize)($key), $default);
