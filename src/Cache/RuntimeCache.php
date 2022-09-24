@@ -24,6 +24,11 @@ final class RuntimeCache implements CacheInterface
     /** @var array<string, EntryType> */
     private array $entries = [];
 
+    /**
+     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     *
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         return $this->entries[$key] ?? $default;

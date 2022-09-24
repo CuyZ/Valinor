@@ -62,6 +62,11 @@ final class CompiledPhpFileCache implements CacheInterface
         return $this->getFile($filename)->isValid();
     }
 
+    /**
+     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     *
+     * @return EntryType|null
+     */
     public function get($key, $default = null)
     {
         if (! $this->has($key)) {
