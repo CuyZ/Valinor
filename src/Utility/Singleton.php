@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility;
 
+use CuyZ\Valinor\Utility\Reflection\PhpParser;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\PhpParser;
 use Doctrine\Common\Annotations\Reader;
 
 /** @internal */
