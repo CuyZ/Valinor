@@ -44,6 +44,8 @@ final class KeySanitizerCache implements CacheInterface
     }
 
     /**
+     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     *
      * @return EntryType|null
      */
     public function get($key, $default = null)
