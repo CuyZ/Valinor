@@ -83,7 +83,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             $definition = $function->definition();
             $functionClass = $definition->class();
 
-            if ($functionClass && $definition->isStatic()) {
+            if ($functionClass && $definition->isStatic() && ! $definition->isClosure()) {
                 $builders[] = new MethodObjectBuilder($className, $definition->name(), $definition->parameters());
             } else {
                 $builders[] = new FunctionObjectBuilder($function, $classType);

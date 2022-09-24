@@ -22,6 +22,7 @@ final class FakeFunctionDefinition
             $fileName ?? 'foo/bar',
             stdClass::class,
             true,
+            true,
             new Parameters(
                 new ParameterDefinition(
                     'bar',

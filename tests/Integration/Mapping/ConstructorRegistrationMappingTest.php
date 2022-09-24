@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
+use Closure;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
@@ -28,6 +29,38 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         try {
             $result = (new MapperBuilder())
                 ->registerConstructor(fn (): stdClass => $object)
+                ->mapper()
+                ->map(stdClass::class, []);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($object, $result);
+    }
+
+    public function test_registered_static_anonymous_function_constructor_is_used(): void
+    {
+        $object = new stdClass();
+
+        try {
+            $result = (new MapperBuilder())
+                ->registerConstructor(static fn (): stdClass => $object)
+                ->mapper()
+                ->map(stdClass::class, []);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($object, $result);
+    }
+
+    public function test_registered_anonymous_function_from_static_scope_constructor_is_used(): void
+    {
+        $object = new stdClass();
+
+        try {
+            $result = (new MapperBuilder())
+                ->registerConstructor(SomeClassProvidingStaticClosure::getConstructor($object))
                 ->mapper()
                 ->map(stdClass::class, []);
         } catch (MappingError $error) {
@@ -779,4 +812,12 @@ final class SomeClassWithBothInheritedStaticConstructors
     public SomeClassWithInheritedStaticConstructor $someChild;
 
     public SomeOtherClassWithInheritedStaticConstructor $someOtherChild;
+}
+
+final class SomeClassProvidingStaticClosure
+{
+    public static function getConstructor(stdClass $object): Closure
+    {
+        return fn (): stdClass => $object;
+    }
 }
