@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
+use CuyZ\Valinor\Utility\Polyfill;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionFunction;
 use ReflectionParameter;
@@ -44,17 +45,20 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
             $reflection->getParameters()
         );
 
+        $name = $reflection->getName();
         $class = $reflection->getClosureScopeClass();
         $returnType = $typeResolver->resolveType($reflection);
+        $isClosure = $name === '{closure}' || Polyfill::str_ends_with($name, '\\{closure}');
 
         return new FunctionDefinition(
-            $reflection->getName(),
+            $name,
             Reflection::signature($reflection),
             $this->attributesRepository->for($reflection),
             $reflection->getFileName() ?: null,
             // @PHP 8.0 nullsafe operator
             $class ? $class->name : null,
             $reflection->getClosureThis() === null,
+            $isClosure,
             new Parameters(...$parameters),
             $returnType
         );

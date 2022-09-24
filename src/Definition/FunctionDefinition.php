@@ -22,6 +22,8 @@ final class FunctionDefinition
 
     private bool $isStatic;
 
+    private bool $isClosure;
+
     private Parameters $parameters;
 
     private Type $returnType;
@@ -36,6 +38,7 @@ final class FunctionDefinition
         ?string $fileName,
         ?string $class,
         bool $isStatic,
+        bool $isClosure,
         Parameters $parameters,
         Type $returnType
     ) {
@@ -45,6 +48,7 @@ final class FunctionDefinition
         $this->fileName = $fileName;
         $this->class = $class;
         $this->isStatic = $isStatic;
+        $this->isClosure = $isClosure;
         $this->parameters = $parameters;
         $this->returnType = $returnType;
     }
@@ -80,6 +84,11 @@ final class FunctionDefinition
     public function isStatic(): bool
     {
         return $this->isStatic;
+    }
+
+    public function isClosure(): bool
+    {
+        return $this->isClosure;
     }
 
     /**
