@@ -58,9 +58,7 @@
             "rector"
         ],
         "mutation": [
-            "@putenv XDEBUG_MODE=coverage",
-            "phpunit --coverage-xml='var/cache/phpunit/coverage' --log-junit='var/cache/phpunit/coverage/junit.xml'",
-            "infection --threads=12 --skip-initial-tests --coverage='var/cache/phpunit/coverage'"
+            "infection --threads=12 --git-diff-lines"
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
