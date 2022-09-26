@@ -45,6 +45,7 @@
     },
     "scripts": {
         "check": [
+            "@putenv XDEBUG_MODE=off",
             "phpunit",
             "phpstan",
             "psalm",
@@ -52,6 +53,7 @@
             "rector --dry-run"
         ],
         "fix": [
+            "@putenv XDEBUG_MODE=off",
             "php-cs-fixer fix",
             "rector"
         ],
