@@ -121,14 +121,6 @@ final class TreeNode
         return $clone;
     }
 
-    /**
-     * @return array<self>
-     */
-    public function children(): array
-    {
-        return $this->children;
-    }
-
     public function node(): Node
     {
         return $this->buildNode($this);
@@ -157,8 +149,8 @@ final class TreeNode
             $self->shell->name(),
             $self->shell->path(),
             $self->shell->type()->toString(),
-            $this->shell->hasValue(),
-            $this->shell->hasValue() ? $this->shell->value() : null,
+            $self->shell->hasValue(),
+            $self->shell->hasValue() ? $self->shell->value() : null,
             $self->valid ? $self->value : null,
             $self->messages,
             array_map(

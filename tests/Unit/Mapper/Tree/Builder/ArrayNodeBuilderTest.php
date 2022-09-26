@@ -23,7 +23,7 @@ final class ArrayNodeBuilderTest extends TestCase
         $node = (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new(ArrayType::native()));
 
         self::assertSame([], $node->value());
-        self::assertEmpty($node->children());
+        self::assertEmpty($node->node()->children());
     }
 
     public function test_invalid_type_fails_assertion(): void

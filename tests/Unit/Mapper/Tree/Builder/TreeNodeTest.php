@@ -52,17 +52,24 @@ final class TreeNodeTest extends TestCase
         $attributesChildA = new FakeAttributes();
         $attributesChildB = new FakeAttributes();
 
-        $children = FakeTreeNode::branch([
+        $node = FakeTreeNode::branch([
             'foo' => ['type' => $typeChildA, 'value' => 'foo', 'attributes' => $attributesChildA],
             'bar' => ['type' => $typeChildB, 'value' => 'bar', 'attributes' => $attributesChildB],
-        ])->children();
+        ]);
 
-        self::assertSame('foo', $children['foo']->node()->name());
-        self::assertSame('foo', $children['foo']->node()->path());
-        self::assertFalse($children['foo']->node()->isRoot());
-        self::assertSame('bar', $children['bar']->node()->name());
-        self::assertSame('bar', $children['bar']->node()->path());
-        self::assertFalse($children['bar']->node()->isRoot());
+        $childFoo = $node->node()->children()['foo'];
+        $childBar = $node->node()->children()['bar'];
+
+        self::assertSame('foo', $childFoo->name());
+        self::assertSame('foo', $childFoo->path());
+        self::assertSame('foo', $childFoo->sourceValue());
+        self::assertSame(true, $childFoo->sourceFilled());
+        self::assertFalse($childFoo->isRoot());
+        self::assertSame('bar', $childBar->name());
+        self::assertSame('bar', $childBar->path());
+        self::assertSame('bar', $childBar->sourceValue());
+        self::assertSame(true, $childBar->sourceFilled());
+        self::assertFalse($childBar->isRoot());
     }
 
     public function test_node_branch_with_duplicated_child_name_throws_exception(): void
