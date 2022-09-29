@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
 use function is_bool;
 
 /** @internal */
@@ -44,15 +46,18 @@ final class NativeBooleanType implements ScalarType
 
     public function cast($value): bool
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
-        }
+        assert($this->canCast($value));
 
         if ($value === 'false') {
             return false;
         }
 
         return (bool)$value;
+    }
+
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid boolean.')->build();
     }
 
     public function toString(): string

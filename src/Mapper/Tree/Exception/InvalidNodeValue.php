@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
-use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
@@ -20,19 +19,15 @@ final class InvalidNodeValue extends RuntimeException implements ErrorMessage, H
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct($value, Type $type)
+    public function __construct(Type $type)
     {
         $this->parameters = [
-            'value' => ValueDumper::dump($value),
             'expected_type' => TypeHelper::dump($type),
         ];
 
         $this->body = TypeHelper::containsObject($type)
-            ? 'Invalid value {value}.'
-            : 'Value {value} does not match type {expected_type}.';
+            ? 'Invalid value {source_value}.'
+            : 'Value {source_value} does not match type {expected_type}.';
 
         parent::__construct(StringFormatter::for($this), 1630678334);
     }

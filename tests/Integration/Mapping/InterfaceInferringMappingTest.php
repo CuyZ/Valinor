@@ -386,8 +386,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['key']->messages()[0];
 
-            self::assertSame('1655030601', $error->code());
-            self::assertSame("Value 'foo' does not match type `int`.", (string)$error);
+            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
         }
     }
 

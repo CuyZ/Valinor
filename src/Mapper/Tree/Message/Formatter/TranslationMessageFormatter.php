@@ -31,8 +31,8 @@ final class TranslationMessageFormatter implements MessageFormatter
      * ```php
      * (TranslationMessageFormatter::default())->withTranslation(
      *     'fr',
-     *     'Invalid value {value}.',
-     *     'Valeur invalide {value}.',
+     *     'Invalid value {source_value}.',
+     *     'Valeur invalide {source_value}.',
      * );
      * ```
      */
@@ -52,9 +52,9 @@ final class TranslationMessageFormatter implements MessageFormatter
      *
      * ```php
      * $formatter = (TranslationMessageFormatter::default())->withTranslations([
-     *     'Invalid value {value}.' => [
-     *         'fr' => 'Valeur invalide {value}.',
-     *         'es' => 'Valor inválido {value}.',
+     *     'Invalid value {source_value}.' => [
+     *         'fr' => 'Valeur invalide {source_value}.',
+     *         'es' => 'Valor inválido {source_value}.',
      *     ],
      *     'Some custom message' => [
      *         // …

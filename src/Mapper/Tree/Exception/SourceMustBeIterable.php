@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
-use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
@@ -26,7 +25,6 @@ final class SourceMustBeIterable extends RuntimeException implements ErrorMessag
     public function __construct($value, Type $type)
     {
         $this->parameters = [
-            'value' => ValueDumper::dump($value),
             'expected_type' => TypeHelper::dump($type),
         ];
 
@@ -36,8 +34,8 @@ final class SourceMustBeIterable extends RuntimeException implements ErrorMessag
                 : 'Cannot be empty and must be filled with a value matching type {expected_type}.';
         } else {
             $this->body = TypeHelper::containsObject($type)
-                ? 'Invalid value {value}.'
-                : 'Value {value} does not match type {expected_type}.';
+                ? 'Invalid value {source_value}.'
+                : 'Value {source_value} does not match type {expected_type}.';
         }
 
         parent::__construct(StringFormatter::for($this), 1618739163);

@@ -8,7 +8,6 @@ use AssertionError;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTraversableKey;
-use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -31,15 +30,6 @@ final class ArrayNodeBuilderTest extends TestCase
         $this->expectException(AssertionError::class);
 
         (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new(new FakeType()));
-    }
-
-    public function test_build_with_invalid_source_throws_exception(): void
-    {
-        $this->expectException(SourceMustBeIterable::class);
-        $this->expectExceptionCode(1618739163);
-        $this->expectExceptionMessage("Value 'foo' does not match type `array`.");
-
-        (new RootNodeBuilder(new ArrayNodeBuilder(true)))->build(FakeShell::new(ArrayType::native(), 'foo'));
     }
 
     public function test_invalid_source_key_throws_exception(): void

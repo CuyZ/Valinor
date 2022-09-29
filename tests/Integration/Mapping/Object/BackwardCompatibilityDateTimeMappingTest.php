@@ -104,7 +104,7 @@ final class BackwardCompatibilityDateTimeMappingTest extends IntegrationTest
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1659706547', $error->code());
-            self::assertSame("Value 1337 does not match a valid date format.", (string)$error);
+            self::assertSame("Value array{datetime: 1337, format: 'H'} does not match a valid date format.", (string)$error);
         }
     }
 

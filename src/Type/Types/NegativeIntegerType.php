@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidNegativeIntegerValue;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
 use function filter_var;
 use function is_bool;
 use function is_int;
@@ -37,22 +38,21 @@ final class NegativeIntegerType implements IntegerType
 
     public function canCast($value): bool
     {
-        return ! is_bool($value) && filter_var($value, FILTER_VALIDATE_INT) !== false;
+        return ! is_bool($value)
+            && filter_var($value, FILTER_VALIDATE_INT) !== false
+            && $value < 0;
     }
 
     public function cast($value): int
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
-        }
+        assert($this->canCast($value));
 
-        $value = (int)$value; // @phpstan-ignore-line
+        return (int)$value; // @phpstan-ignore-line
+    }
 
-        if ($value >= 0) {
-            throw new InvalidNegativeIntegerValue($value);
-        }
-
-        return $value;
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid negative integer.')->build();
     }
 
     public function toString(): string

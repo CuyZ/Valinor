@@ -22,12 +22,12 @@ final class MessageFormatterTest extends IntegrationTest
             $formatter = new AggregateMessageFormatter(
                 new LocaleMessageFormatter('fr'),
                 new MessageMapFormatter([
-                    'Value {value} does not match type {expected_type}.' => 'New message: {value} / {expected_type}',
+                    'Value {source_value} is not a valid integer.' => 'New message: {source_value} / {node_type}',
                 ]),
                 (new TranslationMessageFormatter())->withTranslation(
                     'fr',
-                    'New message: {value} / {expected_type}',
-                    'Nouveau message : {value} / {expected_type}',
+                    'New message: {source_value} / {node_type}',
+                    'Nouveau message : {source_value} / {node_type}',
                 ),
             );
 

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValue;
 
-use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValueType;
-
+use function assert;
 use function filter_var;
 use function is_bool;
 
@@ -60,22 +60,23 @@ final class IntegerValueType implements IntegerType, FixedType
 
     public function canCast($value): bool
     {
-        return ! is_bool($value) && filter_var($value, FILTER_VALIDATE_INT) !== false;
+        return ! is_bool($value)
+            && filter_var($value, FILTER_VALIDATE_INT) !== false
+            && (int)$value === $this->value; // @phpstan-ignore-line;
     }
 
     public function cast($value): int
     {
-        if (! $this->canCast($value)) {
-            throw new InvalidIntegerValueType($value, $this->value);
-        }
+        assert($this->canCast($value));
 
-        $value = (int)$value; // @phpstan-ignore-line
+        return (int)$value; // @phpstan-ignore-line;
+    }
 
-        if (! $this->accepts($value)) {
-            throw new InvalidIntegerValue($value, $this->value);
-        }
-
-        return $value;
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} does not match integer value {expected_value}.')
+            ->withParameter('expected_value', (string)$this->value)
+            ->build();
     }
 
     public function value(): int

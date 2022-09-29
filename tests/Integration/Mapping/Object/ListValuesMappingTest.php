@@ -93,8 +93,7 @@ final class ListValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['integers']->children()['0']->messages()[0];
 
-            self::assertSame('1655030601', $error->code());
-            self::assertSame("Value 'foo' does not match type `int`.", (string)$error);
+            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
         }
     }
 }

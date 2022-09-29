@@ -58,6 +58,6 @@ final class DateTimeFormatConstructor
             }
         }
 
-        throw new CannotParseToDateTime($value, $this->formats);
+        throw new CannotParseToDateTime($this->formats);
     }
 }

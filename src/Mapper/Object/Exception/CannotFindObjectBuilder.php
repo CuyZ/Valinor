@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
-use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 use function array_keys;
@@ -19,19 +18,17 @@ use function ksort;
 /** @internal */
 final class CannotFindObjectBuilder extends RuntimeException implements ErrorMessage, HasParameters
 {
-    private string $body = 'Value {value} does not match any of {allowed_types}.';
+    private string $body = 'Value {source_value} does not match any of {allowed_types}.';
 
     /** @var array<string, string> */
     private array $parameters;
 
     /**
-     * @param mixed $source
      * @param non-empty-list<ObjectBuilder> $builders
      */
-    public function __construct($source, array $builders)
+    public function __construct(array $builders)
     {
         $this->parameters = [
-            'value' => ValueDumper::dump($source),
             'allowed_types' => (function () use ($builders) {
                 $signatures = [];
                 $sortedSignatures = [];

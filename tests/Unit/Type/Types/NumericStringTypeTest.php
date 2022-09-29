@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidNumericStringValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -49,14 +48,14 @@ final class NumericStringTypeTest extends TestCase
 
     public function test_can_cast_stringable_value(): void
     {
-        self::assertTrue($this->numericStringType->canCast('Schwifty!'));
         self::assertTrue($this->numericStringType->canCast(42.1337));
         self::assertTrue($this->numericStringType->canCast(404));
-        self::assertTrue($this->numericStringType->canCast(new StringableObject()));
+        self::assertTrue($this->numericStringType->canCast(new StringableObject('1337')));
     }
 
     public function test_cannot_cast_other_types(): void
     {
+        self::assertFalse($this->numericStringType->canCast('Schwifty!'));
         self::assertFalse($this->numericStringType->canCast(null));
         self::assertFalse($this->numericStringType->canCast(['foo' => 'bar']));
         self::assertFalse($this->numericStringType->canCast(false));
@@ -93,18 +92,14 @@ final class NumericStringTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast object(stdClass) to `numeric-string`.');
+        $this->expectException(AssertionError::class);
 
         $this->numericStringType->cast(new stdClass());
     }
 
     public function test_cast_invalid_numeric_throws_exception(): void
     {
-        $this->expectException(InvalidNumericStringValue::class);
-        $this->expectExceptionCode(1632923705);
-        $this->expectExceptionMessage('Invalid value qqq: it must be a numeric.');
+        $this->expectException(AssertionError::class);
 
         $this->numericStringType->cast('qqq');
     }

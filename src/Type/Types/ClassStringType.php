@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidClassString;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
+use function assert;
 use function is_object;
 use function is_string;
 use function method_exists;
@@ -105,24 +106,28 @@ final class ClassStringType implements StringType, CompositeType
 
     public function canCast($value): bool
     {
-        return is_string($value)
-            // @PHP8.0 `$value instanceof Stringable`
-            || (is_object($value) && method_exists($value, '__toString'));
+        return (is_string($value)
+                // @PHP8.0 `$value instanceof Stringable`
+                || (is_object($value) && method_exists($value, '__toString'))
+            ) && $this->accepts((string)$value);
     }
 
     public function cast($value): string
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
+        assert($this->canCast($value));
+
+        return (string)$value; // @phpstan-ignore-line
+    }
+
+    public function errorMessage(): ErrorMessage
+    {
+        if ($this->subType) {
+            return MessageBuilder::newError('Value {source_value} is not a valid class string of `{expected_class_type}`.')
+                ->withParameter('expected_class_type', $this->subType->toString())
+                ->build();
         }
 
-        $value = (string)$value; // @phpstan-ignore-line
-
-        if (! $this->accepts($value)) {
-            throw new InvalidClassString($value, $this->subType);
-        }
-
-        return $value;
+        return MessageBuilder::newError('Value {source_value} is not a valid class string.')->build();
     }
 
     /**

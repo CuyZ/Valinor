@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
-use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 use function array_map;
@@ -23,13 +22,9 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Error
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct(UnionType $unionType, $value)
+    public function __construct(UnionType $unionType)
     {
         $this->parameters = [
-            'value' => ValueDumper::dump($value),
             'allowed_types' => implode(
                 ', ',
                 // @PHP8.1 First-class callable syntax
@@ -38,8 +33,8 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Error
         ];
 
         $this->body = TypeHelper::containsObject($unionType)
-            ? 'Invalid value {value}.'
-            : 'Value {value} does not match any of {allowed_types}.';
+            ? 'Invalid value {source_value}.'
+            : 'Value {source_value} does not match any of {allowed_types}.';
 
         parent::__construct(StringFormatter::for($this), 1607027306);
     }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\InvalidFloatValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidFloatValueType;
+
+use function assert;
 
 /** @internal */
 final class FloatValueType implements FloatType, FixedType
@@ -40,22 +42,21 @@ final class FloatValueType implements FloatType, FixedType
 
     public function canCast($value): bool
     {
-        return is_numeric($value);
+        return is_numeric($value) && (float)$value === $this->value;
     }
 
     public function cast($value): float
     {
-        if (! $this->canCast($value)) {
-            throw new InvalidFloatValueType($value, $this->value);
-        }
+        assert($this->canCast($value));
 
-        $value = (float)$value; // @phpstan-ignore-line
+        return (float)$value; // @phpstan-ignore-line
+    }
 
-        if (! $this->accepts($value)) {
-            throw new InvalidFloatValue($value, $this->value);
-        }
-
-        return $value;
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} does not match float value {expected_value}.')
+            ->withParameter('expected_value', (string)$this->value)
+            ->build();
     }
 
     public function value(): float

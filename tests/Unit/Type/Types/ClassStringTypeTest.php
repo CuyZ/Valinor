@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
-use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
-use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidClassString;
+use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
@@ -107,7 +106,7 @@ final class ClassStringTypeTest extends TestCase
 
     public function test_can_cast_stringable_value(): void
     {
-        self::assertTrue((new ClassStringType())->canCast('foo'));
+        self::assertTrue((new ClassStringType())->canCast(stdClass::class));
     }
 
     public function test_cannot_cast_other_types(): void
@@ -117,6 +116,7 @@ final class ClassStringTypeTest extends TestCase
         self::assertFalse($classStringType->canCast(null));
         self::assertFalse($classStringType->canCast(42.1337));
         self::assertFalse($classStringType->canCast(404));
+        self::assertFalse((new ClassStringType())->canCast('foo'));
         self::assertFalse($classStringType->canCast(true));
         self::assertFalse($classStringType->canCast(['foo' => 'bar']));
         self::assertFalse($classStringType->canCast(new stdClass()));
@@ -146,44 +146,36 @@ final class ClassStringTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast 42 to `class-string`.');
+        $this->expectException(AssertionError::class);
 
         (new ClassStringType())->cast(42);
     }
 
     public function test_cast_invalid_class_string_throws_exception(): void
     {
-        $classStringObject = new StringableObject('foo');
+        $this->expectException(AssertionError::class);
 
-        $this->expectException(InvalidClassString::class);
-        $this->expectExceptionCode(1608132562);
-        $this->expectExceptionMessage("Invalid class string `foo`.");
+        $classStringObject = new StringableObject('foo');
 
         (new ClassStringType())->cast($classStringObject);
     }
 
     public function test_cast_invalid_class_string_of_object_type_throws_exception(): void
     {
+        $this->expectException(AssertionError::class);
+
         $objectType = new FakeObjectType();
         $classStringObject = new StringableObject(DateTimeInterface::class);
-
-        $this->expectException(InvalidClassString::class);
-        $this->expectExceptionCode(1608132562);
-        $this->expectExceptionMessage("Invalid class string `DateTimeInterface`, it must be a subtype of `{$objectType->toString()}`.");
 
         (new ClassStringType($objectType))->cast($classStringObject);
     }
 
     public function test_cast_invalid_class_string_of_union_type_throws_exception(): void
     {
+        $this->expectException(AssertionError::class);
+
         $unionType = new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class));
         $classStringObject = new StringableObject(DateTimeInterface::class);
-
-        $this->expectException(InvalidClassString::class);
-        $this->expectExceptionCode(1608132562);
-        $this->expectExceptionMessage("Invalid class string `DateTimeInterface`, it must be one of `DateTime`, `stdClass`.");
 
         (new ClassStringType($unionType))->cast($classStringObject);
     }

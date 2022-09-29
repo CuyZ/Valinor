@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidNegativeIntegerValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
@@ -94,27 +93,21 @@ final class NegativeIntegerTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast 'foo' to `negative-int`.");
+        $this->expectException(AssertionError::class);
 
         $this->negativeIntegerType->cast('foo');
     }
 
     public function test_cast_invalid_positive_value_throws_exception(): void
     {
-        $this->expectException(InvalidNegativeIntegerValue::class);
-        $this->expectExceptionCode(1632923705);
-        $this->expectExceptionMessage('Invalid value 1337: it must be a negative integer.');
+        $this->expectException(AssertionError::class);
 
         $this->negativeIntegerType->cast(1337);
     }
 
     public function test_cast_positive_value_with_zero_throws_exception(): void
     {
-        $this->expectException(InvalidNegativeIntegerValue::class);
-        $this->expectExceptionCode(1632923705);
-        $this->expectExceptionMessage('Invalid value 0: it must be a negative integer.');
+        $this->expectException(AssertionError::class);
 
         $this->negativeIntegerType->cast(0);
     }

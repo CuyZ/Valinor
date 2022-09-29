@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -108,22 +108,32 @@ final class BooleanValueTypeTest extends TestCase
         self::assertSame(false, BooleanValueType::false()->cast('false'));
     }
 
-    public function test_cast_invalid_value_to_true_throws_exception(): void
+    public function test_cast_invalid_value_type_to_true_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast 'foo' to `true`.");
+        $this->expectException(AssertionError::class);
 
         BooleanValueType::true()->cast('foo');
     }
 
-    public function test_cast_invalid_value_to_false_throws_exception(): void
+    public function test_cast_invalid_value_to_true_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast 'foo' to `false`.");
+        $this->expectException(AssertionError::class);
+
+        BooleanValueType::true()->cast(false);
+    }
+
+    public function test_cast_invalid_value_type_to_false_throws_exception(): void
+    {
+        $this->expectException(AssertionError::class);
 
         BooleanValueType::false()->cast('foo');
+    }
+
+    public function test_cast_invalid_value_to_false_throws_exception(): void
+    {
+        $this->expectException(AssertionError::class);
+
+        BooleanValueType::false()->cast(true);
     }
 
     public function test_matches_same_type(): void

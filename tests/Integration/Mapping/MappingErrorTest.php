@@ -14,7 +14,7 @@ final class MappingErrorTest extends IntegrationTest
     {
         $this->expectException(MappingError::class);
         $this->expectExceptionCode(1617193185);
-        $this->expectExceptionMessage("Could not map type `string`. An error occurred at path *root*: Value array{0: 'foo'} does not match type `string`.");
+        $this->expectExceptionMessage("Could not map type `string`. An error occurred at path *root*: Value array{0: 'foo'} is not a valid string.");
 
         (new MapperBuilder())->mapper()->map('string', ['foo']);
     }
