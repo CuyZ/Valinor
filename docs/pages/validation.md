@@ -110,21 +110,22 @@ try {
 }
 ```
 
-### 2. Use provided message class
+### 2. Use provided message builder
 
-The built-in class `\CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage` can be
-thrown.
+The utility class `\CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder` can be used
+to build a message.
 
 ```php
 final class SomeClass
 {
     public function __construct(private string $value)
     {
-        if ($this->value === 'foo') {
-            throw \CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage::new(
-                'Some custom error message.',
-                'some_code'
-            );
+        if (str_starts_with($this->value, 'foo_')) {
+            throw \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder::newError(
+                'Some custom error message: {value}.'
+            )
+            ->withCode('some_code')
+            ->withParameter('value', $this->value);
         }
     }
 }
@@ -161,7 +162,7 @@ try {
     (new \CuyZ\Valinor\MapperBuilder())
         ->filterExceptions(function (Throwable $exception) {
             if ($exception instanceof \Webmozart\Assert\InvalidArgumentException) {
-                return \CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage::from($exception);
+                return \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder::from($exception);
             } 
             
             // If the exception should not be caught by this library, it
