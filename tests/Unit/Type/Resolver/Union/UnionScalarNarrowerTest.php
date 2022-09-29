@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Resolver\Union;
 
-use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Type\IntegerType;
-use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveTypeFromUnion;
 use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
@@ -93,38 +91,5 @@ final class UnionScalarNarrowerTest extends TestCase
         $type = $this->unionScalarNarrower->narrow($unionType, 42);
 
         self::assertInstanceOf(IntegerType::class, $type);
-    }
-
-    public function test_several_possible_types_throws_exception(): void
-    {
-        $unionType = new UnionType(NativeBooleanType::get(), NativeIntegerType::get(), NativeFloatType::get());
-
-        $this->expectException(CannotResolveTypeFromUnion::class);
-        $this->expectExceptionCode(1607027306);
-        $this->expectExceptionMessage("Value 'foo' does not match any of `bool`, `int`, `float`.");
-
-        $this->unionScalarNarrower->narrow($unionType, 'foo');
-    }
-
-    public function test_several_possible_types_with_object_throws_exception(): void
-    {
-        $unionType = new UnionType(new FakeObjectType(), NativeIntegerType::get(), NativeFloatType::get());
-
-        $this->expectException(CannotResolveTypeFromUnion::class);
-        $this->expectExceptionCode(1607027306);
-        $this->expectExceptionMessage("Invalid value 'foo'.");
-
-        $this->unionScalarNarrower->narrow($unionType, 'foo');
-    }
-
-    public function test_null_value_but_null_not_in_union_throws_exception(): void
-    {
-        $unionType = new UnionType(NativeBooleanType::get(), NativeIntegerType::get(), NativeFloatType::get());
-
-        $this->expectException(CannotResolveTypeFromUnion::class);
-        $this->expectExceptionCode(1607027306);
-        $this->expectExceptionMessage("Value null does not match any of `bool`, `int`, `float`.");
-
-        $this->unionScalarNarrower->narrow($unionType, null);
     }
 }

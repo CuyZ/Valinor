@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidEmptyStringValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -59,6 +58,7 @@ final class NonEmptyStringTypeTest extends TestCase
         self::assertFalse($this->nonEmptyStringType->canCast(['foo' => 'bar']));
         self::assertFalse($this->nonEmptyStringType->canCast(false));
         self::assertFalse($this->nonEmptyStringType->canCast(new stdClass()));
+        self::assertFalse($this->nonEmptyStringType->canCast(new StringableObject('')));
     }
 
     /**
@@ -95,18 +95,14 @@ final class NonEmptyStringTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage('Cannot cast object(stdClass) to `non-empty-string`.');
+        $this->expectException(AssertionError::class);
 
         $this->nonEmptyStringType->cast(new stdClass());
     }
 
     public function test_cast_empty_string_throws_exception(): void
     {
-        $this->expectException(InvalidEmptyStringValue::class);
-        $this->expectExceptionCode(1632925312);
-        $this->expectExceptionMessage('Cannot be empty and must be filled with a valid string value.');
+        $this->expectException(AssertionError::class);
 
         $this->nonEmptyStringType->cast('');
     }

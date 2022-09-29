@@ -8,50 +8,68 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 interface DefaultMessage
 {
     public const TRANSLATIONS = [
-        'Value {value} does not match expected {expected_value}.' => [
-            'en' => 'Value {value} does not match expected {expected_value}.',
+        'Value {source_value} does not match any of {allowed_values}.' => [
+            'en' => 'Value {source_value} does not match any of {allowed_values}.',
         ],
-        'Value {value} does not match any of {allowed_values}.' => [
-            'en' => 'Value {value} does not match any of {allowed_values}.',
+        'Value {source_value} does not match any of {allowed_types}.' => [
+            'en' => 'Value {source_value} does not match any of {allowed_types}.',
         ],
-        'Value {value} does not match any of {allowed_types}.' => [
-            'en' => 'Value {value} does not match any of {allowed_types}.',
+        'Value {source_value} does not match type {expected_type}.' => [
+            'en' => 'Value {source_value} does not match type {expected_type}.',
         ],
-        'Value {value} does not match type {expected_type}.' => [
-            'en' => 'Value {value} does not match type {expected_type}.',
+        'Value {source_value} does not match boolean value {expected_value}.' => [
+            'en' => 'Value {source_value} does not match boolean value {expected_value}.',
         ],
-        'Value {value} does not match float value {expected_value}.' => [
-            'en' => 'Value {value} does not match float value {expected_value}.',
+        'Value {source_value} does not match float value {expected_value}.' => [
+            'en' => 'Value {source_value} does not match float value {expected_value}.',
         ],
-        'Value {value} does not match integer value {expected_value}.' => [
-            'en' => 'Value {value} does not match integer value {expected_value}.',
+        'Value {source_value} does not match integer value {expected_value}.' => [
+            'en' => 'Value {source_value} does not match integer value {expected_value}.',
         ],
-        'Value {value} does not match string value {expected_value}.' => [
-            'en' => 'Value {value} does not match string value {expected_value}.',
+        'Value {source_value} does not match string value {expected_value}.' => [
+            'en' => 'Value {source_value} does not match string value {expected_value}.',
         ],
-        'Invalid value {value}.' => [
-            'en' => 'Invalid value {value}.',
+        'Value {source_value} is not a valid boolean.' => [
+            'en' => 'Value {source_value} is not a valid boolean.',
         ],
-        'Invalid value {value}: it must be an integer between {min} and {max}.' => [
-            'en' => 'Invalid value {value}: it must be an integer between {min} and {max}.',
+        'Value {source_value} is not a valid float.' => [
+            'en' => 'Value {source_value} is not a valid float.',
         ],
-        'Invalid value {value}: it must be a negative integer.' => [
-            'en' => 'Invalid value {value}: it must be a negative integer.',
+        'Value {source_value} is not a valid integer.' => [
+            'en' => 'Value {source_value} is not a valid integer.',
         ],
-        'Invalid value {value}: it must be a positive integer.' => [
-            'en' => 'Invalid value {value}: it must be a positive integer.',
+        'Value {source_value} is not a valid string.' => [
+            'en' => 'Value {source_value} is not a valid string.',
+        ],
+        'Value {source_value} is not a valid negative integer.' => [
+            'en' => 'Value {source_value} is not a valid negative integer.',
+        ],
+        'Value {source_value} is not a valid positive integer.' => [
+            'en' => 'Value {source_value} is not a valid positive integer.',
+        ],
+        'Value {source_value} is not a valid non-empty string.' => [
+            'en' => 'Value {source_value} is not a valid non-empty string.',
+        ],
+        'Value {source_value} is not a valid numeric string.' => [
+            'en' => 'Value {source_value} is not a valid numeric string.',
+        ],
+        'Value {source_value} is not a valid integer between {min} and {max}.' => [
+            'en' => 'Value {source_value} is not a valid integer between {min} and {max}.',
+        ],
+        'Value {source_value} is not a valid class string.' => [
+            'en' => 'Value {source_value} is not a valid class string.',
+        ],
+        'Value {source_value} is not a valid class string of `{expected_class_type}`.' => [
+            'en' => 'Value {source_value} is not a valid class string of `{expected_class_type}`.',
+        ],
+        'Invalid value {source_value}.' => [
+            'en' => 'Invalid value {source_value}.',
         ],
         'Invalid sequential key {key}, expected {expected}.' => [
             'en' => 'Invalid sequential key {key}, expected {expected}.',
         ],
-        'Cannot cast {value} to {expected_type}.' => [
-            'en' => 'Cannot cast {value} to {expected_type}.',
-        ],
         'Cannot be empty.' => [
             'en' => 'Cannot be empty.',
-        ],
-        'Cannot be empty and must be filled with a valid string value.' => [
-            'en' => 'Cannot be empty and must be filled with a valid string value.',
         ],
         'Cannot be empty and must be filled with a value matching type {expected_type}.' => [
             'en' => 'Cannot be empty and must be filled with a value matching type {expected_type}.',
@@ -59,20 +77,11 @@ interface DefaultMessage
         'Key {key} does not match type {expected_type}.' => [
             'en' => 'Key {key} does not match type {expected_type}.',
         ],
-        'Value {value} does not match a valid date format.' => [
-            'en' => 'Value {value} does not match a valid date format.',
+        'Value {source_value} does not match a valid date format.' => [
+            'en' => 'Value {source_value} does not match a valid date format.',
         ],
-        'Value {value} does not match any of the following formats: {formats}.' => [
-            'en' => 'Value {value} does not match any of the following formats: {formats}.',
-        ],
-        'Invalid class string {value}, it must be one of {expected_class_strings}.' => [
-            'en' => 'Invalid class string {value}, it must be one of {expected_class_strings}.',
-        ],
-        'Invalid class string {value}, it must be a subtype of {expected_class_strings}.' => [
-            'en' => 'Invalid class string {value}, it must be a subtype of {expected_class_strings}.',
-        ],
-        'Invalid class string {value}.' => [
-            'en' => 'Invalid class string {value}.',
+        'Value {source_value} does not match any of the following formats: {formats}.' => [
+            'en' => 'Value {source_value} does not match any of the following formats: {formats}.',
         ],
     ];
 }

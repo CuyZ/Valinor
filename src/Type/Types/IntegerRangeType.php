@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ReversedValuesForIntegerRange;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\SameValueForIntegerRange;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerRangeValue;
 
 use function sprintf;
 
@@ -80,22 +80,25 @@ final class IntegerRangeType implements IntegerType
 
     public function canCast($value): bool
     {
-        return ! is_bool($value) && filter_var($value, FILTER_VALIDATE_INT) !== false;
+        return ! is_bool($value)
+            && filter_var($value, FILTER_VALIDATE_INT) !== false
+            && $value >= $this->min
+            && $value <= $this->max;
     }
 
     public function cast($value): int
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
-        }
+        assert($this->canCast($value));
 
-        $value = (int)$value; // @phpstan-ignore-line
+        return (int)$value; // @phpstan-ignore-line
+    }
 
-        if ($value < $this->min || $value > $this->max) {
-            throw new InvalidIntegerRangeValue($value, $this);
-        }
-
-        return $value;
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid integer between {min} and {max}.')
+            ->withParameter('min', (string)$this->min)
+            ->withParameter('max', (string)$this->max)
+            ->build();
     }
 
     public function min(): int

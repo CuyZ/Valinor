@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidNumericStringValue;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
 use function is_numeric;
 use function is_string;
 
@@ -37,25 +38,24 @@ final class NumericStringType implements StringType
 
     public function canCast($value): bool
     {
-        return is_string($value)
-            || is_numeric($value)
-            // @PHP8.0 `$value instanceof Stringable`
-            || (is_object($value) && method_exists($value, '__toString'));
+        // @PHP8.0 `$value instanceof Stringable`
+        if (is_object($value) && method_exists($value, '__toString')) {
+            $value = (string)$value;
+        }
+
+        return is_numeric($value);
     }
 
     public function cast($value): string
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
-        }
+        assert($this->canCast($value));
 
-        $value = (string)$value; // @phpstan-ignore-line
+        return (string)$value; // @phpstan-ignore-line
+    }
 
-        if (! is_numeric($value)) {
-            throw new InvalidNumericStringValue($value);
-        }
-
-        return $value;
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid numeric string.')->build();
     }
 
     public function toString(): string

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type;
 
-use CuyZ\Valinor\Type\Types\Exception\CastError;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 
 /** @internal */
 interface ScalarType extends Type
@@ -17,8 +17,8 @@ interface ScalarType extends Type
     /**
      * @param mixed $value
      * @return scalar
-     *
-     * @throws CastError
      */
     public function cast($value);
+
+    public function errorMessage(): ErrorMessage;
 }

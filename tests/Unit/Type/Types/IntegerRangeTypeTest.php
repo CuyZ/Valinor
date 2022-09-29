@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ReversedValuesForIntegerRange;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\SameValueForIntegerRange;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerRangeValue;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -68,9 +67,12 @@ final class IntegerRangeTypeTest extends TestCase
 
     public function test_can_cast_integer_value(): void
     {
+        self::assertTrue($this->type->canCast(-42));
         self::assertTrue($this->type->canCast(42));
         self::assertTrue($this->type->canCast('42'));
+        self::assertTrue($this->type->canCast('-42'));
         self::assertTrue($this->type->canCast(42.00));
+        self::assertTrue($this->type->canCast(-42.00));
     }
 
     public function test_cannot_cast_other_types(): void
@@ -113,18 +115,14 @@ final class IntegerRangeTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast 'foo' to `{$this->type->toString()}`.");
+        $this->expectException(AssertionError::class);
 
         $this->type->cast('foo');
     }
 
     public function test_cast_invalid_integer_value_throws_exception(): void
     {
-        $this->expectException(InvalidIntegerRangeValue::class);
-        $this->expectExceptionCode(1638785150);
-        $this->expectExceptionMessage("Invalid value 1337: it must be an integer between {$this->type->min()} and {$this->type->max()}.");
+        $this->expectException(AssertionError::class);
 
         $this->type->cast(1337);
     }

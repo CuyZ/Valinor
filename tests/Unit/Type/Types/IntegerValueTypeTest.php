@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidIntegerValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
@@ -51,13 +50,13 @@ final class IntegerValueTypeTest extends TestCase
 
     public function test_can_cast_integer_value(): void
     {
-        self::assertTrue($this->type->canCast(404));
-        self::assertTrue($this->type->canCast('404'));
-        self::assertTrue($this->type->canCast(404.00));
+        self::assertTrue($this->type->canCast(1337));
     }
 
     public function test_cannot_cast_other_types(): void
     {
+        self::assertFalse($this->type->canCast(404));
+        self::assertFalse($this->type->canCast('404'));
         self::assertFalse($this->type->canCast(null));
         self::assertFalse($this->type->canCast(42.1337));
         self::assertFalse($this->type->canCast(['foo' => 'bar']));
@@ -96,18 +95,14 @@ final class IntegerValueTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(InvalidIntegerValueType::class);
-        $this->expectExceptionCode(1631267159);
-        $this->expectExceptionMessage("Value 'foo' does not match integer value 1337.");
+        $this->expectException(AssertionError::class);
 
         $this->type->cast('foo');
     }
 
     public function test_cast_another_integer_value_throws_exception(): void
     {
-        $this->expectException(InvalidIntegerValue::class);
-        $this->expectExceptionCode(1631090798);
-        $this->expectExceptionMessage('Value 42 does not match expected 1337.');
+        $this->expectException(AssertionError::class);
 
         $this->type->cast('42');
     }

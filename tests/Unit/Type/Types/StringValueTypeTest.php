@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Type\Types\Exception\InvalidStringValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidStringValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -55,13 +54,13 @@ final class StringValueTypeTest extends TestCase
     public function test_can_cast_stringable_value(): void
     {
         self::assertTrue($this->type->canCast('Schwifty!'));
-        self::assertTrue($this->type->canCast(42.1337));
-        self::assertTrue($this->type->canCast(404));
-        self::assertTrue($this->type->canCast(new StringableObject()));
+        self::assertTrue($this->type->canCast(new StringableObject('Schwifty!')));
     }
 
     public function test_cannot_cast_other_types(): void
     {
+        self::assertFalse($this->type->canCast(404));
+        self::assertFalse($this->type->canCast(42.1337));
         self::assertFalse($this->type->canCast(null));
         self::assertFalse($this->type->canCast(['foo' => 'bar']));
         self::assertFalse($this->type->canCast(false));
@@ -104,20 +103,9 @@ final class StringValueTypeTest extends TestCase
         ];
     }
 
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(InvalidStringValueType::class);
-        $this->expectExceptionCode(1631263954);
-        $this->expectExceptionMessage("Value object(stdClass) does not match string value 'Schwifty!'.");
-
-        $this->type->cast(new stdClass());
-    }
-
     public function test_cast_another_string_value_throws_exception(): void
     {
-        $this->expectException(InvalidStringValue::class);
-        $this->expectExceptionCode(1631263740);
-        $this->expectExceptionMessage("Value 'Schwifty?' does not match expected 'Schwifty!'.");
+        $this->expectException(AssertionError::class);
 
         $typeA = new StringValueType('Schwifty!');
 

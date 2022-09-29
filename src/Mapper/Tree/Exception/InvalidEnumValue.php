@@ -18,19 +18,17 @@ use function implode;
 /** @internal */
 final class InvalidEnumValue extends RuntimeException implements ErrorMessage, HasParameters
 {
-    private string $body = 'Value {value} does not match any of {allowed_values}.';
+    private string $body = 'Value {source_value} does not match any of {allowed_values}.';
 
     /** @var array<string, string> */
     private array $parameters;
 
     /**
      * @param class-string<UnitEnum> $enumName
-     * @param mixed $value
      */
-    public function __construct(string $enumName, $value)
+    public function __construct(string $enumName)
     {
         $this->parameters = [
-            'value' => ValueDumper::dump($value),
             'allowed_values' => (function () use ($enumName) {
                 $values = array_map(
                     fn (UnitEnum $case) => ValueDumper::dump($case instanceof BackedEnum ? $case->value : $case->name),

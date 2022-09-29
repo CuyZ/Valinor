@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Types\Exception\InvalidFloatValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidFloatValueType;
-use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -48,13 +47,15 @@ final class FloatValueTypeTest extends TestCase
 
     public function test_can_cast_float_value(): void
     {
-        self::assertTrue($this->floatValueType->canCast(404));
-        self::assertTrue($this->floatValueType->canCast(42.1337));
-        self::assertTrue($this->floatValueType->canCast('42.1337'));
+        self::assertTrue($this->floatValueType->canCast(1337.42));
+        self::assertTrue($this->floatValueType->canCast('1337.42'));
     }
 
     public function test_cannot_cast_other_types(): void
     {
+        self::assertFalse($this->floatValueType->canCast(404));
+        self::assertFalse($this->floatValueType->canCast(42.1337));
+        self::assertFalse($this->floatValueType->canCast('42.1337'));
         self::assertFalse($this->floatValueType->canCast(null));
         self::assertFalse($this->floatValueType->canCast(['foo' => 'bar']));
         self::assertFalse($this->floatValueType->canCast('Schwifty!'));
@@ -70,18 +71,14 @@ final class FloatValueTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(InvalidFloatValueType::class);
-        $this->expectExceptionCode(1652110003);
-        $this->expectExceptionMessage("Value 'foo' does not match float value 1337.42.");
+        $this->expectException(AssertionError::class);
 
         $this->floatValueType->cast('foo');
     }
 
     public function test_cast_another_float_value_throws_exception(): void
     {
-        $this->expectException(InvalidFloatValue::class);
-        $this->expectExceptionCode(1652110115);
-        $this->expectExceptionMessage('Value 404.42 does not match expected 1337.42.');
+        $this->expectException(AssertionError::class);
 
         $this->floatValueType->cast('404.42');
     }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
 use function is_float;
 use function is_numeric;
 
@@ -39,11 +41,14 @@ final class NativeFloatType implements FloatType
 
     public function cast($value): float
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
-        }
+        assert($this->canCast($value));
 
         return (float)$value; // @phpstan-ignore-line
+    }
+
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid float.')->build();
     }
 
     public function toString(): string

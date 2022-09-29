@@ -68,11 +68,11 @@ final class FilteredObjectBuilder implements ObjectBuilder
         $constructorsWithMostArguments = array_pop($constructors) ?: [];
 
         if (count($constructorsWithMostArguments) === 0) {
-            throw new CannotFindObjectBuilder($source, $builders);
+            throw new CannotFindObjectBuilder($builders);
         }
 
         if (count($constructorsWithMostArguments) > 1) {
-            throw new SeveralObjectBuildersFound($source);
+            throw new SeveralObjectBuildersFound();
         }
 
         return $constructorsWithMostArguments[0];

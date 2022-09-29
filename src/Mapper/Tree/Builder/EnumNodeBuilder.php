@@ -40,7 +40,7 @@ final class EnumNodeBuilder implements NodeBuilder
             }
         }
 
-        throw new InvalidEnumValue($type->className(), $value);
+        throw new InvalidEnumValue($type->className());
     }
 
     /**

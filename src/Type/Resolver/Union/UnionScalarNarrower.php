@@ -38,6 +38,6 @@ final class UnionScalarNarrower implements UnionNarrower
             return $canCast[0];
         }
 
-        throw new CannotResolveTypeFromUnion($unionType, $source);
+        throw new CannotResolveTypeFromUnion($unionType);
     }
 }

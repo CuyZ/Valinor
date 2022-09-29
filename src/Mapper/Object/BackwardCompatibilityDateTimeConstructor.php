@@ -57,7 +57,7 @@ final class BackwardCompatibilityDateTimeConstructor
 
         if (! $date) {
             // @PHP8.0 use throw exception expression
-            throw new CannotParseToBackwardCompatibilityDateTime($datetime);
+            throw new CannotParseToBackwardCompatibilityDateTime();
         }
 
         return $date;

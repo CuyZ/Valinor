@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -106,9 +106,7 @@ final class NativeIntegerTypeTest extends TestCase
 
     public function test_cast_invalid_value_throws_exception(): void
     {
-        $this->expectException(CannotCastValue::class);
-        $this->expectExceptionCode(1603216198);
-        $this->expectExceptionMessage("Cannot cast 'foo' to `int`.");
+        $this->expectException(AssertionError::class);
 
         $this->integerType->cast('foo');
     }

@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\CannotCastValue;
-use CuyZ\Valinor\Type\Types\Exception\InvalidEmptyStringValue;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
 use function is_numeric;
 use function is_object;
 use function is_string;
@@ -38,25 +39,23 @@ final class NonEmptyStringType implements StringType
 
     public function canCast($value): bool
     {
-        return is_string($value)
-            || is_numeric($value)
-            // @PHP8.0 `$value instanceof Stringable`
-            || (is_object($value) && method_exists($value, '__toString'));
+        return (is_string($value)
+                || is_numeric($value)
+                // @PHP8.0 `$value instanceof Stringable`
+                || (is_object($value) && method_exists($value, '__toString'))
+            ) && (string)$value !== '';
     }
 
     public function cast($value): string
     {
-        if (! $this->canCast($value)) {
-            throw new CannotCastValue($value, $this);
-        }
+        assert($this->canCast($value));
 
-        $value = (string)$value; // @phpstan-ignore-line
+        return (string)$value; // @phpstan-ignore-line
+    }
 
-        if ($value === '') {
-            throw new InvalidEmptyStringValue();
-        }
-
-        return $value;
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid non-empty string.')->build();
     }
 
     public function toString(): string

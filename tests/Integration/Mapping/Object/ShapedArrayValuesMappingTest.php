@@ -79,8 +79,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
 
-            self::assertSame('1655030601', $error->code());
-            self::assertSame('Value object(stdClass) does not match type `string`.', (string)$error);
+            self::assertSame('Value object(stdClass) is not a valid string.', (string)$error);
         }
     }
 }
