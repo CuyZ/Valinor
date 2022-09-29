@@ -9,13 +9,6 @@ use CuyZ\Valinor\Definition\EmptyAttributes;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\NonEmptyStringType;
-use CuyZ\Valinor\Type\Types\NullType;
-use CuyZ\Valinor\Type\Types\PositiveIntegerType;
-use CuyZ\Valinor\Type\Types\ShapedArrayElement;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
-use CuyZ\Valinor\Type\Types\StringValueType;
-use CuyZ\Valinor\Type\Types\UnionType;
 
 /** @internal */
 final class Argument
@@ -35,24 +28,6 @@ final class Argument
     {
         $this->name = $name;
         $this->type = $type;
-    }
-
-    public static function forDateTime(): self
-    {
-        return new self('value', new UnionType(
-            new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get()),
-            new ShapedArrayType(
-                new ShapedArrayElement(
-                    new StringValueType('datetime'),
-                    new UnionType(PositiveIntegerType::get(), NonEmptyStringType::get())
-                ),
-                new ShapedArrayElement(
-                    new StringValueType('format'),
-                    new UnionType(NullType::get(), NonEmptyStringType::get()),
-                    true
-                ),
-            )
-        ));
     }
 
     public static function fromParameter(ParameterDefinition $parameter): self
