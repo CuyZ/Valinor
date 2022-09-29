@@ -37,7 +37,7 @@ Here is an implementation example for the [nesbot/carbon] library:
     // Carbon uses its own exceptions, so we need to wrap it for the mapper
     ->filterExceptions(function (Throwable $exception) {
         if ($exception instanceof \Carbon\Exceptions\Exception) {
-            return \CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage::from($exception);
+            return \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder::from($exception);
         }
                     
         throw $exception;

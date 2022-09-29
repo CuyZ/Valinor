@@ -7,7 +7,11 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 use RuntimeException;
 use Throwable;
 
-/** @api */
+/**
+ * @api
+ *
+ * @deprecated Use {@see \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder}
+ */
 final class ThrowableMessage extends RuntimeException implements ErrorMessage, HasCode
 {
     public static function new(string $message, string $code): self

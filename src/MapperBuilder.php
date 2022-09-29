@@ -291,7 +291,7 @@ final class MapperBuilder
      * (new \CuyZ\Valinor\MapperBuilder())
      *     ->filterExceptions(function (Throwable $exception) {
      *         if ($exception instanceof \Webmozart\Assert\InvalidArgumentException) {
-     *             return \CuyZ\Valinor\Mapper\Tree\Message\ThrowableMessage::from($exception);
+     *             return \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder::from($exception);
      *         }
      *
      *         // If the exception should not be caught by this library, it must
