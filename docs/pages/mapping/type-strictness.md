@@ -21,7 +21,7 @@ disable all strict rules declared above and enable value casting when possible.
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     ->flexible()
-    ->mapper();
+    ->mapper()
     ->map('array{foo: int, bar: bool}', [
         'foo' => '42', // The value will be cast from `string` to `int`
         'bar' => 'true', // The value will be cast from `string` to `bool`
