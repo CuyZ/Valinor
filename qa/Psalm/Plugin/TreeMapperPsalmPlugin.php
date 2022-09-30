@@ -35,7 +35,7 @@ final class TreeMapperPsalmPlugin implements MethodReturnTypeProviderInterface
 
         $types = [];
 
-        foreach ($type->getChildNodes() as $node) {
+        foreach ($type->getAtomicTypes() as $node) {
             $inferred = self::type($node);
 
             if ($inferred === null) {
