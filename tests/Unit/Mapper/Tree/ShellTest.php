@@ -37,7 +37,8 @@ final class ShellTest extends TestCase
 
     public function test_change_type_changes_type(): void
     {
-        $typeA = FakeType::matching($typeB = new FakeType());
+        $typeA = new FakeType();
+        $typeB = FakeType::matching($typeA);
 
         $shellA = Shell::root($typeA, []);
         $shellB = $shellA->withType($typeB);

@@ -86,7 +86,7 @@ final class Shell
         $clone = clone $this;
         $clone->type = $newType;
 
-        if (! $this->type->matches($newType)) {
+        if (! $newType->matches($this->type)) {
             throw new NewShellTypeDoesNotMatch($this, $newType);
         }
 
