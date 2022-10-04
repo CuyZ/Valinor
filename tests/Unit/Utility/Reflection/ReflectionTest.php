@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 use Closure;
 use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyPromotion;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
@@ -228,6 +229,12 @@ final class ReflectionTest extends TestCase
             /** @return 'foo' */
             fn () => 'foo',
             '\'foo\'',
+        ];
+
+        yield 'phpdoc const with joker' => [
+            /** @return ObjectWithConstants::CONST_WITH_* */
+            fn () => ObjectWithConstants::CONST_WITH_STRING_VALUE_A,
+            'ObjectWithConstants::CONST_WITH_*',
         ];
 
         if (PHP_VERSION_ID >= 8_01_00) {

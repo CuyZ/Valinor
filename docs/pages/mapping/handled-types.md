@@ -152,6 +152,30 @@ final class SomeClass
 }
 ```
 
+### Class constants
+
+```php
+final class SomeClassWithConstants
+{
+    public const FOO = 1337;
+    
+    public const BAR = 'bar';
+
+    public const BAZ = 'baz';
+}
+
+final class SomeClass
+{
+    public function __construct(
+        /** @var SomeClassWithConstants::FOO|SomeClassWithConstants::BAR */
+        private int|string $oneOfTwoCasesOfConstants,
+        
+        /** @param SomeClassWithConstants::BA* (matches `bar` or  `baz`) */
+        private string $casesOfConstantsMatchingPattern,
+    ) {}
+}
+```
+
 ### Enums
 
 ```php

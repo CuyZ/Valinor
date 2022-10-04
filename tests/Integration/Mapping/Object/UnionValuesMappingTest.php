@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValues;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValuesWithConstructor;
@@ -23,6 +24,8 @@ final class UnionValuesMappingTest extends IntegrationTest
             'nullableWithNull' => null,
             'intOrLiteralTrue' => true,
             'intOrLiteralFalse' => false,
+            'constantWithStringValue' => 'some string value',
+            'constantWithIntegerValue' => 1653398288,
         ];
 
         $classes = [UnionValues::class, UnionValuesWithConstructor::class];
@@ -47,6 +50,8 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame(null, $result->nullableWithNull);
             self::assertSame(true, $result->intOrLiteralTrue);
             self::assertSame(false, $result->intOrLiteralFalse);
+            self::assertSame('some string value', $result->constantWithStringValue);
+            self::assertSame(1653398288, $result->constantWithIntegerValue);
         }
 
         $source = [
@@ -100,6 +105,12 @@ class UnionValues
 
     /** @var int|false */
     public $intOrLiteralFalse = 42;
+
+    /** @var ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A */
+    public $constantWithStringValue = 1653398288;
+
+    /** @var ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A */
+    public $constantWithIntegerValue = 'some string value';
 }
 
 class UnionOfFixedValues
@@ -134,6 +145,8 @@ class UnionValuesWithConstructor extends UnionValues
      * @param string|null|float $nullableWithNull
      * @param int|true $intOrLiteralTrue
      * @param int|false $intOrLiteralFalse
+     * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithStringValue
+     * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithIntegerValue
      */
     public function __construct(
         $scalarWithBoolean = 'Schwifty!',
@@ -143,7 +156,9 @@ class UnionValuesWithConstructor extends UnionValues
         $nullableWithString = 'Schwifty!',
         $nullableWithNull = 'Schwifty!',
         $intOrLiteralTrue = 42,
-        $intOrLiteralFalse = 42
+        $intOrLiteralFalse = 42,
+        $constantWithStringValue = 1653398288,
+        $constantWithIntegerValue = 'some string value'
     ) {
         $this->scalarWithBoolean = $scalarWithBoolean;
         $this->scalarWithFloat = $scalarWithFloat;
@@ -153,6 +168,8 @@ class UnionValuesWithConstructor extends UnionValues
         $this->nullableWithNull = $nullableWithNull;
         $this->intOrLiteralTrue = $intOrLiteralTrue;
         $this->intOrLiteralFalse = $intOrLiteralFalse;
+        $this->constantWithStringValue = $constantWithStringValue;
+        $this->constantWithIntegerValue = $constantWithIntegerValue;
     }
 }
 
