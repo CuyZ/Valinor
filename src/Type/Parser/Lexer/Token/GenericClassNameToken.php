@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\IntegerType;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\AssignedGenericNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
@@ -24,70 +23,74 @@ use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function array_keys;
 use function array_shift;
 use function array_slice;
 use function count;
+use function get_class;
 
 /** @internal */
 final class GenericClassNameToken implements TraversingToken
 {
-    /** @var class-string */
-    private string $className;
-
     private TypeParserFactory $typeParserFactory;
 
     private TemplateParser $templateParser;
 
-    /**
-     * @param class-string $className
-     */
-    public function __construct(string $className, TypeParserFactory $typeParserFactory, TemplateParser $templateParser)
+    private ClassNameToken $delegate;
+
+    public function __construct(ClassNameToken $delegate, TypeParserFactory $typeParserFactory, TemplateParser $templateParser)
     {
-        $this->className = $className;
+        $this->delegate = $delegate;
         $this->typeParserFactory = $typeParserFactory;
         $this->templateParser = $templateParser;
     }
 
-    public function traverse(TokenStream $stream): ObjectType
+    public function traverse(TokenStream $stream): Type
     {
-        $reflection = Reflection::class($this->className);
+        $type = $this->delegate->traverse($stream);
+
+        if (! $type instanceof ClassType) {
+            return $type;
+        }
+
+        $className = $type->className();
+        $reflection = Reflection::class($className);
 
         try {
             $docComment = $reflection->getDocComment() ?: '';
             $parser = new LazyParser(
                 fn () => $this->typeParserFactory->get(
-                    new ClassContextSpecification($this->className),
+                    new ClassContextSpecification($className),
                     new AliasSpecification($reflection)
                 )
             );
 
             $templates = $this->templateParser->templates($docComment, $parser);
         } catch (InvalidTemplate $exception) {
-            throw new InvalidClassTemplate($this->className, $exception);
+            throw new InvalidClassTemplate($className, $exception);
         }
 
-        $generics = $this->generics($stream, $templates);
-        $generics = $this->assignGenerics($templates, $generics);
+        $generics = $this->generics($stream, $className, $templates);
+        $generics = $this->assignGenerics($className, $templates, $generics);
 
-        return $reflection->isInterface() || $reflection->isAbstract()
-            ? new InterfaceType($this->className, $generics)
-            : new ClassType($this->className, $generics);
+        $typeClass = get_class($type);
+
+        return new $typeClass($className, $generics);
     }
 
     public function symbol(): string
     {
-        return $this->className;
+        return $this->delegate->symbol();
     }
 
     /**
      * @param array<string, Type> $templates
+     * @param class-string $className
      * @return Type[]
      */
-    private function generics(TokenStream $stream, array $templates): array
+    private function generics(TokenStream $stream, string $className, array $templates): array
     {
         if ($stream->done() || ! $stream->next() instanceof OpeningBracketToken) {
             return [];
@@ -99,13 +102,13 @@ final class GenericClassNameToken implements TraversingToken
 
         while (true) {
             if ($stream->done()) {
-                throw new MissingGenerics($this->className, $generics, $templates);
+                throw new MissingGenerics($className, $generics, $templates);
             }
 
             $generics[] = $stream->read();
 
             if ($stream->done()) {
-                throw new GenericClosingBracketMissing($this->className, $generics);
+                throw new GenericClosingBracketMissing($className, $generics);
             }
 
             $next = $stream->forward();
@@ -115,7 +118,7 @@ final class GenericClassNameToken implements TraversingToken
             }
 
             if (! $next instanceof CommaToken) {
-                throw new GenericCommaMissing($this->className, $generics);
+                throw new GenericCommaMissing($className, $generics);
             }
         }
 
@@ -123,11 +126,12 @@ final class GenericClassNameToken implements TraversingToken
     }
 
     /**
+     * @param class-string $className
      * @param array<string, Type> $templates
      * @param Type[] $generics
      * @return array<string, Type>
      */
-    private function assignGenerics(array $templates, array $generics): array
+    private function assignGenerics(string $className, array $templates, array $generics): array
     {
         $assignedGenerics = [];
 
@@ -137,7 +141,7 @@ final class GenericClassNameToken implements TraversingToken
             if ($generic === null) {
                 $remainingTemplates = array_keys(array_slice($templates, count($assignedGenerics)));
 
-                throw new AssignedGenericNotFound($this->className, ...$remainingTemplates);
+                throw new AssignedGenericNotFound($className, ...$remainingTemplates);
             }
 
             if ($template instanceof ArrayKeyType && $generic instanceof StringType) {
@@ -149,14 +153,14 @@ final class GenericClassNameToken implements TraversingToken
             }
 
             if (! $generic->matches($template)) {
-                throw new InvalidAssignedGeneric($generic, $template, $name, $this->className);
+                throw new InvalidAssignedGeneric($generic, $template, $name, $className);
             }
 
             $assignedGenerics[$name] = $generic;
         }
 
         if (! empty($generics)) {
-            throw new CannotAssignGeneric($this->className, ...$generics);
+            throw new CannotAssignGeneric($className, ...$generics);
         }
 
         return $assignedGenerics;

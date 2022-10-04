@@ -8,7 +8,12 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObject;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\IntegerType;
+use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
+use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
+use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
+use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumColon;
@@ -865,6 +870,44 @@ final class NativeLexerTest extends TestCase
             'type' => IntersectionType::class,
         ];
 
+        yield 'Class constant with string value' => [
+            'raw' => ObjectWithConstants::className() . '::CONST_WITH_STRING_VALUE_A',
+            'transformed' => "'some string value'",
+            'type' => StringValueType::class,
+        ];
+
+        yield 'Class constant with integer value' => [
+            'raw' => ObjectWithConstants::className() . '::CONST_WITH_INTEGER_VALUE_A',
+            'transformed' => '1653398288',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'Class constant with float value' => [
+            'raw' => ObjectWithConstants::className() . '::CONST_WITH_FLOAT_VALUE_A',
+            'transformed' => '1337.42',
+            'type' => FloatValueType::class,
+        ];
+
+        if (PHP_VERSION_ID >= 8_01_00) {
+            yield 'Class constant with enum value' => [
+                'raw' => ObjectWithConstants::className() . '::CONST_WITH_ENUM_VALUE_A',
+                'transformed' => BackedIntegerEnum::class . '::FOO',
+                'type' => EnumValueType::class,
+            ];
+        }
+
+        yield 'Class constant with array value' => [
+            'raw' => ObjectWithConstants::className() . '::CONST_WITH_ARRAY_VALUE_A',
+            'transformed' => "array{string: 'some string value', integer: 1653398288, float: 1337.42}",
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Class constant with nested array value' => [
+            'raw' => ObjectWithConstants::className() . '::CONST_WITH_NESTED_ARRAY_VALUE_A',
+            'transformed' => "array{nested_array: array{string: 'some string value', integer: 1653398288, float: 1337.42}}",
+            'type' => ShapedArrayType::class,
+        ];
+
         if (PHP_VERSION_ID >= 8_01_00) {
             yield 'Pure enum' => [
                 'raw' => PureEnum::class,
@@ -1345,5 +1388,68 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::FOO`.');
 
         $this->parser->parse(PureEnum::class . ':FOO');
+    }
+
+    public function test_missing_class_constant_case_throws_exception(): void
+    {
+        $this->expectException(MissingClassConstantCase::class);
+        $this->expectExceptionCode(1664905018);
+        $this->expectExceptionMessage('Missing case name for class constant `' . ObjectWithConstants::className() . '::?`.');
+
+        $this->parser->parse(ObjectWithConstants::className() . '::');
+    }
+
+    public function test_no_class_constant_case_found_throws_exception(): void
+    {
+        $this->expectException(ClassConstantCaseNotFound::class);
+        $this->expectExceptionCode(1652189140);
+        $this->expectExceptionMessage('Unknown class constant case `' . ObjectWithConstants::className() . '::ABC`.');
+
+        $this->parser->parse(ObjectWithConstants::className() . '::ABC');
+    }
+
+    public function test_no_class_constant_case_found_with_wildcard_throws_exception(): void
+    {
+        $this->expectException(ClassConstantCaseNotFound::class);
+        $this->expectExceptionCode(1652189140);
+        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::className() . '::ABC*`.');
+
+        $this->parser->parse(ObjectWithConstants::className() . '::ABC*');
+    }
+
+    public function test_no_class_constant_case_found_with_several_wildcards_in_a_row_throws_exception(): void
+    {
+        $this->expectException(ClassConstantCaseNotFound::class);
+        $this->expectExceptionCode(1652189140);
+        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::className() . '::F**O`.');
+
+        $this->parser->parse(ObjectWithConstants::className() . '::F**O');
+    }
+
+    public function test_missing_specific_class_constant_case_throws_exception(): void
+    {
+        $this->expectException(MissingSpecificClassConstantCase::class);
+        $this->expectExceptionCode(1664904636);
+        $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::className() . '::?` (cannot be `*`).');
+
+        $this->parser->parse(ObjectWithConstants::className() . '::*');
+    }
+
+    public function test_missing_class_constant_colon_and_case_throws_exception(): void
+    {
+        $this->expectException(MissingClassConstantColon::class);
+        $this->expectExceptionCode(1652189143);
+        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::?`.');
+
+        $this->parser->parse(ObjectWithConstants::className() . ':');
+    }
+
+    public function test_missing_class_constant_colon_throws_exception(): void
+    {
+        $this->expectException(MissingClassConstantColon::class);
+        $this->expectExceptionCode(1652189143);
+        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::FOO`.');
+
+        $this->parser->parse(ObjectWithConstants::className() . ':FOO');
     }
 }

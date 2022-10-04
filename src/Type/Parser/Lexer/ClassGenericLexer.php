@@ -31,9 +31,7 @@ final class ClassGenericLexer implements TypeLexer
         $token = $this->delegate->tokenize($symbol);
 
         if ($token instanceof ClassNameToken) {
-            $className = $token->className();
-
-            return new GenericClassNameToken($className, $this->typeParserFactory, $this->templateParser);
+            return new GenericClassNameToken($token, $this->typeParserFactory, $this->templateParser);
         }
 
         return $token;

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\EnumType;
+use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -20,6 +21,8 @@ final class TypeHelper
     {
         if ($type instanceof EnumType) {
             $text = $type->readableSignature();
+        } elseif ($type instanceof FixedType) {
+            return $type->toString();
         } elseif (self::containsObject($type)) {
             $text = '?';
         } else {
