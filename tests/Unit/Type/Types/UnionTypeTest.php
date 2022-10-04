@@ -94,12 +94,13 @@ final class UnionTypeTest extends TestCase
 
     public function test_matches_valid_type(): void
     {
-        $typeA = new FakeType();
-        $typeB = FakeType::matching($typeC = new FakeType());
+        $subType = new FakeType();
+        $parentTypeA = FakeType::matching($subType);
+        $parentTypeB = FakeType::matching($subType);
 
-        $unionType = new UnionType($typeA, $typeB);
+        $unionType = new UnionType($parentTypeA, $parentTypeB);
 
-        self::assertTrue($unionType->matches($typeC));
+        self::assertTrue($unionType->matches($subType));
     }
 
     public function test_does_not_match_invalid_type(): void
