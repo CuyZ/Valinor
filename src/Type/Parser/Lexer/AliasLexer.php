@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
-use CuyZ\Valinor\Utility\Reflection\ClassAliasParser;
+use CuyZ\Valinor\Utility\Reflection\PhpParser;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionFunction;
@@ -39,13 +39,13 @@ final class AliasLexer implements TypeLexer
 
     private function resolve(string $symbol): string
     {
-        $alias = ClassAliasParser::get()->resolveAlias($symbol, $this->reflection);
+        $alias = $this->resolveAlias($symbol);
 
         if (strtolower($alias) !== strtolower($symbol)) {
             return $alias;
         }
 
-        $namespaced = $this->resolveNamespaced($symbol, $this->reflection);
+        $namespaced = $this->resolveNamespaced($symbol);
 
         if ($namespaced !== $symbol) {
             return $namespaced;
@@ -54,11 +54,36 @@ final class AliasLexer implements TypeLexer
         return $symbol;
     }
 
-    /**
-     * @param ReflectionClass<object>|ReflectionFunction $reflection
-     */
-    private function resolveNamespaced(string $symbol, Reflector $reflection): string
+    private function resolveAlias(string $symbol): string
     {
+        $alias = $symbol;
+
+        $namespaceParts = explode('\\', $symbol);
+        $lastPart = array_shift($namespaceParts);
+
+        if ($lastPart) {
+            $alias = strtolower($lastPart);
+        }
+
+        $aliases = PhpParser::parseUseStatements($this->reflection);
+
+        if (! isset($aliases[$alias])) {
+            return $symbol;
+        }
+
+        $full = $aliases[$alias];
+
+        if (! empty($namespaceParts)) {
+            $full .= '\\' . implode('\\', $namespaceParts);
+        }
+
+        return $full;
+    }
+
+    private function resolveNamespaced(string $symbol): string
+    {
+        $reflection = $this->reflection;
+
         if ($reflection instanceof ReflectionFunction) {
             $reflection = $reflection->getClosureScopeClass();
         }

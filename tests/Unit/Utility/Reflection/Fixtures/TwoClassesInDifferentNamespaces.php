@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+// A commented namespace should not be parsed
+//
+// namespace CuyZ\Valinor\Tests\Fixtures\WithAliasA {
+//    use DateTime as SomeDateTimeAlias;
+// }
+
 namespace CuyZ\Valinor\Tests\Fixtures\WithAliasA {
 
     use CuyZ\Valinor\Tests\Fixtures\WithAliasB\ClassB;
@@ -49,6 +55,12 @@ namespace CuyZ\Valinor\Tests\Fixtures\WithAliasA {
     }
 }
 
+// First case of a duplicated namespace: the alias `AnotherDateTimeAlias` is not
+// accessible in the second case below and should not be fetched by the parser.
+namespace CuyZ\Valinor\Tests\Fixtures\WithAliasB {
+    use DateTime as AnotherDateTimeAlias;
+}
+
 namespace CuyZ\Valinor\Tests\Fixtures\WithAliasB {
 
     use CuyZ\Valinor\Tests\Fixtures\WithAliasA\ClassA;
@@ -94,4 +106,11 @@ namespace CuyZ\Valinor\Tests\Fixtures\WithAliasB {
             $this->classInRootNamespaceWithAlias = $classInRootNamespaceWithAlias;
         }
     }
+}
+
+// Third case of a duplicated namespace: the alias `YetAnotherDateTimeAlias` is
+// not accessible in the second case above and should not be fetched by the
+// parser.
+namespace CuyZ\Valinor\Tests\Fixtures\WithAliasB {
+    use DateTimeImmutable as YetAnotherDateTimeAlias;
 }

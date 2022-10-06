@@ -9,7 +9,7 @@ use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Foo;
 use DateTimeImmutable;
 use stdClass as stdClassAlias;
 
-final class SingleNamespaceFile
+final class ClassInSingleNamespace
 {
     // @PHP8.0 promoted properties
     public Foo $classInNamespaceWithoutAlias;
