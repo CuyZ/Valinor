@@ -4,7 +4,10 @@ $finder = PhpCsFixer\Finder::create()->in([
     './src',
     './tests',
     './qa',
-]);
+])
+    ->notPath('Fixtures/FunctionWithGroupedImportStatements.php')
+    ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
+    ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php');
 
 if (PHP_VERSION_ID < 8_00_00) {
     $finder = $finder
@@ -33,6 +36,6 @@ return (new PhpCsFixer\Config())
         'no_empty_phpdoc' => true,
         'no_superfluous_phpdoc_tags' => [
             'allow_mixed' => true,
-            'remove_inheritdoc' => true
+            'remove_inheritdoc' => true,
         ],
     ]);
