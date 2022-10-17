@@ -32,6 +32,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\SimpleArrayClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\MissingClosingQuoteChar;
 use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\RightUnionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringClosingBracketMissing;
@@ -42,7 +43,6 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingComma;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
-use CuyZ\Valinor\Type\Parser\Exception\UnknownSymbol;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
@@ -394,9 +394,15 @@ final class NativeLexerTest extends TestCase
             'type' => StringValueType::class,
         ];
 
-        yield 'String value with double quote followed by description' => [
-            'raw' => '"foo" lorem ipsum',
+        yield 'String value with double quote followed by description containing quotes' => [
+            'raw' => '"foo" lorem ipsum / single quote \' and double quote "',
             'transformed' => '"foo"',
+            'type' => StringValueType::class,
+        ];
+
+        yield 'String value containing other token' => [
+            'raw' => '"foo&bar"',
+            'transformed' => '"foo&bar"',
             'type' => StringValueType::class,
         ];
 
@@ -1290,18 +1296,18 @@ final class NativeLexerTest extends TestCase
 
     public function test_missing_closing_single_quote_throws_exception(): void
     {
-        $this->expectException(UnknownSymbol::class);
-        $this->expectExceptionCode(1632918723);
-        $this->expectExceptionMessage("Cannot parse unknown symbol `'foo`.");
+        $this->expectException(MissingClosingQuoteChar::class);
+        $this->expectExceptionCode(1666024605);
+        $this->expectExceptionMessage("Closing quote is missing for `foo`.");
 
         $this->parser->parse("'foo");
     }
 
     public function test_missing_closing_double_quote_throws_exception(): void
     {
-        $this->expectException(UnknownSymbol::class);
-        $this->expectExceptionCode(1632918723);
-        $this->expectExceptionMessage('Cannot parse unknown symbol `"foo`.');
+        $this->expectException(MissingClosingQuoteChar::class);
+        $this->expectExceptionCode(1666024605);
+        $this->expectExceptionMessage('Closing quote is missing for `foo`.');
 
         $this->parser->parse('"foo');
     }
