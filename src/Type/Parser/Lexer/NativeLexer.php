@@ -24,18 +24,16 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\StringValueToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\QuoteToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
-use CuyZ\Valinor\Utility\Polyfill;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use UnitEnum;
 
 use function filter_var;
 use function is_numeric;
 use function strtolower;
-use function substr;
 
 /** @internal */
 final class NativeLexer implements TypeLexer
@@ -69,6 +67,9 @@ final class NativeLexer implements TypeLexer
                 return NullableToken::get();
             case ',':
                 return CommaToken::get();
+            case '"':
+            case "'":
+                return new QuoteToken($symbol);
             case 'int':
             case 'integer':
                 return IntegerToken::get();
@@ -84,14 +85,6 @@ final class NativeLexer implements TypeLexer
                 return IterableToken::get();
             case 'class-string':
                 return ClassStringToken::get();
-        }
-
-        if (Polyfill::str_starts_with($symbol, "'") && Polyfill::str_ends_with($symbol, "'")) {
-            return StringValueToken::singleQuote(substr($symbol, 1, -1));
-        }
-
-        if (Polyfill::str_starts_with($symbol, '"') && Polyfill::str_ends_with($symbol, '"')) {
-            return StringValueToken::doubleQuote(substr($symbol, 1, -1));
         }
 
         if (filter_var($symbol, FILTER_VALIDATE_INT) !== false) {

@@ -46,36 +46,8 @@ final class LexingParser implements TypeParser
             return $this->splitTokensContainingAnonymousClass($raw);
         }
 
-        if (Polyfill::str_contains($raw, "'")) {
-            return $this->splitQuotes("'", $raw);
-        }
-
-        if (Polyfill::str_contains($raw, '"')) {
-            return $this->splitQuotes('"', $raw);
-        }
-
         /** @phpstan-ignore-next-line */
-        return preg_split('/([\s?|&<>,\[\]{}:])/', $raw, -1, PREG_SPLIT_DELIM_CAPTURE);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function splitQuotes(string $quote, string $raw): array
-    {
-        /** @var string[] $splits */
-        $splits = preg_split("/({$quote}[^$quote]+$quote)/", $raw, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $symbols = [];
-
-        foreach ($splits as $symbol) {
-            if (Polyfill::str_starts_with($symbol, $quote)) {
-                $symbols[] = $symbol;
-            } else {
-                $symbols = [...$symbols, ...$this->splitTokens($symbol)];
-            }
-        }
-
-        return $symbols;
+        return preg_split('/([\s?|&<>,\[\]{}:\'"])/', $raw, -1, PREG_SPLIT_DELIM_CAPTURE);
     }
 
     /**

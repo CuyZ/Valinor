@@ -26,7 +26,6 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\StringValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
@@ -134,14 +133,6 @@ final class NativeLexerTest extends TestCase
         yield 'class-string' => [
             'symbol' => 'class-string',
             'token' => ClassStringToken::class,
-        ];
-        yield 'single quote string value' => [
-            'symbol' => "'foo'",
-            'token' => StringValueToken::class,
-        ];
-        yield 'double quote string value' => [
-            'symbol' => '"foo"',
-            'token' => StringValueToken::class,
         ];
         yield 'integer value' => [
             'symbol' => '1337',
