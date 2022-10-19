@@ -26,7 +26,7 @@ final class ClassType implements ObjectType, CompositeType
      */
     public function __construct(string $className, array $generics = [])
     {
-        $this->className = ltrim($className, '\\'); // @phpstan-ignore-line
+        $this->className = ltrim($className, '\\');
         $this->generics = $generics;
     }
 

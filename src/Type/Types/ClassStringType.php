@@ -109,7 +109,7 @@ final class ClassStringType implements StringType, CompositeType
         return (is_string($value)
                 // @PHP8.0 `$value instanceof Stringable`
                 || (is_object($value) && method_exists($value, '__toString'))
-            ) && $this->accepts((string)$value);
+        ) && $this->accepts((string)$value);
     }
 
     public function cast($value): string
