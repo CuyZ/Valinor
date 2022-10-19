@@ -30,7 +30,7 @@ jobs:
         run: mkdir -p var/cache
 
       - name: Cache Mutation results
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: var/cache
           key: ${{ runner.os }}-qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
