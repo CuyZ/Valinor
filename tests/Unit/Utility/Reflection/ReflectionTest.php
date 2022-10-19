@@ -9,7 +9,9 @@ use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyPromotion;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
+use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use PHPUnit\Framework\TestCase;
@@ -157,6 +159,58 @@ final class ReflectionTest extends TestCase
         $type = (new ReflectionProperty($class, 'someProperty'))->getType();
 
         self::assertSame('Countable&Iterator', Reflection::flattenType($type));
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function test_disjunctive_normal_form_type_is_handled(): void
+    {
+        $class = ObjectWithPropertyWithNativeDisjunctiveNormalFormType::class;
+
+        /** @var ReflectionType $type */
+        $type = (new ReflectionProperty($class, 'someProperty'))->getType();
+
+        self::assertSame('Countable&Iterator|Countable&DateTime', Reflection::flattenType($type));
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function test_native_null_type_is_handled(): void
+    {
+        $class = ObjectWithPropertyWithNativePhp82StandaloneTypes::class;
+
+        /** @var ReflectionType $type */
+        $type = (new ReflectionProperty($class, 'nativeNull'))->getType();
+
+        self::assertSame('null', Reflection::flattenType($type));
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function test_native_true_type_is_handled(): void
+    {
+        $class = ObjectWithPropertyWithNativePhp82StandaloneTypes::class;
+
+        /** @var ReflectionType $type */
+        $type = (new ReflectionProperty($class, 'nativeTrue'))->getType();
+
+        self::assertSame('true', Reflection::flattenType($type));
+    }
+
+    /**
+     * @requires PHP >= 8.2
+     */
+    public function test_native_false_type_is_handled(): void
+    {
+        $class = ObjectWithPropertyWithNativePhp82StandaloneTypes::class;
+
+        /** @var ReflectionType $type */
+        $type = (new ReflectionProperty($class, 'nativeFalse'))->getType();
+
+        self::assertSame('false', Reflection::flattenType($type));
     }
 
     /**

@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "~7.4.0 || ~8.0.0 || ~8.1.0",
+        "php": "~7.4.0 || ~8.0.0 || ~8.1.0 || ~8.2.0",
         "composer-runtime-api": "^2.0",
         "psr/simple-cache": "^1.0 || ^2.0",
         "doctrine/annotations": "^1.11"
@@ -46,6 +46,7 @@
     "scripts": {
         "check": [
             "@putenv XDEBUG_MODE=off",
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "phpunit",
             "phpstan",
             "psalm",
@@ -54,6 +55,7 @@
         ],
         "fix": [
             "@putenv XDEBUG_MODE=off",
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix",
             "rector"
         ],

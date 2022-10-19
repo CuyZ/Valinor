@@ -5,8 +5,9 @@ jobs:
     name: Quality Assurance
     runs-on: ubuntu-latest
     env:
-      php-version: '8.1'
+      php-version: '8.2'
       php-extensions: yaml
+      PHP_CS_FIXER_IGNORE_ENV: 1 # @PHP 8.2 remove when PHP-CS-Fixer fully supports PHP 8.2
     steps:
       - name: Checkout
         uses: actions/checkout@v3

@@ -66,7 +66,7 @@ final class AttributesCompilerTest extends TestCase
      */
     public function test_compiles_native_php_attributes_for_class_without_attributes(): void
     {
-        $reflection = new ReflectionClass(stdClass::class);
+        $reflection = new ReflectionClass(new class () { });
         $attributes = $this->compile(new NativeAttributes($reflection));
 
         self::assertInstanceOf(EmptyAttributes::class, $attributes);
@@ -181,7 +181,7 @@ final class AttributesCompilerTest extends TestCase
      */
     public function test_compiles_combined_attributes_for_class_without_annotation(): void
     {
-        $reflection = new ReflectionClass(stdClass::class);
+        $reflection = new ReflectionClass(new class () { });
         $attributes = $this->compile(
             new CombinedAttributes(
                 new DoctrineAnnotations($reflection),
