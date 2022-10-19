@@ -146,7 +146,7 @@ final class Reflection
 
         if (PHP_VERSION_ID >= 8_00_00 && $reflection->isPromoted()) {
             $type = self::parseDocBlock(
-            // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
+                // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
                 self::sanitizeDocComment($reflection->getDeclaringClass()->getProperty($reflection->name)),
                 sprintf('@%s?var\s+%s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION)
             );
