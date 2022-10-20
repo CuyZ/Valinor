@@ -13,7 +13,6 @@ use Error;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-use function get_class;
 use function implode;
 
 final class ClassDefinitionCompilerTest extends TestCase
@@ -40,7 +39,7 @@ final class ClassDefinitionCompilerTest extends TestCase
             };
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
-        $className = get_class($object);
+        $className = $object::class;
 
         $class = $this->eval($this->compiler->compile($class));
 
@@ -85,7 +84,7 @@ final class ClassDefinitionCompilerTest extends TestCase
     }
 
     /**
-     * @PHP8.1 move to test above
+     * PHP8.1 move to test above
      *
      * @requires PHP >= 8.1
      */
@@ -99,10 +98,7 @@ final class ClassDefinitionCompilerTest extends TestCase
         self::assertSame(ObjectWithParameterDefaultObjectValue::class, $class->name());
     }
 
-    /**
-     * @return mixed
-     */
-    private function eval(string $code)
+    private function eval(string $code): mixed
     {
         try {
             return eval("return $code;");

@@ -25,7 +25,6 @@ final class IterableType implements CompositeTraversableType
     {
         $this->keyType = $keyType;
         $this->subType = $subType;
-
         $this->signature = $keyType === ArrayKeyType::default()
             ? "iterable<{$this->subType->toString()}>"
             : "iterable<{$this->keyType->toString()}, {$this->subType->toString()}>";
@@ -41,7 +40,7 @@ final class IterableType implements CompositeTraversableType
         return self::$native;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         if (! is_iterable($value)) {
             return false;

@@ -14,20 +14,13 @@ use function is_a;
 /** @internal */
 final class ClassType implements ObjectType, CompositeType
 {
-    /** @var class-string */
-    private string $className;
-
-    /** @var array<string, Type> */
-    private array $generics;
-
-    /**
-     * @param class-string $className
-     * @param array<string, Type> $generics
-     */
-    public function __construct(string $className, array $generics = [])
-    {
-        $this->className = ltrim($className, '\\');
-        $this->generics = $generics;
+    public function __construct(
+        /** @var class-string */
+        private string $className,
+        /** @var array<string, Type> */
+        private array $generics = []
+    ) {
+        $this->className = ltrim($this->className, '\\');
     }
 
     public function className(): string
@@ -40,7 +33,7 @@ final class ClassType implements ObjectType, CompositeType
         return $this->generics;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value instanceof $this->className;
     }

@@ -166,7 +166,7 @@ final class MapperBuilder
      * @psalm-param pure-callable|class-string ...$constructors
      * @param callable|class-string ...$constructors
      */
-    public function registerConstructor(...$constructors): self
+    public function registerConstructor(callable|string ...$constructors): self
     {
         $clone = clone $this;
 

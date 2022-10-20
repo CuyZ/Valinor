@@ -26,16 +26,13 @@ final class MessageBuilder
 {
     private bool $isError = false;
 
-    private string $body;
-
     private string $code = 'unknown';
 
     /** @var array<string, string> */
     private array $parameters = [];
 
-    private function __construct(string $body)
+    private function __construct(private string $body)
     {
-        $this->body = $body;
     }
 
     /**
@@ -121,6 +118,7 @@ final class MessageBuilder
     }
 
     /**
+     * PHP8.1 intersection
      * @return MessageType&HasCode&HasParameters
      */
     public function build(): Message
@@ -134,21 +132,11 @@ final class MessageBuilder
     private function buildMessage(): Message
     {
         return new class ($this->body, $this->code, $this->parameters) implements Message, HasCode, HasParameters {
-            private string $body;
-
-            private string $code;
-
-            /** @var array<string, string> */
-            private array $parameters;
-
             /**
              * @param array<string, string> $parameters
              */
-            public function __construct(string $body, string $code, array $parameters)
+            public function __construct(private string $body, private string $code, private array $parameters)
             {
-                $this->body = $body;
-                $this->code = $code;
-                $this->parameters = $parameters;
             }
 
             public function body(): string
@@ -171,18 +159,14 @@ final class MessageBuilder
     private function buildErrorMessage(): ErrorMessage
     {
         return new class ($this->body, $this->code, $this->parameters) extends RuntimeException implements ErrorMessage, HasCode, HasParameters {
-            /** @var array<string, string> */
-            private array $parameters;
-
             /**
              * @param array<string, string> $parameters
              */
-            public function __construct(string $body, string $code, array $parameters)
+            public function __construct(string $body, string $code, private array $parameters)
             {
                 parent::__construct($body);
 
                 $this->code = $code;
-                $this->parameters = $parameters;
             }
 
             public function body(): string

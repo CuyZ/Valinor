@@ -34,7 +34,6 @@ final class MethodArguments implements IteratorAggregate
             }
 
             if ($parameter->isVariadic()) {
-                // PHP8.0 remove `array_values`? Behaviour might change, careful.
                 $this->arguments = [...$this->arguments, ...array_values($arguments[$name])]; // @phpstan-ignore-line we know that the argument is iterable
             } else {
                 $this->arguments[] = $arguments[$name];
@@ -44,7 +43,6 @@ final class MethodArguments implements IteratorAggregate
 
     public function getIterator(): Traversable
     {
-        // PHP8.0 `array_values` can be removed
-        yield from array_values($this->arguments);
+        yield from $this->arguments;
     }
 }

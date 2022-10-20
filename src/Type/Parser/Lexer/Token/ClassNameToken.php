@@ -19,7 +19,6 @@ use ReflectionClass;
 use ReflectionClassConstant;
 
 use function array_map;
-use function array_values;
 use function count;
 use function explode;
 
@@ -91,7 +90,7 @@ final class ClassNameToken implements TraversingToken
         $cases = [];
 
         if (! preg_match('/\*\s*\*/', $symbol)) {
-            $finder = new CaseFinder($this->cases());
+            $finder = new CaseFinder($this->reflection->getConstants(ReflectionClassConstant::IS_PUBLIC));
             $cases = $finder->matching(explode('*', $symbol));
         }
 
@@ -102,30 +101,9 @@ final class ClassNameToken implements TraversingToken
         $cases = array_map(static fn ($value) => ValueTypeFactory::from($value), $cases);
 
         if (count($cases) > 1) {
-            // PHP8.0 remove `array_values`
-            // @infection-ignore-all
-            return new UnionType(...array_values($cases));
+            return new UnionType(...$cases);
         }
 
         return reset($cases);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function cases(): array
-    {
-        // PHP8.0 use `getConstants(ReflectionClassConstant::IS_PUBLIC)`
-        $cases = [];
-
-        foreach ($this->reflection->getReflectionConstants() as $constant) {
-            if (! $constant->isPublic()) {
-                continue;
-            }
-
-            $cases[$constant->name] = $constant->getValue();
-        }
-
-        return $cases;
     }
 }

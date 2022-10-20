@@ -11,17 +11,11 @@ use CuyZ\Valinor\Utility\TypeHelper;
 /** @internal */
 final class StrictNodeBuilder implements NodeBuilder
 {
-    private NodeBuilder $delegate;
-
-    private bool $allowPermissiveTypes;
-
-    private bool $enableFlexibleCasting;
-
-    public function __construct(NodeBuilder $delegate, bool $allowPermissiveTypes, bool $enableFlexibleCasting)
-    {
-        $this->delegate = $delegate;
-        $this->allowPermissiveTypes = $allowPermissiveTypes;
-        $this->enableFlexibleCasting = $enableFlexibleCasting;
+    public function __construct(
+        private NodeBuilder $delegate,
+        private bool $allowPermissiveTypes,
+        private bool $enableFlexibleCasting
+    ) {
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

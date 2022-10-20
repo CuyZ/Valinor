@@ -51,7 +51,7 @@ class ObjectWithConstants
     ];
 
     /**
-     * @PHP8.1 replace all calls with `ObjectWithConstants::class`
+     * PHP8.1 replace all calls with `ObjectWithConstants::class`
      * @return class-string<self>
      */
     public static function className(): string

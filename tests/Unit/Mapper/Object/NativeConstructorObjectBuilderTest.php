@@ -33,20 +33,8 @@ final class NativeConstructorObjectBuilderTest extends TestCase
     public function test_build_object_with_constructor_returns_correct_object(): void
     {
         $object = new class ('foo', 'bar') {
-            public string $valueA;
-
-            public string $valueB;
-
-            public string $valueC;
-
-            public function __construct(
-                string $valueA,
-                string $valueB,
-                string $valueC = 'Some parameter default value'
-            ) {
-                $this->valueA = $valueA;
-                $this->valueB = $valueB;
-                $this->valueC = $valueC;
+            public function __construct(public string $valueA, public string $valueB, public string $valueC = 'Some parameter default value')
+            {
             }
         };
 

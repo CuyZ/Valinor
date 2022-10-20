@@ -26,7 +26,6 @@ final class IntegerRangeType implements IntegerType
     {
         $this->min = $min;
         $this->max = $max;
-
         $this->signature = sprintf(
             'int<%s, %s>',
             $min > PHP_INT_MIN ? $min : 'min',
@@ -42,7 +41,7 @@ final class IntegerRangeType implements IntegerType
         }
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return is_int($value)
             && $value >= $this->min
@@ -78,7 +77,7 @@ final class IntegerRangeType implements IntegerType
         return false;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return ! is_bool($value)
             && filter_var($value, FILTER_VALIDATE_INT) !== false
@@ -86,7 +85,7 @@ final class IntegerRangeType implements IntegerType
             && $value <= $this->max;
     }
 
-    public function cast($value): int
+    public function cast(mixed $value): int
     {
         assert($this->canCast($value));
 

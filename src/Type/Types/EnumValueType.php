@@ -13,21 +13,16 @@ use CuyZ\Valinor\Utility\ValueDumper;
 use Stringable;
 use UnitEnum;
 
-use function get_class;
-
 /** @api */
 final class EnumValueType implements EnumType
 {
-    private UnitEnum $enum;
-
-    public function __construct(UnitEnum $enum)
+    public function __construct(private UnitEnum $enum)
     {
-        $this->enum = $enum;
     }
 
     public function className(): string
     {
-        return get_class($this->enum);
+        return $this->enum::class;
     }
 
     public function generics(): array
@@ -35,7 +30,7 @@ final class EnumValueType implements EnumType
         return [];
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === $this->enum;
     }
@@ -51,13 +46,13 @@ final class EnumValueType implements EnumType
         }
 
         if ($other instanceof NativeEnumType) {
-            return $other->className() === get_class($this->enum);
+            return $other->className() === $this->enum::class;
         }
 
         return $other instanceof MixedType || $other instanceof UndefinedObjectType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         if ($value instanceof Stringable) {
             $value = (string)$value;
@@ -72,7 +67,7 @@ final class EnumValueType implements EnumType
             : $value === $this->enum->name;
     }
 
-    public function cast($value): UnitEnum
+    public function cast(mixed $value): UnitEnum
     {
         assert($this->canCast($value));
 
@@ -99,6 +94,6 @@ final class EnumValueType implements EnumType
 
     public function toString(): string
     {
-        return get_class($this->enum) . '::' . $this->enum->name;
+        return $this->enum::class . '::' . $this->enum->name;
     }
 }

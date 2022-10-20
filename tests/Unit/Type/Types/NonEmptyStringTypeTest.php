@@ -63,10 +63,8 @@ final class NonEmptyStringTypeTest extends TestCase
 
     /**
      * @dataProvider cast_value_returns_correct_result_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_cast_value_returns_correct_result($value, string $expected): void
+    public function test_cast_value_returns_correct_result(mixed $value, string $expected): void
     {
         self::assertSame($expected, $this->nonEmptyStringType->cast($value));
     }

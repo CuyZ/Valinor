@@ -13,11 +13,8 @@ use function assert;
 /** @internal */
 final class ScalarNodeBuilder implements NodeBuilder
 {
-    private bool $enableFlexibleCasting;
-
-    public function __construct(bool $enableFlexibleCasting)
+    public function __construct(private bool $enableFlexibleCasting)
     {
-        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

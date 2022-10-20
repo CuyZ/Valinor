@@ -37,14 +37,8 @@ final class StringFormatter
      */
     private static function formatWithIntl(string $locale, string $body, array $parameters): string
     {
-        $message = MessageFormatter::formatMessage($locale, $body, $parameters);
-
-        // PHP8.0 use throw exception expression
-        if ($message === false) {
-            throw new StringFormatterError($body);
-        }
-
-        return $message;
+        return MessageFormatter::formatMessage($locale, $body, $parameters)
+            ?: throw new StringFormatterError($body);
     }
 
     /**

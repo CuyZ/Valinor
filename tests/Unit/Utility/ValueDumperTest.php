@@ -16,10 +16,8 @@ final class ValueDumperTest extends TestCase
 {
     /**
      * @dataProvider dump_value_returns_correct_signature_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_dump_value_returns_correct_signature($value, string $expected): void
+    public function test_dump_value_returns_correct_signature(mixed $value, string $expected): void
     {
         self::assertSame($expected, ValueDumper::dump($value));
     }
@@ -48,7 +46,7 @@ final class ValueDumperTest extends TestCase
     }
 
     /**
-     * @PHP8.1 move to data provider
+     * PHP8.1 move to data provider
      *
      * @requires PHP >= 8.1
      */

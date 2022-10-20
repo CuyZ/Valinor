@@ -18,11 +18,8 @@ use function is_array;
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    private bool $allowSuperfluousKeys;
-
-    public function __construct(bool $allowSuperfluousKeys)
+    public function __construct(private bool $allowSuperfluousKeys)
     {
-        $this->allowSuperfluousKeys = $allowSuperfluousKeys;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -53,7 +50,6 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         $children = [];
 
         foreach ($elements as $element) {
-            /** @var string|int $key */
             $key = $element->key()->value();
 
             $child = $shell->child((string)$key, $element->type());

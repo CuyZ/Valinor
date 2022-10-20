@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function iterator_to_array;
-use function substr;
 
 final class CompiledPhpFileCacheTest extends TestCase
 {
@@ -242,8 +241,7 @@ final class CompiledPhpFileCacheTest extends TestCase
 
         try {
             $this->cache->set('foo', 'foo');
-        } catch (CompiledPhpCacheFileNotWritten $exception) {
-            // @PHP8.0 remove variable
+        } catch (CompiledPhpCacheFileNotWritten) {
         }
 
         self::assertEmpty($tmpDirectory->getChildren());
@@ -252,7 +250,7 @@ final class CompiledPhpFileCacheTest extends TestCase
     private function currentCacheFile(): vfsStreamFile
     {
         foreach ($this->files->getChildren() as $file) {
-            if ($file instanceof vfsStreamFile && substr($file->getName(), -3) === 'php') {
+            if ($file instanceof vfsStreamFile && str_ends_with($file->getName(), 'php')) {
                 return $file;
             }
         }

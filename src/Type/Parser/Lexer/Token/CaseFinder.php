@@ -12,15 +12,10 @@ use function strpos;
 /** @internal */
 final class CaseFinder
 {
-    /** @var array<string, mixed> */
-    private array $cases;
-
-    /**
-     * @param array<string, mixed> $cases
-     */
-    public function __construct(array $cases)
-    {
-        $this->cases = $cases;
+    public function __construct(
+        /** @var array<string, mixed> */
+        private array $cases
+    ) {
     }
 
     /**

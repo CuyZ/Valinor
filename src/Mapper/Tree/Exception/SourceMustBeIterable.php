@@ -19,10 +19,7 @@ final class SourceMustBeIterable extends RuntimeException implements ErrorMessag
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param mixed $value
-     */
-    public function __construct($value, Type $type)
+    public function __construct(mixed $value, Type $type)
     {
         $this->parameters = [
             'expected_type' => TypeHelper::dump($type),

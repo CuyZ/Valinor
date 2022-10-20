@@ -19,7 +19,6 @@ use Reflector;
 use RuntimeException;
 
 use function class_exists;
-use function get_class;
 use function implode;
 use function interface_exists;
 use function preg_match_all;
@@ -109,7 +108,7 @@ final class Reflection
             return $signature;
         }
 
-        throw new RuntimeException('Invalid reflection type `' . get_class($reflection) . '`.');
+        throw new RuntimeException('Invalid reflection type `' . $reflection::class . '`.');
     }
 
     public static function flattenType(ReflectionType $type): string
@@ -132,10 +131,7 @@ final class Reflection
         return $name;
     }
 
-    /**
-     * @param ReflectionProperty|ReflectionParameter $reflection
-     */
-    public static function docBlockType(Reflector $reflection): ?string
+    public static function docBlockType(\ReflectionProperty|\ReflectionParameter $reflection): ?string
     {
         if ($reflection instanceof ReflectionProperty) {
             return self::parseDocBlock(
@@ -144,7 +140,7 @@ final class Reflection
             );
         }
 
-        if (PHP_VERSION_ID >= 8_00_00 && $reflection->isPromoted()) {
+        if ($reflection->isPromoted()) {
             $type = self::parseDocBlock(
                 // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
                 self::sanitizeDocComment($reflection->getDeclaringClass()->getProperty($reflection->name)),
@@ -245,7 +241,7 @@ final class Reflection
     /**
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionFunctionAbstract $reflection
      */
-    private static function sanitizeDocComment(Reflector $reflection): string
+    private static function sanitizeDocComment(\ReflectionClass|\ReflectionProperty|\ReflectionFunctionAbstract $reflection): string
     {
         $docComment = preg_replace('#^\s*/\*\*([^/]+)\*/\s*$#', '$1', $reflection->getDocComment() ?: '');
 

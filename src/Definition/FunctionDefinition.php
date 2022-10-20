@@ -9,48 +9,18 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class FunctionDefinition
 {
-    private string $name;
-
-    private string $signature;
-
-    private Attributes $attributes;
-
-    private ?string $fileName;
-
-    /** @var class-string|null */
-    private ?string $class;
-
-    private bool $isStatic;
-
-    private bool $isClosure;
-
-    private Parameters $parameters;
-
-    private Type $returnType;
-
-    /**
-     * @param class-string|null $class
-     */
     public function __construct(
-        string $name,
-        string $signature,
-        Attributes $attributes,
-        ?string $fileName,
-        ?string $class,
-        bool $isStatic,
-        bool $isClosure,
-        Parameters $parameters,
-        Type $returnType
+        private string $name,
+        private string $signature,
+        private Attributes $attributes,
+        private ?string $fileName,
+        /** @var class-string|null */
+        private ?string $class,
+        private bool $isStatic,
+        private bool $isClosure,
+        private Parameters $parameters,
+        private Type $returnType
     ) {
-        $this->name = $name;
-        $this->signature = $signature;
-        $this->attributes = $attributes;
-        $this->fileName = $fileName;
-        $this->class = $class;
-        $this->isStatic = $isStatic;
-        $this->isClosure = $isClosure;
-        $this->parameters = $parameters;
-        $this->returnType = $returnType;
     }
 
     public function name(): string
@@ -91,10 +61,6 @@ final class FunctionDefinition
         return $this->isClosure;
     }
 
-    /**
-     * @phpstan-return Parameters
-     * @return Parameters&ParameterDefinition[]
-     */
     public function parameters(): Parameters
     {
         return $this->parameters;

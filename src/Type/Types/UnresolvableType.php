@@ -16,9 +16,9 @@ final class UnresolvableType extends LogicException implements Type
 
     public function __construct(string $rawType, string $message)
     {
-        parent::__construct($message);
-
         $this->rawType = $rawType;
+
+        parent::__construct($message);
     }
 
     public static function forProperty(string $raw, string $signature, InvalidType $exception): self
@@ -45,10 +45,7 @@ final class UnresolvableType extends LogicException implements Type
         );
     }
 
-    /**
-     * @param mixed $defaultValue
-     */
-    public static function forInvalidPropertyDefaultValue(string $signature, Type $type, $defaultValue): self
+    public static function forInvalidPropertyDefaultValue(string $signature, Type $type, mixed $defaultValue): self
     {
         $value = ValueDumper::dump($defaultValue);
 
@@ -58,10 +55,7 @@ final class UnresolvableType extends LogicException implements Type
         );
     }
 
-    /**
-     * @param mixed $defaultValue
-     */
-    public static function forInvalidParameterDefaultValue(string $signature, Type $type, $defaultValue): self
+    public static function forInvalidParameterDefaultValue(string $signature, Type $type, mixed $defaultValue): self
     {
         $value = ValueDumper::dump($defaultValue);
 
@@ -79,7 +73,7 @@ final class UnresolvableType extends LogicException implements Type
         );
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         throw $this;
     }

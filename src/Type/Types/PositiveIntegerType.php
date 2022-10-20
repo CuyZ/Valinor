@@ -20,7 +20,7 @@ final class PositiveIntegerType implements IntegerType
 {
     use IsSingleton;
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return is_int($value) && $value > 0;
     }
@@ -36,14 +36,14 @@ final class PositiveIntegerType implements IntegerType
             || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return ! is_bool($value)
             && filter_var($value, FILTER_VALIDATE_INT) !== false
             && $value > 0;
     }
 
-    public function cast($value): int
+    public function cast(mixed $value): int
     {
         assert($this->canCast($value));
 

@@ -21,10 +21,8 @@ final class MixedValueCacheCompilerTest extends TestCase
 
     /**
      * @dataProvider values_are_compiled_correctly_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_values_are_compiled_correctly($value): void
+    public function test_values_are_compiled_correctly(mixed $value): void
     {
         $compiledValue = eval('return ' . $this->compiler->compile($value) . ';');
 

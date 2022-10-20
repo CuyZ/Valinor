@@ -12,11 +12,8 @@ use CuyZ\Valinor\Utility\TypeHelper;
 /** @internal */
 final class StrictTypesObjectBuilderFactory implements ObjectBuilderFactory
 {
-    private ObjectBuilderFactory $delegate;
-
-    public function __construct(ObjectBuilderFactory $delegate)
+    public function __construct(private ObjectBuilderFactory $delegate)
     {
-        $this->delegate = $delegate;
     }
 
     public function for(ClassDefinition $class): array

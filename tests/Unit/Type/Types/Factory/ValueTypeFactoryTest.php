@@ -14,10 +14,8 @@ final class ValueTypeFactoryTest extends TestCase
 {
     /**
      * @dataProvider type_from_value_returns_expected_type_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_type_from_value_returns_expected_type($value, string $expectedType): void
+    public function test_type_from_value_returns_expected_type(mixed $value, string $expectedType): void
     {
         $type = ValueTypeFactory::from($value);
 

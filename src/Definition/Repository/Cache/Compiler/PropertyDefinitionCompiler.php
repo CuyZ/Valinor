@@ -9,14 +9,10 @@ use CuyZ\Valinor\Definition\PropertyDefinition;
 /** @internal */
 final class PropertyDefinitionCompiler
 {
-    private TypeCompiler $typeCompiler;
-
-    private AttributesCompiler $attributesCompiler;
-
-    public function __construct(TypeCompiler $typeCompiler, AttributesCompiler $attributesCompiler)
-    {
-        $this->typeCompiler = $typeCompiler;
-        $this->attributesCompiler = $attributesCompiler;
+    public function __construct(
+        private TypeCompiler $typeCompiler,
+        private AttributesCompiler $attributesCompiler
+    ) {
     }
 
     public function compile(PropertyDefinition $property): string

@@ -13,26 +13,21 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use Stringable;
 
 use function assert;
-use function is_object;
 use function is_string;
-use function method_exists;
 
 /** @internal */
 final class ClassStringType implements StringType, CompositeType
 {
     use IsSingleton;
 
-    /** @var ObjectType|UnionType|null */
-    private ?Type $subType;
+    private ObjectType|UnionType|null $subType;
 
     private string $signature;
 
-    /**
-     * @param ObjectType|UnionType $subType
-     */
-    public function __construct(Type $subType = null)
+    public function __construct(ObjectType|UnionType $subType = null)
     {
         if ($subType instanceof UnionType) {
             foreach ($subType->types() as $type) {
@@ -48,7 +43,7 @@ final class ClassStringType implements StringType, CompositeType
             : 'class-string';
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         if (! is_string($value)) {
             return false;
@@ -104,15 +99,13 @@ final class ClassStringType implements StringType, CompositeType
         return $this->subType->matches($other->subType);
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
-        return (is_string($value)
-                // PHP8.0 `$value instanceof Stringable`
-                || (is_object($value) && method_exists($value, '__toString'))
-        ) && $this->accepts((string)$value);
+        return (is_string($value) || $value instanceof Stringable)
+            && $this->accepts((string)$value);
     }
 
-    public function cast($value): string
+    public function cast(mixed $value): string
     {
         assert($this->canCast($value));
 
@@ -130,10 +123,7 @@ final class ClassStringType implements StringType, CompositeType
         return MessageBuilder::newError('Value {source_value} is not a valid class string.')->build();
     }
 
-    /**
-     * @return ObjectType|UnionType|null
-     */
-    public function subType(): ?Type
+    public function subType(): ObjectType|UnionType|null
     {
         return $this->subType;
     }

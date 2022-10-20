@@ -11,20 +11,12 @@ use stdClass;
 
 final class FakeObjectCompositeType implements ObjectType, CompositeType
 {
-    /** @var class-string */
-    private string $className;
-
-    /** @var array<string, Type> */
-    private array $generics;
-
     /**
      * @param class-string $className
      * @param array<string, Type> $generics
      */
-    public function __construct(string $className = stdClass::class, array $generics = [])
+    public function __construct(private string $className = stdClass::class, private array $generics = [])
     {
-        $this->className = $className;
-        $this->generics = $generics;
     }
 
     public function className(): string
@@ -37,7 +29,7 @@ final class FakeObjectCompositeType implements ObjectType, CompositeType
         return $this->generics;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return true;
     }

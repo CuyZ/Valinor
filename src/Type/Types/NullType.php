@@ -12,7 +12,7 @@ final class NullType implements Type
 {
     use IsSingleton;
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === null;
     }

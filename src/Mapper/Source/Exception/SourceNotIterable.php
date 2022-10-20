@@ -10,10 +10,7 @@ use RuntimeException;
 /** @internal */
 final class SourceNotIterable extends RuntimeException implements SourceException
 {
-    /**
-     * @param mixed $value
-     */
-    public function __construct($value)
+    public function __construct(mixed $value)
     {
         $value = ValueDumper::dump($value);
 

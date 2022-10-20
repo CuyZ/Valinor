@@ -28,15 +28,10 @@ final class ObjectImplementations
     /** @var array<string, non-empty-array<string, ClassType>> */
     private array $implementations = [];
 
-    private FunctionsContainer $functions;
-
-    private TypeParser $typeParser;
-
-    public function __construct(FunctionsContainer $functions, TypeParser $typeParser)
-    {
-        $this->typeParser = $typeParser;
-        $this->functions = $functions;
-
+    public function __construct(
+        private FunctionsContainer $functions,
+        private TypeParser $typeParser
+    ) {
         foreach ($functions as $name => $function) {
             /** @var string $name */
             $this->implementations[$name] = $this->implementations($name);
@@ -59,12 +54,8 @@ final class ObjectImplementations
     {
         $class = $this->call($name, $arguments);
 
-        if (! isset($this->implementations[$name][$class])) {
-            // PHP8.0 use throw exception expression
-            throw new ObjectImplementationNotRegistered($class, $name, $this->implementations[$name]);
-        }
-
-        return $this->implementations[$name][$class];
+        return $this->implementations[$name][$class]
+            ?? throw new ObjectImplementationNotRegistered($class, $name, $this->implementations[$name]);
     }
 
     /**
@@ -94,8 +85,7 @@ final class ObjectImplementations
 
         try {
             $type = $this->typeParser->parse($name);
-        } catch (InvalidType $exception) {
-            // PHP8.0 remove variable
+        } catch (InvalidType) {
         }
 
         if (! isset($type) || ! $type instanceof InterfaceType) {

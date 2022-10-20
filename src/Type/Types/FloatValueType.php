@@ -15,14 +15,11 @@ use function assert;
 /** @internal */
 final class FloatValueType implements FloatType, FixedType
 {
-    private float $value;
-
-    public function __construct(float $value)
+    public function __construct(private float $value)
     {
-        $this->value = $value;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === $this->value;
     }
@@ -40,12 +37,12 @@ final class FloatValueType implements FloatType, FixedType
         return $other instanceof NativeFloatType || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return is_numeric($value) && (float)$value === $this->value;
     }
 
-    public function cast($value): float
+    public function cast(mixed $value): float
     {
         assert($this->canCast($value));
 

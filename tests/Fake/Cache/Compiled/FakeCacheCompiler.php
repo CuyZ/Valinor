@@ -10,7 +10,7 @@ use function is_string;
 
 final class FakeCacheCompiler implements CacheCompiler
 {
-    public function compile($value): string
+    public function compile(mixed $value): string
     {
         assert(is_string($value));
 

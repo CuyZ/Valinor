@@ -10,12 +10,8 @@ use RuntimeException;
 /** @internal */
 final class ObjectImplementationCallbackError extends RuntimeException
 {
-    private Exception $original;
-
-    public function __construct(string $name, Exception $original)
+    public function __construct(string $name, private Exception $original)
     {
-        $this->original = $original;
-
         parent::__construct(
             "Error thrown when trying to get implementation of `$name`: " . $original->getMessage(),
             1653983061,

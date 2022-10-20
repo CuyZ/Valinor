@@ -11,14 +11,10 @@ use function is_scalar;
 /** @internal */
 final class ParameterDefinitionCompiler
 {
-    private TypeCompiler $typeCompiler;
-
-    private AttributesCompiler $attributesCompiler;
-
-    public function __construct(TypeCompiler $typeCompiler, AttributesCompiler $attributesCompiler)
-    {
-        $this->typeCompiler = $typeCompiler;
-        $this->attributesCompiler = $attributesCompiler;
+    public function __construct(
+        private TypeCompiler $typeCompiler,
+        private AttributesCompiler $attributesCompiler
+    ) {
     }
 
     public function compile(ParameterDefinition $parameter): string

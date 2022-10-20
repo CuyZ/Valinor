@@ -15,7 +15,7 @@ final class ClassConstantCaseNotFound extends RuntimeException implements Invali
      */
     public function __construct(string $className, string $case)
     {
-        $message = strpos($case, '*') !== false
+        $message = str_contains($case, '*')
             ? "Cannot find class constant case with pattern `$className::$case`."
             : "Unknown class constant case `$className::$case`.";
 

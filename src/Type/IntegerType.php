@@ -7,5 +7,5 @@ namespace CuyZ\Valinor\Type;
 /** @internal */
 interface IntegerType extends ScalarType
 {
-    public function cast($value): int;
+    public function cast(mixed $value): int;
 }

@@ -10,10 +10,9 @@ interface ArgumentsMapper
     /**
      * @pure
      *
-     * @param mixed $source
      * @return array<string, mixed>
      *
      * @throws MappingError
      */
-    public function mapArguments(callable $callable, $source): array;
+    public function mapArguments(callable $callable, mixed $source): array;
 }

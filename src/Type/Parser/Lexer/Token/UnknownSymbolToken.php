@@ -11,11 +11,8 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class UnknownSymbolToken implements TraversingToken
 {
-    private string $symbol;
-
-    public function __construct(string $symbol)
+    public function __construct(private string $symbol)
     {
-        $this->symbol = $symbol;
     }
 
     public function traverse(TokenStream $stream): Type

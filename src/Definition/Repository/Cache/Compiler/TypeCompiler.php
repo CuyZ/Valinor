@@ -40,7 +40,6 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use function array_map;
-use function get_class;
 use function implode;
 use function var_export;
 
@@ -49,7 +48,7 @@ final class TypeCompiler
 {
     public function compile(Type $type): string
     {
-        $class = get_class($type);
+        $class = $type::class;
 
         switch (true) {
             case $type instanceof NullType:
@@ -85,16 +84,11 @@ final class TypeCompiler
 
                 return "new $class(" . implode(', ', $subTypes) . ')';
             case $type instanceof ArrayKeyType:
-                // PHP8.0 match
-                if ($type->toString() === 'string') {
-                    return "$class::string()";
-                }
-
-                if ($type->toString() === 'int') {
-                    return "$class::integer()";
-                }
-
-                return "$class::default()";
+                return match ($type->toString()) {
+                    'string' => "$class::string()",
+                    'int' => "$class::integer()",
+                    default => "$class::default()",
+                };
             case $type instanceof ShapedArrayType:
                 $shapes = array_map(
                     fn (ShapedArrayElement $element) => $this->compileArrayShapeElement($element),

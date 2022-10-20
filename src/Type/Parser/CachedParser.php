@@ -9,14 +9,11 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class CachedParser implements TypeParser
 {
-    private TypeParser $delegate;
-
     /** @var array<string, Type> */
     private array $types = [];
 
-    public function __construct(TypeParser $delegate)
+    public function __construct(private TypeParser $delegate)
     {
-        $this->delegate = $delegate;
     }
 
     public function parse(string $raw): Type

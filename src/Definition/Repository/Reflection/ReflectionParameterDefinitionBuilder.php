@@ -13,11 +13,8 @@ use ReflectionParameter;
 /** @internal */
 final class ReflectionParameterDefinitionBuilder
 {
-    private AttributesRepository $attributesFactory;
-
-    public function __construct(AttributesRepository $attributesRepository)
+    public function __construct(private AttributesRepository $attributesFactory)
     {
-        $this->attributesFactory = $attributesRepository;
     }
 
     public function for(ReflectionParameter $reflection, ReflectionTypeResolver $typeResolver): ParameterDefinition

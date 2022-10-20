@@ -11,15 +11,10 @@ use Reflector;
 /** @internal */
 final class AliasSpecification
 {
-    /** @var ReflectionClass<object>|ReflectionFunction */
-    private Reflector $reflection;
-
-    /**
-     * @param ReflectionClass<object>|ReflectionFunction $reflection
-     */
-    public function __construct(Reflector $reflection)
-    {
-        $this->reflection = $reflection;
+    public function __construct(
+        /** @var ReflectionClass<object>|ReflectionFunction */
+        private Reflector $reflection
+    ) {
     }
 
     /**

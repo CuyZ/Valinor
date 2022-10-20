@@ -26,8 +26,6 @@ use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function get_class;
-
 final class GenericLexerTest extends TestCase
 {
     private TypeParser $parser;
@@ -164,7 +162,7 @@ final class GenericLexerTest extends TestCase
              */
             new class () { };
 
-        $className = get_class($object);
+        $className = $object::class;
 
         $this->expectException(InvalidAssignedGeneric::class);
         $this->expectExceptionCode(1604613633);
@@ -182,7 +180,7 @@ final class GenericLexerTest extends TestCase
              */
             new class () { };
 
-        $className = get_class($object);
+        $className = $object::class;
 
         $this->expectException(InvalidClassTemplate::class);
         $this->expectExceptionCode(1630092678);
@@ -199,7 +197,7 @@ final class GenericLexerTest extends TestCase
              */
             new class () { };
 
-        $className = get_class($object);
+        $className = $object::class;
 
         $this->expectException(InvalidClassTemplate::class);
         $this->expectExceptionCode(1630092678);
@@ -216,7 +214,7 @@ final class GenericLexerTest extends TestCase
              */
             new class () { };
 
-        return get_class($object);
+        return $object::class;
     }
 
     private function classWithThreeTemplates(): string
@@ -229,7 +227,7 @@ final class GenericLexerTest extends TestCase
              */
             new class () { };
 
-        return get_class($object);
+        return $object::class;
     }
 
     private function classWithTemplateOfArrayKey(): string
@@ -240,6 +238,6 @@ final class GenericLexerTest extends TestCase
              */
             new class () { };
 
-        return get_class($object);
+        return $object::class;
     }
 }

@@ -12,16 +12,11 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionProperty;
 
-use function array_key_exists;
-
 /** @internal */
 final class ReflectionPropertyDefinitionBuilder
 {
-    private AttributesRepository $attributesRepository;
-
-    public function __construct(AttributesRepository $attributesRepository)
+    public function __construct(private AttributesRepository $attributesRepository)
     {
-        $this->attributesRepository = $attributesRepository;
     }
 
     public function for(ReflectionProperty $reflection, ReflectionTypeResolver $typeResolver): PropertyDefinition
@@ -30,7 +25,7 @@ final class ReflectionPropertyDefinitionBuilder
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);
         $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
-        $defaultValue = $this->defaultValue($reflection);
+        $defaultValue = $reflection->getDefaultValue();
         $isPublic = $reflection->isPublic();
         $attributes = $this->attributesRepository->for($reflection);
 
@@ -54,24 +49,11 @@ final class ReflectionPropertyDefinitionBuilder
 
     private function hasDefaultValue(ReflectionProperty $reflection, Type $type): bool
     {
-        // PHP8.0 `$reflection->hasDefaultValue()`
-        $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
-
-        if (! $reflection->hasType() && $defaultProperties[$reflection->name] === null && ! NullType::get()->matches($type)) {
-            return false;
+        if ($reflection->hasType()) {
+            return $reflection->hasDefaultValue();
         }
 
-        return array_key_exists($reflection->name, $defaultProperties);
-    }
-
-    /**
-     * @return mixed
-     */
-    private function defaultValue(ReflectionProperty $reflection)
-    {
-        // PHP8.0 `$reflection->getDefaultValue()`
-        $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
-
-        return $defaultProperties[$reflection->name] ?? null;
+        return $reflection->getDeclaringClass()->getDefaultProperties()[$reflection->name] !== null
+            || NullType::get()->matches($type);
     }
 }

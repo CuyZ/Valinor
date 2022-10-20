@@ -17,8 +17,7 @@ final class Argument
 
     private Type $type;
 
-    /** @var mixed */
-    private $defaultValue;
+    private mixed $defaultValue = null;
 
     private bool $isRequired = true;
 
@@ -26,8 +25,8 @@ final class Argument
 
     private function __construct(string $name, Type $type)
     {
-        $this->name = $name;
         $this->type = $type;
+        $this->name = $name;
     }
 
     public static function fromParameter(ParameterDefinition $parameter): self
@@ -66,10 +65,7 @@ final class Argument
         return $this->type;
     }
 
-    /**
-     * @return mixed
-     */
-    public function defaultValue()
+    public function defaultValue(): mixed
     {
         return $this->defaultValue;
     }

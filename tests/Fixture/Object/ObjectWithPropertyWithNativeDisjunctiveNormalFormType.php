@@ -8,7 +8,7 @@ use Countable;
 use DateTime;
 use Iterator;
 
-// @PHP8.2 move to anonymous class
+// PHP8.2 move to anonymous class
 final class ObjectWithPropertyWithNativeDisjunctiveNormalFormType
 {
     public (Countable&Iterator)|(Countable&DateTime) $someProperty;

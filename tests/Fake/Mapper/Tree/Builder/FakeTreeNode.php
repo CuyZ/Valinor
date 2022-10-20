@@ -21,10 +21,7 @@ final class FakeTreeNode
         return self::leaf(FakeType::permissive(), []);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function leaf(Type $type, $value): TreeNode
+    public static function leaf(Type $type, mixed $value): TreeNode
     {
         $shell = FakeShell::new($type, $value);
 
@@ -33,9 +30,8 @@ final class FakeTreeNode
 
     /**
      * @param array<array{name?: string, type?: Type, value?: mixed, attributes?: Attributes, message?: Message}> $children
-     * @param mixed $value
      */
-    public static function branch(array $children, Type $type = null, $value = null): TreeNode
+    public static function branch(array $children, Type $type = null, mixed $value = null): TreeNode
     {
         $shell = FakeShell::new($type ?? FakeType::permissive(), $value);
         $nodes = [];

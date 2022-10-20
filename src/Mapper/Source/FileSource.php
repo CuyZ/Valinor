@@ -36,17 +36,11 @@ final class FileSource implements IteratorAggregate, IdentifiableSource
             throw new UnableToReadFile($this->filePath);
         }
 
-        switch (strtolower($file->getExtension())) {
-            case 'json':
-                $this->delegate = new JsonSource($content);
-                break;
-            case 'yaml':
-            case 'yml':
-                $this->delegate = new YamlSource($content);
-                break;
-            default:
-                throw new FileExtensionNotHandled($file->getExtension());
-        }
+        $this->delegate = match (strtolower($file->getExtension())) {
+            'json' => new JsonSource($content),
+            'yaml', 'yml' => new YamlSource($content),
+            default => throw new FileExtensionNotHandled($file->getExtension()),
+        };
     }
 
     public function sourceName(): string

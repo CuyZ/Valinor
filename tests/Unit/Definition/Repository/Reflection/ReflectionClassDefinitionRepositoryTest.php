@@ -21,8 +21,6 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function get_class;
-
 final class ReflectionClassDefinitionRepositoryTest extends TestCase
 {
     private ReflectionClassDefinitionRepository $repository;
@@ -54,7 +52,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             private bool $privateProperty; // @phpstan-ignore-line
         };
 
-        $type = new ClassType(get_class($object));
+        $type = new ClassType($object::class);
         $properties = $this->repository->for($type)->properties();
 
         self::assertTrue($properties->get('propertyWithDefaultValue')->hasDefaultValue());
@@ -112,7 +110,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             }
         };
 
-        $className = get_class($object);
+        $className = $object::class;
         $type = new ClassType($className);
         $methods = $this->repository->for($type)->methods();
 
@@ -161,10 +159,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_invalid_property_type_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /** @var InvalidType */
             public $propertyWithInvalidType; // @phpstan-ignore-line
-        });
+        })::class;
 
         $class = $this->repository->for(new ClassType($class));
         $type = $class->properties()->get('propertyWithInvalidType')->type();
@@ -176,10 +174,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_invalid_property_default_value_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /** @var string */
             public $propertyWithInvalidDefaultValue = false; // @phpstan-ignore-line
-        });
+        })::class;
 
         $class = $this->repository->for(new ClassType($class));
         $type = $class->properties()->get('propertyWithInvalidDefaultValue')->type();
@@ -190,13 +188,13 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_property_with_non_matching_types_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /**
              * @phpstan-ignore-next-line
              * @var string
              */
             public bool $propertyWithNotMatchingTypes;
-        });
+        })::class;
 
         $this->expectException(TypesDoNotMatch::class);
         $this->expectExceptionCode(1638471381);
@@ -207,7 +205,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_invalid_parameter_type_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /**
              * @formatter:off
              * @param InvalidTypeWithPendingSpaces         $parameterWithInvalidType
@@ -217,7 +215,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             public function publicMethod($parameterWithInvalidType): void
             {
             }
-        });
+        })::class;
 
         $class = $this->repository->for(new ClassType($class));
         $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidType')->type();
@@ -229,7 +227,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_invalid_method_return_type_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /**
              * @return InvalidType
              * @phpstan-ignore-next-line
@@ -237,7 +235,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             public function publicMethod($parameterWithInvalidType): void
             {
             }
-        });
+        })::class;
 
         $class = $this->repository->for(new ClassType($class));
         $type = $class->methods()->get('publicMethod')->returnType();
@@ -249,7 +247,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_invalid_parameter_default_value_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /**
              * @param string $parameterWithInvalidDefaultValue
              * @phpstan-ignore-next-line
@@ -257,7 +255,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             public function publicMethod($parameterWithInvalidDefaultValue = false): void
             {
             }
-        });
+        })::class;
 
         $class = $this->repository->for(new ClassType($class));
         $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidDefaultValue')->type();
@@ -268,15 +266,16 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_parameter_with_non_matching_types_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /**
+             * @noRector \Rector\Php80\Rector\FunctionLike\UnionTypesRector
              * @param string $parameterWithNotMatchingTypes
              * @phpstan-ignore-next-line
              */
             public function publicMethod(bool $parameterWithNotMatchingTypes): void
             {
             }
-        });
+        })::class;
 
         $this->expectException(TypesDoNotMatch::class);
         $this->expectExceptionCode(1638471381);
@@ -287,8 +286,9 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_method_with_non_matching_return_types_throws_exception(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             /**
+             * @noRector \Rector\Php80\Rector\FunctionLike\UnionTypesRector
              * @return bool
              * @phpstan-ignore-next-line
              */
@@ -296,7 +296,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             {
                 return 'foo';
             }
-        });
+        })::class;
 
         $this->expectException(TypesDoNotMatch::class);
         $this->expectExceptionCode(1638471381);
@@ -307,15 +307,14 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_class_with_local_type_alias_name_duplication_throws_exception(): void
     {
-        $class = get_class(
+        $class =
             /**
              * @template T
              * @template AnotherTemplate
              * @psalm-type T = int
              * @phpstan-type AnotherTemplate = int
              */
-            new class () { }
-        );
+            (new class () { })::class;
 
         $this->expectException(ClassTypeAliasesDuplication::class);
         $this->expectExceptionCode(1638477604);
@@ -326,12 +325,11 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_class_with_invalid_type_alias_import_class_throws_exception(): void
     {
-        $class = get_class(
+        $class =
             /**
              * @phpstan-import-type T from UnknownType
              */
-            new class () { }
-        );
+            (new class () { })::class;
 
         $this->expectException(InvalidTypeAliasImportClass::class);
         $this->expectExceptionCode(1638535486);
@@ -342,12 +340,11 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_class_with_invalid_type_alias_import_class_type_throws_exception(): void
     {
-        $class = get_class(
+        $class =
             /**
              * @phpstan-import-type T from string
              */
-            new class () { }
-        );
+            (new class () { })::class;
 
         $this->expectException(InvalidTypeAliasImportClassType::class);
         $this->expectExceptionCode(1638535608);
@@ -358,12 +355,11 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_class_with_unknown_type_alias_import_throws_exception(): void
     {
-        $class = get_class(
+        $class =
             /**
              * @phpstan-import-type T from stdClass
              */
-            new class () { }
-        );
+            (new class () { })::class;
 
         $this->expectException(UnknownTypeAliasImport::class);
         $this->expectExceptionCode(1638535757);

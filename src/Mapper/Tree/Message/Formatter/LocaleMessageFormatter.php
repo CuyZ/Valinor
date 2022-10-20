@@ -9,11 +9,8 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 /** @api */
 final class LocaleMessageFormatter implements MessageFormatter
 {
-    private string $locale;
-
-    public function __construct(string $locale)
+    public function __construct(private string $locale)
     {
-        $this->locale = $locale;
     }
 
     public function format(NodeMessage $message): NodeMessage

@@ -87,10 +87,8 @@ final class IntegerRangeTypeTest extends TestCase
 
     /**
      * @dataProvider cast_value_returns_correct_result_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_cast_value_returns_correct_result($value, int $expected): void
+    public function test_cast_value_returns_correct_result(mixed $value, int $expected): void
     {
         self::assertSame($expected, $this->type->cast($value));
     }

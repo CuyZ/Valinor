@@ -11,18 +11,11 @@ use Psr\SimpleCache\CacheInterface;
 /** @internal */
 final class CacheObjectBuilderFactory implements ObjectBuilderFactory
 {
-    private ObjectBuilderFactory $delegate;
-
-    /** @var CacheInterface<list<ObjectBuilder>> */
-    private CacheInterface $cache;
-
-    /**
-     * @param CacheInterface<list<ObjectBuilder>> $cache
-     */
-    public function __construct(ObjectBuilderFactory $delegate, CacheInterface $cache)
-    {
-        $this->delegate = $delegate;
-        $this->cache = $cache;
+    public function __construct(
+        private ObjectBuilderFactory $delegate,
+        /** @var CacheInterface<list<ObjectBuilder>> */
+        private CacheInterface $cache
+    ) {
     }
 
     public function for(ClassDefinition $class): array

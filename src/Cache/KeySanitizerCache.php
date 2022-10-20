@@ -21,19 +21,13 @@ final class KeySanitizerCache implements CacheInterface
 {
     private static string $version;
 
-    /** @var CacheInterface<EntryType> */
-    private CacheInterface $delegate;
-
     /** @var Closure(string): string */
     private Closure $sanitize;
 
-    /**
-     * @param CacheInterface<EntryType> $delegate
-     */
-    public function __construct(CacheInterface $delegate)
-    {
-        $this->delegate = $delegate;
-
+    public function __construct(
+        /** @var CacheInterface<EntryType> */
+        private CacheInterface $delegate
+    ) {
         // Two things:
         // 1. We append the current version of the package to the cache key in
         //    order to avoid collisions between entries from different versions
@@ -43,12 +37,7 @@ final class KeySanitizerCache implements CacheInterface
         $this->sanitize = static fn (string $key) => sha1("$key." . self::$version ??= PHP_VERSION . '/' . Package::version());
     }
 
-    /**
-     * PHP8.0 add `mixed` return type and remove PHPDoc
-     *
-     * @return EntryType|null
-     */
-    public function get($key, $default = null)
+    public function get($key, $default = null): mixed
     {
         return $this->delegate->get(($this->sanitize)($key), $default);
     }

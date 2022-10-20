@@ -41,7 +41,7 @@ final class UnionType implements CombiningType
         }
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         foreach ($this->types as $type) {
             if ($type->accepts($value)) {

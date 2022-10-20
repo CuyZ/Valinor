@@ -19,7 +19,7 @@ final class NativeFloatType implements FloatType
 {
     use IsSingleton;
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return is_float($value);
     }
@@ -34,12 +34,12 @@ final class NativeFloatType implements FloatType
             || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return is_numeric($value);
     }
 
-    public function cast($value): float
+    public function cast(mixed $value): float
     {
         assert($this->canCast($value));
 

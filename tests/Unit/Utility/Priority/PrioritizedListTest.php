@@ -34,11 +34,8 @@ final class PrioritizedListTest extends TestCase
     private function prioritizedObject(int $priority): HasPriority
     {
         return new class ($priority) implements HasPriority {
-            private int $priority;
-
-            public function __construct(int $priority)
+            public function __construct(private int $priority)
             {
-                $this->priority = $priority;
             }
 
             public function priority(): int

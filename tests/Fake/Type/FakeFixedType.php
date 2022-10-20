@@ -9,11 +9,8 @@ use CuyZ\Valinor\Type\Type;
 
 final class FakeFixedType implements FixedType
 {
-    private string $value;
-
-    public function __construct(string $value)
+    public function __construct(private string $value)
     {
-        $this->value = $value;
     }
 
     public function value(): string
@@ -21,7 +18,7 @@ final class FakeFixedType implements FixedType
         return $this->value;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === $this->value;
     }

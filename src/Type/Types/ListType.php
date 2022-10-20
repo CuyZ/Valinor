@@ -15,13 +15,10 @@ final class ListType implements CompositeTraversableType
 {
     private static self $native;
 
-    private Type $subType;
-
     private string $signature;
 
-    public function __construct(Type $subType)
+    public function __construct(private Type $subType)
     {
-        $this->subType = $subType;
         $this->signature = "list<{$this->subType->toString()}>";
     }
 
@@ -39,7 +36,7 @@ final class ListType implements CompositeTraversableType
         return self::$native;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         if (! is_array($value)) {
             return false;

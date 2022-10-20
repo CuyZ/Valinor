@@ -28,22 +28,15 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 /** @internal */
 final class ArrayToken implements TraversingToken
 {
-    /** @var class-string<ArrayType|NonEmptyArrayType> */
-    private string $arrayType;
-
-    private string $symbol;
-
     private static self $array;
 
     private static self $nonEmptyArray;
 
-    /**
-     * @param class-string<ArrayType|NonEmptyArrayType> $arrayType
-     */
-    private function __construct(string $arrayType, string $symbol)
-    {
-        $this->arrayType = $arrayType;
-        $this->symbol = $symbol;
+    private function __construct(
+        /** @var class-string<ArrayType|NonEmptyArrayType> */
+        private string $arrayType,
+        private string $symbol
+    ) {
     }
 
     public static function array(): self
@@ -80,14 +73,12 @@ final class ArrayToken implements TraversingToken
 
     private function arrayType(TokenStream $stream): CompositeTraversableType
     {
-        // PHP8.0 use `new ($this->arrayType)(...)`
-        $arrayClassType = $this->arrayType;
         $stream->forward();
         $type = $stream->read();
         $token = $stream->forward();
 
         if ($token instanceof ClosingBracketToken) {
-            return new $arrayClassType(ArrayKeyType::default(), $type);
+            return new ($this->arrayType)(ArrayKeyType::default(), $type);
         }
 
         if (! $token instanceof CommaToken) {
@@ -97,11 +88,11 @@ final class ArrayToken implements TraversingToken
         $subType = $stream->read();
 
         if ($type instanceof ArrayKeyType) {
-            $arrayType = new $arrayClassType($type, $subType);
+            $arrayType = new ($this->arrayType)($type, $subType);
         } elseif ($type instanceof IntegerType) {
-            $arrayType = new $arrayClassType(ArrayKeyType::integer(), $subType);
+            $arrayType = new ($this->arrayType)(ArrayKeyType::integer(), $subType);
         } elseif ($type instanceof StringType) {
-            $arrayType = new $arrayClassType(ArrayKeyType::string(), $subType);
+            $arrayType = new ($this->arrayType)(ArrayKeyType::string(), $subType);
         } else {
             throw new InvalidArrayKey($this->arrayType, $type, $subType);
         }

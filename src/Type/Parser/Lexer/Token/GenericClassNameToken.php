@@ -29,22 +29,15 @@ use function array_keys;
 use function array_shift;
 use function array_slice;
 use function count;
-use function get_class;
 
 /** @internal */
 final class GenericClassNameToken implements TraversingToken
 {
-    private TypeParserFactory $typeParserFactory;
-
-    private TemplateParser $templateParser;
-
-    private ClassNameToken $delegate;
-
-    public function __construct(ClassNameToken $delegate, TypeParserFactory $typeParserFactory, TemplateParser $templateParser)
-    {
-        $this->delegate = $delegate;
-        $this->typeParserFactory = $typeParserFactory;
-        $this->templateParser = $templateParser;
+    public function __construct(
+        private ClassNameToken $delegate,
+        private TypeParserFactory $typeParserFactory,
+        private TemplateParser $templateParser
+    ) {
     }
 
     public function traverse(TokenStream $stream): Type
@@ -75,7 +68,7 @@ final class GenericClassNameToken implements TraversingToken
         $generics = $this->generics($stream, $className, $templates);
         $generics = $this->assignGenerics($className, $templates, $generics);
 
-        $typeClass = get_class($type);
+        $typeClass = $type::class;
 
         return new $typeClass($className, $generics);
     }

@@ -25,11 +25,10 @@ final class ArrayKeyType implements Type
     private string $signature;
 
     /**
-     * @param IntegerType|StringType ...$types
      * @codeCoverageIgnore
      * @infection-ignore-all
      */
-    private function __construct(...$types)
+    private function __construct(IntegerType|StringType ...$types)
     {
         $this->types = $types;
         $this->signature = count($this->types) === 1
@@ -52,7 +51,7 @@ final class ArrayKeyType implements Type
         return self::$string ??= new self(NativeStringType::get());
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         // If an array key can be evaluated as an integer, it will always be
         // cast to an integer, even if the actual key is a string.

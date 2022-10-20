@@ -17,32 +17,14 @@ use CuyZ\Valinor\Type\Types\InterfaceType;
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
 {
-    private NodeBuilder $delegate;
-
-    private ObjectImplementations $implementations;
-
-    private ClassDefinitionRepository $classDefinitionRepository;
-
-    private ObjectBuilderFactory $objectBuilderFactory;
-
-    private ClassNodeBuilder $classNodeBuilder;
-
-    private bool $enableFlexibleCasting;
-
     public function __construct(
-        NodeBuilder $delegate,
-        ObjectImplementations $implementations,
-        ClassDefinitionRepository $classDefinitionRepository,
-        ObjectBuilderFactory $objectBuilderFactory,
-        ClassNodeBuilder $classNodeBuilder,
-        bool $enableFlexibleCasting
+        private NodeBuilder $delegate,
+        private ObjectImplementations $implementations,
+        private ClassDefinitionRepository $classDefinitionRepository,
+        private ObjectBuilderFactory $objectBuilderFactory,
+        private ClassNodeBuilder $classNodeBuilder,
+        private bool $enableFlexibleCasting
     ) {
-        $this->delegate = $delegate;
-        $this->implementations = $implementations;
-        $this->classDefinitionRepository = $classDefinitionRepository;
-        $this->objectBuilderFactory = $objectBuilderFactory;
-        $this->classNodeBuilder = $classNodeBuilder;
-        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

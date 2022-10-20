@@ -9,40 +9,15 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class PropertyDefinition
 {
-    private string $name;
-
-    private string $signature;
-
-    private Type $type;
-
-    private bool $hasDefaultValue;
-
-    /** @var mixed */
-    private $defaultValue;
-
-    private bool $isPublic;
-
-    private Attributes $attributes;
-
-    /**
-     * @param mixed $defaultValue
-     */
     public function __construct(
-        string $name,
-        string $signature,
-        Type $type,
-        bool $hasDefaultValue,
-        $defaultValue,
-        bool $isPublic,
-        Attributes $attributes
+        private string $name,
+        private string $signature,
+        private Type $type,
+        private bool $hasDefaultValue,
+        private mixed $defaultValue,
+        private bool $isPublic,
+        private Attributes $attributes
     ) {
-        $this->name = $name;
-        $this->signature = $signature;
-        $this->type = $type;
-        $this->hasDefaultValue = $hasDefaultValue;
-        $this->defaultValue = $defaultValue;
-        $this->isPublic = $isPublic;
-        $this->attributes = $attributes;
     }
 
     public function name(): string
@@ -65,10 +40,7 @@ final class PropertyDefinition
         return $this->hasDefaultValue;
     }
 
-    /**
-     * @return mixed
-     */
-    public function defaultValue()
+    public function defaultValue(): mixed
     {
         return $this->defaultValue;
     }

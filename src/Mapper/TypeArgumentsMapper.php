@@ -12,8 +12,6 @@ use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 
-use function array_values;
-
 /** @internal */
 final class TypeArgumentsMapper implements ArgumentsMapper
 {
@@ -28,7 +26,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
     }
 
     /** @pure */
-    public function mapArguments(callable $callable, $source): array
+    public function mapArguments(callable $callable, mixed $source): array
     {
         $function = $this->functionDefinitionRepository->for($callable);
 
@@ -41,7 +39,6 @@ final class TypeArgumentsMapper implements ArgumentsMapper
             iterator_to_array($function->parameters())
         );
 
-        // PHP8.0 Remove `array_values`
         $type = new ShapedArrayType(...array_values($elements));
         $shell = Shell::root($type, $source);
 

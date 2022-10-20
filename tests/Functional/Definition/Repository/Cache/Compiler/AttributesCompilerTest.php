@@ -36,9 +36,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertSame(AttributesContainer::empty(), $attributes);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_compiles_native_php_attributes_for_class_with_attributes(): void
     {
         $reflection = new ReflectionClass(ObjectWithAttributes::class);
@@ -49,16 +46,12 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(BasicAttribute::class));
         self::assertTrue($attributes->has(AttributeWithArguments::class));
 
-        /** @var AttributeWithArguments $attribute */
         $attribute = [...$attributes->ofType(AttributeWithArguments::class)][0];
 
         self::assertSame('foo', $attribute->foo);
         self::assertSame('bar', $attribute->bar);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_compiles_native_php_attributes_for_class_without_attributes(): void
     {
         $reflection = new ReflectionClass(new class () { });
@@ -87,7 +80,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertSame('foo', $attribute->foo);
         self::assertSame('bar', $attribute->bar);
 
-        /** @var NestedAttribute $attribute */
         $attribute = [...$attributes->ofType(NestedAttribute::class)][0];
 
         self::assertCount(2, $attribute->nestedAttributes);
@@ -133,9 +125,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(NestedAttribute::class));
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_compiles_native_php_attributes_for_promoted_property_with_property_target_attribute(): void
     {
         $reflection = new ReflectionProperty(ObjectWithAttributes::class, 'promotedProperty');
@@ -145,9 +134,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(PropertyTargetAttribute::class));
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_compiles_an_empty_attributes_instance_for_promoted_parameter_with_property_target_attribute(): void
     {
         $reflection = new ReflectionParameter([ObjectWithAttributes::class, '__construct'], 'promotedProperty');

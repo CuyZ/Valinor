@@ -48,7 +48,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         /**
          * @return string
          */
-        $callback = fn (): string => 'foo';
+        $callback = fn () => 'foo';
 
         $function = $this->repository->for($callback);
 

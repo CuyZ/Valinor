@@ -22,13 +22,11 @@ final class Node
 
     private bool $sourceFilled;
 
-    /** @var mixed */
-    private $sourceValue;
+    private mixed $sourceValue;
+
+    private mixed $mappedValue;
 
     private bool $isValid = true;
-
-    /** @var mixed */
-    private $mappedValue;
 
     /** @var array<NodeMessage> */
     private array $messages = [];
@@ -37,8 +35,6 @@ final class Node
     private array $children;
 
     /**
-     * @param mixed $sourceValue
-     * @param mixed $mappedValue
      * @param array<Message> $messages
      * @param array<self> $children
      */
@@ -48,8 +44,8 @@ final class Node
         string $path,
         string $type,
         bool $sourceFilled,
-        $sourceValue,
-        $mappedValue,
+        mixed $sourceValue,
+        mixed $mappedValue,
         array $messages,
         array $children
     ) {
@@ -99,10 +95,7 @@ final class Node
         return $this->sourceFilled;
     }
 
-    /**
-     * @return mixed
-     */
-    public function sourceValue()
+    public function sourceValue(): mixed
     {
         if (! $this->sourceFilled) {
             throw new SourceValueWasNotFilled($this->path);
@@ -116,10 +109,7 @@ final class Node
         return $this->isValid;
     }
 
-    /**
-     * @return mixed
-     */
-    public function mappedValue()
+    public function mappedValue(): mixed
     {
         if (! $this->isValid) {
             throw new InvalidNodeHasNoMappedValue($this->path);

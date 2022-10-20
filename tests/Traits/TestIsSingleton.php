@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Traits;
 
 use PHPUnit\Framework\TestCase;
 
-use function get_class;
 use function str_replace;
 use function substr;
 
@@ -18,7 +17,7 @@ trait TestIsSingleton
     /** @test */
     public function singleton_instance_can_be_fetched(): void
     {
-        $class = substr(str_replace('Tests\\Unit\\', '', get_class($this)), 0, -4);
+        $class = substr(str_replace('Tests\\Unit\\', '', $this::class), 0, -4);
 
         $instanceA = $class::get();
         $instanceB = $class::get();

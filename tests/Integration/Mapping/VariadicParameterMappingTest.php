@@ -40,7 +40,7 @@ final class VariadicParameterMappingTest extends IntegrationTest
     {
         try {
             $object = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, 'new'])
                 ->mapper()
                 ->map(SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
@@ -50,6 +50,23 @@ final class VariadicParameterMappingTest extends IntegrationTest
 
         self::assertSame(['foo', 'bar', 'baz'], $object->values);
     }
+
+//    public function test_variadic_list_parameters_are_mapped_properly_when_string_keys_are_given(): void
+//    {
+//        try {
+//            $object = (new MapperBuilder())->flexible()->mapper()->map(SomeClassWithListVariadicParameters::class, [
+//                'values' => [
+//                    'foo' => 'foo',
+//                    'bar' => 'bar',
+//                    'baz' => 'baz',
+//                ],
+//            ]);
+//        } catch (MappingError $error) {
+//            $this->mappingFail($error);
+//        }
+//
+//        self::assertSame(['foo', 'bar', 'baz'], $object->values);
+//    }
 
     public function test_non_variadic_and_variadic_parameters_are_mapped_properly(): void
     {
@@ -70,7 +87,7 @@ final class VariadicParameterMappingTest extends IntegrationTest
     {
         try {
             $object = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, 'new'])
                 ->mapper()
                 ->map(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, [
@@ -113,30 +130,38 @@ final class SomeClassWithNamedConstructorWithOnlyVariadicParameters
     }
 }
 
+//final class SomeClassWithListVariadicParameters
+//{
+//    /** @var list<string> */
+//    public array $values;
+//
+//    /**
+//     * @param list<string> $values
+//     */
+//    public function __construct(string ...$values)
+//    {
+//        $this->values = $values;
+//    }
+//}
+
 final class SomeClassWithNonVariadicAndVariadicParameters
 {
-    public int $int;
-
     /** @var string[] */
     public array $values;
 
-    public function __construct(int $int, string ...$values)
+    public function __construct(public int $int, string ...$values)
     {
-        $this->int = $int;
         $this->values = $values;
     }
 }
 
 final class SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters
 {
-    public int $int;
-
     /** @var string[] */
     public array $values;
 
-    private function __construct(int $int, string ...$values)
+    private function __construct(public int $int, string ...$values)
     {
-        $this->int = $int;
         $this->values = $values;
     }
 

@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Tests\Fake;
 
 use Reflector;
 
-final class FakeReflector implements Reflector
+final class FakeReflector implements Reflector, \Stringable
 {
     public static function export(): ?string
     {

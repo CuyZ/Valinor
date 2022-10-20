@@ -10,15 +10,11 @@ use LogicException;
 use ReflectionFunctionAbstract;
 use ReflectionParameter;
 use ReflectionProperty;
-use Reflector;
 
 /** @internal */
 final class TypesDoNotMatch extends LogicException
 {
-    /**
-     * @param ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection
-     */
-    public function __construct(Reflector $reflection, Type $typeFromDocBlock, Type $typeFromReflection)
+    public function __construct(ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection, Type $typeFromDocBlock, Type $typeFromReflection)
     {
         $signature = Reflection::signature($reflection);
 

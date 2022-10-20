@@ -9,15 +9,10 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class TypeAliasAssignerSpecification
 {
-    /** @var array<string, Type> */
-    private array $aliases;
-
-    /**
-     * @param array<string, Type> $aliases
-     */
-    public function __construct(array $aliases)
-    {
-        $this->aliases = $aliases;
+    public function __construct(
+        /** @var array<string, Type> */
+        private array $aliases
+    ) {
     }
 
     /**

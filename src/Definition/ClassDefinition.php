@@ -9,24 +9,12 @@ use CuyZ\Valinor\Type\Types\ClassType;
 /** @internal */
 final class ClassDefinition
 {
-    private ClassType $type;
-
-    private Attributes $attributes;
-
-    private Properties $properties;
-
-    private Methods $methods;
-
     public function __construct(
-        ClassType $type,
-        Attributes $attributes,
-        Properties $properties,
-        Methods $methods
+        private ClassType $type,
+        private Attributes $attributes,
+        private Properties $properties,
+        private Methods $methods
     ) {
-        $this->type = $type;
-        $this->attributes = $attributes;
-        $this->properties = $properties;
-        $this->methods = $methods;
     }
 
     /**
@@ -47,19 +35,11 @@ final class ClassDefinition
         return $this->attributes;
     }
 
-    /**
-     * @phpstan-return Properties
-     * @return Properties&PropertyDefinition[]
-     */
     public function properties(): Properties
     {
         return $this->properties;
     }
 
-    /**
-     * @phpstan-return Methods
-     * @return Methods&MethodDefinition[]
-     */
     public function methods(): Methods
     {
         return $this->methods;

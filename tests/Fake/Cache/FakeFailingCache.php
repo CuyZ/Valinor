@@ -11,12 +11,7 @@ use Psr\SimpleCache\CacheInterface;
  */
 final class FakeFailingCache implements CacheInterface
 {
-    /**
-     * @PHP8.0 add `mixed` return type and remove PHPDoc
-     *
-     * @return mixed
-     */
-    public function get($key, $default = null)
+    public function get($key, $default = null): mixed
     {
         return null;
     }

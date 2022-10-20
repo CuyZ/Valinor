@@ -17,35 +17,22 @@ use function array_keys;
  */
 final class FunctionsContainer implements IteratorAggregate
 {
-    private FunctionDefinitionRepository $functionDefinitionRepository;
-
-    /** @var array<callable> */
-    private array $callables;
-
     /** @var array<FunctionObject> */
     private array $functions = [];
 
-    /**
-     * @param array<callable> $callables
-     */
-    public function __construct(FunctionDefinitionRepository $functionDefinitionRepository, array $callables)
-    {
-        $this->functionDefinitionRepository = $functionDefinitionRepository;
-        $this->callables = $callables;
+    public function __construct(
+        private FunctionDefinitionRepository $functionDefinitionRepository,
+        /** @var array<callable> */
+        private array $callables
+    ) {
     }
 
-    /**
-     * @param string|int $key
-     */
-    public function has($key): bool
+    public function has(string|int $key): bool
     {
         return isset($this->callables[$key]);
     }
 
-    /**
-     * @param string|int $key
-     */
-    public function get($key): FunctionObject
+    public function get(string|int $key): FunctionObject
     {
         return $this->function($key);
     }
@@ -57,10 +44,7 @@ final class FunctionsContainer implements IteratorAggregate
         }
     }
 
-    /**
-     * @param string|int $key
-     */
-    private function function($key): FunctionObject
+    private function function(string|int $key): FunctionObject
     {
         return $this->functions[$key] ??= new FunctionObject(
             $this->functionDefinitionRepository->for($this->callables[$key]),

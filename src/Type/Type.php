@@ -7,10 +7,7 @@ namespace CuyZ\Valinor\Type;
 /** @internal */
 interface Type
 {
-    /**
-     * @param mixed $value
-     */
-    public function accepts($value): bool;
+    public function accepts(mixed $value): bool;
 
     public function matches(self $other): bool;
 

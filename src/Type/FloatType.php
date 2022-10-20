@@ -7,5 +7,5 @@ namespace CuyZ\Valinor\Type;
 /** @internal */
 interface FloatType extends ScalarType
 {
-    public function cast($value): float;
+    public function cast(mixed $value): float;
 }

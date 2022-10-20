@@ -34,7 +34,7 @@ final class ClassDefinitionCompiler implements CacheCompiler
         $this->propertyCompiler = new PropertyDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
     }
 
-    public function compile($value): string
+    public function compile(mixed $value): string
     {
         assert($value instanceof ClassDefinition);
 

@@ -21,18 +21,13 @@ use function assert;
 /** @internal */
 final class NativeEnumType implements EnumType
 {
-    /** @var class-string<UnitEnum> */
-    private string $enumName;
-
     /** @var array<string, UnitEnum> */
     private array $cases;
 
-    /**
-     * @param class-string<UnitEnum> $enumName
-     */
-    public function __construct(string $enumName)
-    {
-        $this->enumName = $enumName;
+    public function __construct(
+        /** @var class-string<UnitEnum> */
+        private string $enumName
+    ) {
     }
 
     /**
@@ -48,7 +43,7 @@ final class NativeEnumType implements EnumType
         return [];
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value instanceof $this->enumName;
     }
@@ -67,7 +62,7 @@ final class NativeEnumType implements EnumType
             || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         if ($value instanceof Stringable) {
             $value = (string)$value;
@@ -80,7 +75,7 @@ final class NativeEnumType implements EnumType
         return isset($this->cases()[(string)$value]);
     }
 
-    public function cast($value): UnitEnum
+    public function cast(mixed $value): UnitEnum
     {
         assert($this->canCast($value));
 

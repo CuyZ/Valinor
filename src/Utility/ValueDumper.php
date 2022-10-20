@@ -26,18 +26,12 @@ final class ValueDumper
     private const MAX_ARRAY_ENTRIES = 5;
     private const DATE_FORMAT = 'Y/m/d H:i:s';
 
-    /**
-     * @param mixed $value
-     */
-    public static function dump($value): string
+    public static function dump(mixed $value): string
     {
         return self::doDump($value);
     }
 
-    /**
-     * @param mixed $value
-     */
-    private static function doDump($value, bool $goDeeper = true): string
+    private static function doDump(mixed $value, bool $goDeeper = true): string
     {
         if ($value === null) {
             return 'null';
@@ -78,7 +72,7 @@ final class ValueDumper
         }
 
         if (is_object($value)) {
-            return 'object(' . get_class($value) . ')';
+            return 'object(' . $value::class . ')';
         }
 
         if (is_array($value)) {

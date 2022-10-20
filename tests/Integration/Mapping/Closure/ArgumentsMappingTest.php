@@ -8,8 +8,6 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
-use function array_values;
-
 final class ArgumentsMappingTest extends IntegrationTest
 {
     public function test_can_map_to_anonymous_function(): void
@@ -25,8 +23,7 @@ final class ArgumentsMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        // PHP8.0 Remove `array_values`
-        self::assertSame('foo / 42', $function(...array_values($arguments)));
+        self::assertSame('foo / 42', $function(...$arguments));
     }
 
     public function test_can_map_to_class_method(): void
@@ -43,8 +40,7 @@ final class ArgumentsMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        // PHP8.0 Remove `array_values`
-        self::assertSame('foo / 42', $object->somePublicMethod(...array_values($arguments)));
+        self::assertSame('foo / 42', $object->somePublicMethod(...$arguments));
     }
 
     public function test_can_map_to_class_static_method(): void
@@ -59,8 +55,7 @@ final class ArgumentsMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        // PHP8.0 Remove `array_values`
-        self::assertSame('foo / 42', SomeClassWithMethods::somePublicStaticMethod(...array_values($arguments)));
+        self::assertSame('foo / 42', SomeClassWithMethods::somePublicStaticMethod(...$arguments));
     }
 
     public function test_can_map_to_function_with_single_argument(): void
@@ -73,8 +68,7 @@ final class ArgumentsMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        // PHP8.0 Remove `array_values`
-        self::assertSame('foo', $function(...array_values($arguments)));
+        self::assertSame('foo', $function(...$arguments));
     }
 
     public function test_invalid_source_with_one_error_throws_mapping_error(): void

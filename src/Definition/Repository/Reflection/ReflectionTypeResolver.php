@@ -14,25 +14,17 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionFunctionAbstract;
 use ReflectionParameter;
 use ReflectionProperty;
-use Reflector;
 
 /** @internal */
 final class ReflectionTypeResolver
 {
-    private TypeParser $nativeParser;
-
-    private TypeParser $advancedParser;
-
-    public function __construct(TypeParser $nativeParser, TypeParser $advancedParser)
-    {
-        $this->nativeParser = $nativeParser;
-        $this->advancedParser = $advancedParser;
+    public function __construct(
+        private TypeParser $nativeParser,
+        private TypeParser $advancedParser
+    ) {
     }
 
-    /**
-     * @param ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection
-     */
-    public function resolveType(Reflector $reflection): Type
+    public function resolveType(\ReflectionProperty|\ReflectionParameter|\ReflectionFunctionAbstract $reflection): Type
     {
         $nativeType = $this->nativeType($reflection);
         $typeFromDocBlock = $this->typeFromDocBlock($reflection);
@@ -60,10 +52,7 @@ final class ReflectionTypeResolver
         return $typeFromDocBlock;
     }
 
-    /**
-     * @param ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection
-     */
-    private function typeFromDocBlock(Reflector $reflection): ?Type
+    private function typeFromDocBlock(\ReflectionProperty|\ReflectionParameter|\ReflectionFunctionAbstract $reflection): ?Type
     {
         $type = $reflection instanceof ReflectionFunctionAbstract
             ? Reflection::docBlockReturnType($reflection)
@@ -76,10 +65,7 @@ final class ReflectionTypeResolver
         return $this->parseType($type, $reflection, $this->advancedParser);
     }
 
-    /**
-     * @param ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection
-     */
-    private function nativeType(Reflector $reflection): ?Type
+    private function nativeType(\ReflectionProperty|\ReflectionParameter|\ReflectionFunctionAbstract $reflection): ?Type
     {
         $reflectionType = $reflection instanceof ReflectionFunctionAbstract
             ? $reflection->getReturnType()
@@ -98,10 +84,7 @@ final class ReflectionTypeResolver
         return $this->parseType($type, $reflection, $this->nativeParser);
     }
 
-    /**
-     * @param ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection
-     */
-    private function parseType(string $raw, Reflector $reflection, TypeParser $parser): Type
+    private function parseType(string $raw, \ReflectionProperty|\ReflectionParameter|\ReflectionFunctionAbstract $reflection, TypeParser $parser): Type
     {
         try {
             return $parser->parse($raw);

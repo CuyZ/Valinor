@@ -10,14 +10,10 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 /** @internal */
 final class ValueAlteringNodeBuilder implements NodeBuilder
 {
-    private NodeBuilder $delegate;
-
-    private FunctionsContainer $functions;
-
-    public function __construct(NodeBuilder $delegate, FunctionsContainer $functions)
-    {
-        $this->delegate = $delegate;
-        $this->functions = $functions;
+    public function __construct(
+        private NodeBuilder $delegate,
+        private FunctionsContainer $functions
+    ) {
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

@@ -15,7 +15,7 @@ final class UndefinedObjectType implements Type
 {
     use IsSingleton;
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return is_object($value);
     }

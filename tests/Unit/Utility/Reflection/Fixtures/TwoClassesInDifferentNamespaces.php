@@ -29,29 +29,14 @@ namespace CuyZ\Valinor\Tests\Fixtures\WithAliasA {
 
     class ClassA
     {
-        // @PHP8.0 promoted properties
-        public Foo $classInOtherFileWithoutAlias;
-        public BarAlias $classInOtherFileWithAlias;
-        public classB $classInSameFileWithoutAlias;
-        public classBAlias $classInSameFileWithAlias;
-        public DateTimeImmutable $classInRootNamespaceWithoutAlias;
-        public stdClassAlias $classInRootNamespaceWithAlias;
-
         public function __construct(
-            Foo $classInOtherFileWithoutAlias,
-            BarAlias $classInOtherFileWithAlias,
-            ClassB $classInSameFileWithoutAlias,
-            classBAlias $classInSameFileWithAlias,
-            DateTimeImmutable $classInRootNamespaceWithoutAlias,
-            stdClassAlias $classInRootNamespaceWithAlias
-        ) {
-            $this->classInOtherFileWithoutAlias = $classInOtherFileWithoutAlias;
-            $this->classInOtherFileWithAlias = $classInOtherFileWithAlias;
-            $this->classInSameFileWithoutAlias = $classInSameFileWithoutAlias;
-            $this->classInSameFileWithAlias = $classInSameFileWithAlias;
-            $this->classInRootNamespaceWithoutAlias = $classInRootNamespaceWithoutAlias;
-            $this->classInRootNamespaceWithAlias = $classInRootNamespaceWithAlias;
-        }
+            public Foo $classInOtherFileWithoutAlias,
+            public BarAlias $classInOtherFileWithAlias,
+            public ClassB $classInSameFileWithoutAlias,
+            public classBAlias $classInSameFileWithAlias,
+            public DateTimeImmutable $classInRootNamespaceWithoutAlias,
+            public stdClassAlias $classInRootNamespaceWithAlias
+        ) {}
     }
 }
 
@@ -82,29 +67,14 @@ namespace CuyZ\Valinor\Tests\Fixtures\WithAliasB {
 
     class ClassB
     {
-        // @PHP8.0 promoted properties
-        public Foo $classInOtherFileWithoutAlias;
-        public BarAlias $classInOtherFileWithAlias;
-        public classA $classInSameFileWithoutAlias;
-        public classAAlias $classInSameFileWithAlias;
-        public DateTimeImmutable $classInRootNamespaceWithoutAlias;
-        public stdClassAlias $classInRootNamespaceWithAlias;
-
         public function __construct(
-            Foo $classInOtherFileWithoutAlias,
-            BarAlias $classInOtherFileWithAlias,
-            ClassA $classInSameFileWithoutAlias,
-            classAAlias $classInSameFileWithAlias,
-            DateTimeImmutable $classInRootNamespaceWithoutAlias,
-            stdClassAlias $classInRootNamespaceWithAlias
-        ) {
-            $this->classInOtherFileWithoutAlias = $classInOtherFileWithoutAlias;
-            $this->classInOtherFileWithAlias = $classInOtherFileWithAlias;
-            $this->classInSameFileWithoutAlias = $classInSameFileWithoutAlias;
-            $this->classInSameFileWithAlias = $classInSameFileWithAlias;
-            $this->classInRootNamespaceWithoutAlias = $classInRootNamespaceWithoutAlias;
-            $this->classInRootNamespaceWithAlias = $classInRootNamespaceWithAlias;
-        }
+            public Foo $classInOtherFileWithoutAlias,
+            public BarAlias $classInOtherFileWithAlias,
+            public ClassA $classInSameFileWithoutAlias,
+            public classAAlias $classInSameFileWithAlias,
+            public DateTimeImmutable $classInRootNamespaceWithoutAlias,
+            public stdClassAlias $classInRootNamespaceWithAlias
+        ) {}
     }
 }
 

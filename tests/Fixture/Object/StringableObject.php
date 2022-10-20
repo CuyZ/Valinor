@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fixture\Object;
 
-// @PHP8.0 implement Stringable
-final class StringableObject
-{
-    private string $value;
+use Stringable;
 
-    public function __construct(string $value = 'foo')
+final class StringableObject implements Stringable
+{
+    public function __construct(private string $value = 'foo')
     {
-        $this->value = $value;
     }
 
     public function __toString(): string

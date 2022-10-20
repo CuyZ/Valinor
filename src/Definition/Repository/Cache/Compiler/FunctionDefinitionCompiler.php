@@ -27,7 +27,7 @@ final class FunctionDefinitionCompiler implements CacheCompiler
         $this->parameterCompiler = new ParameterDefinitionCompiler($this->typeCompiler, new AttributesCompiler());
     }
 
-    public function compile($value): string
+    public function compile(mixed $value): string
     {
         assert($value instanceof FunctionDefinition);
 

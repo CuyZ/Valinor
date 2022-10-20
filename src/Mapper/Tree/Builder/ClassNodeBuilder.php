@@ -14,9 +14,7 @@ use function count;
 /** @internal */
 final class ClassNodeBuilder
 {
-    private bool $allowSuperfluousKeys;
-
-    public function __construct(bool $allowSuperfluousKeys)
+    public function __construct(private bool $allowSuperfluousKeys)
     {
         $this->allowSuperfluousKeys = $allowSuperfluousKeys;
     }

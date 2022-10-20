@@ -10,22 +10,18 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
+use Stringable;
 
 use function is_numeric;
-use function is_object;
 use function is_string;
-use function method_exists;
 
 /** @internal */
 final class StringValueType implements StringType, FixedType
 {
-    private string $value;
-
     private string $quoteChar;
 
-    public function __construct(string $value)
+    public function __construct(private string $value)
     {
-        $this->value = $value;
     }
 
     public static function singleQuote(string $value): self
@@ -44,7 +40,7 @@ final class StringValueType implements StringType, FixedType
         return $instance;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === $this->value;
     }
@@ -67,16 +63,13 @@ final class StringValueType implements StringType, FixedType
             || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
-        return (is_string($value)
-                || is_numeric($value)
-                // PHP8.0 `$value instanceof Stringable`
-                || (is_object($value) && method_exists($value, '__toString'))
-        ) && (string)$value === $this->value;
+        return (is_string($value) || is_numeric($value) || $value instanceof Stringable)
+            && (string)$value === $this->value;
     }
 
-    public function cast($value): string
+    public function cast(mixed $value): string
     {
         assert($this->canCast($value));
 

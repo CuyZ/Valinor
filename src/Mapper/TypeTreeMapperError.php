@@ -12,12 +12,8 @@ use RuntimeException;
 /** @internal */
 final class TypeTreeMapperError extends RuntimeException implements MappingError
 {
-    private Node $node;
-
-    public function __construct(Node $node)
+    public function __construct(private Node $node)
     {
-        $this->node = $node;
-
         $errors = Messages::flattenFromNode($node)->errors();
         $errorsCount = count($errors);
 

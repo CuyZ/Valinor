@@ -8,14 +8,12 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
 use LogicException;
 
-use function get_class;
-
 /** @internal */
 final class WrongTokenType extends LogicException
 {
     public function __construct(Token $token)
     {
-        $class = get_class($token);
+        $class = $token::class;
         $wanted = TraversingToken::class;
 
         parent::__construct(

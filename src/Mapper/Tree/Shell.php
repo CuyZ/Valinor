@@ -21,30 +21,22 @@ final class Shell
 {
     private string $name;
 
-    private Type $type;
-
     private bool $hasValue = false;
 
-    /** @var mixed */
-    private $value;
+    private mixed $value = null;
 
     private Attributes $attributes;
 
     private self $parent;
 
-    private function __construct(Type $type)
+    private function __construct(private Type $type)
     {
-        $this->type = $type;
-
         if ($type instanceof UnresolvableType) {
             throw new UnresolvableShellType($type);
         }
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function root(Type $type, $value): self
+    public static function root(Type $type, mixed $value): self
     {
         return (new self($type))->withValue($value);
     }
@@ -98,10 +90,7 @@ final class Shell
         return $this->type;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function withValue($value): self
+    public function withValue(mixed $value): self
     {
         $clone = clone $this;
         $clone->hasValue = true;
@@ -115,10 +104,7 @@ final class Shell
         return $this->hasValue;
     }
 
-    /**
-     * @return mixed
-     */
-    public function value()
+    public function value(): mixed
     {
         if (! $this->hasValue) {
             throw new ShellHasNoValue();

@@ -19,14 +19,11 @@ final class BooleanValueType implements BooleanType, FixedType
 
     private static self $false;
 
-    private bool $value;
-
     /**
      * @codeCoverageIgnore
      */
-    private function __construct(bool $value)
+    private function __construct(private bool $value)
     {
-        $this->value = $value;
     }
 
     public static function true(): self
@@ -39,7 +36,7 @@ final class BooleanValueType implements BooleanType, FixedType
         return self::$false ??= new self(false);
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === $this->value;
     }
@@ -55,7 +52,7 @@ final class BooleanValueType implements BooleanType, FixedType
             || $other instanceof NativeBooleanType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         if ($value === $this->value) {
             return true;
@@ -68,7 +65,7 @@ final class BooleanValueType implements BooleanType, FixedType
         return $value === '0' || $value === 0 || $value === 'false';
     }
 
-    public function cast($value): bool
+    public function cast(mixed $value): bool
     {
         assert($this->canCast($value));
 

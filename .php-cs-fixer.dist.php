@@ -8,17 +8,9 @@ $finder = PhpCsFixer\Finder::create()->in([
     ->notPath('Fixtures/FunctionWithGroupedImportStatements.php')
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
     ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php')
-    // @PHP 8.2 remove when PHP-CS-Fixer fully supports PHP 8.2; also remove
+    // PHP8.2 remove when PHP-CS-Fixer fully supports PHP 8.2; also remove
     // `@putenv PHP_CS_FIXER_IGNORE_ENV=1` inside `composer.json`
     ->notPath('Fixture/Object/ObjectWithPropertyWithNativeDisjunctiveNormalFormType.php');
-
-if (PHP_VERSION_ID < 8_00_00) {
-    $finder = $finder
-        ->notPath('Fixture/Attribute/AttributeWithArguments.php')
-        ->notPath('Fixture/Object/ObjectWithAttributes.php')
-        ->notPath('Fixture/Object/ObjectWithPropertyWithNativeUnionType.php')
-        ->notPath('Integration/Mapping/Fixture/NativeUnionValues.php');
-}
 
 if (PHP_VERSION_ID < 8_01_00) {
     $finder = $finder->notPath('Fixture/Enum/PureEnum.php');

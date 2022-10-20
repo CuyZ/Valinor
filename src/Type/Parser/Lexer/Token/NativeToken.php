@@ -27,14 +27,10 @@ final class NativeToken implements TraversingToken
     /** @var array<string, self> */
     private static array $map = [];
 
-    private Type $type;
-
-    private string $symbol;
-
-    private function __construct(Type $type, string $symbol)
-    {
-        $this->type = $type;
-        $this->symbol = $symbol;
+    private function __construct(
+        private Type $type,
+        private string $symbol
+    ) {
     }
 
     public static function accepts(string $symbol): bool
@@ -64,37 +60,21 @@ final class NativeToken implements TraversingToken
 
     private static function type(string $symbol): ?Type
     {
-        // PHP8.0 match
-        switch ($symbol) {
-            case 'null':
-                return NullType::get();
-            case 'true':
-                return BooleanValueType::true();
-            case 'false':
-                return BooleanValueType::false();
-            case 'mixed':
-                return MixedType::get();
-            case 'float':
-                return NativeFloatType::get();
-            case 'positive-int':
-                return PositiveIntegerType::get();
-            case 'negative-int':
-                return NegativeIntegerType::get();
-            case 'string':
-                return NativeStringType::get();
-            case 'non-empty-string':
-                return NonEmptyStringType::get();
-            case 'numeric-string':
-                return NumericStringType::get();
-            case 'bool':
-            case 'boolean':
-                return NativeBooleanType::get();
-            case 'array-key':
-                return ArrayKeyType::default();
-            case 'object':
-                return UndefinedObjectType::get();
-        }
-
-        return null;
+        return match ($symbol) {
+            'null' => NullType::get(),
+            'true' => BooleanValueType::true(),
+            'false' => BooleanValueType::false(),
+            'mixed' => MixedType::get(),
+            'float' => NativeFloatType::get(),
+            'positive-int' => PositiveIntegerType::get(),
+            'negative-int' => NegativeIntegerType::get(),
+            'string' => NativeStringType::get(),
+            'non-empty-string' => NonEmptyStringType::get(),
+            'numeric-string' => NumericStringType::get(),
+            'bool', 'boolean' => NativeBooleanType::get(),
+            'array-key' => ArrayKeyType::default(),
+            'object' => UndefinedObjectType::get(),
+            default => null,
+        };
     }
 }

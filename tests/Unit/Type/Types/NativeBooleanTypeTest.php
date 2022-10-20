@@ -59,10 +59,8 @@ final class NativeBooleanTypeTest extends TestCase
 
     /**
      * @dataProvider cast_value_returns_correct_result_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_cast_value_returns_correct_result($value, bool $expected): void
+    public function test_cast_value_returns_correct_result(mixed $value, bool $expected): void
     {
         $result = $this->booleanType->cast($value);
 

@@ -10,10 +10,7 @@ use RuntimeException;
 /** @internal */
 final class InvalidResolvedImplementationValue extends RuntimeException
 {
-    /**
-     * @param mixed $value
-     */
-    public function __construct(string $name, $value)
+    public function __construct(string $name, mixed $value)
     {
         $value = ValueDumper::dump($value);
 

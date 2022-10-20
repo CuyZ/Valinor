@@ -45,8 +45,6 @@ use Error;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function get_class;
-
 final class TypeCompilerTest extends TestCase
 {
     private TypeCompiler $typeCompiler;
@@ -71,7 +69,7 @@ final class TypeCompilerTest extends TestCase
             self::fail($exception->getMessage());
         }
 
-        self::assertInstanceOf(get_class($type), $compiledType);
+        self::assertInstanceOf($type::class, $compiledType);
         self::assertSame($type->toString(), $compiledType->toString());
     }
 

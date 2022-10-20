@@ -24,10 +24,7 @@ use function str_replace;
 /** @internal */
 final class ValueTypeFactory
 {
-    /**
-     * @param mixed $value
-     */
-    public static function from($value): Type
+    public static function from(mixed $value): Type
     {
         if (is_bool($value)) {
             return $value ? BooleanValueType::true() : BooleanValueType::false();
