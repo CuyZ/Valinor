@@ -78,10 +78,8 @@ final class PathMapping implements IteratorAggregate
 
     /**
      * @param array<Mapping> $mappings
-     * @param int|string $key
-     * @return int|string
      */
-    private function findMapping(array $mappings, int $atDepth, $key)
+    private function findMapping(array $mappings, int $atDepth, int|string $key): int|string
     {
         foreach ($mappings as $mapping) {
             $mappedKey = $mapping->findMappedKey($key, $atDepth);

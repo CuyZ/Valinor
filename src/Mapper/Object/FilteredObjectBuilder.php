@@ -17,10 +17,7 @@ final class FilteredObjectBuilder implements ObjectBuilder
 
     private Arguments $arguments;
 
-    /**
-     * @param mixed $source
-     */
-    public function __construct($source, ObjectBuilder ...$builders)
+    public function __construct(mixed $source, ObjectBuilder ...$builders)
     {
         $this->delegate = $this->filterBuilder($source, ...$builders);
         $this->arguments = $this->delegate->describeArguments();
@@ -41,10 +38,7 @@ final class FilteredObjectBuilder implements ObjectBuilder
         return $this->delegate->signature();
     }
 
-    /**
-     * @param mixed $source
-     */
-    private function filterBuilder($source, ObjectBuilder ...$builders): ObjectBuilder
+    private function filterBuilder(mixed $source, ObjectBuilder ...$builders): ObjectBuilder
     {
         if (count($builders) === 1) {
             return $builders[0];
@@ -79,12 +73,9 @@ final class FilteredObjectBuilder implements ObjectBuilder
     }
 
     /**
-     * PHP8.0 union
-     *
-     * @param mixed $source
      * @return false|int<0, max>
      */
-    private function filledArguments(ObjectBuilder $builder, $source)
+    private function filledArguments(ObjectBuilder $builder, mixed $source): false|int
     {
         $arguments = $builder->describeArguments();
 

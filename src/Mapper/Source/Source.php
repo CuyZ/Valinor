@@ -17,15 +17,10 @@ use Traversable;
  */
 final class Source implements IteratorAggregate
 {
-    /** @var iterable<mixed> */
-    private iterable $delegate;
-
-    /**
-     * @param iterable<mixed> $delegate
-     */
-    private function __construct(iterable $delegate)
-    {
-        $this->delegate = $delegate;
+    private function __construct(
+        /** @var iterable<mixed> */
+        private iterable $delegate
+    ) {
     }
 
     /**

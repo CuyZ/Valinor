@@ -40,9 +40,6 @@ final class Settings
     public function __construct()
     {
         $this->interfaceMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
-        $this->exceptionFilter = function (Throwable $exception) {
-            // PHP8.0 use throw exception expression in short closure
-            throw $exception;
-        };
+        $this->exceptionFilter = fn (Throwable $exception) => throw $exception;
     }
 }

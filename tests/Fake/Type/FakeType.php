@@ -66,10 +66,7 @@ final class FakeType implements Type
         return $instance;
     }
 
-    /**
-     * @param mixed ...$values
-     */
-    public static function accepting(...$values): self
+    public static function accepting(mixed ...$values): self
     {
         $instance = new self();
         $instance->accepting = $values;
@@ -85,7 +82,7 @@ final class FakeType implements Type
         return $instance;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $this->permissive
             || (isset($this->accepting) && in_array($value, $this->accepting, true));

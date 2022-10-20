@@ -10,14 +10,11 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 
 final class FakeMessage implements Message, HasParameters, HasCode
 {
-    private string $body;
-
     /** @var array<string, string> */
     private array $parameters = [];
 
-    public function __construct(string $body = 'some message')
+    public function __construct(private string $body = 'some message')
     {
-        $this->body = $body;
     }
 
     public function body(): string

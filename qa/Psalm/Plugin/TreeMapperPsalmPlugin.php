@@ -56,15 +56,11 @@ final class TreeMapperPsalmPlugin implements MethodReturnTypeProviderInterface
 
     private static function type(Atomic $node): ?Union
     {
-        switch (true) {
-            case $node instanceof TLiteralString:
-                return Type::parseString($node->value);
-            case $node instanceof TDependentGetClass:
-                return $node->as_type;
-            case $node instanceof TClassString && $node->as_type:
-                return new Union([$node->as_type]);
-            default:
-                return null;
-        }
+        return match (true) {
+            $node instanceof TLiteralString => Type::parseString($node->value),
+            $node instanceof TDependentGetClass => $node->as_type,
+            $node instanceof TClassString && $node->as_type => new Union([$node->as_type]),
+            default => null,
+        };
     }
 }

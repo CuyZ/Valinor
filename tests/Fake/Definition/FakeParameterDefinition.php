@@ -28,10 +28,7 @@ final class FakeParameterDefinition
         );
     }
 
-    /**
-     * @param mixed $defaultValue
-     */
-    public static function optional(string $name, Type $type, $defaultValue): ParameterDefinition
+    public static function optional(string $name, Type $type, mixed $defaultValue): ParameterDefinition
     {
         return new ParameterDefinition(
             $name,

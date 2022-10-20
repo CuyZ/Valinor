@@ -9,40 +9,15 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class ParameterDefinition
 {
-    private string $name;
-
-    private string $signature;
-
-    private Type $type;
-
-    private bool $isOptional;
-
-    private bool $isVariadic;
-
-    /** @var mixed */
-    private $defaultValue;
-
-    private Attributes $attributes;
-
-    /**
-     * @param mixed $defaultValue
-     */
     public function __construct(
-        string $name,
-        string $signature,
-        Type $type,
-        bool $isOptional,
-        bool $isVariadic,
-        $defaultValue,
-        Attributes $attributes
+        private string $name,
+        private string $signature,
+        private Type $type,
+        private bool $isOptional,
+        private bool $isVariadic,
+        private mixed $defaultValue,
+        private Attributes $attributes
     ) {
-        $this->name = $name;
-        $this->signature = $signature;
-        $this->type = $type;
-        $this->isOptional = $isOptional;
-        $this->isVariadic = $isVariadic;
-        $this->defaultValue = $defaultValue;
-        $this->attributes = $attributes;
     }
 
     public function name(): string
@@ -70,10 +45,7 @@ final class ParameterDefinition
         return $this->isVariadic;
     }
 
-    /**
-     * @return mixed
-     */
-    public function defaultValue()
+    public function defaultValue(): mixed
     {
         return $this->defaultValue;
     }

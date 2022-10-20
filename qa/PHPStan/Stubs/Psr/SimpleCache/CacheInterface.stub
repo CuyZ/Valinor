@@ -21,7 +21,7 @@ interface CacheInterface
      * @param EntryType $value
      * @param null|int|DateInterval $ttl
      */
-    public function set(string $key, $value, $ttl = null): bool;
+    public function set(string $key, $value, null|int|DateInterval $ttl = null): bool;
 
     /**
      * @param iterable<string> $keys
@@ -34,7 +34,7 @@ interface CacheInterface
      * @param iterable<string, EntryType> $values
      * @param null|int|DateInterval $ttl
      */
-    public function setMultiple(iterable $values, $ttl = null): bool;
+    public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool;
 
     /**
      * @param iterable<string> $keys

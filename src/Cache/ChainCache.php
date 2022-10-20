@@ -21,20 +21,15 @@ final class ChainCache implements CacheInterface
     private int $count;
 
     /**
-     * @param CacheInterface<EntryType> ...$caches
+     * @param CacheInterface<EntryType> ...$delegates
      */
-    public function __construct(CacheInterface ...$caches)
+    public function __construct(CacheInterface ...$delegates)
     {
-        $this->delegates = $caches;
-        $this->count = count($caches);
+        $this->delegates = $delegates;
+        $this->count = count($delegates);
     }
 
-    /**
-     * PHP8.0 add `mixed` return type and remove PHPDoc
-     *
-     * @return EntryType|null
-     */
-    public function get($key, $default = null)
+    public function get($key, $default = null): mixed
     {
         foreach ($this->delegates as $i => $delegate) {
             $value = $delegate->get($key, $default);

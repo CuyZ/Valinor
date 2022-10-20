@@ -9,19 +9,18 @@ use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
+use Stringable;
 
 use function assert;
 use function is_numeric;
-use function is_object;
 use function is_string;
-use function method_exists;
 
 /** @internal */
 final class NativeStringType implements StringType
 {
     use IsSingleton;
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return is_string($value);
     }
@@ -36,15 +35,14 @@ final class NativeStringType implements StringType
             || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return is_string($value)
             || is_numeric($value)
-            // PHP8.0 `$value instanceof Stringable`
-            || (is_object($value) && method_exists($value, '__toString'));
+            || $value instanceof Stringable;
     }
 
-    public function cast($value): string
+    public function cast(mixed $value): string
     {
         assert($this->canCast($value));
 

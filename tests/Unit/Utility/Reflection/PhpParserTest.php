@@ -30,7 +30,7 @@ final class PhpParserTest extends TestCase
      * @param ReflectionClass<T>|ReflectionFunction|ReflectionMethod $reflection
      * @param array<string, string> $expectedMap
      */
-    public function test_parse_use_statements($reflection, array $expectedMap): void
+    public function test_parse_use_statements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection, array $expectedMap): void
     {
         $actualMap = PhpParser::parseUseStatements($reflection);
 

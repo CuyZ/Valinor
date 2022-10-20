@@ -45,10 +45,9 @@ final class DateTimeFormatConstructor
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
      * @param non-empty-string|positive-int $value
-     * PHP8.0 union
      */
     #[DynamicConstructor]
-    public function __invoke(string $className, $value): DateTimeInterface
+    public function __invoke(string $className, string|int $value): DateTimeInterface
     {
         foreach ($this->formats as $format) {
             $date = $className::createFromFormat($format, (string)$value) ?: null;

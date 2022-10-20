@@ -18,11 +18,8 @@ use PHPStan\Type\UnionType;
 
 final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtension
 {
-    private TypeStringResolver $resolver;
-
-    public function __construct(TypeStringResolver $resolver)
+    public function __construct(private TypeStringResolver $resolver)
     {
-        $this->resolver = $resolver;
     }
 
     public function getClass(): string

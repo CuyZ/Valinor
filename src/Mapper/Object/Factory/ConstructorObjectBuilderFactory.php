@@ -27,24 +27,12 @@ use function count;
 /** @internal */
 final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 {
-    private ObjectBuilderFactory $delegate;
-
-    /** @var array<class-string, null> */
-    public array $nativeConstructors = [];
-
-    private FunctionsContainer $constructors;
-
-    /**
-     * @param array<class-string, null> $nativeConstructors
-     */
     public function __construct(
-        ObjectBuilderFactory $delegate,
-        array $nativeConstructors,
-        FunctionsContainer $constructors
+        private ObjectBuilderFactory $delegate,
+        /** @var array<class-string, null> */
+        public array $nativeConstructors,
+        private FunctionsContainer $constructors
     ) {
-        $this->delegate = $delegate;
-        $this->nativeConstructors = $nativeConstructors;
-        $this->constructors = $constructors;
     }
 
     public function for(ClassDefinition $class): array

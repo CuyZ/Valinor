@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Utility\Reflection;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
-use Reflector;
 use SplFileObject;
 
 /**
@@ -25,7 +24,7 @@ final class PhpParser
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
      * @return array<string, string>
      */
-    public static function parseUseStatements(Reflector $reflection): array
+    public static function parseUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
     {
         // @infection-ignore-all
         return self::$statements[Reflection::signature($reflection)] ??= self::fetchUseStatements($reflection);
@@ -35,7 +34,7 @@ final class PhpParser
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
      * @return array<string, string>
      */
-    private static function fetchUseStatements(Reflector $reflection): array
+    private static function fetchUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
     {
         $filename = $reflection->getFileName();
         $startLine = $reflection->getStartLine();

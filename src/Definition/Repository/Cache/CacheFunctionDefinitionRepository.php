@@ -12,18 +12,11 @@ use Psr\SimpleCache\CacheInterface;
 /** @internal */
 final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepository
 {
-    private FunctionDefinitionRepository $delegate;
-
-    /** @var CacheInterface<FunctionDefinition> */
-    private CacheInterface $cache;
-
-    /**
-     * @param CacheInterface<FunctionDefinition> $cache
-     */
-    public function __construct(FunctionDefinitionRepository $delegate, CacheInterface $cache)
-    {
-        $this->delegate = $delegate;
-        $this->cache = $cache;
+    public function __construct(
+        private FunctionDefinitionRepository $delegate,
+        /** @var CacheInterface<FunctionDefinition> */
+        private CacheInterface $cache
+    ) {
     }
 
     public function for(callable $function): FunctionDefinition

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility\Reflection;
 
+use LogicException;
+use PhpToken;
+
 /**
  * @internal
  *
@@ -12,7 +15,7 @@ namespace CuyZ\Valinor\Utility\Reflection;
  */
 final class TokenParser
 {
-    /** @var array<int, array{0: int, 1: string}|string> */
+    /** @var array<PhpToken> */
     private array $tokens;
 
     private int $numTokens;
@@ -21,12 +24,7 @@ final class TokenParser
 
     public function __construct(string $content)
     {
-        $this->tokens = token_get_all($content);
-
-        /** @see https://github.com/doctrine/annotations/blob/4858ab786a6cb568149209a9112dad3808c8a4de/lib/Doctrine/Common/Annotations/TokenParser.php#L55-L61 */
-        // @infection-ignore-all
-        token_get_all("<?php\n/**\n *\n */"); // @phpstan-ignore-line
-
+        $this->tokens = PhpToken::tokenize($content);
         $this->numTokens = count($this->tokens);
     }
 
@@ -39,12 +37,12 @@ final class TokenParser
         $statements = [];
 
         while ($token = $this->next()) {
-            if ($currentNamespace === $namespaceName && $token[0] === T_USE) {
+            if ($currentNamespace === $namespaceName && $token->is(T_USE)) {
                 $statements = array_merge($statements, $this->parseUseStatement());
                 continue;
             }
 
-            if ($token[0] !== T_NAMESPACE) {
+            if (! $token->is(T_NAMESPACE)) {
                 continue;
             }
 
@@ -71,34 +69,32 @@ final class TokenParser
         $explicitAlias = false;
 
         while ($token = $this->next()) {
-            if (! $explicitAlias && $token[0] === T_STRING) {
-                $class .= $token[1]; // PHP8.0 remove concatenation
-                $alias = $token[1];
-            } elseif ($explicitAlias && $token[0] === T_STRING) {
-                $alias = $token[1];
-            } elseif (PHP_VERSION_ID >= 80000 // PHP8.0 remove condition
-                && ($token[0] === T_NAME_QUALIFIED || $token[0] === T_NAME_FULLY_QUALIFIED)
-            ) {
-                $class .= $token[1]; // PHP8.0 remove concatenation
-                $classSplit = explode('\\', $token[1]);
+            $name = (string)$token;
+
+            if (! $explicitAlias && $token->is(T_STRING)) {
+                $class = $alias = $name;
+            } elseif ($explicitAlias && $token->is(T_STRING)) {
+                $alias = $name;
+            } elseif ($token->is([T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                $class = $name;
+                $classSplit = explode('\\', $name);
                 $alias = $classSplit[count($classSplit) - 1];
-            } elseif ($token[0] === T_NS_SEPARATOR) {
+            } elseif ($token->is(T_NS_SEPARATOR)) {
                 $class .= '\\';
                 $alias = '';
-            } elseif ($token[0] === T_AS) {
+            } elseif ($token->is(T_AS)) {
                 $explicitAlias = true;
                 $alias = '';
-            } elseif ($token === ',') {
+            } elseif ($name === ',') {
                 $statements[strtolower($alias)] = $groupRoot . $class;
-                $class = '';
-                $alias = '';
+                $class = $alias = '';
                 $explicitAlias = false;
-            } elseif ($token === ';') {
+            } elseif ($name === ';') {
                 if ($alias !== '') {
                     $statements[strtolower($alias)] = $groupRoot . $class;
                 }
                 break;
-            } elseif ($token === '{') {
+            } elseif ($name === '{') {
                 $groupRoot = $class;
                 $class = '';
             }
@@ -107,24 +103,14 @@ final class TokenParser
         return $statements;
     }
 
-    /**
-     * Gets the next non whitespace and non comment token.
-     *
-     * @return array{0: int, 1: string}|string|null
-     */
-    private function next()
+    private function next(): ?PhpToken
     {
         for ($i = $this->pointer; $i < $this->numTokens; $i++) {
             $this->pointer++;
 
-            if ($this->tokens[$i][0] === T_WHITESPACE
-                || $this->tokens[$i][0] === T_COMMENT
-                || $this->tokens[$i][0] === T_DOC_COMMENT
-            ) {
-                continue;
+            if (! $this->tokens[$i]->isIgnorable()) {
+                return $this->tokens[$i];
             }
-
-            return $this->tokens[$i];
         }
 
         return null;
@@ -132,26 +118,15 @@ final class TokenParser
 
     private function parseNamespace(): string
     {
-        $name = '';
-
-        // PHP8.0 remove `infection-ignore-all`
-        // @infection-ignore-all
-        while (($token = $this->next())
-            // PHP8.0 remove conditions
-            && (
-                (
-                    PHP_VERSION_ID < 80000
-                    && ($token[0] === T_NS_SEPARATOR || $token[0] === T_STRING)
-                )
-                || (
-                    PHP_VERSION_ID >= 80000
-                    && ($token[0] === T_NAME_QUALIFIED || $token[0] === T_NAME_FULLY_QUALIFIED)
-                )
-            )
-        ) {
-            $name .= $token[1]; // PHP8.0 `return $token[1];` and `throw Error()` at the end of the method
+        while ($token = $this->next()) {
+            if ($token->is([T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                return (string)$token;
+            }
         }
 
-        return $name;
+        /** @infection-ignore-all */
+        // @codeCoverageIgnoreStart
+        throw new LogicException('Namespace not found.');
+        // @codeCoverageIgnoreEnd
     }
 }

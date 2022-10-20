@@ -63,10 +63,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
         self::assertInstanceOf(NativeStringType::class, $compiledFunction->returnType());
     }
 
-    /**
-     * @return FunctionDefinition|bool
-     */
-    private function eval(string $code)
+    private function eval(string $code): \CuyZ\Valinor\Definition\FunctionDefinition|bool
     {
         try {
             return eval("return $code;");

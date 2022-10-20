@@ -10,7 +10,6 @@ use CuyZ\Valinor\Tests\Fixture\Attribute\PropertyTargetAttribute;
 
 #[BasicAttribute]
 #[AttributeWithArguments('foo', 'bar')]
-// @PHP8.0 move to anonymous class
 final class ObjectWithAttributes
 {
     #[BasicAttribute]

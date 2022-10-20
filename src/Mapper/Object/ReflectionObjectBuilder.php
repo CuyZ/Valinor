@@ -13,13 +13,10 @@ use function count;
 /** @internal */
 final class ReflectionObjectBuilder implements ObjectBuilder
 {
-    private ClassDefinition $class;
-
     private Arguments $arguments;
 
-    public function __construct(ClassDefinition $class)
+    public function __construct(private ClassDefinition $class)
     {
-        $this->class = $class;
     }
 
     public function describeArguments(): Arguments
@@ -35,9 +32,7 @@ final class ReflectionObjectBuilder implements ObjectBuilder
             }
         }
 
-        // PHP8.0 `$object = new ($this->class->name())();`
-        $className = $this->class->name();
-        $object = new $className();
+        $object = new ($this->class->name())();
 
         if (count($arguments) > 0) {
             (function () use ($arguments): void {

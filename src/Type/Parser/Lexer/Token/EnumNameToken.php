@@ -24,15 +24,10 @@ use function reset;
 /** @internal */
 final class EnumNameToken implements TraversingToken
 {
-    /** @var class-string<UnitEnum> */
-    private string $enumName;
-
-    /**
-     * @param class-string<UnitEnum> $enumName
-     */
-    public function __construct(string $enumName)
-    {
-        $this->enumName = $enumName;
+    public function __construct(
+        /** @var class-string<UnitEnum> */
+        private string $enumName
+    ) {
     }
 
     public function traverse(TokenStream $stream): Type

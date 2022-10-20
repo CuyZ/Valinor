@@ -10,10 +10,7 @@ use CuyZ\Valinor\Type\Type;
 
 final class FakeShell
 {
-    /**
-     * @param mixed $value
-     */
-    public static function new(Type $type, $value = null): Shell
+    public static function new(Type $type, mixed $value = null): Shell
     {
         return Shell::root($type, $value);
     }

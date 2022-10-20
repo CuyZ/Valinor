@@ -24,20 +24,14 @@ final class Mapping
         $this->depth = count($keys) - 1;
     }
 
-    /**
-     * @param int|string $key
-     */
-    public function matches($key, int $atDepth): bool
+    public function matches(int|string $key, int $atDepth): bool
     {
         $from = $this->keys[$atDepth] ?? null;
 
         return $from === $key || $from === '*';
     }
 
-    /**
-     * @param int|string $key
-     */
-    public function findMappedKey($key, int $atDepth): ?string
+    public function findMappedKey(int|string $key, int $atDepth): ?string
     {
         if ($atDepth < $this->depth
             || !$this->matches($key, $atDepth)

@@ -9,8 +9,6 @@ use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValues;
-use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValuesWithConstructor;
 use DateTimeImmutable;
 use DateTimeInterface;
 
@@ -33,12 +31,12 @@ final class UnionValuesMappingTest extends IntegrationTest
             'constantWithIntegerValue' => 1653398288,
         ];
 
-        $classes = [UnionValues::class, UnionValuesWithConstructor::class];
-
-        if (PHP_VERSION_ID >= 8_00_00) {
-            $classes[] = NativeUnionValues::class;
-            $classes[] = NativeUnionValuesWithConstructor::class;
-        }
+        $classes = [
+            DocBlockUnionValues::class,
+            DocBlockUnionValuesWithConstructor::class,
+            NativeUnionValues::class,
+            NativeUnionValuesWithConstructor::class
+        ];
 
         foreach ($classes as $class) {
             try {
@@ -115,7 +113,7 @@ final class UnionValuesMappingTest extends IntegrationTest
     }
 }
 
-class UnionValues
+class DocBlockUnionValues
 {
     /** @var bool|float|int|string */
     public $scalarWithBoolean = 'Schwifty!';
@@ -154,28 +152,7 @@ class UnionValues
     public $constantWithIntegerValue = 'some string value';
 }
 
-class UnionOfFixedValues
-{
-    /** @var 404.42|1337.42 */
-    public float $positiveFloatValue = 404.42;
-
-    /** @var -404.42|-1337.42 */
-    public float $negativeFloatValue = -404.42;
-
-    /** @var 42|1337 */
-    public int $positiveIntegerValue = 42;
-
-    /** @var -42|-1337 */
-    public int $negativeIntegerValue = -42;
-
-    /** @var 'foo'|'bar' */
-    public string $stringValueWithSingleQuote;
-
-    /** @var "baz"|"fiz" */
-    public string $stringValueWithDoubleQuote;
-}
-
-class UnionValuesWithConstructor extends UnionValues
+class DocBlockUnionValuesWithConstructor extends DocBlockUnionValues
 {
     /**
      * @param bool|float|int|string $scalarWithBoolean
@@ -218,6 +195,96 @@ class UnionValuesWithConstructor extends UnionValues
         $this->constantWithStringValue = $constantWithStringValue;
         $this->constantWithIntegerValue = $constantWithIntegerValue;
     }
+}
+
+class NativeUnionValues
+{
+    public bool|float|int|string $scalarWithBoolean = 'Schwifty!';
+
+    public bool|float|int|string $scalarWithFloat = 'Schwifty!';
+
+    public bool|float|int|string $scalarWithInteger = 'Schwifty!';
+
+    public bool|float|int|string $scalarWithString = 'Schwifty!';
+
+    public string|null $nullableWithString = 'Schwifty!';
+
+    public string|null $nullableWithNull = 'Schwifty!';
+
+    /** @var int|true */
+    public int|bool $intOrLiteralTrue = 42;
+
+    /** @var int|false */
+    public int|bool $intOrLiteralFalse = 42;
+
+    public DateTimeInterface|null $dateTimeOrNull = null;
+
+    public null|DateTimeInterface $nullOrDateTime = null;
+
+    /** @var ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A */
+    public string|int $constantWithStringValue = 1653398288;
+
+    /** @var ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A */
+    public string|int $constantWithIntegerValue = 'some string value';
+}
+
+class NativeUnionValuesWithConstructor extends NativeUnionValues
+{
+    /**
+     * PHP8.2 native `true` and `false`
+     * @param int|true $intOrLiteralTrue
+     * @param int|false $intOrLiteralFalse
+     * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithStringValue
+     * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithIntegerValue
+     */
+    public function __construct(
+        bool|float|int|string $scalarWithBoolean = 'Schwifty!',
+        bool|float|int|string $scalarWithFloat = 'Schwifty!',
+        bool|float|int|string $scalarWithInteger = 'Schwifty!',
+        bool|float|int|string $scalarWithString = 'Schwifty!',
+        string|null $nullableWithString = 'Schwifty!',
+        string|null $nullableWithNull = 'Schwifty!',
+        int|bool $intOrLiteralTrue = 42,
+        int|bool $intOrLiteralFalse = 42,
+        DateTimeInterface|null $dateTimeOrNull = null,
+        null|DateTimeInterface $nullOrDateTime = null,
+        string|int $constantWithStringValue = 1653398288,
+        string|int $constantWithIntegerValue = 'some string value'
+    ) {
+        $this->scalarWithBoolean = $scalarWithBoolean;
+        $this->scalarWithFloat = $scalarWithFloat;
+        $this->scalarWithInteger = $scalarWithInteger;
+        $this->scalarWithString = $scalarWithString;
+        $this->nullableWithString = $nullableWithString;
+        $this->nullableWithNull = $nullableWithNull;
+        $this->intOrLiteralTrue = $intOrLiteralTrue;
+        $this->intOrLiteralFalse = $intOrLiteralFalse;
+        $this->dateTimeOrNull = $dateTimeOrNull;
+        $this->nullOrDateTime = $nullOrDateTime;
+        $this->constantWithStringValue = $constantWithStringValue;
+        $this->constantWithIntegerValue = $constantWithIntegerValue;
+    }
+}
+
+class UnionOfFixedValues
+{
+    /** @var 404.42|1337.42 */
+    public float $positiveFloatValue = 404.42;
+
+    /** @var -404.42|-1337.42 */
+    public float $negativeFloatValue = -404.42;
+
+    /** @var 42|1337 */
+    public int $positiveIntegerValue = 42;
+
+    /** @var -42|-1337 */
+    public int $negativeIntegerValue = -42;
+
+    /** @var 'foo'|'bar' */
+    public string $stringValueWithSingleQuote;
+
+    /** @var "baz"|"fiz" */
+    public string $stringValueWithDoubleQuote;
 }
 
 class UnionOfFixedValuesWithConstructor extends UnionOfFixedValues

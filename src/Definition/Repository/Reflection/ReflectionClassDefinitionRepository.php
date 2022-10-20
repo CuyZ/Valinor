@@ -35,21 +35,20 @@ use function array_map;
 /** @internal */
 final class ReflectionClassDefinitionRepository implements ClassDefinitionRepository
 {
-    private AttributesRepository $attributesFactory;
-
     private TypeParserFactory $typeParserFactory;
+
+    private AttributesRepository $attributesFactory;
 
     private ReflectionPropertyDefinitionBuilder $propertyBuilder;
 
     private ReflectionMethodDefinitionBuilder $methodBuilder;
 
-    public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesRepository)
+    public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesFactory)
     {
-        $this->attributesFactory = $attributesRepository;
         $this->typeParserFactory = $typeParserFactory;
-
-        $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($attributesRepository);
-        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($attributesRepository);
+        $this->attributesFactory = $attributesFactory;
+        $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($attributesFactory);
+        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($attributesFactory);
     }
 
     public function for(ClassType $type): ClassDefinition
@@ -171,7 +170,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         foreach ($importedTypesRaw as $class => $types) {
             try {
                 $classType = $typeParser->parse($class);
-            } catch (InvalidType $exception) {
+            } catch (InvalidType) {
                 throw new InvalidTypeAliasImportClass($type, $class);
             }
 

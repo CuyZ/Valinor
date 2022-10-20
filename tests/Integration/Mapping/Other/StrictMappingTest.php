@@ -14,8 +14,6 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Utility\PermissiveTypeFound;
 use stdClass;
 
-use function get_class;
-
 final class StrictMappingTest extends IntegrationTest
 {
     public function test_missing_value_throws_exception(): void
@@ -27,7 +25,7 @@ final class StrictMappingTest extends IntegrationTest
         };
 
         try {
-            (new MapperBuilder())->mapper()->map(get_class($class), [
+            (new MapperBuilder())->mapper()->map($class::class, [
                 'foo' => 'foo',
             ]);
         } catch (MappingError $exception) {

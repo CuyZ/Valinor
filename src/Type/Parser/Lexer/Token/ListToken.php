@@ -13,22 +13,15 @@ use CuyZ\Valinor\Type\Types\NonEmptyListType;
 /** @internal */
 final class ListToken implements TraversingToken
 {
-    /** @var class-string<ListType|NonEmptyListType> */
-    private string $listType;
-
-    private string $symbol;
-
     private static self $list;
 
     private static self $nonEmptyList;
 
-    /**
-     * @param class-string<ListType|NonEmptyListType> $listType
-     */
-    private function __construct(string $listType, string $symbol)
-    {
-        $this->listType = $listType;
-        $this->symbol = $symbol;
+    private function __construct(
+        /** @var class-string<ListType|NonEmptyListType> */
+        private string $listType,
+        private string $symbol
+    ) {
     }
 
     public static function list(): self
@@ -48,9 +41,7 @@ final class ListToken implements TraversingToken
 
             $subType = $stream->read();
 
-            // PHP8.0 use `new ($this->listType)(...)`
-            $listClass = $this->listType;
-            $listType = new $listClass($subType);
+            $listType = new ($this->listType)($subType);
 
             if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
                 throw new ListClosingBracketMissing($listType);

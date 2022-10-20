@@ -25,7 +25,7 @@ final class IntersectionType implements CombiningType
         $this->signature = implode('&', array_map(fn (Type $type) => $type->toString(), $types));
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         foreach ($this->types as $type) {
             if (! $type->accepts($value)) {

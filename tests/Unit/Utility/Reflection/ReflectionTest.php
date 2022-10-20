@@ -8,11 +8,9 @@ use Closure;
 use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyPromotion;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeUnionType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -21,11 +19,8 @@ use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
-use Reflector;
 use RuntimeException;
 use stdClass;
-
-use function get_class;
 
 final class ReflectionTest extends TestCase
 {
@@ -58,13 +53,13 @@ final class ReflectionTest extends TestCase
 
     public function test_reflection_signatures_are_correct(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             public string $property;
 
             public function method(string $parameter): void
             {
             }
-        });
+        })::class;
 
         $functions = require_once 'FakeFunctions.php';
 
@@ -72,8 +67,8 @@ final class ReflectionTest extends TestCase
         $reflectionProperty = $reflectionClass->getProperty('property');
         $reflectionMethod = $reflectionClass->getMethod('method');
         $reflectionParameter = $reflectionMethod->getParameters()[0];
-        $reflectionFunction = new ReflectionFunction(__NAMESPACE__ . '\some_function'); // @PHP8.1 First-class callable syntax
-        $reflectionFunctionMethod = new ReflectionFunction(Closure::fromCallable([self::class, 'test_reflection_signatures_are_correct'])); // @PHP8.1 First-class callable syntax
+        $reflectionFunction = new ReflectionFunction(__NAMESPACE__ . '\some_function'); // PHP8.1 First-class callable syntax
+        $reflectionFunctionMethod = new ReflectionFunction(Closure::fromCallable([self::class, 'test_reflection_signatures_are_correct'])); // PHP8.1 First-class callable syntax
         $reflectionFunctionOnOneLineClosure = new ReflectionFunction($functions['function_on_one_line']);
         $reflectionFunctionOnSeveralLinesClosure = new ReflectionFunction($functions['function_on_several_lines']);
 
@@ -121,12 +116,11 @@ final class ReflectionTest extends TestCase
         self::assertSame('string|null', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_union_type_is_handled(): void
     {
-        $class = ObjectWithPropertyWithNativeUnionType::class;
+        $class = new class () {
+            public int|float $someProperty;
+        };
 
         /** @var ReflectionType $type */
         $type = (new ReflectionProperty($class, 'someProperty'))->getType();
@@ -134,9 +128,6 @@ final class ReflectionTest extends TestCase
         self::assertSame('int|float', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_mixed_type_is_handled(): void
     {
         $object = new class () {
@@ -237,23 +228,26 @@ final class ReflectionTest extends TestCase
     }
 
     /**
-     * @param ReflectionParameter|ReflectionProperty $property
      * @param non-empty-string $expectedType
      * @dataProvider objects_with_docblock_typed_properties
      */
     public function test_docblock_var_type_is_fetched_correctly(
-        Reflector $property,
+        \ReflectionParameter|\ReflectionProperty $property,
         string $expectedType
     ): void {
         self::assertEquals($expectedType, Reflection::docBlockType($property));
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_docblock_var_type_is_fetched_correctly_with_property_promotion(): void
     {
-        $class = ObjectWithPropertyPromotion::class;
+        $class = new class ('foo') {
+            public function __construct(
+                /** @var non-empty-string */
+                public string $someProperty
+            ) {
+            }
+        };
+
         $type = Reflection::docBlockType((new ReflectionMethod($class, '__construct'))->getParameters()[0]);
 
         self::assertEquals('non-empty-string', $type);
@@ -287,7 +281,7 @@ final class ReflectionTest extends TestCase
 
         yield 'phpdoc const with joker' => [
             /** @return ObjectWithConstants::CONST_WITH_* */
-            fn () => ObjectWithConstants::CONST_WITH_STRING_VALUE_A,
+            fn (): string => ObjectWithConstants::CONST_WITH_STRING_VALUE_A,
             'ObjectWithConstants::CONST_WITH_*',
         ];
 

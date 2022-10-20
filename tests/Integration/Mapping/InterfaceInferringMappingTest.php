@@ -116,16 +116,10 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                 ->infer(
                     SomeInterface::class,
                     /** @return class-string<SomeClassThatInheritsInterfaceA|SomeClassThatInheritsInterfaceB> */
-                    function (string $type): string {
-                        // @PHP8.0 use `match` with short closure
-                        switch ($type) {
-                            case 'classA-foo':
-                                return SomeClassThatInheritsInterfaceA::class;
-                            case 'classB-bar':
-                                return SomeClassThatInheritsInterfaceB::class;
-                            default:
-                                self::fail("Type `$type` not handled.");
-                        }
+                    fn (string $type): string => match ($type) {
+                        'classA-foo' => SomeClassThatInheritsInterfaceA::class,
+                        'classB-bar' => SomeClassThatInheritsInterfaceB::class,
+                        default => self::fail("Type `$type` not handled."),
                     }
                 )
                 ->mapper()
@@ -189,12 +183,12 @@ final class InterfaceInferringMappingTest extends IntegrationTest
             $result = (new MapperBuilder())
                 ->infer(
                     InterfaceA::class,
-                    // @PHP8.1 first-class callable syntax
+                    // PHP8.1 first-class callable syntax
                     [InterfaceAInferer::class, 'infer']
                 )
                 ->infer(
                     InterfaceB::class,
-                    // @PHP8.1 first-class callable syntax
+                    // PHP8.1 first-class callable syntax
                     [InterfaceBInferer::class, 'infer']
                 )
                 ->mapper()
@@ -286,10 +280,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         (new MapperBuilder())
             ->infer(
                 DateTimeInterface::class,
-                function () use ($exception) {
-                    // @PHP8.0 use short closure
-                    throw $exception;
-                }
+                fn () => throw $exception
             )
             ->mapper()
             ->map(DateTimeInterface::class, []);
@@ -343,8 +334,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         (new MapperBuilder())
             ->infer(
                 SomeInterface::class,
-                /** @return string|int */
-                fn () => SomeClassThatInheritsInterfaceA::class
+                fn (string $value): string|int => $value === 'foo' ? 'foo' : 42
             )
             ->mapper()
             ->map(SomeInterface::class, []);
@@ -426,10 +416,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                 ->infer(
                     DateTimeInterface::class,
                     /** @return class-string<DateTime> */
-                    function (string $value) {
-                        // @PHP8.0 use short closure
-                        throw new FakeErrorMessage('some error message', 1645303304);
-                    }
+                    fn (string $value) => throw new FakeErrorMessage('some error message', 1645303304)
                 )
                 ->mapper()
                 ->map(DateTimeInterface::class, 'foo');

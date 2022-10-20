@@ -11,6 +11,7 @@ use Throwable;
 final class UserlandError extends RuntimeException implements ErrorMessage
 {
     /**
+     * PHP8.1 intersection
      * @return Message&Throwable
      */
     public static function from(Throwable $message): Message

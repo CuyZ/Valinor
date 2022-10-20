@@ -14,6 +14,7 @@ use function iterator_to_array;
 abstract class IntegrationTest extends TestCase
 {
     /**
+     * PHP8.1 never
      * @return never-return
      */
     protected function mappingFail(MappingError $error)

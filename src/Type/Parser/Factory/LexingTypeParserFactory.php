@@ -20,18 +20,13 @@ use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use LogicException;
 
-use function get_class;
-
 /** @internal */
 final class LexingTypeParserFactory implements TypeParserFactory
 {
-    private TemplateParser $templateParser;
-
     private TypeParser $nativeParser;
 
-    public function __construct(TemplateParser $templateParser)
+    public function __construct(private TemplateParser $templateParser)
     {
-        $this->templateParser = $templateParser;
     }
 
     public function get(object ...$specifications): TypeParser
@@ -67,6 +62,6 @@ final class LexingTypeParserFactory implements TypeParserFactory
             return new TypeAliasLexer($lexer, $specification->aliases());
         }
 
-        throw new LogicException('Unhandled specification of type `' . get_class($specification) . '`.');
+        throw new LogicException('Unhandled specification of type `' . $specification::class . '`.');
     }
 }

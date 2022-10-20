@@ -20,10 +20,7 @@ final class InvalidTraversableKey extends RuntimeException implements ErrorMessa
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param string|int $key
-     */
-    public function __construct($key, ArrayKeyType $type)
+    public function __construct(string|int $key, ArrayKeyType $type)
     {
         $this->parameters = [
             'key' => ValueDumper::dump($key),

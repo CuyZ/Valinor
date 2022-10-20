@@ -13,12 +13,11 @@ final class MappingTest extends TestCase
      * @dataProvider mappingsDataProvider
      *
      * @param array<string> $keys
-     * @param string|int $targetKey
      */
     public function test_matches_string_key_at_sub_level(
         array $keys,
         string $to,
-        $targetKey,
+        string|int $targetKey,
         int $targetDepth,
         bool $expectedMatch,
         ?string $expectedTo

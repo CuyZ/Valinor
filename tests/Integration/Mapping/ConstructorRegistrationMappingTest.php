@@ -90,7 +90,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithNamedConstructors::class, 'namedConstructor'])
                 ->mapper()
                 ->map(SomeClassWithNamedConstructors::class, 'foo');
@@ -139,7 +139,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([$constructor, 'build'])
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -150,9 +150,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame('foo', $result->foo);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_registered_constructor_with_injected_class_name_is_used_for_abstract_class(): void
     {
         try {
@@ -179,9 +176,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame(1337, $result->someOtherChild->bar);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_registered_constructor_with_injected_class_name_is_used_for_interface(): void
     {
         try {
@@ -208,9 +202,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame(1337, $result->someOtherChild->bar);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_registered_constructor_with_injected_class_name_without_class_string_type_is_used(): void
     {
         try {
@@ -230,9 +221,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         self::assertSame($object, $result);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_registered_constructor_with_injected_class_name_with_previously_other_registered_constructor_is_used(): void
     {
         try {
@@ -257,7 +245,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
                 ->mapper()
                 ->map(SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'foo');
@@ -272,7 +260,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class)
                 ->registerConstructor([SomeClassWithDifferentNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
                 ->mapper()
@@ -451,15 +439,15 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
     public function test_inherited_static_constructor_is_used_to_map_child_class(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             public SomeClassWithInheritedStaticConstructor $someChild;
 
             public SomeOtherClassWithInheritedStaticConstructor $someOtherChild;
-        });
+        })::class;
 
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 First-class callable syntax
+                // PHP8.1 First-class callable syntax
                 ->registerConstructor([SomeAbstractClassWithStaticConstructor::class, 'from'])
                 ->mapper()
                 ->map($class, [
@@ -515,9 +503,9 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
         (new MapperBuilder())
             ->registerConstructor(
-                __NAMESPACE__ . '\constructorA', // @PHP8.1 First-class callable syntax
+                __NAMESPACE__ . '\constructorA', // PHP8.1 First-class callable syntax
                 fn (int $other, float $arguments): stdClass => new stdClass(),
-                __NAMESPACE__ . '\constructorB', // @PHP8.1 First-class callable syntax
+                __NAMESPACE__ . '\constructorB', // PHP8.1 First-class callable syntax
             )
             ->mapper()
             ->map(stdClass::class, []);
@@ -564,9 +552,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             ->map(stdClass::class, []);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_missing_constructor_class_type_parameter_throws_exception(): void
     {
         $this->expectException(MissingConstructorClassTypeParameter::class);
@@ -582,9 +567,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             ->map(stdClass::class, []);
     }
 
-    /**
-     * @requires PHP >= 8
-     */
     public function test_invalid_constructor_class_type_parameter_throws_exception(): void
     {
         $this->expectException(InvalidConstructorClassTypeParameter::class);
@@ -660,10 +642,8 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             (new MapperBuilder())
-                ->registerConstructor(function (): stdClass {
-                    // @PHP8.0 use short closure
-                    throw new FakeErrorMessage('some error message', 1656076090);
-                })
+                // @phpstan-ignore-next-line
+                ->registerConstructor(fn (): stdClass => throw new FakeErrorMessage('some error message', 1656076090))
                 ->mapper()
                 ->map(stdClass::class, []);
 
@@ -692,11 +672,8 @@ final class SomeClassWithNamedConstructors
 
 final class SomeClassWithSimilarNativeConstructorAndNamedConstructor
 {
-    public string $foo;
-
-    public function __construct(string $foo)
+    public function __construct(public string $foo)
     {
-        $this->foo = $foo;
     }
 
     public static function namedConstructor(string $foo): self
@@ -710,14 +687,8 @@ final class SomeClassWithSimilarNativeConstructorAndNamedConstructor
 
 final class SomeClassWithDifferentNativeConstructorAndNamedConstructor
 {
-    public string $foo;
-
-    public int $bar;
-
-    public function __construct(string $foo, int $bar)
+    public function __construct(public string $foo, public int $bar)
     {
-        $this->foo = $foo;
-        $this->bar = $bar;
     }
 
     public static function namedConstructor(string $foo): self
@@ -728,11 +699,8 @@ final class SomeClassWithDifferentNativeConstructorAndNamedConstructor
 
 final class SomeClassWithPrivateNativeConstructor
 {
-    public string $foo;
-
-    private function __construct(string $foo)
+    private function __construct(public string $foo)
     {
-        $this->foo = $foo;
     }
 
     public static function namedConstructorWithNoParameter(): self
@@ -758,24 +726,16 @@ function constructorB(int $argumentA, float $argumentB): stdClass
 
 interface SomeInterfaceWithStaticConstructor
 {
-    // @PHP8.0 return static
-    public static function from(string $foo, int $bar): self;
+    public static function from(string $foo, int $bar): static;
 }
 
 abstract class SomeAbstractClassWithStaticConstructor implements SomeInterfaceWithStaticConstructor
 {
-    public string $foo;
-
-    public int $bar;
-
-    final private function __construct(string $foo, int $bar)
+    final private function __construct(public string $foo, public int $bar)
     {
-        $this->foo = $foo;
-        $this->bar = $bar;
     }
 
-    // @PHP8.0 return static
-    public static function from(string $foo, int $bar): self
+    public static function from(string $foo, int $bar): static
     {
         return new static($foo, $bar);
     }

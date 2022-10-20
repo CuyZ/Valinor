@@ -44,47 +44,31 @@ final class NativeLexer implements TypeLexer
             return NativeToken::from($symbol);
         }
 
-        switch (strtolower($symbol)) {
-            case '|':
-                return UnionToken::get();
-            case '&':
-                return IntersectionToken::get();
-            case '<':
-                return OpeningBracketToken::get();
-            case '>':
-                return ClosingBracketToken::get();
-            case '[':
-                return OpeningSquareBracketToken::get();
-            case ']':
-                return ClosingSquareBracketToken::get();
-            case '{':
-                return OpeningCurlyBracketToken::get();
-            case '}':
-                return ClosingCurlyBracketToken::get();
-            case ':':
-                return ColonToken::get();
-            case '?':
-                return NullableToken::get();
-            case ',':
-                return CommaToken::get();
-            case '"':
-            case "'":
-                return new QuoteToken($symbol);
-            case 'int':
-            case 'integer':
-                return IntegerToken::get();
-            case 'array':
-                return ArrayToken::array();
-            case 'non-empty-array':
-                return ArrayToken::nonEmptyArray();
-            case 'list':
-                return ListToken::list();
-            case 'non-empty-list':
-                return ListToken::nonEmptyList();
-            case 'iterable':
-                return IterableToken::get();
-            case 'class-string':
-                return ClassStringToken::get();
+        $token = match (strtolower($symbol)) {
+            '|' => UnionToken::get(),
+            '&' => IntersectionToken::get(),
+            '<' => OpeningBracketToken::get(),
+            '>' => ClosingBracketToken::get(),
+            '[' => OpeningSquareBracketToken::get(),
+            ']' => ClosingSquareBracketToken::get(),
+            '{' => OpeningCurlyBracketToken::get(),
+            '}' => ClosingCurlyBracketToken::get(),
+            ':' => ColonToken::get(),
+            '?' => NullableToken::get(),
+            ',' => CommaToken::get(),
+            '"', "'" => new QuoteToken($symbol),
+            'int', 'integer' => IntegerToken::get(),
+            'array' => ArrayToken::array(),
+            'non-empty-array' => ArrayToken::nonEmptyArray(),
+            'list' => ListToken::list(),
+            'non-empty-list' => ListToken::nonEmptyList(),
+            'iterable' => IterableToken::get(),
+            'class-string' => ClassStringToken::get(),
+            default => null,
+        };
+
+        if ($token) {
+            return $token;
         }
 
         if (filter_var($symbol, FILTER_VALIDATE_INT) !== false) {

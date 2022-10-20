@@ -22,28 +22,13 @@ use function count;
 /** @internal */
 final class UnionNodeBuilder implements NodeBuilder
 {
-    private NodeBuilder $delegate;
-
-    private ClassDefinitionRepository $classDefinitionRepository;
-
-    private ObjectBuilderFactory $objectBuilderFactory;
-
-    private ClassNodeBuilder $classNodeBuilder;
-
-    private bool $enableFlexibleCasting;
-
     public function __construct(
-        NodeBuilder $delegate,
-        ClassDefinitionRepository $classDefinitionRepository,
-        ObjectBuilderFactory $objectBuilderFactory,
-        ClassNodeBuilder $classNodeBuilder,
-        bool $enableFlexibleCasting
+        private NodeBuilder $delegate,
+        private ClassDefinitionRepository $classDefinitionRepository,
+        private ObjectBuilderFactory $objectBuilderFactory,
+        private ClassNodeBuilder $classNodeBuilder,
+        private bool $enableFlexibleCasting
     ) {
-        $this->delegate = $delegate;
-        $this->classDefinitionRepository = $classDefinitionRepository;
-        $this->objectBuilderFactory = $objectBuilderFactory;
-        $this->classNodeBuilder = $classNodeBuilder;
-        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -65,10 +50,7 @@ final class UnionNodeBuilder implements NodeBuilder
         return $rootBuilder->build($shell->withType($narrowedType));
     }
 
-    /**
-     * @param mixed $source
-     */
-    private function narrow(UnionType $type, $source): Type
+    private function narrow(UnionType $type, mixed $source): Type
     {
         $subTypes = $type->types();
 

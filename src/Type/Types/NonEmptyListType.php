@@ -40,7 +40,7 @@ final class NonEmptyListType implements CompositeTraversableType
         return self::$native;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         if (! is_array($value)) {
             return false;

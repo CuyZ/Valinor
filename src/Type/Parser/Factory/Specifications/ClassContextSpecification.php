@@ -7,15 +7,10 @@ namespace CuyZ\Valinor\Type\Parser\Factory\Specifications;
 /** @internal */
 final class ClassContextSpecification
 {
-    /** @var class-string */
-    private string $className;
-
-    /**
-     * @param class-string $className
-     */
-    public function __construct(string $className)
-    {
-        $this->className = $className;
+    public function __construct(
+        /** @var class-string */
+        private string $className
+    ) {
     }
 
     /**

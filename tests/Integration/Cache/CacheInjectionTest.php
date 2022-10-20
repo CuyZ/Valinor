@@ -10,7 +10,6 @@ use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
-use CuyZ\Valinor\Utility\Polyfill;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
@@ -18,6 +17,7 @@ use Psr\SimpleCache\CacheInterface;
 use stdClass;
 
 use function file_get_contents;
+use function str_ends_with;
 
 final class CacheInjectionTest extends IntegrationTest
 {
@@ -68,7 +68,7 @@ final class CacheInjectionTest extends IntegrationTest
         $files = [];
 
         foreach ($directory->getChildren() as $child) {
-            if ($child instanceof vfsStreamFile && Polyfill::str_ends_with($child->getName(), '.php')) {
+            if ($child instanceof vfsStreamFile && str_ends_with($child->getName(), '.php')) {
                 $files[] = $child;
             }
 

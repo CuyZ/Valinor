@@ -32,18 +32,13 @@ use function is_string;
  */
 final class FileWatchingCache implements CacheInterface
 {
-    /** @var CacheInterface<EntryType|TimestampsArray> */
-    private CacheInterface $delegate;
-
     /** @var array<string, TimestampsArray> */
     private array $timestamps = [];
 
-    /**
-     * @param CacheInterface<EntryType|TimestampsArray> $delegate
-     */
-    public function __construct(CacheInterface $delegate)
-    {
-        $this->delegate = $delegate;
+    public function __construct(
+        /** @var CacheInterface<EntryType|TimestampsArray> */
+        private CacheInterface $delegate
+    ) {
     }
 
     public function has($key): bool
@@ -57,12 +52,7 @@ final class FileWatchingCache implements CacheInterface
         return $this->delegate->has($key);
     }
 
-    /**
-     * PHP8.0 add `mixed` return type and remove PHPDoc
-     *
-     * @return EntryType|TimestampsArray|null
-     */
-    public function get($key, $default = null)
+    public function get($key, $default = null): mixed
     {
         return $this->delegate->get($key, $default);
     }
@@ -113,10 +103,7 @@ final class FileWatchingCache implements CacheInterface
         return $this->timestamps[$key] ??= $this->delegate->get("$key.timestamps", []); // @phpstan-ignore-line
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function saveTimestamps(string $key, $value): void
+    private function saveTimestamps(string $key, mixed $value): void
     {
         $this->timestamps[$key] = [];
 

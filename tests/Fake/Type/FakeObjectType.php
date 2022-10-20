@@ -12,9 +12,6 @@ use function in_array;
 
 final class FakeObjectType implements ObjectType
 {
-    /** @var class-string */
-    private string $className;
-
     private Type $matching;
 
     /** @var object[] */
@@ -23,9 +20,8 @@ final class FakeObjectType implements ObjectType
     /**
      * @param class-string $className
      */
-    public function __construct(string $className = stdClass::class)
+    public function __construct(private string $className = stdClass::class)
     {
-        $this->className = $className;
     }
 
     public static function accepting(object ...$objects): self
@@ -54,7 +50,7 @@ final class FakeObjectType implements ObjectType
         return [];
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return isset($this->accepting) && in_array($value, $this->accepting, true);
     }

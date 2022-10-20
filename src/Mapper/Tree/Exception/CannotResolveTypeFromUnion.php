@@ -22,10 +22,7 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Error
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param mixed $source
-     */
-    public function __construct($source, UnionType $unionType)
+    public function __construct(mixed $source, UnionType $unionType)
     {
         $this->parameters = [
             'allowed_types' => implode(

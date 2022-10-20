@@ -19,10 +19,7 @@ final class InvalidSource extends RuntimeException implements ErrorMessage, HasP
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param mixed $source
-     */
-    public function __construct($source, Arguments $arguments)
+    public function __construct(mixed $source, Arguments $arguments)
     {
         $this->parameters = [
             'expected_type' => TypeHelper::dumpArguments($arguments),

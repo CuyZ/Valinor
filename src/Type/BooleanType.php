@@ -7,5 +7,5 @@ namespace CuyZ\Valinor\Type;
 /** @internal */
 interface BooleanType extends ScalarType
 {
-    public function cast($value): bool;
+    public function cast(mixed $value): bool;
 }

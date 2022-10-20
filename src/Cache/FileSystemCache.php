@@ -13,7 +13,6 @@ use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
-use function get_class;
 use function is_object;
 use function sys_get_temp_dir;
 
@@ -51,12 +50,7 @@ final class FileSystemCache implements CacheInterface
         return false;
     }
 
-    /**
-     * PHP8.0 add `mixed` return type and remove PHPDoc
-     *
-     * @return EntryType|null
-     */
-    public function get($key, $default = null)
+    public function get($key, $default = null): mixed
     {
         foreach ($this->delegates as $delegate) {
             if ($delegate->has($key)) {
@@ -71,8 +65,8 @@ final class FileSystemCache implements CacheInterface
     {
         $delegate = $this->delegates['*'];
 
-        if (is_object($value) && isset($this->delegates[get_class($value)])) {
-            $delegate = $this->delegates[get_class($value)];
+        if (is_object($value) && isset($this->delegates[$value::class])) {
+            $delegate = $this->delegates[$value::class];
         }
 
         return $delegate->set($key, $value, $ttl);

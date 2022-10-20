@@ -63,46 +63,51 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     }
 }
 
-// @PHP8.1 Readonly properties
+final class NativeUnionOfObjects
+{
+    public SomeFooObject|SomeBarObject $object;
+}
+
+// PHP8.1 Readonly properties
 final class UnionOfFooAndBar
 {
     /** @var array<SomeFooObject|SomeBarObject> */
     public array $objects;
 }
 
-// @PHP8.1 Readonly properties
+// PHP8.1 Readonly properties
 final class UnionOfFooAndAnotherFoo
 {
     /** @var array<SomeFooObject|SomeOtherFooObject> */
     public array $objects;
 }
 
-// @PHP8.1 Readonly properties
+// PHP8.1 Readonly properties
 final class UnionOfFooAndBarAndFoo
 {
     /** @var array<SomeFooAndBarObject|SomeFooObject> */
     public array $objects;
 }
 
-// @PHP8.1 Readonly properties
+// PHP8.1 Readonly properties
 final class SomeFooObject
 {
     public string $foo;
 }
 
-// @PHP8.1 Readonly properties
+// PHP8.1 Readonly properties
 final class SomeOtherFooObject
 {
     public string $foo;
 }
 
-// @PHP8.1 Readonly properties
+// PHP8.1 Readonly properties
 final class SomeBarObject
 {
     public string $bar;
 }
 
-// @PHP8.1 Readonly properties
+// PHP8.1 Readonly properties
 final class SomeFooAndBarObject
 {
     public string $foo;

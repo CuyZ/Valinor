@@ -69,10 +69,8 @@ final class StringValueTypeTest extends TestCase
 
     /**
      * @dataProvider cast_value_returns_correct_result_data_provider
-     *
-     * @param mixed $value
      */
-    public function test_cast_value_returns_correct_result(StringValueType $type, $value, string $expected): void
+    public function test_cast_value_returns_correct_result(StringValueType $type, mixed $value, string $expected): void
     {
         self::assertSame($expected, $type->cast($value));
     }

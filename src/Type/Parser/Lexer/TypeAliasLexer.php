@@ -11,18 +11,11 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class TypeAliasLexer implements TypeLexer
 {
-    private TypeLexer $delegate;
-
-    /** @var array<string, Type> */
-    private array $aliases;
-
-    /**
-     * @param array<string, Type> $aliases
-     */
-    public function __construct(TypeLexer $delegate, array $aliases)
-    {
-        $this->delegate = $delegate;
-        $this->aliases = $aliases;
+    public function __construct(
+        private TypeLexer $delegate,
+        /** @var array<string, Type> */
+        private array $aliases
+    ) {
     }
 
     public function tokenize(string $symbol): Token

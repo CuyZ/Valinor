@@ -13,11 +13,8 @@ use function iterator_to_array;
 /** @internal */
 final class IterableNodeBuilder implements NodeBuilder
 {
-    private NodeBuilder $delegate;
-
-    public function __construct(NodeBuilder $delegate)
+    public function __construct(private NodeBuilder $delegate)
     {
-        $this->delegate = $delegate;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

@@ -17,9 +17,6 @@ use ReflectionProperty;
 
 use function iterator_to_array;
 
-/**
- * @requires PHP >= 8
- */
 final class NativeAttributesTest extends TestCase
 {
     public function test_empty_attributes_returns_empty_results(): void

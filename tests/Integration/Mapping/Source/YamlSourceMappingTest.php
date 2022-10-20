@@ -9,8 +9,6 @@ use CuyZ\Valinor\Mapper\Source\YamlSource;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
-use function get_class;
-
 /**
  * @requires extension yaml
  */
@@ -26,7 +24,7 @@ final class YamlSourceMappingTest extends IntegrationTest
 
         try {
             $object = (new MapperBuilder())->mapper()->map(
-                get_class($class),
+                $class::class,
                 new YamlSource("foo: foo\nbar: bar")
             );
         } catch (MappingError $error) {

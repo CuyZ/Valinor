@@ -4,33 +4,19 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Type;
 
 /** @internal */
 final class ShapedArrayElement
 {
-    /** @var StringValueType|IntegerValueType */
-    private FixedType $key;
-
-    private Type $type;
-
-    private bool $optional;
-
-    /**
-     * @param StringValueType|IntegerValueType $key
-     */
-    public function __construct(FixedType $key, Type $type, bool $optional = false)
-    {
-        $this->key = $key;
-        $this->type = $type;
-        $this->optional = $optional;
+    public function __construct(
+        private StringValueType|IntegerValueType $key,
+        private Type $type,
+        private bool $optional = false
+    ) {
     }
 
-    /**
-     * @return StringValueType|IntegerValueType
-     */
-    public function key(): FixedType
+    public function key(): StringValueType|IntegerValueType
     {
         return $this->key;
     }

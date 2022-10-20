@@ -7,12 +7,13 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
+use Stringable;
 use Throwable;
 
 use function array_merge;
 
 /** @api */
-final class NodeMessage implements Message, HasCode
+final class NodeMessage implements Message, HasCode, Stringable
 {
     private Node $node;
 

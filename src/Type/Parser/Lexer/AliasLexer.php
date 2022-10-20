@@ -16,18 +16,11 @@ use function strtolower;
 /** @internal */
 final class AliasLexer implements TypeLexer
 {
-    private TypeLexer $delegate;
-
-    /** @var ReflectionClass<object>|ReflectionFunction */
-    private Reflector $reflection;
-
-    /**
-     * @param ReflectionClass<object>|ReflectionFunction $reflection
-     */
-    public function __construct(TypeLexer $delegate, Reflector $reflection)
-    {
-        $this->delegate = $delegate;
-        $this->reflection = $reflection;
+    public function __construct(
+        private TypeLexer $delegate,
+        /** @var ReflectionClass<object>|ReflectionFunction */
+        private Reflector $reflection
+    ) {
     }
 
     public function tokenize(string $symbol): Token

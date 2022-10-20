@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Message\Formatter;
 
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 
-use function get_class;
 use function is_callable;
 
 /**
@@ -62,18 +61,13 @@ use function is_callable;
  */
 final class MessageMapFormatter implements MessageFormatter
 {
-    /** @var array<string|callable(NodeMessage): string> */
-    private array $map;
-
     /** @var null|string|callable(NodeMessage): string */
     private $default;
 
-    /**
-     * @param array<string|callable(NodeMessage): string> $map
-     */
-    public function __construct(array $map)
-    {
-        $this->map = $map;
+    public function __construct(
+        /** @var array<string|callable(NodeMessage): string> */
+        private array $map
+    ) {
     }
 
     public function format(NodeMessage $message): NodeMessage
@@ -90,7 +84,7 @@ final class MessageMapFormatter implements MessageFormatter
     /**
      * @param string|callable(NodeMessage): string $default
      */
-    public function defaultsTo($default): self
+    public function defaultsTo(string|callable $default): self
     {
         $clone = clone $this;
         $clone->default = $default;
@@ -101,11 +95,11 @@ final class MessageMapFormatter implements MessageFormatter
     /**
      * @return false|string|callable(NodeMessage): string
      */
-    private function target(NodeMessage $message)
+    private function target(NodeMessage $message): false|string|callable
     {
         return $this->map[$message->code()]
             ?? $this->map[$message->body()]
-            ?? $this->map[get_class($message->originalMessage())]
+            ?? $this->map[$message->originalMessage()::class]
             ?? $this->default
             ?? false;
     }

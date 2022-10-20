@@ -8,11 +8,8 @@ use CuyZ\Valinor\Mapper\Source\IdentifiableSource;
 
 final class FakeIdentifiableSource implements IdentifiableSource
 {
-    private string $sourceName;
-
-    public function __construct(string $sourceName)
+    public function __construct(private string $sourceName)
     {
-        $this->sourceName = $sourceName;
     }
 
     public function sourceName(): string

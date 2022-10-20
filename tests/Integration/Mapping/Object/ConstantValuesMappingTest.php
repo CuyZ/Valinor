@@ -33,12 +33,12 @@ final class ConstantValuesMappingTest extends IntegrationTest
             ],
         ];
 
-        // @PHP8.1 remove condition
+        // PHP8.1 remove condition
         if (PHP_VERSION_ID >= 8_01_00) {
             $source['constantEnumValue'] = BackedIntegerEnum::FOO;
         }
 
-        // @PHP8.1 merge classes
+        // PHP8.1 merge classes
         $classes = PHP_VERSION_ID >= 8_01_00
             ? [ClassWithConstantValuesIncludingEnum::class, ClassWithConstantValuesIncludingEnumWithConstructor::class]
             : [ClassWithConstantValues::class, ClassWithConstantValuesWithConstructor::class];
@@ -54,7 +54,7 @@ final class ConstantValuesMappingTest extends IntegrationTest
             self::assertSame(1653398289, $result->constantIntegerValue);
             self::assertSame(404.512, $result->constantFloatValue);
 
-            // @PHP8.1 remove condition
+            // PHP8.1 remove condition
             if (PHP_VERSION_ID >= 8_01_00) {
                 /** @var ClassWithConstantValuesIncludingEnum $result */
                 self::assertSame(BackedIntegerEnum::FOO, $result->constantEnumValue);

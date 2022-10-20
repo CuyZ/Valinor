@@ -13,20 +13,12 @@ use function array_map;
 /** @internal */
 final class InterfaceType implements ObjectType
 {
-    /** @var class-string */
-    private string $interfaceName;
-
-    /** @var array<string, Type> */
-    private array $generics;
-
-    /**
-     * @param class-string $interfaceName
-     * @param array<string, Type> $generics
-     */
-    public function __construct(string $interfaceName, array $generics = [])
-    {
-        $this->interfaceName = $interfaceName;
-        $this->generics = $generics;
+    public function __construct(
+        /** @var class-string */
+        private string $interfaceName,
+        /** @var array<string, Type> */
+        private array $generics = []
+    ) {
     }
 
     public function className(): string
@@ -39,7 +31,7 @@ final class InterfaceType implements ObjectType
         return $this->generics;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value instanceof $this->interfaceName;
     }

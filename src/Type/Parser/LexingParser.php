@@ -7,20 +7,17 @@ namespace CuyZ\Valinor\Type\Parser;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\Polyfill;
 
 use function array_filter;
 use function array_map;
 use function preg_split;
+use function str_contains;
 
 /** @internal */
 final class LexingParser implements TypeParser
 {
-    private TypeLexer $lexer;
-
-    public function __construct(TypeLexer $lexer)
+    public function __construct(private TypeLexer $lexer)
     {
-        $this->lexer = $lexer;
     }
 
     public function parse(string $raw): Type
@@ -42,7 +39,7 @@ final class LexingParser implements TypeParser
      */
     private function splitTokens(string $raw): array
     {
-        if (Polyfill::str_contains($raw, "@anonymous\0")) {
+        if (str_contains($raw, "@anonymous\0")) {
             return $this->splitTokensContainingAnonymousClass($raw);
         }
 
@@ -60,7 +57,7 @@ final class LexingParser implements TypeParser
         $symbols = [];
 
         foreach ($splits as $symbol) {
-            if (Polyfill::str_contains($symbol, "@anonymous\0")) {
+            if (str_contains($symbol, "@anonymous\0")) {
                 $symbols[] = $symbol;
             } else {
                 $symbols = [...$symbols, ...$this->splitTokens($symbol)];

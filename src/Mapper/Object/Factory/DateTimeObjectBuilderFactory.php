@@ -21,14 +21,10 @@ use function count;
 /** @internal */
 final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
 {
-    private ObjectBuilderFactory $delegate;
-
-    private FunctionDefinitionRepository $functionDefinitionRepository;
-
-    public function __construct(ObjectBuilderFactory $delegate, FunctionDefinitionRepository $functionDefinitionRepository)
-    {
-        $this->delegate = $delegate;
-        $this->functionDefinitionRepository = $functionDefinitionRepository;
+    public function __construct(
+        private ObjectBuilderFactory $delegate,
+        private FunctionDefinitionRepository $functionDefinitionRepository
+    ) {
     }
 
     public function for(ClassDefinition $class): array

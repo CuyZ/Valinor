@@ -11,21 +11,11 @@ use stdClass as stdClassAlias;
 
 final class ClassInSingleNamespace
 {
-    // @PHP8.0 promoted properties
-    public Foo $classInNamespaceWithoutAlias;
-    public BarAlias $classInNamespaceWithAlias;
-    public DateTimeImmutable $classInRootNamespaceWithoutAlias;
-    public stdClassAlias $classInRootNamespaceWithAlias;
-
     public function __construct(
-        Foo $classInNamespaceWithoutAlias,
-        BarAlias $classInNamespaceWithAlias,
-        DateTimeImmutable $classInRootNamespaceWithoutAlias,
-        stdClassAlias $classInRootNamespaceWithAlias
+        public Foo $classInNamespaceWithoutAlias,
+        public BarAlias $classInNamespaceWithAlias,
+        public DateTimeImmutable $classInRootNamespaceWithoutAlias,
+        public stdClassAlias $classInRootNamespaceWithAlias
     ) {
-        $this->classInNamespaceWithoutAlias = $classInNamespaceWithoutAlias;
-        $this->classInNamespaceWithAlias = $classInNamespaceWithAlias;
-        $this->classInRootNamespaceWithoutAlias = $classInRootNamespaceWithoutAlias;
-        $this->classInRootNamespaceWithAlias = $classInRootNamespaceWithAlias;
     }
 }

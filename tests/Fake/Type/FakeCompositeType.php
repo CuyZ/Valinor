@@ -22,7 +22,7 @@ final class FakeCompositeType implements CompositeType
         yield from $this->types;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return true;
     }

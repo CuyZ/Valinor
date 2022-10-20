@@ -18,7 +18,7 @@ final class NativeBooleanType implements ScalarType
 {
     use IsSingleton;
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return is_bool($value);
     }
@@ -33,7 +33,7 @@ final class NativeBooleanType implements ScalarType
             || $other instanceof MixedType;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return is_bool($value)
             || $value === '1'
@@ -44,7 +44,7 @@ final class NativeBooleanType implements ScalarType
             || $value === 'false';
     }
 
-    public function cast($value): bool
+    public function cast(mixed $value): bool
     {
         assert($this->canCast($value));
 

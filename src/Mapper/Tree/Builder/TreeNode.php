@@ -10,6 +10,7 @@ use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use Throwable;
 
+use function array_map;
 use function assert;
 
 /** @internal */
@@ -17,8 +18,7 @@ final class TreeNode
 {
     private Shell $shell;
 
-    /** @var mixed */
-    private $value;
+    private mixed $value;
 
     /** @var array<self> */
     private array $children = [];
@@ -28,19 +28,13 @@ final class TreeNode
 
     private bool $valid = true;
 
-    /**
-     * @param mixed $value
-     */
-    private function __construct(Shell $shell, $value)
+    private function __construct(Shell $shell, mixed $value)
     {
         $this->shell = $shell;
         $this->value = $value;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function leaf(Shell $shell, $value): self
+    public static function leaf(Shell $shell, mixed $value): self
     {
         $instance = new self($shell, $value);
         $instance->check();
@@ -49,10 +43,9 @@ final class TreeNode
     }
 
     /**
-     * @param mixed $value
      * @param array<self> $children
      */
-    public static function branch(Shell $shell, $value, array $children): self
+    public static function branch(Shell $shell, mixed $value, array $children): self
     {
         $instance = new self($shell, $value);
 
@@ -79,6 +72,7 @@ final class TreeNode
     }
 
     /**
+     * PHP8.1 intersection
      * @param Throwable&Message $message
      */
     public static function error(Shell $shell, Throwable $message): self
@@ -96,10 +90,7 @@ final class TreeNode
         return $this->valid;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function withValue($value): self
+    public function withValue(mixed $value): self
     {
         $clone = clone $this;
         $clone->value = $value;
@@ -108,10 +99,7 @@ final class TreeNode
         return $clone;
     }
 
-    /**
-     * @return mixed
-     */
-    public function value()
+    public function value(): mixed
     {
         assert($this->valid, "Trying to get value of an invalid node at path `{$this->shell->path()}`.");
 

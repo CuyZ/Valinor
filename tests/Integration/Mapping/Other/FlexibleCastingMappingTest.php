@@ -222,7 +222,7 @@ final class FlexibleCastingMappingTest extends IntegrationTest
 
         try {
             $result = $this->mapper->map(
-                get_class($class),
+                $class::class,
                 ['foo' => 'foo']
             );
         } catch (MappingError $error) {

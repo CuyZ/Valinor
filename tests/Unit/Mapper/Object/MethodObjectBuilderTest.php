@@ -11,18 +11,16 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 
-use function get_class;
-
 final class MethodObjectBuilderTest extends TestCase
 {
     public function test_signature_is_method_signature(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             public static function someMethod(): stdClass
             {
                 return new stdClass();
             }
-        });
+        })::class;
 
         $objectBuilder = new MethodObjectBuilder($class, 'someMethod', new Parameters());
 
@@ -31,12 +29,12 @@ final class MethodObjectBuilderTest extends TestCase
 
     public function test_exception_thrown_by_method_is_caught_and_wrapped(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             public static function someMethod(): stdClass
             {
                 throw new RuntimeException('some exception', 1337);
             }
-        });
+        })::class;
 
         $objectBuilder = new MethodObjectBuilder($class, 'someMethod', new Parameters());
 
@@ -47,12 +45,12 @@ final class MethodObjectBuilderTest extends TestCase
 
     public function test_arguments_instance_stays_the_same(): void
     {
-        $class = get_class(new class () {
+        $class = (new class () {
             public static function someMethod(): stdClass
             {
                 return new stdClass();
             }
-        });
+        })::class;
 
         $objectBuilder = new MethodObjectBuilder($class, 'someMethod', new Parameters());
 

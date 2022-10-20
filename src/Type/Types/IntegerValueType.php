@@ -17,14 +17,11 @@ use function is_bool;
 /** @internal */
 final class IntegerValueType implements IntegerType, FixedType
 {
-    private int $value;
-
-    public function __construct(int $value)
+    public function __construct(private int $value)
     {
-        $this->value = $value;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         return $value === $this->value;
     }
@@ -58,14 +55,14 @@ final class IntegerValueType implements IntegerType, FixedType
         return false;
     }
 
-    public function canCast($value): bool
+    public function canCast(mixed $value): bool
     {
         return ! is_bool($value)
             && filter_var($value, FILTER_VALIDATE_INT) !== false
             && (int)$value === $this->value; // @phpstan-ignore-line;
     }
 
-    public function cast($value): int
+    public function cast(mixed $value): int
     {
         assert($this->canCast($value));
 

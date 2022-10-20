@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Fixture\Object;
 use Countable;
 use Iterator;
 
-// @PHP8.1 move to anonymous class
+// PHP8.1 move to anonymous class
 final class ObjectWithPropertyWithNativeIntersectionType
 {
     /** @var Countable&Iterator<mixed> */

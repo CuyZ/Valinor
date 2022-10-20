@@ -10,7 +10,6 @@ use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
-use Reflector;
 
 /** @internal */
 interface AttributesRepository
@@ -18,5 +17,5 @@ interface AttributesRepository
     /**
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflector
      */
-    public function for(Reflector $reflector): Attributes;
+    public function for(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflector): Attributes;
 }

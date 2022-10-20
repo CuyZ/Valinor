@@ -9,7 +9,7 @@ use function var_export;
 /** @internal */
 final class MixedValueCacheCompiler implements CacheCompiler
 {
-    public function compile($value): string
+    public function compile(mixed $value): string
     {
         return var_export($value, true);
     }

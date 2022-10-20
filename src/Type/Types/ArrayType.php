@@ -52,7 +52,7 @@ final class ArrayType implements CompositeTraversableType
         return $instance;
     }
 
-    public function accepts($value): bool
+    public function accepts(mixed $value): bool
     {
         if (! is_array($value)) {
             return false;

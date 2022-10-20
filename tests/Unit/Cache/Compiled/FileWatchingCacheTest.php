@@ -93,7 +93,7 @@ final class FileWatchingCacheTest extends TestCase
         self::assertTrue($this->cache->has('foo'));
         self::assertTrue($this->cache->has('bar'));
 
-        // @PHP8.1 array unpacking
+        // PHP8.1 array unpacking
         self::assertEquals($values, iterator_to_array($this->cache->getMultiple(['foo', 'bar']))); // @phpstan-ignore-line
 
         self::assertTrue($this->cache->deleteMultiple(['foo', 'bar']));

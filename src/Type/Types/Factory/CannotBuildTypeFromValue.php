@@ -11,10 +11,7 @@ use function gettype;
 /** @internal */
 final class CannotBuildTypeFromValue extends LogicException
 {
-    /**
-     * @param mixed $value
-     */
-    public function __construct($value)
+    public function __construct(mixed $value)
     {
         $type = gettype($value);
 

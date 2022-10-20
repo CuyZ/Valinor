@@ -18,10 +18,7 @@ final class InvalidListKey extends RuntimeException implements ErrorMessage, Has
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param int|string $key
-     */
-    public function __construct($key, int $expected)
+    public function __construct(int|string $key, int $expected)
     {
         $this->parameters = [
             'key' => ValueDumper::dump($key),

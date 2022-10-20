@@ -10,15 +10,10 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 /** @internal */
 final class CasterNodeBuilder implements NodeBuilder
 {
-    /** @var array<class-string, NodeBuilder> */
-    private array $builders;
-
-    /**
-     * @param array<class-string, NodeBuilder> $builders
-     */
-    public function __construct(array $builders)
-    {
-        $this->builders = $builders;
+    public function __construct(
+        /** @var array<class-string, NodeBuilder> */
+        private array $builders
+    ) {
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

@@ -11,19 +11,13 @@ use Exception;
 /** @internal */
 final class MethodObjectBuilder implements ObjectBuilder
 {
-    private string $className;
-
-    private string $methodName;
-
-    private Parameters $parameters;
-
     private Arguments $arguments;
 
-    public function __construct(string $className, string $methodName, Parameters $parameters)
-    {
-        $this->className = $className;
-        $this->methodName = $methodName;
-        $this->parameters = $parameters;
+    public function __construct(
+        private string $className,
+        private string $methodName,
+        private Parameters $parameters
+    ) {
     }
 
     public function describeArguments(): Arguments

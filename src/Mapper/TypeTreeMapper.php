@@ -14,18 +14,14 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 /** @internal */
 final class TypeTreeMapper implements TreeMapper
 {
-    private TypeParser $typeParser;
-
-    private RootNodeBuilder $nodeBuilder;
-
-    public function __construct(TypeParser $typeParser, RootNodeBuilder $nodeBuilder)
-    {
-        $this->typeParser = $typeParser;
-        $this->nodeBuilder = $nodeBuilder;
+    public function __construct(
+        private TypeParser $typeParser,
+        private RootNodeBuilder $nodeBuilder
+    ) {
     }
 
     /** @pure */
-    public function map(string $signature, $source)
+    public function map(string $signature, mixed $source): mixed
     {
         $node = $this->node($signature, $source);
 
@@ -36,10 +32,7 @@ final class TypeTreeMapper implements TreeMapper
         return $node->value();
     }
 
-    /**
-     * @param mixed $source
-     */
-    private function node(string $signature, $source): TreeNode
+    private function node(string $signature, mixed $source): TreeNode
     {
         try {
             $type = $this->typeParser->parse($signature);
