@@ -129,16 +129,6 @@ final class Node
     }
 
     /**
-     * @deprecated use `$node->mappedValue()` instead
-     *
-     * @return mixed
-     */
-    public function value()
-    {
-        return $this->mappedValue();
-    }
-
-    /**
      * @return array<NodeMessage>
      */
     public function messages(): array

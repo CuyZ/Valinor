@@ -21,15 +21,10 @@ final class NodeMessageTest extends TestCase
         $message = new NodeMessage(FakeNode::any(), $originalMessage);
 
         self::assertSame('nodeName', $message->node()->name());
-        self::assertSame('nodeName', $message->name());
         self::assertSame('some.node.path', $message->node()->path());
-        self::assertSame('some.node.path', $message->path());
         self::assertSame('string', $message->node()->type());
-        self::assertSame('string', $message->type());
         self::assertSame('some source value', $message->node()->sourceValue());
         self::assertSame('some value', $message->node()->mappedValue());
-        self::assertSame('some value', $message->node()->value());
-        self::assertSame('some value', $message->value());
         self::assertSame($originalMessage, $message->originalMessage());
         self::assertFalse($message->isError());
     }
@@ -49,9 +44,9 @@ final class NodeMessageTest extends TestCase
         $originalMessage = (new FakeMessage('some original message'))->withParameters(['some_parameter' => 'some parameter value']);
 
         $message = new NodeMessage(FakeNode::any(), $originalMessage);
-        $message = $message->withBody('{message_code} / {node_name} / {node_path} / {node_type} / {original_value} / {source_value} / {original_message} / {some_parameter}');
+        $message = $message->withBody('{message_code} / {node_name} / {node_path} / {node_type} / {source_value} / {original_message} / {some_parameter}');
 
-        $expected = "some_code / nodeName / some.node.path / `string` / 'some source value' / 'some source value' / some original message / some parameter value";
+        $expected = "some_code / nodeName / some.node.path / `string` / 'some source value' / some original message / some parameter value";
 
         self::assertSame($expected, $message->toString());
         self::assertSame($expected, (string)$message);

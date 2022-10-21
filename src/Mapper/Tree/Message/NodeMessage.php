@@ -95,40 +95,6 @@ final class NodeMessage implements Message, HasCode
         return $clone;
     }
 
-    /**
-     * @deprecated use `$message->node()->name()` instead
-     */
-    public function name(): string
-    {
-        return $this->node->name();
-    }
-
-    /**
-     * @deprecated use `$message->node()->path()` instead
-     */
-    public function path(): string
-    {
-        return $this->node->path();
-    }
-
-    /**
-     * @deprecated use `$message->node()->type()` instead
-     */
-    public function type(): string
-    {
-        return $this->node->type();
-    }
-
-    /**
-     * @deprecated use `$message->node()->mappedValue()` instead
-     *
-     * @return mixed
-     */
-    public function value()
-    {
-        return $this->node->mappedValue();
-    }
-
     public function originalMessage(): Message
     {
         return $this->message;
@@ -180,8 +146,7 @@ final class NodeMessage implements Message, HasCode
             'node_name' => $this->node->name(),
             'node_path' => $this->node->path(),
             'node_type' => "`{$this->node->type()}`",
-            'source_value' => $sourceValue = $this->node->sourceFilled() ? ValueDumper::dump($this->node->sourceValue()) : '*missing*',
-            'original_value' => $sourceValue, // @deprecated
+            'source_value' => $this->node->sourceFilled() ? ValueDumper::dump($this->node->sourceValue()) : '*missing*',
         ];
 
         if ($this->message instanceof HasParameters) {

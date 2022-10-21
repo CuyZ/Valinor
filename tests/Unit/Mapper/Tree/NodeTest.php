@@ -36,7 +36,6 @@ final class NodeTest extends TestCase
         self::assertSame('some.node.path', $node->path());
         self::assertSame('string', $node->type());
         self::assertSame('some source value', $node->sourceValue());
-        self::assertSame('some value', $node->value());
         self::assertSame('some value', $node->mappedValue());
         self::assertSame(true, $node->isValid());
         self::assertSame('some message', (string)$node->messages()[0]);
