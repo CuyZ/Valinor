@@ -675,22 +675,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             self::assertSame('some error message', (string)$error);
         }
     }
-
-    public function test_deprecated_bind_function_to_registered_constructor_is_used(): void
-    {
-        $object = new stdClass();
-
-        try {
-            $result = (new MapperBuilder())
-                ->bind(fn (): stdClass => $object)
-                ->mapper()
-                ->map(stdClass::class, []);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame($object, $result);
-    }
 }
 
 final class SomeClassWithNamedConstructors

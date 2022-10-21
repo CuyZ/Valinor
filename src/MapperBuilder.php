@@ -431,14 +431,6 @@ final class MapperBuilder
         $this->container()->cacheWarmupService()->warmup(...$signatures);
     }
 
-    /**
-     * @deprecated use method `registerConstructor` instead.
-     */
-    public function bind(callable $callback): self
-    {
-        return $this->registerConstructor($callback);
-    }
-
     public function mapper(): TreeMapper
     {
         return $this->container()->treeMapper();
