@@ -9,6 +9,16 @@ use Traversable;
 
 final class FakeAttributes implements Attributes
 {
+    private int $count = 0;
+
+    public static function notEmpty(): self
+    {
+        $self = new self();
+        $self->count = 1;
+
+        return $self;
+    }
+
     public function has(string $className): bool
     {
         return false;
@@ -21,7 +31,7 @@ final class FakeAttributes implements Attributes
 
     public function count(): int
     {
-        return 0;
+        return $this->count;
     }
 
     public function getIterator(): Traversable

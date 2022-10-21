@@ -2,15 +2,12 @@
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 
+use AssertionError;
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Definition\CombinedAttributes;
-use CuyZ\Valinor\Definition\DoctrineAnnotations;
-use CuyZ\Valinor\Definition\EmptyAttributes;
+use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Definition\NativeAttributes;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\AttributesCompiler;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
-use CuyZ\Valinor\Tests\Fixture\Annotation\AnnotationWithArguments;
-use CuyZ\Valinor\Tests\Fixture\Annotation\BasicAnnotation;
 use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use CuyZ\Valinor\Tests\Fixture\Attribute\NestedAttribute;
@@ -20,10 +17,8 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithNestedAttributes;
 use Error;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
-use stdClass;
 
 final class AttributesCompilerTest extends TestCase
 {
@@ -38,7 +33,7 @@ final class AttributesCompilerTest extends TestCase
     {
         $attributes = $this->compile(new FakeAttributes());
 
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
+        self::assertSame(AttributesContainer::empty(), $attributes);
     }
 
     /**
@@ -69,193 +64,7 @@ final class AttributesCompilerTest extends TestCase
         $reflection = new ReflectionClass(new class () { });
         $attributes = $this->compile(new NativeAttributes($reflection));
 
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
-    }
-
-    public function test_compiles_doctrine_annotations_for_class_with_annotations(): void
-    {
-        $object =
-            /**
-             * @BasicAnnotation
-             * @AnnotationWithArguments(foo="foo")
-             */
-            new class () { };
-
-        $reflection = new ReflectionClass($object);
-        $attributes = $this->compile(new DoctrineAnnotations($reflection));
-
-        self::assertCount(2, $attributes);
-        self::assertTrue($attributes->has(BasicAnnotation::class));
-        self::assertTrue($attributes->has(AnnotationWithArguments::class));
-
-        /** @var AnnotationWithArguments $attribute */
-        $attribute = [...$attributes->ofType(AnnotationWithArguments::class)][0];
-
-        self::assertSame(['foo' => 'foo'], $attribute->value());
-    }
-
-    public function test_compiles_doctrine_annotations_for_class_without_annotations(): void
-    {
-        $reflection = new ReflectionClass(stdClass::class);
-        $attributes = $this->compile(new DoctrineAnnotations($reflection));
-
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
-    }
-
-    public function test_compiles_doctrine_annotations_for_property_with_annotations(): void
-    {
-        $object = new class () {
-            /**
-             * @BasicAnnotation
-             * @AnnotationWithArguments(foo="foo")
-             */
-            public string $property;
-        };
-
-        $reflection = new ReflectionProperty($object, 'property');
-        $attributes = $this->compile(new DoctrineAnnotations($reflection));
-
-        self::assertCount(2, $attributes);
-        self::assertTrue($attributes->has(BasicAnnotation::class));
-        self::assertTrue($attributes->has(AnnotationWithArguments::class));
-
-        /** @var AnnotationWithArguments $attribute */
-        $attribute = [...$attributes->ofType(AnnotationWithArguments::class)][0];
-
-        self::assertSame(['foo' => 'foo'], $attribute->value());
-    }
-
-    public function test_compiles_doctrine_annotations_for_property_without_annotations(): void
-    {
-        $object = new class () {
-            public string $property;
-        };
-
-        $reflection = new ReflectionProperty($object, 'property');
-        $attributes = $this->compile(new DoctrineAnnotations($reflection));
-
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
-    }
-
-    public function test_compiles_doctrine_annotations_for_method_with_annotations(): void
-    {
-        $object = new class () {
-            /**
-             * @BasicAnnotation
-             * @AnnotationWithArguments(foo="foo")
-             */
-            public function method(): void
-            {
-            }
-        };
-
-        $reflection = new ReflectionMethod($object, 'method');
-        $attributes = $this->compile(new DoctrineAnnotations($reflection));
-
-        self::assertCount(2, $attributes);
-        self::assertTrue($attributes->has(BasicAnnotation::class));
-        self::assertTrue($attributes->has(AnnotationWithArguments::class));
-
-        /** @var AnnotationWithArguments $attribute */
-        $attribute = [...$attributes->ofType(AnnotationWithArguments::class)][0];
-
-        self::assertSame(['foo' => 'foo'], $attribute->value());
-    }
-
-    public function test_compiles_doctrine_annotations_for_method_without_annotations(): void
-    {
-        $object = new class () {
-            public function method(): void
-            {
-            }
-        };
-
-        $reflection = new ReflectionMethod($object, 'method');
-        $attributes = $this->compile(new DoctrineAnnotations($reflection));
-
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
-    }
-
-    /**
-     * @requires PHP >= 8
-     */
-    public function test_compiles_combined_attributes_for_class_without_annotation(): void
-    {
-        $reflection = new ReflectionClass(new class () { });
-        $attributes = $this->compile(
-            new CombinedAttributes(
-                new DoctrineAnnotations($reflection),
-                new NativeAttributes($reflection),
-            )
-        );
-
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
-    }
-
-    /**
-     * @requires PHP >= 8
-     */
-    public function test_compiles_combined_attributes_for_class_with_only_native_attributes(): void
-    {
-        $attributes = $this->compile(
-            new CombinedAttributes(
-                new DoctrineAnnotations(new ReflectionClass(stdClass::class)),
-                new NativeAttributes(new ReflectionClass(ObjectWithAttributes::class)),
-            )
-        );
-
-        self::assertCount(2, $attributes);
-        self::assertTrue($attributes->has(BasicAttribute::class));
-        self::assertTrue($attributes->has(AttributeWithArguments::class));
-    }
-
-    /**
-     * @requires PHP >= 8
-     */
-    public function test_compiles_combined_attributes_for_class_with_only_annotations(): void
-    {
-        $object =
-            /**
-             * @BasicAnnotation
-             * @AnnotationWithArguments(foo="foo")
-             */
-            new class () { };
-
-        $attributes = $this->compile(
-            new CombinedAttributes(
-                new DoctrineAnnotations(new ReflectionClass($object))
-            )
-        );
-
-        self::assertCount(2, $attributes);
-        self::assertTrue($attributes->has(BasicAnnotation::class));
-        self::assertTrue($attributes->has(AnnotationWithArguments::class));
-    }
-
-    /**
-     * @requires PHP >= 8
-     */
-    public function test_compiles_combined_attributes_for_class_with_both_attributes_and_annotations(): void
-    {
-        $object =
-            /**
-             * @BasicAnnotation
-             * @AnnotationWithArguments(foo="foo")
-             */
-            new class () { };
-
-        $attributes = $this->compile(
-            new CombinedAttributes(
-                new DoctrineAnnotations(new ReflectionClass($object)),
-                new NativeAttributes(new ReflectionClass(ObjectWithAttributes::class)),
-            )
-        );
-
-        self::assertCount(4, $attributes);
-        self::assertTrue($attributes->has(BasicAttribute::class));
-        self::assertTrue($attributes->has(AttributeWithArguments::class));
-        self::assertTrue($attributes->has(BasicAnnotation::class));
-        self::assertTrue($attributes->has(AnnotationWithArguments::class));
+        self::assertSame(AttributesContainer::empty(), $attributes);
     }
 
     /**
@@ -344,8 +153,14 @@ final class AttributesCompilerTest extends TestCase
         $reflection = new ReflectionParameter([ObjectWithAttributes::class, '__construct'], 'promotedProperty');
         $attributes = $this->compile(new NativeAttributes($reflection));
 
-        self::assertCount(0, $attributes);
-        self::assertInstanceOf(EmptyAttributes::class, $attributes);
+        self::assertSame(AttributesContainer::empty(), $attributes);
+    }
+
+    public function test_invalid_attributes_instance_throws_assertion_error(): void
+    {
+        $this->expectException(AssertionError::class);
+
+        $this->compile(FakeAttributes::notEmpty());
     }
 
     private function compile(Attributes $attributes): Attributes

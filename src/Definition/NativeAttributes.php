@@ -30,7 +30,7 @@ final class NativeAttributes implements Attributes
      */
     public function __construct(Reflector $reflection)
     {
-        $this->reflectionAttributes = $this->attributes($reflection);
+        $this->reflectionAttributes = $reflection->getAttributes();
 
         $attributes = array_filter(
             array_map(
@@ -80,15 +80,5 @@ final class NativeAttributes implements Attributes
     public function reflectionAttributes(): array
     {
         return $this->reflectionAttributes;
-    }
-
-    /**
-     * PHP8.0 union
-     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
-     * @return array<ReflectionAttribute<object>>
-     */
-    private function attributes(Reflector $reflection): array
-    {
-        return $reflection->getAttributes();
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Definition\EmptyAttributes;
+use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetParentOfRootShell;
 use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
 use CuyZ\Valinor\Mapper\Tree\Exception\ShellHasNoValue;
@@ -129,7 +129,7 @@ final class Shell
 
     public function attributes(): Attributes
     {
-        return $this->attributes ?? EmptyAttributes::get();
+        return $this->attributes ?? AttributesContainer::empty();
     }
 
     public function path(): string

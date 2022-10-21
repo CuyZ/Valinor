@@ -14,8 +14,6 @@ use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Reflection\CombinedAttributesRepository;
-use CuyZ\Valinor\Definition\Repository\Reflection\DoctrineAnnotationsRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
@@ -206,20 +204,7 @@ final class Container
                 $this->get(CacheInterface::class)
             ),
 
-            AttributesRepository::class => function () use ($settings) {
-                if (! $settings->enableLegacyDoctrineAnnotations) {
-                    return new NativeAttributesRepository();
-                }
-
-                /** @infection-ignore-all */
-                if (PHP_VERSION_ID >= 8_00_00) {
-                    return new CombinedAttributesRepository();
-                }
-
-                /** @infection-ignore-all */
-                // @codeCoverageIgnoreStart
-                return new DoctrineAnnotationsRepository(); // @codeCoverageIgnoreEnd
-            },
+            AttributesRepository::class => fn () => new NativeAttributesRepository(),
 
             TypeParserFactory::class => fn () => new LexingTypeParserFactory(
                 $this->get(TemplateParser::class)

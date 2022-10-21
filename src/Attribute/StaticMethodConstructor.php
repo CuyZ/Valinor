@@ -14,10 +14,6 @@ use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
  *
  * @deprecated This attribute should not be used anymore, the method
  *             `MapperBuilder::registerConstructor()` should be used instead.
- *
- * @Annotation
- * @NamedArgumentConstructor
- * @Target({"CLASS"})
  */
 #[Attribute(Attribute::TARGET_CLASS)]
 final class StaticMethodConstructor implements ObjectBuilderFactory

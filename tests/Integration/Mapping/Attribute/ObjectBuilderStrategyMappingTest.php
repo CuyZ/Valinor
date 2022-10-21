@@ -58,17 +58,11 @@ final class ObjectBuilderStrategyMappingTest extends IntegrationTest
     }
 }
 
-/**
- * @Annotation
- */
 #[Attribute(Attribute::TARGET_CLASS)]
 final class ForeignAttribute
 {
 }
 
-/**
- * @Annotation
- */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
 final class ObjectBuilderStrategyAttribute implements ObjectBuilderFactory
 {
@@ -78,10 +72,6 @@ final class ObjectBuilderStrategyAttribute implements ObjectBuilderFactory
     }
 }
 
-/**
- * @ForeignAttribute
- * @StaticMethodConstructor("create")
- */
 #[ForeignAttribute]
 #[StaticMethodConstructor('create')]
 final class ObjectWithBuilderStrategyAttribute
@@ -107,9 +97,6 @@ final class ObjectWithBuilderStrategyAttribute
     }
 }
 
-/**
- * @StaticMethodConstructor("failingConstructor")
- */
 #[StaticMethodConstructor('failingConstructor')]
 final class ObjectWithFailingBuilderStrategyAttribute
 {
@@ -119,10 +106,6 @@ final class ObjectWithFailingBuilderStrategyAttribute
     }
 }
 
-/**
- * @ObjectBuilderStrategyAttribute
- * @ObjectBuilderStrategyAttribute
- */
 #[ObjectBuilderStrategyAttribute]
 #[ObjectBuilderStrategyAttribute]
 final class ObjectWithSeveralBuilderStrategyAttributes

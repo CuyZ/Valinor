@@ -7,8 +7,6 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Mapper\Object\BackwardCompatibilityDateTimeConstructor;
-use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorClassTypeParameter;
@@ -115,11 +113,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             return false;
         }
 
-        if (! $definition->attributes()->has(DynamicConstructor::class)
-            // PHP8.0 remove
-            && $definition->class() !== DateTimeFormatConstructor::class
-            && $definition->class() !== BackwardCompatibilityDateTimeConstructor::class
-        ) {
+        if (! $definition->attributes()->has(DynamicConstructor::class)) {
             return true;
         }
 

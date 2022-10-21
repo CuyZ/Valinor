@@ -52,34 +52,6 @@ final class IdentifierAttributeMappingTest extends IntegrationTest
         self::assertSame('bar', $result->identifierAttributeWithConstructor['bar']->identifier);
         self::assertSame('baz', $result->identifierAttributeWithConstructor['baz']->identifier);
     }
-
-    public function test_identifier_doctrine_annotation_is_mapped_properly(): void
-    {
-        $class = new class () {
-            /** @var \CuyZ\Valinor\Tests\Integration\Mapping\Attribute\IdentifierDoctrineAnnotation[] */
-            public array $identifierDoctrineAnnotation;
-        };
-
-        $source = [
-            'foo' => ['value' => 'foo'],
-            'bar' => ['value' => 'foo'],
-            'baz' => ['value' => 'foo'],
-        ];
-
-        $result = (new MapperBuilder())->enableLegacyDoctrineAnnotations()->mapper()->map(get_class($class), $source);
-
-        self::assertSame('foo', $result->identifierDoctrineAnnotation['foo']->identifier);
-        self::assertSame('bar', $result->identifierDoctrineAnnotation['bar']->identifier);
-        self::assertSame('baz', $result->identifierDoctrineAnnotation['baz']->identifier);
-    }
-}
-
-final class IdentifierDoctrineAnnotation
-{
-    /** @Identifier */
-    public string $identifier;
-
-    public string $value;
 }
 
 class IdentifierAttribute

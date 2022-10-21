@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
-use CuyZ\Valinor\Definition\EmptyAttributes;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
@@ -31,7 +30,7 @@ final class FakeFunctionDefinition
                     false,
                     false,
                     'foo',
-                    EmptyAttributes::get()
+                    new FakeAttributes()
                 )
             ),
             NativeStringType::get()

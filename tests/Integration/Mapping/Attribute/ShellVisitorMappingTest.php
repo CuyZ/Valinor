@@ -10,14 +10,13 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 final class ShellVisitorMappingTest extends IntegrationTest
 {
     public function test_shell_visitor_attributes_are_called_during_mapping(): void
     {
         try {
-            $result = (new MapperBuilder())->enableLegacyDoctrineAnnotations()->mapper()->map(
+            $result = (new MapperBuilder())->mapper()->map(
                 ObjectWithShellVisitorAttributes::class,
                 [
                     'valueA' => 'foo',
@@ -33,10 +32,6 @@ final class ShellVisitorMappingTest extends IntegrationTest
     }
 }
 
-/**
- * @Annotation
- * @NamedArgumentConstructor
- */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 final class ValueModifierAttribute implements ShellVisitor
 {
@@ -55,14 +50,9 @@ final class ValueModifierAttribute implements ShellVisitor
 
 final class ObjectWithShellVisitorAttributes
 {
-    /** @ValueModifierAttribute(value="bar") */
     #[ValueModifierAttribute('bar')]
     public string $valueA = 'Schwifty!';
 
-    /**
-     * @ValueModifierAttribute(value="bar")
-     * @ValueModifierAttribute(value="baz")
-     */
     #[ValueModifierAttribute('bar')]
     #[ValueModifierAttribute('baz')]
     public string $valueB = 'Schwifty!';
