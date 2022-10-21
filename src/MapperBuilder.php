@@ -450,18 +450,6 @@ final class MapperBuilder
     }
 
     /**
-     * @deprecated It is not advised to use DoctrineAnnotation when using
-     *             PHP >= 8, you should use built-in PHP attributes instead.
-     */
-    public function enableLegacyDoctrineAnnotations(): self
-    {
-        $clone = clone $this;
-        $clone->settings->enableLegacyDoctrineAnnotations = true;
-
-        return $clone;
-    }
-
-    /**
      * @deprecated use method `registerConstructor` instead.
      */
     public function bind(callable $callback): self

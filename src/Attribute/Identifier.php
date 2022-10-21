@@ -28,9 +28,6 @@ use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
  * ```
  *
  * @api
- *
- * @Annotation
- * @Target({"PROPERTY"})
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final class Identifier implements ShellVisitor

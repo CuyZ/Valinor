@@ -13,12 +13,19 @@ use function count;
 /** @internal */
 final class AttributesContainer implements Attributes
 {
+    private static self $empty;
+
     /** @var array<object> */
     private array $attributes;
 
     public function __construct(object ...$attributes)
     {
         $this->attributes = $attributes;
+    }
+
+    public static function empty(): self
+    {
+        return self::$empty ??= new self();
     }
 
     public function has(string $className): bool

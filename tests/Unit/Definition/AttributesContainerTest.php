@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
 use CuyZ\Valinor\Definition\AttributesContainer;
+use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use DateTime;
 use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +13,16 @@ use stdClass;
 
 final class AttributesContainerTest extends TestCase
 {
+    public function test_empty_attributes_is_empty_and_remains_the_same_instance(): void
+    {
+        $attributes = AttributesContainer::empty();
+
+        self::assertSame($attributes, AttributesContainer::empty());
+        self::assertCount(0, $attributes);
+        self::assertFalse($attributes->has(BasicAttribute::class));
+        self::assertEmpty($attributes->ofType(BasicAttribute::class));
+    }
+
     public function test_attributes_are_countable(): void
     {
         $attributes = new AttributesContainer(new stdClass(), new stdClass(), new stdClass());
