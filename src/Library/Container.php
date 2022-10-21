@@ -18,7 +18,6 @@ use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
-use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\CollisionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
@@ -175,7 +174,6 @@ final class Container
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
                 $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new DateTimeObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
-                $factory = new AttributeObjectBuilderFactory($factory);
                 $factory = new CollisionObjectBuilderFactory($factory);
 
                 if (! $settings->allowPermissiveTypes) {
