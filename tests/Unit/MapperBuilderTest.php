@@ -38,7 +38,6 @@ final class MapperBuilderTest extends TestCase
         $builderI = $builderA->allowPermissiveTypes();
         $builderJ = $builderA->filterExceptions(fn () => new FakeErrorMessage());
         $builderK = $builderA->withCache(new FakeCache());
-        $builderL = $builderA->withCacheDir(sys_get_temp_dir());
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -50,7 +49,6 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderI);
         self::assertNotSame($builderA, $builderJ);
         self::assertNotSame($builderA, $builderK);
-        self::assertNotSame($builderA, $builderL);
     }
 
     public function test_mapper_instance_is_the_same(): void
