@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
-use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
@@ -419,23 +418,6 @@ final class MapperBuilder
         $clone->settings->exceptionFilter = $filter;
 
         return $clone;
-    }
-
-    /**
-     * @deprecated instead, use:
-     *
-     * ```php
-     * (new \CuyZ\Valinor\MapperBuilder())
-     *     ->withCache(new FileSystemCache('cache-directory'))
-     *     ->mapper()
-     *     ->map(SomeClass::class, [
-     *         // …
-     *     ]);
-     * ```
-     */
-    public function withCacheDir(string $cacheDir): self
-    {
-        return $this->withCache(new FileSystemCache($cacheDir));
     }
 
     /**
