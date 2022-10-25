@@ -16,14 +16,15 @@ use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
 use function assert;
+use function bin2hex;
 use function file_exists;
 use function file_put_contents;
 use function is_dir;
 use function mkdir;
+use function random_bytes;
 use function rename;
 use function sha1;
 use function time;
-use function uniqid;
 use function unlink;
 
 /**
@@ -93,7 +94,7 @@ final class CompiledPhpFileCache implements CacheInterface
         }
 
         /** @infection-ignore-all */
-        $tmpFilename = $tmpDir . DIRECTORY_SEPARATOR . uniqid('', true);
+        $tmpFilename = $tmpDir . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
 
         try {
             if (! @file_put_contents($tmpFilename, $code)) {
