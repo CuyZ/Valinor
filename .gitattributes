@@ -8,6 +8,7 @@
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /.php-cs-fixer.dist.php export-ignore
+/composer.lock export-ignore
 /infection.json.dist export-ignore
 /phpstan.neon.dist export-ignore
 /psalm.xml export-ignore
