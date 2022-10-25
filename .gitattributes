@@ -1,6 +1,7 @@
 *.php text eol=lf
 
 /.github/ export-ignore
+/docs/ export-ignore
 /stubs/ export-ignore
 /tests/ export-ignore
 
