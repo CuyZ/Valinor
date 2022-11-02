@@ -9,17 +9,36 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 
 final class FakeMessageFormatter implements MessageFormatter
 {
+    private string $prefix;
+
     private string $body;
 
-    public function __construct(string $body = null)
+    public static function withPrefix(string $prefix = 'formatted:'): self
     {
-        if ($body) {
-            $this->body = $body;
-        }
+        $instance = new self();
+        $instance->prefix = $prefix;
+
+        return $instance;
+    }
+
+    public static function withBody(string $body): self
+    {
+        $instance = new self();
+        $instance->body = $body;
+
+        return $instance;
     }
 
     public function format(NodeMessage $message): NodeMessage
     {
-        return $message->withBody($this->body ?? "formatted: {$message->body()}");
+        if (isset($this->prefix)) {
+            $body = "$this->prefix {$message->body()}";
+        } elseif (isset($this->body)) {
+            $body = $this->body;
+        } else {
+            $body = $message->body();
+        }
+
+        return $message->withBody($body);
     }
 }

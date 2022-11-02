@@ -14,6 +14,9 @@ use function array_filter;
 use function count;
 
 /**
+ * @deprecated Use this method instead:
+ *     {@see \CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode()}
+ *
  * Will recursively flatten messages of a node and all its children.
  *
  * This helper can for instance be used when errors occurred during a mapping to

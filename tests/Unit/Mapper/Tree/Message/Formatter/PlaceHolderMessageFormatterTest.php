@@ -16,7 +16,7 @@ final class PlaceHolderMessageFormatterTest extends TestCase
     public function test_format_message_replaces_placeholders_with_default_values(): void
     {
         $message = FakeNodeMessage::withMessage(new FakeMessage('some message'));
-        $message = (new FakeMessageFormatter('%1$s / %2$s / %3$s / %4$s / %5$s'))->format($message);
+        $message = (FakeMessageFormatter::withBody('%1$s / %2$s / %3$s / %4$s / %5$s'))->format($message);
         $message = (new PlaceHolderMessageFormatter())->format($message);
 
         self::assertSame("some_code / some message / `string` / nodeName / some.node.path", (string)$message);
@@ -25,7 +25,7 @@ final class PlaceHolderMessageFormatterTest extends TestCase
     public function test_format_message_replaces_correct_source_value_if_throwable(): void
     {
         $message = FakeNodeMessage::withMessage(new FakeErrorMessage('some error message'));
-        $message = (new FakeMessageFormatter('original: %2$s'))->format($message);
+        $message = (FakeMessageFormatter::withBody('original: %2$s'))->format($message);
         $message = (new PlaceHolderMessageFormatter())->format($message);
 
         self::assertSame('original: some error message', (string)$message);
