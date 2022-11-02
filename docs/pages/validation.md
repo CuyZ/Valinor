@@ -16,6 +16,9 @@ recursive object allows retrieving all needed information through the whole
 mapping tree: path, values, types and messages, including the issues that caused
 the exception.
 
+Node messages can be customized and iterated through with the usage of the class 
+`\CuyZ\Valinor\Mapper\Tree\Message\Messages`.
+
 ```php
 try {
    (new \CuyZ\Valinor\MapperBuilder())
@@ -23,9 +26,21 @@ try {
         ->map(SomeClass::class, [/* … */ ]);
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
     // Get flatten list of all messages through the whole nodes tree
-    $node = $error->node();
-    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
-    
+    $messages = \CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode(
+        $error->node()
+    );
+
+    // Formatters can be added and will be applied on all messages
+    $messages = $messages->formatWith(
+        new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter([
+            // …
+        ]),
+        (new \CuyZ\Valinor\Mapper\Tree\Message\Formatter\TranslationMessageFormatter())
+            ->withTranslations([
+                // …
+            ])
+    );
+
     // If only errors are wanted, they can be filtered
     $errorMessages = $messages->errors();
 

@@ -23,8 +23,9 @@ try {
         ->mapper()
         ->map(SomeClass::class, [/* … */]);
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    $node = $error->node();
-    $messages = new \CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener($node);
+    $messages = \CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode(
+        $error->node()
+    );
 
     foreach ($messages as $message) {
         if ($message->code() === 'some_code') {
@@ -76,8 +77,12 @@ See [ICU documentation] for more information on available syntax.
 
 ## Deeper message customization / translation
 
-For deeper message changes, formatters can be used — for instance to translate
-content.
+For deeper message changes, formatters can be used to customize body and 
+parameters.
+
+!!! note
+
+    Formatters can be added to messages
 
 ### Translation
 

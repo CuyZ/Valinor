@@ -20,6 +20,11 @@ final class FakeNodeMessage
         return self::build($message);
     }
 
+    public static function withBody(string $body): NodeMessage
+    {
+        return self::build(new FakeMessage($body));
+    }
+
     private static function build(Message $message): NodeMessage
     {
         return new NodeMessage(

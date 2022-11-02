@@ -14,12 +14,12 @@ final class AggregateMessageFormatterTest extends TestCase
     public function test_formatters_are_called_in_correct_order(): void
     {
         $formatter = new AggregateMessageFormatter(
-            new FakeMessageFormatter('message A'),
-            new FakeMessageFormatter('message B'),
+            FakeMessageFormatter::withPrefix('prefix A:'),
+            FakeMessageFormatter::withPrefix('prefix B:'),
         );
 
         $message = $formatter->format(FakeNodeMessage::any());
 
-        self::assertSame('message B', (string)$message);
+        self::assertSame('prefix B: prefix A: some message', (string)$message);
     }
 }

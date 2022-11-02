@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper;
 
-use CuyZ\Valinor\Mapper\Tree\Message\MessagesFlattener;
+use CuyZ\Valinor\Mapper\Tree\Message\Messages;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
@@ -20,7 +20,7 @@ final class MappingError extends RuntimeException
 
         $source = ValueDumper::dump($node->sourceValue());
 
-        $errors = (new MessagesFlattener($node))->errors();
+        $errors = Messages::flattenFromNode($node)->errors();
         $errorsCount = count($errors);
 
         $body = "Could not map type `{$node->type()}` with value $source. A total of $errorsCount errors were encountered.";
