@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Exception\ShapedArrayElementMissing;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedShapedArrayKeys;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -59,15 +58,12 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
             $child = $shell->child((string)$key, $element->type());
 
-            if (! array_key_exists($key, $value)) {
-                if (! $element->isOptional()) {
-                    $children[$key] = TreeNode::error($child, new ShapedArrayElementMissing($element));
-                }
-
+            if (array_key_exists($key, $value)) {
+                $child = $child->withValue($value[$key]);
+            } elseif ($element->isOptional()) {
                 continue;
             }
 
-            $child = $child->withValue($value[$key]);
             $children[$key] = $rootBuilder->build($child);
 
             unset($value[$key]);
