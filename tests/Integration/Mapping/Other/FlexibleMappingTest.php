@@ -149,6 +149,28 @@ final class FlexibleMappingTest extends IntegrationTest
         self::assertSame($source, $result);
     }
 
+    public function test_missing_value_for_nullable_property_fills_it_with_null(): void
+    {
+        $class = new class () {
+            public string $foo;
+
+            /** @noRector \Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector */
+            public ?string $bar;
+        };
+
+        try {
+            $result = (new MapperBuilder())->flexible()->mapper()->map(
+                get_class($class),
+                ['foo' => 'foo']
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->foo);
+        self::assertSame(null, $result->bar);
+    }
+
     public function test_value_that_cannot_be_cast_throws_exception(): void
     {
         try {
