@@ -55,7 +55,7 @@ final class ShapedArrayMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['bar']->messages()[0];
 
-            self::assertSame('1631613641', $error->code());
+            self::assertSame('1655449641', $error->code());
             self::assertSame('Cannot be empty and must be filled with a value matching type `int`.', (string)$error);
         }
     }

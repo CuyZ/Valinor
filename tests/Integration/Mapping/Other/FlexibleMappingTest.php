@@ -171,6 +171,21 @@ final class FlexibleMappingTest extends IntegrationTest
         self::assertSame(null, $result->bar);
     }
 
+    public function test_missing_value_for_nullable_shaped_array_element_fills_it_with_null(): void
+    {
+        try {
+            $result = (new MapperBuilder())->flexible()->mapper()->map(
+                'array{foo: string, bar: ?string}',
+                ['foo' => 'foo']
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result['foo']);
+        self::assertSame(null, $result['bar']);
+    }
+
     public function test_value_that_cannot_be_cast_throws_exception(): void
     {
         try {
