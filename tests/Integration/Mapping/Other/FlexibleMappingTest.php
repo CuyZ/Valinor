@@ -94,17 +94,6 @@ final class FlexibleMappingTest extends IntegrationTest
         }
     }
 
-    public function test_object_with_no_argument_build_with_non_array_source_in_flexible_mode_works_as_expected(): void
-    {
-        try {
-            $result = (new MapperBuilder())->flexible()->mapper()->map(stdClass::class, 'foo');
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertFalse(isset($result->foo));
-    }
-
     public function test_source_matching_two_unions_maps_the_one_with_most_arguments(): void
     {
         try {
@@ -147,6 +136,72 @@ final class FlexibleMappingTest extends IntegrationTest
         }
 
         self::assertSame($source, $result);
+    }
+
+    public function test_missing_value_for_array_fills_it_with_empty_array(): void
+    {
+        try {
+            $result = (new MapperBuilder())->flexible()->mapper()->map(
+                'array{foo: string, bar: array<string>}',
+                ['foo' => 'foo']
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result['foo']);
+        self::assertSame([], $result['bar']);
+    }
+
+    public function test_null_value_for_array_fills_it_with_empty_array(): void
+    {
+        try {
+            $result = (new MapperBuilder())->flexible()->mapper()->map(
+                'array{foo: string, bar: array<string>}',
+                [
+                    'foo' => 'foo',
+                    'bar' => null
+                ]
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result['foo']);
+        self::assertSame([], $result['bar']);
+    }
+
+    public function test_missing_value_for_list_fills_it_with_empty_array(): void
+    {
+        try {
+            $result = (new MapperBuilder())->flexible()->mapper()->map(
+                'array{foo: string, bar: list<string>}',
+                ['foo' => 'foo']
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result['foo']);
+        self::assertSame([], $result['bar']);
+    }
+
+    public function test_null_value_for_list_fills_it_with_empty_array(): void
+    {
+        try {
+            $result = (new MapperBuilder())->flexible()->mapper()->map(
+                'array{foo: string, bar: list<string>}',
+                [
+                    'foo' => 'foo',
+                    'bar' => null
+                ]
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result['foo']);
+        self::assertSame([], $result['bar']);
     }
 
     public function test_missing_value_for_nullable_property_fills_it_with_null(): void

@@ -23,16 +23,24 @@ final class StrictNodeBuilder implements NodeBuilder
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
+        $type = $shell->type();
+
         if (! $this->flexible) {
-            TypeHelper::checkPermissiveType($shell->type());
+            TypeHelper::checkPermissiveType($type);
         }
 
         if (! $shell->hasValue()) {
-            if ($this->flexible && $shell->type()->accepts(null)) {
-                return TreeNode::leaf($shell, null);
+            if ($this->flexible) {
+                if ($type->accepts(null)) {
+                    return TreeNode::leaf($shell, null);
+                }
+
+                if ($type->accepts([])) {
+                    return TreeNode::leaf($shell, []);
+                }
             }
 
-            throw new MissingNodeValue($shell->type());
+            throw new MissingNodeValue($type);
         }
 
         return $this->delegate->build($shell, $rootBuilder);
