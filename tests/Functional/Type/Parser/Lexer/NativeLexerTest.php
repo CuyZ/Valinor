@@ -628,7 +628,6 @@ final class NativeLexerTest extends TestCase
             'type' => ShapedArrayType::class,
         ];
 
-
         yield 'Strict shaped array' => [
             'raw' => 'strict-array{foo: string}',
             'transformed' => 'array{foo: string}',
