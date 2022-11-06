@@ -25,7 +25,7 @@ final class UnionNodeBuilder implements NodeBuilder
     {
         $type = $shell->type();
 
-        if (! $type instanceof UnionType || ! $shell->hasValue()) {
+        if (! $type instanceof UnionType) {
             return $this->delegate->build($shell, $rootBuilder);
         }
 

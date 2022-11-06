@@ -22,12 +22,10 @@ final class IterableNodeBuilder implements NodeBuilder
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
-        if ($shell->hasValue()) {
-            $value = $shell->value();
+        $value = $shell->value();
 
-            if (is_iterable($value) && ! is_array($value)) {
-                $shell = $shell->withValue(iterator_to_array($value));
-            }
+        if (is_iterable($value) && ! is_array($value)) {
+            $shell = $shell->withValue(iterator_to_array($value));
         }
 
         return $this->delegate->build($shell, $rootBuilder);

@@ -436,8 +436,7 @@ final class FlexibleMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['bar']->messages()[0];
 
-            self::assertSame('1655449641', $error->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `string`.', (string)$error);
+            self::assertSame('Value *missing* is not a valid string.', (string)$error);
         }
     }
 }

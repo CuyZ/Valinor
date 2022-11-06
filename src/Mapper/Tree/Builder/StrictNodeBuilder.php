@@ -31,13 +31,7 @@ final class StrictNodeBuilder implements NodeBuilder
 
         if (! $shell->hasValue()) {
             if ($this->flexible) {
-                if ($type->accepts(null)) {
-                    return TreeNode::leaf($shell, null);
-                }
-
-                if ($type->accepts([])) {
-                    return TreeNode::leaf($shell, []);
-                }
+                return $this->delegate->build($shell->withValue(null), $rootBuilder);
             }
 
             throw new MissingNodeValue($type);

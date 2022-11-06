@@ -27,7 +27,7 @@ final class ListNodeBuilder implements NodeBuilder
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
-        $value = $shell->hasValue() ? $shell->value() : null;
+        $value = $shell->value();
 
         assert($type instanceof ListType || $type instanceof NonEmptyListType);
 
