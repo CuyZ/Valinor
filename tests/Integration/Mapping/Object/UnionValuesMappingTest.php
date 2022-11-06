@@ -6,10 +6,14 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
+use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValues;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValuesWithConstructor;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 final class UnionValuesMappingTest extends IntegrationTest
 {
@@ -24,6 +28,8 @@ final class UnionValuesMappingTest extends IntegrationTest
             'nullableWithNull' => null,
             'intOrLiteralTrue' => true,
             'intOrLiteralFalse' => false,
+            'dateTimeOrNull' => 1667754013,
+            'nullOrDateTime' => 1667754014,
             'constantWithStringValue' => 'some string value',
             'constantWithIntegerValue' => 1653398288,
         ];
@@ -50,6 +56,10 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame(null, $result->nullableWithNull);
             self::assertSame(true, $result->intOrLiteralTrue);
             self::assertSame(false, $result->intOrLiteralFalse);
+            self::assertInstanceOf(DateTimeInterface::class, $result->dateTimeOrNull);
+            self::assertInstanceOf(DateTimeInterface::class, $result->nullOrDateTime);
+            self::assertSame((new DateTimeImmutable('@1667754013'))->format('U'), $result->dateTimeOrNull->format('U'));
+            self::assertSame((new DateTimeImmutable('@1667754014'))->format('U'), $result->nullOrDateTime->format('U'));
             self::assertSame('some string value', $result->constantWithStringValue);
             self::assertSame(1653398288, $result->constantWithIntegerValue);
         }
@@ -76,6 +86,60 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame(-1337, $result->negativeIntegerValue);
             self::assertSame('bar', $result->stringValueWithSingleQuote);
             self::assertSame('fiz', $result->stringValueWithDoubleQuote);
+        }
+    }
+
+    public function test_filled_source_value_is_casted_when_union_contains_three_types_including_null(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->flexible()
+                ->mapper()
+                ->map('null|int|string', new StringableObject('foo'));
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result);
+    }
+
+    /**
+     * @requires PHP >= 8.1
+     */
+    public function test_enum_in_union_type_is_casted_properly(): void
+    {
+        try {
+            $result = (new MapperBuilder())->mapper()->map('int|' . PureEnum::class, 'FOO');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(PureEnum::FOO, $result);
+    }
+
+    public function test_source_value_is_casted_when_other_type_cannot_be_caster(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->flexible()
+                ->mapper()
+                ->map('string[]|string', new StringableObject('foo'));
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result);
+    }
+
+    public function test_invalid_value_is_not_casted_when_casting_mode_is_disabled(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map('string|float', 42);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1607027306', $error->code());
+            self::assertSame('Value 42 does not match any of `string`, `float`.', (string)$error);
         }
     }
 }
@@ -105,6 +169,12 @@ class UnionValues
 
     /** @var int|false */
     public $intOrLiteralFalse = 42;
+
+    /** @var DateTimeInterface|null */
+    public $dateTimeOrNull;
+
+    /** @var null|DateTimeInterface */
+    public $nullOrDateTime;
 
     /** @var ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A */
     public $constantWithStringValue = 1653398288;
@@ -145,6 +215,8 @@ class UnionValuesWithConstructor extends UnionValues
      * @param string|null|float $nullableWithNull
      * @param int|true $intOrLiteralTrue
      * @param int|false $intOrLiteralFalse
+     * @param DateTimeInterface|null $dateTimeOrNull
+     * @param null|DateTimeInterface $nullOrDateTime
      * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithStringValue
      * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithIntegerValue
      */
@@ -157,6 +229,8 @@ class UnionValuesWithConstructor extends UnionValues
         $nullableWithNull = 'Schwifty!',
         $intOrLiteralTrue = 42,
         $intOrLiteralFalse = 42,
+        $dateTimeOrNull = null,
+        $nullOrDateTime = null,
         $constantWithStringValue = 1653398288,
         $constantWithIntegerValue = 'some string value'
     ) {
@@ -168,6 +242,8 @@ class UnionValuesWithConstructor extends UnionValues
         $this->nullableWithNull = $nullableWithNull;
         $this->intOrLiteralTrue = $intOrLiteralTrue;
         $this->intOrLiteralFalse = $intOrLiteralFalse;
+        $this->dateTimeOrNull = $dateTimeOrNull;
+        $this->nullOrDateTime = $nullOrDateTime;
         $this->constantWithStringValue = $constantWithStringValue;
         $this->constantWithIntegerValue = $constantWithIntegerValue;
     }

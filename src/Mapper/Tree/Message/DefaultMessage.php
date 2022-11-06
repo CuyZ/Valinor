@@ -14,6 +14,9 @@ interface DefaultMessage
         'Value {source_value} does not match any of {allowed_types}.' => [
             'en' => 'Value {source_value} does not match any of {allowed_types}.',
         ],
+        'Cannot be empty and must be filled with a value matching any of {allowed_types}.' => [
+            'en' => 'Cannot be empty and must be filled with a value matching any of {allowed_types}.',
+        ],
         'Value {source_value} does not match type {expected_type}.' => [
             'en' => 'Value {source_value} does not match type {expected_type}.',
         ],

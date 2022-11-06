@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidAbstractObjectName;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
@@ -21,7 +22,6 @@ use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\Interface
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceB;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceBInferer;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveObjectType;
 use DateTime;
 use DateTimeInterface;
 use DomainException;

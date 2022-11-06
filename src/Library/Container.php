@@ -56,8 +56,6 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
-use CuyZ\Valinor\Type\Resolver\Union\UnionNullNarrower;
-use CuyZ\Valinor\Type\Resolver\Union\UnionScalarNarrower;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\IterableType;
@@ -102,7 +100,7 @@ final class Container
                     ScalarType::class => new ScalarNodeBuilder($settings->flexible),
                 ]);
 
-                $builder = new UnionNodeBuilder($builder, new UnionNullNarrower(new UnionScalarNarrower()));
+                $builder = new UnionNodeBuilder($builder, $settings->flexible);
 
                 $builder = new ClassNodeBuilder(
                     $builder,

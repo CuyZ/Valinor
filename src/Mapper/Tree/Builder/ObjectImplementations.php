@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidAbstractObjectName;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
@@ -14,7 +15,6 @@ use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
-use CuyZ\Valinor\Type\Resolver\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
