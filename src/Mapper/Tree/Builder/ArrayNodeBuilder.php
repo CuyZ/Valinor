@@ -28,7 +28,7 @@ final class ArrayNodeBuilder implements NodeBuilder
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
-        $value = $shell->hasValue() ? $shell->value() : null;
+        $value = $shell->value();
 
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
