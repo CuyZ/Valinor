@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Fixture;
 
 // @PHP8.0 move inside \CuyZ\Valinor\Tests\Integration\Mapping\UnionValuesMappingTest
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
+use DateTimeInterface;
 
 class NativeUnionValues
 {
@@ -26,6 +27,10 @@ class NativeUnionValues
 
     /** @var int|false */
     public int|bool $intOrLiteralFalse = 42;
+
+    public DateTimeInterface|null $dateTimeOrNull = null;
+
+    public null|DateTimeInterface $nullOrDateTime = null;
 
     /** @var ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A */
     public string|int $constantWithStringValue = 1653398288;
@@ -51,6 +56,8 @@ class NativeUnionValuesWithConstructor extends NativeUnionValues
         string|null $nullableWithNull = 'Schwifty!',
         int|bool $intOrLiteralTrue = 42,
         int|bool $intOrLiteralFalse = 42,
+        DateTimeInterface|null $dateTimeOrNull = null,
+        null|DateTimeInterface $nullOrDateTime = null,
         string|int $constantWithStringValue = 1653398288,
         string|int $constantWithIntegerValue = 'some string value'
     ) {
@@ -62,6 +69,8 @@ class NativeUnionValuesWithConstructor extends NativeUnionValues
         $this->nullableWithNull = $nullableWithNull;
         $this->intOrLiteralTrue = $intOrLiteralTrue;
         $this->intOrLiteralFalse = $intOrLiteralFalse;
+        $this->dateTimeOrNull = $dateTimeOrNull;
+        $this->nullOrDateTime = $nullOrDateTime;
         $this->constantWithStringValue = $constantWithStringValue;
         $this->constantWithIntegerValue = $constantWithIntegerValue;
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Type\Resolver\Exception;
+namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
@@ -22,7 +22,10 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Error
     /** @var array<string, string> */
     private array $parameters;
 
-    public function __construct(UnionType $unionType)
+    /**
+     * @param mixed $source
+     */
+    public function __construct($source, UnionType $unionType)
     {
         $this->parameters = [
             'allowed_types' => implode(
@@ -32,9 +35,15 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Error
             ),
         ];
 
-        $this->body = TypeHelper::containsObject($unionType)
-            ? 'Invalid value {source_value}.'
-            : 'Value {source_value} does not match any of {allowed_types}.';
+        if ($source === null) {
+            $this->body = TypeHelper::containsObject($unionType)
+                ? 'Cannot be empty.'
+                : 'Cannot be empty and must be filled with a value matching any of {allowed_types}.';
+        } else {
+            $this->body = TypeHelper::containsObject($unionType)
+                ? 'Invalid value {source_value}.'
+                : 'Value {source_value} does not match any of {allowed_types}.';
+        }
 
         parent::__construct(StringFormatter::for($this), 1607027306);
     }

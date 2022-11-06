@@ -368,8 +368,8 @@ final class FlexibleMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('1618742357', $error->code());
-            self::assertSame("Cannot be empty and must be filled with a value matching type `bool|int|float`.", (string)$error);
+            self::assertSame('1607027306', $error->code());
+            self::assertSame('Cannot be empty and must be filled with a value matching any of `bool`, `int`, `float`.', (string)$error);
         }
     }
 
