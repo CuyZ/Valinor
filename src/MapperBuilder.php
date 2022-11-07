@@ -248,25 +248,118 @@ final class MapperBuilder
     }
 
     /**
-     * Enables flexible mode for the mapper:
-     *
-     * - Scalar types will be cast whenever possible, for instance an integer
-     *   node will accept any valid numeric value like the string "42".
-     *
-     * - Superfluous keys in source arrays will be ignored, preventing errors
-     *   when a value is not bound to any object property/parameter or shaped
-     *   array element.
-     *
-     * - Permissive types `mixed` and `object` are allowed.
+     * @deprecated use the following method(s) depending on your needs:
+     * @see \CuyZ\Valinor\MapperBuilder::enableFlexibleCasting()
+     * @see \CuyZ\Valinor\MapperBuilder::enableSuperfluousKeys()
+     * @see \CuyZ\Valinor\MapperBuilder::enablePermissiveTypes()
      */
     public function flexible(): self
     {
-        if ($this->settings->flexible) {
-            return $this;
-        }
-
         $clone = clone $this;
-        $clone->settings->flexible = true;
+        $clone->settings->enableFlexibleCasting = true;
+        $clone->settings->enableSuperfluousKeys = true;
+        $clone->settings->enablePermissiveTypes = true;
+
+        return $clone;
+    }
+
+    /**
+     * Changes the behaviours explained below:
+     *
+     * ```php
+     * $flexibleMapper = (new \CuyZ\Valinor\MapperBuilder())
+     *     ->enableFlexibleCasting()
+     *     ->mapper();
+     *
+     * // ---
+     * // Scalar types will accept non-strict values; for instance an integer
+     * // type will accept any valid numeric value like the *string* "42".
+     *
+     * $flexibleMapper->map('int', '42');
+     * // => 42
+     *
+     * // ---
+     * // List type will accept non-incremental keys.
+     *
+     * $flexibleMapper->map('list<int>', ['foo' => 42, 'bar' => 1337]);
+     * // => [0 => 42, 1 => 1338]
+     *
+     * // ---
+     * // If a value is missing in a source for a node that accepts `null`, the
+     * // node will be filled with `null`.
+     *
+     * $flexibleMapper->map(
+     *     'array{foo: string, bar: null|string}',
+     *     ['foo' => 'foo'] // `bar` is missing
+     * );
+     * // => ['foo' => 'foo', 'bar' => null]
+     *
+     * // ---
+     * // Array and list types will convert `null` or missing values to an empty
+     * // array.
+     *
+     * $flexibleMapper->map(
+     *     'array{foo: string, bar: array<string>}',
+     *     ['foo' => 'foo'] // `bar` is missing
+     * );
+     * // => ['foo' => 'foo', 'bar' => []]
+     * ```
+     */
+    public function enableFlexibleCasting(): self
+    {
+        $clone = clone $this;
+        $clone->settings->enableFlexibleCasting = true;
+
+        return $clone;
+    }
+
+    /**
+     * Superfluous keys in source arrays will be ignored, preventing errors when
+     * a value is not bound to any object property/parameter or shaped array
+     * element.
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->enableSuperfluousKeys()
+     *     ->mapper()
+     *     ->map(
+     *         'array{foo: string, bar: int}',
+     *         [
+     *             'foo' => 'foo',
+     *             'bar' => 42,
+     *             'baz' => 1337.404, // `baz` will be ignored
+     *         ]
+     *     );
+     * ```
+     */
+    public function enableSuperfluousKeys(): self
+    {
+        $clone = clone $this;
+        $clone->settings->enableSuperfluousKeys = true;
+
+        return $clone;
+    }
+
+    /**
+     * Allows permissive types `mixed` and `object` to be used during mapping.
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->enablePermissiveTypes()
+     *     ->mapper()
+     *     ->map(
+     *         'array{foo: string, bar: mixed}',
+     *         [
+     *             'foo' => 'foo',
+     *             'bar' => 42, // Could be any value
+     *         ]
+     *     );
+     * ```
+     */
+    public function enablePermissiveTypes(): self
+    {
+        $clone = clone $this;
+        $clone->settings->enablePermissiveTypes = true;
 
         return $clone;
     }

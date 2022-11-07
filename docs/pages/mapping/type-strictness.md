@@ -9,34 +9,96 @@ Array keys that are not bound to any node are forbidden. Mapping an array
 `bar` will fail, because `baz` is superfluous. The same rule applies for
 shaped arrays.
 
+When mapping to a list, the given array must have sequential integer keys
+starting at 0; if any gap or invalid key is found it will fail, like for 
+instance trying to map `['foo' => 'foo', 'bar' => 'bar']` to `list<string>`.
+
 Types that are too permissive are not permitted — if the mapper encounters a 
 type like `mixed`, `object` or `array` it will fail because those types are not
 precise enough.
 
-## Flexible mode
+---
 
-If the limitations are too restrictive, the mapper can be made more flexible to
-disable all strict rules declared above and enable value casting when possible.
+If these limitations are too restrictive, the mapper can be made more flexible
+to disable one or several rule(s) declared above.
+
+## Enabling flexible casting
+
+This setting changes the behaviours explained below:
+
+```php
+$flexibleMapper = (new \CuyZ\Valinor\MapperBuilder())
+    ->enableFlexibleCasting()
+    ->mapper();
+
+// ---
+// Scalar types will accept non-strict values; for instance an integer
+// type will accept any valid numeric value like the *string* "42".
+
+$flexibleMapper->map('int', '42');
+// => 42
+
+// ---
+// List type will accept non-incremental keys.
+
+$flexibleMapper->map('list<int>', ['foo' => 42, 'bar' => 1337]);
+// => [0 => 42, 1 => 1338]
+
+// ---
+// If a value is missing in a source for a node that accepts `null`, the
+// node will be filled with `null`.
+
+$flexibleMapper->map(
+    'array{foo: string, bar: null|string}',
+    ['foo' => 'foo'] // `bar` is missing
+);
+// => ['foo' => 'foo', 'bar' => null]
+
+// ---
+// Array and list types will convert `null` or missing values to an empty
+// array.
+
+$flexibleMapper->map(
+    'array{foo: string, bar: array<string>}',
+    ['foo' => 'foo'] // `bar` is missing
+);
+// => ['foo' => 'foo', 'bar' => []]
+```
+
+## Enabling superfluous keys
+
+With this setting enabled, superfluous keys in source arrays will be ignored, 
+preventing errors when a value is not bound to any object property/parameter or
+shaped array element.
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
-    ->flexible()
+    ->enableSuperfluousKeys()
     ->mapper()
-    ->map('array{foo: int, bar: bool}', [
-        'foo' => '42', // The value will be cast from `string` to `int`
-        'bar' => 'true', // The value will be cast from `string` to `bool`
-        'baz' => '…', // Will be ignored 
-    ]);
+    ->map(
+        'array{foo: string, bar: int}',
+        [
+            'foo' => 'foo',
+            'bar' => 42,
+            'baz' => 1337.404, // `baz` will be ignored
+        ]
+    );
 ```
 
-## When should flexible mode be enabled?
+## Enabling permissive types
 
-When using this library for a provider application — for instance an API
-endpoint that can be called with a JSON payload — it is recommended to use the
-strict mode. This ensures that the consumers of the API provide the exact
-awaited data structure, and prevents unknown values to be passed.
+This setting allows permissive types `mixed` and `object` to be used during 
+mapping.
 
-When using this library as a consumer of an external source, it can make sense
-to enable the flexible mode. This allows for instance to convert string numeric
-values to integers or to ignore data that is present in the source but not
-needed in the application.
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->enablePermissiveTypes()
+    ->mapper()
+    ->map(
+        'array{foo: string, bar: mixed}',
+        [
+            'foo' => 'foo',
+            'bar' => 42, // Could be any value
+        ]
+    );
+```

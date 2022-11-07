@@ -28,7 +28,11 @@ final class Settings
     /** @var CacheInterface<mixed> */
     public CacheInterface $cache;
 
-    public bool $flexible = false;
+    public bool $enableFlexibleCasting = false;
+
+    public bool $enableSuperfluousKeys = false;
+
+    public bool $enablePermissiveTypes = false;
 
     /** @var callable(Throwable): ErrorMessage */
     public $exceptionFilter;

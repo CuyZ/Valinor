@@ -19,12 +19,12 @@ final class UnionNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
 
-    private bool $flexible;
+    private bool $enableFlexibleCasting;
 
-    public function __construct(NodeBuilder $delegate, bool $flexible)
+    public function __construct(NodeBuilder $delegate, bool $enableFlexibleCasting)
     {
         $this->delegate = $delegate;
-        $this->flexible = $flexible;
+        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -60,7 +60,7 @@ final class UnionNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            if (! $this->flexible && ! $subType instanceof EnumType) {
+            if (! $this->enableFlexibleCasting && ! $subType instanceof EnumType) {
                 continue;
             }
 

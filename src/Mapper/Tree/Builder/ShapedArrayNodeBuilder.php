@@ -18,11 +18,11 @@ use function is_array;
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    private bool $flexible;
+    private bool $enableSuperfluousKeys;
 
-    public function __construct(bool $flexible)
+    public function __construct(bool $enableSuperfluousKeys)
     {
-        $this->flexible = $flexible;
+        $this->enableSuperfluousKeys = $enableSuperfluousKeys;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -69,7 +69,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             unset($value[$key]);
         }
 
-        if (! $this->flexible && count($value) > 0) {
+        if (! $this->enableSuperfluousKeys && count($value) > 0) {
             throw new UnexpectedShapedArrayKeys(array_keys($value), $elements);
         }
 

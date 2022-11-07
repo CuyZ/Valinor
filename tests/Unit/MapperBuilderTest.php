@@ -33,10 +33,13 @@ final class MapperBuilderTest extends TestCase
         $builderD = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
         $builderE = $builderA->alter(static fn (string $value): string => 'foo');
         $builderF = $builderA->flexible();
-        $builderG = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderH = $builderA->withCache(new FakeCache());
-        $builderI = $builderA->withCacheDir(sys_get_temp_dir());
-        $builderJ = $builderA->enableLegacyDoctrineAnnotations();
+        $builderG = $builderA->enableFlexibleCasting();
+        $builderH = $builderA->enableSuperfluousKeys();
+        $builderI = $builderA->enablePermissiveTypes();
+        $builderJ = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderK = $builderA->withCache(new FakeCache());
+        $builderL = $builderA->withCacheDir(sys_get_temp_dir());
+        $builderM = $builderA->enableLegacyDoctrineAnnotations();
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -47,6 +50,9 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
         self::assertNotSame($builderA, $builderJ);
+        self::assertNotSame($builderA, $builderK);
+        self::assertNotSame($builderA, $builderL);
+        self::assertNotSame($builderA, $builderM);
     }
 
     public function test_mapper_instance_is_the_same(): void
