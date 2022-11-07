@@ -17,7 +17,7 @@ final class SuperfluousKeysMappingTest extends IntegrationTest
     {
         parent::setUp();
 
-        $this->mapper = (new MapperBuilder())->enableSuperfluousKeys()->mapper();
+        $this->mapper = (new MapperBuilder())->allowSuperfluousKeys()->mapper();
     }
 
     public function test_superfluous_shaped_array_values_are_mapped_properly(): void

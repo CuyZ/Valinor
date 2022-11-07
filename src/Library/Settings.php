@@ -30,9 +30,9 @@ final class Settings
 
     public bool $enableFlexibleCasting = false;
 
-    public bool $enableSuperfluousKeys = false;
+    public bool $allowSuperfluousKeys = false;
 
-    public bool $enablePermissiveTypes = false;
+    public bool $allowPermissiveTypes = false;
 
     /** @var callable(Throwable): ErrorMessage */
     public $exceptionFilter;

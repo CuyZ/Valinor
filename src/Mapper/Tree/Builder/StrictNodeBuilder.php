@@ -13,14 +13,14 @@ final class StrictNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
 
-    private bool $enablePermissiveTypes;
+    private bool $allowPermissiveTypes;
 
     private bool $enableFlexibleCasting;
 
-    public function __construct(NodeBuilder $delegate, bool $enablePermissiveTypes, bool $enableFlexibleCasting)
+    public function __construct(NodeBuilder $delegate, bool $allowPermissiveTypes, bool $enableFlexibleCasting)
     {
         $this->delegate = $delegate;
-        $this->enablePermissiveTypes = $enablePermissiveTypes;
+        $this->allowPermissiveTypes = $allowPermissiveTypes;
         $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
@@ -28,7 +28,7 @@ final class StrictNodeBuilder implements NodeBuilder
     {
         $type = $shell->type();
 
-        if (! $this->enablePermissiveTypes) {
+        if (! $this->allowPermissiveTypes) {
             TypeHelper::checkPermissiveType($type);
         }
 

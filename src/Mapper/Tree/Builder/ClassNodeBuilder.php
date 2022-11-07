@@ -28,20 +28,20 @@ final class ClassNodeBuilder implements NodeBuilder
 
     private bool $enableFlexibleCasting;
 
-    private bool $enableSuperfluousKeys;
+    private bool $allowSuperfluousKeys;
 
     public function __construct(
         NodeBuilder $delegate,
         ClassDefinitionRepository $classDefinitionRepository,
         ObjectBuilderFactory $objectBuilderFactory,
         bool $enableFlexibleCasting,
-        bool $enableSuperfluousKeys
+        bool $allowSuperfluousKeys
     ) {
         $this->delegate = $delegate;
         $this->classDefinitionRepository = $classDefinitionRepository;
         $this->objectBuilderFactory = $objectBuilderFactory;
         $this->enableFlexibleCasting = $enableFlexibleCasting;
-        $this->enableSuperfluousKeys = $enableSuperfluousKeys;
+        $this->allowSuperfluousKeys = $allowSuperfluousKeys;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -79,7 +79,7 @@ final class ClassNodeBuilder implements NodeBuilder
 
         $node = TreeNode::branch($shell, $object, $children);
 
-        if (! $this->enableSuperfluousKeys) {
+        if (! $this->allowSuperfluousKeys) {
             $node = $this->checkForSuperfluousKeys($arguments, $node);
         }
 

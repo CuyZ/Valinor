@@ -19,7 +19,7 @@ final class PermissiveTypesMappingTest extends IntegrationTest
     {
         parent::setUp();
 
-        $this->mapper = (new MapperBuilder())->enablePermissiveTypes()->mapper();
+        $this->mapper = (new MapperBuilder())->allowPermissiveTypes()->mapper();
     }
 
     public function test_can_map_to_mixed_type(): void

@@ -34,8 +34,8 @@ final class MapperBuilderTest extends TestCase
         $builderE = $builderA->alter(static fn (string $value): string => 'foo');
         $builderF = $builderA->flexible();
         $builderG = $builderA->enableFlexibleCasting();
-        $builderH = $builderA->enableSuperfluousKeys();
-        $builderI = $builderA->enablePermissiveTypes();
+        $builderH = $builderA->allowSuperfluousKeys();
+        $builderI = $builderA->allowPermissiveTypes();
         $builderJ = $builderA->filterExceptions(fn () => new FakeErrorMessage());
         $builderK = $builderA->withCache(new FakeCache());
         $builderL = $builderA->withCacheDir(sys_get_temp_dir());

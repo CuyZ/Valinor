@@ -65,15 +65,15 @@ $flexibleMapper->map(
 // => ['foo' => 'foo', 'bar' => []]
 ```
 
-## Enabling superfluous keys
+## Allowing superfluous keys
 
-With this setting enabled, superfluous keys in source arrays will be ignored, 
+With this setting enabled, superfluous keys in source arrays will be allowed, 
 preventing errors when a value is not bound to any object property/parameter or
 shaped array element.
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
-    ->enableSuperfluousKeys()
+    ->allowSuperfluousKeys()
     ->mapper()
     ->map(
         'array{foo: string, bar: int}',
@@ -85,14 +85,14 @@ shaped array element.
     );
 ```
 
-## Enabling permissive types
+## Allowing permissive types
 
 This setting allows permissive types `mixed` and `object` to be used during 
 mapping.
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
-    ->enablePermissiveTypes()
+    ->allowPermissiveTypes()
     ->mapper()
     ->map(
         'array{foo: string, bar: mixed}',

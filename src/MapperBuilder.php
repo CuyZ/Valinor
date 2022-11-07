@@ -250,15 +250,15 @@ final class MapperBuilder
     /**
      * @deprecated use the following method(s) depending on your needs:
      * @see \CuyZ\Valinor\MapperBuilder::enableFlexibleCasting()
-     * @see \CuyZ\Valinor\MapperBuilder::enableSuperfluousKeys()
-     * @see \CuyZ\Valinor\MapperBuilder::enablePermissiveTypes()
+     * @see \CuyZ\Valinor\MapperBuilder::allowSuperfluousKeys()
+     * @see \CuyZ\Valinor\MapperBuilder::allowPermissiveTypes()
      */
     public function flexible(): self
     {
         $clone = clone $this;
         $clone->settings->enableFlexibleCasting = true;
-        $clone->settings->enableSuperfluousKeys = true;
-        $clone->settings->enablePermissiveTypes = true;
+        $clone->settings->allowSuperfluousKeys = true;
+        $clone->settings->allowPermissiveTypes = true;
 
         return $clone;
     }
@@ -320,7 +320,7 @@ final class MapperBuilder
      *
      * ```php
      * (new \CuyZ\Valinor\MapperBuilder())
-     *     ->enableSuperfluousKeys()
+     *     ->allowSuperfluousKeys()
      *     ->mapper()
      *     ->map(
      *         'array{foo: string, bar: int}',
@@ -332,10 +332,10 @@ final class MapperBuilder
      *     );
      * ```
      */
-    public function enableSuperfluousKeys(): self
+    public function allowSuperfluousKeys(): self
     {
         $clone = clone $this;
-        $clone->settings->enableSuperfluousKeys = true;
+        $clone->settings->allowSuperfluousKeys = true;
 
         return $clone;
     }
@@ -345,7 +345,7 @@ final class MapperBuilder
      *
      * ```php
      * (new \CuyZ\Valinor\MapperBuilder())
-     *     ->enablePermissiveTypes()
+     *     ->allowPermissiveTypes()
      *     ->mapper()
      *     ->map(
      *         'array{foo: string, bar: mixed}',
@@ -356,10 +356,10 @@ final class MapperBuilder
      *     );
      * ```
      */
-    public function enablePermissiveTypes(): self
+    public function allowPermissiveTypes(): self
     {
         $clone = clone $this;
-        $clone->settings->enablePermissiveTypes = true;
+        $clone->settings->allowPermissiveTypes = true;
 
         return $clone;
     }

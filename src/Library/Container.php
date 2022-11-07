@@ -96,7 +96,7 @@ final class Container
                     ArrayType::class => $arrayNodeBuilder,
                     NonEmptyArrayType::class => $arrayNodeBuilder,
                     IterableType::class => $arrayNodeBuilder,
-                    ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->enableSuperfluousKeys),
+                    ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
                     ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
                 ]);
 
@@ -107,7 +107,7 @@ final class Container
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $settings->enableFlexibleCasting,
-                    $settings->enableSuperfluousKeys
+                    $settings->allowSuperfluousKeys
                 );
 
                 $builder = new InterfaceNodeBuilder(
@@ -127,7 +127,7 @@ final class Container
                         $settings->valueModifier
                     )
                 );
-                $builder = new StrictNodeBuilder($builder, $settings->enablePermissiveTypes, $settings->enableFlexibleCasting);
+                $builder = new StrictNodeBuilder($builder, $settings->allowPermissiveTypes, $settings->enableFlexibleCasting);
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
@@ -153,7 +153,7 @@ final class Container
                 $factory = new AttributeObjectBuilderFactory($factory);
                 $factory = new CollisionObjectBuilderFactory($factory);
 
-                if (! $settings->enablePermissiveTypes) {
+                if (! $settings->allowPermissiveTypes) {
                     $factory = new StrictTypesObjectBuilderFactory($factory);
                 }
 
