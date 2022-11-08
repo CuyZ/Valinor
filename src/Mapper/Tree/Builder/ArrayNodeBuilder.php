@@ -18,11 +18,11 @@ use function is_array;
 /** @internal */
 final class ArrayNodeBuilder implements NodeBuilder
 {
-    private bool $flexible;
+    private bool $enableFlexibleCasting;
 
-    public function __construct(bool $flexible)
+    public function __construct(bool $enableFlexibleCasting)
     {
-        $this->flexible = $flexible;
+        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -32,7 +32,7 @@ final class ArrayNodeBuilder implements NodeBuilder
 
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
-        if (null === $value && $this->flexible) {
+        if ($this->enableFlexibleCasting && $value === null) {
             return TreeNode::branch($shell, [], []);
         }
 

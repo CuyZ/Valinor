@@ -13,24 +13,27 @@ final class StrictNodeBuilder implements NodeBuilder
 {
     private NodeBuilder $delegate;
 
-    private bool $flexible;
+    private bool $allowPermissiveTypes;
 
-    public function __construct(NodeBuilder $delegate, bool $flexible)
+    private bool $enableFlexibleCasting;
+
+    public function __construct(NodeBuilder $delegate, bool $allowPermissiveTypes, bool $enableFlexibleCasting)
     {
         $this->delegate = $delegate;
-        $this->flexible = $flexible;
+        $this->allowPermissiveTypes = $allowPermissiveTypes;
+        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
 
-        if (! $this->flexible) {
+        if (! $this->allowPermissiveTypes) {
             TypeHelper::checkPermissiveType($type);
         }
 
         if (! $shell->hasValue()) {
-            if ($this->flexible) {
+            if ($this->enableFlexibleCasting) {
                 return $this->delegate->build($shell->withValue(null), $rootBuilder);
             }
 

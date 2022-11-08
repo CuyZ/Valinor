@@ -26,18 +26,22 @@ final class ClassNodeBuilder implements NodeBuilder
 
     private ObjectBuilderFactory $objectBuilderFactory;
 
-    private bool $flexible;
+    private bool $enableFlexibleCasting;
+
+    private bool $allowSuperfluousKeys;
 
     public function __construct(
         NodeBuilder $delegate,
         ClassDefinitionRepository $classDefinitionRepository,
         ObjectBuilderFactory $objectBuilderFactory,
-        bool $flexible
+        bool $enableFlexibleCasting,
+        bool $allowSuperfluousKeys
     ) {
         $this->delegate = $delegate;
         $this->classDefinitionRepository = $classDefinitionRepository;
         $this->objectBuilderFactory = $objectBuilderFactory;
-        $this->flexible = $flexible;
+        $this->enableFlexibleCasting = $enableFlexibleCasting;
+        $this->allowSuperfluousKeys = $allowSuperfluousKeys;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -48,8 +52,12 @@ final class ClassNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
+        if ($this->enableFlexibleCasting && $shell->value() === null) {
+            $shell = $shell->withValue([]);
+        }
+
         $builder = $this->builder($shell, ...$classTypes);
-        $arguments = FilledArguments::forClass($builder->describeArguments(), $shell, $this->flexible);
+        $arguments = FilledArguments::forClass($builder->describeArguments(), $shell);
 
         $children = [];
 
@@ -71,8 +79,8 @@ final class ClassNodeBuilder implements NodeBuilder
 
         $node = TreeNode::branch($shell, $object, $children);
 
-        if (! $this->flexible) {
-            $node = $this->checkForUnexpectedKeys($arguments, $node);
+        if (! $this->allowSuperfluousKeys) {
+            $node = $this->checkForSuperfluousKeys($arguments, $node);
         }
 
         return $node;
@@ -125,7 +133,7 @@ final class ClassNodeBuilder implements NodeBuilder
         return $builder->build($arguments);
     }
 
-    private function checkForUnexpectedKeys(FilledArguments $arguments, TreeNode $node): TreeNode
+    private function checkForSuperfluousKeys(FilledArguments $arguments, TreeNode $node): TreeNode
     {
         $superfluousKeys = $arguments->superfluousKeys();
 

@@ -87,8 +87,8 @@ final class Container
             ShellVisitor::class => fn () => new AttributeShellVisitor(),
 
             NodeBuilder::class => function () use ($settings) {
-                $listNodeBuilder = new ListNodeBuilder($settings->flexible);
-                $arrayNodeBuilder = new ArrayNodeBuilder($settings->flexible);
+                $listNodeBuilder = new ListNodeBuilder($settings->enableFlexibleCasting);
+                $arrayNodeBuilder = new ArrayNodeBuilder($settings->enableFlexibleCasting);
 
                 $builder = new CasterNodeBuilder([
                     ListType::class => $listNodeBuilder,
@@ -96,17 +96,18 @@ final class Container
                     ArrayType::class => $arrayNodeBuilder,
                     NonEmptyArrayType::class => $arrayNodeBuilder,
                     IterableType::class => $arrayNodeBuilder,
-                    ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->flexible),
-                    ScalarType::class => new ScalarNodeBuilder($settings->flexible),
+                    ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
+                    ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
                 ]);
 
-                $builder = new UnionNodeBuilder($builder, $settings->flexible);
+                $builder = new UnionNodeBuilder($builder, $settings->enableFlexibleCasting);
 
                 $builder = new ClassNodeBuilder(
                     $builder,
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
-                    $settings->flexible
+                    $settings->enableFlexibleCasting,
+                    $settings->allowSuperfluousKeys
                 );
 
                 $builder = new InterfaceNodeBuilder(
@@ -114,7 +115,7 @@ final class Container
                     $this->get(ObjectImplementations::class),
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
-                    $settings->flexible
+                    $settings->enableFlexibleCasting
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
@@ -126,7 +127,7 @@ final class Container
                         $settings->valueModifier
                     )
                 );
-                $builder = new StrictNodeBuilder($builder, $settings->flexible);
+                $builder = new StrictNodeBuilder($builder, $settings->allowPermissiveTypes, $settings->enableFlexibleCasting);
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
@@ -152,7 +153,7 @@ final class Container
                 $factory = new AttributeObjectBuilderFactory($factory);
                 $factory = new CollisionObjectBuilderFactory($factory);
 
-                if (! $settings->flexible) {
+                if (! $settings->allowPermissiveTypes) {
                     $factory = new StrictTypesObjectBuilderFactory($factory);
                 }
 

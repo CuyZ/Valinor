@@ -28,18 +28,15 @@ final class FilledArguments implements IteratorAggregate
 
     private Arguments $arguments;
 
-    private bool $flexible;
-
-    private function __construct(Arguments $arguments, Shell $shell, bool $flexible)
+    private function __construct(Arguments $arguments, Shell $shell)
     {
         $this->arguments = $arguments;
-        $this->flexible = $flexible;
         $this->hasValue = $shell->hasValue();
     }
 
-    public static function forInterface(Arguments $arguments, Shell $shell, bool $flexible): self
+    public static function forInterface(Arguments $arguments, Shell $shell): self
     {
-        $self = new self($arguments, $shell, $flexible);
+        $self = new self($arguments, $shell);
 
         if ($self->hasValue) {
             if (count($arguments) > 0) {
@@ -50,9 +47,9 @@ final class FilledArguments implements IteratorAggregate
         return $self;
     }
 
-    public static function forClass(Arguments $arguments, Shell $shell, bool $flexible): self
+    public static function forClass(Arguments $arguments, Shell $shell): self
     {
-        $self = new self($arguments, $shell, $flexible);
+        $self = new self($arguments, $shell);
 
         if ($self->hasValue) {
             $self->value = $self->transform($shell->value());
@@ -107,10 +104,6 @@ final class FilledArguments implements IteratorAggregate
             if (! $isArray || ! array_key_exists($name, $source)) {
                 return [$name => $source];
             }
-        }
-
-        if ($argumentsCount === 0 && $this->flexible && ! $isArray) {
-            return [];
         }
 
         if (! $isArray) {

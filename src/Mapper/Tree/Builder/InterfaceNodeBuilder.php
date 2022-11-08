@@ -27,20 +27,20 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
     private ObjectBuilderFactory $objectBuilderFactory;
 
-    private bool $flexible;
+    private bool $enableFlexibleCasting;
 
     public function __construct(
         NodeBuilder $delegate,
         ObjectImplementations $implementations,
         ClassDefinitionRepository $classDefinitionRepository,
         ObjectBuilderFactory $objectBuilderFactory,
-        bool $flexible
+        bool $enableFlexibleCasting
     ) {
         $this->delegate = $delegate;
         $this->implementations = $implementations;
         $this->classDefinitionRepository = $classDefinitionRepository;
         $this->objectBuilderFactory = $objectBuilderFactory;
-        $this->flexible = $flexible;
+        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -51,11 +51,15 @@ final class InterfaceNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
+        if ($this->enableFlexibleCasting && $shell->value() === null) {
+            $shell = $shell->withValue([]);
+        }
+
         $interfaceName = $type->className();
 
         $function = $this->implementations->function($interfaceName);
         $arguments = Arguments::fromParameters($function->parameters());
-        $arguments = FilledArguments::forInterface($arguments, $shell, $this->flexible);
+        $arguments = FilledArguments::forInterface($arguments, $shell);
 
         $children = $this->children($shell, $arguments, $rootBuilder);
         $values = [];
