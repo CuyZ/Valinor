@@ -74,6 +74,7 @@ final class NativeLexer implements TypeLexer
             case 'integer':
                 return IntegerToken::get();
             case 'array':
+            case 'strict-array':
                 return ArrayToken::array();
             case 'non-empty-array':
                 return ArrayToken::nonEmptyArray();
