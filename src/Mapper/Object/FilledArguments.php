@@ -89,9 +89,8 @@ final class FilledArguments implements IteratorAggregate
     private function transform($source): array
     {
         $isArray = is_array($source);
-        $argumentsCount = count($this->arguments);
 
-        if ($argumentsCount === 1 && $source !== [] && $source !== null) {
+        if (count($this->arguments) === 1 && $source !== []) {
             /** @var array<mixed> $source */
             $argument = $this->arguments->at(0);
             $name = $argument->name();
