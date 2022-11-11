@@ -66,6 +66,7 @@ use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use Psr\SimpleCache\CacheInterface;
 
 use function call_user_func;
+use function count;
 
 /** @internal */
 final class Container
@@ -120,13 +121,17 @@ final class Container
 
                 $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new IterableNodeBuilder($builder);
-                $builder = new ValueAlteringNodeBuilder(
-                    $builder,
-                    new FunctionsContainer(
-                        $this->get(FunctionDefinitionRepository::class),
-                        $settings->valueModifier
-                    )
-                );
+
+                if (count($settings->valueModifier) > 0) {
+                    $builder = new ValueAlteringNodeBuilder(
+                        $builder,
+                        new FunctionsContainer(
+                            $this->get(FunctionDefinitionRepository::class),
+                            $settings->valueModifier
+                        )
+                    );
+                }
+
                 $builder = new StrictNodeBuilder($builder, $settings->allowPermissiveTypes, $settings->enableFlexibleCasting);
                 $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
