@@ -247,6 +247,28 @@ final class FlexibleCastingMappingTest extends IntegrationTest
         self::assertSame('foo', $result['foo']);
         self::assertSame(null, $result['bar']);
     }
+
+    public function test_filled_source_value_is_casted_when_union_contains_three_types_including_null(): void
+    {
+        try {
+            $result = $this->mapper->map('null|int|string', new StringableObject('foo'));
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result);
+    }
+
+    public function test_source_value_is_casted_when_other_type_cannot_be_casted(): void
+    {
+        try {
+            $result = $this->mapper->map('string[]|string', new StringableObject('foo'));
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result);
+    }
 }
 
 interface SomeInterfaceForClassWithNoProperties

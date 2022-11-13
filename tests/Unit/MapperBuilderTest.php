@@ -29,12 +29,11 @@ final class MapperBuilderTest extends TestCase
         $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
         $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
         $builderD = $builderA->alter(static fn (string $value): string => 'foo');
-        $builderE = $builderA->flexible();
-        $builderF = $builderA->enableFlexibleCasting();
-        $builderG = $builderA->allowSuperfluousKeys();
-        $builderH = $builderA->allowPermissiveTypes();
-        $builderI = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderJ = $builderA->withCache(new FakeCache());
+        $builderE = $builderA->enableFlexibleCasting();
+        $builderF = $builderA->allowSuperfluousKeys();
+        $builderG = $builderA->allowPermissiveTypes();
+        $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderI = $builderA->withCache(new FakeCache());
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -44,7 +43,6 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderG);
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
-        self::assertNotSame($builderA, $builderJ);
     }
 
     public function test_mapper_instance_is_the_same(): void

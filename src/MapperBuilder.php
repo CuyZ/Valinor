@@ -257,22 +257,6 @@ final class MapperBuilder
     }
 
     /**
-     * @deprecated use the following method(s) depending on your needs:
-     * @see \CuyZ\Valinor\MapperBuilder::enableFlexibleCasting()
-     * @see \CuyZ\Valinor\MapperBuilder::allowSuperfluousKeys()
-     * @see \CuyZ\Valinor\MapperBuilder::allowPermissiveTypes()
-     */
-    public function flexible(): self
-    {
-        $clone = clone $this;
-        $clone->settings->enableFlexibleCasting = true;
-        $clone->settings->allowSuperfluousKeys = true;
-        $clone->settings->allowPermissiveTypes = true;
-
-        return $clone;
-    }
-
-    /**
      * Changes the behaviours explained below:
      *
      * ```php

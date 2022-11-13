@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValues;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionValuesWithConstructor;
@@ -89,20 +88,6 @@ final class UnionValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_filled_source_value_is_casted_when_union_contains_three_types_including_null(): void
-    {
-        try {
-            $result = (new MapperBuilder())
-                ->flexible()
-                ->mapper()
-                ->map('null|int|string', new StringableObject('foo'));
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $result);
-    }
-
     /**
      * @requires PHP >= 8.1
      */
@@ -115,20 +100,6 @@ final class UnionValuesMappingTest extends IntegrationTest
         }
 
         self::assertSame(PureEnum::FOO, $result);
-    }
-
-    public function test_source_value_is_casted_when_other_type_cannot_be_caster(): void
-    {
-        try {
-            $result = (new MapperBuilder())
-                ->flexible()
-                ->mapper()
-                ->map('string[]|string', new StringableObject('foo'));
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $result);
     }
 
     public function test_invalid_value_is_not_casted_when_casting_mode_is_disabled(): void

@@ -56,3 +56,24 @@ final class SuperfluousKeysMappingTest extends IntegrationTest
         self::assertSame('fiz', $object->fiz);
     }
 }
+
+// @PHP8.1 Readonly properties
+final class UnionOfBarAndFizAndFoo
+{
+    /** @var array<SomeBarAndFizObject|SomeFooObject> */
+    public array $objects;
+}
+
+// @PHP8.1 Readonly properties
+final class SomeFooObject
+{
+    public string $foo;
+}
+
+// @PHP8.1 Readonly properties
+final class SomeBarAndFizObject
+{
+    public string $bar;
+
+    public string $fiz;
+}
