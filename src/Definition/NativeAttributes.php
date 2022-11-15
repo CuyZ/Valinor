@@ -25,7 +25,7 @@ final class NativeAttributes implements Attributes
     private array $reflectionAttributes;
 
     /**
-     * @PHP8.0 union
+     * PHP8.0 union
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
      */
     public function __construct(Reflector $reflection)
@@ -83,7 +83,7 @@ final class NativeAttributes implements Attributes
     }
 
     /**
-     * @PHP8.0 union
+     * PHP8.0 union
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
      * @return array<ReflectionAttribute<object>>
      */

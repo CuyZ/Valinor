@@ -79,7 +79,7 @@ final class FilteredObjectBuilder implements ObjectBuilder
     }
 
     /**
-     * @PHP8.0 union
+     * PHP8.0 union
      *
      * @param mixed $source
      * @return false|int<0, max>

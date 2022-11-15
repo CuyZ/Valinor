@@ -85,7 +85,7 @@ final class TypeCompiler
 
                 return "new $class(" . implode(', ', $subTypes) . ')';
             case $type instanceof ArrayKeyType:
-                // @PHP8.0 match
+                // PHP8.0 match
                 if ($type->toString() === 'string') {
                     return "$class::string()";
                 }

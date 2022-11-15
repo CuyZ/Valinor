@@ -39,7 +39,7 @@ final class StringFormatter
     {
         $message = MessageFormatter::formatMessage($locale, $body, $parameters);
 
-        // @PHP8.0 use throw exception expression
+        // PHP8.0 use throw exception expression
         if ($message === false) {
             throw new StringFormatterError($body);
         }

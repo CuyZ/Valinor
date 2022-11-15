@@ -60,7 +60,7 @@ final class ObjectImplementations
         $class = $this->call($name, $arguments);
 
         if (! isset($this->implementations[$name][$class])) {
-            // @PHP8.0 use throw exception expression
+            // PHP8.0 use throw exception expression
             throw new ObjectImplementationNotRegistered($class, $name, $this->implementations[$name]);
         }
 
@@ -95,7 +95,7 @@ final class ObjectImplementations
         try {
             $type = $this->typeParser->parse($name);
         } catch (InvalidType $exception) {
-            // @PHP8.0 remove variable
+            // PHP8.0 remove variable
         }
 
         if (! isset($type) || ! $type instanceof InterfaceType) {

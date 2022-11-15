@@ -71,7 +71,7 @@ final class StringValueType implements StringType, FixedType
     {
         return (is_string($value)
                 || is_numeric($value)
-                // @PHP8.0 `$value instanceof Stringable`
+                // PHP8.0 `$value instanceof Stringable`
                 || (is_object($value) && method_exists($value, '__toString'))
         ) && (string)$value === $this->value;
     }

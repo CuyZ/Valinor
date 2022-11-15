@@ -116,7 +116,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         }
 
         if (! $definition->attributes()->has(DynamicConstructor::class)
-            // @PHP8.0 remove
+            // PHP8.0 remove
             && $definition->class() !== DateTimeFormatConstructor::class
             && $definition->class() !== BackwardCompatibilityDateTimeConstructor::class
         ) {

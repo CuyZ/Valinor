@@ -72,14 +72,14 @@ final class TokenParser
 
         while ($token = $this->next()) {
             if (! $explicitAlias && $token[0] === T_STRING) {
-                $class .= $token[1]; // @PHP8.0 remove concatenation
+                $class .= $token[1]; // PHP8.0 remove concatenation
                 $alias = $token[1];
             } elseif ($explicitAlias && $token[0] === T_STRING) {
                 $alias = $token[1];
-            } elseif (PHP_VERSION_ID >= 80000 // @PHP8.0 remove condition
+            } elseif (PHP_VERSION_ID >= 80000 // PHP8.0 remove condition
                 && ($token[0] === T_NAME_QUALIFIED || $token[0] === T_NAME_FULLY_QUALIFIED)
             ) {
-                $class .= $token[1]; // @PHP8.0 remove concatenation
+                $class .= $token[1]; // PHP8.0 remove concatenation
                 $classSplit = explode('\\', $token[1]);
                 $alias = $classSplit[count($classSplit) - 1];
             } elseif ($token[0] === T_NS_SEPARATOR) {
@@ -134,10 +134,10 @@ final class TokenParser
     {
         $name = '';
 
-        // @PHP8.0 remove `infection-ignore-all`
+        // PHP8.0 remove `infection-ignore-all`
         // @infection-ignore-all
         while (($token = $this->next())
-            // @PHP8.0 remove conditions
+            // PHP8.0 remove conditions
             && (
                 (
                     PHP_VERSION_ID < 80000
@@ -149,7 +149,7 @@ final class TokenParser
                 )
             )
         ) {
-            $name .= $token[1]; // @PHP8.0 `return $token[1];` and `throw Error()` at the end of the method
+            $name .= $token[1]; // PHP8.0 `return $token[1];` and `throw Error()` at the end of the method
         }
 
         return $name;

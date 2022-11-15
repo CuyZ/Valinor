@@ -48,7 +48,7 @@ final class ListToken implements TraversingToken
 
             $subType = $stream->read();
 
-            // @PHP8.0 use `new ($this->listType)(...)`
+            // PHP8.0 use `new ($this->listType)(...)`
             $listClass = $this->listType;
             $listType = new $listClass($subType);
 
