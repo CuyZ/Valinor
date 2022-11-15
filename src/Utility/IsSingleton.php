@@ -10,7 +10,7 @@ trait IsSingleton
     private static self $instance;
 
     /**
-     * @PHP8.0
+     * PHP8.0
      * @return static
      */
     public static function get(): self

@@ -35,7 +35,7 @@ final class ReflectionObjectBuilder implements ObjectBuilder
             }
         }
 
-        // @PHP8.0 `$object = new ($this->class->name())();`
+        // PHP8.0 `$object = new ($this->class->name())();`
         $className = $this->class->name();
         $object = new $className();
 

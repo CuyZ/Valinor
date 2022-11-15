@@ -64,7 +64,7 @@ final class NativeToken implements TraversingToken
 
     private static function type(string $symbol): ?Type
     {
-        // @PHP8.0 match
+        // PHP8.0 match
         switch ($symbol) {
             case 'null':
                 return NullType::get();

@@ -30,11 +30,11 @@ final class FunctionObjectBuilder implements ObjectBuilder
 
         $arguments = array_map(
             fn (ParameterDefinition $parameter) => Argument::fromParameter($parameter),
-            array_values(iterator_to_array($definition->parameters())) // @PHP8.1 array unpacking
+            array_values(iterator_to_array($definition->parameters())) // PHP8.1 array unpacking
         );
 
         $this->isDynamicConstructor = $definition->attributes()->has(DynamicConstructor::class)
-            // @PHP8.0 remove
+            // PHP8.0 remove
             || $definition->class() === DateTimeFormatConstructor::class
             || $definition->class() === BackwardCompatibilityDateTimeConstructor::class;
 

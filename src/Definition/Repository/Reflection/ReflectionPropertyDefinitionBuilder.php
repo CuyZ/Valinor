@@ -54,7 +54,7 @@ final class ReflectionPropertyDefinitionBuilder
 
     private function hasDefaultValue(ReflectionProperty $reflection, Type $type): bool
     {
-        // @PHP8.0 `$reflection->hasDefaultValue()`
+        // PHP8.0 `$reflection->hasDefaultValue()`
         $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
 
         if (! $reflection->hasType() && $defaultProperties[$reflection->name] === null && ! NullType::get()->matches($type)) {
@@ -69,7 +69,7 @@ final class ReflectionPropertyDefinitionBuilder
      */
     private function defaultValue(ReflectionProperty $reflection)
     {
-        // @PHP8.0 `$reflection->getDefaultValue()`
+        // PHP8.0 `$reflection->getDefaultValue()`
         $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
 
         return $defaultProperties[$reflection->name] ?? null;

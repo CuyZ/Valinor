@@ -102,7 +102,7 @@ final class ClassNameToken implements TraversingToken
         $cases = array_map(static fn ($value) => ValueTypeFactory::from($value), $cases);
 
         if (count($cases) > 1) {
-            // @PHP8.0 remove `array_values`
+            // PHP8.0 remove `array_values`
             // @infection-ignore-all
             return new UnionType(...array_values($cases));
         }
@@ -115,7 +115,7 @@ final class ClassNameToken implements TraversingToken
      */
     private function cases(): array
     {
-        // @PHP8.0 use `getConstants(ReflectionClassConstant::IS_PUBLIC)`
+        // PHP8.0 use `getConstants(ReflectionClassConstant::IS_PUBLIC)`
         $cases = [];
 
         foreach ($this->reflection->getReflectionConstants() as $constant) {

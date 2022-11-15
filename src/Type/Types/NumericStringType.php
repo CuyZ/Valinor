@@ -38,7 +38,7 @@ final class NumericStringType implements StringType
 
     public function canCast($value): bool
     {
-        // @PHP8.0 `$value instanceof Stringable`
+        // PHP8.0 `$value instanceof Stringable`
         if (is_object($value) && method_exists($value, '__toString')) {
             $value = (string)$value;
         }

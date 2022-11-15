@@ -45,7 +45,7 @@ final class DateTimeFormatConstructor
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
      * @param non-empty-string|positive-int $value
-     * @PHP8.0 union
+     * PHP8.0 union
      */
     #[DynamicConstructor]
     public function __invoke(string $className, $value): DateTimeInterface

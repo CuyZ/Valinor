@@ -18,7 +18,7 @@ use function substr_compare;
 final class Polyfill
 {
     /**
-     * @PHP8.0 use native function
+     * PHP8.0 use native function
      */
     public static function str_contains(string $haystack, string $needle): bool
     {
@@ -26,7 +26,7 @@ final class Polyfill
     }
 
     /**
-     * @PHP8.0 use native function
+     * PHP8.0 use native function
      */
     public static function str_starts_with(string $haystack, string $needle): bool
     {
@@ -34,7 +34,7 @@ final class Polyfill
     }
 
     /**
-     * @PHP8.0 use native function
+     * PHP8.0 use native function
      */
     public static function str_ends_with(string $haystack, string $needle): bool
     {

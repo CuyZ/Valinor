@@ -30,7 +30,7 @@ final class CannotResolveTypeFromUnion extends RuntimeException implements Error
         $this->parameters = [
             'allowed_types' => implode(
                 ', ',
-                // @PHP8.1 First-class callable syntax
+                // PHP8.1 First-class callable syntax
                 array_map([TypeHelper::class, 'dump'], $unionType->types())
             ),
         ];

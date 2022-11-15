@@ -64,7 +64,7 @@ final class CompiledPhpFileCache implements CacheInterface
     }
 
     /**
-     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     * PHP8.0 add `mixed` return type and remove PHPDoc
      *
      * @return EntryType|null
      */
@@ -227,7 +227,7 @@ final class CompiledPhpFileCache implements CacheInterface
             try {
                 $object = include $filename;
             } catch (Error $exception) {
-                // @PHP8.0 remove variable
+                // PHP8.0 remove variable
             }
 
             if (! isset($object) || ! $object instanceof PhpCacheFile) {

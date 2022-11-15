@@ -80,7 +80,7 @@ final class ArrayToken implements TraversingToken
 
     private function arrayType(TokenStream $stream): CompositeTraversableType
     {
-        // @PHP8.0 use `new ($this->arrayType)(...)`
+        // PHP8.0 use `new ($this->arrayType)(...)`
         $arrayClassType = $this->arrayType;
         $stream->forward();
         $type = $stream->read();

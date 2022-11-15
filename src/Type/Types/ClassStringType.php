@@ -107,7 +107,7 @@ final class ClassStringType implements StringType, CompositeType
     public function canCast($value): bool
     {
         return (is_string($value)
-                // @PHP8.0 `$value instanceof Stringable`
+                // PHP8.0 `$value instanceof Stringable`
                 || (is_object($value) && method_exists($value, '__toString'))
         ) && $this->accepts((string)$value);
     }

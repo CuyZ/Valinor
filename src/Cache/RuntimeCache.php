@@ -25,7 +25,7 @@ final class RuntimeCache implements CacheInterface
     private array $entries = [];
 
     /**
-     * @PHP8.0 add `mixed` return type and remove PHPDoc
+     * PHP8.0 add `mixed` return type and remove PHPDoc
      *
      * @return EntryType|null
      */
