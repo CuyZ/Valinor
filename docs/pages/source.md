@@ -53,8 +53,8 @@ $source = \CuyZ\Valinor\Mapper\Source\Source::array([
         // …or…
         'some value' => 'foo',
         // …will be replaced by `['someValue' => 'foo']`
-   ])
-   ->camelCaseKeys();
+    ])
+    ->camelCaseKeys();
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->mapper()
@@ -93,7 +93,7 @@ $source = \CuyZ\Valinor\Mapper\Source\Source::array([
     ->map([
         'towns' => 'cities',
         'towns.*.label' => 'name',
-   ]);
+    ]);
 
 // After modification this is what the source will look like:
 [
