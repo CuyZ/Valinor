@@ -21,7 +21,7 @@ Node messages can be customized and iterated through with the usage of the class
 
 ```php
 try {
-   (new \CuyZ\Valinor\MapperBuilder())
+    (new \CuyZ\Valinor\MapperBuilder())
         ->mapper()
         ->map(SomeClass::class, [/* … */ ]);
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
@@ -117,7 +117,7 @@ final class SomeException extends DomainException implements ErrorMessage, HasPa
 }
 
 try {
-   (new \CuyZ\Valinor\MapperBuilder())->mapper()->map(SomeClass::class, 'foo');
+    (new \CuyZ\Valinor\MapperBuilder())->mapper()->map(SomeClass::class, 'foo');
 } catch (\CuyZ\Valinor\Mapper\MappingError $exception) {
     // Should print:
     // Some custom message / some custom parameter / 'foo'
@@ -140,16 +140,19 @@ final class SomeClass
                 'Some custom error message: {value}.'
             )
             ->withCode('some_code')
-            ->withParameter('value', $this->value);
+            ->withParameter('value', $this->value)
+            ->build();
         }
     }
 }
 
 try {
-   (new \CuyZ\Valinor\MapperBuilder())->mapper()->map(SomeClass::class, 'foo');
+    (new \CuyZ\Valinor\MapperBuilder())->mapper()->map(
+        SomeClass::class, 'foo_bar'
+    );
 } catch (\CuyZ\Valinor\Mapper\MappingError $exception) {
     // Should print:
-    // > Some custom error message.
+    // > Some custom error message: foo_bar.
     echo $exception->node()->messages()[0];
 }
 ```
