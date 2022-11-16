@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Object\Exception\PermissiveTypeNotAllowed;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
-use CuyZ\Valinor\Tests\Fixture\Enum\ClassWithBackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Utility\PermissiveTypeFound;
@@ -73,49 +72,6 @@ final class StrictMappingTest extends IntegrationTest
         $this->expectExceptionMessage('Error for `value` in `' . ObjectContainingMixedType::class . ' (properties)`: Type `mixed` in `array{foo: string, bar: mixed}` is too permissive.');
 
         (new MapperBuilder())->mapper()->map(ObjectContainingMixedType::class, ['value' => 'foo']);
-    }
-
-    public function test_superfluous_key_for_single_scalar_node_throws_correct_exceptions(): void
-    {
-        $class = new class () {
-            public string $value;
-        };
-
-        try {
-            (new MapperBuilder())->mapper()->map(get_class($class), [
-                'unexpectedKey' => 'foo',
-            ]);
-        } catch (MappingError $exception) {
-            $errorA = $exception->node()->messages()[0];
-            $errorB = $exception->node()->children()['value']->messages()[0];
-
-            self::assertSame('1655149208', $errorA->code());
-            self::assertSame('Unexpected key(s) `unexpectedKey`, expected `value`.', (string)$errorA);
-
-            self::assertSame('1655449641', $errorB->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `string`.', (string)$errorB);
-        }
-    }
-
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_superfluous_key_for_single_enum_node_throws_correct_exceptions(): void
-    {
-        try {
-            (new MapperBuilder())->mapper()->map(ClassWithBackedStringEnum::class, [
-                'unexpectedKey' => 'foo',
-            ]);
-        } catch (MappingError $exception) {
-            $errorA = $exception->node()->messages()[0];
-            $errorB = $exception->node()->children()['value']->messages()[0];
-
-            self::assertSame('1655149208', $errorA->code());
-            self::assertSame('Unexpected key(s) `unexpectedKey`, expected `value`.', (string)$errorA);
-
-            self::assertSame('1655449641', $errorB->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `foo|bar|baz`.', (string)$errorB);
-        }
     }
 
     public function test_null_that_cannot_be_cast_throws_exception(): void

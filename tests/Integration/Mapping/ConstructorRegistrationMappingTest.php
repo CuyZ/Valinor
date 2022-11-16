@@ -384,9 +384,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             ->mapper();
 
         try {
-            $resultA = $mapper->map(stdClass::class, [
-                'foo' => 'foo',
-            ]);
+            $resultA = $mapper->map(stdClass::class, 'foo');
 
             $resultB = $mapper->map(stdClass::class, [
                 'foo' => 'foo',

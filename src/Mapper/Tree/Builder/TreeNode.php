@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Exception\DuplicatedNodeChild;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
@@ -58,15 +57,22 @@ final class TreeNode
         $instance = new self($shell, $value);
 
         foreach ($children as $child) {
-            $name = $child->name();
-
-            if (isset($instance->children[$name])) {
-                throw new DuplicatedNodeChild($name);
-            }
-
-            $instance->children[$name] = $child;
+            $instance->children[$child->name()] = $child;
         }
 
+        $instance->check();
+
+        return $instance;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public static function flattenedBranch(Shell $shell, $value, self $child): self
+    {
+        $instance = new self($shell, $value);
+        $instance->messages = $child->messages;
+        $instance->children = $child->children;
         $instance->check();
 
         return $instance;

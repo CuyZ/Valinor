@@ -40,6 +40,35 @@ final class SingleNodeMappingTest extends IntegrationTest
         self::assertSame('foo', $singleScalarPropertyWithDefaultValue->value);
         self::assertSame('bar', $singleConstructorParameterWithDefaultValue->value);
     }
+
+    /**
+     * @dataProvider single_property_and_constructor_parameter_cannot_be_mapped_with_array_with_property_name_data_provider
+     *
+     * @param class-string $className
+     * @param mixed $source
+     */
+    public function test_single_property_and_constructor_parameter_cannot_be_mapped_with_array_with_property_name(string $className, $source): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map($className, $source);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1632903281', $error->code());
+        }
+    }
+
+    public function single_property_and_constructor_parameter_cannot_be_mapped_with_array_with_property_name_data_provider(): iterable
+    {
+        yield [SingleScalarProperty::class, ['value' => 'foo']];
+        yield [SingleConstructorScalarParameter::class, ['value' => 'foo']];
+        yield [SingleNullableScalarProperty::class, ['value' => null]];
+        yield [SingleConstructorNullableScalarParameter::class, ['value' => null]];
+        yield [SingleArrayProperty::class, ['value' => ['foo', '42.404', '1337']]];
+        yield [SingleConstructorArrayParameter::class, ['value' => ['foo', '42.404', '1337']]];
+        yield [SingleScalarPropertyWithDefaultValue::class, ['value' => []]];
+        yield [SingleConstructorParameterWithDefaultValue::class, ['value' => []]];
+    }
 }
 
 class SingleScalarProperty

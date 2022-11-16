@@ -7,50 +7,19 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
-use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\NativeUnionOfObjects;
 
 final class UnionOfObjectsMappingTest extends IntegrationTest
 {
-    /**
-     * @requires PHP >= 8
-     */
-    public function test_object_type_is_narrowed_correctly_for_simple_case(): void
-    {
-        try {
-            $resultFoo = (new MapperBuilder())->mapper()->map(NativeUnionOfObjects::class, [
-                'foo' => 'foo',
-            ]);
-            $resultBar = (new MapperBuilder())->mapper()->map(NativeUnionOfObjects::class, [
-                'bar' => 'bar',
-            ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertInstanceOf(\CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SomeFooObject::class, $resultFoo->object);
-        self::assertInstanceOf(\CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SomeBarObject::class, $resultBar->object);
-    }
-
-    public function test_object_type_is_narrowed_correctly_for_simple_array_case(): void
-    {
-        try {
-            $result = (new MapperBuilder())->mapper()->map(UnionOfFooAndBar::class, [
-                'foo' => ['foo' => 'foo'],
-                'bar' => ['bar' => 'bar'],
-            ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertInstanceOf(SomeFooObject::class, $result->objects['foo']);
-        self::assertInstanceOf(SomeBarObject::class, $result->objects['bar']);
-    }
-
     public function test_objects_sharing_one_property_are_resolved_correctly(): void
     {
         try {
-            $result = (new MapperBuilder())->mapper()->map(UnionOfFooAndBarAndFoo::class, [
-                ['foo' => 'foo'],
+            $result = (new MapperBuilder())
+                // @PHP8.1 first-class callable syntax
+                ->registerConstructor([SomeFooAndBarObject::class, 'constructorA'])
+                ->registerConstructor([SomeFooAndBarObject::class, 'constructorB'])
+                ->mapper()
+                ->map(UnionOfFooAndBarAndFoo::class, [
+                'foo',
                 ['foo' => 'foo', 'bar' => 'bar'],
             ]);
         } catch (MappingError $error) {
@@ -75,7 +44,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['objects']->children()[0]->messages()[0];
+            $error = $exception->node()->children()[0]->messages()[0];
 
             self::assertSame('1642787246', $error->code());
         }
@@ -139,4 +108,23 @@ final class SomeFooAndBarObject
     public string $foo;
 
     public string $bar;
+
+    public string $baz;
+
+    private function __construct(string $foo, string $bar, string $baz)
+    {
+        $this->foo = $foo;
+        $this->bar = $bar;
+        $this->baz = $baz;
+    }
+
+    public static function constructorA(string $foo, string $bar, string $baz): self
+    {
+        return new self($foo, $bar, $baz);
+    }
+
+    public static function constructorB(string $foo, string $bar): self
+    {
+        return new self($foo, $bar, 'default baz');
+    }
 }

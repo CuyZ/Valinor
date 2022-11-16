@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Object\Argument;
-use CuyZ\Valinor\Mapper\Object\FilledArguments;
+use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Utility\String\StringFormatter;
@@ -22,15 +22,12 @@ final class UnexpectedArrayKeysForClass extends RuntimeException implements Erro
     /** @var array<string, string> */
     private array $parameters;
 
-    /**
-     * @param array<string> $keys
-     */
-    public function __construct(array $keys, FilledArguments $arguments)
+    public function __construct(ArgumentsValues $arguments)
     {
         $expected = array_map(fn (Argument $argument) => $argument->name(), [...$arguments]);
 
         $this->parameters = [
-            'keys' => '`' . implode('`, `', $keys) . '`',
+            'keys' => '`' . implode('`, `', $arguments->superfluousKeys()) . '`',
             'expected_keys' => '`' . implode('`, `', $expected) . '`',
         ];
 

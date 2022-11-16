@@ -74,11 +74,9 @@ final class ScalarValuesMappingTest extends IntegrationTest
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(SimpleObject::class, [
-                'value' => new stdClass(),
-            ]);
+            (new MapperBuilder())->mapper()->map(SimpleObject::class, new stdClass());
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['value']->messages()[0];
+            $error = $exception->node()->messages()[0];
 
             self::assertSame('Value object(stdClass) is not a valid string.', (string)$error);
         }

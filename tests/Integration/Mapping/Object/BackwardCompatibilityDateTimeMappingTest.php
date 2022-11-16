@@ -117,7 +117,7 @@ final class BackwardCompatibilityDateTimeMappingTest extends IntegrationTest
                 ],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['value']->messages()[0];
+            $error = $exception->node()->messages()[0];
 
             self::assertSame('1607027306', $error->code());
         }

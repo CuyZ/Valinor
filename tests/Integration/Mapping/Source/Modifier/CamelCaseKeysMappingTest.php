@@ -8,112 +8,98 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\ObjectWithSubProperties;
 
 final class CamelCaseKeysMappingTest extends IntegrationTest
 {
-    public function test_underscore_key_is_modified_to_camel_case(): void
+    /**
+     * @dataProvider sources_are_mapped_properly_data_provider
+     *
+     * @param iterable<mixed> $source
+     */
+    public function test_sources_are_mapped_properly(iterable $source): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(
-                SomeClassWithCamelCaseProperty::class,
-                new CamelCaseKeys(['some_value' => 'foo'])
-            );
+            $object = (new MapperBuilder())->mapper()->map(ObjectWithSubProperties::class, $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
 
-        self::assertSame('foo', $object->someValue);
+        self::assertSame('foo', $object->someValue->someNestedValue);
+        self::assertSame('bar', $object->someValue->someOtherNestedValue);
+        self::assertSame('foo2', $object->someOtherValue->someNestedValue);
+        self::assertSame('bar2', $object->someOtherValue->someOtherNestedValue);
     }
 
-    public function test_dash_key_is_modified_to_camel_case(): void
+    public function sources_are_mapped_properly_data_provider(): iterable
     {
-        try {
-            $object = (new MapperBuilder())->mapper()->map(
-                SomeClassWithCamelCaseProperty::class,
-                new CamelCaseKeys(['some-value' => 'foo'])
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
+        yield 'underscore' => [
+            new CamelCaseKeys([
+                'some_value' => [
+                    'some_nested_value' => 'foo',
+                    'some_other_nested_value' => 'bar',
+                ],
+                'some_other_value' => [
+                    'some_nested_value' => 'foo2',
+                    'some_other_nested_value' => 'bar2',
+                ],
+            ]),
+        ];
 
-        self::assertSame('foo', $object->someValue);
+        yield 'dash' => [
+            new CamelCaseKeys([
+                'some-value' => [
+                    'some-nested-value' => 'foo',
+                    'some-other-nested-value' => 'bar',
+                ],
+                'some-other-value' => [
+                    'some-nested-value' => 'foo2',
+                    'some-other-nested-value' => 'bar2',
+                ],
+            ]),
+        ];
+
+        yield 'space' => [
+            new CamelCaseKeys([
+                'some-value' => [
+                    'some nested value' => 'foo',
+                    'some other nested value' => 'bar',
+                ],
+                'some other value' => [
+                    'some nested value' => 'foo2',
+                    'some other nested value' => 'bar2',
+                ],
+            ]),
+        ];
+
+        yield 'existing key should not be overridden' => [
+            new CamelCaseKeys([
+                'someValue' => [
+                    'someNestedValue' => 'foo',
+                    'someOtherNestedValue' => 'bar',
+                    'some nested value' => 'incorrect',
+                    'some other nested value' => 'incorrect',
+                ],
+                'someOtherValue' => [
+                    'someNestedValue' => 'foo2',
+                    'someOtherNestedValue' => 'bar2',
+                ],
+            ]),
+        ];
+
+        yield 'existing underscore key should not be overridden' => [
+            new CamelCaseKeys([
+                'someValue' => [
+                    'some nested value' => 'foo',
+                    'some other nested value' => 'bar',
+                    'someNestedValue' => 'incorrect',
+                    'someOtherNestedValue' => 'incorrect',
+                ],
+                'someOtherValue' => [
+                    'someNestedValue' => 'foo2',
+                    'someOtherNestedValue' => 'bar2',
+                ],
+            ]),
+        ];
     }
-
-    public function test_spaced_key_is_modified_to_camel_case(): void
-    {
-        try {
-            $object = (new MapperBuilder())->mapper()->map(
-                SomeClassWithCamelCaseProperty::class,
-                new CamelCaseKeys(['some value' => 'foo'])
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $object->someValue);
-    }
-
-    public function test_nested_camel_case_keys_are_modified(): void
-    {
-        try {
-            $object = (new MapperBuilder())->mapper()->map(
-                SomeClassWithNestedProperty::class,
-                new CamelCaseKeys([
-                    'some_nested_value' => ['some_value' => 'foo'],
-                ])
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $object->someNestedValue->someValue);
-    }
-
-    public function test_existing_camel_case_key_is_not_overridden(): void
-    {
-        try {
-            $object = (new MapperBuilder())->mapper()->map(
-                SomeClassWithCamelCaseProperty::class,
-                new CamelCaseKeys([
-                    'someValue' => 'bar',
-                    'some_value' => 'foo',
-                ])
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('bar', $object->someValue);
-    }
-
-    public function test_multiple_camel_case_keys_are_modified(): void
-    {
-        try {
-            $object = (new MapperBuilder())->mapper()->map(
-                SomeClassWithCamelCaseProperty::class,
-                new CamelCaseKeys([
-                    'some_value' => 'foo',
-                    'someValue' => 'bar',
-                    'some_other_value' => 'buz',
-                ])
-            );
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $object->someValue);
-        self::assertSame('buz', $object->someOtherValue);
-    }
-}
-
-final class SomeClassWithCamelCaseProperty
-{
-    public string $someValue;
-
-    public string $someOtherValue = 'fiz';
-}
-
-final class SomeClassWithNestedProperty
-{
-    public SomeClassWithCamelCaseProperty $someNestedValue;
 }

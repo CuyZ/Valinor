@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 
 use AssertionError;
 use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
-use CuyZ\Valinor\Mapper\Tree\Exception\DuplicatedNodeChild;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder\FakeTreeNode;
@@ -70,18 +69,6 @@ final class TreeNodeTest extends TestCase
         self::assertSame('bar', $childBar->sourceValue());
         self::assertSame(true, $childBar->sourceFilled());
         self::assertFalse($childBar->isRoot());
-    }
-
-    public function test_node_branch_with_duplicated_child_name_throws_exception(): void
-    {
-        $this->expectException(DuplicatedNodeChild::class);
-        $this->expectExceptionCode(1634045114);
-        $this->expectExceptionMessage('The child `foo` is duplicated in the branch.');
-
-        FakeTreeNode::branch([
-            ['name' => 'foo'],
-            ['name' => 'foo'],
-        ]);
     }
 
     public function test_node_branch_with_incorrect_value_throws_exception(): void

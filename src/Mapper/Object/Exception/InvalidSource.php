@@ -12,7 +12,7 @@ use CuyZ\Valinor\Utility\TypeHelper;
 use RuntimeException;
 
 /** @internal */
-final class SourceIsNotAnArray extends RuntimeException implements ErrorMessage, HasParameters
+final class InvalidSource extends RuntimeException implements ErrorMessage, HasParameters
 {
     private string $body;
 

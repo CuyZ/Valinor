@@ -75,37 +75,55 @@ array paths (eg `A.B.*.C`).
 ```php
 final class Country
 {
-    /** @var City[] */
+    /** @var non-empty-string */
+    public readonly string $name;
+
+    /** @var list<City> */
     public readonly array $cities;
 }
 
 final class City
 {
+    /** @var non-empty-string */
     public readonly string $name;
+
+    public readonly DateTimeZone $timeZone;
 }
 
 $source = \CuyZ\Valinor\Mapper\Source\Source::array([
-        'towns' => [
-            ['label' => 'Ankh Morpork'],
-            ['label' => 'Minas Tirith'],
+    'identification' => 'France',
+    'towns' => [
+        [
+            'label' => 'Paris',
+            'timeZone' => 'Europe/Paris',
         ],
-    ])
-    ->map([
-        'towns' => 'cities',
-        'towns.*.label' => 'name',
-    ]);
+        [
+            'label' => 'Lyon',
+            'timeZone' => 'Europe/Paris',
+        ],
+    ],
+])->map([
+    'identification' => 'name',
+    'towns' => 'cities',
+    'towns.*.label' => 'name',
+]);
 
 // After modification this is what the source will look like:
-[
-    'cities' => [
-        ['name' => 'Ankh Morpork'],
-        ['name' => 'Minas Tirith'],
-    ],
-];
+// [
+//     'name' => 'France',
+//     'cities' => [
+//         [
+//             'name' => 'Paris',
+//             'timeZone' => 'Europe/Paris',
+//         ],
+//         [
+//             'name' => 'Lyon',
+//             'timeZone' => 'Europe/Paris',
+//         ],
+//     ],
+// ];
 
-(new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(Country::class, $source);
+(new \CuyZ\Valinor\MapperBuilder())->mapper()->map(Country::class, $source);
 ```
 
 ## Custom source
@@ -137,8 +155,11 @@ final class AcmeSource implements IteratorAggregate
 }
 
 $source = \CuyZ\Valinor\Mapper\Source\Source::iterable(
-        new AcmeSource(['value' => 'foo'])
-    )->camelCaseKeys();
+    new AcmeSource([
+        'valueA' => 'foo',
+        'valueB' => 'bar',
+    ])
+)->camelCaseKeys();
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->mapper()

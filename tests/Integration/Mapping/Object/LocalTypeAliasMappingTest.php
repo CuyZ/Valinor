@@ -44,9 +44,7 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
             try {
                 $result = (new MapperBuilder())
                     ->mapper()
-                    ->map($class, [
-                        'importedType' => 42,
-                    ]);
+                    ->map($class, 42);
 
                 self::assertSame(42, $result->importedType);
             } catch (MappingError $error) {

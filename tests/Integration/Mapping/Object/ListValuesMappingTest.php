@@ -19,16 +19,8 @@ final class ListValuesMappingTest extends IntegrationTest
             'floats' => [42.404, 404.42],
             'integers' => [42, 404, 1337],
             'strings' => ['foo', 'bar', 'baz'],
-            'objects' => [
-                ['value' => 'foo'],
-                ['value' => 'bar'],
-                ['value' => 'baz'],
-            ],
-            'objectsWithAlias' => [
-                ['value' => 'foo'],
-                ['value' => 'bar'],
-                ['value' => 'baz'],
-            ],
+            'objects' => ['foo', 'bar', 'baz'],
+            'objectsWithAlias' => ['foo', 'bar', 'baz'],
             'listOfStrings' => ['foo', 'bar', 'baz',],
             'nonEmptyListOfStrings' => ['foo', 'bar', 'baz'],
         ];

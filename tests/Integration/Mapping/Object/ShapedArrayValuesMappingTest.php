@@ -23,9 +23,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 0 => 'fiz',
                 1 => 42.404,
             ],
-            'shapedArrayWithObject' => [
-                'foo' => ['value' => 'bar'],
-            ],
+            'shapedArrayWithObject' => ['foo' => 'bar'],
             'shapedArrayWithOptionalValue' => [
                 'optionalString' => 'some value',
             ],

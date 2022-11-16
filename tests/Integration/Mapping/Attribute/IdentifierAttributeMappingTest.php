@@ -28,14 +28,14 @@ final class IdentifierAttributeMappingTest extends IntegrationTest
 
         $source = [
             'identifierAttribute' => [
-                'foo' => [],
-                'bar' => [],
-                'baz' => [],
+                'foo' => ['value' => 'foo'],
+                'bar' => ['value' => 'foo'],
+                'baz' => ['value' => 'foo'],
             ],
             'identifierAttributeWithConstructor' => [
-                'foo' => [],
-                'bar' => [],
-                'baz' => [],
+                'foo' => ['value' => 'foo'],
+                'bar' => ['value' => 'foo'],
+                'baz' => ['value' => 'foo'],
             ],
         ];
 
@@ -60,11 +60,11 @@ final class IdentifierAttributeMappingTest extends IntegrationTest
             public array $identifierDoctrineAnnotation;
         };
 
-        $source = ['identifierDoctrineAnnotation' => [
-            'foo' => [],
-            'bar' => [],
-            'baz' => [],
-        ]];
+        $source = [
+            'foo' => ['value' => 'foo'],
+            'bar' => ['value' => 'foo'],
+            'baz' => ['value' => 'foo'],
+        ];
 
         $result = (new MapperBuilder())->enableLegacyDoctrineAnnotations()->mapper()->map(get_class($class), $source);
 
@@ -78,12 +78,16 @@ final class IdentifierDoctrineAnnotation
 {
     /** @Identifier */
     public string $identifier;
+
+    public string $value;
 }
 
 class IdentifierAttribute
 {
     #[Identifier]
     public string $identifier;
+
+    public string $value;
 }
 
 class IdentifierAttributeWithConstructor extends IdentifierAttribute
