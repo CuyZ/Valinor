@@ -15,18 +15,18 @@ final class GenericValuesMappingTest extends IntegrationTest
     public function test_values_are_mapped_properly(): void
     {
         $source = [
-            'genericWithBoolean' => ['value' => true],
-            'genericWithFloat' => ['value' => 42.404],
-            'genericWithInteger' => ['value' => 1337],
-            'genericWithIntegerValue' => ['value' => 1337],
-            'genericWithString' => ['value' => 'foo'],
-            'genericWithSingleQuoteStringValue' => ['value' => 'foo'],
-            'genericWithDoubleQuoteStringValue' => ['value' => 'foo'],
-            'genericWithArrayOfStrings' => ['value' => ['foo', 'bar', 'baz']],
-            'genericWithSimpleArrayOfStrings' => ['value' => ['foo', 'bar', 'baz']],
-            'genericWithUnionOfScalar' => ['value' => 'foo'],
-            'genericWithObject' => ['value' => ['value' => 'foo']],
-            'genericWithObjectAlias' => ['value' => ['value' => 'foo']],
+            'genericWithBoolean' => true,
+            'genericWithFloat' => 42.404,
+            'genericWithInteger' => 1337,
+            'genericWithIntegerValue' => 1337,
+            'genericWithString' => 'foo',
+            'genericWithSingleQuoteStringValue' => 'foo',
+            'genericWithDoubleQuoteStringValue' => 'foo',
+            'genericWithArrayOfStrings' => ['foo', 'bar', 'baz'],
+            'genericWithSimpleArrayOfStrings' => ['foo', 'bar', 'baz'],
+            'genericWithUnionOfScalar' => 'foo',
+            'genericWithObject' => 'foo',
+            'genericWithObjectAlias' => 'foo',
             'genericWithTwoTemplates' => [
                 'valueA' => 'foo',
                 'valueB' => 42,
@@ -35,10 +35,10 @@ final class GenericValuesMappingTest extends IntegrationTest
                 'valueA' => 'foo',
                 'valueB' => 42,
             ],
-            'genericWithSpecifiedTypeWithString' => ['value' => 'foo'],
-            'genericWithSpecifiedTypeWithObject' => ['value' => ['value' => 'foo']],
-            'genericWithSpecifiedTypeWithIntegerValue' => ['value' => 42],
-            'genericWithSpecifiedTypeWithStringValue' => ['value' => 'foo'],
+            'genericWithSpecifiedTypeWithString' => 'foo',
+            'genericWithSpecifiedTypeWithObject' => 'foo',
+            'genericWithSpecifiedTypeWithIntegerValue' => 42,
+            'genericWithSpecifiedTypeWithStringValue' => 'foo',
         ];
 
         foreach ([GenericValues::class, GenericValuesWithConstructor::class] as $class) {

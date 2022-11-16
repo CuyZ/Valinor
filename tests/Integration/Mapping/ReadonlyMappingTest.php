@@ -17,9 +17,7 @@ final class ReadonlyMappingTest extends IntegrationTest
     public function test_single_property_and_constructor_parameter_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(ReadonlyValues::class, [
-                'value' => 'foo',
-            ]);
+            $object = (new MapperBuilder())->mapper()->map(ReadonlyValues::class, 'foo');
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

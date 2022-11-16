@@ -23,14 +23,14 @@ final class IterableValuesMappingTest extends IntegrationTest
             'iterableWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'],
             'iterableWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'],
             'objects' => [
-                'foo' => ['value' => 'foo'],
-                'bar' => ['value' => 'bar'],
-                'baz' => ['value' => 'baz'],
+                'foo' => 'foo',
+                'bar' => 'bar',
+                'baz' => 'baz',
             ],
             'objectsWithAlias' => [
-                'foo' => ['value' => 'foo'],
-                'bar' => ['value' => 'bar'],
-                'baz' => ['value' => 'baz'],
+                'foo' => 'foo',
+                'bar' => 'bar',
+                'baz' => 'baz',
             ],
         ];
 

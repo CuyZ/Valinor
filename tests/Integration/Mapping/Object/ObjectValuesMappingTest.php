@@ -16,9 +16,7 @@ final class ObjectValuesMappingTest extends IntegrationTest
     {
         $source = [
             'string' => 'foo',
-            'object' => [
-                'value' => 'foo',
-            ],
+            'object' => 'foo',
         ];
 
         foreach ([ObjectValues::class, ObjectValuesWithConstructor::class] as $class) {
@@ -48,7 +46,7 @@ final class ObjectValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_unexpected_key_throws_exception(): void
+    public function test_superfluous_values_throws_exception(): void
     {
         try {
             (new MapperBuilder())->mapper()->map(ObjectWithTwoProperties::class, [
@@ -56,12 +54,13 @@ final class ObjectValuesMappingTest extends IntegrationTest
                 'stringB' => 'fooB',
                 'unexpectedValueA' => 'foo',
                 'unexpectedValueB' => 'bar',
+                42 => 'baz',
             ]);
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1655149208', $error->code());
-            self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, expected `stringA`, `stringB`.', (string)$error);
+            self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.', (string)$error);
         }
     }
 

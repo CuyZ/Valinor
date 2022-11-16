@@ -44,6 +44,35 @@ final class InterfaceInferringMappingTest extends IntegrationTest
         self::assertSame('1645279176', $result->format('U'));
     }
 
+    public function test_single_argument_for_both_infer_and_object_constructor_can_be_used(): void
+    {
+        try {
+            $mapper = (new MapperBuilder())
+                ->infer(
+                    SomeInterface::class,
+                    /** @return class-string<SomeClassThatInheritsInterfaceA>|class-string<SomeClassThatInheritsInterfaceB> */
+                    function (string $value): string {
+                        // @PHP8.0 match
+                        if ($value === 'fooA') {
+                            return SomeClassThatInheritsInterfaceA::class;
+                        }
+
+                        return SomeClassThatInheritsInterfaceB::class;
+                    }
+                )->mapper();
+
+            $resultA = $mapper->map(SomeInterface::class, 'fooA');
+            $resultB = $mapper->map(SomeInterface::class, 'fooB');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassThatInheritsInterfaceA::class, $resultA);
+        self::assertSame('fooA', $resultA->valueA);
+        self::assertInstanceOf(SomeClassThatInheritsInterfaceB::class, $resultB);
+        self::assertSame('fooB', $resultB->valueB);
+    }
+
     public function test_infer_interface_with_union_of_class_string_works_properly(): void
     {
         try {

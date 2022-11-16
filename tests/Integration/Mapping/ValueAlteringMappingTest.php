@@ -24,7 +24,7 @@ final class ValueAlteringMappingTest extends IntegrationTest
                 ->alter(/** @param string $value */ fn ($value) => $value . '!')
                 ->alter(fn (int $value) => 42)
                 ->mapper()
-                ->map(SimpleObject::class, ['value' => 'foo']);
+                ->map(SimpleObject::class, 'foo');
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

@@ -13,9 +13,7 @@ final class VariadicParameterMappingTest extends IntegrationTest
     public function test_only_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
-                'values' => ['foo', 'bar', 'baz'],
-            ]);
+            $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -27,11 +25,9 @@ final class VariadicParameterMappingTest extends IntegrationTest
     {
         try {
             $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
-                'values' => [
-                    'foo' => 'foo',
-                    'bar' => 'bar',
-                    'baz' => 'baz',
-                ],
+                'foo' => 'foo',
+                'bar' => 'bar',
+                'baz' => 'baz',
             ]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
@@ -47,9 +43,7 @@ final class VariadicParameterMappingTest extends IntegrationTest
                 // @PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, 'new'])
                 ->mapper()
-                ->map(SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, [
-                    'values' => ['foo', 'bar', 'baz'],
-                ]);
+                ->map(SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
