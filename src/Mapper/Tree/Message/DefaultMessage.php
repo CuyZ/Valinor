@@ -62,6 +62,9 @@ interface DefaultMessage
         'Value {source_value} is not a valid integer between {min} and {max}.' => [
             'en' => 'Value {source_value} is not a valid integer between {min} and {max}.',
         ],
+        'Value {source_value} is not a valid timezone.' => [
+            'en' => 'Value {source_value} is not a valid timezone.',
+        ],
         'Value {source_value} is not a valid class string.' => [
             'en' => 'Value {source_value} is not a valid class string.',
         ],

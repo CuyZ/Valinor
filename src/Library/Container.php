@@ -24,6 +24,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\CollisionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
@@ -154,6 +155,7 @@ final class Container
 
                 $factory = new ReflectionObjectBuilderFactory();
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
+                $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new DateTimeObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new AttributeObjectBuilderFactory($factory);
                 $factory = new CollisionObjectBuilderFactory($factory);
