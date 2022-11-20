@@ -75,6 +75,6 @@ includes:
 
 ```xml title="psalm.xml"
 <plugins>
-    <plugin filename="vendor/cuyz/valinor/qa/Psalm/Plugin/TreeMapperPsalmPlugin.php"/>
+    <pluginClass class="CuyZ\Valinor\QA\Psalm\ValinorPsalmPlugin"/>
 </plugins>
 ```
