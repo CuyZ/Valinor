@@ -63,6 +63,24 @@ echo $array['foo'] * $array['bar'];
 echo $array['fiz']; 
 ```
 
+**Mapping arguments of a callable**
+
+```php
+$someFunction = function(string $foo, int $bar): string {
+	return "$foo / $bar";
+};
+
+$arguments = (new \CuyZ\Valinor\MapperBuilder())
+    ->argumentsMapper()
+    ->mapArguments($someFunction, [
+        'foo' => 'some value',
+        'bar' => 42,
+    ]);
+
+// ✅ Arguments have a correct shape, no error reported
+echo $someFunction(...$arguments);
+```
+
 ---
 
 To activate this feature, the configuration must be updated for the installed

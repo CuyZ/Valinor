@@ -12,7 +12,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
 /** @internal */
-final class TreeMapperContainer implements TreeMapper
+final class TypeTreeMapper implements TreeMapper
 {
     private TypeParser $typeParser;
 
@@ -29,7 +29,7 @@ final class TreeMapperContainer implements TreeMapper
         $node = $this->node($signature, $source);
 
         if (! $node->isValid()) {
-            throw new MappingError($node->node());
+            throw new TypeTreeMapperError($node->node());
         }
 
         return $node->value();

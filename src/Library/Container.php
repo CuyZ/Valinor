@@ -19,6 +19,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\DoctrineAnnotationsRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
+use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\Factory\AttributeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\CollisionObjectBuilderFactory;
@@ -49,7 +50,8 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
 use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Mapper\TreeMapperContainer;
+use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
+use CuyZ\Valinor\Mapper\TypeTreeMapper;
 use CuyZ\Valinor\Type\Parser\CachedParser;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
@@ -81,9 +83,14 @@ final class Container
     public function __construct(Settings $settings)
     {
         $this->factories = [
-            TreeMapper::class => fn () => new TreeMapperContainer(
+            TreeMapper::class => fn () => new TypeTreeMapper(
                 $this->get(TypeParser::class),
                 new RootNodeBuilder($this->get(NodeBuilder::class))
+            ),
+
+            ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
+                $this->get(TreeMapper::class),
+                $this->get(FunctionDefinitionRepository::class)
             ),
 
             ShellVisitor::class => fn () => new AttributeShellVisitor(),
@@ -236,6 +243,11 @@ final class Container
     public function treeMapper(): TreeMapper
     {
         return $this->get(TreeMapper::class);
+    }
+
+    public function argumentsMapper(): ArgumentsMapper
+    {
+        return $this->get(ArgumentsMapper::class);
     }
 
     public function cacheWarmupService(): RecursiveCacheWarmupService

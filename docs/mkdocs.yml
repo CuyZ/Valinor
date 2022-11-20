@@ -83,6 +83,7 @@ nav:
       - Type strictness: mapping/type-strictness.md
       - Construction strategy: mapping/construction-strategy.md
       - Inferring interfaces: mapping/inferring-interfaces.md
+      - Arguments mapping: mapping/arguments-mapping.md
       - Handled types: mapping/handled-types.md
   - Other:
       - Performance & caching: other/performance-and-cache.md
