@@ -12,4 +12,8 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+
+    <plugins>
+        <pluginClass class="CuyZ\Valinor\QA\Psalm\ValinorPsalmPlugin"/>
+    </plugins>
 </psalm>
