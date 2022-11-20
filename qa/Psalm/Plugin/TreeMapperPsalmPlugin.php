@@ -27,7 +27,13 @@ final class TreeMapperPsalmPlugin implements MethodReturnTypeProviderInterface
             return null;
         }
 
-        $type = $event->getSource()->getNodeTypeProvider()->getType($event->getCallArgs()[0]->value);
+        $arguments = $event->getCallArgs();
+
+        if (count($arguments) === 0) {
+            return null;
+        }
+
+        $type = $event->getSource()->getNodeTypeProvider()->getType($arguments[0]->value);
 
         if (! $type) {
             return null;
@@ -43,10 +49,6 @@ final class TreeMapperPsalmPlugin implements MethodReturnTypeProviderInterface
             }
 
             $types[] = $inferred;
-        }
-
-        if (count($types) === 0) {
-            return null;
         }
 
         return Type::combineUnionTypeArray($types, $event->getSource()->getCodebase());
