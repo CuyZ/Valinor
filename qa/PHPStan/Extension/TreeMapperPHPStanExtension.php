@@ -37,8 +37,13 @@ final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtensi
 
     public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
     {
-        $argument = $methodCall->getArgs()[0]->value;
-        $type = $scope->getType($argument);
+        $arguments = $methodCall->getArgs();
+
+        if (count($arguments) === 0) {
+            return new MixedType();
+        }
+
+        $type = $scope->getType($arguments[0]->value);
 
         if ($type instanceof UnionType) {
             return $type->traverse(fn (Type $type) => $this->type($type));
