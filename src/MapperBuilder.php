@@ -7,6 +7,7 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -458,6 +459,11 @@ final class MapperBuilder
     public function mapper(): TreeMapper
     {
         return $this->container()->treeMapper();
+    }
+
+    public function argumentsMapper(): ArgumentsMapper
+    {
+        return $this->container()->argumentsMapper();
     }
 
     public function __clone()

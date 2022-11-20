@@ -6,20 +6,20 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper;
 
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
-use CuyZ\Valinor\Mapper\TreeMapperContainer;
+use CuyZ\Valinor\Mapper\TypeTreeMapper;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder\FakeNodeBuilder;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\FakeTypeParser;
 use PHPUnit\Framework\TestCase;
 
-final class TreeMapperContainerTest extends TestCase
+final class TypeTreeMapperTest extends TestCase
 {
-    private TreeMapperContainer $mapper;
+    private TypeTreeMapper $mapper;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->mapper = new TreeMapperContainer(
+        $this->mapper = new TypeTreeMapper(
             new FakeTypeParser(),
             new RootNodeBuilder(new FakeNodeBuilder()),
         );
