@@ -30,6 +30,7 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ProxyClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
@@ -40,13 +41,9 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ShellVisitorNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\StrictNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Visitor\AttributeShellVisitor;
-use CuyZ\Valinor\Mapper\Tree\Visitor\ShellVisitor;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
@@ -91,8 +88,6 @@ final class Container
                 $this->get(FunctionDefinitionRepository::class),
                 $this->get(RootNodeBuilder::class)
             ),
-
-            ShellVisitor::class => fn () => new AttributeShellVisitor(),
 
             RootNodeBuilder::class => fn () => new RootNodeBuilder(
                 $this->get(NodeBuilder::class)
@@ -149,7 +144,6 @@ final class Container
                 }
 
                 $builder = new StrictNodeBuilder($builder, $settings->allowPermissiveTypes, $settings->enableFlexibleCasting);
-                $builder = new ShellVisitorNodeBuilder($builder, $this->get(ShellVisitor::class));
 
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
