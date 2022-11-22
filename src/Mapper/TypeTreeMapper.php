@@ -24,6 +24,7 @@ final class TypeTreeMapper implements TreeMapper
         $this->nodeBuilder = $nodeBuilder;
     }
 
+    /** @pure */
     public function map(string $signature, $source)
     {
         $node = $this->node($signature, $source);
