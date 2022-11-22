@@ -26,6 +26,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
         $this->functionDefinitionRepository = $functionDefinitionRepository;
     }
 
+    /** @pure */
     public function mapArguments(callable $callable, $source): array
     {
         $function = $this->functionDefinitionRepository->for($callable);
