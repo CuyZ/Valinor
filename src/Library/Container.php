@@ -85,15 +85,19 @@ final class Container
         $this->factories = [
             TreeMapper::class => fn () => new TypeTreeMapper(
                 $this->get(TypeParser::class),
-                new RootNodeBuilder($this->get(NodeBuilder::class))
+                $this->get(RootNodeBuilder::class)
             ),
 
             ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
-                $this->get(TreeMapper::class),
-                $this->get(FunctionDefinitionRepository::class)
+                $this->get(FunctionDefinitionRepository::class),
+                $this->get(RootNodeBuilder::class)
             ),
 
             ShellVisitor::class => fn () => new AttributeShellVisitor(),
+
+            RootNodeBuilder::class => fn () => new RootNodeBuilder(
+                $this->get(NodeBuilder::class)
+            ),
 
             NodeBuilder::class => function () use ($settings) {
                 $listNodeBuilder = new ListNodeBuilder($settings->enableFlexibleCasting);

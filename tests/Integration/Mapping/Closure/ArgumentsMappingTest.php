@@ -68,7 +68,7 @@ final class ArgumentsMappingTest extends IntegrationTest
         $function = fn (string $foo): string => $foo;
 
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($function, 'foo');
+            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($function, ['foo' => 'foo']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
