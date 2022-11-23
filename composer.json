@@ -59,7 +59,7 @@
             "rector"
         ],
         "mutation": [
-            "infection --threads=12 --git-diff-lines"
+            "infection --threads=max --git-diff-lines"
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
