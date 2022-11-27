@@ -1,56 +1,4 @@
-# Construction strategy
-
-During the mapping, instances of objects are recursively created and hydrated
-with transformed values. Construction strategies will determine what values are
-needed and how an object is built.
-
-!!! note
-
-    When a class needs only one value, the source given to the mapper must match
-    the type of the single property/parameter. See example below:
-
-    ```php
-    final class Identifier
-    {
-        public readonly string $value;
-    }
-    
-    final class SomeClass
-    {
-        public readonly Identifier $identifier;
-
-        public readonly string $description;
-    }
-
-    $mapper = (new \CuyZ\Valinor\MapperBuilder())->mapper();
-
-    $mapper->map(SomeClass::class, [
-        'identifier' => ['value' => 'some-identifier'], // ❌
-        'description' => 'Lorem ipsum…',
-    ]); 
-
-    $mapper->map(SomeClass::class, [
-        'identifier' => 'some-identifier', // ✅
-        'description' => 'Lorem ipsum…',
-    ]);
-    ```
-
-## Native constructor
-
-If a constructor exists and is public, its arguments will determine which values
-are needed from the input.
-
-```php
-final class SomeClass
-{
-    public function __construct(
-        public readonly string $foo,
-        public readonly int $bar,
-    ) {}
-}
-```
-
-## Custom constructor
+# Using custom object constructors
 
 An object may have custom ways of being created, in such cases these
 constructors need to be registered to the mapper to be used. A constructor is a
@@ -72,7 +20,7 @@ to be handled as well, the name of the class must be given to the
 registration method.
 
 If several constructors are registered, they must provide distinct signatures to
-prevent collision during mapping — meaning that if two constructors require 
+prevent collision during mapping — meaning that if two constructors require
 several arguments with the exact same names, the mapping will fail.
 
 ```php
@@ -145,7 +93,7 @@ final class Color
     [Color::class, 'fromHex'],
     ```
 
-### Dynamic constructors
+## Dynamic constructors
 
 In some situations the type handled by a constructor is only known at runtime,
 in which case the constructor needs to know what class must be used to
@@ -187,18 +135,4 @@ final class ClassWithInheritedStaticConstructor implements InterfaceWithStaticCo
     )
     ->mapper()
     ->map(ClassWithInheritedStaticConstructor::class, 'foo');
-```
-
-## Properties
-
-If no constructor is registered, properties will determine which values are
-needed from the input.
-
-```php
-final class SomeClass
-{
-    public readonly string $foo;
-
-    public readonly int $bar;
-}
 ```

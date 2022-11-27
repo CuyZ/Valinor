@@ -4,7 +4,7 @@ This library can map the arguments of a callable; it can be used to ensure a
 source has the right shape before calling a function/method.
 
 The mapper builder can be configured the same way it would be with a tree 
-mapper, for instance to customize the [type strictness](type-strictness.md).
+mapper, for instance to customize the [type strictness].
 
 ```php
 $someFunction = function(string $foo, int $bar): string {
@@ -51,3 +51,5 @@ try {
     // Do something…
 }
 ```
+
+[type strictness]: ../usage/type-strictness-and-flexibility.md

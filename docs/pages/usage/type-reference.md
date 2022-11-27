@@ -1,4 +1,4 @@
-# Handled types
+# Type reference
 
 To prevent conflicts or duplication of the type annotations, this library tries
 to handle most of the type annotations that are accepted by [PHPStan] and
@@ -152,7 +152,7 @@ final class SomeClass
 }
 ```
 
-### Class constants
+## Class constants
 
 ```php
 final class SomeClassWithConstants
@@ -176,7 +176,7 @@ final class SomeClass
 }
 ```
 
-### Enums
+## Enums
 
 ```php
 enum SomeEnum

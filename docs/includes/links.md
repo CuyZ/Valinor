@@ -2,8 +2,6 @@
 
 [Psalm]: https://psalm.dev/
 
-[Rector]: https://github.com/rectorphp/rector
-
 [Webmozart Assert]: https://github.com/webmozarts/assert
 
 [ICU library]: https://unicode-org.github.io/icu/
@@ -12,4 +10,4 @@
 
 [contributors]: https://github.com/CuyZ/Valinor/graphs/contributors
 
-[blackfire-logo]: img/blackfire-logo.svg "Blackfire logo"
+[blackfire-logo]: /img/blackfire-logo.svg "Blackfire logo"
