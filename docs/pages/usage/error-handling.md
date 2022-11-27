@@ -1,4 +1,4 @@
-# Validation
+# Error handling
 
 The source given to a mapper can never be trusted, this is actually the very
 goal of this library: transforming an unstructured input to a well-defined
@@ -196,4 +196,4 @@ try {
 }
 ```
 
-[message customization chapter]: message-customization.md
+[message customization chapter]: ../how-to/customize-error-messages.md

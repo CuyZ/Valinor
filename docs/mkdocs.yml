@@ -23,6 +23,7 @@ extra_css:
   - stylesheets/extra.css
 
 plugins:
+  - search
   - mike:
       canonical_version: latest/
 
@@ -68,24 +69,29 @@ markdown_extensions:
       auto_append:
         - docs/includes/links.md
   - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
   - admonition
 
 nav:
   - Introduction: index.md
   - Getting Started: getting-started.md
-  - Credits: credits.md
-  - Changelog: changelog.md
   - Usage:
-      - Validation: validation.md
-      - Message customization: message-customization.md
-      - Source: source.md
-  - Mapping:
-      - Type strictness: mapping/type-strictness.md
-      - Construction strategy: mapping/construction-strategy.md
-      - Inferring interfaces: mapping/inferring-interfaces.md
-      - Arguments mapping: mapping/arguments-mapping.md
-      - Handled types: mapping/handled-types.md
+      - Object construction: usage/object-construction.md
+      - Error handling: usage/error-handling.md
+      - Type strictness & flexibility: usage/type-strictness-and-flexibility.md
+      - Type reference: usage/type-reference.md
+  - How-to:
+      - Use custom object constructors: how-to/use-custom-object-constructors.md
+      - Deal with dates: how-to/deal-with-dates.md
+      - Infer interfaces: how-to/infer-interfaces.md
+      - Transform input: how-to/transform-input.md
+      - Map arguments of a callable: how-to/map-arguments-of-a-callable.md
+      - Customize error messages: how-to/customize-error-messages.md
   - Other:
-      - Performance & caching: other/performance-and-cache.md
-      - Dealing with dates: other/dealing-with-dates.md
-      - Static analysis: other/static-analysis.md
+      - Performance & caching: other/performance-and-caching.md
+      - Static analysis — PHPStan/Psalm: other/static-analysis.md
+  - Project:
+      - Changelog: project/changelog.md
+      - Credits: project/credits.md

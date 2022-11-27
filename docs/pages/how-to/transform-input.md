@@ -1,4 +1,4 @@
-# Source
+# Transforming input
 
 Any source can be given to the mapper, be it an array, some json, yaml or even a
 file:

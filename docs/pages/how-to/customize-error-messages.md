@@ -1,4 +1,4 @@
-# Message customization
+# Customizing error messages
 
 The content of a message can be changed to fit custom use cases; it can contain
 placeholders that will be replaced with useful information.

@@ -4,6 +4,27 @@ To help static analysis of a codebase using this library, an extension for
 [PHPStan] and a plugin for [Psalm] are provided. They enable these tools to
 better understand the behaviour of the mapper.
 
+!!! note
+    
+    To activate this feature, the plugin must be registered correcly:
+    
+    === "PHPStan"
+
+        ```yaml title="phpstan.neon"
+        includes:
+            - vendor/cuyz/valinor/qa/PHPStan/valinor-phpstan-configuration.php
+        ```
+    
+    === "Psalm"
+    
+        ```xml title="psalm.xml"
+        <plugins>
+            <pluginClass class="CuyZ\Valinor\QA\Psalm\ValinorPsalmPlugin"/>
+        </plugins>
+        ```
+
+---
+
 Considering at least one of those tools are installed on a project, below are
 examples of the kind of errors that would be reported.
 
@@ -79,20 +100,4 @@ $arguments = (new \CuyZ\Valinor\MapperBuilder())
 
 // ✅ Arguments have a correct shape, no error reported
 echo $someFunction(...$arguments);
-```
-
----
-
-To activate this feature, the configuration must be updated for the installed
-tool(s):
-
-```yaml title="phpstan.neon"
-includes:
-    - vendor/cuyz/valinor/qa/PHPStan/valinor-phpstan-configuration.php
-```
-
-```xml title="psalm.xml"
-<plugins>
-    <pluginClass class="CuyZ\Valinor\QA\Psalm\ValinorPsalmPlugin"/>
-</plugins>
 ```

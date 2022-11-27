@@ -3,41 +3,88 @@ hide:
  - toc
 ---
 
-Valinor • PHP object mapper with strong type support
-====================================================
+&nbsp;
+======
 
-<img src="img/valinor-logo.svg" align="left" width="100"/>
+<div align="center">
+   <img src="img/valinor-banner.svg" />
 
-Valinor is a PHP library that helps to map any input into a strongly-typed value
-object structure.
+   <div>— From boring old arrays to shiny typed objects —</div>
+</div>
 
-The conversion can handle native PHP types as well as other well-known advanced
-type annotations like array shapes, generics and more.
+---
+
+Valinor takes care of the construction and validation of raw inputs (JSON, plain
+arrays, etc.) into objects, ensuring a perfectly valid state. It allows the 
+objects to be used without having to worry about their integrity during the 
+whole application lifecycle.
+
+The validation system will detect any incorrect value and help the developers by
+providing precise and human-readable error messages. 
+
+The mapper can handle native PHP types as well as other advanced types supported
+by [PHPStan] and [Psalm] like shaped arrays, generics, integer ranges and more.
 
 ## Why?
 
-There are many benefits of using value objects instead of plain arrays and
-scalar values in a modern codebase, among which:
+There are many benefits of using objects instead of plain arrays in a codebase:
 
-1. **Data and behaviour encapsulation** — locks an object's behaviour inside its
-   class, preventing it from being scattered across the codebase.
-2. **Data validation** — guarantees the valid state of an object.
-3. **Immutability** — ensures the state of an object cannot be changed during
-   runtime.
+1. **Type safety** — the structure of an object is known and guaranteed, no 
+   need for type checks once the object is constructed.
+2. **Data integrity** — the object cannot be in an invalid state, it will always
+   contain valid data.
+3. **Encapsulation** — the logic of an object is isolated from the outside.
 
-When mapping any source to an object structure, this library will ensure that
-all input values are properly converted to match the types of the nodes — class
-properties or method parameters. Any value that cannot be converted to the
-correct type will trigger an error and prevent the mapping from completing.
+---
 
-These checks guarantee that if the mapping succeeds, the object structure is
-perfectly valid, hence there is no need for further validation nor type
-conversion: the objects are ready to be used.
+Validating and transforming raw data into an object can be achieved easily with 
+native PHP, but it requires a lot a boilerplate code.
 
-### Static analysis
+Below is a simple example of doing that without a mapper:
 
-A strongly-typed codebase allows the usage of static analysis tools like
-[PHPStan] and [Psalm] that can identify issues in a codebase without running it.
+```php
+final class Person
+{
+    public readonly string $name;
+    
+    public readonly DateTimeInterface $birthDate;
+}
 
-Moreover, static analysis can help during a refactoring of a codebase with tools
-like an IDE or [Rector].
+$data = $client->request('GET', 'https://example.com/person/42')->toArray();
+
+if (! isset($data['name']) || ! is_string($data['name'])) {
+    // Cumbersome error handling
+}
+
+if (! isset($data['birthDate']) || ! is_string($data['birthDate'])) {
+    // Another cumbersome error handling
+}
+
+$birthDate = DateTimeImmutable::createFromFormat('Y-m-d', $data['birthDate']);
+
+if (! $birthDate instanceof DateTimeInterface) {
+    // Yet another cumbersome error handling
+}
+
+$person = new Person($data['name'], $birthDate);
+```
+
+Using a mapper saves a lot of time and energy, especially on objects with a lot
+of properties:
+
+```php
+$data = $client->request('GET', 'https://example.com/person/42')->toArray();
+
+try {
+    $person = (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(Person::class, $data);
+} catch (\CuyZ\Valinor\Mapper\MappingError $error) {
+    // Detailed error handling
+}
+```
+
+---
+
+This library provides advanced features for more complex cases, check out the
+[next chapter](getting-started.md) to get started.

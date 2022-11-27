@@ -1,4 +1,4 @@
-# Type strictness
+# Type strictness & flexibility
 
 The mapper is sensitive to the types of the data that is recursively populated —
 for instance a string `"42"` given to a node that expects an integer will make
