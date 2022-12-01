@@ -16,7 +16,7 @@ interface TreeMapper
      * @return (
      *     $signature is class-string<T>
      *         ? T
-     *         : mixed
+     *         : ($signature is class-string ? object : mixed)
      * )
      *
      * @throws MappingError
