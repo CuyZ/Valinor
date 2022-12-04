@@ -12,7 +12,6 @@ use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\EnumValueType;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -22,6 +21,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -131,7 +131,15 @@ final class TypeCompiler
 
                 $generics = implode(', ', $generics);
 
-                return "new $class('{$type->className()}', [$generics])";
+                if ($type instanceof InterfaceType) {
+                    return "new $class('{$type->className()}', [$generics])";
+                }
+
+                $parent = $type->hasParent()
+                    ? $this->compile($type->parent())
+                    : 'null';
+
+                return "new $class('{$type->className()}', [$generics], $parent)";
             case $type instanceof ClassStringType:
                 if (null === $type->subType()) {
                     return "new $class()";

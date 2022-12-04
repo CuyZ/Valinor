@@ -18,9 +18,12 @@ use ReflectionUnionType;
 use Reflector;
 use RuntimeException;
 
+use function assert;
 use function class_exists;
+use function count;
 use function implode;
 use function interface_exists;
+use function is_array;
 use function preg_match_all;
 use function preg_replace;
 use function spl_object_hash;
@@ -236,6 +239,26 @@ final class Reflection
         }
 
         return $types;
+    }
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return array<string>
+     */
+    public static function extendedClassAnnotation(ReflectionClass $reflection): array
+    {
+        $docComment = self::sanitizeDocComment($reflection);
+
+        $expression = sprintf('/@%s?extends\s+%s/', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
+        preg_match_all($expression, $docComment, $matches);
+
+        assert(is_array($matches['type']));
+
+        if (count($matches['type']) === 0) {
+            return [];
+        }
+
+        return $matches['type'];
     }
 
     /**

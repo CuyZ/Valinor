@@ -44,9 +44,11 @@ final class ClassNameToken implements TraversingToken
             return $constant;
         }
 
-        return $this->reflection->isInterface() || $this->reflection->isAbstract()
-            ? new InterfaceType($this->reflection->name)
-            : new ClassType($this->reflection->name);
+        if ($this->reflection->isInterface()) {
+            return new InterfaceType($this->reflection->name);
+        }
+
+        return new ClassType($this->reflection->name);
     }
 
     public function symbol(): string

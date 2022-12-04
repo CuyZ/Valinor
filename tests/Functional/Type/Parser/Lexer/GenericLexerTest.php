@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Type\Parser\Lexer;
 
-use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObject;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\AssignedGenericNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\ExtendTagTypeError;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidAssignedGeneric;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagClassName;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\SeveralExtendTagsFound;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidClassTemplate;
-use CuyZ\Valinor\Type\Parser\Lexer\ClassGenericLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
-use CuyZ\Valinor\Type\Parser\LexingParser;
+use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
@@ -34,10 +35,7 @@ final class GenericLexerTest extends TestCase
     {
         parent::setUp();
 
-        $lexer = new NativeLexer();
-        $lexer = new ClassGenericLexer($lexer, new FakeTypeParserFactory(), new BasicTemplateParser());
-
-        $this->parser = new LexingParser($lexer);
+        $this->parser = (new LexingTypeParserFactory(new BasicTemplateParser()))->get();
     }
 
     /**
@@ -64,7 +62,7 @@ final class GenericLexerTest extends TestCase
             'Abstract class name with no template' => [
                 'raw' => AbstractObject::class,
                 'transformed' => AbstractObject::class,
-                'type' => InterfaceType::class,
+                'type' => ClassType::class,
             ],
             'Interface name with no template' => [
                 'raw' => DateTimeInterface::class,
@@ -206,6 +204,52 @@ final class GenericLexerTest extends TestCase
         $this->parser->parse("$className<int, string>");
     }
 
+    public function test_several_extends_tags_throws_exception(): void
+    {
+        $className = SomeChildClassWithSeveralExtendTags::class;
+
+        $this->expectException(SeveralExtendTagsFound::class);
+        $this->expectExceptionCode(1670195494);
+        $this->expectExceptionMessage("Only one `@extends` tag should be set for the class `$className`.");
+
+        $this->parser->parse($className);
+    }
+
+    public function test_wrong_extends_tag_throws_exception(): void
+    {
+        $childClassName = SomeChildClassWithInvalidExtendTag::class;
+        $parentClassName = SomeParentAbstractClass::class;
+
+        $this->expectException(InvalidExtendTagType::class);
+        $this->expectExceptionCode(1670181134);
+        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid type `string`, it should be `$parentClassName`.");
+
+        $this->parser->parse($childClassName);
+    }
+
+    public function test_wrong_extends_tag_class_name_throws_exception(): void
+    {
+        $childClassName = SomeChildClassWithInvalidExtendTagClassName::class;
+        $parentClassName = SomeParentAbstractClass::class;
+
+        $this->expectException(InvalidExtendTagClassName::class);
+        $this->expectExceptionCode(1670183564);
+        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid class `stdClass`, it should be `$parentClassName`.");
+
+        $this->parser->parse($childClassName);
+    }
+
+    public function test_extend_tag_type_error_throws_exception(): void
+    {
+        $className = SomeChildClassWithMissingGenericsInExtendTag::class;
+
+        $this->expectException(ExtendTagTypeError::class);
+        $this->expectExceptionCode(1670193574);
+        $this->expectExceptionMessage("The `@extends` tag of the class `$className` is not valid: Cannot parse unknown symbol `InvalidType`.");
+
+        $this->parser->parse($className);
+    }
+
     private function classWithOneTemplate(): string
     {
         $object =
@@ -240,4 +284,51 @@ final class GenericLexerTest extends TestCase
 
         return $object::class;
     }
+}
+
+/**
+ * @template T
+ */
+abstract class SomeParentAbstractClass
+{
+}
+
+/**
+ * @template T
+ */
+abstract class SomeOtherParentAbstractClass
+{
+}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends SomeParentAbstractClass<string>
+ * @extends SomeOtherParentAbstractClass<string>
+ */
+final class SomeChildClassWithSeveralExtendTags extends SomeParentAbstractClass
+{
+}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends string
+ */
+final class SomeChildClassWithInvalidExtendTag extends SomeParentAbstractClass
+{
+}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends stdClass
+ */
+final class SomeChildClassWithInvalidExtendTagClassName extends SomeParentAbstractClass
+{
+}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends SomeParentAbstractClass<InvalidType>
+ */
+final class SomeChildClassWithMissingGenericsInExtendTag extends SomeParentAbstractClass
+{
 }

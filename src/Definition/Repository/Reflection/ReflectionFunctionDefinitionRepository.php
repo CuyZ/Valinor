@@ -10,7 +10,6 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionFunction;
@@ -73,7 +72,6 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         if ($class !== null) {
             $nativeSpecifications[] = new ClassContextSpecification($class->name);
             $advancedSpecification[] = new ClassContextSpecification($class->name);
-            $advancedSpecification[] = new HandleClassGenericSpecification();
         }
 
         $nativeParser = $this->typeParserFactory->get(...$nativeSpecifications);

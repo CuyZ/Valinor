@@ -133,4 +133,26 @@ final class TypeCompilerTest extends TestCase
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
         yield [new UnresolvableType('some-type', 'some message')];
     }
+
+    public function test_class_parent_is_compiled_properly(): void
+    {
+        $type = new ClassType(
+            stdClass::class,
+            parent: new ClassType(
+                stdClass::class,
+                ['Template' => NativeStringType::get()],
+            )
+        );
+
+        $code = $this->typeCompiler->compile($type);
+
+        try {
+            $compiledType = eval("return $code;");
+        } catch (Error $exception) {
+            self::fail($exception->getMessage());
+        }
+
+        self::assertInstanceOf(ClassType::class, $compiledType);
+        self::assertInstanceOf(NativeStringType::class, $compiledType->parent()->generics()['Template']);
+    }
 }
