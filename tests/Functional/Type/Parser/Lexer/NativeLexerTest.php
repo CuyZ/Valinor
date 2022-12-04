@@ -781,7 +781,7 @@ final class NativeLexerTest extends TestCase
         yield 'Abstract class name' => [
             'raw' => AbstractObject::class,
             'transformed' => AbstractObject::class,
-            'type' => InterfaceType::class,
+            'type' => ClassType::class,
         ];
 
         yield 'Interface name' => [

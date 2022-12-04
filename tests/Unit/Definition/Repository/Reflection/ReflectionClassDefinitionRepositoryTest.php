@@ -150,7 +150,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_private_parent_constructor_is_listed_in_methods(): void
     {
-        $type = new ClassType(ClassWithInheritedPrivateConstructor::class);
+        $type = new ClassType(ClassWithInheritedPrivateConstructor::class, parent: new ClassType(AbstractClassWithPrivateConstructor::class));
         $methods = $this->repository->for($type)->methods();
 
         self::assertTrue($methods->hasConstructor());
@@ -314,7 +314,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @psalm-type T = int
              * @phpstan-type AnotherTemplate = int
              */
-            (new class () { })::class;
+            (new class () {
+                /** @var T */
+                public $value; // @phpstan-ignore-line
+            })::class;
 
         $this->expectException(ClassTypeAliasesDuplication::class);
         $this->expectExceptionCode(1638477604);
@@ -329,7 +332,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             /**
              * @phpstan-import-type T from UnknownType
              */
-            (new class () { })::class;
+            (new class () {
+                /** @var T */
+                public $value; // @phpstan-ignore-line
+            })::class;
 
         $this->expectException(InvalidTypeAliasImportClass::class);
         $this->expectExceptionCode(1638535486);
@@ -344,7 +350,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             /**
              * @phpstan-import-type T from string
              */
-            (new class () { })::class;
+            (new class () {
+                /** @var T */
+                public $value; // @phpstan-ignore-line
+            })::class;
 
         $this->expectException(InvalidTypeAliasImportClassType::class);
         $this->expectExceptionCode(1638535608);
@@ -359,7 +368,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             /**
              * @phpstan-import-type T from stdClass
              */
-            (new class () { })::class;
+            (new class () {
+                /** @var T */
+                public $value; // @phpstan-ignore-line
+            })::class;
 
         $this->expectException(UnknownTypeAliasImport::class);
         $this->expectExceptionCode(1638535757);

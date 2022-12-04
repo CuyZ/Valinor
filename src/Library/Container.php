@@ -47,9 +47,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
-use CuyZ\Valinor\Type\Parser\CachedParser;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
@@ -202,12 +200,7 @@ final class Container
                 $this->get(TemplateParser::class)
             ),
 
-            TypeParser::class => function () {
-                $factory = $this->get(TypeParserFactory::class);
-                $parser = $factory->get(new HandleClassGenericSpecification());
-
-                return new CachedParser($parser);
-            },
+            TypeParser::class => fn () => $this->get(TypeParserFactory::class)->get(),
 
             TemplateParser::class => fn () => new BasicTemplateParser(),
 

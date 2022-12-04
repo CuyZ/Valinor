@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
+use function assert;
 use function is_a;
 
 /** @internal */
@@ -18,7 +19,8 @@ final class ClassType implements ObjectType, CompositeType
         /** @var class-string */
         private string $className,
         /** @var array<string, Type> */
-        private array $generics = []
+        private array $generics = [],
+        private ?ClassType $parent = null,
     ) {
         $this->className = ltrim($this->className, '\\');
     }
@@ -31,6 +33,19 @@ final class ClassType implements ObjectType, CompositeType
     public function generics(): array
     {
         return $this->generics;
+    }
+
+    public function hasParent(): bool
+    {
+        return $this->parent instanceof ClassType;
+    }
+
+    public function parent(): ClassType
+    {
+        assert($this->hasParent());
+
+        /** @var ClassType */
+        return $this->parent;
     }
 
     public function accepts(mixed $value): bool

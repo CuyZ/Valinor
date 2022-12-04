@@ -5,20 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Factory;
 
 use CuyZ\Valinor\Type\Parser\CachedParser;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
-use CuyZ\Valinor\Type\Parser\Lexer\AliasLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\ClassContextLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\ClassGenericLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\TypeAliasLexer;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeParserSpecification;
+use CuyZ\Valinor\Type\Parser\Lexer\AdvancedClassLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
-use LogicException;
 
 /** @internal */
 final class LexingTypeParserFactory implements TypeParserFactory
@@ -29,39 +21,28 @@ final class LexingTypeParserFactory implements TypeParserFactory
     {
     }
 
-    public function get(object ...$specifications): TypeParser
+    public function get(TypeParserSpecification ...$specifications): TypeParser
     {
         if (empty($specifications)) {
-            return $this->nativeParser ??= new CachedParser(new LexingParser(new NativeLexer()));
+            return $this->nativeParser ??= $this->nativeParser();
         }
 
         $lexer = new NativeLexer();
+        $lexer = new AdvancedClassLexer($lexer, $this, $this->templateParser);
 
         foreach ($specifications as $specification) {
-            $lexer = $this->transform($lexer, $specification);
+            $lexer = $specification->transform($lexer);
         }
 
         return new LexingParser($lexer);
     }
 
-    private function transform(TypeLexer $lexer, object $specification): TypeLexer
+    private function nativeParser(): TypeParser
     {
-        if ($specification instanceof ClassContextSpecification) {
-            return new ClassContextLexer($lexer, $specification->className());
-        }
+        $lexer = new NativeLexer();
+        $lexer = new AdvancedClassLexer($lexer, $this, $this->templateParser);
+        $lexer = new LexingParser($lexer);
 
-        if ($specification instanceof AliasSpecification) {
-            return new AliasLexer($lexer, $specification->reflection());
-        }
-
-        if ($specification instanceof HandleClassGenericSpecification) {
-            return new ClassGenericLexer($lexer, $this, $this->templateParser);
-        }
-
-        if ($specification instanceof TypeAliasAssignerSpecification) {
-            return new TypeAliasLexer($lexer, $specification->aliases());
-        }
-
-        throw new LogicException('Unhandled specification of type `' . $specification::class . '`.');
+        return new CachedParser($lexer);
     }
 }

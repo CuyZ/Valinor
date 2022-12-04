@@ -6,12 +6,12 @@ namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassNameToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\GenericClassNameToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\AdvancedClassNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 
 /** @internal */
-final class ClassGenericLexer implements TypeLexer
+final class AdvancedClassLexer implements TypeLexer
 {
     public function __construct(
         private TypeLexer $delegate,
@@ -25,7 +25,7 @@ final class ClassGenericLexer implements TypeLexer
         $token = $this->delegate->tokenize($symbol);
 
         if ($token instanceof ClassNameToken) {
-            return new GenericClassNameToken($token, $this->typeParserFactory, $this->templateParser);
+            return new AdvancedClassNameToken($token, $this->typeParserFactory, $this->templateParser);
         }
 
         return $token;

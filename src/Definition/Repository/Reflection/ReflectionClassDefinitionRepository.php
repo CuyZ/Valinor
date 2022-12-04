@@ -12,12 +12,12 @@ use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
+use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\HandleClassGenericSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
@@ -25,7 +25,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use ReflectionClass;
+use ReflectionMethod;
 use ReflectionProperty;
 
 use function array_filter;
@@ -43,6 +43,9 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 
     private ReflectionMethodDefinitionBuilder $methodBuilder;
 
+    /** @var array<string, ReflectionTypeResolver> */
+    private array $typeResolver = [];
+
     public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesFactory)
     {
         $this->typeParserFactory = $typeParserFactory;
@@ -54,49 +57,64 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     public function for(ClassType $type): ClassDefinition
     {
         $reflection = Reflection::class($type->className());
-        $typeResolver = $this->typeResolver($type);
-
-        $properties = array_map(
-            fn (ReflectionProperty $property) => $this->propertyBuilder->for($property, $typeResolver),
-            $reflection->getProperties()
-        );
 
         return new ClassDefinition(
             $type,
             $this->attributesFactory->for($reflection),
-            new Properties(...$properties),
-            new Methods(...$this->methods($reflection, $typeResolver)),
+            new Properties(...$this->properties($type)),
+            new Methods(...$this->methods($type)),
         );
     }
 
     /**
-     * @param ReflectionClass<object> $reflection
+     * @return list<PropertyDefinition>
+     */
+    private function properties(ClassType $type): array
+    {
+        return array_map(
+            function (ReflectionProperty $property) use ($type) {
+                $typeResolver = $this->typeResolver($type, $property->class);
+
+                return $this->propertyBuilder->for($property, $typeResolver);
+            },
+            Reflection::class($type->className())->getProperties()
+        );
+    }
+
+    /**
      * @return list<MethodDefinition>
      */
-    private function methods(ReflectionClass $reflection, ReflectionTypeResolver $typeResolver): array
+    private function methods(ClassType $type): array
     {
-        $methods = [];
+        $reflection = Reflection::class($type->className());
+        $methods = $reflection->getMethods();
 
         // Because `ReflectionMethod::getMethods()` wont list the constructor if
         // it comes from a parent class AND is not public, we need to manually
         // fetch it and add it to the list.
         if ($reflection->hasMethod('__construct')) {
-            $methods[] = $this->methodBuilder->for($reflection->getMethod('__construct'), $typeResolver);
+            $methods[] = $reflection->getMethod('__construct');
         }
 
-        foreach ($reflection->getMethods() as $method) {
-            if ($method->name === '__construct') {
-                continue;
-            }
+        return array_map(function (ReflectionMethod $method) use ($type) {
+            $typeResolver = $this->typeResolver($type, $method->class);
 
-            $methods[] = $this->methodBuilder->for($method, $typeResolver);
-        }
-
-        return $methods;
+            return $this->methodBuilder->for($method, $typeResolver);
+        }, $methods);
     }
 
-    private function typeResolver(ClassType $type): ReflectionTypeResolver
+    private function typeResolver(ClassType $type, string $targetClass): ReflectionTypeResolver
     {
+        $typeKey = "{$type->toString()}/$targetClass";
+
+        if (isset($this->typeResolver[$typeKey])) {
+            return $this->typeResolver[$typeKey];
+        }
+
+        while ($type->className() !== $targetClass) {
+            $type = $type->parent();
+        }
+
         $generics = $type->generics();
         $localAliases = $this->localTypeAliases($type);
         $importedAliases = $this->importedTypeAliases($type);
@@ -119,7 +137,6 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $advancedParser = $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
-            new HandleClassGenericSpecification(),
             new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases)
         );
 
@@ -127,7 +144,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             new ClassContextSpecification($type->className())
         );
 
-        return new ReflectionTypeResolver($nativeParser, $advancedParser);
+        return $this->typeResolver[$typeKey] = new ReflectionTypeResolver($nativeParser, $advancedParser);
     }
 
     /**
@@ -197,7 +214,6 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         return $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
-            new HandleClassGenericSpecification(),
             new TypeAliasAssignerSpecification($type->generics()),
         );
     }

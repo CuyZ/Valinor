@@ -10,20 +10,28 @@ use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidAssignedGeneric;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagClassName;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\ExtendTagTypeError;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\SeveralExtendTagsFound;
+use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidClassTemplate;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidTemplate;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\LazyParser;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
+use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use ReflectionClass;
 
 use function array_keys;
 use function array_shift;
@@ -31,7 +39,7 @@ use function array_slice;
 use function count;
 
 /** @internal */
-final class GenericClassNameToken implements TraversingToken
+final class AdvancedClassNameToken implements TraversingToken
 {
     public function __construct(
         private ClassNameToken $delegate,
@@ -50,14 +58,17 @@ final class GenericClassNameToken implements TraversingToken
 
         $className = $type->className();
         $reflection = Reflection::class($className);
+        $parentReflection = $reflection->getParentClass();
+
+        $specifications = [
+            new ClassContextSpecification($className),
+            new AliasSpecification($reflection),
+        ];
 
         try {
             $docComment = $reflection->getDocComment() ?: '';
             $parser = new LazyParser(
-                fn () => $this->typeParserFactory->get(
-                    new ClassContextSpecification($className),
-                    new AliasSpecification($reflection)
-                )
+                fn () => $this->typeParserFactory->get(...$specifications)
             );
 
             $templates = $this->templateParser->templates($docComment, $parser);
@@ -68,9 +79,15 @@ final class GenericClassNameToken implements TraversingToken
         $generics = $this->generics($stream, $className, $templates);
         $generics = $this->assignGenerics($className, $templates, $generics);
 
-        $typeClass = $type::class;
+        $parserWithGenerics = new LazyParser(
+            fn () => $this->typeParserFactory->get(new TypeAliasAssignerSpecification($generics), ...$specifications)
+        );
 
-        return new $typeClass($className, $generics);
+        if ($parentReflection) {
+            $parentType = $this->parentType($reflection, $parentReflection, $parserWithGenerics);
+        }
+
+        return new ClassType($className, $generics, $parentType ?? null);
     }
 
     public function symbol(): string
@@ -157,5 +174,38 @@ final class GenericClassNameToken implements TraversingToken
         }
 
         return $assignedGenerics;
+    }
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @param ReflectionClass<object> $parentReflection
+     */
+    private function parentType(ReflectionClass $reflection, ReflectionClass $parentReflection, TypeParser $typeParser): ClassType
+    {
+        $extendedClass = Reflection::extendedClassAnnotation($reflection);
+
+        if (count($extendedClass) > 1) {
+            throw new SeveralExtendTagsFound($reflection);
+        } elseif (count($extendedClass) === 0) {
+            $extendedClass = $parentReflection->name;
+        } else {
+            $extendedClass = $extendedClass[0];
+        }
+
+        try {
+            $parentType = $typeParser->parse($extendedClass);
+        } catch (InvalidType $exception) {
+            throw new ExtendTagTypeError($reflection, $exception);
+        }
+
+        if (! $parentType instanceof ClassType) {
+            throw new InvalidExtendTagType($reflection, $parentType);
+        }
+
+        if ($parentType->className() !== $parentReflection->name) {
+            throw new InvalidExtendTagClassName($reflection, $parentType);
+        }
+
+        return $parentType;
     }
 }
