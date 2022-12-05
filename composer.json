@@ -27,7 +27,7 @@
         "phpstan/phpstan-phpunit": "^1.0",
         "friendsofphp/php-cs-fixer": "^3.4",
         "marcocesarato/php-conventional-changelog": "^1.12",
-        "vimeo/psalm": "^4.18.1",
+        "vimeo/psalm": "^4.18.1 || ^5.0.0",
         "mikey179/vfsstream": "^1.6.10",
         "rector/rector": "^0.12.23"
     },
