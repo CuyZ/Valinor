@@ -33,11 +33,20 @@ jobs:
 
       - uses: "ramsey/composer-install@v2"
 
-      - name: Running PHPStan
-        run: php vendor/bin/phpstan
+      - name: Running Psalm (without plugin installed)
+        run: php vendor/bin/psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml
 
-      - name: Running Psalm
-        run: php vendor/bin/psalm
+      - name: Running Psalm (with plugin installed)
+        run: php vendor/bin/psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml
+
+      - name: Running PHPStan (without extension installed)
+        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist
+
+      - name: Running PHPStan (with extension installed)
+        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist
+
+      - name: Running PHPStan (global)
+        run: php vendor/bin/phpstan
 
       - name: Running PHP Coding Standards Fixer
         run: php vendor/bin/php-cs-fixer fix --dry-run

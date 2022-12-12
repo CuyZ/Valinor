@@ -27,7 +27,7 @@
         "phpstan/phpstan-phpunit": "^1.0",
         "friendsofphp/php-cs-fixer": "^3.4",
         "marcocesarato/php-conventional-changelog": "^1.12",
-        "vimeo/psalm": "^4.18.1",
+        "vimeo/psalm": "^5.0",
         "mikey179/vfsstream": "^1.6.10",
         "rector/rector": "^0.12.23"
     },
@@ -45,10 +45,13 @@
     "scripts": {
         "check": [
             "@putenv XDEBUG_MODE=off",
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "phpunit",
+            "psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml",
+            "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
+            "phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist",
+            "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
             "phpstan",
-            "psalm",
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix --dry-run",
             "rector --dry-run"
         ],

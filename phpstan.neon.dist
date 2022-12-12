@@ -11,7 +11,9 @@ parameters:
     paths:
         - src
         - tests
-        - qa/PHPStan
+        - qa
+    excludePaths:
+        - tests/StaticAnalysis
     ignoreErrors:
         # \PHPStan\Rules\BooleansInConditions
         - '#Only booleans are allowed in .* given#'

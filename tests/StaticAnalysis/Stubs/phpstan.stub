@@ -1,0 +1,5 @@
+<?php
+
+namespace PHPStan\Testing;
+
+function assertType(string $type, $value): void {}
