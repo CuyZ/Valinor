@@ -7,7 +7,7 @@ hide:
 
 Below are listed the changelogs for all released version of the library.
 
-## Version 1.0
+## Version 1
 
 - [`1.0.0` — 28th of November 2022](changelog/version-1.0.0.md)
 
