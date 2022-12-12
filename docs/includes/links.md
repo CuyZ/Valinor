@@ -9,5 +9,3 @@
 [ICU documentation]: https://unicode-org.github.io/icu/userguide/format_parse/messages/
 
 [contributors]: https://github.com/CuyZ/Valinor/graphs/contributors
-
-[blackfire-logo]: /img/blackfire-logo.svg "Blackfire logo"
