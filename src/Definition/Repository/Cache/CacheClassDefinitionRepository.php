@@ -23,12 +23,10 @@ final class CacheClassDefinitionRepository implements ClassDefinitionRepository
     {
         $key = "class-definition-{$type->toString()}";
 
-        if ($this->cache->has($key)) {
-            $entry = $this->cache->get($key);
+        $entry = $this->cache->get($key);
 
-            if ($entry) {
-                return $entry;
-            }
+        if ($entry) {
+            return $entry;
         }
 
         $class = $this->delegate->for($type);
