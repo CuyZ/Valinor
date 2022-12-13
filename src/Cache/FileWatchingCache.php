@@ -54,6 +54,10 @@ final class FileWatchingCache implements CacheInterface
 
     public function get($key, $default = null): mixed
     {
+        if (! $this->has($key)) {
+            return $default;
+        }
+
         return $this->delegate->get($key, $default);
     }
 

@@ -22,12 +22,10 @@ final class CacheObjectBuilderFactory implements ObjectBuilderFactory
     {
         $signature = $class->type()->toString();
 
-        if ($this->cache->has($signature)) {
-            $entry = $this->cache->get($signature);
+        $entry = $this->cache->get($signature);
 
-            if ($entry) {
-                return $entry;
-            }
+        if ($entry) {
+            return $entry;
         }
 
         $builders = $this->delegate->for($class);
