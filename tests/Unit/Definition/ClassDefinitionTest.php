@@ -24,7 +24,7 @@ final class ClassDefinitionTest extends TestCase
         $properties = new Properties(FakePropertyDefinition::new());
         $methods = new Methods(FakeMethodDefinition::new());
 
-        $class = new ClassDefinition($type, $attributes, $properties, $methods, true);
+        $class = new ClassDefinition($type, $attributes, $properties, $methods, true, false);
 
         self::assertSame(stdClass::class, $class->name());
         self::assertSame($type, $class->type());
@@ -32,5 +32,6 @@ final class ClassDefinitionTest extends TestCase
         self::assertSame($properties, $class->properties());
         self::assertSame($methods, $class->methods());
         self::assertSame(true, $class->isFinal());
+        self::assertSame(false, $class->isAbstract());
     }
 }

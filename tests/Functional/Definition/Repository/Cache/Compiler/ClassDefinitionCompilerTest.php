@@ -48,6 +48,7 @@ final class ClassDefinitionCompilerTest extends TestCase
         self::assertSame($className, $class->name());
         self::assertSame($className, $class->type()->className());
         self::assertFalse($class->isFinal());
+        self::assertFalse($class->isAbstract());
 
         $properties = $class->properties();
 
@@ -109,6 +110,16 @@ final class ClassDefinitionCompilerTest extends TestCase
         self::assertTrue($class->isFinal());
     }
 
+    public function test_abstract_class_is_compiled_correctly(): void
+    {
+        $class = FakeClassDefinition::fromReflection(new ReflectionClass(SomeAbstractClass::class));
+
+        $class = $this->eval($this->compiler->compile($class));
+
+        self::assertInstanceOf(ClassDefinition::class, $class);
+        self::assertTrue($class->isAbstract());
+    }
+
     private function eval(string $code): mixed
     {
         try {
@@ -120,5 +131,9 @@ final class ClassDefinitionCompilerTest extends TestCase
 }
 
 final class SomeFinalClass
+{
+}
+
+abstract class SomeAbstractClass
 {
 }
