@@ -63,6 +63,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $this->attributesFactory->for($reflection),
             new Properties(...$this->properties($type)),
             new Methods(...$this->methods($type)),
+            $reflection->isFinal(),
         );
     }
 

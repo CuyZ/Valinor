@@ -30,7 +30,8 @@ final class FakeClassDefinition
             new ClassType($name),
             new FakeAttributes(),
             new Properties(),
-            new Methods()
+            new Methods(),
+            true,
         );
     }
 
@@ -53,7 +54,8 @@ final class FakeClassDefinition
             new ClassType($reflection->name),
             new FakeAttributes(),
             new Properties(...$properties),
-            new Methods(...$methods)
+            new Methods(...$methods),
+            $reflection->isFinal(),
         );
     }
 }

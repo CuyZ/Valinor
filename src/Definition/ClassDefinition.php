@@ -13,7 +13,8 @@ final class ClassDefinition
         private ClassType $type,
         private Attributes $attributes,
         private Properties $properties,
-        private Methods $methods
+        private Methods $methods,
+        private bool $isFinal,
     ) {
     }
 
@@ -43,5 +44,10 @@ final class ClassDefinition
     public function methods(): Methods
     {
         return $this->methods;
+    }
+
+    public function isFinal(): bool
+    {
+        return $this->isFinal;
     }
 }
