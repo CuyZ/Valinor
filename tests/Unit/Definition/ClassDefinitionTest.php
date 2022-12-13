@@ -24,12 +24,13 @@ final class ClassDefinitionTest extends TestCase
         $properties = new Properties(FakePropertyDefinition::new());
         $methods = new Methods(FakeMethodDefinition::new());
 
-        $class = new ClassDefinition($type, $attributes, $properties, $methods);
+        $class = new ClassDefinition($type, $attributes, $properties, $methods, true);
 
         self::assertSame(stdClass::class, $class->name());
         self::assertSame($type, $class->type());
         self::assertSame($attributes, $class->attributes());
         self::assertSame($properties, $class->properties());
         self::assertSame($methods, $class->methods());
+        self::assertSame(true, $class->isFinal());
     }
 }
