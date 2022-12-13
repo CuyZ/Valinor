@@ -56,6 +56,7 @@ final class ClassDefinitionCompiler implements CacheCompiler
         $attributes = $this->attributesCompiler->compile($value->attributes());
 
         $isFinal = var_export($value->isFinal(), true);
+        $isAbstract = var_export($value->isAbstract(), true);
 
         return <<<PHP
         new \CuyZ\Valinor\Definition\ClassDefinition(
@@ -64,6 +65,7 @@ final class ClassDefinitionCompiler implements CacheCompiler
             new \CuyZ\Valinor\Definition\Properties($properties),
             new \CuyZ\Valinor\Definition\Methods($methods),
             $isFinal,
+            $isAbstract,
         )
         PHP;
     }

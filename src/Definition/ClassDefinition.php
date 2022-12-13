@@ -15,6 +15,7 @@ final class ClassDefinition
         private Properties $properties,
         private Methods $methods,
         private bool $isFinal,
+        private bool $isAbstract,
     ) {
     }
 
@@ -49,5 +50,10 @@ final class ClassDefinition
     public function isFinal(): bool
     {
         return $this->isFinal;
+    }
+
+    public function isAbstract(): bool
+    {
+        return $this->isAbstract;
     }
 }

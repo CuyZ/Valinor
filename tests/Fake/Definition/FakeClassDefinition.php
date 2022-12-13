@@ -32,6 +32,7 @@ final class FakeClassDefinition
             new Properties(),
             new Methods(),
             true,
+            false,
         );
     }
 
@@ -56,6 +57,7 @@ final class FakeClassDefinition
             new Properties(...$properties),
             new Methods(...$methods),
             $reflection->isFinal(),
+            $reflection->isAbstract(),
         );
     }
 }
