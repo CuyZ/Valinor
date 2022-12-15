@@ -130,6 +130,11 @@ final class IntegerValueTypeTest extends TestCase
         self::assertFalse((new IntegerValueType(-1337))->matches(new PositiveIntegerType()));
     }
 
+    public function test_does_not_match_positive_integer_when_value_is_zero(): void
+    {
+        self::assertFalse((new IntegerValueType(0))->matches(new PositiveIntegerType()));
+    }
+
     public function test_matches_negative_integer_when_value_is_negative(): void
     {
         self::assertTrue((new IntegerValueType(-1337))->matches(new NegativeIntegerType()));
@@ -138,6 +143,11 @@ final class IntegerValueTypeTest extends TestCase
     public function test_does_not_match_negative_integer_when_value_is_positive(): void
     {
         self::assertFalse((new IntegerValueType(1337))->matches(new NegativeIntegerType()));
+    }
+
+    public function test_does_not_match_negative_integer_when_value_is_zero(): void
+    {
+        self::assertFalse((new IntegerValueType(0))->matches(new NegativeIntegerType()));
     }
 
     public function test_does_not_match_other_type(): void

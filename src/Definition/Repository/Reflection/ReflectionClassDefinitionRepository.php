@@ -126,7 +126,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $sameKeys = array_filter($keys, fn ($value) => $value === $key);
 
             if (count($sameKeys) > 1) {
-                $duplicates[$key] = true;
+                $duplicates[$key] = null;
             }
         }
 

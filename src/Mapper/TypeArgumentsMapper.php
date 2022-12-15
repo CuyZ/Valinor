@@ -39,7 +39,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
             iterator_to_array($function->parameters())
         );
 
-        $type = new ShapedArrayType(...array_values($elements));
+        $type = new ShapedArrayType(...$elements);
         $shell = Shell::root($type, $source);
 
         $node = $this->nodeBuilder->build($shell);

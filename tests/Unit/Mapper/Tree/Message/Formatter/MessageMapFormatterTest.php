@@ -78,4 +78,12 @@ final class MessageMapFormatterTest extends TestCase
 
         self::assertSame('some message', (string)$message);
     }
+
+    public function test_default_to_returns_another_instance(): void
+    {
+        $formatterA = new MessageMapFormatter([]);
+        $formatterB = $formatterA->defaultsTo('foo');
+
+        self::assertNotSame($formatterA, $formatterB);
+    }
 }
