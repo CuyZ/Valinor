@@ -167,6 +167,11 @@ final class IntegerRangeTypeTest extends TestCase
         self::assertFalse((new IntegerRangeType(-1337, -42))->matches(new PositiveIntegerType()));
     }
 
+    public function test_does_not_match_positive_integer_when_min_is_zero(): void
+    {
+        self::assertFalse((new IntegerRangeType(0, 1337))->matches(new PositiveIntegerType()));
+    }
+
     public function test_matches_negative_integer_when_range_is_negative(): void
     {
         self::assertTrue((new IntegerRangeType(-1337, -42))->matches(new NegativeIntegerType()));
@@ -180,6 +185,11 @@ final class IntegerRangeTypeTest extends TestCase
     public function test_does_not_match_negative_integer_when_max_is_positive(): void
     {
         self::assertFalse((new IntegerRangeType(-42, 1337))->matches(new NegativeIntegerType()));
+    }
+
+    public function test_does_not_match_negative_integer_when_max_is_zero(): void
+    {
+        self::assertFalse((new IntegerRangeType(-42, 0))->matches(new NegativeIntegerType()));
     }
 
     public function test_does_not_match_other_type(): void

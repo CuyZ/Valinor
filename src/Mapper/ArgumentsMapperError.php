@@ -32,7 +32,7 @@ final class ArgumentsMapperError extends RuntimeException implements MappingErro
             $body = "Could not map arguments of `{$function->signature()}` with value $source. A total of $errorsCount errors were encountered.";
         }
 
-        parent::__construct($body, 1617193185);
+        parent::__construct($body, 1671115362);
     }
 
     public function node(): Node

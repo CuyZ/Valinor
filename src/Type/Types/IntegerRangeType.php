@@ -32,12 +32,12 @@ final class IntegerRangeType implements IntegerType
             $max < PHP_INT_MAX ? $max : 'max'
         );
 
-        if ($min === $max) {
-            throw new SameValueForIntegerRange($min);
-        }
-
         if ($min > $max) {
             throw new ReversedValuesForIntegerRange($min, $max);
+        }
+
+        if ($min === $max) {
+            throw new SameValueForIntegerRange($min);
         }
     }
 
@@ -62,11 +62,11 @@ final class IntegerRangeType implements IntegerType
             return true;
         }
 
-        if ($other instanceof NegativeIntegerType && $this->min < 0 && $this->max < 0) {
+        if ($other instanceof NegativeIntegerType && $this->max < 0) {
             return true;
         }
 
-        if ($other instanceof PositiveIntegerType && $this->min > 0 && $this->max > 0) {
+        if ($other instanceof PositiveIntegerType && $this->min > 0) {
             return true;
         }
 

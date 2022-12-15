@@ -10,7 +10,7 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class MappingErrorTest extends IntegrationTest
 {
-    public function test_single_error_details_are_reported_in_exception_message(): void
+    public function test_single_tree_mapper_error_details_are_reported_in_exception_message(): void
     {
         $this->expectException(MappingError::class);
         $this->expectExceptionCode(1617193185);
@@ -19,7 +19,7 @@ final class MappingErrorTest extends IntegrationTest
         (new MapperBuilder())->mapper()->map('string', ['foo']);
     }
 
-    public function test_several_errors_count_are_reported_in_exception_message(): void
+    public function test_several_tree_mapper_errors_count_are_reported_in_exception_message(): void
     {
         $this->expectException(MappingError::class);
         $this->expectExceptionCode(1617193185);
@@ -29,5 +29,13 @@ final class MappingErrorTest extends IntegrationTest
             'array{foo: string, bar: int}',
             ['foo' => 42, 'bar' => 'some string']
         );
+    }
+
+    public function test_single_argument_mapper_error_details_are_reported_in_exception_message(): void
+    {
+        $this->expectException(MappingError::class);
+        $this->expectExceptionCode(1671115362);
+
+        (new MapperBuilder())->argumentsMapper()->mapArguments(fn (string $foo) => $foo, 42);
     }
 }
