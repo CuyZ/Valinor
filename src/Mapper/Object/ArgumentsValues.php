@@ -30,10 +30,7 @@ final class ArgumentsValues implements IteratorAggregate
         $this->arguments = $arguments;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function forInterface(Arguments $arguments, $value): self
+    public static function forInterface(Arguments $arguments, mixed $value): self
     {
         $self = new self($arguments);
 
@@ -44,10 +41,7 @@ final class ArgumentsValues implements IteratorAggregate
         return $self;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function forClass(Arguments $arguments, $value): self
+    public static function forClass(Arguments $arguments, mixed $value): self
     {
         $self = new self($arguments);
         $self->value = $self->transform($value);
@@ -60,10 +54,7 @@ final class ArgumentsValues implements IteratorAggregate
         return array_key_exists($name, $this->value);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getValue(string $name)
+    public function getValue(string $name): mixed
     {
         return $this->value[$name];
     }
@@ -80,10 +71,9 @@ final class ArgumentsValues implements IteratorAggregate
     }
 
     /**
-     * @param mixed $value
      * @return mixed[]
      */
-    private function transform($value): array
+    private function transform(mixed $value): array
     {
         $isValid = true;
 
