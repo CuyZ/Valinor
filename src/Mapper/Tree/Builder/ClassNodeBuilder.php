@@ -16,7 +16,6 @@ final class ClassNodeBuilder
 {
     public function __construct(private bool $allowSuperfluousKeys)
     {
-        $this->allowSuperfluousKeys = $allowSuperfluousKeys;
     }
 
     public function build(ObjectBuilder $builder, Shell $shell, RootNodeBuilder $rootBuilder): TreeNode

@@ -15,24 +15,12 @@ use function assert;
 /** @internal */
 final class ProxyClassNodeBuilder implements NodeBuilder
 {
-    private ClassDefinitionRepository $classDefinitionRepository;
-
-    private ObjectBuilderFactory $objectBuilderFactory;
-
-    private ClassNodeBuilder $classBuilder;
-
-    private bool $enableFlexibleCasting;
-
     public function __construct(
-        ClassDefinitionRepository $classDefinitionRepository,
-        ObjectBuilderFactory $objectBuilderFactory,
-        ClassNodeBuilder $classBuilder,
-        bool $enableFlexibleCasting
+        private ClassDefinitionRepository $classDefinitionRepository,
+        private ObjectBuilderFactory $objectBuilderFactory,
+        private ClassNodeBuilder $classBuilder,
+        private bool $enableFlexibleCasting,
     ) {
-        $this->classDefinitionRepository = $classDefinitionRepository;
-        $this->objectBuilderFactory = $objectBuilderFactory;
-        $this->classBuilder = $classBuilder;
-        $this->enableFlexibleCasting = $enableFlexibleCasting;
     }
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
