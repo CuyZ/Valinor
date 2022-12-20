@@ -13,8 +13,8 @@ use Throwable;
 /** @internal */
 final class Settings
 {
-    /** @var array<interface-string, callable> */
-    public array $interfaceMapping = [];
+    /** @var array<class-string|interface-string, callable> */
+    public array $inferredMapping = [];
 
     /** @var array<class-string, null> */
     public array $nativeConstructors = [];
@@ -39,7 +39,7 @@ final class Settings
 
     public function __construct()
     {
-        $this->interfaceMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
+        $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
         $this->exceptionFilter = fn (Throwable $exception) => throw $exception;
     }
 }

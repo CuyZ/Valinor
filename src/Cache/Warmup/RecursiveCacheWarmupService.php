@@ -61,7 +61,13 @@ final class RecursiveCacheWarmupService
 
     private function warmupInterfaceType(InterfaceType $type): void
     {
-        $function = $this->implementations->function($type->className());
+        $interfaceName = $type->className();
+
+        if (! $this->implementations->has($interfaceName)) {
+            return;
+        }
+
+        $function = $this->implementations->function($interfaceName);
 
         $this->warmupType($function->returnType());
 

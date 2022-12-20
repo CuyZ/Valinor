@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidAbstractObjectName;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
@@ -38,12 +37,13 @@ final class ObjectImplementations
         }
     }
 
+    public function has(string $name): bool
+    {
+        return $this->functions->has($name);
+    }
+
     public function function(string $name): FunctionDefinition
     {
-        if (! $this->functions->has($name)) {
-            throw new CannotResolveObjectType($name);
-        }
-
         return $this->functions->get($name)->definition();
     }
 
@@ -88,7 +88,7 @@ final class ObjectImplementations
         } catch (InvalidType) {
         }
 
-        if (! isset($type) || ! $type instanceof InterfaceType) {
+        if (! isset($type) || (! $type instanceof InterfaceType && ! $type instanceof ClassType)) {
             throw new InvalidAbstractObjectName($name);
         }
 
@@ -99,7 +99,7 @@ final class ObjectImplementations
         }
 
         foreach ($classes as $classType) {
-            if (! $classType instanceof ClassType || ! $type->matches($classType)) {
+            if (! $classType instanceof ClassType || ! $classType->matches($type)) {
                 throw new ResolvedImplementationIsNotAccepted($name, $classType);
             }
         }

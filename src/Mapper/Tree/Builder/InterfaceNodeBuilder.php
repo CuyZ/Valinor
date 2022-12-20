@@ -9,9 +9,12 @@ use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 
 /** @internal */
@@ -31,7 +34,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
     {
         $type = $shell->type();
 
-        if (! $type instanceof InterfaceType) {
+        if (! $type instanceof InterfaceType && ! $type instanceof ClassType) {
             return $this->delegate->build($shell, $rootBuilder);
         }
 
@@ -39,10 +42,22 @@ final class InterfaceNodeBuilder implements NodeBuilder
             $shell = $shell->withValue([]);
         }
 
-        $interfaceName = $type->className();
+        $className = $type->className();
 
-        $function = $this->implementations->function($interfaceName);
+        if (! $this->implementations->has($className)) {
+            if ($type instanceof InterfaceType || $this->classDefinitionRepository->for($type)->isAbstract()) {
+                throw new CannotResolveObjectType($className);
+            }
+
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
+        $function = $this->implementations->function($className);
         $arguments = Arguments::fromParameters($function->parameters());
+
+        if ($type instanceof ClassType && $this->classDefinitionRepository->for($type)->isFinal()) {
+            throw new CannotInferFinalClass($type, $function);
+        }
 
         $children = $this->children($shell, $arguments, $rootBuilder);
 
@@ -57,7 +72,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         }
 
         try {
-            $classType = $this->implementations->implementation($interfaceName, $values);
+            $classType = $this->implementations->implementation($className, $values);
         } catch (ObjectImplementationCallbackError $exception) {
             throw UserlandError::from($exception->original());
         }

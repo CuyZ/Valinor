@@ -7,6 +7,7 @@ use Rector\Config\RectorConfig;
 use Rector\Core\Configuration\Option;
 use Rector\Php74\Rector\LNumber\AddLiteralSeparatorToNumberRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\Php80\Rector\FunctionLike\UnionTypesRector;
 use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $config): void {
@@ -29,5 +30,8 @@ return static function (RectorConfig $config): void {
     $config->skip([
         AddLiteralSeparatorToNumberRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class,
+        UnionTypesRector::class => [
+            __DIR__ . '/src/MapperBuilder.php'
+        ],
     ]);
 };
