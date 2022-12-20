@@ -54,13 +54,13 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @param interface-string $interfaceName
+     * @param interface-string|class-string $name
      * @psalm-param pure-callable $callback
      */
-    public function infer(string $interfaceName, callable $callback): self
+    public function infer(string $name, callable $callback): self
     {
         $clone = clone $this;
-        $clone->settings->interfaceMapping[$interfaceName] = $callback;
+        $clone->settings->inferredMapping[$name] = $callback;
 
         return $clone;
     }

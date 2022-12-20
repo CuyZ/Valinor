@@ -151,7 +151,7 @@ final class Container
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
-                    $settings->interfaceMapping
+                    $settings->inferredMapping
                 ),
                 $this->get(TypeParser::class),
             ),
