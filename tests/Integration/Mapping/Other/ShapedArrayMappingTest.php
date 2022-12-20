@@ -60,10 +60,10 @@ final class ShapedArrayMappingTest extends IntegrationTest
         }
     }
 
-    public function test_superfluous_values_throws_exception(): void
+    public function test_superfluous_values_throws_exception_and_keeps_nested_errors(): void
     {
         $source = [
-            'foo' => 'foo',
+            'foo' => 404,
             'bar' => 42,
             'fiz' => 1337.404,
         ];
@@ -71,10 +71,12 @@ final class ShapedArrayMappingTest extends IntegrationTest
         try {
             (new MapperBuilder())->mapper()->map('array{foo: string, bar: int}', $source);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
+            $rootError = $exception->node()->messages()[0];
+            $nestedError = $exception->node()->children()['foo']->messages()[0];
 
-            self::assertSame('1655117782', $error->code());
-            self::assertSame('Unexpected key(s) `fiz`, expected `foo`, `bar`.', (string)$error);
+            self::assertSame('1655117782', $rootError->code());
+            self::assertSame('Unexpected key(s) `fiz`, expected `foo`, `bar`.', (string)$rootError);
+            self::assertSame('Value 404 is not a valid string.', (string)$nestedError);
         }
     }
 }
