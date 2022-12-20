@@ -10,7 +10,6 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
 use function array_key_exists;
-use function array_keys;
 use function assert;
 use function count;
 use function is_array;
@@ -34,9 +33,16 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         }
 
         $children = $this->children($type, $shell, $rootBuilder);
+
         $array = $this->buildArray($children);
 
-        return TreeNode::branch($shell, $array, $children);
+        $node = TreeNode::branch($shell, $array, $children);
+
+        if (! $this->allowSuperfluousKeys && count($value) > count($children)) {
+            $node = $node->withMessage(new UnexpectedShapedArrayKeys($value, $children));
+        }
+
+        return $node;
     }
 
     /**
@@ -63,10 +69,6 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $children[$key] = $rootBuilder->build($child);
 
             unset($value[$key]);
-        }
-
-        if (! $this->allowSuperfluousKeys && count($value) > 0) {
-            throw new UnexpectedShapedArrayKeys(array_keys($value), $elements);
         }
 
         return $children;

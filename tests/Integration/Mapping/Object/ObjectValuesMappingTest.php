@@ -46,21 +46,23 @@ final class ObjectValuesMappingTest extends IntegrationTest
         }
     }
 
-    public function test_superfluous_values_throws_exception(): void
+    public function test_superfluous_values_throws_exception_and_keeps_nested_errors(): void
     {
         try {
             (new MapperBuilder())->mapper()->map(ObjectWithTwoProperties::class, [
-                'stringA' => 'fooA',
+                'stringA' => 42,
                 'stringB' => 'fooB',
                 'unexpectedValueA' => 'foo',
                 'unexpectedValueB' => 'bar',
                 42 => 'baz',
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
+            $rootError = $exception->node()->messages()[0];
+            $nestedError = $exception->node()->children()['stringA']->messages()[0];
 
-            self::assertSame('1655149208', $error->code());
-            self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.', (string)$error);
+            self::assertSame('1655149208', $rootError->code());
+            self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.', (string)$rootError);
+            self::assertSame('Value 42 is not a valid string.', (string)$nestedError);
         }
     }
 

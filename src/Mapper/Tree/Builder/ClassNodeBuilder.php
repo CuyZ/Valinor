@@ -22,17 +22,19 @@ final class ClassNodeBuilder
     {
         $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell->value());
 
-        if (! $this->allowSuperfluousKeys && count($arguments->superfluousKeys()) > 0) {
-            return TreeNode::error($shell, new UnexpectedArrayKeysForClass($arguments));
-        }
-
         $children = $this->children($shell, $arguments, $rootBuilder);
 
         $object = $this->buildObject($builder, $children);
 
-        return count($children) === 1
+        $node = count($children) === 1
             ? TreeNode::flattenedBranch($shell, $object, $children[0])
             : TreeNode::branch($shell, $object, $children);
+
+        if (! $this->allowSuperfluousKeys && count($arguments->superfluousKeys()) > 0) {
+            $node = $node->withMessage(new UnexpectedArrayKeysForClass($arguments));
+        }
+
+        return $node;
     }
 
     /**
