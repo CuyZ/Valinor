@@ -58,15 +58,12 @@ final class TreeNode
         return $instance;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function flattenedBranch(Shell $shell, $value, self $child): self
+    public static function flattenedBranch(Shell $shell, mixed $value, self $child): self
     {
         $instance = new self($shell, $value);
         $instance->messages = $child->messages;
         $instance->children = $child->children;
-        $instance->check();
+        $instance->valid = $child->valid;
 
         return $instance;
     }
