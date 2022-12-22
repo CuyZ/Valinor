@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition;
 
 use Countable;
-use CuyZ\Valinor\Definition\Exception\MethodNotFound;
 use IteratorAggregate;
 use Traversable;
 
@@ -33,10 +32,6 @@ final class Methods implements IteratorAggregate, Countable
 
     public function get(string $name): MethodDefinition
     {
-        if (! $this->has($name)) {
-            throw new MethodNotFound($name);
-        }
-
         return $this->methods[$name];
     }
 

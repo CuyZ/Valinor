@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 
-use CuyZ\Valinor\Mapper\Object\Exception\MissingPropertyArgument;
 use CuyZ\Valinor\Mapper\Object\ReflectionObjectBuilder;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use PHPUnit\Framework\TestCase;
@@ -59,21 +58,5 @@ final class ReflectionObjectBuilderTest extends TestCase
         $argumentsB = $objectBuilder->describeArguments();
 
         self::assertSame($argumentsA, $argumentsB);
-    }
-
-    public function test_missing_arguments_throws_exception(): void
-    {
-        $object = new class () {
-            public string $value;
-        };
-
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
-        $objectBuilder = new ReflectionObjectBuilder($class);
-
-        $this->expectException(MissingPropertyArgument::class);
-        $this->expectExceptionCode(1629469529);
-        $this->expectExceptionMessage("Missing value `Signature::value` of type `string`.");
-
-        $objectBuilder->build([]);
     }
 }

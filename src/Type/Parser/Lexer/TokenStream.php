@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
-use CuyZ\Valinor\Type\Parser\Exception\Stream\TryingToAccessOutboundToken;
-use CuyZ\Valinor\Type\Parser\Exception\Stream\TryingToReadFinishedStream;
-use CuyZ\Valinor\Type\Parser\Exception\Stream\WrongTokenType;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\LeftTraversingToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
 use CuyZ\Valinor\Type\Type;
+
+use function assert;
 
 /** @internal */
 final class TokenStream
@@ -28,15 +27,11 @@ final class TokenStream
     /** @phpstan-impure */
     public function read(): Type
     {
-        if ($this->done()) {
-            throw new TryingToReadFinishedStream();
-        }
+        assert(! $this->done());
 
         $token = $this->forward();
 
-        if (! $token instanceof TraversingToken) {
-            throw new WrongTokenType($token);
-        }
+        assert($token instanceof TraversingToken);
 
         $type = $token->traverse($this);
 
@@ -58,25 +53,13 @@ final class TokenStream
     /** @phpstan-impure */
     public function next(): Token
     {
-        $peek = $this->peek + 1;
-
-        if (! isset($this->tokens[$peek])) {
-            throw new TryingToAccessOutboundToken();
-        }
-
-        return $this->tokens[$peek];
+        return $this->tokens[$this->peek + 1];
     }
 
     /** @phpstan-impure */
     public function forward(): Token
     {
-        $this->peek++;
-
-        if (! isset($this->tokens[$this->peek])) {
-            throw new TryingToAccessOutboundToken();
-        }
-
-        return $this->tokens[$this->peek];
+        return $this->tokens[++$this->peek];
     }
 
     /** @phpstan-impure */

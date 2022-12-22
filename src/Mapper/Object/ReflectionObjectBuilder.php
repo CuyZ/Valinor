@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Mapper\Object\Exception\MissingPropertyArgument;
 
-use function array_key_exists;
 use function count;
 
 /** @internal */
@@ -26,12 +24,6 @@ final class ReflectionObjectBuilder implements ObjectBuilder
 
     public function build(array $arguments): object
     {
-        foreach ($this->class->properties() as $property) {
-            if (! array_key_exists($property->name(), $arguments) && ! $property->hasDefaultValue()) {
-                throw new MissingPropertyArgument($property);
-            }
-        }
-
         $object = new ($this->class->name())();
 
         if (count($arguments) > 0) {

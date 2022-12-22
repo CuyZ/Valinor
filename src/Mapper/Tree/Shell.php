@@ -6,14 +6,12 @@ namespace CuyZ\Valinor\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\AttributesContainer;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetParentOfRootShell;
 use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
-use CuyZ\Valinor\Mapper\Tree\Exception\ShellHasNoValue;
-use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use function array_unshift;
+use function assert;
 use function implode;
 
 /** @internal */
@@ -31,9 +29,7 @@ final class Shell
 
     private function __construct(private Type $type)
     {
-        if ($type instanceof UnresolvableType) {
-            throw new UnresolvableShellType($type);
-        }
+        assert(! $type instanceof UnresolvableType);
     }
 
     public static function root(Type $type, mixed $value): self
@@ -64,22 +60,13 @@ final class Shell
         return ! isset($this->parent);
     }
 
-    public function parent(): self
-    {
-        if (! isset($this->parent)) {
-            throw new CannotGetParentOfRootShell();
-        }
-
-        return $this->parent;
-    }
-
     public function withType(Type $newType): self
     {
         $clone = clone $this;
         $clone->type = $newType;
 
         if (! $newType->matches($this->type)) {
-            throw new NewShellTypeDoesNotMatch($this, $newType);
+            throw new NewShellTypeDoesNotMatch($this, $newType); // @todo remove?
         }
 
         return $clone;
@@ -106,9 +93,7 @@ final class Shell
 
     public function value(): mixed
     {
-        if (! $this->hasValue) {
-            throw new ShellHasNoValue();
-        }
+        assert($this->hasValue);
 
         return $this->value;
     }

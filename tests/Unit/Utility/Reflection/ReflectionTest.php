@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
 use Closure;
-use CuyZ\Valinor\Tests\Fake\FakeReflector;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
@@ -19,7 +18,6 @@ use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
-use RuntimeException;
 use stdClass;
 
 final class ReflectionTest extends TestCase
@@ -80,16 +78,6 @@ final class ReflectionTest extends TestCase
         self::assertSame(self::class . '::test_reflection_signatures_are_correct()', Reflection::signature($reflectionFunctionMethod));
         self::assertSame('Closure (line 8 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnOneLineClosure));
         self::assertSame('Closure (lines 10 to 12 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnSeveralLinesClosure));
-    }
-
-    public function test_invalid_reflection_signature_throws_exception(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Invalid reflection type `' . FakeReflector::class . '`.');
-
-        $wrongReflector = new FakeReflector();
-
-        Reflection::signature($wrongReflector);
     }
 
     public function test_scalar_type_is_handled(): void
