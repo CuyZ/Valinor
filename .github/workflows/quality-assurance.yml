@@ -18,6 +18,7 @@ jobs:
           php-version: ${{ env.php-version }}
           extensions: ${{ env.php-extensions }}
           ini-values: zend.assertions=1
+          coverage: none # Xdebug is installed by default, so we remove it manually
 
       - name: Creating var directory
         run: mkdir -p var/cache
