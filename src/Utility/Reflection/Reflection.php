@@ -264,7 +264,7 @@ final class Reflection
     /**
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionFunctionAbstract $reflection
      */
-    private static function sanitizeDocComment(\ReflectionClass|\ReflectionProperty|\ReflectionFunctionAbstract $reflection): string
+    private static function sanitizeDocComment(\ReflectionClass|\ReflectionProperty|ReflectionFunctionAbstract $reflection): string
     {
         $docComment = preg_replace('#^\s*/\*\*([^/]+)\*/\s*$#', '$1', $reflection->getDocComment() ?: '');
 

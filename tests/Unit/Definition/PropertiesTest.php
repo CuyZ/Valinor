@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
-use CuyZ\Valinor\Definition\Exception\PropertyNotFound;
 use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Tests\Fake\Definition\FakePropertyDefinition;
 use CuyZ\Valinor\Tests\Traits\IteratorTester;
@@ -25,15 +24,6 @@ final class PropertiesTest extends TestCase
 
         self::assertTrue($properties->has($property->name()));
         self::assertSame($property, $properties->get($property->name()));
-    }
-
-    public function test_get_non_existing_property_throws_exception(): void
-    {
-        $this->expectException(PropertyNotFound::class);
-        $this->expectExceptionCode(1510936145);
-        $this->expectExceptionMessage('The property `unknownProperty` does not exist.');
-
-        (new Properties())->get('unknownProperty');
     }
 
     public function test_properties_are_countable(): void

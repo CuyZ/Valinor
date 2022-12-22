@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree;
 
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetParentOfRootShell;
 use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
-use CuyZ\Valinor\Mapper\Tree\Exception\ShellHasNoValue;
-use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
-use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
 
 final class ShellTest extends TestCase
@@ -47,26 +42,6 @@ final class ShellTest extends TestCase
         self::assertSame($typeB, $shellB->type());
     }
 
-    public function test_get_value_when_shell_has_no_value_throws_exception(): void
-    {
-        $this->expectException(ShellHasNoValue::class);
-        $this->expectExceptionCode(1655029618);
-        $this->expectExceptionMessage('Shell has no value.');
-
-        FakeShell::any()->child('foo', new FakeType())->value();
-    }
-
-    public function test_unresolvable_type_throws_exception(): void
-    {
-        $type = new UnresolvableType('some-type', 'some message');
-
-        $this->expectException(UnresolvableShellType::class);
-        $this->expectExceptionCode(1630943848);
-        $this->expectExceptionMessage('some message');
-
-        Shell::root($type, []);
-    }
-
     public function test_change_type_with_invalid_type_throws_exception(): void
     {
         $typeA = new FakeType();
@@ -97,16 +72,6 @@ final class ShellTest extends TestCase
 
         self::assertTrue($shell->isRoot());
         self::assertSame('', $shell->name());
-    }
-
-    public function test_get_root_shell_parent_throws_exception(): void
-    {
-        $this->expectException(CannotGetParentOfRootShell::class);
-        $this->expectExceptionCode(1630674894);
-        $this->expectExceptionMessage('Impossible to get the parent of a root shell.');
-
-        $shell = Shell::root(new FakeType(), []);
-        $shell->parent();
     }
 
     public function test_shell_child_values_can_be_retrieved(): void
