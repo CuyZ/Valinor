@@ -203,6 +203,27 @@ final class Reflection
      * @param ReflectionClass<object> $reflection
      * @return array<string, string>
      */
+    public static function magicProperties(ReflectionClass $reflection): array
+    {
+        $types = [];
+        $docComment = self::sanitizeDocComment($reflection);
+
+        $expression = sprintf('/@property\s+%s\s+\$([a-zA-Z_]+)/', self::TYPE_EXPRESSION);
+
+        preg_match_all($expression, $docComment, $matches);
+
+        foreach ($matches[2] as $key => $name) {
+            $types[(string)$name] = $matches[1][$key];
+        }
+
+        return $types;
+    }
+
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return array<string, string>
+     */
     public static function localTypeAliases(ReflectionClass $reflection): array
     {
         $types = [];

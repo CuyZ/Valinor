@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
+use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Type\Type;
@@ -28,6 +29,34 @@ final class ReflectionPropertyDefinitionBuilder
         $defaultValue = $reflection->getDefaultValue();
         $isPublic = $reflection->isPublic();
         $attributes = $this->attributesRepository->for($reflection);
+
+        if ($hasDefaultValue
+            && ! $type instanceof UnresolvableType
+            && ! $type->accepts($defaultValue)
+        ) {
+            $type = UnresolvableType::forInvalidPropertyDefaultValue($signature, $type, $defaultValue);
+        }
+
+        return new PropertyDefinition(
+            $name,
+            $signature,
+            $type,
+            $hasDefaultValue,
+            $defaultValue,
+            $isPublic,
+            $attributes
+        );
+    }
+
+    public function forMagic(string $class, string $name, string $type, ReflectionTypeResolver $typeResolver): PropertyDefinition
+    {
+        $name = $name;
+        $signature = "$class::\$$name";
+        $type = $typeResolver->advancedParser->parse($type);
+        $hasDefaultValue = false;
+        $defaultValue = null;
+        $isPublic = true;
+        $attributes = new AttributesContainer();
 
         if ($hasDefaultValue
             && ! $type instanceof UnresolvableType

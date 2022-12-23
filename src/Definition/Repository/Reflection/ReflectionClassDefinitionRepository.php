@@ -73,14 +73,21 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
      */
     private function properties(ClassType $type): array
     {
-        return array_map(
-            function (ReflectionProperty $property) use ($type) {
-                $typeResolver = $this->typeResolver($type, $property->class);
-
-                return $this->propertyBuilder->for($property, $typeResolver);
-            },
-            Reflection::class($type->className())->getProperties()
-        );
+        $result = [];
+        foreach (Reflection::class($type->className())->getProperties() as $property) {
+            $typeResolver = $this->typeResolver($type, $property->class);
+            $result []= $this->propertyBuilder->for($property, $typeResolver);
+        }
+        foreach (Reflection::magicProperties(Reflection::class($type->className())) as $name => $property) {
+            $typeResolver = $this->typeResolver($type, $type->className());
+            $result []= $this->propertyBuilder->forMagic(
+                $type->className(),
+                $name,
+                $property,
+                $typeResolver
+            );
+        }
+        return $result;
     }
 
     /**

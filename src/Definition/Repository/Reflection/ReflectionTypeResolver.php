@@ -20,7 +20,7 @@ final class ReflectionTypeResolver
 {
     public function __construct(
         private TypeParser $nativeParser,
-        private TypeParser $advancedParser
+        public TypeParser $advancedParser
     ) {
     }
 
