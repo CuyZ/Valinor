@@ -26,7 +26,6 @@ use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionMethod;
-use ReflectionProperty;
 
 use function array_filter;
 use function array_keys;
@@ -54,14 +53,14 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $this->methodBuilder = new ReflectionMethodDefinitionBuilder($attributesFactory);
     }
 
-    public function for(ClassType $type): ClassDefinition
+    public function for(ClassType $type, bool $magic = false): ClassDefinition
     {
         $reflection = Reflection::class($type->className());
 
         return new ClassDefinition(
             $type,
             $this->attributesFactory->for($reflection),
-            new Properties(...$this->properties($type)),
+            new Properties(...$this->properties($type, $magic)),
             new Methods(...$this->methods($type)),
             $reflection->isFinal(),
             $reflection->isAbstract(),
@@ -71,21 +70,24 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return list<PropertyDefinition>
      */
-    private function properties(ClassType $type): array
+    private function properties(ClassType $type, bool $magic): array
     {
         $result = [];
-        foreach (Reflection::class($type->className())->getProperties() as $property) {
-            $typeResolver = $this->typeResolver($type, $property->class);
-            $result []= $this->propertyBuilder->for($property, $typeResolver);
-        }
-        foreach (Reflection::magicProperties(Reflection::class($type->className())) as $name => $property) {
-            $typeResolver = $this->typeResolver($type, $type->className());
-            $result []= $this->propertyBuilder->forMagic(
-                $type->className(),
-                $name,
-                $property,
-                $typeResolver
-            );
+        if ($magic) {
+            foreach (Reflection::magicProperties(Reflection::class($type->className())) as $name => $property) {
+                $typeResolver = $this->typeResolver($type, $type->className());
+                $result []= $this->propertyBuilder->forMagic(
+                    $type->className(),
+                    $name,
+                    $property,
+                    $typeResolver
+                );
+            }
+        } else {
+            foreach (Reflection::class($type->className())->getProperties() as $property) {
+                $typeResolver = $this->typeResolver($type, $property->class);
+                $result []= $this->propertyBuilder->for($property, $typeResolver);
+            }
         }
         return $result;
     }

@@ -219,7 +219,6 @@ final class Reflection
         return $types;
     }
 
-
     /**
      * @param ReflectionClass<object> $reflection
      * @return array<string, string>
