@@ -21,6 +21,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\IterableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NativeToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\OfToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
@@ -64,6 +65,8 @@ final class NativeLexer implements TypeLexer
             'non-empty-list' => ListToken::nonEmptyList(),
             'iterable' => IterableToken::get(),
             'class-string' => ClassStringToken::get(),
+            'key-of' => OfToken::keyOf(),
+            'value-of' => OfToken::valueOf(),
             default => null,
         };
 
