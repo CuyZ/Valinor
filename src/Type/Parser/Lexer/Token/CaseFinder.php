@@ -24,6 +24,11 @@ final class CaseFinder
      */
     public function matching(array $tokens): array
     {
+        if (count($tokens) === 1) {
+            return isset($this->cases[$tokens[0]])
+                ? [$this->cases[$tokens[0]]]
+                : [];
+        }
         $matches = [];
 
         foreach ($this->cases as $name => $value) {
