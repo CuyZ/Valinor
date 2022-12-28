@@ -35,7 +35,7 @@ final class Reflection
 {
     private const TOOL_NONE = '';
     private const TOOL_EXPRESSION = '((?<tool>psalm|phpstan)-)';
-    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'"$,-:\\\\\[\]{}*]+)';
+    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}*$ЁёА-я]+)';
 
     /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
@@ -228,7 +228,7 @@ final class Reflection
         $types = [];
         $docComment = self::sanitizeDocComment($reflection);
 
-        $expression = sprintf('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*%s/', self::TYPE_EXPRESSION);
+        $expression = sprintf('/@(phpstan|psalm)-type\s+([a-zA-Z]\w*)\s*=?\s*%s/u', self::TYPE_EXPRESSION);
 
         preg_match_all($expression, $docComment, $matches);
 
