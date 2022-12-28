@@ -166,11 +166,11 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $reflection = Reflection::class($type->className());
         $rawTypes = Reflection::localTypeAliases($reflection);
 
-        $typeParser = $this->typeParser($type);
-
         $types = [];
 
         foreach ($rawTypes as $name => $raw) {
+            $typeParser = $this->typeParser($type, $types);
+    
             try {
                 $types[$name] = $typeParser->parse($raw);
             } catch (InvalidType $exception) {
@@ -220,12 +220,15 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         return $importedTypes;
     }
 
-    private function typeParser(ClassType $type): TypeParser
+    /**
+     * @param array<string, Type> $aliases
+     */
+    private function typeParser(ClassType $type, array $aliases = []): TypeParser
     {
         return $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
-            new TypeAliasAssignerSpecification($type->generics()),
+            new TypeAliasAssignerSpecification($type->generics() + $aliases),
         );
     }
 }
