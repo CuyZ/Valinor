@@ -35,7 +35,7 @@ final class Reflection
 {
     private const TOOL_NONE = '';
     private const TOOL_EXPRESSION = '((?<tool>psalm|phpstan)-)';
-    private const TYPE_EXPRESSION = '(?<type>[\w\s?|&<>\'",-:\\\\\[\]{}*$ЁёА-я]+)';
+    private const TYPE_EXPRESSION = '(?<type>.+)';
 
     /** @var array<class-string, ReflectionClass<object>> */
     private static array $classReflection = [];
