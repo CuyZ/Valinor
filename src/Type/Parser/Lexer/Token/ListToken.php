@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 
 /** @internal */
-final class ListToken implements TraversingToken
+final class ListToken extends ShapedArrayToken
 {
     private static self $list;
 
@@ -36,6 +36,10 @@ final class ListToken implements TraversingToken
 
     public function traverse(TokenStream $stream): Type
     {
+        if (! $stream->done() && $this->arrayType === ListType::class && $stream->next() instanceof OpeningCurlyBracketToken) {
+            return $this->shapedArrayType($stream);
+        }
+
         if (! $stream->done() && $stream->next() instanceof OpeningBracketToken) {
             $stream->forward();
 
