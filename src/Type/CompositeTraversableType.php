@@ -9,7 +9,7 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 /** @internal */
 interface CompositeTraversableType extends CompositeType
 {
-    public function keyType(): ArrayKeyType;
+    public function keyType(): Type;
 
     public function subType(): Type;
 }

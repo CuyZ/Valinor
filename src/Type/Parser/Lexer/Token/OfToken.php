@@ -47,7 +47,7 @@ final class OfToken implements TraversingToken
         $subType = $stream->read();
 
         if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
-            throw new ClosingBracketMissing($this->symbol(), $subType);
+            throw new ClosingBracketMissing($this->symbol());
         }
 
         if ($subType instanceof ShapedArrayType) {
