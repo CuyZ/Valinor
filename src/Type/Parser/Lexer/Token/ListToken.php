@@ -36,7 +36,7 @@ final class ListToken extends ShapedArrayToken
 
     public function traverse(TokenStream $stream): Type
     {
-        if (! $stream->done() && $this->arrayType === ListType::class && $stream->next() instanceof OpeningCurlyBracketToken) {
+        if (! $stream->done() && $this->listType === ListType::class && $stream->next() instanceof OpeningCurlyBracketToken) {
             return $this->shapedArrayType($stream);
         }
 
