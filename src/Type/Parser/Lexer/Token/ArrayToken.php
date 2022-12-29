@@ -24,6 +24,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\UnionType;
 
 /** @internal */
 final class ArrayToken extends ShapedArrayToken
@@ -93,6 +94,13 @@ final class ArrayToken extends ShapedArrayToken
             $arrayType = new ($this->arrayType)(ArrayKeyType::integer(), $subType);
         } elseif ($type instanceof StringType) {
             $arrayType = new ($this->arrayType)(ArrayKeyType::string(), $subType);
+        } elseif ($type instanceof UnionType) {
+            foreach ($type->types() as $subSubType) {
+                if (!$subSubType instanceof ArrayKeyType && !$subSubType instanceof IntegerType && !$subSubType instanceof StringType) {
+                    throw new InvalidArrayKey($this->arrayType, $subSubType, $subType);
+                }
+            }
+            $arrayType = new ($this->arrayType)($type, $subType);
         } else {
             throw new InvalidArrayKey($this->arrayType, $type, $subType);
         }

@@ -15,13 +15,13 @@ final class ArrayType implements CompositeTraversableType
 {
     private static self $native;
 
-    private ArrayKeyType $keyType;
+    private Type $keyType;
 
     private Type $subType;
 
     private string $signature;
 
-    public function __construct(ArrayKeyType $keyType, Type $subType)
+    public function __construct(Type $keyType, Type $subType)
     {
         $this->keyType = $keyType;
         $this->subType = $subType;
