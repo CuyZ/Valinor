@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -26,6 +27,10 @@ final class ValueTypeFactory
 {
     public static function from(mixed $value): Type
     {
+        if (is_null($value)) {
+            return new NullType();
+        }
+
         if (is_bool($value)) {
             return $value ? BooleanValueType::true() : BooleanValueType::false();
         }
