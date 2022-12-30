@@ -208,7 +208,7 @@ final class Reflection
         $types = [];
         $docComment = self::sanitizeDocComment($reflection);
 
-        $expression = sprintf('/@property\s+%s\s+\$([a-zA-Z_]+)/u', self::TYPE_EXPRESSION);
+        $expression = sprintf('/@property\s+%s\s+\$([a-zA-Z_0-9]+)/u', self::TYPE_EXPRESSION);
 
         preg_match_all($expression, $docComment, $matches);
 
