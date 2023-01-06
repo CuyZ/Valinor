@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\AttributesContainer;
-use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
@@ -64,10 +63,6 @@ final class Shell
     {
         $clone = clone $this;
         $clone->type = $newType;
-
-        if (! $newType->matches($this->type)) {
-            throw new NewShellTypeDoesNotMatch($this, $newType); // @todo remove?
-        }
 
         return $clone;
     }
