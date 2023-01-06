@@ -10,7 +10,7 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class NullableMappingTest extends IntegrationTest
 {
-    public function test_nullable_property_with_null_default_value_is_handled_properly(): void
+    public function test_nullable_properties_default_value_are_handled_properly(): void
     {
         try {
             $result = (new MapperBuilder())->mapper()->map(NullablePropertyWithNullDefaultValue::class, []);
@@ -19,10 +19,13 @@ final class NullableMappingTest extends IntegrationTest
         }
 
         self::assertSame(null, $result->nullableWithNull);
+        self::assertSame('foo', $result->nullableWithString);
     }
 }
 
 final class NullablePropertyWithNullDefaultValue
 {
     public ?string $nullableWithNull = null;
+
+    public ?string $nullableWithString = 'foo';
 }

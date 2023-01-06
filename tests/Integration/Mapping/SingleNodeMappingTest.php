@@ -10,64 +10,92 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
 final class SingleNodeMappingTest extends IntegrationTest
 {
-    public function test_single_property_and_constructor_parameter_are_mapped_properly(): void
+    /**
+     * @dataProvider single_property_and_constructor_parameter_data_provider
+     *
+     * @param class-string $className
+     */
+    public function test_single_property_and_constructor_parameter_are_mapped_properly(string $className, mixed $value): void
     {
-        $mapper = (new MapperBuilder())->mapper();
-
-        // Note that the key `value` is missing from the source
-        $scalarSource = 'foo';
-        $arraySource = ['foo', '42.404', '1337'];
-
         try {
-            $singleScalarProperty = $mapper->map(SingleScalarProperty::class, $scalarSource);
-            $singleConstructorScalarParameter = $mapper->map(SingleConstructorScalarParameter::class, $scalarSource);
-            $singleNullableScalarProperty = $mapper->map(SingleNullableScalarProperty::class, null);
-            $singleConstructorNullableScalarParameter = $mapper->map(SingleConstructorNullableScalarParameter::class, null);
-            $singleArrayProperty = $mapper->map(SingleArrayProperty::class, $arraySource);
-            $singleConstructorArrayParameter = $mapper->map(SingleConstructorArrayParameter::class, $arraySource);
-            $singleScalarPropertyWithDefaultValue = $mapper->map(SingleScalarPropertyWithDefaultValue::class, []);
-            $singleConstructorParameterWithDefaultValue = $mapper->map(SingleConstructorParameterWithDefaultValue::class, []);
+            $result = (new MapperBuilder())->mapper()->map($className, $value);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
 
-        self::assertSame('foo', $singleScalarProperty->value);
-        self::assertSame('foo', $singleConstructorScalarParameter->value);
-        self::assertSame(null, $singleNullableScalarProperty->value);
-        self::assertSame(null, $singleConstructorNullableScalarParameter->value);
-        self::assertSame(['foo', '42.404', '1337'], $singleArrayProperty->value);
-        self::assertSame(['foo', '42.404', '1337'], $singleConstructorArrayParameter->value);
-        self::assertSame('foo', $singleScalarPropertyWithDefaultValue->value);
-        self::assertSame('bar', $singleConstructorParameterWithDefaultValue->value);
+        self::assertSame($value, $result->value); // @phpstan-ignore-line
     }
 
     /**
-     * @dataProvider single_property_and_constructor_parameter_cannot_be_mapped_with_array_with_property_name_data_provider
+     * @dataProvider single_property_and_constructor_parameter_with_default_value_data_provider
      *
      * @param class-string $className
-     * @param mixed $source
      */
-    public function test_single_property_and_constructor_parameter_cannot_be_mapped_with_array_with_property_name(string $className, $source): void
+    public function test_single_property_and_constructor_parameter_with_default_value_are_mapped_properly(string $className): void
     {
         try {
-            (new MapperBuilder())->mapper()->map($className, $source);
-        } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1632903281', $error->code());
+            $result = (new MapperBuilder())->mapper()->map($className, ['foo' => []]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
         }
+
+        self::assertSame('foo', $result['foo']->value); // @phpstan-ignore-line
     }
 
-    public function single_property_and_constructor_parameter_cannot_be_mapped_with_array_with_property_name_data_provider(): iterable
+    /**
+     * @dataProvider single_property_and_constructor_parameter_data_provider
+     *
+     * @param class-string $className
+     */
+    public function test_single_property_and_constructor_parameter_can_be_mapped_with_array_with_property_name(string $className, mixed $value): void
     {
-        yield [SingleScalarProperty::class, ['value' => 'foo']];
-        yield [SingleConstructorScalarParameter::class, ['value' => 'foo']];
-        yield [SingleNullableScalarProperty::class, ['value' => null]];
-        yield [SingleConstructorNullableScalarParameter::class, ['value' => null]];
-        yield [SingleArrayProperty::class, ['value' => ['foo', '42.404', '1337']]];
-        yield [SingleConstructorArrayParameter::class, ['value' => ['foo', '42.404', '1337']]];
-        yield [SingleScalarPropertyWithDefaultValue::class, ['value' => []]];
-        yield [SingleConstructorParameterWithDefaultValue::class, ['value' => []]];
+        try {
+            $result = (new MapperBuilder())->mapper()->map($className, ['value' => $value]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($value, $result->value); // @phpstan-ignore-line
+    }
+
+    public function single_property_and_constructor_parameter_data_provider(): iterable
+    {
+        yield 'Single scalar property' => [
+            SingleScalarProperty::class, 'foo',
+        ];
+        yield 'Single constructor scalar parameter' => [
+            SingleConstructorScalarParameter::class, 'foo',
+        ];
+        yield 'Single nullable scalar property' => [
+            SingleNullableScalarProperty::class, null,
+        ];
+        yield 'Single constructor nullable scalar property' => [
+            SingleConstructorNullableScalarParameter::class, null,
+        ];
+        yield 'Single array property with empty array' => [
+            SingleArrayProperty::class, [],
+        ];
+        yield 'Single array property with filled array' => [
+            SingleArrayProperty::class, ['foo', '42.404', '1337'],
+        ];
+        yield 'Single array property with array containing entry with same key as property name' => [
+            SingleArrayProperty::class, ['value' => 'foo', 'otherValue' => 'bar'],
+        ];
+        yield 'Single constructor array parameter with empty array' => [
+            SingleConstructorArrayParameter::class, [],
+        ];
+        yield 'Single constructor array parameter with filled array' => [
+            SingleConstructorArrayParameter::class, ['foo', '42.404', '1337'],
+        ];
+        yield 'Single constructor array parameter with array containing entry with same key as parameter name' => [
+            SingleConstructorArrayParameter::class, ['value' => 'foo', 'otherValue' => 'bar'],
+        ];
+    }
+
+    public function single_property_and_constructor_parameter_with_default_value_data_provider(): iterable
+    {
+        yield ['array{foo: ' . SingleScalarPropertyWithDefaultValue::class . '}'];
+        yield ['array{foo: ' . SingleConstructorParameterWithDefaultValue::class . '}'];
     }
 }
 
@@ -101,7 +129,7 @@ class SingleConstructorNullableScalarParameter extends SingleNullableScalarPrope
 class SingleArrayProperty
 {
     /** @var array<string> */
-    public array $value = [];
+    public array $value;
 }
 
 class SingleConstructorArrayParameter extends SingleArrayProperty
@@ -122,7 +150,7 @@ class SingleScalarPropertyWithDefaultValue
 
 class SingleConstructorParameterWithDefaultValue extends SingleScalarPropertyWithDefaultValue
 {
-    public function __construct(string $value = 'bar')
+    public function __construct(string $value = 'foo')
     {
         $this->value = $value;
     }
