@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
+use CuyZ\Valinor\Type\CompositeTraversableType;
 use IteratorAggregate;
 use Traversable;
 
@@ -25,6 +26,8 @@ final class ArgumentsValues implements IteratorAggregate
 
     private Arguments $arguments;
 
+    private bool $forInterface = false;
+
     private function __construct(Arguments $arguments)
     {
         $this->arguments = $arguments;
@@ -33,6 +36,7 @@ final class ArgumentsValues implements IteratorAggregate
     public static function forInterface(Arguments $arguments, mixed $value): self
     {
         $self = new self($arguments);
+        $self->forInterface = true;
 
         if (count($arguments) > 0) {
             $self->value = $self->transform($value);
@@ -75,19 +79,9 @@ final class ArgumentsValues implements IteratorAggregate
      */
     private function transform(mixed $value): array
     {
-        $isValid = true;
+        $value = $this->transformValueForSingleArgument($value);
 
-        if (count($this->arguments) === 1 && $value !== []) {
-            $argument = $this->arguments->at(0);
-
-            if (! is_array($value) || ! array_key_exists($argument->name(), $value)) {
-                return [$argument->name() => $value];
-            } elseif (count($value) === 1) {
-                $isValid = false;
-            }
-        }
-
-        if (! $isValid || ! is_array($value)) {
+        if (! is_array($value)) {
             throw new InvalidSource($value, $this->arguments);
         }
 
@@ -100,6 +94,29 @@ final class ArgumentsValues implements IteratorAggregate
         }
 
         return $value;
+    }
+
+    private function transformValueForSingleArgument(mixed $value): mixed
+    {
+        if (count($this->arguments) !== 1) {
+            return $value;
+        }
+
+        $argument = $this->arguments->at(0);
+        $name = $argument->name();
+        $isTraversable = $argument-> type() instanceof CompositeTraversableType;
+
+        if (is_array($value) && array_key_exists($name, $value)) {
+            if ($this->forInterface || ! $isTraversable || count($value) === 1) {
+                return $value;
+            }
+        }
+
+        if ($value === [] && ! $isTraversable) {
+            return $value;
+        }
+
+        return [$name => $value];
     }
 
     public function getIterator(): Traversable

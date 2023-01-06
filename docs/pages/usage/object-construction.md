@@ -14,9 +14,13 @@ constructors](../how-to/use-custom-object-constructors.md).
 
 ## Class with a single value
 
-When an object needs only one value (one constructor argument or one property), 
-the source given to the mapper must match the type of the value. See example 
-below:
+When an object needs only one value (one constructor argument or one property),
+the source given to the mapper can match the type of the value — it does not
+need to be an array with one value with a key matching the argument/property
+name.
+
+This can be useful when the application has control over the format of the 
+source given to the mapper, in order to lessen the structure of input.
 
 ```php
 final class Identifier
@@ -34,12 +38,16 @@ final class SomeClass
 $mapper = (new \CuyZ\Valinor\MapperBuilder())->mapper();
 
 $mapper->map(SomeClass::class, [
-    'identifier' => ['value' => 'some-identifier'], // ❌
+    'identifier' => [
+        // 👎 The `value` key feels a bit excessive
+        'value' => 'some-identifier'
+    ],
     'description' => 'Lorem ipsum…',
 ]); 
 
 $mapper->map(SomeClass::class, [
-    'identifier' => 'some-identifier', // ✅
+    // 👍 The input has been flattened and is easier to read
+    'identifier' => 'some-identifier',
     'description' => 'Lorem ipsum…',
 ]);
 ```

@@ -55,6 +55,19 @@ final class SuperfluousKeysMappingTest extends IntegrationTest
         self::assertSame('bar', $object->bar);
         self::assertSame('fiz', $object->fiz);
     }
+
+    public function test_single_property_node_can_be_mapped_with_superfluous_key(): void
+    {
+        try {
+            $result = $this->mapper->map(SomeFooObject::class, [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+        self::assertSame('foo', $result->foo);
+    }
 }
 
 // PHP8.1 Readonly properties
