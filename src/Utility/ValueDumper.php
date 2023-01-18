@@ -15,7 +15,6 @@ use function is_float;
 use function is_int;
 use function is_object;
 use function is_string;
-use function str_contains;
 use function str_replace;
 use function strlen;
 
@@ -54,11 +53,11 @@ final class ValueDumper
         if (is_string($value)) {
             $value = self::crop($value);
 
-            if (str_contains($value, "'") && str_contains($value, '"')) {
+            if (Polyfill::str_contains($value, "'") && Polyfill::str_contains($value, '"')) {
                 return "'" . str_replace("'", "\'", $value) . "'";
             }
 
-            if (str_contains($value, "'")) {
+            if (Polyfill::str_contains($value, "'")) {
                 return '"' . $value . '"';
             }
 
