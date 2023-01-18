@@ -8,6 +8,12 @@ toc_depth: 2
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.17.1](https://github.com/CuyZ/Valinor/compare/0.17.0...0.17.1) (2023-01-18)
+
+### Bug Fixes
+
+* Use PHP 8.0 Polyfill where needed ([d90a95](https://github.com/CuyZ/Valinor/commit/d90a950de403e61da417043eeb4025eaab657ef7))
+
 ## [0.17.0](https://github.com/CuyZ/Valinor/compare/0.16.0...0.17.0) (2022-11-08)
 
 ### Notable changes
