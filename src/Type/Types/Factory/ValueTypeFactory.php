@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Utility\Polyfill;
 use UnitEnum;
 
 use function is_array;
@@ -46,11 +47,11 @@ final class ValueTypeFactory
         }
 
         if (is_string($value)) {
-            if (str_contains($value, "'") && str_contains($value, '"')) {
+            if (Polyfill::str_contains($value, "'") && Polyfill::str_contains($value, '"')) {
                 return StringValueType::singleQuote(str_replace("'", "\'", $value));
             }
 
-            if (str_contains($value, "'")) {
+            if (Polyfill::str_contains($value, "'")) {
                 return StringValueType::doubleQuote($value);
             }
 

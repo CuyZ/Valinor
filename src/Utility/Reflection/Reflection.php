@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Utility\Reflection;
 
 use Closure;
+use CuyZ\Valinor\Utility\Polyfill;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -25,7 +26,6 @@ use function interface_exists;
 use function preg_match_all;
 use function preg_replace;
 use function spl_object_hash;
-use function str_contains;
 use function trim;
 
 /** @internal */
@@ -84,7 +84,7 @@ final class Reflection
         }
 
         if ($reflection instanceof ReflectionFunction) {
-            if (str_contains($reflection->name, '{closure}')) {
+            if (Polyfill::str_contains($reflection->name, '{closure}')) {
                 $startLine = $reflection->getStartLine();
                 $endLine = $reflection->getEndLine();
 
