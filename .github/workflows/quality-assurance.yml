@@ -36,7 +36,7 @@ jobs:
 
       - name: Checking for forgotten TODO
         run: |
-          ! git grep --extended-regexp --ignore-case '\b(todo|fixme)\b' -- ':!*/quality-assurance\.yml'
+          ! git --no-pager grep --ignore-case '(todo|fixme)' -- ':!*/quality-assurance.yml'
 
       - name: Running Psalm (without plugin installed)
         run: php vendor/bin/psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml
