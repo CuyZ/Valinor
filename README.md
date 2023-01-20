@@ -26,6 +26,8 @@ providing precise and human-readable error messages.
 The mapper can handle native PHP types as well as other advanced types supported
 by [PHPStan] and [Psalm] like shaped arrays, generics, integer ranges and more.
 
+todo: some fake content
+
 ## Installation
 
 ```bash
