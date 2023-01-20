@@ -15,8 +15,6 @@
 
 ---
 
-todo: some fake content
-
 Valinor takes care of the construction and validation of raw inputs (JSON, plain
 arrays, etc.) into objects, ensuring a perfectly valid state. It allows the
 objects to be used without having to worry about their integrity during the
