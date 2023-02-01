@@ -33,6 +33,7 @@ abstract class ShapedArrayToken implements TraversingToken {
 
         $elements = [];
         $index = 0;
+        $sealed = true;
 
         while (! $stream->done()) {
             if ($stream->next() instanceof ClosingCurlyBracketToken) {
@@ -52,7 +53,13 @@ abstract class ShapedArrayToken implements TraversingToken {
             $optional = false;
 
             if ($stream->next() instanceof UnknownSymbolToken) {
-                $type = new StringValueType($stream->forward()->symbol());
+                $type = $stream->forward()->symbol();
+                if ($type === '...') {
+                    $sealed = false;
+                    continue;
+                } else {
+                    $type = new StringValueType($type);
+                }
             } else {
                 $type = $stream->read();
             }
@@ -112,6 +119,6 @@ abstract class ShapedArrayToken implements TraversingToken {
             throw new ShapedArrayEmptyElements();
         }
 
-        return new ShapedArrayType(...$elements);
+        return new ShapedArrayType($sealed, ...$elements);
     }
 }

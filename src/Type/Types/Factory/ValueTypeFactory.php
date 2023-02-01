@@ -68,7 +68,7 @@ final class ValueTypeFactory
                 $elements[] = new ShapedArrayElement($keyType, self::from($child));
             }
 
-            return new ShapedArrayType(...$elements);
+            return new ShapedArrayType(true, ...$elements);
         }
 
         throw new CannotBuildTypeFromValue($value);

@@ -25,7 +25,7 @@ final class ShapedArrayType implements CompositeType
 
     private string $signature;
 
-    public function __construct(ShapedArrayElement ...$elements)
+    public function __construct(private bool $sealed, ShapedArrayElement ...$elements)
     {
         $this->elements = $elements;
         $this->signature =
@@ -142,6 +142,10 @@ final class ShapedArrayType implements CompositeType
         return $this->elements;
     }
 
+    public function sealed(): bool {
+        return $this->sealed;
+    }
+    
     public function toString(): string
     {
         return $this->signature;
