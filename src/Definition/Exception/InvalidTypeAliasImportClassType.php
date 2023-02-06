@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Exception;
 
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use LogicException;
 
 /** @internal */

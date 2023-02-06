@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Fake\Definition\Repository;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 
 final class FakeClassDefinitionRepository implements ClassDefinitionRepository
 {

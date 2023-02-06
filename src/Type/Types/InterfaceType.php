@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Type\CombiningType;
+use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
 
 /** @internal */
-final class InterfaceType implements ObjectType
+final class InterfaceType implements ObjectType, GenericType
 {
     public function __construct(
         /** @var class-string */
@@ -51,6 +53,17 @@ final class InterfaceType implements ObjectType
         }
 
         return is_a($other->className(), $this->interfaceName, true);
+    }
+
+    public function traverse(): iterable
+    {
+        foreach ($this->generics as $type) {
+            yield $type;
+
+            if ($type instanceof CompositeType) {
+                yield from $type->traverse();
+            }
+        }
     }
 
     public function toString(): string

@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -48,7 +48,7 @@ final class ClassNameToken implements TraversingToken
             return new InterfaceType($this->reflection->name);
         }
 
-        return new ClassType($this->reflection->name);
+        return new NativeClassType($this->reflection->name);
     }
 
     public function symbol(): string

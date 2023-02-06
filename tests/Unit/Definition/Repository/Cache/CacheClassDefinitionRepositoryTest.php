@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Cache;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeClassDefinitionRepository;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -28,8 +28,8 @@ final class CacheClassDefinitionRepositoryTest extends TestCase
 
     public function test_class_is_saved_in_cache(): void
     {
-        $typeA = new ClassType(stdClass::class);
-        $typeB = new ClassType(DateTime::class);
+        $typeA = new NativeClassType(stdClass::class);
+        $typeB = new NativeClassType(DateTime::class);
 
         $classA = $this->repository->for($typeA);
         $classB = $this->repository->for($typeA);

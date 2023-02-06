@@ -38,11 +38,6 @@ final class NativeEnumType implements EnumType
         return $this->enumName;
     }
 
-    public function generics(): array
-    {
-        return [];
-    }
-
     public function accepts(mixed $value): bool
     {
         return $value instanceof $this->enumName;

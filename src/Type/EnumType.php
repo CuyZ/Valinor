@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type;
 use UnitEnum;
 
 /** @api */
-interface EnumType extends ObjectType, ScalarType
+interface EnumType extends ClassType, ScalarType
 {
     /**
      * @return class-string<UnitEnum>
