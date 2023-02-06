@@ -29,7 +29,8 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 
@@ -87,7 +88,7 @@ final class AdvancedClassNameToken implements TraversingToken
             $parentType = $this->parentType($reflection, $parentReflection, $parserWithGenerics);
         }
 
-        return new ClassType($className, $generics, $parentType ?? null);
+        return new NativeClassType($className, $generics, $parentType ?? null);
     }
 
     public function symbol(): string
@@ -180,7 +181,7 @@ final class AdvancedClassNameToken implements TraversingToken
      * @param ReflectionClass<object> $reflection
      * @param ReflectionClass<object> $parentReflection
      */
-    private function parentType(ReflectionClass $reflection, ReflectionClass $parentReflection, TypeParser $typeParser): ClassType
+    private function parentType(ReflectionClass $reflection, ReflectionClass $parentReflection, TypeParser $typeParser): NativeClassType
     {
         $extendedClass = Reflection::extendedClassAnnotation($reflection);
 
@@ -198,7 +199,7 @@ final class AdvancedClassNameToken implements TraversingToken
             throw new ExtendTagTypeError($reflection, $exception);
         }
 
-        if (! $parentType instanceof ClassType) {
+        if (! $parentType instanceof NativeClassType) {
             throw new InvalidExtendTagType($reflection, $parentType);
         }
 

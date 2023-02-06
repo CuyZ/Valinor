@@ -13,7 +13,8 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\EnumType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
@@ -84,7 +85,7 @@ final class UnionNodeBuilder implements NodeBuilder
         $classTypes = [];
 
         foreach ($type->types() as $subType) {
-            if (! $subType instanceof ClassType) {
+            if (! $subType instanceof NativeClassType) {
                 return null;
             }
 

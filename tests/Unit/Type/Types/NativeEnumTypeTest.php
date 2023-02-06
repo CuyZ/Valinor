@@ -10,8 +10,8 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
@@ -197,12 +197,5 @@ final class NativeEnumTypeTest extends TestCase
         self::assertFalse($this->pureEnumType->matches($unionType));
         self::assertFalse($this->backedStringEnumType->matches($unionType));
         self::assertFalse($this->backedIntegerEnumType->matches($unionType));
-    }
-
-    public function test_generics_are_empty(): void
-    {
-        self::assertSame([], $this->pureEnumType->generics());
-        self::assertSame([], $this->backedStringEnumType->generics());
-        self::assertSame([], $this->backedIntegerEnumType->generics());
     }
 }

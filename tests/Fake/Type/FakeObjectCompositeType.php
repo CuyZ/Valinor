@@ -24,11 +24,6 @@ final class FakeObjectCompositeType implements ObjectType, CompositeType
         return $this->className;
     }
 
-    public function generics(): array
-    {
-        return $this->generics;
-    }
-
     public function accepts(mixed $value): bool
     {
         return true;

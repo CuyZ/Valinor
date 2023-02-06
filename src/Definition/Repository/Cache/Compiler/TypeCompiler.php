@@ -10,7 +10,7 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
@@ -121,7 +121,7 @@ final class TypeCompiler
                 $subType = $this->compile($type->subType());
 
                 return "new $class($keyType, $subType)";
-            case $type instanceof ClassType:
+            case $type instanceof NativeClassType:
             case $type instanceof InterfaceType:
                 $generics = [];
 

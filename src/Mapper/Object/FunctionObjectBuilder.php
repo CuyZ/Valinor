@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use Exception;
 
 use function array_map;

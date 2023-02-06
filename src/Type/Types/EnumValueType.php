@@ -25,11 +25,6 @@ final class EnumValueType implements EnumType
         return $this->enum::class;
     }
 
-    public function generics(): array
-    {
-        return [];
-    }
-
     public function accepts(mixed $value): bool
     {
         return $value === $this->enum;

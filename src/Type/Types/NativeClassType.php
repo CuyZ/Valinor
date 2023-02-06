@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
@@ -13,14 +15,14 @@ use function assert;
 use function is_a;
 
 /** @internal */
-final class ClassType implements ObjectType, CompositeType
+final class NativeClassType implements ClassType, GenericType
 {
     public function __construct(
         /** @var class-string */
         private string $className,
         /** @var array<string, Type> */
         private array $generics = [],
-        private ?ClassType $parent = null,
+        private ?self $parent = null,
     ) {
         $this->className = ltrim($this->className, '\\');
     }
@@ -37,14 +39,13 @@ final class ClassType implements ObjectType, CompositeType
 
     public function hasParent(): bool
     {
-        return $this->parent instanceof ClassType;
+        return $this->parent instanceof self;
     }
 
-    public function parent(): ClassType
+    public function parent(): self
     {
-        assert($this->hasParent());
+        assert($this->parent instanceof self);
 
-        /** @var ClassType */
         return $this->parent;
     }
 

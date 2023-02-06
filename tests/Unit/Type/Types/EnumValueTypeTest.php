@@ -206,11 +206,4 @@ final class EnumValueTypeTest extends TestCase
         self::assertFalse($this->backedStringEnumType->matches($unionType));
         self::assertFalse($this->backedIntegerEnumType->matches($unionType));
     }
-
-    public function test_generics_are_empty(): void
-    {
-        self::assertSame([], $this->pureEnumType->generics());
-        self::assertSame([], $this->backedStringEnumType->generics());
-        self::assertSame([], $this->backedIntegerEnumType->generics());
-    }
 }

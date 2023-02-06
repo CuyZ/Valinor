@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Definition\Repository\Cache;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use Psr\SimpleCache\CacheInterface;
 
 /** @internal */

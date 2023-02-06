@@ -21,7 +21,7 @@ use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
