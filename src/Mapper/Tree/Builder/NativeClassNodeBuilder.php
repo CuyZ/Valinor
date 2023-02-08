@@ -18,7 +18,7 @@ final class NativeClassNodeBuilder implements NodeBuilder
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
-        private ClassNodeBuilder $classBuilder,
+        private ObjectNodeBuilder $objectNodeBuilder,
         private bool $enableFlexibleCasting,
     ) {
     }
@@ -37,6 +37,6 @@ final class NativeClassNodeBuilder implements NodeBuilder
         $class = $this->classDefinitionRepository->for($type);
         $objectBuilder = new FilteredObjectBuilder($shell->value(), ...$this->objectBuilderFactory->for($class));
 
-        return $this->classBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
     }
 }

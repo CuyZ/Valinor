@@ -75,7 +75,7 @@ final class EnumValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame("Value 'fiz' does not match 'FOO'.", (string)$error);
+            self::assertSame("Value 'fiz' does not match string value 'FOO'.", (string)$error);
         }
     }
 
@@ -86,7 +86,7 @@ final class EnumValuesMappingTest extends IntegrationTest
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame("Value '512' does not match 42.", (string)$error);
+            self::assertSame("Value '512' does not match integer value 42.", (string)$error);
         }
     }
 

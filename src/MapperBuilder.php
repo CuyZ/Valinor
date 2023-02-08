@@ -163,6 +163,41 @@ final class MapperBuilder
      *     ]);
      * ```
      *
+     * Enum constructors can be registered the same way:
+     *
+     * * ```php
+     * enum SomeEnum: string
+     * {
+     *     case CASE_A = 'FOO_VALUE_1';
+     *     case CASE_B = 'FOO_VALUE_2';
+     *     case CASE_C = 'BAR_VALUE_1';
+     *     case CASE_D = 'BAR_VALUE_2';
+     *
+     *     /**
+     *      * @param 'FOO'|'BAR' $type
+     *      * @param int<1, 2> $number
+     *      * /
+     *     public static function fromMatrix(string $type, int $number): self
+     *     {
+     *         return self::from("{$type}_VALUE_{$number}");
+     *     }
+     * }
+     *
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConstructor(
+     *         // Allow the native constructor to be used
+     *         SomeEnum::class,
+     *
+     *         // Register a named constructor
+     *         SomeEnum::fromMatrix(...)
+     *     )
+     *     ->mapper()
+     *     ->map(SomeEnum::class, [
+     *         'type' => 'FOO',
+     *         'number' => 'BAR',
+     *     ]);
+     * ```
+     *
      * @psalm-param pure-callable|class-string ...$constructors
      * @param callable|class-string ...$constructors
      */

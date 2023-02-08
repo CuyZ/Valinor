@@ -93,6 +93,70 @@ final class Color
     [Color::class, 'fromHex'],
     ```
 
+## Custom enum constructor
+
+Registering a constructor for an enum works the same way as for a class, as
+described above.
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConstructor(
+        // Allow the native constructor to be used
+        SomeEnum::class,
+
+        // Register a named constructor
+        SomeEnum::fromMatrix(...)
+    )
+    ->mapper()
+    ->map(SomeEnum::class, [
+        'type' => 'FOO',
+        'number' => 'BAR',
+    ]);
+
+enum SomeEnum: string
+{
+    case CASE_A = 'FOO_VALUE_1';
+    case CASE_B = 'FOO_VALUE_2';
+    case CASE_C = 'BAR_VALUE_1';
+    case CASE_D = 'BAR_VALUE_2';
+
+    /**
+     * @param 'FOO'|'BAR' $type
+     * @param int<1, 2> $number
+     */
+    public static function fromMatrix(string $type, int $number): self
+    {
+        return self::from("{$type}_VALUE_{$number}");
+    }
+}
+```
+
+!!! note
+
+    An enum constructor can be for a specific pattern:
+
+    ```php
+    enum SomeEnum
+    {
+        case FOO;
+        case BAR;
+        case BAZ;
+    }
+    
+    (new \CuyZ\Valinor\MapperBuilder())
+        ->registerConstructor(
+            /**
+             * This constructor will be called only when pattern `SomeEnum::BA*`
+             * is requested during mapping.
+             * 
+             * @return SomeEnum::BA*
+             */
+            fn (string $value): SomeEnum => /* Some custom domain logic */
+        )
+        ->mapper()
+        ->map(SomeEnum::class . '::BA*', 'some custom value');
+    ```
+
 ## Dynamic constructors
 
 In some situations the type handled by a constructor is only known at runtime,

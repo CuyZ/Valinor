@@ -9,18 +9,22 @@ use function next;
 use function strlen;
 use function strpos;
 
-/** @internal */
+/**
+ * @internal
+ *
+ * @template CaseType
+ */
 final class CaseFinder
 {
     public function __construct(
-        /** @var array<string, mixed> */
+        /** @var array<string, CaseType> */
         private array $cases
     ) {
     }
 
     /**
      * @param list<string> $tokens
-     * @return array<string, mixed>
+     * @return array<string, CaseType>
      */
     public function matching(array $tokens): array
     {
