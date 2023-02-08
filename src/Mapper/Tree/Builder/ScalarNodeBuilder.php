@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\EnumType;
 use CuyZ\Valinor\Type\ScalarType;
 
 use function assert;
@@ -24,10 +23,7 @@ final class ScalarNodeBuilder implements NodeBuilder
 
         assert($type instanceof ScalarType);
 
-        // The flexible mode is always active for enum types, as it makes no
-        // sense not to activate it in the strict mode: a scalar value is always
-        // wanted as input.
-        if ((! $this->enableFlexibleCasting && ! $type instanceof EnumType) || ! $type->canCast($value)) {
+        if (! $this->enableFlexibleCasting || ! $type->canCast($value)) {
             throw $type->errorMessage();
         }
 

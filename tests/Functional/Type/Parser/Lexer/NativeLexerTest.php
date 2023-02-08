@@ -52,7 +52,6 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -62,7 +61,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
@@ -898,7 +897,7 @@ final class NativeLexerTest extends TestCase
             yield 'Class constant with enum value' => [
                 'raw' => ObjectWithConstants::className() . '::CONST_WITH_ENUM_VALUE_A',
                 'transformed' => BackedIntegerEnum::class . '::FOO',
-                'type' => EnumValueType::class,
+                'type' => EnumType::class,
             ];
         }
 
@@ -918,55 +917,55 @@ final class NativeLexerTest extends TestCase
             yield 'Pure enum' => [
                 'raw' => PureEnum::class,
                 'transformed' => PureEnum::class,
-                'type' => NativeEnumType::class,
+                'type' => EnumType::class,
             ];
 
             yield 'Backed integer enum' => [
                 'raw' => BackedIntegerEnum::class,
                 'transformed' => BackedIntegerEnum::class,
-                'type' => NativeEnumType::class,
+                'type' => EnumType::class,
             ];
 
             yield 'Backed string enum' => [
                 'raw' => BackedStringEnum::class,
                 'transformed' => BackedStringEnum::class,
-                'type' => NativeEnumType::class,
+                'type' => EnumType::class,
             ];
 
             yield 'Pure enum value' => [
                 'raw' => PureEnum::class . '::FOO',
                 'transformed' => PureEnum::class . '::FOO',
-                'type' => EnumValueType::class,
+                'type' => EnumType::class,
             ];
 
             yield 'Backed integer enum value' => [
                 'raw' => BackedIntegerEnum::class . '::FOO',
                 'transformed' => BackedIntegerEnum::class . '::FOO',
-                'type' => EnumValueType::class,
+                'type' => EnumType::class,
             ];
 
             yield 'Backed string enum value' => [
                 'raw' => BackedStringEnum::class . '::FOO',
                 'transformed' => BackedStringEnum::class . '::FOO',
-                'type' => EnumValueType::class,
+                'type' => EnumType::class,
             ];
 
             yield 'Pure enum value with pattern with wildcard at the beginning' => [
                 'raw' => PureEnum::class . '::*OO',
-                'transformed' => PureEnum::class . '::FOO',
-                'type' => EnumValueType::class,
+                'transformed' => PureEnum::class . '::*OO',
+                'type' => EnumType::class,
             ];
 
             yield 'Pure enum value with pattern with wildcard at the end' => [
                 'raw' => PureEnum::class . '::FO*',
-                'transformed' => PureEnum::class . '::FOO',
-                'type' => EnumValueType::class,
+                'transformed' => PureEnum::class . '::FO*',
+                'type' => EnumType::class,
             ];
 
             yield 'Pure enum value with pattern with wildcard at the beginning and end' => [
                 'raw' => PureEnum::class . '::*A*',
-                'transformed' => PureEnum::class . '::BAR|' . PureEnum::class . '::BAZ',
-                'type' => UnionType::class,
+                'transformed' => PureEnum::class . '::*A*',
+                'type' => EnumType::class,
             ];
         }
     }

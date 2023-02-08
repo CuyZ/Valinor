@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Type\Type;
@@ -22,7 +23,7 @@ final class Argument
 
     private Attributes $attributes;
 
-    private function __construct(string $name, Type $type)
+    public function __construct(string $name, Type $type)
     {
         $this->type = $type;
         $this->name = $name;
@@ -76,6 +77,6 @@ final class Argument
 
     public function attributes(): Attributes
     {
-        return $this->attributes;
+        return $this->attributes ??= AttributesContainer::empty();
     }
 }

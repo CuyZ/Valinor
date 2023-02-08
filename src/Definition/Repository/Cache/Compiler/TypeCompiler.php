@@ -11,7 +11,6 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -21,7 +20,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -38,7 +37,9 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use UnitEnum;
 
+use function array_keys;
 use function array_map;
 use function implode;
 use function var_export;
@@ -148,10 +149,18 @@ final class TypeCompiler
                 $subType = $this->compile($type->subType());
 
                 return "new $class($subType)";
-            case $type instanceof NativeEnumType:
-                return "new $class({$type->className()}::class)";
-            case $type instanceof EnumValueType:
-                return "new $class({$type->toString()})";
+            case $type instanceof EnumType:
+                $enumName = var_export($type->className(), true);
+                $pattern = var_export($type->pattern(), true);
+
+                $cases = array_map(
+                    fn (string|int $key, UnitEnum $case) => var_export($key, true) . ' => ' . var_export($case, true),
+                    array_keys($type->cases()),
+                    $type->cases()
+                );
+                $cases = implode(', ', $cases);
+
+                return "new $class($enumName, $pattern, [$cases])";
             case $type instanceof UnresolvableType:
                 $raw = var_export($type->toString(), true);
                 $message = var_export($type->getMessage(), true);

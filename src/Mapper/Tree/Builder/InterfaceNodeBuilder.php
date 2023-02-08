@@ -25,7 +25,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
-        private ClassNodeBuilder $classNodeBuilder,
+        private ObjectNodeBuilder $objectNodeBuilder,
         private bool $enableFlexibleCasting
     ) {
     }
@@ -82,7 +82,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         $shell = $this->transformSourceForClass($shell, $arguments, $objectBuilder->describeArguments());
 
-        return $this->classNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
     }
 
     private function transformSourceForClass(Shell $shell, Arguments $interfaceArguments, Arguments $classArguments): Shell

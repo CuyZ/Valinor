@@ -14,7 +14,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeFooAndBarObject::class, 'constructorA'])
                 ->registerConstructor([SomeFooAndBarObject::class, 'constructorB'])
                 ->mapper()
