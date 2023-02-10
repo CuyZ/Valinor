@@ -5,8 +5,11 @@ declare(strict_types=1);
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\Config\RectorConfig;
 use Rector\Core\Configuration\Option;
+use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
 use Rector\Php74\Rector\LNumber\AddLiteralSeparatorToNumberRector;
+use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php80\Rector\FunctionLike\UnionTypesRector;
 use Rector\Set\ValueObject\LevelSetList;
 
@@ -31,7 +34,18 @@ return static function (RectorConfig $config): void {
         AddLiteralSeparatorToNumberRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class,
         UnionTypesRector::class => [
-            __DIR__ . '/src/MapperBuilder.php'
+            __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
+        ],
+        JsonThrowOnErrorRector::class => [
+            __DIR__ . '/src/Mapper/Source/JsonSource.php',
+        ],
+        MixedTypeRector::class => [
+            __DIR__ . '/tests/Integration/Mapping/Object/UnionValuesMappingTest.php',
+            __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
+        ],
+        RestoreDefaultNullToNullableTypePropertyRector::class => [
+            __DIR__ . '/tests/Integration/Mapping/Other/FlexibleCastingMappingTest.php',
+            __DIR__ . '/tests/Integration/Mapping/SingleNodeMappingTest',
         ],
     ]);
 };

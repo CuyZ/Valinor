@@ -84,15 +84,19 @@ final class UnionType implements CombiningType
         return false;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
+        $types = [];
+
         foreach ($this->types as $type) {
-            yield $type;
+            $types[] = $type;
 
             if ($type instanceof CompositeType) {
-                yield from $type->traverse();
+                $types = [...$types, ...$type->traverse()];
             }
         }
+
+        return $types;
     }
 
     public function types(): array

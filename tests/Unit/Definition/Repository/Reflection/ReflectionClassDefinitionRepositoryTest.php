@@ -268,7 +268,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
     {
         $class = (new class () {
             /**
-             * @noRector \Rector\Php80\Rector\FunctionLike\UnionTypesRector
              * @param string $parameterWithNotMatchingTypes
              * @phpstan-ignore-next-line
              */
@@ -288,7 +287,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
     {
         $class = (new class () {
             /**
-             * @noRector \Rector\Php80\Rector\FunctionLike\UnionTypesRector
              * @return bool
              * @phpstan-ignore-next-line
              */
