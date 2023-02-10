@@ -55,15 +55,19 @@ final class InterfaceType implements ObjectType, GenericType
         return is_a($other->className(), $this->interfaceName, true);
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
+        $types = [];
+
         foreach ($this->generics as $type) {
-            yield $type;
+            $types[] = $type;
 
             if ($type instanceof CompositeType) {
-                yield from $type->traverse();
+                $types = [...$types, ...$type->traverse()];
             }
         }
+
+        return $types;
     }
 
     public function toString(): string

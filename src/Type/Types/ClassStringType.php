@@ -128,17 +128,17 @@ final class ClassStringType implements StringType, CompositeType
         return $this->subType;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
         if (! $this->subType) {
             return [];
         }
 
-        yield $this->subType;
-
         if ($this->subType instanceof CompositeType) {
-            yield from $this->subType->traverse();
+            return [$this->subType, ...$this->subType->traverse()];
         }
+
+        return [$this->subType];
     }
 
     public function toString(): string

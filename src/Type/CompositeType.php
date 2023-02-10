@@ -8,7 +8,7 @@ namespace CuyZ\Valinor\Type;
 interface CompositeType extends Type
 {
     /**
-     * @return iterable<Type>
+     * @return list<Type>
      */
-    public function traverse(): iterable;
+    public function traverse(): array;
 }

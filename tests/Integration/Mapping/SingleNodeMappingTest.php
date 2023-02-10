@@ -114,7 +114,6 @@ class SingleConstructorScalarParameter extends SingleScalarProperty
 
 class SingleNullableScalarProperty
 {
-    /** @noRector \Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector */
     public ?string $value;
 }
 

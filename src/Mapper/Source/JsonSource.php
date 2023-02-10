@@ -25,7 +25,6 @@ final class JsonSource implements IteratorAggregate
 
     public function __construct(string $jsonSource)
     {
-        /** @noRector \Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector */
         $source = json_decode($jsonSource, true);
 
         if ($source === null) {
