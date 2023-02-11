@@ -15,6 +15,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -148,6 +149,21 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         }
 
         self::assertSame('foo', $result->foo);
+    }
+
+    public function test_class_static_constructor_for_other_class_is_used(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                // PHP8.1 first-class callable syntax
+                ->registerConstructor([SomeClassWithStaticConstructorForOtherClass::class, 'from'])
+                ->mapper()
+                ->map(SimpleObject::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->value);
     }
 
     public function test_registered_constructor_with_injected_class_name_is_used_for_abstract_class(): void
@@ -754,6 +770,17 @@ final class SomeClassWithBothInheritedStaticConstructors
     public SomeClassWithInheritedStaticConstructor $someChild;
 
     public SomeOtherClassWithInheritedStaticConstructor $someOtherChild;
+}
+
+final class SomeClassWithStaticConstructorForOtherClass
+{
+    public static function from(string $value): SimpleObject
+    {
+        $object = new SimpleObject();
+        $object->value= $value;
+
+        return $object;
+    }
 }
 
 final class SomeClassProvidingStaticClosure

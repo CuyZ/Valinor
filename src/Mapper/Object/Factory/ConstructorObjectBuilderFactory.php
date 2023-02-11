@@ -25,6 +25,7 @@ use CuyZ\Valinor\Type\Types\NativeStringType;
 
 use function array_key_exists;
 use function count;
+use function is_a;
 
 /** @internal */
 final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
@@ -75,7 +76,9 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             $functionClass = $definition->class();
 
             if ($functionClass && $definition->isStatic() && ! $definition->isClosure()) {
-                $builders[] = new MethodObjectBuilder($className, $definition->name(), $definition->parameters());
+                $scopedClass = is_a($className, $functionClass, true) ? $className : $functionClass;
+
+                $builders[] = new MethodObjectBuilder($scopedClass, $definition->name(), $definition->parameters());
             } else {
                 $builders[] = new FunctionObjectBuilder($constructor, $classType);
             }
