@@ -110,7 +110,7 @@ described above.
     ->mapper()
     ->map(SomeEnum::class, [
         'type' => 'FOO',
-        'number' => 'BAR',
+        'number' => 2,
     ]);
 
 enum SomeEnum: string
