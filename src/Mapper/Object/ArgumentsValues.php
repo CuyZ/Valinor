@@ -28,6 +28,8 @@ final class ArgumentsValues implements IteratorAggregate
 
     private bool $forInterface = false;
 
+    private bool $hadSingleArgument = false;
+
     private function __construct(Arguments $arguments)
     {
         $this->arguments = $arguments;
@@ -39,7 +41,7 @@ final class ArgumentsValues implements IteratorAggregate
         $self->forInterface = true;
 
         if (count($arguments) > 0) {
-            $self->value = $self->transform($value);
+            $self = $self->transform($value);
         }
 
         return $self;
@@ -48,7 +50,7 @@ final class ArgumentsValues implements IteratorAggregate
     public static function forClass(Arguments $arguments, mixed $value): self
     {
         $self = new self($arguments);
-        $self->value = $self->transform($value);
+        $self = $self->transform($value);
 
         return $self;
     }
@@ -74,26 +76,36 @@ final class ArgumentsValues implements IteratorAggregate
         );
     }
 
-    /**
-     * @return mixed[]
-     */
-    private function transform(mixed $value): array
+    public function hadSingleArgument(): bool
     {
-        $value = $this->transformValueForSingleArgument($value);
+        return $this->hadSingleArgument;
+    }
 
-        if (! is_array($value)) {
-            throw new InvalidSource($value, $this->arguments);
+    private function transform(mixed $value): self
+    {
+        $clone = clone $this;
+
+        $transformedValue = $this->transformValueForSingleArgument($value);
+
+        if (! is_array($transformedValue)) {
+            throw new InvalidSource($transformedValue, $this->arguments);
+        }
+
+        if ($transformedValue !== $value) {
+            $clone->hadSingleArgument = true;
         }
 
         foreach ($this->arguments as $argument) {
             $name = $argument->name();
 
-            if (! array_key_exists($name, $value) && ! $argument->isRequired()) {
-                $value[$name] = $argument->defaultValue();
+            if (! array_key_exists($name, $transformedValue) && ! $argument->isRequired()) {
+                $transformedValue[$name] = $argument->defaultValue();
             }
         }
 
-        return $value;
+        $clone->value = $transformedValue;
+
+        return $clone;
     }
 
     private function transformValueForSingleArgument(mixed $value): mixed

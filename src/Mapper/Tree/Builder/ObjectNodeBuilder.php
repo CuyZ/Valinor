@@ -26,7 +26,7 @@ final class ObjectNodeBuilder
 
         $object = $this->buildObject($builder, $children);
 
-        $node = count($children) === 1
+        $node = $arguments->hadSingleArgument()
             ? TreeNode::flattenedBranch($shell, $object, $children[0])
             : TreeNode::branch($shell, $object, $children);
 
