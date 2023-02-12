@@ -83,6 +83,10 @@ final class UnionNodeBuilder implements NodeBuilder
         $classTypes = [];
 
         foreach ($type->types() as $subType) {
+            if ($subType instanceof NullType) {
+                continue;
+            }
+
             if (! $subType instanceof ClassType) {
                 return null;
             }
