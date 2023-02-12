@@ -16,6 +16,7 @@ use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObjectWithGeneric;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -564,6 +565,20 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
         (new MapperBuilder())
             ->registerConstructor(fn (): string => 'foo')
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
+    public function test_invalid_constructor_return_type_missing_generic_throws_exception(): void
+    {
+        $this->expectException(InvalidConstructorReturnType::class);
+        $this->expectExceptionCode(1659446121);
+        $this->expectExceptionMessageMatches('/The type `.*` for return type of method `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                fn (): SimpleObjectWithGeneric => new SimpleObjectWithGeneric()
+            )
             ->mapper()
             ->map(stdClass::class, []);
     }
