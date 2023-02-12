@@ -14,7 +14,6 @@ use FilesystemIterator;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
-use function assert;
 use function bin2hex;
 use function file_exists;
 use function file_put_contents;
@@ -74,8 +73,6 @@ final class CompiledPhpFileCache implements CacheInterface
     {
         $filename = $this->path($key);
 
-        assert(! file_exists($filename));
-
         $code = $this->compile($value, $ttl);
 
         $tmpDir = $this->cacheDir . DIRECTORY_SEPARATOR . '.valinor.tmp';
@@ -96,7 +93,9 @@ final class CompiledPhpFileCache implements CacheInterface
                 throw new CompiledPhpCacheFileNotWritten($filename);
             }
         } finally {
-            @unlink($tmpFilename);
+            if (file_exists($tmpFilename)) {
+                unlink($tmpFilename);
+            }
         }
 
         return true;

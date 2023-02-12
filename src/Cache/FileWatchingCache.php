@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use Psr\SimpleCache\CacheInterface;
 
+use function file_exists;
 use function filemtime;
 use function is_string;
 
@@ -44,7 +45,11 @@ final class FileWatchingCache implements CacheInterface
     public function has($key): bool
     {
         foreach ($this->timestamps($key) as $fileName => $timestamp) {
-            if (@filemtime($fileName) !== $timestamp) {
+            if (! file_exists($fileName)) {
+                return false;
+            }
+
+            if (filemtime($fileName) !== $timestamp) {
                 return false;
             }
         }
