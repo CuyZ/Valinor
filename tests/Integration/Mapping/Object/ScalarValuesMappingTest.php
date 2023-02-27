@@ -36,6 +36,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'numericString' => '1337',
             'stringValueWithSingleQuote' => 'baz',
             'stringValueWithDoubleQuote' => 'fiz',
+            'stringValueWithSpaces' => 'a a',
+            'stringValueWithUtf8' => '🦄$',
             'classString' => self::class,
             'classStringOfDateTime' => DateTimeImmutable::class,
             'classStringOfAlias' => stdClass::class,
@@ -132,6 +134,12 @@ class ScalarValues
     /** @var "fiz" */
     public string $stringValueWithDoubleQuote;
 
+    /** @var "a a" */
+    public string $stringValueWithSpaces;
+
+    /** @var "🦄$" */
+    public string $stringValueWithUtf8;
+
     /** @var class-string */
     public string $classString = stdClass::class;
 
@@ -158,6 +166,8 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param numeric-string $numericString
      * @param 'baz' $stringValueWithSingleQuote
      * @param "fiz" $stringValueWithDoubleQuote
+     * @param "a a" $stringValueWithSpaces
+     * @param "🦄$" $stringValueWithUtf8
      * @param class-string $classString
      * @param class-string<DateTimeInterface> $classStringOfDateTime
      * @param class-string<ObjectAlias> $classStringOfAlias
@@ -180,6 +190,8 @@ class ScalarValuesWithConstructor extends ScalarValues
         string $numericString,
         string $stringValueWithSingleQuote,
         string $stringValueWithDoubleQuote,
+        string $stringValueWithSpaces,
+        string $stringValueWithUtf8,
         string $classString,
         string $classStringOfDateTime,
         string $classStringOfAlias
@@ -201,6 +213,8 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->numericString = $numericString;
         $this->stringValueWithSingleQuote = $stringValueWithSingleQuote;
         $this->stringValueWithDoubleQuote = $stringValueWithDoubleQuote;
+        $this->stringValueWithSpaces = $stringValueWithSpaces;
+        $this->stringValueWithUtf8 = $stringValueWithUtf8;
         $this->classString = $classString;
         $this->classStringOfDateTime = $classStringOfDateTime;
         $this->classStringOfAlias = $classStringOfAlias;
