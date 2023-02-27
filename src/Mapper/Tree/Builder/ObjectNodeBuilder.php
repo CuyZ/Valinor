@@ -12,7 +12,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use function count;
 
 /** @internal */
-final class ClassNodeBuilder
+final class ObjectNodeBuilder
 {
     public function __construct(private bool $allowSuperfluousKeys)
     {
@@ -26,7 +26,7 @@ final class ClassNodeBuilder
 
         $object = $this->buildObject($builder, $children);
 
-        $node = count($children) === 1
+        $node = $arguments->hadSingleArgument()
             ? TreeNode::flattenedBranch($shell, $object, $children[0])
             : TreeNode::branch($shell, $object, $children);
 

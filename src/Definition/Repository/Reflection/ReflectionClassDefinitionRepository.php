@@ -15,6 +15,8 @@ use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
@@ -22,7 +24,6 @@ use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecificati
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
@@ -127,7 +128,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $type = $type->parent();
         }
 
-        $generics = $type->generics();
+        $generics = $type instanceof GenericType ? $type->generics() : [];
         $localAliases = $this->localTypeAliases($type);
         $importedAliases = $this->importedTypeAliases($type);
 
@@ -226,10 +227,15 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
      */
     private function typeParser(ClassType|InterfaceType $type, array $aliases = []): TypeParser
     {
-        return $this->typeParserFactory->get(
+        $specs = [
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
-            new TypeAliasAssignerSpecification($type->generics() + $aliases),
-        );
+        ];
+
+        if ($type instanceof GenericType) {
+            $specs[] = new TypeAliasAssignerSpecification($type->generics() + $aliases);
+        }
+
+        return $this->typeParserFactory->get(...$specs);
     }
 }

@@ -14,20 +14,41 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // @PHP8.1 first-class callable syntax
+                // PHP8.1 first-class callable syntax
                 ->registerConstructor([SomeFooAndBarObject::class, 'constructorA'])
                 ->registerConstructor([SomeFooAndBarObject::class, 'constructorB'])
                 ->mapper()
                 ->map(UnionOfFooAndBarAndFoo::class, [
-                'foo',
-                ['foo' => 'foo', 'bar' => 'bar'],
-            ]);
+                    'foo',
+                    ['foo' => 'foo', 'bar' => 'bar'],
+                ]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
 
         self::assertInstanceOf(SomeFooObject::class, $result->objects[0]);
         self::assertInstanceOf(SomeFooAndBarObject::class, $result->objects[1]);
+    }
+
+    public function test_mapping_to_union_of_null_and_objects_can_infer_object(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->mapper()
+                ->map(
+                    'null|' . SomeObjectWithFooAndBar::class . '|' . SomeObjectWithBazAndFiz::class,
+                    [
+                        'baz' => 'baz',
+                        'fiz' => 'fiz',
+                    ]
+                );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeObjectWithBazAndFiz::class, $result);
+        self::assertSame('baz', $result->baz);
+        self::assertSame('fiz', $result->fiz);
     }
 
     /**
@@ -61,11 +82,6 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
             'source' => [['foo' => 'foo']],
         ];
     }
-}
-
-final class NativeUnionOfObjects
-{
-    public SomeFooObject|SomeBarObject $object;
 }
 
 // PHP8.1 Readonly properties
@@ -132,4 +148,18 @@ final class SomeFooAndBarObject
     {
         return new self($foo, $bar, 'default baz');
     }
+}
+
+final class SomeObjectWithFooAndBar
+{
+    public string $foo;
+
+    public string $bar;
+}
+
+final class SomeObjectWithBazAndFiz
+{
+    public string $baz;
+
+    public string $fiz;
 }

@@ -10,10 +10,9 @@ use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveTypeFromUnion;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\EnumType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
@@ -26,7 +25,7 @@ final class UnionNodeBuilder implements NodeBuilder
         private NodeBuilder $delegate,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
-        private ClassNodeBuilder $classNodeBuilder,
+        private ObjectNodeBuilder $objectNodeBuilder,
         private bool $enableFlexibleCasting
     ) {
     }
@@ -67,7 +66,7 @@ final class UnionNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            if (! $this->enableFlexibleCasting && ! $subType instanceof EnumType) {
+            if (! $this->enableFlexibleCasting) {
                 continue;
             }
 
@@ -84,6 +83,10 @@ final class UnionNodeBuilder implements NodeBuilder
         $classTypes = [];
 
         foreach ($type->types() as $subType) {
+            if ($subType instanceof NullType) {
+                continue;
+            }
+
             if (! $subType instanceof ClassType) {
                 return null;
             }
@@ -93,13 +96,10 @@ final class UnionNodeBuilder implements NodeBuilder
 
         $objectBuilder = $this->objectBuilder($shell->value(), ...$classTypes);
 
-        return $this->classNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function objectBuilder($value, ClassType ...$types): ObjectBuilder
+    private function objectBuilder(mixed $value, ClassType ...$types): ObjectBuilder
     {
         $builders = [];
 

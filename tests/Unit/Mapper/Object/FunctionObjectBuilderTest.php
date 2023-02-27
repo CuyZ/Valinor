@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -17,7 +17,7 @@ final class FunctionObjectBuilderTest extends TestCase
     {
         $objectBuilder = new FunctionObjectBuilder(
             new FunctionObject(FakeFunctionDefinition::new(), fn () => new stdClass()),
-            new ClassType(stdClass::class)
+            new NativeClassType(stdClass::class)
         );
 
         $argumentsA = $objectBuilder->describeArguments();

@@ -9,24 +9,21 @@ use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use stdClass;
 
+use function array_values;
+
 final class FakeObjectCompositeType implements ObjectType, CompositeType
 {
-    /**
-     * @param class-string $className
-     * @param array<string, Type> $generics
-     */
-    public function __construct(private string $className = stdClass::class, private array $generics = [])
-    {
+    public function __construct(
+        /** @var class-string */
+        private string $className = stdClass::class,
+        /** @var array<string, Type> */
+        private array $generics = []
+    ) {
     }
 
     public function className(): string
     {
         return $this->className;
-    }
-
-    public function generics(): array
-    {
-        return $this->generics;
     }
 
     public function accepts(mixed $value): bool
@@ -39,9 +36,9 @@ final class FakeObjectCompositeType implements ObjectType, CompositeType
         return true;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
-        yield from $this->generics;
+        return array_values($this->generics);
     }
 
     public function toString(): string

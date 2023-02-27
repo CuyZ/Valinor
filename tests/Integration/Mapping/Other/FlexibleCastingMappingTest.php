@@ -216,7 +216,6 @@ final class FlexibleCastingMappingTest extends IntegrationTest
         $class = new class () {
             public string $foo;
 
-            /** @noRector \Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector */
             public ?string $bar;
         };
 

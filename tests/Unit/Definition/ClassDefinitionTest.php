@@ -11,7 +11,7 @@ use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeMethodDefinition;
 use CuyZ\Valinor\Tests\Fake\Definition\FakePropertyDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -19,7 +19,7 @@ final class ClassDefinitionTest extends TestCase
 {
     public function test_class_data_can_be_retrieved(): void
     {
-        $type = new ClassType(stdClass::class, ['T' => new FakeType()]);
+        $type = new NativeClassType(stdClass::class, ['T' => new FakeType()]);
         $attributes = new FakeAttributes();
         $properties = new Properties(FakePropertyDefinition::new());
         $methods = new Methods(FakeMethodDefinition::new());

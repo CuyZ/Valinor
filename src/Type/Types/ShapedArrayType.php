@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use function array_diff;
 use function array_key_exists;
 use function array_keys;
+use function array_map;
 use function count;
 use function implode;
 use function in_array;
@@ -123,15 +124,19 @@ final class ShapedArrayType implements CompositeType
         return true;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
+        $types = [];
+
         foreach ($this->elements as $element) {
-            yield $type = $element->type();
+            $types[] = $type = $element->type();
 
             if ($type instanceof CompositeType) {
-                yield from $type->traverse();
+                $types = [...$types, ...$type->traverse()];
             }
         }
+
+        return $types;
     }
 
     /**

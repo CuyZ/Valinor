@@ -15,22 +15,28 @@ use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\NativeEnumObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 
 use function array_key_exists;
 use function count;
+use function is_a;
 
 /** @internal */
 final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 {
+    /** @var list<FunctionObject> */
+    private array $filteredConstructors;
+
     public function __construct(
         private ObjectBuilderFactory $delegate,
         /** @var array<class-string, null> */
-        public array $nativeConstructors,
+        private array $nativeConstructors,
         private FunctionsContainer $constructors
     ) {
     }
@@ -61,18 +67,20 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 
         $builders = [];
 
-        foreach ($this->constructors as $function) {
-            if (! $this->constructorMatches($function, $classType)) {
+        foreach ($this->filteredConstructors() as $constructor) {
+            if (! $this->constructorMatches($constructor, $classType)) {
                 continue;
             }
 
-            $definition = $function->definition();
+            $definition = $constructor->definition();
             $functionClass = $definition->class();
 
             if ($functionClass && $definition->isStatic() && ! $definition->isClosure()) {
-                $builders[] = new MethodObjectBuilder($className, $definition->name(), $definition->parameters());
+                $scopedClass = is_a($className, $functionClass, true) ? $className : $functionClass;
+
+                $builders[] = new MethodObjectBuilder($scopedClass, $definition->name(), $definition->parameters());
             } else {
-                $builders[] = new FunctionObjectBuilder($function, $classType);
+                $builders[] = new FunctionObjectBuilder($constructor, $classType);
             }
         }
 
@@ -80,7 +88,9 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             return $builders;
         }
 
-        if ($methods->hasConstructor() && $methods->constructor()->isPublic()) {
+        if ($classType instanceof EnumType) {
+            $builders[] = new NativeEnumObjectBuilder($classType);
+        } elseif ($methods->hasConstructor() && $methods->constructor()->isPublic()) {
             $builders[] = new NativeConstructorObjectBuilder($class);
         }
 
@@ -92,10 +102,6 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         $definition = $function->definition();
         $parameters = $definition->parameters();
         $returnType = $definition->returnType();
-
-        if (! $returnType instanceof ClassType && ! $returnType instanceof InterfaceType) {
-            throw new InvalidConstructorReturnType($definition);
-        }
 
         if (! $classType->matches($returnType)) {
             return false;
@@ -126,5 +132,31 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         }
 
         return true;
+    }
+
+    /**
+     * @return list<FunctionObject>
+     */
+    private function filteredConstructors(): array
+    {
+        if (! isset($this->filteredConstructors)) {
+            $this->filteredConstructors = [];
+
+            foreach ($this->constructors as $constructor) {
+                $function = $constructor->definition();
+
+                if (enum_exists($function->class() ?? '') && in_array($function->name(), ['from', 'tryFrom'], true)) {
+                    continue;
+                }
+
+                if (! $function->returnType() instanceof ObjectType) {
+                    throw new InvalidConstructorReturnType($function);
+                }
+
+                $this->filteredConstructors[] = $constructor;
+            }
+        }
+
+        return $this->filteredConstructors;
     }
 }

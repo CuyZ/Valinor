@@ -7,8 +7,8 @@ namespace CuyZ\Valinor\Tests\Fake\Type;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use stdClass;
@@ -48,11 +48,11 @@ final class FakeType implements Type
         }
 
         if ($raw === stdClass::class) {
-            return new ClassType(stdClass::class);
+            return new NativeClassType(stdClass::class);
         }
 
         if ($raw === StringableObject::class) {
-            return new ClassType(StringableObject::class);
+            return new NativeClassType(StringableObject::class);
         }
 
         return new self();

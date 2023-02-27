@@ -7,10 +7,10 @@ namespace CuyZ\Valinor\Utility;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Type\CompositeType;
-use CuyZ\Valinor\Type\EnumType;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 

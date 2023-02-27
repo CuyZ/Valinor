@@ -11,7 +11,7 @@ interface ScalarType extends Type
 {
     public function canCast(mixed $value): bool;
 
-    public function cast(mixed $value): bool|string|int|float|\UnitEnum;
+    public function cast(mixed $value): bool|string|int|float;
 
     public function errorMessage(): ErrorMessage;
 }

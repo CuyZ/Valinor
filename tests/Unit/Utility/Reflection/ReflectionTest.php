@@ -77,7 +77,7 @@ final class ReflectionTest extends TestCase
         self::assertSame(__NAMESPACE__ . '\some_function()', Reflection::signature($reflectionFunction));
         self::assertSame(self::class . '::test_reflection_signatures_are_correct()', Reflection::signature($reflectionFunctionMethod));
         self::assertSame('Closure (line 8 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnOneLineClosure));
-        self::assertSame('Closure (lines 10 to 12 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnSeveralLinesClosure));
+        self::assertSame('Closure (lines 9 to 15 of ' . __DIR__ . '/FakeFunctions.php)', Reflection::signature($reflectionFunctionOnSeveralLinesClosure));
     }
 
     public function test_scalar_type_is_handled(): void

@@ -11,8 +11,7 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -22,7 +21,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -96,12 +95,12 @@ final class TypeCompilerTest extends TestCase
         yield [UndefinedObjectType::get()];
         yield [MixedType::get()];
         yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
-        yield [new ClassType(stdClass::class, ['Template' => NativeStringType::get()])];
-        yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new ClassType(DateTime::class))];
+        yield [new NativeClassType(stdClass::class, ['Template' => NativeStringType::get()])];
+        yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new NativeClassType(DateTime::class))];
 
         if (PHP_VERSION_ID >= 8_01_00) {
-            yield [new NativeEnumType(PureEnum::class)];
-            yield [new EnumValueType(PureEnum::FOO)];
+            yield [EnumType::native(PureEnum::class)];
+            yield [EnumType::fromPattern(PureEnum::class, 'BA*')];
         }
 
         yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), NativeFloatType::get())];
@@ -129,16 +128,16 @@ final class TypeCompilerTest extends TestCase
         yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new IterableType(ArrayKeyType::string(), NativeStringType::get())];
         yield [new ClassStringType()];
-        yield [new ClassStringType(new ClassType(stdClass::class))];
+        yield [new ClassStringType(new NativeClassType(stdClass::class))];
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
         yield [new UnresolvableType('some-type', 'some message')];
     }
 
     public function test_class_parent_is_compiled_properly(): void
     {
-        $type = new ClassType(
+        $type = new NativeClassType(
             stdClass::class,
-            parent: new ClassType(
+            parent: new NativeClassType(
                 stdClass::class,
                 ['Template' => NativeStringType::get()],
             )
@@ -152,7 +151,7 @@ final class TypeCompilerTest extends TestCase
             self::fail($exception->getMessage());
         }
 
-        self::assertInstanceOf(ClassType::class, $compiledType);
+        self::assertInstanceOf(NativeClassType::class, $compiledType);
         self::assertInstanceOf(NativeStringType::class, $compiledType->parent()->generics()['Template']);
     }
 }

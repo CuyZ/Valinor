@@ -66,15 +66,19 @@ final class IntersectionType implements CombiningType
         return true;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
+        $types = [];
+
         foreach ($this->types as $type) {
-            yield $type;
+            $types[] = $type;
 
             if ($type instanceof CompositeType) {
-                yield from $type->traverse();
+                $types = [...$types, ...$type->traverse()];
             }
         }
+
+        return $types;
     }
 
     /**

@@ -52,8 +52,8 @@ final class ValueDumperTest extends TestCase
      */
     public function test_dump_enum_value_returns_correct_signature(): void
     {
-        self::assertSame('FOO', ValueDumper::dump(PureEnum::FOO));
-        self::assertSame('foo', ValueDumper::dump(BackedStringEnum::FOO));
+        self::assertSame("'FOO'", ValueDumper::dump(PureEnum::FOO));
+        self::assertSame("'foo'", ValueDumper::dump(BackedStringEnum::FOO));
         self::assertSame('42', ValueDumper::dump(BackedIntegerEnum::FOO));
     }
 }

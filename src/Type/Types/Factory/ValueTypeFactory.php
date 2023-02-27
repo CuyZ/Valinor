@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Type\Types\Factory;
 
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -44,7 +44,7 @@ final class ValueTypeFactory
         }
 
         if ($value instanceof UnitEnum) {
-            return new EnumValueType($value);
+            return EnumType::fromPattern($value::class, $value->name);
         }
 
         if (is_string($value)) {

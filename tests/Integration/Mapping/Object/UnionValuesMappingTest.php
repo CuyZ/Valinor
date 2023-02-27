@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTimeImmutable;
@@ -84,20 +83,6 @@ final class UnionValuesMappingTest extends IntegrationTest
             self::assertSame('bar', $result->stringValueWithSingleQuote);
             self::assertSame('fiz', $result->stringValueWithDoubleQuote);
         }
-    }
-
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_enum_in_union_type_is_casted_properly(): void
-    {
-        try {
-            $result = (new MapperBuilder())->mapper()->map('int|' . PureEnum::class, 'FOO');
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame(PureEnum::FOO, $result);
     }
 
     public function test_invalid_value_is_not_casted_when_casting_mode_is_disabled(): void

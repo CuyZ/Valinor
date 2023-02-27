@@ -60,11 +60,13 @@ final class ValueDumper
         }
 
         if ($value instanceof BackedEnum) {
-            return (string)$value->value;
+            return is_string($value->value)
+                ? "'$value->value'"
+                : (string)$value->value;
         }
 
         if ($value instanceof UnitEnum) {
-            return $value->name;
+            return "'$value->name'";
         }
 
         if ($value instanceof DateTimeInterface) {

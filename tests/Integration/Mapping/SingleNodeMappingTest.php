@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
 final class SingleNodeMappingTest extends IntegrationTest
 {
@@ -56,6 +57,28 @@ final class SingleNodeMappingTest extends IntegrationTest
         }
 
         self::assertSame($value, $result->value); // @phpstan-ignore-line
+    }
+
+    public function test_single_argument_invalid_value_with_key_present_in_source_keeps_path_in_error_nodes(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map(SimpleObject::class, ['value' => 42]);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()['value']->messages()[0];
+
+            self::assertSame('Value 42 is not a valid string.', (string)$error);
+        }
+    }
+
+    public function test_single_argument_invalid_value_with_key_not_present_in_source_does_not_keep_path_in_error_nodes(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map(SimpleObject::class, 42);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('Value 42 is not a valid string.', (string)$error);
+        }
     }
 
     public function single_property_and_constructor_parameter_data_provider(): iterable
@@ -114,7 +137,6 @@ class SingleConstructorScalarParameter extends SingleScalarProperty
 
 class SingleNullableScalarProperty
 {
-    /** @noRector \Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector */
     public ?string $value;
 }
 

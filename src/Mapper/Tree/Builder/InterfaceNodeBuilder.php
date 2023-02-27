@@ -14,7 +14,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 
 /** @internal */
@@ -25,7 +25,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
-        private ClassNodeBuilder $classNodeBuilder,
+        private ObjectNodeBuilder $objectNodeBuilder,
         private bool $enableFlexibleCasting
     ) {
     }
@@ -34,7 +34,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
     {
         $type = $shell->type();
 
-        if (! $type instanceof InterfaceType && ! $type instanceof ClassType) {
+        if (! $type instanceof InterfaceType && ! $type instanceof NativeClassType) {
             return $this->delegate->build($shell, $rootBuilder);
         }
 
@@ -55,7 +55,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $function = $this->implementations->function($className);
         $arguments = Arguments::fromParameters($function->parameters());
 
-        if ($type instanceof ClassType && $this->classDefinitionRepository->for($type)->isFinal()) {
+        if ($type instanceof NativeClassType && $this->classDefinitionRepository->for($type)->isFinal()) {
             throw new CannotInferFinalClass($type, $function);
         }
 
@@ -82,7 +82,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         $shell = $this->transformSourceForClass($shell, $arguments, $objectBuilder->describeArguments());
 
-        return $this->classNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
     }
 
     private function transformSourceForClass(Shell $shell, Arguments $interfaceArguments, Arguments $classArguments): Shell

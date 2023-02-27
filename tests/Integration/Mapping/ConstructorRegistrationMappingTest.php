@@ -15,6 +15,8 @@ use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObjectWithGeneric;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -148,6 +150,21 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
         }
 
         self::assertSame('foo', $result->foo);
+    }
+
+    public function test_class_static_constructor_for_other_class_is_used(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                // PHP8.1 first-class callable syntax
+                ->registerConstructor([SomeClassWithStaticConstructorForOtherClass::class, 'from'])
+                ->mapper()
+                ->map(SimpleObject::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->value);
     }
 
     public function test_registered_constructor_with_injected_class_name_is_used_for_abstract_class(): void
@@ -552,6 +569,20 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
             ->map(stdClass::class, []);
     }
 
+    public function test_invalid_constructor_return_type_missing_generic_throws_exception(): void
+    {
+        $this->expectException(InvalidConstructorReturnType::class);
+        $this->expectExceptionCode(1659446121);
+        $this->expectExceptionMessageMatches('/The type `.*` for return type of method `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
+
+        (new MapperBuilder())
+            ->registerConstructor(
+                fn (): SimpleObjectWithGeneric => new SimpleObjectWithGeneric()
+            )
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
     public function test_missing_constructor_class_type_parameter_throws_exception(): void
     {
         $this->expectException(MissingConstructorClassTypeParameter::class);
@@ -754,6 +785,17 @@ final class SomeClassWithBothInheritedStaticConstructors
     public SomeClassWithInheritedStaticConstructor $someChild;
 
     public SomeOtherClassWithInheritedStaticConstructor $someOtherChild;
+}
+
+final class SomeClassWithStaticConstructorForOtherClass
+{
+    public static function from(string $value): SimpleObject
+    {
+        $object = new SimpleObject();
+        $object->value= $value;
+
+        return $object;
+    }
 }
 
 final class SomeClassProvidingStaticClosure

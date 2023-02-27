@@ -100,13 +100,13 @@ final class NonEmptyListType implements CompositeTraversableType
         return $this->subType;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
-        yield $this->subType;
-
         if ($this->subType instanceof CompositeType) {
-            yield from $this->subType->traverse();
+            return [$this->subType, ...$this->subType->traverse()];
         }
+
+        return [$this->subType];
     }
 
     public function toString(): string

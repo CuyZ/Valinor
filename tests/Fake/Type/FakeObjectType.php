@@ -45,11 +45,6 @@ final class FakeObjectType implements ObjectType
         return $this->className;
     }
 
-    public function generics(): array
-    {
-        return [];
-    }
-
     public function accepts(mixed $value): bool
     {
         return isset($this->accepting) && in_array($value, $this->accepting, true);

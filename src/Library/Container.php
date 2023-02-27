@@ -30,14 +30,14 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ClassNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ProxyClassNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -47,6 +47,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
@@ -54,7 +55,6 @@ use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
@@ -103,10 +103,10 @@ final class Container
                     IterableType::class => $arrayNodeBuilder,
                     ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
                     ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
-                    ClassType::class => new ProxyClassNodeBuilder(
+                    ClassType::class => new NativeClassNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
-                        $this->get(ClassNodeBuilder::class),
+                        $this->get(ObjectNodeBuilder::class),
                         $settings->enableFlexibleCasting,
                     ),
                 ]);
@@ -115,7 +115,7 @@ final class Container
                     $builder,
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
-                    $this->get(ClassNodeBuilder::class),
+                    $this->get(ObjectNodeBuilder::class),
                     $settings->enableFlexibleCasting
                 );
 
@@ -124,7 +124,7 @@ final class Container
                     $this->get(ObjectImplementations::class),
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
-                    $this->get(ClassNodeBuilder::class),
+                    $this->get(ObjectNodeBuilder::class),
                     $settings->enableFlexibleCasting
                 );
 
@@ -146,7 +146,7 @@ final class Container
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
 
-            ClassNodeBuilder::class => fn () => new ClassNodeBuilder($settings->allowSuperfluousKeys),
+            ObjectNodeBuilder::class => fn () => new ObjectNodeBuilder($settings->allowSuperfluousKeys),
 
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(

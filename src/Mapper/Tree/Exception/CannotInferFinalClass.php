@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use RuntimeException;
 
 /** @internal */

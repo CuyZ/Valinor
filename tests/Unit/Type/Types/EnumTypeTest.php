@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
@@ -20,21 +18,21 @@ use stdClass;
 /**
  * @requires PHP >= 8.1
  */
-final class NativeEnumTypeTest extends TestCase
+final class EnumTypeTest extends TestCase
 {
-    private NativeEnumType $pureEnumType;
+    private EnumType $pureEnumType;
 
-    private NativeEnumType $backedStringEnumType;
+    private EnumType $backedStringEnumType;
 
-    private NativeEnumType $backedIntegerEnumType;
+    private EnumType $backedIntegerEnumType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->pureEnumType = new NativeEnumType(PureEnum::class);
-        $this->backedStringEnumType = new NativeEnumType(BackedStringEnum::class);
-        $this->backedIntegerEnumType = new NativeEnumType(BackedIntegerEnum::class);
+        $this->pureEnumType = EnumType::native(PureEnum::class);
+        $this->backedStringEnumType = EnumType::native(BackedStringEnum::class);
+        $this->backedIntegerEnumType = EnumType::native(BackedIntegerEnum::class);
     }
 
     public function test_class_name_can_be_retrieved(): void
@@ -81,66 +79,6 @@ final class NativeEnumTypeTest extends TestCase
         self::assertFalse($this->backedIntegerEnumType->accepts(BackedStringEnum::FOO));
     }
 
-    public function test_can_cast_enum_value(): void
-    {
-        self::assertTrue($this->pureEnumType->canCast('FOO'));
-        self::assertTrue($this->pureEnumType->canCast(new StringableObject('FOO')));
-
-        self::assertTrue($this->backedStringEnumType->canCast('foo'));
-        self::assertTrue($this->backedStringEnumType->canCast(new StringableObject('foo')));
-
-        self::assertTrue($this->backedIntegerEnumType->canCast(42));
-        self::assertTrue($this->backedIntegerEnumType->canCast('42'));
-        self::assertTrue($this->backedIntegerEnumType->canCast(new StringableObject('42')));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->pureEnumType->canCast(404));
-        self::assertFalse($this->pureEnumType->canCast(42.1337));
-        self::assertFalse($this->pureEnumType->canCast(null));
-        self::assertFalse($this->pureEnumType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->pureEnumType->canCast('Schwifty!'));
-        self::assertFalse($this->pureEnumType->canCast(new StringableObject('Schwifty!')));
-        self::assertFalse($this->pureEnumType->canCast(false));
-        self::assertFalse($this->pureEnumType->canCast(new stdClass()));
-
-        self::assertFalse($this->backedStringEnumType->canCast(404));
-        self::assertFalse($this->backedStringEnumType->canCast(42.1337));
-        self::assertFalse($this->backedStringEnumType->canCast(null));
-        self::assertFalse($this->backedStringEnumType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->backedStringEnumType->canCast('Schwifty!'));
-        self::assertFalse($this->backedStringEnumType->canCast(new StringableObject('Schwifty!')));
-        self::assertFalse($this->backedStringEnumType->canCast(false));
-        self::assertFalse($this->backedStringEnumType->canCast(new stdClass()));
-
-        self::assertFalse($this->backedIntegerEnumType->canCast(512));
-        self::assertFalse($this->backedIntegerEnumType->canCast(42.1337));
-        self::assertFalse($this->backedIntegerEnumType->canCast(null));
-        self::assertFalse($this->backedIntegerEnumType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->backedIntegerEnumType->canCast('Schwifty!'));
-        self::assertFalse($this->backedIntegerEnumType->canCast(new StringableObject('Schwifty!')));
-        self::assertFalse($this->backedIntegerEnumType->canCast(false));
-        self::assertFalse($this->backedIntegerEnumType->canCast(new stdClass()));
-    }
-
-    public function test_cast_value_returns_correct_result(): void
-    {
-        self::assertSame(PureEnum::FOO, $this->pureEnumType->cast('FOO'));
-
-        self::assertSame(BackedStringEnum::FOO, $this->backedStringEnumType->cast('foo'));
-
-        self::assertSame(BackedIntegerEnum::FOO, $this->backedIntegerEnumType->cast(42));
-        self::assertSame(BackedIntegerEnum::FOO, $this->backedIntegerEnumType->cast('42'));
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->pureEnumType->cast('Schwifty!');
-    }
-
     public function test_string_value_is_correct(): void
     {
         self::assertSame(PureEnum::class, $this->pureEnumType->toString());
@@ -150,16 +88,16 @@ final class NativeEnumTypeTest extends TestCase
 
     public function test_matches_same_enum_type(): void
     {
-        self::assertTrue($this->pureEnumType->matches(new NativeEnumType(PureEnum::class)));
-        self::assertTrue($this->backedStringEnumType->matches(new NativeEnumType(BackedStringEnum::class)));
-        self::assertTrue($this->backedIntegerEnumType->matches(new NativeEnumType(BackedIntegerEnum::class)));
+        self::assertTrue($this->pureEnumType->matches(EnumType::native(PureEnum::class)));
+        self::assertTrue($this->backedStringEnumType->matches(EnumType::native(BackedStringEnum::class)));
+        self::assertTrue($this->backedIntegerEnumType->matches(EnumType::native(BackedIntegerEnum::class)));
     }
 
     public function test_does_not_match_other_enum_type(): void
     {
-        self::assertFalse($this->pureEnumType->matches(new NativeEnumType(BackedStringEnum::class)));
-        self::assertFalse($this->backedStringEnumType->matches(new NativeEnumType(BackedIntegerEnum::class)));
-        self::assertFalse($this->backedIntegerEnumType->matches(new NativeEnumType(PureEnum::class)));
+        self::assertFalse($this->pureEnumType->matches(EnumType::native(BackedStringEnum::class)));
+        self::assertFalse($this->backedStringEnumType->matches(EnumType::native(BackedIntegerEnum::class)));
+        self::assertFalse($this->backedIntegerEnumType->matches(EnumType::native(PureEnum::class)));
     }
 
     public function test_does_not_match_other_type(): void
@@ -185,9 +123,9 @@ final class NativeEnumTypeTest extends TestCase
 
     public function test_matches_union_type_containing_same_enum_type(): void
     {
-        self::assertTrue($this->pureEnumType->matches(new UnionType(new FakeType(), new NativeEnumType(PureEnum::class))));
-        self::assertTrue($this->backedStringEnumType->matches(new UnionType(new FakeType(), new NativeEnumType(BackedStringEnum::class))));
-        self::assertTrue($this->backedIntegerEnumType->matches(new UnionType(new FakeType(), new NativeEnumType(BackedIntegerEnum::class))));
+        self::assertTrue($this->pureEnumType->matches(new UnionType(new FakeType(), EnumType::native(PureEnum::class))));
+        self::assertTrue($this->backedStringEnumType->matches(new UnionType(new FakeType(), EnumType::native(BackedStringEnum::class))));
+        self::assertTrue($this->backedIntegerEnumType->matches(new UnionType(new FakeType(), EnumType::native(BackedIntegerEnum::class))));
     }
 
     public function test_does_not_match_union_type_not_containing_same_enum_type(): void
@@ -197,12 +135,5 @@ final class NativeEnumTypeTest extends TestCase
         self::assertFalse($this->pureEnumType->matches($unionType));
         self::assertFalse($this->backedStringEnumType->matches($unionType));
         self::assertFalse($this->backedIntegerEnumType->matches($unionType));
-    }
-
-    public function test_generics_are_empty(): void
-    {
-        self::assertSame([], $this->pureEnumType->generics());
-        self::assertSame([], $this->backedStringEnumType->generics());
-        self::assertSame([], $this->backedIntegerEnumType->generics());
     }
 }

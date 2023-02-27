@@ -17,9 +17,9 @@ final class FakeCompositeType implements CompositeType
         $this->types = $types;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
-        yield from $this->types;
+        return $this->types;
     }
 
     public function accepts(mixed $value): bool

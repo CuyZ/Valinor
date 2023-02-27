@@ -52,7 +52,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                     SomeInterface::class,
                     /** @return class-string<SomeClassThatInheritsInterfaceA>|class-string<SomeClassThatInheritsInterfaceB> */
                     function (string $value): string {
-                        // @PHP8.0 match
+                        // PHP8.0 match
                         if ($value === 'fooA') {
                             return SomeClassThatInheritsInterfaceA::class;
                         }
