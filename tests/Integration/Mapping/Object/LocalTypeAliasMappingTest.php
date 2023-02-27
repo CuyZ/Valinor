@@ -19,6 +19,12 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
                 'foo' => 'foo',
                 'bar' => 1337,
             ],
+            'aliasShapedArrayNested' => [
+                'baz' => [
+                    'foo' => 'foo',
+                    'bar' => 1337,
+                ]
+            ],
             'aliasGeneric' => [42, 1337],
         ];
 
@@ -74,6 +80,7 @@ class GenericObjectWithPhpStanLocalAlias
  * @phpstan-type AliasWithoutEqualsSign int
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
  * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
+ * @phpstan-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  */
 class PhpStanLocalAliases
 {
@@ -86,6 +93,9 @@ class PhpStanLocalAliases
     /** @var AliasShapedArray */
     public array $aliasShapedArray;
 
+    /** @var AliasShapedArrayNested */
+    public array $aliasShapedArrayNested;
+
     /** @var AliasGeneric */
     public GenericObjectWithPhpStanLocalAlias $aliasGeneric;
 }
@@ -94,6 +104,7 @@ class PhpStanLocalAliases
  * @phpstan-type AliasWithEqualsSign = int
  * @phpstan-type AliasWithoutEqualsSign int
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
+ * @phpstan-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
  */
 interface PhpStanLocalAliasesInterface
@@ -133,6 +144,7 @@ class GenericObjectWithPsalmLocalAlias
  * @psalm-type AliasWithEqualsSign = int
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
+ * @psalm-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
  */
 class PsalmLocalAliases
@@ -146,6 +158,9 @@ class PsalmLocalAliases
     /** @var AliasShapedArray */
     public array $aliasShapedArray;
 
+    /** @var AliasShapedArrayNested */
+    public array $aliasShapedArrayNested;
+
     /** @var AliasGeneric */
     public GenericObjectWithPsalmLocalAlias $aliasGeneric;
 }
@@ -154,6 +169,7 @@ class PsalmLocalAliases
  * @psalm-type AliasWithEqualsSign = int
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
+ * @psalm-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
  */
 interface PsalmLocalAliasesInterface
