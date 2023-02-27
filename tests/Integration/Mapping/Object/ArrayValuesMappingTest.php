@@ -78,6 +78,17 @@ final class ArrayValuesMappingTest extends IntegrationTest
         self::assertSame(['ArrayObject' => 'ArrayObject'], $result);
     }
 
+    public function test_literal_keys(): void
+    {
+        try {
+            $result = (new MapperBuilder())->mapper()->map('array<"a"|"b", true>', ['a' => true]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['a' => true], $result);
+    }
+
     public function test_empty_array_in_non_empty_array_throws_exception(): void
     {
         try {
