@@ -23,6 +23,7 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionMethod;
@@ -161,7 +162,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return array<string, Type>
      */
-    private function localTypeAliases(ClassType $type): array
+    private function localTypeAliases(ClassType|InterfaceType $type): array
     {
         $reflection = Reflection::class($type->className());
         $rawTypes = Reflection::localTypeAliases($reflection);
@@ -202,7 +203,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
                 throw new InvalidTypeAliasImportClass($type, $class);
             }
 
-            if (! $classType instanceof ClassType) {
+            if (! $classType instanceof ClassType && ! $classType instanceof InterfaceType) {
                 throw new InvalidTypeAliasImportClassType($type, $classType);
             }
 
@@ -223,7 +224,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @param array<string, Type> $aliases
      */
-    private function typeParser(ClassType $type, array $aliases = []): TypeParser
+    private function typeParser(ClassType|InterfaceType $type, array $aliases = []): TypeParser
     {
         return $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),

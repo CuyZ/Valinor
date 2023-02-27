@@ -65,7 +65,7 @@ final class UnresolvableType extends LogicException implements Type
         );
     }
 
-    public static function forLocalAlias(string $raw, string $name, ClassType $type, InvalidType $exception): self
+    public static function forLocalAlias(string $raw, string $name, ClassType|InterfaceType $type, InvalidType $exception): self
     {
         return new self(
             $raw,
