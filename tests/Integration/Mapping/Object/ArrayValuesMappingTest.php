@@ -67,6 +67,17 @@ final class ArrayValuesMappingTest extends IntegrationTest
         }
     }
 
+    public function test_key_is_class_name(): void
+    {
+        try {
+            $result = (new MapperBuilder())->mapper()->map('array{ArrayObject: "ArrayObject"}', ['ArrayObject' => 'test']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['ArrayObject' => 'ArrayObject'], $result);
+    }
+
     public function test_empty_array_in_non_empty_array_throws_exception(): void
     {
         try {
