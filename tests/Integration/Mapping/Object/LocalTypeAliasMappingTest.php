@@ -25,6 +25,13 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
                     'bar' => 1337,
                 ]
             ],
+            'aliasShapedArrayNestedValueOf' => [
+                'foo' => 'foo',
+                'bar' => 1337,
+            ],
+            'aliasShapedArrayKeyOf' => [
+                'foo', 'bar'
+            ],
             'aliasGeneric' => [42, 1337],
         ];
 
@@ -81,6 +88,8 @@ class GenericObjectWithPhpStanLocalAlias
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
  * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
  * @phpstan-type AliasShapedArrayNested = array{baz: AliasShapedArray}
+ * @phpstan-type AliasShapedArrayNestedValueOf = value-of<AliasShapedArrayNested>
+ * @phpstan-type AliasShapedArrayKeyOf = list<key-of<AliasShapedArrayNestedValueOf>>
  */
 class PhpStanLocalAliases
 {
@@ -95,6 +104,12 @@ class PhpStanLocalAliases
 
     /** @var AliasShapedArrayNested */
     public array $aliasShapedArrayNested;
+
+    /** @var AliasShapedArrayNestedValueOf */
+    public array $aliasShapedArrayNestedValueOf;
+
+    /** @var AliasShapedArrayKeyOf */
+    public array $aliasShapedArrayKeyOf;
 
     /** @var AliasGeneric */
     public GenericObjectWithPhpStanLocalAlias $aliasGeneric;
@@ -145,6 +160,8 @@ class GenericObjectWithPsalmLocalAlias
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
  * @psalm-type AliasShapedArrayNested = array{baz: AliasShapedArray}
+ * @phpstan-type AliasShapedArrayNestedValueOf = value-of<AliasShapedArrayNested>
+ * @phpstan-type AliasShapedArrayKeyOf = list<key-of<AliasShapedArrayNestedValueOf>>
  * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
  */
 class PsalmLocalAliases
@@ -160,6 +177,12 @@ class PsalmLocalAliases
 
     /** @var AliasShapedArrayNested */
     public array $aliasShapedArrayNested;
+
+    /** @var AliasShapedArrayNestedValueOf */
+    public array $aliasShapedArrayNestedValueOf;
+
+    /** @var AliasShapedArrayKeyOf */
+    public array $aliasShapedArrayKeyOf;
 
     /** @var AliasGeneric */
     public GenericObjectWithPsalmLocalAlias $aliasGeneric;
