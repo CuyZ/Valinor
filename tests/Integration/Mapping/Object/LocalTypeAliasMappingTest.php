@@ -40,7 +40,12 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
 
     public function test_type_aliases_are_imported_correctly(): void
     {
-        foreach ([PhpStanAliasImport::class, PsalmAliasImport::class] as $class) {
+        foreach ([
+            PhpStanAliasImport::class,
+            PsalmAliasImport::class,
+            PhpStanAliasImportFromInterface::class,
+            PsalmAliasImportFromInterface::class
+        ] as $class) {
             try {
                 $result = (new MapperBuilder())
                     ->mapper()
@@ -86,9 +91,29 @@ class PhpStanLocalAliases
 }
 
 /**
+ * @phpstan-type AliasWithEqualsSign = int
+ * @phpstan-type AliasWithoutEqualsSign int
+ * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
+ * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
+ */
+interface PhpStanLocalAliasesInterface
+{
+}
+
+/**
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
  */
 class PhpStanAliasImport
+{
+    /** @var AliasWithEqualsSign */
+    public int $importedType;
+}
+
+
+/**
+ * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliasesInterface
+ */
+class PhpStanAliasImportFromInterface
 {
     /** @var AliasWithEqualsSign */
     public int $importedType;
@@ -126,9 +151,28 @@ class PsalmLocalAliases
 }
 
 /**
+ * @psalm-type AliasWithEqualsSign = int
+ * @psalm-type AliasWithoutEqualsSign int
+ * @psalm-type AliasShapedArray = array{foo: string, bar: int}
+ * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
+ */
+interface PsalmLocalAliasesInterface
+{
+}
+
+/**
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
  */
 class PsalmAliasImport
+{
+    /** @var AliasWithEqualsSign */
+    public int $importedType;
+}
+
+/**
+ * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliasesInterface
+ */
+class PsalmAliasImportFromInterface
 {
     /** @var AliasWithEqualsSign */
     public int $importedType;
