@@ -53,23 +53,15 @@ final class ReflectionPropertyDefinitionBuilder
         $name = $name;
         $signature = "$class::\$$name";
         $type = $typeResolver->advancedParser->parse($type);
-        $hasDefaultValue = false;
         $defaultValue = null;
         $isPublic = true;
         $attributes = new AttributesContainer();
-
-        if ($hasDefaultValue
-            && ! $type instanceof UnresolvableType
-            && ! $type->accepts($defaultValue)
-        ) {
-            $type = UnresolvableType::forInvalidPropertyDefaultValue($signature, $type, $defaultValue);
-        }
 
         return new PropertyDefinition(
             $name,
             $signature,
             $type,
-            $hasDefaultValue,
+            false,
             $defaultValue,
             $isPublic,
             $attributes

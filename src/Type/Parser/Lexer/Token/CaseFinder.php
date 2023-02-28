@@ -30,7 +30,7 @@ final class CaseFinder
     {
         if (count($tokens) === 1) {
             return isset($this->cases[$tokens[0]])
-                ? [$this->cases[$tokens[0]]]
+                ? [$tokens[0] => $this->cases[$tokens[0]]]
                 : [];
         }
         $matches = [];

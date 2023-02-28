@@ -229,7 +229,7 @@ final class Reflection
         $docComment = self::sanitizeDocComment($reflection);
 
         $parts = preg_split('/@(phpstan|psalm)-type /', $docComment);
-        if (count($parts) === 1) {
+        if ($parts === false || count($parts) === 1) {
             return [];
         }
         foreach ($parts as $part) {

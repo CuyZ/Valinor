@@ -139,7 +139,7 @@ class ShapedArrayValues
     public array $shapedArrayWithClassNameAsKey;
 
     /** @var array{foo: string, bar: int, ...} */
-    public array $basicUnsealedShapedArrayWithStringKeys;
+    public array $basicUnsealedShapedArrayWithStringKeys; // @phpstan-ignore-line
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
@@ -161,7 +161,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
      */
-    public function __construct(
+    public function __construct( // @phpstan-ignore-line
         array $basicShapedArrayWithStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,

@@ -75,7 +75,7 @@ final class ArrayValuesMappingTest extends IntegrationTest
             $this->mappingFail($error);
         }
 
-        self::assertSame(['ArrayObject' => 'ArrayObject'], $result);
+        self::assertSame(['ArrayObject' => 'ArrayObject'], $result); // @phpstan-ignore-line
     }
 
     public function test_literal_keys(): void
