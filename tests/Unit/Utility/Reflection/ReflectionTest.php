@@ -281,6 +281,17 @@ final class ReflectionTest extends TestCase
             ];
         }
 
+        yield 'phpdoc multiline array' => [
+            /**
+             * @return array{
+             *      a: 42,
+             *      b: "test"
+             * }
+             */
+            fn () => ['a' => 42, 'b' => 'test'],
+            'array{a: 42, b: "test"}',
+        ];
+
         yield 'psalm' => [
             /** @psalm-return int */
             fn () => 42,
