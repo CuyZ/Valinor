@@ -43,6 +43,11 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             'shapedArrayWithClassNameAsKey' => [
                 'stdclass' => 'foo',
             ],
+            'basicShapedArrayWithStringKeys' => [
+                'foo' => 'test',
+                'bar' => 42,
+                'baz' => 'extra'
+            ],
         ];
 
         foreach ([ShapedArrayValues::class, ShapedArrayValuesWithConstructor::class] as $class) {
@@ -72,6 +77,20 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 'basicShapedArrayWithStringKeys' => [
                     'foo' => new stdClass(),
                     'bar' => 42,
+                ],
+            ]);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
+
+            self::assertSame('Value object(stdClass) is not a valid string.', (string)$error);
+        }
+
+        try {
+            (new MapperBuilder())->mapper()->map(ShapedArrayValues::class, [
+                'basicShapedArrayWithStringKeys' => [
+                    'foo' => 'test',
+                    'bar' => 42,
+                    'baz' => 'extra'
                 ],
             ]);
         } catch (MappingError $exception) {
@@ -117,6 +136,9 @@ class ShapedArrayValues
 
     /** @var array{stdclass: string} */
     public array $shapedArrayWithClassNameAsKey;
+
+    /** @var array{foo: string, bar: int, ...} */
+    public array $basicUnsealedShapedArrayWithStringKeys;
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
@@ -136,6 +158,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * } $shapedArrayOnSeveralLinesWithTrailingComma
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
+     * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
      */
     public function __construct(
         array $basicShapedArrayWithStringKeys,
@@ -145,7 +168,8 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayOnSeveralLines,
         array $shapedArrayOnSeveralLinesWithTrailingComma,
         array $advancedShapedArray,
-        array $shapedArrayWithClassNameAsKey
+        array $shapedArrayWithClassNameAsKey,
+        array $basicUnsealedShapedArrayWithStringKeys
     ) {
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
         $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
@@ -155,5 +179,6 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         $this->shapedArrayOnSeveralLinesWithTrailingComma = $shapedArrayOnSeveralLinesWithTrailingComma;
         $this->advancedShapedArray = $advancedShapedArray;
         $this->shapedArrayWithClassNameAsKey = $shapedArrayWithClassNameAsKey;
+        $this->basicUnsealedShapedArrayWithStringKeys = $basicUnsealedShapedArrayWithStringKeys;
     }
 }
