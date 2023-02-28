@@ -67,7 +67,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->advancedShapedArray[0]);
             self::assertSame(42.404, $result->advancedShapedArray[1]);
             self::assertSame('foo', $result->shapedArrayWithClassNameAsKey['stdclass']);
-            self::assertSame($source['basicUnsealedShapedArrayWithStringKeys'], $result->basicUnsealedShapedArrayWithStringKeys);
+            self::assertSame($source['basicUnsealedShapedArrayWithStringKeys'], $result->basicUnsealedShapedArrayWithStringKeys); // @phpstan-ignore-line
         }
     }
 
@@ -139,7 +139,7 @@ class ShapedArrayValues
     public array $shapedArrayWithClassNameAsKey;
 
     /** @var array{foo: string, bar: int, ...} */
-    public array $basicUnsealedShapedArrayWithStringKeys; // @phpstan-ignore-line
+    public array $basicUnsealedShapedArrayWithStringKeys;
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
@@ -161,7 +161,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
      */
-    public function __construct(// @phpstan-ignore-line
+    public function __construct(
         array $basicShapedArrayWithStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,
