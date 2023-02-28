@@ -67,6 +67,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame('1337', $result->numericString);
             self::assertSame('baz', $result->stringValueWithSingleQuote); // @phpstan-ignore-line
             self::assertSame('fiz', $result->stringValueWithDoubleQuote); // @phpstan-ignore-line
+            self::assertSame('a a', $result->stringValueWithSpaces); // @phpstan-ignore-line
+            self::assertSame('🦄$', $result->stringValueWithUtf8); // @phpstan-ignore-line
             self::assertSame(self::class, $result->classString);
             self::assertSame(DateTimeImmutable::class, $result->classStringOfDateTime);
             self::assertSame(stdClass::class, $result->classStringOfAlias);

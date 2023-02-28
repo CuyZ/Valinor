@@ -97,7 +97,7 @@ final class TypeCompiler
                 );
                 $shapes = implode(', ', $shapes);
 
-                return "new $class(...[$shapes])";
+                return "new $class(".($type->sealed() ? 'true' : 'false').", ...[$shapes])";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
                 if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {
