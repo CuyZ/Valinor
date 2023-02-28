@@ -38,7 +38,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         $node = TreeNode::branch($shell, $array, $children);
 
-        if (! $this->allowSuperfluousKeys 
+        if (! $this->allowSuperfluousKeys
             && $type->sealed()
             && count($value) > count($children)
         ) {

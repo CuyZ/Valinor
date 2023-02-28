@@ -135,7 +135,6 @@ class PhpStanAliasImport
     public int $importedType;
 }
 
-
 /**
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliasesInterface
  */

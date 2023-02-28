@@ -147,10 +147,11 @@ final class ShapedArrayType implements CompositeType
         return $this->elements;
     }
 
-    public function sealed(): bool {
+    public function sealed(): bool
+    {
         return $this->sealed;
     }
-    
+
     public function toString(): string
     {
         return $this->signature;

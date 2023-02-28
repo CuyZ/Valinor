@@ -162,7 +162,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 
         foreach ($rawTypes as $name => $raw) {
             $typeParser = $this->typeParser($type, $types);
-    
+
             try {
                 $types[$name] = $typeParser->parse($raw);
             } catch (InvalidType $exception) {

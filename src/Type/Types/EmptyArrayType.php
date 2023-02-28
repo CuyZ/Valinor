@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Type\CompositeTraversableType;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function is_array;
@@ -21,7 +19,7 @@ final class EmptyArrayType implements Type
 
     public static function get(): self
     {
-        return self::$arr ??= new self;
+        return self::$arr ??= new self();
     }
 
     public function accepts(mixed $value): bool

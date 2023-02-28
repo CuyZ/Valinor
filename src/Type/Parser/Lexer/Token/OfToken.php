@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
-use AssertionError;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\NonArrayOf;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\OpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\ListType;
-use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
@@ -69,7 +66,7 @@ final class OfToken implements TraversingToken
         } else {
             throw new NonArrayOf($this->symbol(), $subType);
         }
-        
+
         return $subType;
     }
 

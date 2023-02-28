@@ -161,7 +161,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
      */
-    public function __construct( // @phpstan-ignore-line
+    public function __construct(// @phpstan-ignore-line
         array $basicShapedArrayWithStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,

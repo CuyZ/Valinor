@@ -9,21 +9,12 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
-use CuyZ\Valinor\Type\Types\ShapedArrayElement;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
-use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
 /** @internal */
@@ -111,5 +102,4 @@ final class ArrayToken extends ShapedArrayToken
 
         return $arrayType;
     }
-
 }
