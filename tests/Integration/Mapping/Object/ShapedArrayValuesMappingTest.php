@@ -43,7 +43,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             'shapedArrayWithClassNameAsKey' => [
                 'stdclass' => 'foo',
             ],
-            'basicShapedArrayWithStringKeys' => [
+            'basicUnsealedShapedArrayWithStringKeys' => [
                 'foo' => 'test',
                 'bar' => 42,
                 'baz' => 'extra'
@@ -67,6 +67,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->advancedShapedArray[0]);
             self::assertSame(42.404, $result->advancedShapedArray[1]);
             self::assertSame('foo', $result->shapedArrayWithClassNameAsKey['stdclass']);
+            self::assertSame($source['basicUnsealedShapedArrayWithStringKeys'], $result->basicUnsealedShapedArrayWithStringKeys);
         }
     }
 
