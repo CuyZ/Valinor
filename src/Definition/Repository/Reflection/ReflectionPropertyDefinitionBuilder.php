@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Type\Type;
@@ -42,26 +41,6 @@ final class ReflectionPropertyDefinitionBuilder
             $signature,
             $type,
             $hasDefaultValue,
-            $defaultValue,
-            $isPublic,
-            $attributes
-        );
-    }
-
-    public function forMagic(string $class, string $name, string $type, ReflectionTypeResolver $typeResolver): PropertyDefinition
-    {
-        $name = $name;
-        $signature = "$class::\$$name";
-        $type = $typeResolver->advancedParser->parse($type);
-        $defaultValue = null;
-        $isPublic = true;
-        $attributes = new AttributesContainer();
-
-        return new PropertyDefinition(
-            $name,
-            $signature,
-            $type,
-            false,
             $defaultValue,
             $isPublic,
             $attributes
