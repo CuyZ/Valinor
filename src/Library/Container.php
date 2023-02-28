@@ -243,7 +243,7 @@ final class Container
      * @param class-string<T> $name
      * @return T
      */
-    public function get(string $name): object
+    private function get(string $name): object
     {
         return $this->services[$name] ??= call_user_func($this->factories[$name]); // @phpstan-ignore-line
     }
