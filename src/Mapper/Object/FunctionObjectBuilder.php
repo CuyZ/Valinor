@@ -8,6 +8,8 @@ use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\GenericType;
+use CuyZ\Valinor\Type\Type;
 use Exception;
 
 use function array_map;
@@ -20,9 +22,16 @@ final class FunctionObjectBuilder implements ObjectBuilder
 
     private string $className;
 
+    /**
+     * @var array<string, Type>
+     */
+    private array $generics;
+
     private Arguments $arguments;
 
     private bool $isDynamicConstructor;
+
+    private bool $isGenericConstructor;
 
     public function __construct(FunctionObject $function, ClassType $type)
     {
@@ -34,14 +43,16 @@ final class FunctionObjectBuilder implements ObjectBuilder
         );
 
         $this->isDynamicConstructor = $definition->attributes()->has(DynamicConstructor::class);
+        $this->isGenericConstructor = $type instanceof GenericType && count($type->generics()) > 0;
 
-        if ($this->isDynamicConstructor) {
+        if ($this->isDynamicConstructor || $this->isGenericConstructor) {
             array_shift($arguments);
         }
 
         $this->function = $function;
         $this->className = $type->className();
         $this->arguments = new Arguments(...$arguments);
+        $this->generics = $type instanceof GenericType ? $type->generics() : [];
     }
 
     public function describeArguments(): Arguments
@@ -55,6 +66,10 @@ final class FunctionObjectBuilder implements ObjectBuilder
 
         if ($this->isDynamicConstructor) {
             $arguments[$parameters->at(0)->name()] = $this->className;
+        }
+
+        if ($this->isGenericConstructor) {
+            $arguments[$parameters->at(0)->name()] = $this->generics;
         }
 
         $arguments = new MethodArguments($parameters, $arguments);
