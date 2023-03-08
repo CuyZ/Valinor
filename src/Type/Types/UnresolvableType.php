@@ -15,18 +15,19 @@ final class UnresolvableType extends LogicException implements Type
 {
     private string $rawType;
 
-    public function __construct(string $rawType, string $message)
+    public function __construct(string $rawType, string $message, ?\Throwable $previous = null)
     {
         $this->rawType = $rawType;
 
-        parent::__construct($message);
+        parent::__construct($message, 0, $previous);
     }
 
     public static function forProperty(string $raw, string $signature, InvalidType $exception): self
     {
         return new self(
             $raw,
-            "The type `$raw` for property `$signature` could not be resolved: {$exception->getMessage()}"
+            "The type `$raw` for property `$signature` could not be resolved: {$exception->getMessage()}",
+            $exception
         );
     }
 
@@ -34,7 +35,8 @@ final class UnresolvableType extends LogicException implements Type
     {
         return new self(
             $raw,
-            "The type `$raw` for parameter `$signature` could not be resolved: {$exception->getMessage()}"
+            "The type `$raw` for parameter `$signature` could not be resolved: {$exception->getMessage()}",
+            $exception
         );
     }
 
@@ -42,7 +44,8 @@ final class UnresolvableType extends LogicException implements Type
     {
         return new self(
             $raw,
-            "The type `$raw` for return type of method `$signature` could not be resolved: {$exception->getMessage()}"
+            "The type `$raw` for return type of method `$signature` could not be resolved: {$exception->getMessage()}",
+            $exception
         );
     }
 
@@ -70,7 +73,8 @@ final class UnresolvableType extends LogicException implements Type
     {
         return new self(
             $raw,
-            "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}"
+            "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}",
+            $exception
         );
     }
 
