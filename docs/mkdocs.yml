@@ -93,5 +93,6 @@ nav:
       - Performance & caching: other/performance-and-caching.md
       - Static analysis — PHPStan/Psalm: other/static-analysis.md
   - Project:
+      - Alternatives: project/alternatives.md
       - Changelog: project/changelog.md
       - Credits: project/credits.md
