@@ -1,10 +1,10 @@
-# Error handling
+# Validation and error handling
 
 The source given to a mapper can never be trusted, this is actually the very
 goal of this library: transforming an unstructured input to a well-defined
-object structure. If the mapper cannot guess how to cast a certain value, it
-means that it is not able to guarantee the validity of the desired object thus
-it will fail.
+object structure. If a value has an invalid type, or if the mapper cannot cast
+it properly (in flexible mode), it means that it is not able to guarantee the
+validity of the desired object thus it will fail.
 
 Any issue encountered during the mapping will add an error to an upstream
 exception of type `\CuyZ\Valinor\Mapper\MappingError`. It is therefore always

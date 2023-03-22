@@ -79,7 +79,7 @@ nav:
   - Getting Started: getting-started.md
   - Usage:
       - Object construction: usage/object-construction.md
-      - Error handling: usage/error-handling.md
+      - Validation & error handling: usage/validation-and-error-handling.md
       - Type strictness & flexibility: usage/type-strictness-and-flexibility.md
       - Type reference: usage/type-reference.md
   - How-to:
