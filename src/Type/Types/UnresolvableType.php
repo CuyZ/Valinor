@@ -9,17 +9,18 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
 use LogicException;
+use Throwable;
 
 /** @internal */
 final class UnresolvableType extends LogicException implements Type
 {
     private string $rawType;
 
-    public function __construct(string $rawType, string $message, ?\Throwable $previous = null)
+    public function __construct(string $rawType, string $message, ?Throwable $previous = null)
     {
         $this->rawType = $rawType;
 
-        parent::__construct($message, 0, $previous);
+        parent::__construct($message, 1679578492, $previous);
     }
 
     public static function forProperty(string $raw, string $signature, InvalidType $exception): self
