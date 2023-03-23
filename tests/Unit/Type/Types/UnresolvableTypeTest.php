@@ -10,6 +10,13 @@ use PHPUnit\Framework\TestCase;
 
 final class UnresolvableTypeTest extends TestCase
 {
+    public function test_unresolvable_type_has_correct_code(): void
+    {
+        $type = new UnresolvableType('some-type', 'some message');
+
+        self::assertSame(1679578492, $type->getCode());
+    }
+
     public function test_call_unresolvable_type_accepts_throws_itself(): void
     {
         $type = new UnresolvableType('some-type', 'some message');

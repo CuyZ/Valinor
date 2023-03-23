@@ -16,7 +16,8 @@ final class PermissiveTypeNotAllowed extends LogicException
     {
         parent::__construct(
             "Error for `{$argument->name()}` in `{$builder->signature()}`: {$original->getMessage()}",
-            1655389255
+            1655389255,
+            $original
         );
     }
 }
