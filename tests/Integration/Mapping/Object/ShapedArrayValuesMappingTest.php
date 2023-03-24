@@ -120,7 +120,7 @@ class ShapedArrayValues
      * @var array{
      *     foo: string,
      *     bar: int
-     * }
+     * } Some description
      */
     public array $shapedArrayOnSeveralLines;
 
@@ -128,7 +128,7 @@ class ShapedArrayValues
      * @var array{
      *     foo: string,
      *     bar: int,
-     * }
+     * } Some description
      */
     public array $shapedArrayOnSeveralLinesWithTrailingComma;
 
@@ -152,11 +152,11 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{
      *     foo: string,
      *     bar: int
-     * } $shapedArrayOnSeveralLines
+     * } $shapedArrayOnSeveralLines Some description
      * @param array{
      *     foo: string,
      *     bar: int,
-     * } $shapedArrayOnSeveralLinesWithTrailingComma
+     * } $shapedArrayOnSeveralLinesWithTrailingComma Some description
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
