@@ -289,7 +289,18 @@ final class ReflectionTest extends TestCase
              * }
              */
             fn () => ['a' => 42, 'b' => 'test'],
-            'array{a: 42, b: "test"}',
+            "array{\na: 42,\nb: \"test\"\n}",
+        ];
+
+        yield 'phpdoc multiline array with description' => [
+            /**
+             * @return array{
+             *      a: 42,
+             *      b: "test"
+             * } A cool description
+             */
+            fn () => ['a' => 42, 'b' => 'test'],
+            "array{\na: 42,\nb: \"test\"\n}",
         ];
 
         yield 'psalm' => [

@@ -182,21 +182,21 @@ final class Reflection
     {
         $docComment = self::sanitizeDocComment($reflection);
 
-        $expression = sprintf('/@%s?return\s+%s/s', self::TOOL_EXPRESSION, self::TYPE_EXPRESSION);
-
-        if (! preg_match_all($expression, $docComment, $matches)) {
+        $parts = preg_split('/@((?:phpstan-|psalm-)?)return\s+/', $docComment, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($parts === false || count($parts) === 1) {
             return null;
         }
 
-        foreach ($matches['tool'] as $index => $tool) {
-            if ($tool === self::TOOL_NONE) {
-                continue;
+        array_shift($parts);
+        $type = null;
+        foreach ($parts as $k => $part) {
+            if ($k % 2) {
+                $type ??= $part;
+            } elseif ($part !== '') {
+                $type = null;
             }
-
-            return trim($matches['type'][$index]);
         }
-
-        return trim($matches['type'][0]);
+        return trim($type);
     }
 
     /**
