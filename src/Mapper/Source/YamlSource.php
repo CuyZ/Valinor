@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Source;
 
+use CuyZ\Valinor\Mapper\Source\Exception\InvalidSource;
 use CuyZ\Valinor\Mapper\Source\Exception\InvalidYaml;
 use CuyZ\Valinor\Mapper\Source\Exception\SourceNotIterable;
 use CuyZ\Valinor\Mapper\Source\Exception\YamlExtensionNotEnabled;
@@ -26,6 +27,9 @@ final class YamlSource implements IteratorAggregate
     /** @var iterable<mixed> */
     private iterable $source;
 
+    /**
+     * @throws InvalidSource
+     */
     public function __construct(string $yamlSource)
     {
         /** @infection-ignore-all */
@@ -38,11 +42,11 @@ final class YamlSource implements IteratorAggregate
         $source = @yaml_parse($yamlSource);
 
         if ($source === false) {
-            throw new InvalidYaml();
+            throw new InvalidYaml($yamlSource);
         }
 
         if (! is_iterable($source)) {
-            throw new SourceNotIterable($source);
+            throw new SourceNotIterable($yamlSource);
         }
 
         $this->source = $source;
