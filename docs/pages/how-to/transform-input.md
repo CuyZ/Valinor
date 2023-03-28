@@ -1,6 +1,6 @@
 # Transforming input
 
-Any source can be given to the mapper, be it an array, some json, yaml or even a
+Any source can be given to the mapper, be it an array, some JSON, YAML or even a
 file:
 
 ```php
@@ -29,6 +29,20 @@ $mapper->map(
     )
 );
 ```
+
+!!! info
+
+    JSON or YAML given to a source may be invalid, in which case an exception 
+    can be caught and manipulated.
+
+    ```php
+    try {
+        $source = \CuyZ\Valinor\Mapper\Source\Source::json('invalid JSON');
+    } catch (\CuyZ\Valinor\Mapper\Source\Exception\InvalidSource $exception) {
+        // Let the application handle the exception in the desired way.
+        // It is possible to get the original source with `$exception->source()`
+    }
+    ```
 
 ## Modifiers
 

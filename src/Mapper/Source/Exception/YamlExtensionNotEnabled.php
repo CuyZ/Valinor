@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Source\Exception;
 
-use RuntimeException;
+use LogicException;
 
 /**
  * @internal
@@ -12,7 +12,7 @@ use RuntimeException;
  * @codeCoverageIgnore
  * @infection-ignore-all
  */
-final class YamlExtensionNotEnabled extends RuntimeException implements SourceException
+final class YamlExtensionNotEnabled extends LogicException
 {
     public function __construct()
     {

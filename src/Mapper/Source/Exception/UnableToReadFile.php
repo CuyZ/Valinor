@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Source\Exception;
 
-use RuntimeException;
+use LogicException;
 
 /** @internal */
-final class UnableToReadFile extends RuntimeException implements SourceException
+final class UnableToReadFile extends LogicException
 {
     public function __construct(string $filename)
     {
