@@ -112,11 +112,11 @@ final class ValueDumper
             return $string;
         }
 
-        $string = substr($string, 0, self::MAX_STRING_LENGTH + 1);
+        $string = mb_strcut($string, 0, self::MAX_STRING_LENGTH + 1);
 
         for ($i = strlen($string) - 1; $i > 10; $i--) {
             if ($string[$i] === ' ') {
-                return substr($string, 0, $i) . '…';
+                return mb_strcut($string, 0, $i) . '…';
             }
         }
 
