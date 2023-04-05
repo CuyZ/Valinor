@@ -70,6 +70,10 @@ final class ArrayKeyType implements Type
 
     public function matches(Type $other): bool
     {
+        if ($other instanceof MixedType) {
+            return true;
+        }
+
         if (! $other instanceof self) {
             return false;
         }
