@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\MixedType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -72,5 +73,10 @@ final class ArrayKeyTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse(ArrayKeyType::default()->matches(new FakeType()));
+    }
+
+    public function test_matches_mixed_type(): void
+    {
+        self::assertTrue(ArrayKeyType::default()->matches(new MixedType()));
     }
 }
