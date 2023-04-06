@@ -91,6 +91,10 @@ final class AliasLexer implements TypeLexer
             return $symbol;
         }
 
+        if (Reflection::classOrInterfaceExists($symbol)) {
+            return $symbol;
+        }
+
         $full = $namespace . '\\' . $symbol;
 
         if (Reflection::classOrInterfaceExists($full)) {
