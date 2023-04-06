@@ -21,6 +21,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
         $source = [
             'boolean' => true,
             'float' => 42.404,
+            'floatWithInteger' => 42,
             'positiveFloatValue' => 42.404,
             'negativeFloatValue' => -42.404,
             'integer' => 1337,
@@ -50,6 +51,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
 
             self::assertSame(true, $result->boolean);
             self::assertSame(42.404, $result->float);
+            self::assertSame(42.0, $result->floatWithInteger);
             self::assertSame(42.404, $result->positiveFloatValue); // @phpstan-ignore-line
             self::assertSame(-42.404, $result->negativeFloatValue); // @phpstan-ignore-line
             self::assertSame(1337, $result->integer);
@@ -88,6 +90,8 @@ class ScalarValues
     public bool $boolean = false;
 
     public float $float = -1.0;
+
+    public float $floatWithInteger = -1.0;
 
     /** @var 42.404 */
     public float $positiveFloatValue;
@@ -165,6 +169,7 @@ class ScalarValuesWithConstructor extends ScalarValues
     public function __construct(
         bool $boolean,
         float $float,
+        float $floatWithInteger,
         float $positiveFloatValue,
         float $negativeFloatValue,
         int $integer,
@@ -186,6 +191,7 @@ class ScalarValuesWithConstructor extends ScalarValues
     ) {
         $this->boolean = $boolean;
         $this->float = $float;
+        $this->floatWithInteger = $floatWithInteger;
         $this->positiveFloatValue = $positiveFloatValue;
         $this->negativeFloatValue = $negativeFloatValue;
         $this->integer = $integer;

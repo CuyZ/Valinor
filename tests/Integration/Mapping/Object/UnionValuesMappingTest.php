@@ -88,12 +88,12 @@ final class UnionValuesMappingTest extends IntegrationTest
     public function test_invalid_value_is_not_casted_when_casting_mode_is_disabled(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('string|float', 42);
+            (new MapperBuilder())->mapper()->map('string|int', 42.404);
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1607027306', $error->code());
-            self::assertSame('Value 42 does not match any of `string`, `float`.', (string)$error);
+            self::assertSame('Value 42.404 does not match any of `string`, `int`.', (string)$error);
         }
     }
 }

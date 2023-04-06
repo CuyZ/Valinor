@@ -29,13 +29,13 @@ final class NativeFloatTypeTest extends TestCase
     public function test_accepts_correct_values(): void
     {
         self::assertTrue($this->floatType->accepts(42.1337));
+        self::assertTrue($this->floatType->accepts(404));
     }
 
     public function test_does_not_accept_incorrect_values(): void
     {
         self::assertFalse($this->floatType->accepts(null));
         self::assertFalse($this->floatType->accepts('Schwifty!'));
-        self::assertFalse($this->floatType->accepts(404));
         self::assertFalse($this->floatType->accepts(['foo' => 'bar']));
         self::assertFalse($this->floatType->accepts(false));
         self::assertFalse($this->floatType->accepts(new stdClass()));

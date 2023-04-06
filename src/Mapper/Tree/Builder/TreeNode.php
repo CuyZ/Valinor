@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\FloatType;
 use Throwable;
 
 use function array_map;
@@ -30,6 +31,14 @@ final class TreeNode
 
     private function __construct(Shell $shell, mixed $value)
     {
+        // When the value is an integer and the type is a float, the value needs
+        // to be cast to float — this special case needs to be handled in case a
+        // node is not a *native* PHP float type (for instance a class property
+        // with a `@var float` annotation).
+        if ($shell->type() instanceof FloatType && is_int($value)) {
+            $value = (float)$value;
+        }
+
         $this->shell = $shell;
         $this->value = $value;
     }
