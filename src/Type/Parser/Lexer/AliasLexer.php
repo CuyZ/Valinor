@@ -32,6 +32,10 @@ final class AliasLexer implements TypeLexer
 
     private function resolve(string $symbol): string
     {
+        if (Reflection::classOrInterfaceExists($symbol)) {
+            return $symbol;
+        }
+
         $alias = $this->resolveAlias($symbol);
 
         if (strtolower($alias) !== strtolower($symbol)) {
