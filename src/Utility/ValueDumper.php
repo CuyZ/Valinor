@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Utility;
 
 use BackedEnum;
 use DateTimeInterface;
+use InvalidArgumentException;
 use UnitEnum;
 
 use function implode;
@@ -112,14 +113,51 @@ final class ValueDumper
             return $string;
         }
 
-        $string = mb_strcut($string, 0, self::MAX_STRING_LENGTH + 1);
+        $string = self::cut($string, self::MAX_STRING_LENGTH + 1);
 
         for ($i = strlen($string) - 1; $i > 10; $i--) {
             if ($string[$i] === ' ') {
-                return mb_strcut($string, 0, $i) . '…';
+                return self::cut($string, $i) . '…';
             }
         }
 
         return $string . '…';
+    }
+
+    private static function cut(string $s, int $length): string
+    {
+        if (function_exists('mb_strcut')) {
+            return mb_strcut($s, 0, $length);
+        }
+        $s = substr($s, 0, $length);
+        $cur = $length-1;
+        // U+0000 - U+007F
+        if ((ord($s[$cur]) & 0b1000_0000) === 0) {
+            return $s;
+        }
+        $cnt = 0;
+        while ($cur >= 0 && (ord($s[$cur]) & 0b1100_0000) === 0b1000_0000) {
+            $cur--;
+            $cnt++;
+        }
+        if ($cnt === 1) {
+            // U+0080 - U+07FF
+            if ((ord($s[$cur]) & 0b1110_0000) === 0b1100_0000) {
+                return $s;
+            }
+        } elseif ($cnt === 2) {
+            // U+0800 - U+FFFF
+            if ((ord($s[$cur]) & 0b1111_0000) === 0b1110_0000) {
+                return $s;
+            }
+        } elseif ($cnt === 3) {
+            // U+10000 - U+10FFFF
+            if ((ord($s[$cur]) & 0b1111_1000) === 0b1111_0000) {
+                return $s;
+            }
+        } else {
+            throw new InvalidArgumentException("An invalid UTF8 value was provided!");
+        }
+        return substr($s, 0, $cur);
     }
 }
