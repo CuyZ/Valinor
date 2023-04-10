@@ -140,7 +140,9 @@ final class ValueDumper
             $cur--;
             $cnt++;
         }
-        if ($cnt === 1) {
+        if ($cnt === 0) {
+            // First byte of U+0080 - U+10FFFF
+        } elseif ($cnt === 1) {
             // U+0080 - U+07FF
             if ((ord($s[$cur]) & 0b1110_0000) === 0b1100_0000) {
                 return $s;
