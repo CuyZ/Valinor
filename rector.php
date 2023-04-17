@@ -36,9 +36,6 @@ return static function (RectorConfig $config): void {
         UnionTypesRector::class => [
             __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
         ],
-        JsonThrowOnErrorRector::class => [
-            __DIR__ . '/src/Mapper/Source/JsonSource.php',
-        ],
         MixedTypeRector::class => [
             __DIR__ . '/tests/Integration/Mapping/Object/UnionValuesMappingTest.php',
             __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
