@@ -33,7 +33,7 @@ final class JsonSource implements IteratorAggregate
     public function __construct(string $jsonSource)
     {
         try {
-            $source = json_decode($jsonSource, true, flags: JSON_THROW_ON_ERROR);
+            $source = json_decode($jsonSource, associative: true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw new InvalidJson($jsonSource, $e);
         }
