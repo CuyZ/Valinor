@@ -43,7 +43,7 @@ final class FunctionObjectBuilder implements ObjectBuilder
         );
 
         $this->isDynamicConstructor = $definition->attributes()->has(DynamicConstructor::class);
-        $this->isGenericConstructor = $type instanceof GenericType && count($type->generics()) > 0;
+        $this->isGenericConstructor = $definition->returnType() instanceof GenericType && count($definition->returnType()->generics()) > 0;
 
         if ($this->isDynamicConstructor || $this->isGenericConstructor) {
             array_shift($arguments);
