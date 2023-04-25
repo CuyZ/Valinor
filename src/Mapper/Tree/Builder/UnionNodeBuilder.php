@@ -88,10 +88,14 @@ final class UnionNodeBuilder implements NodeBuilder
             }
 
             if (! $subType instanceof ClassType) {
-                return null;
+                continue;
             }
 
             $classTypes[] = $subType;
+        }
+
+        if ($classTypes === []) {
+            return null;
         }
 
         $objectBuilder = $this->objectBuilder($shell->value(), ...$classTypes);
