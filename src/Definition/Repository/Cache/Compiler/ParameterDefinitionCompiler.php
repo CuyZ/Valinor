@@ -6,8 +6,6 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
-use function is_scalar;
-
 /** @internal */
 final class ParameterDefinitionCompiler
 {
@@ -44,6 +42,6 @@ final class ParameterDefinitionCompiler
 
         return is_object($defaultValue)
             ? 'unserialize(' . var_export(serialize($defaultValue), true) . ')'
-            : var_export($parameter->defaultValue(), true);
+            : var_export($defaultValue, true);
     }
 }
