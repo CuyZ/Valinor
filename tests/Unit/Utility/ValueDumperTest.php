@@ -22,9 +22,15 @@ final class ValueDumperTest extends TestCase
         self::assertSame($expected, ValueDumper::dump($value));
     }
 
-    public function dump_value_returns_correct_signature_data_provider(): array
+    private const UTF8 = [
+        'a', // 1 byte
+        '©', // 2 bytes
+        'ࠌ', // 3 bytes
+        '𐃮', // 4 bytes
+    ];
+    public function dump_value_returns_correct_signature_data_provider(): \Generator
     {
-        return [
+        yield from [
             'null' => [null, 'null'],
             'boolean true' => [true, 'true'],
             'boolean false' => [false, 'false'],
@@ -44,6 +50,20 @@ final class ValueDumperTest extends TestCase
             'array with in-depth entries' => [['foo' => ['bar' => 'baz']], "array{foo: array{…}}"],
             'array with too much entries' => [[0, 1, 2, 3, 4, 5, 6, 7], "array{0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, …}"],
         ];
+
+        $base = str_repeat('a', 51);
+        foreach (self::UTF8 as $idx => $char) {
+            $len = $idx+1;
+            $this->assertEquals($len, strlen($char));
+
+            for ($x = 0; $x <= $len; $x++) {
+                $cur = substr($base, $x);
+                if ($x === $len) {
+                    $cur .= $char;
+                }
+                yield "$len byte utf8 char cropped @ offset $x" => [$cur.$char, "'".$cur."…'"];
+            }
+        }
     }
 
     /**
