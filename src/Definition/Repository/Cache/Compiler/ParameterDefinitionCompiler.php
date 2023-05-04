@@ -42,7 +42,7 @@ final class ParameterDefinitionCompiler
     {
         $defaultValue = $parameter->defaultValue();
 
-        return is_scalar($defaultValue)
+        return !is_object($defaultValue)
             ? var_export($parameter->defaultValue(), true)
             : 'unserialize(' . var_export(serialize($defaultValue), true) . ')';
     }
