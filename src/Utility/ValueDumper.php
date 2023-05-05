@@ -129,6 +129,22 @@ final class ValueDumper
         if (function_exists('mb_strcut')) {
             return mb_strcut($s, 0, $length);
         }
+        return self::cutPolyfill($s, $length);
+    }
+    public static function cutPolyfill(string $s, int $length): string
+    {
+        $result = self::cutPolyfillInternal($s, $length, false);
+        if (strlen($result) === 0) {
+            return '';
+        }
+        return self::cutPolyfillInternal(
+            $result,
+            strlen($result),
+            true
+        );
+    }
+    public static function cutPolyfillInternal(string $s, int $length, bool $validate): string
+    {
         $s = substr($s, 0, $length);
         $cur = $length-1;
         // U+0000 - U+007F
@@ -160,6 +176,9 @@ final class ValueDumper
         } else {
             throw new InvalidArgumentException("An invalid UTF8 value was provided!");
         }
-        return substr($s, 0, $cur);
+        if ($validate) {
+            throw new InvalidArgumentException("An invalid UTF8 value was provided!");
+        }
+        return substr($s, 0, max(0, $cur));
     }
 }
