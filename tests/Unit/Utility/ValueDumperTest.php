@@ -59,46 +59,43 @@ final class ValueDumperTest extends TestCase
     }
 
     private const UTF8 = [
-        'a', // 1 byte
-        '߿', // 2 bytes
-        '￿', // 3 bytes
-        '𐃮', // 4 bytes
+        ['a'], // 1 byte
+        ["\u{07FF}"], // 2 bytes
+        ["\u{FFFF}"], // 3 bytes
+        ["\u{10FFFD}", "\u{90000}", "\u{40000}"], // 4 bytes
     ];
 
     public function test_mb_strcut_polyfill(): void
     {
         $base = str_repeat('a', 4);
-        foreach (self::UTF8 as $idx => $char) {
+        foreach (self::UTF8 as $idx => $chars) {
             $len = $idx+1;
-            self::assertEquals($len, strlen($char));
+            foreach ($chars as $char) {
+                self::assertEquals($len, strlen($char));
 
-            for ($x = 0; $x <= $len; $x++) {
-                $cur = substr($base, $x);
-                if ($x === $len) {
-                    $cur .= $char;
+                for ($x = 0; $x <= $len; $x++) {
+                    $cur = substr($base, $x);
+                    if ($x === $len) {
+                        $cur .= $char;
+                    }
+                    self::assertSame($cur, ValueDumper::cutPolyfill($cur.$char, 4));
                 }
-                self::assertSame($cur, ValueDumper::cutPolyfill($cur.$char, 4));
             }
         }
+        self::assertSame('', ValueDumper::cutPolyfill('test', 0));
     }
+    public function test_invalid_utf8(): void
+    {
+        // Invalid utf8 values are trimmed, if present at the end of the string
+        // (really just an edge case we shouldn't care about)
 
-    public function invalid_utf8_data_provider(): \Generator {
-        foreach (self::UTF8 as $idx => $char) {
-            if (!$idx) continue;
-            $len = $idx+1;
-            for ($x = 1; $x < $len; $x++) {
-                yield [substr($char, 0, $x)];
-            }
-            yield [substr($char, 0, 1).str_repeat(substr($char, 1), 2)];
-        }
-    }
+        $base = "\u{07FF}";
+        $trailer = substr($base, 1);
+        self::assertSame('', ValueDumper::cutPolyfill($trailer, 10));
+        self::assertSame('', ValueDumper::cutPolyfill($base.$trailer, 10));
+        self::assertSame('', ValueDumper::cutPolyfill($base.$trailer.$trailer, 10));
+        self::assertSame('', ValueDumper::cutPolyfill($base.$trailer.$trailer.$trailer, 10));
 
-    /**
-     * @dataProvider invalid_utf8_data_provider
-     */
-    public function test_invalid_utf8_mb_strcut(string $value): void {
-        $this->expectExceptionMessage("An invalid UTF8 value was provided!");
-
-        ValueDumper::cutPolyfillInternal($value, strlen($value), true);
+        self::assertSame('', ValueDumper::cutPolyfill(substr($base, 0, 1), 10));
     }
 }

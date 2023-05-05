@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Utility;
 
 use BackedEnum;
 use DateTimeInterface;
-use InvalidArgumentException;
 use UnitEnum;
 
 use function implode;
@@ -133,32 +132,26 @@ final class ValueDumper
     }
     public static function cutPolyfill(string $s, int $length): string
     {
-        $result = self::cutPolyfillInternal($s, $length, false);
-        if (strlen($result) === 0) {
+        if ($length === 0) {
             return '';
         }
-        return self::cutPolyfillInternal(
-            $result,
-            strlen($result),
-            true
-        );
-    }
-    public static function cutPolyfillInternal(string $s, int $length, bool $validate): string
-    {
         $s = substr($s, 0, $length);
-        $cur = $length-1;
+        $cur = strlen($s)-1;
         // U+0000 - U+007F
         if ((ord($s[$cur]) & 0b1000_0000) === 0) {
             return $s;
         }
         $cnt = 0;
-        while ($cur >= 0 && (ord($s[$cur]) & 0b1100_0000) === 0b1000_0000) {
-            $cur--;
-            $cnt++;
+        while ((ord($s[$cur]) & 0b1100_0000) === 0b1000_0000) {
+            ++$cnt;
+            if ($cur === 0) {
+                // @infection-ignore-all // Causes infinite loop
+                break;
+            }
+            --$cur;
         }
-        if ($cnt === 0) {
-            // First byte of U+0080 - U+10FFFF
-        } elseif ($cnt === 1) {
+        assert($cur >= 0);
+        if ($cnt === 1) {
             // U+0080 - U+07FF
             if ((ord($s[$cur]) & 0b1110_0000) === 0b1100_0000) {
                 return $s;
@@ -173,12 +166,7 @@ final class ValueDumper
             if ((ord($s[$cur]) & 0b1111_1000) === 0b1111_0000) {
                 return $s;
             }
-        } else {
-            throw new InvalidArgumentException("An invalid UTF8 value was provided!");
         }
-        if ($validate) {
-            throw new InvalidArgumentException("An invalid UTF8 value was provided!");
-        }
-        return substr($s, 0, max(0, $cur));
+        return substr($s, 0, $cur);
     }
 }
