@@ -33,13 +33,13 @@
     },
     "autoload": {
         "psr-4": {
-            "CuyZ\\Valinor\\": "src"
+            "CuyZ\\Valinor\\": "src",
+            "CuyZ\\Valinor\\QA\\": "qa"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "CuyZ\\Valinor\\Tests\\": "tests",
-            "CuyZ\\Valinor\\QA\\": "qa"
+            "CuyZ\\Valinor\\Tests\\": "tests"
         }
     },
     "scripts": {
