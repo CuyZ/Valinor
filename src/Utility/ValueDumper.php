@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Utility;
 
 use BackedEnum;
+use CuyZ\Valinor\Utility\String\StringCutter;
 use DateTimeInterface;
 use UnitEnum;
 
@@ -112,61 +113,14 @@ final class ValueDumper
             return $string;
         }
 
-        $string = self::cut($string, self::MAX_STRING_LENGTH + 1);
+        $string = StringCutter::cut($string, self::MAX_STRING_LENGTH + 1);
 
         for ($i = strlen($string) - 1; $i > 10; $i--) {
             if ($string[$i] === ' ') {
-                return self::cut($string, $i) . '…';
+                return StringCutter::cut($string, $i) . '…';
             }
         }
 
         return $string . '…';
-    }
-
-    private static function cut(string $s, int $length): string
-    {
-        if (function_exists('mb_strcut')) {
-            return mb_strcut($s, 0, $length);
-        }
-        return self::cutPolyfill($s, $length);
-    }
-    public static function cutPolyfill(string $s, int $length): string
-    {
-        if ($length === 0) {
-            return '';
-        }
-        $s = substr($s, 0, $length);
-        $cur = strlen($s)-1;
-        // U+0000 - U+007F
-        if ((ord($s[$cur]) & 0b1000_0000) === 0) {
-            return $s;
-        }
-        $cnt = 0;
-        while ((ord($s[$cur]) & 0b1100_0000) === 0b1000_0000) {
-            ++$cnt;
-            if ($cur === 0) {
-                // @infection-ignore-all // Causes infinite loop
-                break;
-            }
-            --$cur;
-        }
-        assert($cur >= 0);
-        if ($cnt === 1) {
-            // U+0080 - U+07FF
-            if ((ord($s[$cur]) & 0b1110_0000) === 0b1100_0000) {
-                return $s;
-            }
-        } elseif ($cnt === 2) {
-            // U+0800 - U+FFFF
-            if ((ord($s[$cur]) & 0b1111_0000) === 0b1110_0000) {
-                return $s;
-            }
-        } elseif ($cnt === 3) {
-            // U+10000 - U+10FFFF
-            if ((ord($s[$cur]) & 0b1111_1000) === 0b1111_0000) {
-                return $s;
-            }
-        }
-        return substr($s, 0, $cur);
     }
 }
