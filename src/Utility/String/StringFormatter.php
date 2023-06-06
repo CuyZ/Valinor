@@ -38,7 +38,7 @@ final class StringFormatter
     private static function formatWithIntl(string $locale, string $body, array $parameters): string
     {
         return MessageFormatter::formatMessage($locale, $body, $parameters)
-            ?: throw new StringFormatterError($body);
+            ?: throw new StringFormatterError($body, intl_get_error_message());
     }
 
     /**

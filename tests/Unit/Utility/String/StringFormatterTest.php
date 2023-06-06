@@ -17,7 +17,7 @@ final class StringFormatterTest extends TestCase
     public function test_wrong_intl_format_throws_exception(): void
     {
         $this->expectException(StringFormatterError::class);
-        $this->expectExceptionMessage('Message formatter error using `some {wrong.format}`.');
+        $this->expectExceptionMessage('Message formatter error using `some {wrong.format}`: pattern syntax error (parse error at offset 6, after "some {", before or at "wrong.format}"): U_PATTERN_SYNTAX_ERROR.');
         $this->expectExceptionCode(1652901203);
 
         StringFormatter::format('en', 'some {wrong.format}', []);
@@ -26,7 +26,7 @@ final class StringFormatterTest extends TestCase
     public function test_wrong_message_body_format_throws_exception(): void
     {
         $this->expectException(StringFormatterError::class);
-        $this->expectExceptionMessage('Message formatter error using `some message with {invalid format}`.');
+        $this->expectExceptionMessage('Message formatter error using `some message with {invalid format}`: pattern syntax error (parse error at offset 19, after " message with {", before or at "invalid format}"): U_PATTERN_SYNTAX_ERROR.');
         $this->expectExceptionCode(1652901203);
 
         StringFormatter::format('en', 'some message with {invalid format}');

@@ -35,6 +35,7 @@ final class ValueDumperTest extends TestCase
             'string with both quotes' => ['"foo\'bar"', '\'"foo\\\'bar"\''],
             'string with exact max length' => ['Lorem ipsum dolor sit amet, consectetur adipiscing', "'Lorem ipsum dolor sit amet, consectetur adipiscing'"],
             'string cropped' => ['Lorem ipsum dolor sit amet, consectetur adipiscing elit.', "'Lorem ipsum dolor sit amet, consectetur adipiscing…'"],
+            'utf8 string cropped' => ['🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄', "'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄…'"],
             'string cropped only after threshold' => ['Lorem12345 ipsumdolorsitamet,consecteturadipiscingelit.Curabitur', "'Lorem12345 ipsumdolorsitamet,consecteturadipiscinge…'"],
             'string without space cropped' => ['Loremipsumdolorsitamet,consecteturadipiscingelit.Curabitur',"'Loremipsumdolorsitamet,consecteturadipiscingelit.Cu…'"],
             'date' => [new DateTimeImmutable('@1648733888'), '2022/03/31 13:38:08'],
