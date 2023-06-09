@@ -15,9 +15,7 @@ use function assert;
 /** @internal */
 final class FloatValueType implements FloatType, FixedType
 {
-    public function __construct(private float $value)
-    {
-    }
+    public function __construct(private float $value) {}
 
     public function accepts(mixed $value): bool
     {

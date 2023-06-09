@@ -13,9 +13,7 @@ final class ReflectionObjectBuilder implements ObjectBuilder
 {
     private Arguments $arguments;
 
-    public function __construct(private ClassDefinition $class)
-    {
-    }
+    public function __construct(private ClassDefinition $class) {}
 
     public function describeArguments(): Arguments
     {

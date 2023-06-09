@@ -44,8 +44,7 @@ final class CompiledPhpFileCache implements CacheInterface
     public function __construct(
         private string $cacheDir,
         private CacheCompiler $compiler
-    ) {
-    }
+    ) {}
 
     public function has($key): bool
     {

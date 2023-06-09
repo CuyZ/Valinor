@@ -20,8 +20,7 @@ final class FunctionDefinition
         private bool $isClosure,
         private Parameters $parameters,
         private Type $returnType
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {

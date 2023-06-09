@@ -67,8 +67,7 @@ final class MessageMapFormatter implements MessageFormatter
     public function __construct(
         /** @var array<string|callable(NodeMessage): string> */
         private array $map
-    ) {
-    }
+    ) {}
 
     public function format(NodeMessage $message): NodeMessage
     {

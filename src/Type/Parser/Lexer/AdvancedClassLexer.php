@@ -17,8 +17,7 @@ final class AdvancedClassLexer implements TypeLexer
         private TypeLexer $delegate,
         private TypeParserFactory $typeParserFactory,
         private TemplateParser $templateParser
-    ) {
-    }
+    ) {}
 
     public function tokenize(string $symbol): Token
     {

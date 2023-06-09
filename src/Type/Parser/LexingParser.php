@@ -16,9 +16,7 @@ use function str_contains;
 /** @internal */
 final class LexingParser implements TypeParser
 {
-    public function __construct(private TypeLexer $lexer)
-    {
-    }
+    public function __construct(private TypeLexer $lexer) {}
 
     public function parse(string $raw): Type
     {

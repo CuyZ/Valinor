@@ -13,9 +13,7 @@ final class FakeMessage implements Message, HasParameters, HasCode
     /** @var array<string, string> */
     private array $parameters = [];
 
-    public function __construct(private string $body = 'some message')
-    {
-    }
+    public function __construct(private string $body = 'some message') {}
 
     public function body(): string
     {

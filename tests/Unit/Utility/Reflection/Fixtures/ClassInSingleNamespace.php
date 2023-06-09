@@ -16,6 +16,5 @@ final class ClassInSingleNamespace
         public BarAlias $classInNamespaceWithAlias,
         public DateTimeImmutable $classInRootNamespaceWithoutAlias,
         public stdClassAlias $classInRootNamespaceWithAlias
-    ) {
-    }
+    ) {}
 }

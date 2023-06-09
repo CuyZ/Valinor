@@ -15,9 +15,7 @@ use function next;
 /** @internal */
 final class CollisionObjectBuilderFactory implements ObjectBuilderFactory
 {
-    public function __construct(private ObjectBuilderFactory $delegate)
-    {
-    }
+    public function __construct(private ObjectBuilderFactory $delegate) {}
 
     public function for(ClassDefinition $class): array
     {

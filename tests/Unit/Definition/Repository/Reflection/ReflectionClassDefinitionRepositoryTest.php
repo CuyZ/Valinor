@@ -75,9 +75,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
     public function test_methods_can_be_retrieved(): void
     {
         $object = new class () {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             /**
              * @param string $parameterWithDocBlockType
@@ -88,8 +86,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
                 $parameterWithNoType,
                 $parameterWithDocBlockType,
                 string $optionalParameter = 'Optional parameter value'
-            ): void {
-            }
+            ): void {}
 
             public function publicMethodWithReturnType(): string
             {
@@ -212,9 +209,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @formatter:on
              * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidType): void
-            {
-            }
+            public function publicMethod($parameterWithInvalidType): void {}
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -232,9 +227,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @return InvalidType
              * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidType): void
-            {
-            }
+            public function publicMethod($parameterWithInvalidType): void {}
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -252,9 +245,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @param string $parameterWithInvalidDefaultValue
              * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidDefaultValue = false): void
-            {
-            }
+            public function publicMethod($parameterWithInvalidDefaultValue = false): void {}
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -271,9 +262,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @param string $parameterWithNotMatchingTypes
              * @phpstan-ignore-next-line
              */
-            public function publicMethod(bool $parameterWithNotMatchingTypes): void
-            {
-            }
+            public function publicMethod(bool $parameterWithNotMatchingTypes): void {}
         })::class;
 
         $this->expectException(TypesDoNotMatch::class);
@@ -381,11 +370,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
 abstract class AbstractClassWithPrivateConstructor
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 }
 
-final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor
-{
-}
+final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor {}

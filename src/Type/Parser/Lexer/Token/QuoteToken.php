@@ -12,9 +12,7 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 /** @internal */
 final class QuoteToken implements TraversingToken
 {
-    public function __construct(private string $quoteType)
-    {
-    }
+    public function __construct(private string $quoteType) {}
 
     public function traverse(TokenStream $stream): Type
     {

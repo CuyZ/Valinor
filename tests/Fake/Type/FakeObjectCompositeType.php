@@ -18,8 +18,7 @@ final class FakeObjectCompositeType implements ObjectType, CompositeType
         private string $className = stdClass::class,
         /** @var array<string, Type> */
         private array $generics = []
-    ) {
-    }
+    ) {}
 
     public function className(): string
     {

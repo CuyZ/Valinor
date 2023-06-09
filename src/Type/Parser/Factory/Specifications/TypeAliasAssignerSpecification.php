@@ -14,8 +14,7 @@ final class TypeAliasAssignerSpecification implements TypeParserSpecification
     public function __construct(
         /** @var array<string, Type> */
         private array $aliases
-    ) {
-    }
+    ) {}
 
     public function transform(TypeLexer $lexer): TypeLexer
     {

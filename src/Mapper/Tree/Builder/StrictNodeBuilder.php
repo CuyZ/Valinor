@@ -15,8 +15,7 @@ final class StrictNodeBuilder implements NodeBuilder
         private NodeBuilder $delegate,
         private bool $allowPermissiveTypes,
         private bool $enableFlexibleCasting
-    ) {
-    }
+    ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

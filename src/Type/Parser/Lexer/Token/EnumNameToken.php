@@ -18,8 +18,7 @@ final class EnumNameToken implements TraversingToken
     public function __construct(
         /** @var class-string<UnitEnum> */
         private string $enumName
-    ) {
-    }
+    ) {}
 
     public function traverse(TokenStream $stream): Type
     {

@@ -17,8 +17,7 @@ final class ParameterDefinition
         private bool $isVariadic,
         private mixed $defaultValue,
         private Attributes $attributes
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {

@@ -158,7 +158,7 @@ final class GenericLexerTest extends TestCase
             /**
              * @template Template of string
              */
-            new class () { };
+            new class () {};
 
         $className = $object::class;
 
@@ -176,7 +176,7 @@ final class GenericLexerTest extends TestCase
              * @template TemplateA
              * @template TemplateA
              */
-            new class () { };
+            new class () {};
 
         $className = $object::class;
 
@@ -193,7 +193,7 @@ final class GenericLexerTest extends TestCase
             /**
              * @template Template of InvalidType
              */
-            new class () { };
+            new class () {};
 
         $className = $object::class;
 
@@ -256,7 +256,7 @@ final class GenericLexerTest extends TestCase
             /**
              * @template TemplateA
              */
-            new class () { };
+            new class () {};
 
         return $object::class;
     }
@@ -269,7 +269,7 @@ final class GenericLexerTest extends TestCase
              * @template TemplateB
              * @template TemplateC
              */
-            new class () { };
+            new class () {};
 
         return $object::class;
     }
@@ -280,7 +280,7 @@ final class GenericLexerTest extends TestCase
             /**
              * @template TemplateA of array-key
              */
-            new class () { };
+            new class () {};
 
         return $object::class;
     }
@@ -289,46 +289,34 @@ final class GenericLexerTest extends TestCase
 /**
  * @template T
  */
-abstract class SomeParentAbstractClass
-{
-}
+abstract class SomeParentAbstractClass {}
 
 /**
  * @template T
  */
-abstract class SomeOtherParentAbstractClass
-{
-}
+abstract class SomeOtherParentAbstractClass {}
 
 /**
  * @phpstan-ignore-next-line
  * @extends SomeParentAbstractClass<string>
  * @extends SomeOtherParentAbstractClass<string>
  */
-final class SomeChildClassWithSeveralExtendTags extends SomeParentAbstractClass
-{
-}
+final class SomeChildClassWithSeveralExtendTags extends SomeParentAbstractClass {}
 
 /**
  * @phpstan-ignore-next-line
  * @extends string
  */
-final class SomeChildClassWithInvalidExtendTag extends SomeParentAbstractClass
-{
-}
+final class SomeChildClassWithInvalidExtendTag extends SomeParentAbstractClass {}
 
 /**
  * @phpstan-ignore-next-line
  * @extends stdClass
  */
-final class SomeChildClassWithInvalidExtendTagClassName extends SomeParentAbstractClass
-{
-}
+final class SomeChildClassWithInvalidExtendTagClassName extends SomeParentAbstractClass {}
 
 /**
  * @phpstan-ignore-next-line
  * @extends SomeParentAbstractClass<InvalidType>
  */
-final class SomeChildClassWithMissingGenericsInExtendTag extends SomeParentAbstractClass
-{
-}
+final class SomeChildClassWithMissingGenericsInExtendTag extends SomeParentAbstractClass {}

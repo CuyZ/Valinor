@@ -12,8 +12,7 @@ final class ParameterDefinitionCompiler
     public function __construct(
         private TypeCompiler $typeCompiler,
         private AttributesCompiler $attributesCompiler
-    ) {
-    }
+    ) {}
 
     public function compile(ParameterDefinition $parameter): string
     {

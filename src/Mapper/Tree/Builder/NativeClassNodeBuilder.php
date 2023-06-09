@@ -20,8 +20,7 @@ final class NativeClassNodeBuilder implements NodeBuilder
         private ObjectBuilderFactory $objectBuilderFactory,
         private ObjectNodeBuilder $objectNodeBuilder,
         private bool $enableFlexibleCasting,
-    ) {
-    }
+    ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

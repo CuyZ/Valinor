@@ -15,8 +15,7 @@ final class CacheObjectBuilderFactory implements ObjectBuilderFactory
         private ObjectBuilderFactory $delegate,
         /** @var CacheInterface<list<ObjectBuilder>> */
         private CacheInterface $cache
-    ) {
-    }
+    ) {}
 
     public function for(ClassDefinition $class): array
     {

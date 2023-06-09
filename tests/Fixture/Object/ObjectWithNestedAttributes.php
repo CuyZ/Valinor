@@ -30,7 +30,5 @@ final class ObjectWithNestedAttributes
         new BasicAttribute(),
         new AttributeWithArguments('foo', 'bar'),
     ])]
-    public function method(#[BasicAttribute] string $parameter): void
-    {
-    }
+    public function method(#[BasicAttribute] string $parameter): void {}
 }

@@ -17,9 +17,7 @@ final class LexingTypeParserFactory implements TypeParserFactory
 {
     private TypeParser $nativeParser;
 
-    public function __construct(private TemplateParser $templateParser)
-    {
-    }
+    public function __construct(private TemplateParser $templateParser) {}
 
     public function get(TypeParserSpecification ...$specifications): TypeParser
     {

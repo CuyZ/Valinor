@@ -13,8 +13,7 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
     public function __construct(
         private NodeBuilder $delegate,
         private FunctionsContainer $functions
-    ) {
-    }
+    ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

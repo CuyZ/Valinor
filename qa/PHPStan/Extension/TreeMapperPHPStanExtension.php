@@ -20,9 +20,7 @@ use PHPStan\Type\UnionType;
 
 final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtension
 {
-    public function __construct(private TypeStringResolver $resolver)
-    {
-    }
+    public function __construct(private TypeStringResolver $resolver) {}
 
     public function getClass(): string
     {

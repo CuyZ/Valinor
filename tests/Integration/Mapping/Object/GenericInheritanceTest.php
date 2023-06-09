@@ -56,6 +56,4 @@ abstract class SecondParentClassWithGenericTypes extends ParentClassWithGenericT
 /**
  * @extends SecondParentClassWithGenericTypes<string>
  */
-final class ChildClassWithInheritedGenericType extends SecondParentClassWithGenericTypes
-{
-}
+final class ChildClassWithInheritedGenericType extends SecondParentClassWithGenericTypes {}

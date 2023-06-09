@@ -13,8 +13,7 @@ final class CasterNodeBuilder implements NodeBuilder
     public function __construct(
         /** @var array<class-string, NodeBuilder> */
         private array $builders
-    ) {
-    }
+    ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

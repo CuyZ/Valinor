@@ -24,9 +24,7 @@ final class NativeAttributesTest extends TestCase
         $object = new class () {
             public string $property;
 
-            public function method(string $parameter): void
-            {
-            }
+            public function method(string $parameter): void {}
         };
 
         $reflections = [

@@ -130,10 +130,6 @@ final class ClassDefinitionCompilerTest extends TestCase
     }
 }
 
-final class SomeFinalClass
-{
-}
+final class SomeFinalClass {}
 
-abstract class SomeAbstractClass
-{
-}
+abstract class SomeAbstractClass {}

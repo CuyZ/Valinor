@@ -35,7 +35,7 @@ final class UndefinedObjectTypeTest extends TestCase
     public function test_accepts_correct_values(): void
     {
         self::assertTrue($this->undefinedObjectType->accepts(new stdClass()));
-        self::assertTrue($this->undefinedObjectType->accepts(new class () { }));
+        self::assertTrue($this->undefinedObjectType->accepts(new class () {}));
     }
 
     public function test_does_not_accept_incorrect_values(): void
