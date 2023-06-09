@@ -274,9 +274,7 @@ interface SomeInterfaceForClassWithNoProperties
 {
 }
 
-final class SomeClassWithNoProperties implements SomeInterfaceForClassWithNoProperties
-{
-}
+final class SomeClassWithNoProperties implements SomeInterfaceForClassWithNoProperties {}
 
 interface SomeInterfaceForClassWithProperties
 {

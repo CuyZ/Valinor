@@ -24,8 +24,7 @@ final class FunctionsContainer implements IteratorAggregate
         private FunctionDefinitionRepository $functionDefinitionRepository,
         /** @var array<callable> */
         private array $callables
-    ) {
-    }
+    ) {}
 
     public function has(string|int $key): bool
     {

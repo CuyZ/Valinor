@@ -19,8 +19,7 @@ final class CaseFinder
     public function __construct(
         /** @var array<string, CaseType> */
         private array $cases
-    ) {
-    }
+    ) {}
 
     /**
      * @param list<string> $tokens

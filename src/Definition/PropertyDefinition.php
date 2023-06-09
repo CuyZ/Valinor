@@ -17,8 +17,7 @@ final class PropertyDefinition
         private mixed $defaultValue,
         private bool $isPublic,
         private Attributes $attributes
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {

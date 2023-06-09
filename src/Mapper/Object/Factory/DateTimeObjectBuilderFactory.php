@@ -24,8 +24,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
     public function __construct(
         private ObjectBuilderFactory $delegate,
         private FunctionDefinitionRepository $functionDefinitionRepository
-    ) {
-    }
+    ) {}
 
     public function for(ClassDefinition $class): array
     {

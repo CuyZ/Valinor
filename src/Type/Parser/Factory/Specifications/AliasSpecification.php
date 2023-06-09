@@ -16,8 +16,7 @@ final class AliasSpecification implements TypeParserSpecification
     public function __construct(
         /** @var ReflectionClass<object>|ReflectionFunction */
         private Reflector $reflection
-    ) {
-    }
+    ) {}
 
     public function transform(TypeLexer $lexer): TypeLexer
     {

@@ -123,42 +123,22 @@ final class ObjectToWarmupWithConstructors implements SomeInterface
     }
 }
 
-class SomeObjectA
-{
-}
+class SomeObjectA {}
 
-class SomeObjectB
-{
-}
+class SomeObjectB {}
 
-class SomeObjectC
-{
-}
+class SomeObjectC {}
 
-class SomeObjectD
-{
-}
+class SomeObjectD {}
 
-class SomeObjectE
-{
-}
+class SomeObjectE {}
 
-class SomeObjectF
-{
-}
+class SomeObjectF {}
 
-class SomeObjectG
-{
-}
+class SomeObjectG {}
 
-class SomeObjectH
-{
-}
+class SomeObjectH {}
 
-class SomeObjectI
-{
-}
+class SomeObjectI {}
 
-class SomeObjectJ
-{
-}
+class SomeObjectJ {}

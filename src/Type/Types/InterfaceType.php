@@ -20,8 +20,7 @@ final class InterfaceType implements ObjectType, GenericType
         private string $interfaceName,
         /** @var array<string, Type> */
         private array $generics = []
-    ) {
-    }
+    ) {}
 
     public function className(): string
     {

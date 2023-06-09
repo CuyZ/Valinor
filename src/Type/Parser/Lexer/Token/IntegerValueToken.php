@@ -11,9 +11,7 @@ use CuyZ\Valinor\Type\Types\IntegerValueType;
 /** @internal */
 final class IntegerValueToken implements TraversingToken
 {
-    public function __construct(private int $value)
-    {
-    }
+    public function __construct(private int $value) {}
 
     public function traverse(TokenStream $stream): Type
     {

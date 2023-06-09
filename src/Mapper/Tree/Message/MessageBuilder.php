@@ -31,9 +31,7 @@ final class MessageBuilder
     /** @var array<string, string> */
     private array $parameters = [];
 
-    private function __construct(private string $body)
-    {
-    }
+    private function __construct(private string $body) {}
 
     /**
      * @return self<Message>
@@ -135,9 +133,11 @@ final class MessageBuilder
             /**
              * @param array<string, string> $parameters
              */
-            public function __construct(private string $body, private string $code, private array $parameters)
-            {
-            }
+            public function __construct(
+                private string $body,
+                private string $code,
+                private array  $parameters
+            ) {}
 
             public function body(): string
             {

@@ -20,9 +20,7 @@ final class StringValueType implements StringType, FixedType
 {
     private string $quoteChar;
 
-    public function __construct(private string $value)
-    {
-    }
+    public function __construct(private string $value) {}
 
     public static function singleQuote(string $value): self
     {

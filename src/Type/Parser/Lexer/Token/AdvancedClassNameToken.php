@@ -46,8 +46,7 @@ final class AdvancedClassNameToken implements TraversingToken
         private ClassNameToken $delegate,
         private TypeParserFactory $typeParserFactory,
         private TemplateParser $templateParser
-    ) {
-    }
+    ) {}
 
     public function traverse(TokenStream $stream): Type
     {

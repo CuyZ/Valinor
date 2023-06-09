@@ -28,8 +28,7 @@ final class RecursiveCacheWarmupService
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory
-    ) {
-    }
+    ) {}
 
     public function warmup(string ...$signatures): void
     {

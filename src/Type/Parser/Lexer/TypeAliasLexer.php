@@ -15,8 +15,7 @@ final class TypeAliasLexer implements TypeLexer
         private TypeLexer $delegate,
         /** @var array<string, Type> */
         private array $aliases
-    ) {
-    }
+    ) {}
 
     public function tokenize(string $symbol): Token
     {

@@ -9,9 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 /** @internal */
 final class RootNodeBuilder
 {
-    public function __construct(private NodeBuilder $root)
-    {
-    }
+    public function __construct(private NodeBuilder $root) {}
 
     public function build(Shell $shell): TreeNode
     {

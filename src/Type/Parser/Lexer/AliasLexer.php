@@ -20,8 +20,7 @@ final class AliasLexer implements TypeLexer
         private TypeLexer $delegate,
         /** @var ReflectionClass<object>|ReflectionFunction */
         private Reflector $reflection
-    ) {
-    }
+    ) {}
 
     public function tokenize(string $symbol): Token
     {

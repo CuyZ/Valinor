@@ -17,8 +17,7 @@ final class MethodObjectBuilder implements ObjectBuilder
         private string $className,
         private string $methodName,
         private Parameters $parameters
-    ) {
-    }
+    ) {}
 
     public function describeArguments(): Arguments
     {

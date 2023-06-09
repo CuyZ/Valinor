@@ -13,8 +13,7 @@ final class ShapedArrayElement
         private StringValueType|IntegerValueType $key,
         private Type $type,
         private bool $optional = false
-    ) {
-    }
+    ) {}
 
     public function key(): StringValueType|IntegerValueType
     {

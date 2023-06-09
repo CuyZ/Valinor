@@ -9,9 +9,7 @@ use CuyZ\Valinor\Type\Type;
 
 final class FakeFixedType implements FixedType
 {
-    public function __construct(private string $value)
-    {
-    }
+    public function __construct(private string $value) {}
 
     public function value(): string
     {

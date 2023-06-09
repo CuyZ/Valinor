@@ -39,8 +39,7 @@ final class FileWatchingCache implements CacheInterface
     public function __construct(
         /** @var CacheInterface<EntryType|TimestampsArray> */
         private CacheInterface $delegate
-    ) {
-    }
+    ) {}
 
     public function has($key): bool
     {

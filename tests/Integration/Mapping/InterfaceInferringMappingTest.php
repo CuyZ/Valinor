@@ -465,6 +465,4 @@ final class SomeClassThatInheritsInterfaceB implements SomeInterface
     public string $valueB;
 }
 
-final class SomeClassThatInheritsInterfaceC implements SomeInterface
-{
-}
+final class SomeClassThatInheritsInterfaceC implements SomeInterface {}

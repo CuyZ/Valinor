@@ -36,8 +36,7 @@ final class ArrayToken implements TraversingToken
         /** @var class-string<ArrayType|NonEmptyArrayType> */
         private string $arrayType,
         private string $symbol
-    ) {
-    }
+    ) {}
 
     public static function array(): self
     {

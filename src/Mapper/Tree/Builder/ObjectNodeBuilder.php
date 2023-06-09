@@ -14,9 +14,7 @@ use function count;
 /** @internal */
 final class ObjectNodeBuilder
 {
-    public function __construct(private bool $allowSuperfluousKeys)
-    {
-    }
+    public function __construct(private bool $allowSuperfluousKeys) {}
 
     public function build(ObjectBuilder $builder, Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

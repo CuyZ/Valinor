@@ -54,9 +54,7 @@ final class ReflectionTest extends TestCase
         $class = (new class () {
             public string $property;
 
-            public function method(string $parameter): void
-            {
-            }
+            public function method(string $parameter): void {}
         })::class;
 
         $functions = require_once 'FakeFunctions.php';
@@ -207,8 +205,7 @@ final class ReflectionTest extends TestCase
 
     public function test_docblock_return_type_with_no_docblock_returns_null(): void
     {
-        $callable = static function (): void {
-        };
+        $callable = static function (): void {};
 
         $type = Reflection::docBlockReturnType(new ReflectionFunction($callable));
 
@@ -232,8 +229,7 @@ final class ReflectionTest extends TestCase
             public function __construct(
                 /** @var non-empty-string */
                 public string $someProperty
-            ) {
-            }
+            ) {}
         };
 
         $type = Reflection::docBlockType((new ReflectionMethod($class, '__construct'))->getParameters()[0]);
@@ -417,8 +413,7 @@ final class ReflectionTest extends TestCase
         yield 'phpdoc @param' => [
             new ReflectionParameter(
                 /** @param string $string */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'string',
@@ -427,8 +422,7 @@ final class ReflectionTest extends TestCase
         yield 'psalm @param standalone' => [
             new ReflectionParameter(
                 /** @psalm-param string $string */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'string',
@@ -440,8 +434,7 @@ final class ReflectionTest extends TestCase
                  * @psalm-param non-empty-string $string
                  * @param string $string
                  */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'non-empty-string',
@@ -453,8 +446,7 @@ final class ReflectionTest extends TestCase
                  * @param string $string
                  * @psalm-param non-empty-string $string
                  */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'non-empty-string',
@@ -463,8 +455,7 @@ final class ReflectionTest extends TestCase
         yield 'phpstan @param standalone' => [
             new ReflectionParameter(
                 /** @phpstan-param string $string */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'string',
@@ -476,8 +467,7 @@ final class ReflectionTest extends TestCase
                  * @phpstan-param non-empty-string $string
                  * @param string $string
                  */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'non-empty-string',
@@ -489,8 +479,7 @@ final class ReflectionTest extends TestCase
                  * @param string $string
                  * @phpstan-param non-empty-string $string
                  */
-                static function ($string): void {
-                },
+                static function ($string): void {},
                 'string',
             ),
             'non-empty-string',
@@ -498,6 +487,4 @@ final class ReflectionTest extends TestCase
     }
 }
 
-function some_function(): void
-{
-}
+function some_function(): void {}

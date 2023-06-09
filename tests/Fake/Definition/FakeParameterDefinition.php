@@ -11,9 +11,7 @@ use ReflectionParameter;
 
 final class FakeParameterDefinition
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function new(string $name = 'someParameter', Type $type = null): ParameterDefinition
     {

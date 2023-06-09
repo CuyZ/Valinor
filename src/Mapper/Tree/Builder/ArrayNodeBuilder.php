@@ -18,9 +18,7 @@ use function is_array;
 /** @internal */
 final class ArrayNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $enableFlexibleCasting)
-    {
-    }
+    public function __construct(private bool $enableFlexibleCasting) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

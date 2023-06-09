@@ -21,8 +21,7 @@ final class ReflectionTypeResolver
     public function __construct(
         private TypeParser $nativeParser,
         private TypeParser $advancedParser
-    ) {
-    }
+    ) {}
 
     public function resolveType(\ReflectionProperty|\ReflectionParameter|\ReflectionFunctionAbstract $reflection): Type
     {

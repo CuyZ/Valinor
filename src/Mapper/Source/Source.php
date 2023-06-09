@@ -21,8 +21,7 @@ final class Source implements IteratorAggregate
     private function __construct(
         /** @var iterable<mixed> */
         private iterable $delegate
-    ) {
-    }
+    ) {}
 
     /**
      * @param iterable<mixed> $data

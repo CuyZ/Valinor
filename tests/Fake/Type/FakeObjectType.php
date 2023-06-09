@@ -20,9 +20,7 @@ final class FakeObjectType implements ObjectType
     /**
      * @param class-string $className
      */
-    public function __construct(private string $className = stdClass::class)
-    {
-    }
+    public function __construct(private string $className = stdClass::class) {}
 
     public static function accepting(object ...$objects): self
     {

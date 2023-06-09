@@ -6,6 +6,4 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Fixture;
 
 use DateInterval as PhpDateInterval;
 
-final class DateInterval extends PhpDateInterval
-{
-}
+final class DateInterval extends PhpDateInterval {}

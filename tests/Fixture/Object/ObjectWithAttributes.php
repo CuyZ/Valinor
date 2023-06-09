@@ -16,13 +16,9 @@ final class ObjectWithAttributes
     #[AttributeWithArguments('foo', 'bar')]
     public bool $property;
 
-    public function __construct(#[PropertyTargetAttribute] public bool $promotedProperty)
-    {
-    }
+    public function __construct(#[PropertyTargetAttribute] public bool $promotedProperty) {}
 
     #[BasicAttribute]
     #[AttributeWithArguments('foo', 'bar')]
-    public function method(#[BasicAttribute] string $parameter): void
-    {
-    }
+    public function method(#[BasicAttribute] string $parameter): void {}
 }

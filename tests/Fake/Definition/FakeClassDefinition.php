@@ -17,9 +17,7 @@ use function array_map;
 
 final class FakeClassDefinition
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * @param class-string $name
