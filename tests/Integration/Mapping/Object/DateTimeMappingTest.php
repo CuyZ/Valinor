@@ -50,6 +50,32 @@ final class DateTimeMappingTest extends IntegrationTest
         self::assertSame('1659688380', $result->format('U'));
     }
 
+    public function test_default_date_constructor_with_timestamp_at_0_source_returns_datetime(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->mapper()
+                ->map(DateTimeInterface::class, 0);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('0', $result->format('U'));
+    }
+
+    public function test_default_date_constructor_with_a_negative_timestamp_source_returns_datetime(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->mapper()
+                ->map(DateTimeInterface::class, -1);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('-1', $result->format('U'));
+    }
+
     public function test_registered_date_constructor_with_valid_source_returns_datetime(): void
     {
         try {
