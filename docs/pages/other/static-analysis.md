@@ -16,7 +16,15 @@ better understand the behaviour of the mapper.
         ```
     
     === "Psalm"
-    
+
+	```json title="composer.json"
+	"autoload-dev": {
+	    "files": [
+	        "vendor/cuyz/valinor/qa/Psalm/ValinorPsalmPlugin.php"
+	    ]
+	}
+     	```
+
         ```xml title="psalm.xml"
         <plugins>
             <pluginClass class="CuyZ\Valinor\QA\Psalm\ValinorPsalmPlugin"/>
