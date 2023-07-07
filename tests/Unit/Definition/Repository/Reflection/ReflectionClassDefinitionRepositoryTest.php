@@ -166,7 +166,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
-        self::assertMatchesRegularExpression('/^The type `InvalidType` for property `.*` could not be resolved: .*$/', $type->getMessage());
+        self::assertMatchesRegularExpression('/^The type `InvalidType` for property `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_property_default_value_throws_exception(): void
@@ -180,7 +180,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->properties()->get('propertyWithInvalidDefaultValue')->type();
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->getMessage());
+        self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->message());
     }
 
     public function test_property_with_non_matching_types_throws_exception(): void
@@ -217,7 +217,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
-        self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->getMessage());
+        self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_method_return_type_throws_exception(): void
@@ -235,7 +235,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
-        self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->getMessage());
+        self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_parameter_default_value_throws_exception(): void
@@ -252,7 +252,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidDefaultValue')->type();
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->getMessage());
+        self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->message());
     }
 
     public function test_parameter_with_non_matching_types_throws_exception(): void

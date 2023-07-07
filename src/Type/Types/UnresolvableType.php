@@ -12,16 +12,13 @@ use LogicException;
 use Throwable;
 
 /** @internal */
-final class UnresolvableType extends LogicException implements Type
+final class UnresolvableType implements Type
 {
-    private string $rawType;
-
-    public function __construct(string $rawType, string $message, ?Throwable $previous = null)
-    {
-        $this->rawType = $rawType;
-
-        parent::__construct($message, 1679578492, $previous);
-    }
+    public function __construct(
+        private string $rawType,
+        private string $message,
+        private ?Throwable $previous = null
+    ) {}
 
     public static function forProperty(string $raw, string $signature, InvalidType $exception): self
     {
@@ -79,14 +76,24 @@ final class UnresolvableType extends LogicException implements Type
         );
     }
 
+    public function message(): string
+    {
+        return $this->message;
+    }
+
+    public function previous(): ?Throwable
+    {
+        return $this->previous;
+    }
+
     public function accepts(mixed $value): bool
     {
-        throw $this;
+        throw new LogicException();
     }
 
     public function matches(Type $other): bool
     {
-        throw $this;
+        throw new LogicException();
     }
 
     public function toString(): string
