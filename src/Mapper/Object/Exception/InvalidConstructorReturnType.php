@@ -17,12 +17,10 @@ final class InvalidConstructorReturnType extends LogicException
 
         if ($returnType instanceof UnresolvableType) {
             $message = $returnType->message();
-            $previous = $returnType->previous();
         } else {
             $message = "Invalid return type `{$returnType->toString()}` for constructor `{$function->signature()}`, it must be a valid class name.";
-            $previous = null;
         }
 
-        parent::__construct($message, 1659446121, $previous);
+        parent::__construct($message, 1659446121);
     }
 }
