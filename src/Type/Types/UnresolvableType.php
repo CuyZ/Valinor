@@ -9,7 +9,6 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
 use LogicException;
-use Throwable;
 
 /** @internal */
 final class UnresolvableType implements Type
@@ -17,15 +16,13 @@ final class UnresolvableType implements Type
     public function __construct(
         private string $rawType,
         private string $message,
-        private ?Throwable $previous = null
     ) {}
 
     public static function forProperty(string $raw, string $signature, InvalidType $exception): self
     {
         return new self(
             $raw,
-            "The type `$raw` for property `$signature` could not be resolved: {$exception->getMessage()}",
-            $exception
+            "The type `$raw` for property `$signature` could not be resolved: {$exception->getMessage()}"
         );
     }
 
@@ -33,8 +30,7 @@ final class UnresolvableType implements Type
     {
         return new self(
             $raw,
-            "The type `$raw` for parameter `$signature` could not be resolved: {$exception->getMessage()}",
-            $exception
+            "The type `$raw` for parameter `$signature` could not be resolved: {$exception->getMessage()}"
         );
     }
 
@@ -42,8 +38,7 @@ final class UnresolvableType implements Type
     {
         return new self(
             $raw,
-            "The type `$raw` for return type of method `$signature` could not be resolved: {$exception->getMessage()}",
-            $exception
+            "The type `$raw` for return type of method `$signature` could not be resolved: {$exception->getMessage()}"
         );
     }
 
@@ -71,19 +66,13 @@ final class UnresolvableType implements Type
     {
         return new self(
             $raw,
-            "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}",
-            $exception
+            "The type `$raw` for local alias `$name` of the class `{$type->className()}` could not be resolved: {$exception->getMessage()}"
         );
     }
 
     public function message(): string
     {
         return $this->message;
-    }
-
-    public function previous(): ?Throwable
-    {
-        return $this->previous;
     }
 
     public function accepts(mixed $value): bool
