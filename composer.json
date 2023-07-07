@@ -53,7 +53,11 @@
             "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
             "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix --dry-run",
-            "rector --dry-run"
+            "rector --dry-run",
+            "@check-todo"
+        ],
+        "check-todo": [
+            "! git --no-pager grep --extended-regexp --ignore-case 'todo|fixme' -- ':!composer.json' ':!*/quality-assurance.yml'"
         ],
         "fix": [
             "@putenv XDEBUG_MODE=off",

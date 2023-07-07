@@ -36,8 +36,7 @@ jobs:
       - uses: "ramsey/composer-install@v2"
 
       - name: Checking for forgotten TODO
-        run: |
-          ! git --no-pager grep --extended-regexp --ignore-case 'todo|fixme' -- ':!*/quality-assurance.yml'
+        run: composer check-todo
 
       - name: Running Psalm (without plugin installed)
         run: php vendor/bin/psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml
