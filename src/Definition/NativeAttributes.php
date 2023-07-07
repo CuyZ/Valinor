@@ -20,16 +20,14 @@ final class NativeAttributes implements Attributes
 {
     private AttributesContainer $delegate;
 
-    /** @var array<ReflectionAttribute<object>> */
-    private array $reflectionAttributes;
+    /** @var array<class-string, array<mixed>> */
+    private array $definition = [];
 
     /**
      * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
      */
     public function __construct(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection)
     {
-        $this->reflectionAttributes = $reflection->getAttributes();
-
         $attributes = array_filter(
             array_map(
                 static function (ReflectionAttribute $attribute) {
@@ -45,9 +43,13 @@ final class NativeAttributes implements Attributes
                         return null;
                     }
                 },
-                $this->reflectionAttributes,
+                $reflection->getAttributes(),
             ),
         );
+
+        foreach ($reflection->getAttributes() as $attribute) {
+            $this->definition[$attribute->getName()] = $attribute->getArguments();
+        }
 
         $this->delegate = new AttributesContainer(...$attributes);
     }
@@ -73,10 +75,10 @@ final class NativeAttributes implements Attributes
     }
 
     /**
-     * @return array<ReflectionAttribute<object>>
+     * @return array<class-string, array<mixed>>
      */
-    public function reflectionAttributes(): array
+    public function definition(): array
     {
-        return $this->reflectionAttributes;
+        return $this->definition;
     }
 }
