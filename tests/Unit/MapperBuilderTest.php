@@ -34,6 +34,7 @@ final class MapperBuilderTest extends TestCase
         $builderG = $builderA->allowPermissiveTypes();
         $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
         $builderI = $builderA->withCache(new FakeCache());
+        $builderJ = $builderA->supportDateFormats('Y-m-d');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -43,6 +44,7 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderG);
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
+        self::assertNotSame($builderA, $builderJ);
     }
 
     public function test_mapper_instance_is_the_same(): void

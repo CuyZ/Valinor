@@ -118,4 +118,20 @@ final class DateTimeMappingTest extends IntegrationTest
             self::assertSame("Value 'invalid datetime' does not match any of the following formats: `Y/m/d`.", (string)$error);
         }
     }
+
+    public function test_date_constructor_with_overridden_format_source_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())
+                ->supportDateFormats('Y/m/d')
+                ->supportDateFormats('d/m/Y')
+                ->mapper()
+                ->map(DateTimeInterface::class, '1971-11-08');
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1630686564', $error->code());
+            self::assertSame("Value '1971-11-08' does not match any of the following formats: `d/m/Y`.", (string)$error);
+        }
+    }
 }

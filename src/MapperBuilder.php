@@ -7,7 +7,6 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
-use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use Psr\SimpleCache\CacheInterface;
@@ -235,7 +234,10 @@ final class MapperBuilder
      */
     public function supportDateFormats(string $format, string ...$formats): self
     {
-        return $this->registerConstructor(new DateTimeFormatConstructor($format, ...$formats));
+        $clone = clone $this;
+        $clone->settings->supportedDateFormats = [$format, ...$formats];
+
+        return $clone;
     }
 
     /**
