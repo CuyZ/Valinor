@@ -12,6 +12,7 @@ use CuyZ\Valinor\Mapper\TreeMapper;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
+use function array_unique;
 use function is_callable;
 
 /** @api */
@@ -235,9 +236,22 @@ final class MapperBuilder
     public function supportDateFormats(string $format, string ...$formats): self
     {
         $clone = clone $this;
-        $clone->settings->supportedDateFormats = [$format, ...$formats];
+        $clone->settings->supportedDateFormats = array_unique([$format, ...$formats]);
 
         return $clone;
+    }
+
+    /**
+     * Returns the date formats supported during mapping.
+     *
+     * By default, any valid timestamp or ATOM-formatted value are accepted.
+     * Custom formats can be set using method `supportDateFormats()`.
+     *
+     * @return non-empty-array<non-empty-string>
+     */
+    public function supportedDateFormats(): array
+    {
+        return $this->settings->supportedDateFormats;
     }
 
     /**
