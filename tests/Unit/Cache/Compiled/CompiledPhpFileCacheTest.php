@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function iterator_to_array;
+use function rmdir;
 
 final class CompiledPhpFileCacheTest extends TestCase
 {
@@ -111,6 +112,13 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->files->chmod(0444);
 
         self::assertFalse($this->cache->clear());
+    }
+
+    public function test_clear_caches_when_cache_directory_does_not_exists_returns_true(): void
+    {
+        rmdir($this->files->url());
+
+        self::assertTrue($this->cache->clear());
     }
 
     public function test_set_multiple_values_sets_values(): void
