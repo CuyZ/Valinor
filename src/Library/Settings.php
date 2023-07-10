@@ -13,6 +13,9 @@ use Throwable;
 /** @internal */
 final class Settings
 {
+    /** @var non-empty-array<non-empty-string> */
+    public const DEFAULT_SUPPORTED_DATETIME_FORMATS = [DATE_ATOM, 'U'];
+
     /** @var array<class-string|interface-string, callable> */
     public array $inferredMapping = [];
 
@@ -27,6 +30,9 @@ final class Settings
 
     /** @var CacheInterface<mixed> */
     public CacheInterface $cache;
+
+    /** @var non-empty-array<non-empty-string> */
+    public array $supportedDateFormats = self::DEFAULT_SUPPORTED_DATETIME_FORMATS;
 
     public bool $enableFlexibleCasting = false;
 

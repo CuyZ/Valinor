@@ -165,7 +165,7 @@ final class Container
                 $factory = new ReflectionObjectBuilderFactory();
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
                 $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
-                $factory = new DateTimeObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
+                $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->get(FunctionDefinitionRepository::class));
                 $factory = new CollisionObjectBuilderFactory($factory);
 
                 if (! $settings->allowPermissiveTypes) {
