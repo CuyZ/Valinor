@@ -74,9 +74,7 @@ final class CacheWarmupTest extends IntegrationTest
     }
 }
 
-interface SomeInterface
-{
-}
+interface SomeInterface {}
 
 final class ObjectToWarmupWithProperties implements SomeInterface
 {

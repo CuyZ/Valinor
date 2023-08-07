@@ -451,9 +451,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     }
 }
 
-interface SomeInterface
-{
-}
+interface SomeInterface {}
 
 final class SomeClassThatInheritsInterfaceA implements SomeInterface
 {
