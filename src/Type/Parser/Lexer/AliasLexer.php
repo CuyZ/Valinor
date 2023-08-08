@@ -31,7 +31,9 @@ final class AliasLexer implements TypeLexer
 
     private function resolve(string $symbol): string
     {
-        if (Reflection::classOrInterfaceExists($symbol)) {
+        // Matches the case where a class extends a class with the same name but
+        // in a different namespace.
+        if ($symbol === $this->reflection->getShortName() && Reflection::classOrInterfaceExists($symbol)) {
             return $symbol;
         }
 
