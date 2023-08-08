@@ -17,12 +17,12 @@ better understand the behaviour of the mapper.
     
     === "Psalm"
 
-	```json title="composer.json"
-	"autoload-dev": {
-	    "files": [
-	        "vendor/cuyz/valinor/qa/Psalm/ValinorPsalmPlugin.php"
-	    ]
-	}
+        ```json title="composer.json"
+        "autoload-dev": {
+            "files": [
+                "vendor/cuyz/valinor/qa/Psalm/ValinorPsalmPlugin.php"
+            ]
+        }
      	```
 
         ```xml title="psalm.xml"
