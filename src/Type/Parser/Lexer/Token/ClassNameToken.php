@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
@@ -58,35 +57,20 @@ final class ClassNameToken implements TraversingToken
 
     private function classConstant(TokenStream $stream): ?Type
     {
-        if ($stream->done() || ! $stream->next() instanceof ColonToken) {
+        if ($stream->done() || ! $stream->next() instanceof DoubleColonToken) {
             return null;
         }
 
-        $case = $stream->forward();
-        $missingColon = true;
+        $stream->forward();
 
-        if (! $stream->done()) {
-            $case = $stream->forward();
-
-            $missingColon = ! $case instanceof ColonToken;
+        if ($stream->done()) {
+            throw new MissingClassConstantCase($this->reflection->name);
         }
 
-        if (! $missingColon) {
-            if ($stream->done()) {
-                throw new MissingClassConstantCase($this->reflection->name);
-            }
-
-            $case = $stream->forward();
-        }
-
-        $symbol = $case->symbol();
+        $symbol = $stream->forward()->symbol();
 
         if ($symbol === '*') {
             throw new MissingSpecificClassConstantCase($this->reflection->name);
-        }
-
-        if ($missingColon) {
-            throw new MissingClassConstantColon($this->reflection->name, $symbol);
         }
 
         $cases = [];

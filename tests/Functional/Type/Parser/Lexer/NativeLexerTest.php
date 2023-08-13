@@ -12,11 +12,9 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumColon;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
@@ -1371,30 +1369,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::*');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_missing_enum_colon_and_case_throws_exception(): void
-    {
-        $this->expectException(MissingEnumColon::class);
-        $this->expectExceptionCode(1653468435);
-        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::?`.');
-
-        $this->parser->parse(PureEnum::class . ':');
-    }
-
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_missing_enum_colon_throws_exception(): void
-    {
-        $this->expectException(MissingEnumColon::class);
-        $this->expectExceptionCode(1653468435);
-        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::FOO`.');
-
-        $this->parser->parse(PureEnum::class . ':FOO');
-    }
-
     public function test_missing_class_constant_case_throws_exception(): void
     {
         $this->expectException(MissingClassConstantCase::class);
@@ -1438,23 +1412,5 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::className() . '::?` (cannot be `*`).');
 
         $this->parser->parse(ObjectWithConstants::className() . '::*');
-    }
-
-    public function test_missing_class_constant_colon_and_case_throws_exception(): void
-    {
-        $this->expectException(MissingClassConstantColon::class);
-        $this->expectExceptionCode(1652189143);
-        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::?`.');
-
-        $this->parser->parse(ObjectWithConstants::className() . ':');
-    }
-
-    public function test_missing_class_constant_colon_throws_exception(): void
-    {
-        $this->expectException(MissingClassConstantColon::class);
-        $this->expectExceptionCode(1652189143);
-        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::FOO`.');
-
-        $this->parser->parse(ObjectWithConstants::className() . ':FOO');
     }
 }
