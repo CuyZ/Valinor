@@ -42,7 +42,7 @@ final class LexingParser implements TypeParser
         }
 
         /** @phpstan-ignore-next-line */
-        return preg_split('/([\s?|&<>,\[\]{}:\'"])/', $raw, -1, PREG_SPLIT_DELIM_CAPTURE);
+        return preg_split('/(::|[\s?|&<>,\[\]{}:\'"])/', $raw, -1, PREG_SPLIT_DELIM_CAPTURE);
     }
 
     /**

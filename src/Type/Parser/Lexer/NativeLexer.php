@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CommaToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\DoubleColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\EnumNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\FloatValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
@@ -53,6 +54,7 @@ final class NativeLexer implements TypeLexer
             ']' => ClosingSquareBracketToken::get(),
             '{' => OpeningCurlyBracketToken::get(),
             '}' => ClosingCurlyBracketToken::get(),
+            '::' => DoubleColonToken::get(),
             ':' => ColonToken::get(),
             '?' => NullableToken::get(),
             ',' => CommaToken::get(),
