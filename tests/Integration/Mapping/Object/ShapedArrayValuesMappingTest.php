@@ -19,6 +19,16 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 'foo' => 'fiz',
                 'bar' => 42,
             ],
+            'basicShapedArrayWithSingleQuotedStringKeys' => [
+                'foo' => 'fiz',
+                'bar fiz' => 42,
+                'fiz & $ § % fiz' => 42.404,
+            ],
+            'basicShapedArrayWithDoubleQuotedStringKeys' => [
+                'foo' => 'fiz',
+                'bar fiz' => 42,
+                'fiz & $ § % fiz' => 42.404,
+            ],
             'basicShapedArrayWithIntegerKeys' => [
                 0 => 'fiz',
                 1 => 42.404,
@@ -62,6 +72,8 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             }
 
             self::assertSame($source['basicShapedArrayWithStringKeys'], $result->basicShapedArrayWithStringKeys);
+            self::assertSame($source['basicShapedArrayWithSingleQuotedStringKeys'], $result->basicShapedArrayWithSingleQuotedStringKeys);
+            self::assertSame($source['basicShapedArrayWithDoubleQuotedStringKeys'], $result->basicShapedArrayWithDoubleQuotedStringKeys);
             self::assertSame($source['basicShapedArrayWithIntegerKeys'], $result->basicShapedArrayWithIntegerKeys);
             self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']); // @phpstan-ignore-line
             self::assertSame($source['shapedArrayWithOptionalValue'], $result->shapedArrayWithOptionalValue);
@@ -98,6 +110,12 @@ class ShapedArrayValues
 {
     /** @var array{foo: string, bar: int} */
     public array $basicShapedArrayWithStringKeys;
+
+    /** @var array{'foo': string, 'bar fiz': int, 'fiz & $ § % fiz': float} */
+    public array $basicShapedArrayWithSingleQuotedStringKeys;
+
+    /** @var array{"foo": string, "bar fiz": int, "fiz & $ § % fiz": float} */
+    public array $basicShapedArrayWithDoubleQuotedStringKeys;
 
     /** @var array{0: string, 1: float} */
     public array $basicShapedArrayWithIntegerKeys;
@@ -144,6 +162,8 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
 {
     /**
      * @param array{foo: string, bar: int} $basicShapedArrayWithStringKeys
+     * @param array{'foo': string, 'bar fiz': int, 'fiz & $ § % fiz': float} $basicShapedArrayWithSingleQuotedStringKeys
+     * @param array{"foo": string, "bar fiz": int, "fiz & $ § % fiz": float} $basicShapedArrayWithDoubleQuotedStringKeys
      * @param array{0: string, 1: float} $basicShapedArrayWithIntegerKeys
      * @param array{foo: SimpleObject} $shapedArrayWithObject
      * @param array{optionalString?: string} $shapedArrayWithOptionalValue
@@ -163,6 +183,8 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      */
     public function __construct(
         array $basicShapedArrayWithStringKeys,
+        array $basicShapedArrayWithSingleQuotedStringKeys,
+        array $basicShapedArrayWithDoubleQuotedStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,
         array $shapedArrayWithOptionalValue,
@@ -175,6 +197,8 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayWithLowercaseEnumNameAsKey,
     ) {
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
+        $this->basicShapedArrayWithSingleQuotedStringKeys = $basicShapedArrayWithSingleQuotedStringKeys;
+        $this->basicShapedArrayWithDoubleQuotedStringKeys = $basicShapedArrayWithDoubleQuotedStringKeys;
         $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
         $this->shapedArrayWithObject = $shapedArrayWithObject;
         $this->shapedArrayWithOptionalValue = $shapedArrayWithOptionalValue;
