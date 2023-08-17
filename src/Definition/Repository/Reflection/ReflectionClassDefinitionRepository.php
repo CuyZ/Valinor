@@ -32,6 +32,7 @@ use ReflectionProperty;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function interface_exists;
 
 /** @internal */
 final class ReflectionClassDefinitionRepository implements ClassDefinitionRepository
@@ -114,7 +115,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             return $this->typeResolver[$typeKey];
         }
 
-        while ($type->className() !== $targetClass) {
+        while ($type->className() !== $targetClass && ! interface_exists($targetClass)) {
             $type = $type->parent();
         }
 
