@@ -7,38 +7,35 @@ final class ParserSymbols
 {
     private const OPERATORS = [' ', '|', '&', '<', '>', '[', ']', '{', '}', ':', '?', ',', "'", '"'];
 
-    private ?string $current = null;
-
     /** @var list<string> */
     private array $symbols = [];
 
     public function __construct(string $string)
     {
+        $current = null;
         $quote = null;
 
         foreach (str_split($string) as $char) {
-            if ($quote !== null) {
-                if ($char === $quote) {
-                    $this->addCurrent();
-                    $this->symbols[] = $char;
-
-                    $quote = null;
-                } else {
-                    $this->current .= $char;
-                }
-            } elseif (in_array($char, self::OPERATORS, true)) {
-                $this->addCurrent();
-                $this->symbols[] = $char;
-
-                if ($char === '"' || $char === "'") {
-                    $quote = $char;
-                }
-            } else {
-                $this->current .= $char;
+            if ($char === $quote) {
+                $quote = null;
+            } elseif ($char === '"' || $char === "'") {
+                $quote = $char;
+            } elseif ($quote !== null || ! in_array($char, self::OPERATORS, true)) {
+                $current .= $char;
+                continue;
             }
+
+            if ($current !== null) {
+                $this->symbols[] = $current;
+                $current = null;
+            }
+
+            $this->symbols[] = $char;
         }
 
-        $this->addCurrent();
+        if ($current !== null) {
+            $this->symbols[] = $current;
+        }
 
         $this->symbols = array_map('trim', $this->symbols);
         $this->symbols = array_filter($this->symbols, static fn ($value) => $value !== '');
@@ -53,14 +50,6 @@ final class ParserSymbols
     public function all(): array
     {
         return $this->symbols;
-    }
-
-    private function addCurrent(): void
-    {
-        if ($this->current !== null) {
-            $this->symbols[] = $this->current;
-            $this->current = null;
-        }
     }
 
     private function mergeDoubleColons(): void
