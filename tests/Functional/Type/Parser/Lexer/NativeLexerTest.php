@@ -1040,7 +1040,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(InvalidArrayKey::class);
         $this->expectExceptionCode(1604335007);
-        $this->expectExceptionMessage('Invalid key type `float` for `array<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('array<float, string>');
     }
@@ -1049,7 +1049,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(InvalidArrayKey::class);
         $this->expectExceptionCode(1604335007);
-        $this->expectExceptionMessage('Invalid key type `float` for `non-empty-array<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('non-empty-array<float, string>');
     }
