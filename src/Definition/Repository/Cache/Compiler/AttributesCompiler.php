@@ -10,6 +10,8 @@ use CuyZ\Valinor\Definition\NativeAttributes;
 
 use function count;
 use function implode;
+use function is_array;
+use function is_object;
 use function var_export;
 
 /** @internal */
@@ -41,15 +43,35 @@ final class AttributesCompiler
         $attributesListCode = [];
 
         foreach ($attributes as $className => $arguments) {
-            if (count($arguments) === 0) {
-                $argumentsCode = '';
-            } else {
-                $argumentsCode = '...unserialize(' . var_export(serialize($arguments), true) . ')';
-            }
+            $argumentsCode = $this->compileAttributeArguments($arguments);
 
             $attributesListCode[] = "new $className($argumentsCode)";
         }
 
         return '...[' . implode(",\n", $attributesListCode) . ']';
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     */
+    private function compileAttributeArguments(array $arguments): string
+    {
+        if (count($arguments) === 0) {
+            return '';
+        }
+
+        $argumentsCode = [];
+
+        foreach ($arguments as $argument) {
+            if (is_object($argument)) {
+                $argumentsCode[] = 'unserialize(' . var_export(serialize($argument), true) . ')';
+            } elseif (is_array($argument)) {
+                $argumentsCode[] = '[' . $this->compileAttributeArguments($argument) . ']';
+            } else {
+                $argumentsCode[] = var_export($argument, true);
+            }
+        }
+
+        return implode(', ', $argumentsCode);
     }
 }
