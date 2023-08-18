@@ -16,9 +16,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagClassName;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\SeveralExtendTagsFound;
+use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidClassTemplate;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
-use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\ClassType;
@@ -35,7 +35,7 @@ final class GenericLexerTest extends TestCase
     {
         parent::setUp();
 
-        $this->parser = (new LexingTypeParserFactory(new BasicTemplateParser()))->get();
+        $this->parser = (new LexingTypeParserFactory())->get();
     }
 
     /**
@@ -180,9 +180,9 @@ final class GenericLexerTest extends TestCase
 
         $className = $object::class;
 
-        $this->expectException(InvalidClassTemplate::class);
-        $this->expectExceptionCode(1630092678);
-        $this->expectExceptionMessage("Template error for class `$className`: The template `TemplateA` was defined at least twice.");
+        $this->expectException(DuplicatedTemplateName::class);
+        $this->expectExceptionCode(1604612898);
+        $this->expectExceptionMessage("The template `TemplateA` in class `$className` was defined at least twice.");
 
         $this->parser->parse("$className<int, string>");
     }
@@ -199,7 +199,7 @@ final class GenericLexerTest extends TestCase
 
         $this->expectException(InvalidClassTemplate::class);
         $this->expectExceptionCode(1630092678);
-        $this->expectExceptionMessageMatches("/Template error for class `.*`: Invalid type `InvalidType` for the template `Template`: .*/");
+        $this->expectExceptionMessage("Invalid template `Template` for class `$className`: Cannot parse unknown symbol `InvalidType`.");
 
         $this->parser->parse("$className<int, string>");
     }

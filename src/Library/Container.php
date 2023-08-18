@@ -50,8 +50,6 @@ use CuyZ\Valinor\Mapper\TypeTreeMapper;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\Template\BasicTemplateParser;
-use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
@@ -196,13 +194,9 @@ final class Container
 
             AttributesRepository::class => fn () => new NativeAttributesRepository(),
 
-            TypeParserFactory::class => fn () => new LexingTypeParserFactory(
-                $this->get(TemplateParser::class)
-            ),
+            TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
 
             TypeParser::class => fn () => $this->get(TypeParserFactory::class)->get(),
-
-            TemplateParser::class => fn () => new BasicTemplateParser(),
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),

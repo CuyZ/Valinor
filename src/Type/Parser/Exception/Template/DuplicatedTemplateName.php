@@ -7,12 +7,15 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Template;
 use LogicException;
 
 /** @internal */
-final class DuplicatedTemplateName extends LogicException implements InvalidTemplate
+final class DuplicatedTemplateName extends LogicException
 {
-    public function __construct(string $template)
+    /**
+     * @param class-string $className
+     */
+    public function __construct(string $className, string $template)
     {
         parent::__construct(
-            "The template `$template` was defined at least twice.",
+            "The template `$template` in class `$className` was defined at least twice.",
             1604612898
         );
     }

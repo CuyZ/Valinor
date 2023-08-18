@@ -15,6 +15,7 @@ use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
@@ -23,12 +24,12 @@ use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecificati
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use CuyZ\Valinor\Utility\Reflection\DocParser;
 
 use function array_filter;
 use function array_keys;
@@ -162,7 +163,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     private function localTypeAliases(ClassType $type): array
     {
         $reflection = Reflection::class($type->className());
-        $rawTypes = Reflection::localTypeAliases($reflection);
+        $rawTypes = DocParser::localTypeAliases($reflection);
 
         $typeParser = $this->typeParser($type);
 
@@ -187,7 +188,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     private function importedTypeAliases(ClassType $type): array
     {
         $reflection = Reflection::class($type->className());
-        $importedTypesRaw = Reflection::importedTypeAliases($reflection);
+        $importedTypesRaw = DocParser::importedTypeAliases($reflection);
 
         $typeParser = $this->typeParser($type);
 

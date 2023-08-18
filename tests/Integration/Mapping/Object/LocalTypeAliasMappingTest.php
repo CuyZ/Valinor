@@ -44,9 +44,13 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
             try {
                 $result = (new MapperBuilder())
                     ->mapper()
-                    ->map($class, 42);
+                    ->map($class, [
+                        'firstImportedType' => 42,
+                        'secondImportedType' => 1337,
+                    ]);
 
-                self::assertSame(42, $result->importedType);
+                self::assertSame(42, $result->firstImportedType);
+                self::assertSame(1337, $result->secondImportedType);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -86,12 +90,25 @@ class PhpStanLocalAliases
 }
 
 /**
+ * @phpstan-type AliasWithoutEqualsSign int
+ */
+class AnotherPhpStanLocalAlias
+{
+    /** @var AliasWithoutEqualsSign */
+    public int $aliasWithEqualsSign;
+}
+
+/**
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
+ * @phpstan-import-type AliasWithoutEqualsSign from AnotherPhpStanLocalAlias
  */
 class PhpStanAliasImport
 {
     /** @var AliasWithEqualsSign */
-    public int $importedType;
+    public int $firstImportedType;
+
+    /** @var AliasWithoutEqualsSign */
+    public int $secondImportedType;
 }
 
 /**
@@ -126,10 +143,23 @@ class PsalmLocalAliases
 }
 
 /**
+ * @psalm-type AliasWithoutEqualsSign int
+ */
+class AnotherPsalmLocalAliases
+{
+    /** @var AliasWithoutEqualsSign */
+    public int $aliasWithEqualsSign;
+}
+
+/**
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
+ * @psalm-import-type AliasWithoutEqualsSign from AnotherPsalmLocalAliases
  */
 class PsalmAliasImport
 {
     /** @var AliasWithEqualsSign */
-    public int $importedType;
+    public int $firstImportedType;
+
+    /** @var AliasWithoutEqualsSign */
+    public int $secondImportedType;
 }

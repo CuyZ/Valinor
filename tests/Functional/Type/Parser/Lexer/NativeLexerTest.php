@@ -829,6 +829,12 @@ final class NativeLexerTest extends TestCase
             'type' => UnionType::class,
         ];
 
+        yield 'Union type with empty string and other string' => [
+            'raw' => "''|'foo'",
+            'transformed' => "''|'foo'",
+            'type' => UnionType::class,
+        ];
+
         if (PHP_VERSION_ID >= 8_01_00) {
             yield 'Union type with enum' => [
                 'raw' => PureEnum::class . '|' . BackedStringEnum::class,
