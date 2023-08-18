@@ -26,6 +26,7 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use CuyZ\Valinor\Utility\Reflection\DocParser;
@@ -77,7 +78,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     {
         return array_map(
             function (ReflectionProperty $property) use ($type) {
-                $typeResolver = $this->typeResolver($type, $property->class);
+                $typeResolver = $this->typeResolver($type, $property->getDeclaringClass());
 
                 return $this->propertyBuilder->for($property, $typeResolver);
             },
@@ -101,21 +102,26 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         }
 
         return array_map(function (ReflectionMethod $method) use ($type) {
-            $typeResolver = $this->typeResolver($type, $method->class);
+            $typeResolver = $this->typeResolver($type, $method->getDeclaringClass());
 
             return $this->methodBuilder->for($method, $typeResolver);
         }, $methods);
     }
 
-    private function typeResolver(ClassType $type, string $targetClass): ReflectionTypeResolver
+    /**
+     * @param ReflectionClass<object> $target
+     */
+    private function typeResolver(ClassType $type, ReflectionClass $target): ReflectionTypeResolver
     {
-        $typeKey = "{$type->toString()}/$targetClass";
+        $typeKey = $target->isInterface()
+            ? "{$type->toString()}/{$type->className()}"
+            : "{$type->toString()}/$target->name";
 
         if (isset($this->typeResolver[$typeKey])) {
             return $this->typeResolver[$typeKey];
         }
 
-        while ($type->className() !== $targetClass) {
+        while ($type->className() !== $target->name) {
             $type = $type->parent();
         }
 

@@ -13,6 +13,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
+use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -143,6 +144,15 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertTrue($parameters->get('optionalParameter')->isOptional());
         self::assertSame('Optional parameter value', $optionalParameter->defaultValue());
+    }
+
+    public function test_methods_can_be_retrieved_from_abstract_object_with_interface_and_with_method_referencing_self(): void
+    {
+        $type = new NativeClassType(AbstractObjectWithInterface::class);
+        $methods = $this->repository->for($type)->methods();
+
+        self::assertTrue($methods->has('of'));
+        self::assertTrue($methods->has('jsonSerialize'));
     }
 
     public function test_private_parent_constructor_is_listed_in_methods(): void
