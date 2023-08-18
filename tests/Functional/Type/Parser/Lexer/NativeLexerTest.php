@@ -1198,6 +1198,15 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse('array{int, foo: string');
     }
 
+    public function test_shaped_array_closing_bracket_missing_after_comma_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1631283658);
+        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int`.');
+
+        $this->parser->parse('array{int,');
+    }
+
     public function test_shaped_array_colon_missing_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
