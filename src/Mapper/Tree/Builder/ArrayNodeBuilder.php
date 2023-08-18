@@ -54,12 +54,13 @@ final class ArrayNodeBuilder implements NodeBuilder
         $children = [];
 
         foreach ($values as $key => $value) {
-            if (! $keyType->accepts($key)) {
-                throw new InvalidTraversableKey($key, $keyType);
-            }
+            $child = $shell->child((string)$key, $subType);
 
-            $child = $shell->child((string)$key, $subType)->withValue($value);
-            $children[$key] = $rootBuilder->build($child);
+            if (! $keyType->accepts($key)) {
+                $children[$key] = TreeNode::error($child, new InvalidTraversableKey($key, $keyType));
+            } else {
+                $children[$key] = $rootBuilder->build($child->withValue($value));
+            }
         }
 
         return $children;
