@@ -34,21 +34,15 @@ final class AttributesCompiler
 
     private function compileNativeAttributes(NativeAttributes $attributes): string
     {
-        $attributes = $attributes->definition();
-
-        if (count($attributes) === 0) {
-            return '[]';
-        }
-
         $attributesListCode = [];
 
-        foreach ($attributes as $className => $arguments) {
+        foreach ($attributes->definition() as $className => $arguments) {
             $argumentsCode = $this->compileAttributeArguments($arguments);
 
-            $attributesListCode[] = "new $className($argumentsCode)";
+            $attributesListCode[] = "['class' => '$className', 'callback' => fn () => new $className($argumentsCode)]";
         }
 
-        return '...[' . implode(",\n", $attributesListCode) . ']';
+        return implode(', ', $attributesListCode);
     }
 
     /**
