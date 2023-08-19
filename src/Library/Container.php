@@ -200,6 +200,7 @@ final class Container
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),
+                $this->get(CacheInterface::class),
                 $this->get(ObjectImplementations::class),
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(ObjectBuilderFactory::class)

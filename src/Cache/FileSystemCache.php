@@ -20,9 +20,9 @@ use function sys_get_temp_dir;
  * @api
  *
  * @template EntryType
- * @implements CacheInterface<EntryType>
+ * @implements WarmupCache<EntryType>
  */
-final class FileSystemCache implements CacheInterface
+final class FileSystemCache implements WarmupCache
 {
     /** @var array<string, CacheInterface<EntryType>> */
     private array $delegates;
@@ -37,6 +37,15 @@ final class FileSystemCache implements CacheInterface
             ClassDefinition::class => new CompiledPhpFileCache($cacheDir . DIRECTORY_SEPARATOR . 'classes', new ClassDefinitionCompiler()),
             FunctionDefinition::class => new CompiledPhpFileCache($cacheDir . DIRECTORY_SEPARATOR . 'functions', new FunctionDefinitionCompiler()),
         ];
+    }
+
+    public function warmup(): void
+    {
+        foreach ($this->delegates as $delegate) {
+            if ($delegate instanceof WarmupCache) {
+                $delegate->warmup();
+            }
+        }
     }
 
     public function has($key): bool
