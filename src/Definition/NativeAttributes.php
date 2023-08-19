@@ -32,7 +32,12 @@ final class NativeAttributes implements Attributes
             array_map(
                 static function (ReflectionAttribute $attribute) {
                     try {
-                        return $attribute->newInstance();
+                        $instance = $attribute->newInstance();
+
+                        return [
+                            'class' => $attribute->getName(),
+                            'callback' => fn () => $instance
+                        ];
                     } catch (Error) {
                         // Race condition when the attribute is affected to a property/parameter
                         // that was PROMOTED, in this case the attribute will be applied to both
