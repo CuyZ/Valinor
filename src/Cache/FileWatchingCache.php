@@ -29,9 +29,9 @@ use function is_string;
  *
  * @phpstan-type TimestampsArray = array<string, int>
  * @template EntryType
- * @implements CacheInterface<EntryType|TimestampsArray>
+ * @implements WarmupCache<EntryType|TimestampsArray>
  */
-final class FileWatchingCache implements CacheInterface
+final class FileWatchingCache implements WarmupCache
 {
     /** @var array<string, TimestampsArray> */
     private array $timestamps = [];
@@ -40,6 +40,13 @@ final class FileWatchingCache implements CacheInterface
         /** @var CacheInterface<EntryType|TimestampsArray> */
         private CacheInterface $delegate
     ) {}
+
+    public function warmup(): void
+    {
+        if ($this->delegate instanceof WarmupCache) {
+            $this->delegate->warmup();
+        }
+    }
 
     public function has($key): bool
     {

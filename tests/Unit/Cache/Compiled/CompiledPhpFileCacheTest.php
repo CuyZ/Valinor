@@ -35,6 +35,15 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->cache = new CompiledPhpFileCache(vfsStream::url('cache-dir'), new FakeCacheCompiler());
     }
 
+    public function test_warmup_creates_temporary_dir(): void
+    {
+        self::assertFalse($this->files->hasChild('.valinor.tmp'));
+
+        $this->cache->warmup();
+
+        self::assertTrue($this->files->hasChild('.valinor.tmp'));
+    }
+
     public function test_set_cache_sets_cache(): void
     {
         self::assertFalse($this->cache->has('foo'));

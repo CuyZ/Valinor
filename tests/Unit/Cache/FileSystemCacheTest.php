@@ -8,12 +8,14 @@ use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
+use CuyZ\Valinor\Tests\Fake\Cache\FakeCacheWithWarmup;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeFailingCache;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheInterface;
 
 use function iterator_to_array;
 
@@ -31,7 +33,26 @@ final class FileSystemCacheTest extends TestCase
         $this->files = vfsStream::setup('cache-dir');
         $this->cache = new FileSystemCache($this->files->url());
 
-        $this->injectFakeCache();
+        $this->injectFakeCache([
+            '*' => new FakeCache(),
+            ClassDefinition::class => new FakeCache(),
+            FunctionDefinition::class => new FakeCache(),
+        ]);
+    }
+
+    public function test_cache_warmup_calls_delegates_warmup(): void
+    {
+        $cacheWithWarmup = new FakeCacheWithWarmup();
+
+        $this->injectFakeCache([
+            '*' => new FakeCache(),
+            ClassDefinition::class => $cacheWithWarmup,
+            FunctionDefinition::class => new FakeCache(),
+        ]);
+
+        $this->cache->warmup();
+
+        self::assertSame(1, $cacheWithWarmup->timesWarmupWasCalled());
     }
 
     public function test_cache_entries_are_handled_properly(): void
@@ -108,7 +129,11 @@ final class FileSystemCacheTest extends TestCase
 
     public function test_methods_returns_false_if_delegates_fail(): void
     {
-        $this->injectFakeCache(true);
+        $this->injectFakeCache([
+            '*' => new FakeCache(),
+            ClassDefinition::class => new FakeCache(),
+            FunctionDefinition::class => new FakeFailingCache(),
+        ]);
 
         $classDefinition = FakeClassDefinition::new();
         $functionDefinition = FakeFunctionDefinition::new();
@@ -136,14 +161,13 @@ final class FileSystemCacheTest extends TestCase
         self::assertSame($defaultValue, $this->cache->get('non-existing-entry', $defaultValue));
     }
 
-    private function injectFakeCache(bool $withFailingCache = false): void
+    /**
+     * @param array<string, CacheInterface<mixed>> $caches
+     */
+    private function injectFakeCache(array $caches): void
     {
-        (function () use ($withFailingCache) {
-            $this->delegates = [
-                '*' => new FakeCache(),
-                ClassDefinition::class => new FakeCache(),
-                FunctionDefinition::class => $withFailingCache ? new FakeFailingCache() : new FakeCache(),
-            ];
+        (function () use ($caches) {
+            $this->delegates = $caches;
         })->call($this->cache);
     }
 }
