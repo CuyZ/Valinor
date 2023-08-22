@@ -219,7 +219,7 @@ final class MapperBuilder
     /**
      * Describes which date formats will be supported during mapping.
      *
-     * By default, the dates will accept any valid timestamp or ATOM-formatted
+     * By default, the dates will accept any valid timestamp or RFC 3339-formatted
      * value.
      *
      * ```php
@@ -244,7 +244,7 @@ final class MapperBuilder
     /**
      * Returns the date formats supported during mapping.
      *
-     * By default, any valid timestamp or ATOM-formatted value are accepted.
+     * By default, any valid timestamp or RFC 3339-formatted value are accepted.
      * Custom formats can be set using method `supportDateFormats()`.
      *
      * @return non-empty-array<non-empty-string>

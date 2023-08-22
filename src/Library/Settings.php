@@ -14,7 +14,11 @@ use Throwable;
 final class Settings
 {
     /** @var non-empty-array<non-empty-string> */
-    public const DEFAULT_SUPPORTED_DATETIME_FORMATS = [DATE_ATOM, 'U'];
+    public const DEFAULT_SUPPORTED_DATETIME_FORMATS = [
+        'Y-m-d\\TH:i:sP', // RFC 3339
+        'Y-m-d\\TH:i:s.uP', // RFC 3339 with microseconds
+        'U', // Unix Timestamp
+    ];
 
     /** @var array<class-string|interface-string, callable> */
     public array $inferredMapping = [];

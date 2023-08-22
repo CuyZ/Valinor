@@ -54,7 +54,7 @@ final class MapperBuilderTest extends TestCase
 
     public function test_get_supported_date_formats_returns_defaults_formats_when_not_overridden(): void
     {
-        self::assertSame([DATE_ATOM, 'U'], $this->mapperBuilder->supportedDateFormats());
+        self::assertSame(['Y-m-d\\TH:i:sP', 'Y-m-d\\TH:i:s.uP', 'U'], $this->mapperBuilder->supportedDateFormats());
     }
 
     public function test_get_supported_date_formats_returns_configured_values(): void
