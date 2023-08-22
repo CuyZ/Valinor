@@ -14,7 +14,7 @@ use DateTimeInterface;
  * date formats should be allowed during mapping.
  *
  * By default, if this constructor is never registered, the dates will accept
- * any valid timestamp or ATOM-formatted value.
+ * any valid timestamp or RFC 3339-formatted value.
  *
  * Usage:
  *
