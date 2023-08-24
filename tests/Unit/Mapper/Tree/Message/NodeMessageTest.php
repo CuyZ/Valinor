@@ -102,6 +102,9 @@ final class NodeMessageTest extends TestCase
         self::assertNotSame($messageA, $messageB);
     }
 
+    /**
+     * @requires extension intl
+     */
     public function test_custom_locale_is_used(): void
     {
         $originalMessage = (new FakeMessage('un message: {value, spellout}'))->withParameters(['value' => '42']);
