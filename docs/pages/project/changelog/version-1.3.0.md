@@ -71,10 +71,10 @@ Note that this commit required heavy refactoring work, leading to a regression
 for union types containing enums and other types. As these cases are considered
 marginal, this change is considered non-breaking.
 
-### Features
+## Features
 
 * Handle custom enum constructors registration ([217e12](https://github.com/CuyZ/Valinor/commit/217e12047440f7ded43c502b8fea1246dd23f2c3))
 
-### Other
+## Other
 
 * Handle enum type as class type ([5a3caf](https://github.com/CuyZ/Valinor/commit/5a3caf4b246315715c51802e88d939b7c17a27e3))
