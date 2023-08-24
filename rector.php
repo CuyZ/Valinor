@@ -32,7 +32,6 @@ return static function (RectorConfig $config): void {
         AddLiteralSeparatorToNumberRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class,
         MixedTypeRector::class => [
-            __DIR__ . '/tests/Integration/Mapping/Object/UnionValuesMappingTest.php',
             __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
         ],
         RestoreDefaultNullToNullableTypePropertyRector::class => [
