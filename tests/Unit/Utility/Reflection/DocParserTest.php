@@ -252,6 +252,15 @@ final class DocParserTest extends TestCase
             'string',
         ];
 
+        yield 'phpdoc @param variadic' => [
+            new ReflectionParameter(
+                /** @param string ...$strings */
+                static function (...$strings): void {},
+                'strings',
+            ),
+            'string[]',
+        ];
+
         yield 'psalm @param standalone' => [
             new ReflectionParameter(
                 /** @psalm-param string $string */
