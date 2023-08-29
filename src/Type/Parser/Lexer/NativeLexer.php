@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ArrayToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\CallableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassStringToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingBracketToken;
@@ -66,6 +67,7 @@ final class NativeLexer implements TypeLexer
             'non-empty-list' => ListToken::nonEmptyList(),
             'iterable' => IterableToken::get(),
             'class-string' => ClassStringToken::get(),
+            'callable' => CallableToken::get(),
             default => null,
         };
 

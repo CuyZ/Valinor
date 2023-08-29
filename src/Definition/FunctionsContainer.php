@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
+use Countable;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use IteratorAggregate;
 use Traversable;
 
 use function array_keys;
+use function count;
 
 /**
  * @internal
  *
  * @implements IteratorAggregate<string|int, FunctionObject>
  */
-final class FunctionsContainer implements IteratorAggregate
+final class FunctionsContainer implements IteratorAggregate, Countable
 {
     /** @var array<FunctionObject> */
     private array $functions = [];
@@ -49,5 +51,10 @@ final class FunctionsContainer implements IteratorAggregate
             $this->functionDefinitionRepository->for($this->callables[$key]),
             $this->callables[$key]
         );
+    }
+
+    public function count(): int
+    {
+        return count($this->callables);
     }
 }

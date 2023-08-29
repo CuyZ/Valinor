@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
-use CuyZ\Valinor\Library\Container;
-use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Library\MapperContainer;
+use CuyZ\Valinor\Library\MapperSettings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -18,13 +18,13 @@ use function is_callable;
 /** @api */
 final class MapperBuilder
 {
-    private Settings $settings;
+    private MapperSettings $settings;
 
-    private Container $container;
+    private MapperContainer $container;
 
     public function __construct()
     {
-        $this->settings = new Settings();
+        $this->settings = new MapperSettings();
     }
 
     /**
@@ -482,8 +482,8 @@ final class MapperBuilder
         unset($this->container);
     }
 
-    private function container(): Container
+    private function container(): MapperContainer
     {
-        return ($this->container ??= new Container($this->settings));
+        return ($this->container ??= new MapperContainer($this->settings));
     }
 }

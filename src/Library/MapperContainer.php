@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
-use CuyZ\Valinor\Cache\ChainCache;
-use CuyZ\Valinor\Cache\KeySanitizerCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Definition\Repository\AttributesRepository;
-use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
-use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\CollisionObjectBuilderFactory;
@@ -30,14 +22,14 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
-use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -48,8 +40,6 @@ use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
-use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\ArrayType;
@@ -64,24 +54,27 @@ use function call_user_func;
 use function count;
 
 /** @internal */
-final class Container
+final class MapperContainer
 {
+    private SharedContainer $shared;
+
     /** @var array<class-string, object> */
     private array $services = [];
 
     /** @var array<class-string, callable(): object> */
     private array $factories;
 
-    public function __construct(Settings $settings)
+    public function __construct(MapperSettings $settings)
     {
+        $this->shared = SharedContainer::new($settings->cache ?? null);
         $this->factories = [
             TreeMapper::class => fn () => new TypeTreeMapper(
-                $this->get(TypeParser::class),
+                $this->shared->get(TypeParser::class),
                 $this->get(RootNodeBuilder::class)
             ),
 
             ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
-                $this->get(FunctionDefinitionRepository::class),
+                $this->shared->get(FunctionDefinitionRepository::class),
                 $this->get(RootNodeBuilder::class)
             ),
 
@@ -102,7 +95,7 @@ final class Container
                     ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
                     ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
                     ClassType::class => new NativeClassNodeBuilder(
-                        $this->get(ClassDefinitionRepository::class),
+                        $this->shared->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
                         $this->get(ObjectNodeBuilder::class),
                         $settings->enableFlexibleCasting,
@@ -111,7 +104,7 @@ final class Container
 
                 $builder = new UnionNodeBuilder(
                     $builder,
-                    $this->get(ClassDefinitionRepository::class),
+                    $this->shared->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectNodeBuilder::class),
                     $settings->enableFlexibleCasting
@@ -120,7 +113,7 @@ final class Container
                 $builder = new InterfaceNodeBuilder(
                     $builder,
                     $this->get(ObjectImplementations::class),
-                    $this->get(ClassDefinitionRepository::class),
+                    $this->shared->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectNodeBuilder::class),
                     $settings->enableFlexibleCasting
@@ -133,7 +126,7 @@ final class Container
                     $builder = new ValueAlteringNodeBuilder(
                         $builder,
                         new FunctionsContainer(
-                            $this->get(FunctionDefinitionRepository::class),
+                            $this->shared->get(FunctionDefinitionRepository::class),
                             $settings->valueModifier
                         )
                     );
@@ -148,22 +141,22 @@ final class Container
 
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(
-                    $this->get(FunctionDefinitionRepository::class),
+                    $this->shared->get(FunctionDefinitionRepository::class),
                     $settings->inferredMapping
                 ),
-                $this->get(TypeParser::class),
+                $this->shared->get(TypeParser::class),
             ),
 
             ObjectBuilderFactory::class => function () use ($settings) {
                 $constructors = new FunctionsContainer(
-                    $this->get(FunctionDefinitionRepository::class),
+                    $this->shared->get(FunctionDefinitionRepository::class),
                     $settings->customConstructors
                 );
 
                 $factory = new ReflectionObjectBuilderFactory();
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
-                $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
-                $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->get(FunctionDefinitionRepository::class));
+                $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->shared->get(FunctionDefinitionRepository::class));
+                $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->shared->get(FunctionDefinitionRepository::class));
                 $factory = new CollisionObjectBuilderFactory($factory);
 
                 if (! $settings->allowPermissiveTypes) {
@@ -176,45 +169,13 @@ final class Container
                 return new CacheObjectBuilderFactory($factory, $cache);
             },
 
-            ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
-                new ReflectionClassDefinitionRepository(
-                    $this->get(TypeParserFactory::class),
-                    $this->get(AttributesRepository::class),
-                ),
-                $this->get(CacheInterface::class)
-            ),
-
-            FunctionDefinitionRepository::class => fn () => new CacheFunctionDefinitionRepository(
-                new ReflectionFunctionDefinitionRepository(
-                    $this->get(TypeParserFactory::class),
-                    $this->get(AttributesRepository::class),
-                ),
-                $this->get(CacheInterface::class)
-            ),
-
-            AttributesRepository::class => fn () => new NativeAttributesRepository(),
-
-            TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
-
-            TypeParser::class => fn () => $this->get(TypeParserFactory::class)->get(),
-
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
-                $this->get(TypeParser::class),
-                $this->get(CacheInterface::class),
+                $this->shared->get(TypeParser::class),
+                $this->shared->get(CacheInterface::class),
                 $this->get(ObjectImplementations::class),
-                $this->get(ClassDefinitionRepository::class),
+                $this->shared->get(ClassDefinitionRepository::class),
                 $this->get(ObjectBuilderFactory::class)
             ),
-
-            CacheInterface::class => function () use ($settings) {
-                $cache = new RuntimeCache();
-
-                if (isset($settings->cache)) {
-                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache));
-                }
-
-                return $cache;
-            },
         ];
     }
 

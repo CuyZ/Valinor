@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Library\MapperSettings;
 use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
@@ -44,7 +44,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
 
         $buildersWithOneArgument = array_filter($builders, fn (ObjectBuilder $builder) => count($builder->describeArguments()) === 1);
 
-        if (count($buildersWithOneArgument) === 0 || $this->supportedDateFormats !== Settings::DEFAULT_SUPPORTED_DATETIME_FORMATS) {
+        if (count($buildersWithOneArgument) === 0 || $this->supportedDateFormats !== MapperSettings::DEFAULT_SUPPORTED_DATETIME_FORMATS) {
             $builders[] = $this->internalDateTimeBuilder($class->type());
         }
 

@@ -11,7 +11,7 @@ use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
 /** @internal */
-final class Settings
+final class MapperSettings
 {
     /** @var non-empty-array<non-empty-string> */
     public const DEFAULT_SUPPORTED_DATETIME_FORMATS = [
