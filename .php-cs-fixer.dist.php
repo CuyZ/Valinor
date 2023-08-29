@@ -13,7 +13,6 @@ if (PHP_VERSION_ID < 8_01_00) {
     $finder = $finder->notPath('Fixture/Enum/PureEnum.php');
     $finder = $finder->notPath('Fixture/Enum/BackedStringEnum.php');
     $finder = $finder->notPath('Fixture/Enum/BackedIntegerEnum.php');
-    $finder = $finder->notPath('Fixture/Object/ClassWithMethodWithVariadicParam.php');
     $finder = $finder->notPath('Fixture/Object/ObjectWithPropertyWithNativeIntersectionType.php');
     $finder = $finder->notPath('Integration/Mapping/Fixture/ReadonlyValues.php');
 }

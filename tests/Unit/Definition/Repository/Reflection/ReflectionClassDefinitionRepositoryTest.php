@@ -12,9 +12,8 @@ use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
-use CuyZ\Valinor\Tests\Fixture\Object\ClassWithMethodWithVariadicParam;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -32,7 +31,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         parent::setUp();
 
         $this->repository = new ReflectionClassDefinitionRepository(
-            new LexingTypeParserFactory(),
+            new FakeTypeParserFactory(),
             new FakeAttributesRepository(),
         );
     }
@@ -281,13 +280,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->expectExceptionMessage("Types for parameter `$class::publicMethod(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->repository->for(new NativeClassType($class));
-    }
-
-    public function test_variadic_parameter_should_not_throw(): void
-    {
-        $this->repository->for(new NativeClassType(ClassWithMethodWithVariadicParam::class));
-
-        self::assertTrue(true);
     }
 
     public function test_method_with_non_matching_return_types_throws_exception(): void
