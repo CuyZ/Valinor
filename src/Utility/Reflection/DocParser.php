@@ -186,7 +186,7 @@ final class DocParser
                     $expectExpression = true;
                 } elseif (! $expectExpression && $chars[$key - 1] === ' ') {
                     if ($char === '.' && $chars[$key+1] === '.' && $chars[$key+2] === '.') {
-                        return trim($type) . '[]';
+                        return '('.trim($type) . ')[]';
                     }
 
                     break;
