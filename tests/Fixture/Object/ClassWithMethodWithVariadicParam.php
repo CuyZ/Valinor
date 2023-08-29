@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Fixture\Object;
 class ClassWithMethodWithVariadicParam
 {
     /**
-     * @param ClassWithMethodWithVariadicParam|float|string ...$values
+     * @param ClassWithMethodWithVariadicParam ...$values
      */
-    public static function method(ClassWithMethodWithVariadicParam|string|float ...$values) : void
+    public static function method(ClassWithMethodWithVariadicParam ...$values) : void
     {
     }
 
