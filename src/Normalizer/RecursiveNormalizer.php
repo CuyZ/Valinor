@@ -75,7 +75,7 @@ final class RecursiveNormalizer implements Normalizer
      */
     private function nextNormalizer(array $handlers, object $object): callable
     {
-        if (count($handlers) === 0) {
+        if ($handlers === []) {
             return $this->defaultObjectNormalizer($object);
         }
 
