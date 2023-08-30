@@ -102,10 +102,6 @@ final class RecursiveNormalizer implements Normalizer
             return fn () => (array)$object;
         }
 
-        if (method_exists($object, '__serialize')) {
-            return fn () => $object->__serialize();
-        }
-
         return fn () => (fn () => get_object_vars($this))->call($object);
     }
 }

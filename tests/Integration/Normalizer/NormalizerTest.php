@@ -183,14 +183,6 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'class with serialize method' => [
-            'input' => new SomeClassWithSerializeMethod(),
-            'output' => [
-                'some_string' => 'foo',
-                'some_integer' => 42,
-            ],
-        ];
-
         yield 'date with default normalizer' => [
             'input' => new DateTimeImmutable('1971-11-08'),
             'expected' => '1971-11-08T00:00:00.000000+00:00',
@@ -320,18 +312,4 @@ class SomeParentClass
 final class SomeChildClass extends SomeParentClass
 {
     public string $stringFromChildClass = 'bar';
-}
-
-final class SomeClassWithSerializeMethod
-{
-    public string $string = 'foo';
-    public int $integer = 42;
-
-    public function __serialize(): array
-    {
-        return [
-            'some_string' => $this->string,
-            'some_integer' => $this->integer,
-        ];
-    }
 }
