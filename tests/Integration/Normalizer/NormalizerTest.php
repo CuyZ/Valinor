@@ -10,22 +10,24 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
+use IteratorAggregate;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Traversable;
 
 final class NormalizerTest extends TestCase
 {
     /**
      * @dataProvider normalize_basic_values_yields_expected_output_data_provider
      *
-     * @param array<int, callable> $callbacks
+     * @param array<int, callable> $handlers
      */
-    public function test_normalize_basic_values_yields_expected_output(mixed $input, mixed $expected, array $callbacks = []): void
+    public function test_normalize_basic_values_yields_expected_output(mixed $input, mixed $expected, array $handlers = []): void
     {
         $builder = new NormalizerBuilder();
 
-        foreach ($callbacks as $priority => $callback) {
-            $builder = $builder->addHandler($callback, $priority);
+        foreach ($handlers as $priority => $handler) {
+            $builder = $builder->addHandler($handler, $priority);
         }
 
         $result = $builder->normalizer()->normalize($input);
@@ -175,7 +177,7 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'class with child properties' => [
+        yield 'class with inherited properties' => [
             'input' => new SomeChildClass(),
             'output' => [
                 'stringFromParentClass' => 'foo',
@@ -183,50 +185,82 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'date with default normalizer' => [
+        yield 'iterable class' => [
+            'input' => new class () implements IteratorAggregate {
+                public string $foo = 'foo';
+                public string $bar = 'bar';
+
+                public function getIterator(): Traversable
+                {
+                    yield 'baz' => 'baz';
+                }
+            },
+            'output' => [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ],
+        ];
+
+        yield 'date with default handler' => [
             'input' => new DateTimeImmutable('1971-11-08'),
             'expected' => '1971-11-08T00:00:00.000000+00:00',
         ];
 
-        yield 'date with custom normalizer' => [
+        yield 'date with handler' => [
             'input' => new DateTimeImmutable('1971-11-08'),
             'expected' => '1971-11-08',
-            'callbacks' => [
+            'handlers' => [
                 fn (DateTimeInterface $object) => $object->format('Y-m-d')
             ],
         ];
 
-        yield 'object with custom normalizer' => [
+        yield 'object with handler' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
-            'callbacks' => [
+            'handlers' => [
                 fn (BasicObject $object) => $object->value . '!',
             ],
         ];
 
-        yield 'object with custom undefined object normalizer' => [
+        yield 'object with undefined object handler' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
-            'callbacks' => [
+            'handlers' => [
                 fn (object $object) => $object->value . '!', // @phpstan-ignore-line
             ],
         ];
 
-        yield 'object with custom union object normalizer' => [
+        yield 'iterable class with handler' => [
+            'input' => new class () implements IteratorAggregate {
+                public string $foo = 'foo';
+                public string $bar = 'bar';
+
+                public function getIterator(): Traversable
+                {
+                    yield 'baz' => 'baz';
+                }
+            },
+            'output' => 'value',
+            'handlers' => [
+                fn (object $object) => 'value',
+            ],
+        ];
+
+        yield 'object with union object handler' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
-            'callbacks' => [
+            'handlers' => [
                 fn (stdClass|BasicObject $object) => $object->value . '!',
             ],
         ];
 
-        yield 'object with custom normalizer calling next' => [
+        yield 'object with handler calling next' => [
             'input' => new BasicObject('foo'),
             'expected' => [
                 'value' => 'foo',
                 'bar' => 'bar',
             ],
-            'callbacks' => [
+            'handlers' => [
                 function (object $object, callable $next) {
                     $result = $next();
                     $result['bar'] = 'bar';
@@ -236,10 +270,10 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'object with several prioritized normalizers' => [
+        yield 'object with several prioritized handlers' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo*!?',
-            'callbacks' => [
+            'handlers' => [
                 -20 => fn (BasicObject $object, callable $next) => $object->value,
                 -15 => fn (stdClass $object) => 'bar', // Should be ignored by the normalizer
                 -10 => fn (BasicObject $object, callable $next) => $next() . '*',

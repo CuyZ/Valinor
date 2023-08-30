@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
+use Generator;
 use RuntimeException;
 use stdClass;
 use UnitEnum;
@@ -38,6 +39,10 @@ final class RecursiveNormalizer implements Normalizer
             return $value;
         }
 
+        if (is_object($value) && ! $value instanceof Generator) {
+            return $this->normalize($this->normalizeObject($value));
+        }
+
         if (is_iterable($value)) {
             if (! is_array($value)) {
                 $value = iterator_to_array($value);
@@ -45,10 +50,6 @@ final class RecursiveNormalizer implements Normalizer
 
             // PHP8.1 First-class callable syntax
             return array_map([$this, 'normalize'], $value);
-        }
-
-        if (is_object($value)) {
-            return $this->normalize($this->normalizeObject($value));
         }
 
         throw new RuntimeException('@todo unhandled type'); // @todo
