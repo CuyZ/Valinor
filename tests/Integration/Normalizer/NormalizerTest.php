@@ -193,7 +193,7 @@ final class NormalizerTest extends TestCase
 
         yield 'date with default normalizer' => [
             'input' => new DateTimeImmutable('1971-11-08'),
-            'expected' => '1971-11-08T00:00:00+00:00',
+            'expected' => '1971-11-08T00:00:00.000000+00:00',
         ];
 
         yield 'date with custom normalizer' => [

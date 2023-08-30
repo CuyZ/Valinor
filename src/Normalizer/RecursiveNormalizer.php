@@ -95,7 +95,7 @@ final class RecursiveNormalizer implements Normalizer
         }
 
         if ($object instanceof DateTimeInterface) {
-            return fn () => $object->format('Y-m-d\\TH:i:sP'); // RFC 3339
+            return fn () => $object->format('Y-m-d\\TH:i:s.uP'); // RFC 3339
         }
 
         if ($object::class === stdClass::class) {
