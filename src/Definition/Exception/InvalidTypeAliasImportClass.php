@@ -10,9 +10,6 @@ use LogicException;
 /** @internal */
 final class InvalidTypeAliasImportClass extends LogicException
 {
-    /**
-     * @param class-string $className
-     */
     public function __construct(ClassType $type, string $className)
     {
         parent::__construct(
