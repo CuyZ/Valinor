@@ -19,6 +19,10 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
                 'foo' => 'foo',
                 'bar' => 1337,
             ],
+            'aliasShapedArrayMultiline' => [
+                'foo' => 'foo',
+                'bar' => 1337,
+            ],
             'aliasGeneric' => [42, 1337],
         ];
 
@@ -31,6 +35,7 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
                 self::assertSame(42, $result->aliasWithEqualsSign);
                 self::assertSame(42, $result->aliasWithoutEqualsSign);
                 self::assertSame($source['aliasShapedArray'], $result->aliasShapedArray);
+                self::assertSame($source['aliasShapedArrayMultiline'], $result->aliasShapedArrayMultiline);
                 self::assertSame($source['aliasGeneric'], $result->aliasGeneric->aliasArray);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
@@ -72,6 +77,10 @@ class GenericObjectWithPhpStanLocalAlias
  * @phpstan-type AliasWithEqualsSign = int
  * @phpstan-type AliasWithoutEqualsSign int
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
+ * @phpstan-type AliasShapedArrayMultiline = array{
+ *   foo: string,
+ *   bar: int
+ * }
  * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
  */
 class PhpStanLocalAliases
@@ -84,6 +93,9 @@ class PhpStanLocalAliases
 
     /** @var AliasShapedArray */
     public array $aliasShapedArray;
+
+    /** @var AliasShapedArrayMultiline */
+    public array $aliasShapedArrayMultiline;
 
     /** @var AliasGeneric */
     public GenericObjectWithPhpStanLocalAlias $aliasGeneric;
@@ -125,6 +137,10 @@ class GenericObjectWithPsalmLocalAlias
  * @psalm-type AliasWithEqualsSign = int
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
+ * @psalm-type AliasShapedArrayMultiline = array{
+ *   foo: string,
+ *   bar: int
+ * }
  * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
  */
 class PsalmLocalAliases
@@ -137,6 +153,9 @@ class PsalmLocalAliases
 
     /** @var AliasShapedArray */
     public array $aliasShapedArray;
+
+    /** @var AliasShapedArrayMultiline */
+    public array $aliasShapedArrayMultiline;
 
     /** @var AliasGeneric */
     public GenericObjectWithPsalmLocalAlias $aliasGeneric;
