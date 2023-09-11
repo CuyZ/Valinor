@@ -8,7 +8,9 @@ use ReflectionFunctionAbstract;
 use ReflectionParameter;
 use ReflectionProperty;
 
+use function array_merge;
 use function end;
+use function explode;
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
@@ -69,13 +71,16 @@ final class DocParser
             return [];
         }
 
+        $cases = self::splitStringBy($doc, '@phpstan-type', '@psalm-type');
+
         $types = [];
 
-        preg_match_all('/@(phpstan|psalm)-type\s+(?<name>[a-zA-Z]\w*)\s*=?\s*(?<type>.*)/', $doc, $matches);
+        foreach ($cases as $case) {
+            if (! preg_match('/\s*(?<name>[a-zA-Z]\w*)\s*=?\s*(?<type>.*)/s', $case, $matches)) {
+                continue;
+            }
 
-        foreach ($matches['name'] as $key => $name) {
-            /** @var string $name */
-            $types[$name] = self::findType($matches['type'][$key]);
+            $types[$matches['name']] = self::findType($matches['type']);
         }
 
         return $types;
@@ -83,7 +88,7 @@ final class DocParser
 
     /**
      * @param ReflectionClass<object> $reflection
-     * @return array<class-string, string[]>
+     * @return array<string, string[]>
      */
     public static function importedTypeAliases(ReflectionClass $reflection): array
     {
@@ -93,15 +98,16 @@ final class DocParser
             return [];
         }
 
+        $cases = self::splitStringBy($doc, '@phpstan-import-type', '@psalm-import-type');
+
         $types = [];
 
-        preg_match_all('/@(phpstan|psalm)-import-type\s+(?<name>[a-zA-Z]\w*)\s*from\s*(?<class>\w+)/', $doc, $matches);
+        foreach ($cases as $case) {
+            if (! preg_match('/\s*(?<name>[a-zA-Z]\w*)\s*from\s*(?<class>\w+)/', $case, $matches)) {
+                continue;
+            }
 
-        foreach ($matches['name'] as $key => $name) {
-            /** @var class-string $class */
-            $class = $matches['class'][$key];
-
-            $types[$class][] = $name;
+            $types[$matches['class']][] = $matches['name'];
         }
 
         return $types;
@@ -214,5 +220,22 @@ final class DocParser
         $doc = preg_replace('#^\s*/\*\*([^/]+)\*/\s*$#', '$1', $doc);
 
         return preg_replace('/^\s*\*\s*(\S*)/m', '$1', $doc); // @phpstan-ignore-line
+    }
+
+    /**
+     * @param non-empty-string ...$cases
+     * @return list<string>
+     */
+    private static function splitStringBy(string $string, string ...$cases): array
+    {
+        $result = [$string];
+
+        foreach ($cases as $case) {
+            foreach ($result as $value) {
+                $result = array_merge($result, explode($case, $value));
+            }
+        }
+
+        return $result;
     }
 }
