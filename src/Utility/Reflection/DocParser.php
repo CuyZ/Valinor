@@ -17,6 +17,7 @@ use function str_replace;
 use function str_split;
 use function strrpos;
 use function substr;
+use function trim;
 
 /** @internal */
 final class DocParser
