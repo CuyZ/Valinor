@@ -15,6 +15,7 @@ use function str_replace;
 use function str_split;
 use function strrpos;
 use function substr;
+use function trim;
 
 /** @internal */
 final class DocParser
@@ -185,10 +186,6 @@ final class DocParser
                 if ($char === '|' || $char === '&') {
                     $expectExpression = true;
                 } elseif (! $expectExpression && $chars[$key - 1] === ' ') {
-                    if ($char === '.' && $chars[$key+1] === '.' && $chars[$key+2] === '.') {
-                        return '('.trim($type) . ')[]';
-                    }
-
                     break;
                 } elseif ($char !== ' ') {
                     $expectExpression = false;

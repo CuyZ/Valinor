@@ -8,6 +8,8 @@ use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\DocParser;
@@ -75,7 +77,9 @@ final class ReflectionTypeResolver
             return null;
         }
 
-        return $this->parseType($type, $reflection, $this->advancedParser);
+        $type = $this->parseType($type, $reflection, $this->advancedParser);
+
+        return $this->handleVariadicType($reflection, $type);
     }
 
     private function nativeType(ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection): ?Type
@@ -89,12 +93,9 @@ final class ReflectionTypeResolver
         }
 
         $type = Reflection::flattenType($reflectionType);
+        $type = $this->parseType($type, $reflection, $this->nativeParser);
 
-        if ($reflection instanceof ReflectionParameter && $reflection->isVariadic()) {
-            $type .= '[]';
-        }
-
-        return $this->parseType($type, $reflection, $this->nativeParser);
+        return $this->handleVariadicType($reflection, $type);
     }
 
     private function parseType(string $raw, ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection, TypeParser $parser): Type
@@ -115,5 +116,14 @@ final class ReflectionTypeResolver
 
             return UnresolvableType::forMethodReturnType($raw, $signature, $exception);
         }
+    }
+
+    private function handleVariadicType(ReflectionProperty|ReflectionParameter|ReflectionFunctionAbstract $reflection, Type $type): Type
+    {
+        if (! $reflection instanceof ReflectionParameter || ! $reflection->isVariadic()) {
+            return $type;
+        }
+
+        return new ArrayType(ArrayKeyType::default(), $type);
     }
 }
