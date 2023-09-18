@@ -345,6 +345,19 @@ final class NormalizerTest extends TestCase
             ->normalizer()
             ->normalize(new stdClass());
     }
+
+    public function test_object_circular_reference_is_detected_and_throws_exception(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('@todo');
+
+        $a = new ObjectWithCircularReferenceA();
+        $b = new ObjectWithCircularReferenceB();
+        $a->b = $b;
+        $b->a = $a;
+
+        (new NormalizerBuilder())->normalizer()->normalize($a);
+    }
 }
 
 final class BasicObject
@@ -360,4 +373,14 @@ class SomeParentClass
 final class SomeChildClass extends SomeParentClass
 {
     public string $stringFromChildClass = 'bar';
+}
+
+final class ObjectWithCircularReferenceA
+{
+    public ObjectWithCircularReferenceB $b;
+}
+
+final class ObjectWithCircularReferenceB
+{
+    public ObjectWithCircularReferenceA $a;
 }

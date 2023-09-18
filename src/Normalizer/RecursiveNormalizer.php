@@ -22,7 +22,7 @@ use function is_iterable;
 use function is_object;
 use function is_scalar;
 use function iterator_to_array;
-use function method_exists;
+use function spl_object_id;
 
 /** @internal */
 final class RecursiveNormalizer implements Normalizer
@@ -30,6 +30,11 @@ final class RecursiveNormalizer implements Normalizer
     public function __construct(private FunctionsContainer $handlers) {}
 
     public function normalize(mixed $value): mixed
+    {
+        return $this->doNormalize($value, []);
+    }
+
+    private function doNormalize(mixed $value, $references)
     {
         if ($value === null) {
             return null;
@@ -40,7 +45,15 @@ final class RecursiveNormalizer implements Normalizer
         }
 
         if (is_object($value) && ! $value instanceof Generator) {
-            return $this->normalize($this->normalizeObject($value));
+            $id = spl_object_id($value);
+
+            if (isset($references[$id])) {
+                throw new \RuntimeException('@todo'); // @todo
+            }
+
+            $references[$id] = true;
+
+            return $this->doNormalize($this->normalizeObject($value), $references);
         }
 
         if (is_iterable($value)) {
@@ -48,8 +61,10 @@ final class RecursiveNormalizer implements Normalizer
                 $value = iterator_to_array($value);
             }
 
-            // PHP8.1 First-class callable syntax
-            return array_map([$this, 'normalize'], $value);
+            return array_map(
+                fn (mixed $value) => $this->doNormalize($value, $references),
+                $value
+            );
         }
 
         throw new RuntimeException('@todo unhandled type'); // @todo
