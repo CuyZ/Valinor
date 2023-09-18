@@ -26,8 +26,10 @@ final class NormalizerTest extends TestCase
     {
         $builder = new NormalizerBuilder();
 
-        foreach ($handlers as $priority => $handler) {
-            $builder = $builder->addHandler($handler, $priority);
+        foreach ($handlers as $priority => $handlersList) {
+            foreach ($handlersList as $handler) {
+                $builder = $builder->addHandler($handler, $priority);
+            }
         }
 
         $result = $builder->normalizer()->normalize($input);
@@ -210,7 +212,7 @@ final class NormalizerTest extends TestCase
             'input' => new DateTimeImmutable('1971-11-08'),
             'expected' => '1971-11-08',
             'handlers' => [
-                fn (DateTimeInterface $object) => $object->format('Y-m-d')
+                [fn (DateTimeInterface $object) => $object->format('Y-m-d')],
             ],
         ];
 
@@ -218,7 +220,7 @@ final class NormalizerTest extends TestCase
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
             'handlers' => [
-                fn (BasicObject $object) => $object->value . '!',
+                [fn (BasicObject $object) => $object->value . '!'],
             ],
         ];
 
@@ -226,7 +228,7 @@ final class NormalizerTest extends TestCase
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
             'handlers' => [
-                fn (object $object) => $object->value . '!', // @phpstan-ignore-line
+                [fn (object $object) => $object->value . '!'], // @phpstan-ignore-line
             ],
         ];
 
@@ -242,7 +244,7 @@ final class NormalizerTest extends TestCase
             },
             'output' => 'value',
             'handlers' => [
-                fn (object $object) => 'value',
+                [fn (object $object) => 'value'],
             ],
         ];
 
@@ -250,7 +252,7 @@ final class NormalizerTest extends TestCase
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
             'handlers' => [
-                fn (stdClass|BasicObject $object) => $object->value . '!',
+                [fn (stdClass|BasicObject $object) => $object->value . '!'],
             ],
         ];
 
@@ -261,12 +263,12 @@ final class NormalizerTest extends TestCase
                 'bar' => 'bar',
             ],
             'handlers' => [
-                function (object $object, callable $next) {
+                [function (object $object, callable $next) {
                     $result = $next();
                     $result['bar'] = 'bar';
 
                     return $result;
-                },
+                }],
             ],
         ];
 
@@ -274,12 +276,24 @@ final class NormalizerTest extends TestCase
             'input' => new BasicObject('foo'),
             'expected' => 'foo*!?',
             'handlers' => [
-                -20 => fn (BasicObject $object, callable $next) => $object->value,
-                -15 => fn (stdClass $object) => 'bar', // Should be ignored by the normalizer
-                -10 => fn (BasicObject $object, callable $next) => $next() . '*',
-                0 => fn (BasicObject $object, callable $next) => $next() . '!',
-                10 => fn (stdClass $object) => 'baz', // Should be ignored by the normalizer
-                20 => fn (BasicObject $object, callable $next) => $next() . '?',
+                -20 => [fn (BasicObject $object, callable $next) => $object->value],
+                -15 => [fn (stdClass $object) => 'bar'], // Should be ignored by the normalizer
+                -10 => [fn (BasicObject $object, callable $next) => $next() . '*'],
+                0 => [fn (BasicObject $object, callable $next) => $next() . '!'],
+                10 => [fn (stdClass $object) => 'baz'], // Should be ignored by the normalizer
+                20 => [fn (BasicObject $object, callable $next) => $next() . '?'],
+            ],
+        ];
+
+        yield 'object with several prioritized handlers with same priority' => [
+            'input' => new BasicObject('foo'),
+            'expected' => 'foo?!*',
+            'handlers' => [
+                10 => [
+                    fn (BasicObject $object, callable $next) => $next() . '*',
+                    fn (BasicObject $object, callable $next) => $next() . '!',
+                    fn (BasicObject $object, callable $next) => $object->value . '?',
+                ],
             ],
         ];
     }
