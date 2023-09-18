@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
-use CuyZ\Valinor\Library\MapperContainer;
-use CuyZ\Valinor\Library\MapperSettings;
+use CuyZ\Valinor\Library\Container;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
+use CuyZ\Valinor\Normalizer\Normalizer;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
@@ -18,13 +19,13 @@ use function is_callable;
 /** @api */
 final class MapperBuilder
 {
-    private MapperSettings $settings;
+    private Settings $settings;
 
-    private MapperContainer $container;
+    private Container $container;
 
     public function __construct()
     {
-        $this->settings = new MapperSettings();
+        $this->settings = new Settings();
     }
 
     /**
@@ -456,6 +457,24 @@ final class MapperBuilder
     }
 
     /**
+     * @param callable(object, callable(): mixed): mixed $callback
+     * @todo doc
+     *
+     */
+    public function addHandler(callable $callback, int $priority = 0): self
+    {
+        $clone = clone $this;
+        $clone->settings->handlers[$priority][] = $callback;
+
+        return $clone;
+    }
+
+    public function normalizer(): Normalizer
+    {
+        return $this->container()->normalizer();
+    }
+
+    /**
      * Warms up the injected cache implementation with the provided class names.
      *
      * By passing a class which contains recursive objects, every nested object
@@ -482,8 +501,8 @@ final class MapperBuilder
         unset($this->container);
     }
 
-    private function container(): MapperContainer
+    private function container(): Container
     {
-        return ($this->container ??= new MapperContainer($this->settings));
+        return ($this->container ??= new Container($this->settings));
     }
 }

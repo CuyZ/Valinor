@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
-use CuyZ\Valinor\NormalizerBuilder;
+use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -20,11 +20,11 @@ final class NormalizerTest extends TestCase
     /**
      * @dataProvider normalize_basic_values_yields_expected_output_data_provider
      *
-     * @param array<int, callable> $handlers
+     * @param array<int, list<callable>> $handlers
      */
     public function test_normalize_basic_values_yields_expected_output(mixed $input, mixed $expected, array $handlers = []): void
     {
-        $builder = new NormalizerBuilder();
+        $builder = new MapperBuilder();
 
         foreach ($handlers as $priority => $handlersList) {
             foreach ($handlersList as $handler) {
@@ -300,7 +300,7 @@ final class NormalizerTest extends TestCase
 
     public function test_no_priority_given_is_set_to_0(): void
     {
-        $result = (new NormalizerBuilder())
+        $result = (new MapperBuilder())
             ->addHandler(fn (object $object) => 'foo', -2)
             ->addHandler(fn (object $object, callable $next) => $next() . '!', -1)
             ->addHandler(fn (object $object, callable $next) => $next() . '?')
@@ -316,7 +316,7 @@ final class NormalizerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('@todo');
 
-        (new NormalizerBuilder())
+        (new MapperBuilder())
             ->addHandler(fn () => 42)
             ->normalizer()
             ->normalize(new stdClass());
@@ -327,7 +327,7 @@ final class NormalizerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('@todo');
 
-        (new NormalizerBuilder())
+        (new MapperBuilder())
             // @phpstan-ignore-next-line
             ->addHandler(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
             ->normalizer()
@@ -339,7 +339,7 @@ final class NormalizerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('@todo');
 
-        (new NormalizerBuilder())
+        (new MapperBuilder())
             // @phpstan-ignore-next-line
             ->addHandler(fn (stdClass $object, int $unexpectedParameterType) => 42)
             ->normalizer()
@@ -356,7 +356,7 @@ final class NormalizerTest extends TestCase
         $a->b = $b;
         $b->a = $a;
 
-        (new NormalizerBuilder())->normalizer()->normalize($a);
+        (new MapperBuilder())->normalizer()->normalize($a);
     }
 }
 

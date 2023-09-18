@@ -16,7 +16,6 @@ use UnitEnum;
 
 use function array_filter;
 use function array_shift;
-use function count;
 use function is_array;
 use function is_iterable;
 use function is_object;
@@ -34,7 +33,10 @@ final class RecursiveNormalizer implements Normalizer
         return $this->doNormalize($value, []);
     }
 
-    private function doNormalize(mixed $value, $references)
+    /**
+     * @param array<int, true> $references
+     */
+    private function doNormalize(mixed $value, array $references): mixed
     {
         if ($value === null) {
             return null;

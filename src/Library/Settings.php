@@ -11,7 +11,7 @@ use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
 /** @internal */
-final class MapperSettings
+final class Settings
 {
     /** @var non-empty-array<non-empty-string> */
     public const DEFAULT_SUPPORTED_DATETIME_FORMATS = [
@@ -47,9 +47,28 @@ final class MapperSettings
     /** @var callable(Throwable): ErrorMessage */
     public $exceptionFilter;
 
+    /** @var array<int, list<callable>> */
+    public array $handlers = [];
+
     public function __construct()
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
         $this->exceptionFilter = fn (Throwable $exception) => throw $exception;
+    }
+
+    /**
+     * @return array<callable>
+     */
+    public function sortedHandlers(): array
+    {
+        krsort($this->handlers);
+
+        $callables = [];
+
+        foreach ($this->handlers as $list) {
+            $callables = [...$callables, ...$list];
+        }
+
+        return $callables;
     }
 }
