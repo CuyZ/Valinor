@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer;
 
 use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasInvalidCallableParameter;
+use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasNoParameter;
+use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasTooManyParameters;
 use CuyZ\Valinor\Type\Types\CallableType;
 use RuntimeException;
 
@@ -27,15 +30,15 @@ final class FunctionsCheckerNormalizer implements Normalizer
                 $parameters = $function->definition()->parameters();
 
                 if ($parameters->count() === 0) {
-                    throw new RuntimeException('@todo'); // @todo
+                    throw new NormalizerHandlerHasNoParameter($function->definition());
                 }
 
                 if ($parameters->count() > 2) {
-                    throw new RuntimeException('@todo'); // @todo
+                    throw new NormalizerHandlerHasTooManyParameters($function->definition());
                 }
 
                 if ($parameters->count() > 1 && ! $parameters->at(1)->type() instanceof CallableType) {
-                    throw new RuntimeException('@todo'); // @todo
+                    throw new NormalizerHandlerHasInvalidCallableParameter($function->definition(), $parameters->at(1)->type());
                 }
             }
         }

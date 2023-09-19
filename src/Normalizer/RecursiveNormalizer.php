@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer;
 
 use BackedEnum;
+use Closure;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
+use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use Generator;
@@ -46,11 +49,11 @@ final class RecursiveNormalizer implements Normalizer
             return $value;
         }
 
-        if (is_object($value) && ! $value instanceof Generator) {
+        if (is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator) {
             $id = spl_object_id($value);
 
             if (isset($references[$id])) {
-                throw new \RuntimeException('@todo'); // @todo
+                throw new CircularReferenceFoundDuringNormalization($value);
             }
 
             $references[$id] = true;
@@ -69,7 +72,7 @@ final class RecursiveNormalizer implements Normalizer
             );
         }
 
-        throw new RuntimeException('@todo unhandled type'); // @todo
+        throw new TypeUnhandledByNormalizer($value);
     }
 
     private function normalizeObject(object $object): mixed

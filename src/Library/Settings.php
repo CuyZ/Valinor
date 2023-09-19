@@ -48,7 +48,7 @@ final class Settings
     public $exceptionFilter;
 
     /** @var array<int, list<callable>> */
-    public array $handlers = [];
+    public array $normalizers = [];
 
     public function __construct()
     {
@@ -61,11 +61,11 @@ final class Settings
      */
     public function sortedHandlers(): array
     {
-        krsort($this->handlers);
+        krsort($this->normalizers);
 
         $callables = [];
 
-        foreach ($this->handlers as $list) {
+        foreach ($this->normalizers as $list) {
             $callables = [...$callables, ...$list];
         }
 

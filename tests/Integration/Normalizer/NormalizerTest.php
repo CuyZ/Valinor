@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
+use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasInvalidCallableParameter;
+use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasNoParameter;
+use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasTooManyParameters;
+use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -28,7 +33,7 @@ final class NormalizerTest extends TestCase
 
         foreach ($handlers as $priority => $handlersList) {
             foreach ($handlersList as $handler) {
-                $builder = $builder->addHandler($handler, $priority);
+                $builder = $builder->registerNormalizer($handler, $priority);
             }
         }
 
@@ -301,10 +306,10 @@ final class NormalizerTest extends TestCase
     public function test_no_priority_given_is_set_to_0(): void
     {
         $result = (new MapperBuilder())
-            ->addHandler(fn (object $object) => 'foo', -2)
-            ->addHandler(fn (object $object, callable $next) => $next() . '!', -1)
-            ->addHandler(fn (object $object, callable $next) => $next() . '?')
-            ->addHandler(fn (object $object, callable $next) => $next() . '*', 1)
+            ->registerNormalizer(fn (object $object) => 'foo', -2)
+            ->registerNormalizer(fn (object $object, callable $next) => $next() . '!', -1)
+            ->registerNormalizer(fn (object $object, callable $next) => $next() . '?')
+            ->registerNormalizer(fn (object $object, callable $next) => $next() . '*', 1)
             ->normalizer()
             ->normalize(new stdClass());
 
@@ -313,43 +318,47 @@ final class NormalizerTest extends TestCase
 
     public function test_no_param_in_callable_throws_exception(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('@todo');
+        $this->expectException(NormalizerHandlerHasNoParameter::class);
+        $this->expectExceptionCode(1695064946);
+        $this->expectExceptionMessageMatches('/Normalizer handler must have at least one parameter, none given for `.*`\./');
 
         (new MapperBuilder())
-            ->addHandler(fn () => 42)
+            ->registerNormalizer(fn () => 42)
             ->normalizer()
             ->normalize(new stdClass());
     }
 
     public function test_too_many_params_in_callable_throws_exception(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('@todo');
+        $this->expectException(NormalizerHandlerHasTooManyParameters::class);
+        $this->expectExceptionCode(1695065433);
+        $this->expectExceptionMessageMatches('/Normalizer handler must have at most 2 parameters, 3 given for `.*`\./');
 
         (new MapperBuilder())
             // @phpstan-ignore-next-line
-            ->addHandler(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
+            ->registerNormalizer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
             ->normalizer()
             ->normalize(new stdClass());
     }
 
     public function test_second_param_is_not_callable_throws_exception(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('@todo');
+        $this->expectException(NormalizerHandlerHasInvalidCallableParameter::class);
+        $this->expectExceptionCode(1695065710);
+        $this->expectExceptionMessageMatches('/Normalizer handler\'s second parameter must be a callable, `int` given for `.*`\./');
 
         (new MapperBuilder())
             // @phpstan-ignore-next-line
-            ->addHandler(fn (stdClass $object, int $unexpectedParameterType) => 42)
+            ->registerNormalizer(fn (stdClass $object, int $unexpectedParameterType) => 42)
             ->normalizer()
             ->normalize(new stdClass());
     }
 
     public function test_object_circular_reference_is_detected_and_throws_exception(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('@todo');
+        $this->expectException(CircularReferenceFoundDuringNormalization::class);
+        $this->expectExceptionCode(1695064016);
+        $this->expectExceptionMessage('A circular reference was detected with an object of type `' . ObjectWithCircularReferenceA::class . '`. Circular references are not supported by the normalizer');
 
         $a = new ObjectWithCircularReferenceA();
         $b = new ObjectWithCircularReferenceB();
@@ -357,6 +366,15 @@ final class NormalizerTest extends TestCase
         $b->a = $a;
 
         (new MapperBuilder())->normalizer()->normalize($a);
+    }
+
+    public function test_unhandled_type_throws_exception(): void
+    {
+        $this->expectException(TypeUnhandledByNormalizer::class);
+        $this->expectExceptionCode(1695062925);
+        $this->expectExceptionMessage('Value of type `Closure` cannot be normalized.');
+
+        (new MapperBuilder())->normalizer()->normalize(fn () => 42);
     }
 }
 

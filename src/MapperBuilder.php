@@ -457,21 +457,16 @@ final class MapperBuilder
     }
 
     /**
-     * @param callable(object, callable(): mixed): mixed $callback
      * @todo doc
      *
+     * @param callable(object, callable(): mixed): mixed $callback
      */
-    public function addHandler(callable $callback, int $priority = 0): self
+    public function registerNormalizer(callable $callback, int $priority = 0): self
     {
         $clone = clone $this;
-        $clone->settings->handlers[$priority][] = $callback;
+        $clone->settings->normalizers[$priority][] = $callback;
 
         return $clone;
-    }
-
-    public function normalizer(): Normalizer
-    {
-        return $this->container()->normalizer();
     }
 
     /**
@@ -493,6 +488,11 @@ final class MapperBuilder
     public function argumentsMapper(): ArgumentsMapper
     {
         return $this->container()->argumentsMapper();
+    }
+
+    public function normalizer(): Normalizer
+    {
+        return $this->container()->normalizer();
     }
 
     public function __clone()
