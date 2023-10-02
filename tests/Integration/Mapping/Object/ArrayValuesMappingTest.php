@@ -70,7 +70,7 @@ final class ArrayValuesMappingTest extends IntegrationTest
     public function test_key_is_class_name(): void
     {
         try {
-            $result = (new MapperBuilder())->mapper()->map('array{ArrayObject: "ArrayObject"}', ['ArrayObject' => 'test']);
+            $result = (new MapperBuilder())->mapper()->map('array{ArrayObject: "ArrayObject"}', ['ArrayObject' => 'ArrayObject']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
