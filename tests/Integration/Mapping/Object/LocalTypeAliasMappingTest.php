@@ -123,7 +123,7 @@ class PhpStanLocalAliases
 
     /** @var AliasShapedArrayKeyOf */
     public array $aliasShapedArrayKeyOf;
-    
+
     /** @var AliasShapedArrayMultiline */
     public array $aliasShapedArrayMultiline;
 
@@ -138,9 +138,7 @@ class PhpStanLocalAliases
  * @phpstan-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
  */
-interface PhpStanLocalAliasesInterface
-{
-}
+interface PhpStanLocalAliasesInterface {}
 
 /**
  * @phpstan-type AliasWithoutEqualsSign int
@@ -230,9 +228,7 @@ class PsalmLocalAliases
  * @psalm-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
  */
-interface PsalmLocalAliasesInterface
-{
-}
+interface PsalmLocalAliasesInterface {}
 
 /**
  * @psalm-type AliasWithoutEqualsSign int

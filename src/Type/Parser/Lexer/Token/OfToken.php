@@ -22,8 +22,7 @@ final class OfToken implements TraversingToken
 
     private function __construct(
         private bool $key
-    ) {
-    }
+    ) {}
 
     public static function keyOf(): self
     {

@@ -76,7 +76,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         if (!$type->sealed()) {
             foreach ($value as $key => $value) {
                 if (!array_key_exists($key, $children)) {
-                    $children[$key] = TreeNode::leaf(Shell::root(new MixedType, $value), $value);
+                    $children[$key] = TreeNode::leaf(Shell::root(new MixedType(), $value), $value);
                 }
             }
         }
