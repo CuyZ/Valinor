@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\CompositeTraversableType;
+use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
@@ -14,6 +15,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
+use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
@@ -81,23 +83,7 @@ final class ArrayToken extends ShapedArrayToken
 
         $keyType = ArrayKeyType::from($type);
         $subType = $stream->read();
-
-        if ($type instanceof ArrayKeyType) {
-            $arrayType = new ($this->arrayType)($type, $subType);
-        } elseif ($type instanceof IntegerType) {
-            $arrayType = new ($this->arrayType)(ArrayKeyType::integer(), $subType);
-        } elseif ($type instanceof StringType) {
-            $arrayType = new ($this->arrayType)(ArrayKeyType::string(), $subType);
-        } elseif ($type instanceof UnionType) {
-            foreach ($type->types() as $subSubType) {
-                if (!$subSubType instanceof ArrayKeyType && !$subSubType instanceof IntegerType && !$subSubType instanceof StringType) {
-                    throw new InvalidArrayKey($this->arrayType, $subSubType, $subType);
-                }
-            }
-            $arrayType = new ($this->arrayType)($type, $subType);
-        } else {
-            throw new InvalidArrayKey($this->arrayType, $type, $subType);
-        }
+        $arrayType = new ($this->arrayType)($keyType, $subType);
 
         if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
             throw new ArrayClosingBracketMissing($arrayType);
