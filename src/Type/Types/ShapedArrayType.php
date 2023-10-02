@@ -32,7 +32,7 @@ final class ShapedArrayType implements CompositeType
         $this->signature =
             'array{'
             . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements))
-            . ($sealed ? ', ...' : '')
+            . ($sealed ? '' : ', ...')
             . '}';
 
         $keys = [];
