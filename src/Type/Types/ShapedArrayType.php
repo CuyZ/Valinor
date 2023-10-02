@@ -30,8 +30,9 @@ final class ShapedArrayType implements CompositeType
     {
         $this->elements = $elements;
         $this->signature =
-            'array{' .
-            implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements))
+            'array{'
+            . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements))
+            . ($sealed ? ', ...' : '')
             . '}';
 
         $keys = [];
@@ -69,9 +70,13 @@ final class ShapedArrayType implements CompositeType
             }
         }
 
-        $excess = array_diff(array_keys($value), $keys);
+        if ($this->sealed) {
+            $excess = array_diff(array_keys($value), $keys);
 
-        return count($excess) === 0;
+            return count($excess) === 0;
+        }
+
+        return true;
     }
 
     public function matches(Type $other): bool
@@ -121,7 +126,7 @@ final class ShapedArrayType implements CompositeType
             }
         }
 
-        return true;
+        return $other->sealed === $this->sealed;
     }
 
     public function traverse(): array
