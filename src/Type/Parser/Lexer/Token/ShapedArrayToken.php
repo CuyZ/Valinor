@@ -60,7 +60,7 @@ abstract class ShapedArrayToken implements TraversingToken
             }
 
             if ($stream->done()) {
-                $elements[] = new ShapedArrayElement(new StringValueType((string)$index), $type);
+                $elements[] = new ShapedArrayElement(new IntegerValueType($index), $type);
 
                 throw new ShapedArrayClosingBracketMissing($elements);
             }
