@@ -270,17 +270,11 @@ final class FlexibleCastingMappingTest extends IntegrationTest
     }
 }
 
-interface SomeInterfaceForClassWithNoProperties
-{
-}
+interface SomeInterfaceForClassWithNoProperties {}
 
-final class SomeClassWithNoProperties implements SomeInterfaceForClassWithNoProperties
-{
-}
+final class SomeClassWithNoProperties implements SomeInterfaceForClassWithNoProperties {}
 
-interface SomeInterfaceForClassWithProperties
-{
-}
+interface SomeInterfaceForClassWithProperties {}
 
 final class SomeClassWithProperties implements SomeInterfaceForClassWithProperties
 {

@@ -21,8 +21,7 @@ final class ListToken extends ShapedArrayToken
         /** @var class-string<ListType|NonEmptyListType> */
         private string $listType,
         private string $symbol
-    ) {
-    }
+    ) {}
 
     public static function list(): self
     {

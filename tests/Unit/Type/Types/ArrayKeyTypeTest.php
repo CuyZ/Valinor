@@ -6,6 +6,9 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -16,11 +19,13 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertSame(ArrayKeyType::default(), ArrayKeyType::default());
         self::assertSame(ArrayKeyType::integer(), ArrayKeyType::integer());
         self::assertSame(ArrayKeyType::string(), ArrayKeyType::string());
+        self::assertSame(ArrayKeyType::integer(), ArrayKeyType::from(new NativeIntegerType()));
+        self::assertSame(ArrayKeyType::string(), ArrayKeyType::from(new NativeStringType()));
     }
 
     public function test_string_values_are_correct(): void
     {
-        self::assertSame('array-key', ArrayKeyType::default()->toString());
+        self::assertSame('int|string', ArrayKeyType::default()->toString());
         self::assertSame('int', ArrayKeyType::integer()->toString());
         self::assertSame('string', ArrayKeyType::string()->toString());
     }
@@ -72,5 +77,10 @@ final class ArrayKeyTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse(ArrayKeyType::default()->matches(new FakeType()));
+    }
+
+    public function test_matches_mixed_type(): void
+    {
+        self::assertTrue(ArrayKeyType::default()->matches(new MixedType()));
     }
 }

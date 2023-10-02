@@ -9,8 +9,11 @@ use RuntimeException;
 /** @internal */
 final class StringFormatterError extends RuntimeException
 {
-    public function __construct(string $body)
+    public function __construct(string $body, string $message = '', ?\Throwable $previous = null)
     {
-        parent::__construct("Message formatter error using `$body`.", 1652901203);
+        if ($message !== '') {
+            $message = ": $message";
+        }
+        parent::__construct("Message formatter error using `$body`$message.", 1652901203, $previous);
     }
 }

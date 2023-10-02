@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumColon;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
@@ -18,8 +17,7 @@ final class EnumNameToken implements TraversingToken
     public function __construct(
         /** @var class-string<UnitEnum> */
         private string $enumName
-    ) {
-    }
+    ) {}
 
     public function traverse(TokenStream $stream): Type
     {
@@ -29,35 +27,20 @@ final class EnumNameToken implements TraversingToken
 
     private function findPatternEnumType(TokenStream $stream): ?Type
     {
-        if ($stream->done() || ! $stream->next() instanceof ColonToken) {
+        if ($stream->done() || ! $stream->next() instanceof DoubleColonToken) {
             return null;
         }
 
-        $case = $stream->forward();
-        $missingColon = true;
+        $stream->forward();
 
-        if (! $stream->done()) {
-            $case = $stream->forward();
-
-            $missingColon = ! $case instanceof ColonToken;
+        if ($stream->done()) {
+            throw new MissingEnumCase($this->enumName);
         }
 
-        if (! $missingColon) {
-            if ($stream->done()) {
-                throw new MissingEnumCase($this->enumName);
-            }
-
-            $case = $stream->forward();
-        }
-
-        $symbol = $case->symbol();
+        $symbol = $stream->forward()->symbol();
 
         if ($symbol === '*') {
             throw new MissingSpecificEnumCase($this->enumName);
-        }
-
-        if ($missingColon) {
-            throw new MissingEnumColon($this->enumName, $symbol);
         }
 
         return EnumType::fromPattern($this->enumName, $symbol);

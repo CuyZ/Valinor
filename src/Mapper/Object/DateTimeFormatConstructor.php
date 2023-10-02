@@ -14,7 +14,7 @@ use DateTimeInterface;
  * date formats should be allowed during mapping.
  *
  * By default, if this constructor is never registered, the dates will accept
- * any valid timestamp or ATOM-formatted value.
+ * any valid timestamp or RFC 3339-formatted value.
  *
  * Usage:
  *
@@ -44,7 +44,7 @@ final class DateTimeFormatConstructor
 
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
-     * @param non-empty-string|positive-int $value
+     * @param non-empty-string|int $value
      */
     #[DynamicConstructor]
     public function __invoke(string $className, string|int $value): DateTimeInterface

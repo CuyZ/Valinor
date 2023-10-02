@@ -22,9 +22,7 @@ final class BooleanValueType implements BooleanType, FixedType
     /**
      * @codeCoverageIgnore
      */
-    private function __construct(private bool $value)
-    {
-    }
+    private function __construct(private bool $value) {}
 
     public static function true(): self
     {

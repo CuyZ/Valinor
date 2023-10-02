@@ -17,20 +17,20 @@ use CuyZ\Valinor\Type\Parser\Exception\Generic\ExtendTagTypeError;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\SeveralExtendTagsFound;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidClassTemplate;
-use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidTemplate;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeParserSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\LazyParser;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
-use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Utility\Reflection\DocParser;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 
@@ -45,9 +45,7 @@ final class AdvancedClassNameToken implements TraversingToken
     public function __construct(
         private ClassNameToken $delegate,
         private TypeParserFactory $typeParserFactory,
-        private TemplateParser $templateParser
-    ) {
-    }
+    ) {}
 
     public function traverse(TokenStream $stream): Type
     {
@@ -66,25 +64,14 @@ final class AdvancedClassNameToken implements TraversingToken
             new AliasSpecification($reflection),
         ];
 
-        try {
-            $docComment = $reflection->getDocComment() ?: '';
-            $parser = new LazyParser(
-                fn () => $this->typeParserFactory->get(...$specifications)
-            );
-
-            $templates = $this->templateParser->templates($docComment, $parser);
-        } catch (InvalidTemplate $exception) {
-            throw new InvalidClassTemplate($className, $exception);
-        }
+        $templates = $this->templatesTypes($reflection, ...$specifications);
 
         $generics = $this->generics($stream, $className, $templates);
         $generics = $this->assignGenerics($className, $templates, $generics);
 
-        $parserWithGenerics = new LazyParser(
-            fn () => $this->typeParserFactory->get(new TypeAliasAssignerSpecification($generics), ...$specifications)
-        );
-
         if ($parentReflection) {
+            $parserWithGenerics = $this->typeParserFactory->get(new TypeAliasAssignerSpecification($generics), ...$specifications);
+
             $parentType = $this->parentType($reflection, $parentReflection, $parserWithGenerics);
         }
 
@@ -94,6 +81,38 @@ final class AdvancedClassNameToken implements TraversingToken
     public function symbol(): string
     {
         return $this->delegate->symbol();
+    }
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return array<string, Type>
+     */
+    private function templatesTypes(ReflectionClass $reflection, TypeParserSpecification ...$specifications): array
+    {
+        $templates = DocParser::classTemplates($reflection);
+
+        if ($templates === []) {
+            return [];
+        }
+
+        $types = [];
+
+        foreach ($templates as $templateName => $type) {
+            try {
+                if ($type === '') {
+                    $types[$templateName] = MixedType::get();
+                } else {
+                    /** @infection-ignore-all */
+                    $parser ??= $this->typeParserFactory->get(...$specifications);
+
+                    $types[$templateName] = $parser->parse($type);
+                }
+            } catch (InvalidType $invalidType) {
+                throw new InvalidClassTemplate($reflection->name, $templateName, $invalidType);
+            }
+        }
+
+        return $types;
     }
 
     /**
@@ -183,7 +202,7 @@ final class AdvancedClassNameToken implements TraversingToken
      */
     private function parentType(ReflectionClass $reflection, ReflectionClass $parentReflection, TypeParser $typeParser): NativeClassType
     {
-        $extendedClass = Reflection::extendedClassAnnotation($reflection);
+        $extendedClass = DocParser::classExtendsTypes($reflection);
 
         if (count($extendedClass) > 1) {
             throw new SeveralExtendTagsFound($reflection);

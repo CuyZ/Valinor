@@ -703,9 +703,7 @@ final class SomeClassWithNamedConstructors
 
 final class SomeClassWithSimilarNativeConstructorAndNamedConstructor
 {
-    public function __construct(public string $foo)
-    {
-    }
+    public function __construct(public string $foo) {}
 
     public static function namedConstructor(string $foo): self
     {
@@ -718,9 +716,7 @@ final class SomeClassWithSimilarNativeConstructorAndNamedConstructor
 
 final class SomeClassWithDifferentNativeConstructorAndNamedConstructor
 {
-    public function __construct(public string $foo, public int $bar)
-    {
-    }
+    public function __construct(public string $foo, public int $bar) {}
 
     public static function namedConstructor(string $foo): self
     {
@@ -730,9 +726,7 @@ final class SomeClassWithDifferentNativeConstructorAndNamedConstructor
 
 final class SomeClassWithPrivateNativeConstructor
 {
-    private function __construct(public string $foo)
-    {
-    }
+    private function __construct(public string $foo) {}
 
     public static function namedConstructorWithNoParameter(): self
     {
@@ -762,9 +756,7 @@ interface SomeInterfaceWithStaticConstructor
 
 abstract class SomeAbstractClassWithStaticConstructor implements SomeInterfaceWithStaticConstructor
 {
-    final private function __construct(public string $foo, public int $bar)
-    {
-    }
+    final private function __construct(public string $foo, public int $bar) {}
 
     public static function from(string $foo, int $bar): static
     {
@@ -772,13 +764,9 @@ abstract class SomeAbstractClassWithStaticConstructor implements SomeInterfaceWi
     }
 }
 
-final class SomeClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor
-{
-}
+final class SomeClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor {}
 
-final class SomeOtherClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor
-{
-}
+final class SomeOtherClassWithInheritedStaticConstructor extends SomeAbstractClassWithStaticConstructor {}
 
 final class SomeClassWithBothInheritedStaticConstructors
 {

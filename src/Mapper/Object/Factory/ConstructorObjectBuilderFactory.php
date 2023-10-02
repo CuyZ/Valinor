@@ -38,8 +38,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         /** @var array<class-string, null> */
         private array $nativeConstructors,
         private FunctionsContainer $constructors
-    ) {
-    }
+    ) {}
 
     public function for(ClassDefinition $class): array
     {

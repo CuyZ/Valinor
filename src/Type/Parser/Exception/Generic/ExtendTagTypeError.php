@@ -18,7 +18,8 @@ final class ExtendTagTypeError extends RuntimeException implements InvalidType
     {
         parent::__construct(
             "The `@extends` tag of the class `$reflection->name` is not valid: {$previous->getMessage()}",
-            1670193574
+            1670193574,
+            $previous
         );
     }
 }

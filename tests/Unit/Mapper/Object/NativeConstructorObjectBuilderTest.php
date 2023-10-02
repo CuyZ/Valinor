@@ -16,9 +16,7 @@ final class NativeConstructorObjectBuilderTest extends TestCase
     public function test_arguments_instance_stays_the_same(): void
     {
         $object = new class () {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
         };
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
@@ -33,9 +31,7 @@ final class NativeConstructorObjectBuilderTest extends TestCase
     public function test_build_object_with_constructor_returns_correct_object(): void
     {
         $object = new class ('foo', 'bar') {
-            public function __construct(public string $valueA, public string $valueB, public string $valueC = 'Some parameter default value')
-            {
-            }
+            public function __construct(public string $valueA, public string $valueB, public string $valueC = 'Some parameter default value') {}
         };
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));

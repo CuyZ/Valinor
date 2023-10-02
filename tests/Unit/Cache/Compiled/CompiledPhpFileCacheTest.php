@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function iterator_to_array;
+use function rmdir;
 
 final class CompiledPhpFileCacheTest extends TestCase
 {
@@ -32,6 +33,15 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->files = vfsStream::setup('cache-dir');
 
         $this->cache = new CompiledPhpFileCache(vfsStream::url('cache-dir'), new FakeCacheCompiler());
+    }
+
+    public function test_warmup_creates_temporary_dir(): void
+    {
+        self::assertFalse($this->files->hasChild('.valinor.tmp'));
+
+        $this->cache->warmup();
+
+        self::assertTrue($this->files->hasChild('.valinor.tmp'));
     }
 
     public function test_set_cache_sets_cache(): void
@@ -111,6 +121,13 @@ final class CompiledPhpFileCacheTest extends TestCase
         $this->files->chmod(0444);
 
         self::assertFalse($this->cache->clear());
+    }
+
+    public function test_clear_caches_when_cache_directory_does_not_exists_returns_true(): void
+    {
+        rmdir($this->files->url());
+
+        self::assertTrue($this->cache->clear());
     }
 
     public function test_set_multiple_values_sets_values(): void

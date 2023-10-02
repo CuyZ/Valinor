@@ -14,9 +14,7 @@ use function array_map;
 
 final class FakeMethodDefinition
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function new(string $name = 'someMethod'): MethodDefinition
     {

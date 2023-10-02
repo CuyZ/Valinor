@@ -13,9 +13,7 @@ use function iterator_to_array;
 /** @internal */
 final class IterableNodeBuilder implements NodeBuilder
 {
-    public function __construct(private NodeBuilder $delegate)
-    {
-    }
+    public function __construct(private NodeBuilder $delegate) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

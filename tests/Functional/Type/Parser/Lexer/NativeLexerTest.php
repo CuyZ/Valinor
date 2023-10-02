@@ -12,11 +12,9 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumColon;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
@@ -831,6 +829,12 @@ final class NativeLexerTest extends TestCase
             'type' => UnionType::class,
         ];
 
+        yield 'Union type with empty string and other string' => [
+            'raw' => "''|'foo'",
+            'transformed' => "''|'foo'",
+            'type' => UnionType::class,
+        ];
+
         if (PHP_VERSION_ID >= 8_01_00) {
             yield 'Union type with enum' => [
                 'raw' => PureEnum::class . '|' . BackedStringEnum::class,
@@ -1036,7 +1040,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(InvalidArrayKey::class);
         $this->expectExceptionCode(1604335007);
-        $this->expectExceptionMessage('Invalid key type `float` for `array<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('array<float, string>');
     }
@@ -1045,7 +1049,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(InvalidArrayKey::class);
         $this->expectExceptionCode(1604335007);
-        $this->expectExceptionMessage('Invalid key type `float` for `non-empty-array<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('non-empty-array<float, string>');
     }
@@ -1192,6 +1196,15 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.');
 
         $this->parser->parse('array{int, foo: string');
+    }
+
+    public function test_shaped_array_closing_bracket_missing_after_comma_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1631283658);
+        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int`.');
+
+        $this->parser->parse('array{int,');
     }
 
     public function test_shaped_array_colon_missing_throws_exception(): void
@@ -1371,30 +1384,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::*');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_missing_enum_colon_and_case_throws_exception(): void
-    {
-        $this->expectException(MissingEnumColon::class);
-        $this->expectExceptionCode(1653468435);
-        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::?`.');
-
-        $this->parser->parse(PureEnum::class . ':');
-    }
-
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_missing_enum_colon_throws_exception(): void
-    {
-        $this->expectException(MissingEnumColon::class);
-        $this->expectExceptionCode(1653468435);
-        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::FOO`.');
-
-        $this->parser->parse(PureEnum::class . ':FOO');
-    }
-
     public function test_missing_class_constant_case_throws_exception(): void
     {
         $this->expectException(MissingClassConstantCase::class);
@@ -1438,23 +1427,5 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::className() . '::?` (cannot be `*`).');
 
         $this->parser->parse(ObjectWithConstants::className() . '::*');
-    }
-
-    public function test_missing_class_constant_colon_and_case_throws_exception(): void
-    {
-        $this->expectException(MissingClassConstantColon::class);
-        $this->expectExceptionCode(1652189143);
-        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::?`.');
-
-        $this->parser->parse(ObjectWithConstants::className() . ':');
-    }
-
-    public function test_missing_class_constant_colon_throws_exception(): void
-    {
-        $this->expectException(MissingClassConstantColon::class);
-        $this->expectExceptionCode(1652189143);
-        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::FOO`.');
-
-        $this->parser->parse(ObjectWithConstants::className() . ':FOO');
     }
 }

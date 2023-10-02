@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
 use Closure;
-use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
@@ -14,8 +12,6 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
-use ReflectionMethod;
-use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
 use stdClass;
@@ -54,9 +50,7 @@ final class ReflectionTest extends TestCase
         $class = (new class () {
             public string $property;
 
-            public function method(string $parameter): void
-            {
-            }
+            public function method(string $parameter): void {}
         })::class;
 
         $functions = require_once 'FakeFunctions.php';
@@ -520,6 +514,4 @@ final class ReflectionTest extends TestCase
     }
 }
 
-function some_function(): void
-{
-}
+function some_function(): void {}

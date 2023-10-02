@@ -16,8 +16,7 @@ final class ClassDefinition
         private Methods $methods,
         private bool $isFinal,
         private bool $isAbstract,
-    ) {
-    }
+    ) {}
 
     /**
      * @return class-string

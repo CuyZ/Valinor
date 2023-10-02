@@ -16,8 +16,7 @@ final class MethodDefinition
         private bool $isStatic,
         private bool $isPublic,
         private Type $returnType
-    ) {
-    }
+    ) {}
 
     public function name(): string
     {

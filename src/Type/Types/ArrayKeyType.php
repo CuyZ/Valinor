@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\IntegerType;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 
@@ -13,32 +15,34 @@ use function is_int;
 /** @internal */
 final class ArrayKeyType implements Type
 {
+    private static self $default;
+
     private static self $integer;
 
     private static self $string;
 
-    private static self $integerAndString;
-
-    /** @var array<IntegerType|StringType> */
+    /** @var array<Type> */
     private array $types;
 
     private string $signature;
 
-    /**
-     * @codeCoverageIgnore
-     * @infection-ignore-all
-     */
-    private function __construct(IntegerType|StringType ...$types)
+    private function __construct(Type $type)
     {
-        $this->types = $types;
-        $this->signature = count($this->types) === 1
-            ? $this->types[0]->toString()
-            : 'array-key';
+        $this->signature = $type->toString();
+        $this->types = $type instanceof CombiningType
+            ? [...$type->types()]
+            : [$type];
+
+        foreach ($this->types as $subType) {
+            if (! $subType instanceof IntegerType && ! $subType instanceof StringType) {
+                throw new InvalidArrayKey($subType);
+            }
+        }
     }
 
     public static function default(): self
     {
-        return self::$integerAndString ??= new self(NativeIntegerType::get(), NativeStringType::get());
+        return self::$default ??= new self(new UnionType(NativeIntegerType::get(), NativeStringType::get()));
     }
 
     public static function integer(): self
@@ -51,16 +55,24 @@ final class ArrayKeyType implements Type
         return self::$string ??= new self(NativeStringType::get());
     }
 
+    public static function from(Type $type): ?self
+    {
+        return match (true) {
+            $type instanceof self => $type,
+            $type instanceof NativeIntegerType => self::integer(),
+            $type instanceof NativeStringType => self::string(),
+            default => new self($type),
+        };
+    }
+
     public function accepts(mixed $value): bool
     {
-        // If an array key can be evaluated as an integer, it will always be
-        // cast to an integer, even if the actual key is a string.
-        if (is_int($value)) {
-            return true;
-        }
-
         foreach ($this->types as $type) {
-            if ($type->accepts($value)) {
+            // If an array key can be evaluated as an integer, it will always be
+            // cast to an integer, even if the actual key is a string.
+            if (is_int($value) && $type instanceof NativeStringType) {
+                return true;
+            } elseif ($type->accepts($value)) {
                 return true;
             }
         }
@@ -70,6 +82,10 @@ final class ArrayKeyType implements Type
 
     public function matches(Type $other): bool
     {
+        if ($other instanceof MixedType) {
+            return true;
+        }
+
         if (! $other instanceof self) {
             return false;
         }

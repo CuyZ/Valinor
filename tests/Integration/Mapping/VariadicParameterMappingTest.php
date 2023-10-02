@@ -36,37 +36,18 @@ final class VariadicParameterMappingTest extends IntegrationTest
         self::assertSame(['foo', 'bar', 'baz'], $object->values);
     }
 
-    public function test_named_constructor_with_only_variadic_parameters_are_mapped_properly(): void
+    public function test_constructor_with_variadic_parameters_with_dots_in_dot_blocks_are_defined_properly(): void
     {
         try {
-            $object = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, 'new'])
+            (new MapperBuilder())
                 ->mapper()
-                ->map(SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
+                ->map(SomeClassWithVariadicParametersInDocBlock::class, ['']);
+        } catch (MappingError $exception) {
+            $error = $exception->node()->children()[0]->messages()[0];
+
+            self::assertSame("Value '' is not a valid non-empty string.", (string)$error);
         }
-
-        self::assertSame(['foo', 'bar', 'baz'], $object->values);
     }
-
-//    public function test_variadic_list_parameters_are_mapped_properly_when_string_keys_are_given(): void
-//    {
-//        try {
-//            $object = (new MapperBuilder())->flexible()->mapper()->map(SomeClassWithListVariadicParameters::class, [
-//                'values' => [
-//                    'foo' => 'foo',
-//                    'bar' => 'bar',
-//                    'baz' => 'baz',
-//                ],
-//            ]);
-//        } catch (MappingError $error) {
-//            $this->mappingFail($error);
-//        }
-//
-//        self::assertSame(['foo', 'bar', 'baz'], $object->values);
-//    }
 
     public function test_non_variadic_and_variadic_parameters_are_mapped_properly(): void
     {
@@ -130,19 +111,19 @@ final class SomeClassWithNamedConstructorWithOnlyVariadicParameters
     }
 }
 
-//final class SomeClassWithListVariadicParameters
-//{
-//    /** @var list<string> */
-//    public array $values;
-//
-//    /**
-//     * @param list<string> $values
-//     */
-//    public function __construct(string ...$values)
-//    {
-//        $this->values = $values;
-//    }
-//}
+final class SomeClassWithVariadicParametersInDocBlock
+{
+    /** @var array<non-empty-string> */
+    public array $values;
+
+    /**
+     * @param non-empty-string ...$values
+     */
+    public function __construct(string ...$values)
+    {
+        $this->values = $values;
+    }
+}
 
 final class SomeClassWithNonVariadicAndVariadicParameters
 {

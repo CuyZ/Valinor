@@ -13,8 +13,7 @@ final class ClassContextSpecification implements TypeParserSpecification
     public function __construct(
         /** @var class-string */
         private string $className
-    ) {
-    }
+    ) {}
 
     public function transform(TypeLexer $lexer): TypeLexer
     {

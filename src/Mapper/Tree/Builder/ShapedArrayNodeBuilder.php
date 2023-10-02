@@ -17,9 +17,7 @@ use function is_array;
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $allowSuperfluousKeys)
-    {
-    }
+    public function __construct(private bool $allowSuperfluousKeys) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

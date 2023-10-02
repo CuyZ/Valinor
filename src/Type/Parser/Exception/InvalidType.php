@@ -7,6 +7,4 @@ namespace CuyZ\Valinor\Type\Parser\Exception;
 use Throwable;
 
 /** @internal */
-interface InvalidType extends Throwable
-{
-}
+interface InvalidType extends Throwable {}

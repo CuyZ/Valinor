@@ -16,8 +16,7 @@ final class CacheClassDefinitionRepository implements ClassDefinitionRepository
         private ClassDefinitionRepository $delegate,
         /** @var CacheInterface<ClassDefinition> */
         private CacheInterface $cache
-    ) {
-    }
+    ) {}
 
     public function for(ClassType $type): ClassDefinition
     {

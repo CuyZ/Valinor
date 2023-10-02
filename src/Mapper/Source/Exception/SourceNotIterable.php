@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Source\Exception;
 
-use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
-final class SourceNotIterable extends RuntimeException implements SourceException
+final class SourceNotIterable extends RuntimeException implements InvalidSource
 {
-    public function __construct(mixed $value)
+    public function __construct(private string $source)
     {
-        $value = ValueDumper::dump($value);
-
         parent::__construct(
-            "Invalid source $value, expected an iterable.",
+            'Invalid source, expected an iterable.',
             1566307291
         );
+    }
+
+    public function source(): string
+    {
+        return $this->source;
     }
 }

@@ -19,6 +19,16 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 'foo' => 'fiz',
                 'bar' => 42,
             ],
+            'basicShapedArrayWithSingleQuotedStringKeys' => [
+                'foo' => 'fiz',
+                'bar fiz' => 42,
+                'fiz & $ § % fiz' => 42.404,
+            ],
+            'basicShapedArrayWithDoubleQuotedStringKeys' => [
+                'foo' => 'fiz',
+                'bar fiz' => 42,
+                'fiz & $ § % fiz' => 42.404,
+            ],
             'basicShapedArrayWithIntegerKeys' => [
                 0 => 'fiz',
                 1 => 42.404,
@@ -41,12 +51,21 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 42.404,
             ],
             'shapedArrayWithClassNameAsKey' => [
+                'stdClass' => 'foo',
+            ],
+            'shapedArrayWithLowercaseClassNameAsKey' => [
                 'stdclass' => 'foo',
             ],
             'basicUnsealedShapedArrayWithStringKeys' => [
                 'foo' => 'test',
                 'bar' => 42,
                 'baz' => 'extra'
+            ],
+            'shapedArrayWithEnumNameAsKey' => [
+                'EnumAtRootNamespace' => 'foo',
+            ],
+            'shapedArrayWithLowercaseEnumNameAsKey' => [
+                'enumatrootnamespace' => 'foo',
             ],
         ];
 
@@ -58,6 +77,8 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             }
 
             self::assertSame($source['basicShapedArrayWithStringKeys'], $result->basicShapedArrayWithStringKeys);
+            self::assertSame($source['basicShapedArrayWithSingleQuotedStringKeys'], $result->basicShapedArrayWithSingleQuotedStringKeys);
+            self::assertSame($source['basicShapedArrayWithDoubleQuotedStringKeys'], $result->basicShapedArrayWithDoubleQuotedStringKeys);
             self::assertSame($source['basicShapedArrayWithIntegerKeys'], $result->basicShapedArrayWithIntegerKeys);
             self::assertInstanceOf(SimpleObject::class, $result->shapedArrayWithObject['foo']); // @phpstan-ignore-line
             self::assertSame($source['shapedArrayWithOptionalValue'], $result->shapedArrayWithOptionalValue);
@@ -66,8 +87,11 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertSame('bar', $result->advancedShapedArray['mandatoryString']);
             self::assertSame(1337, $result->advancedShapedArray[0]);
             self::assertSame(42.404, $result->advancedShapedArray[1]);
-            self::assertSame('foo', $result->shapedArrayWithClassNameAsKey['stdclass']);
             self::assertSame($source['basicUnsealedShapedArrayWithStringKeys'], $result->basicUnsealedShapedArrayWithStringKeys); // @phpstan-ignore-line
+            self::assertSame('foo', $result->shapedArrayWithClassNameAsKey['stdClass']);
+            self::assertSame('foo', $result->shapedArrayWithLowercaseClassNameAsKey['stdclass']);
+            self::assertSame('foo', $result->shapedArrayWithEnumNameAsKey['EnumAtRootNamespace']);
+            self::assertSame('foo', $result->shapedArrayWithLowercaseEnumNameAsKey['enumatrootnamespace']);
         }
     }
 
@@ -107,6 +131,12 @@ class ShapedArrayValues
     /** @var array{foo: string, bar: int} */
     public array $basicShapedArrayWithStringKeys;
 
+    /** @var array{'foo': string, 'bar fiz': int, 'fiz & $ § % fiz': float} */
+    public array $basicShapedArrayWithSingleQuotedStringKeys;
+
+    /** @var array{"foo": string, "bar fiz": int, "fiz & $ § % fiz": float} */
+    public array $basicShapedArrayWithDoubleQuotedStringKeys;
+
     /** @var array{0: string, 1: float} */
     public array $basicShapedArrayWithIntegerKeys;
 
@@ -135,17 +165,28 @@ class ShapedArrayValues
     /** @var array{0: int, float, optionalString?: string, mandatoryString: string} */
     public array $advancedShapedArray;
 
-    /** @var array{stdclass: string} */
+    /** @var array{stdClass: string} */
     public array $shapedArrayWithClassNameAsKey;
 
     /** @var array{foo: string, bar: int, ...} */
     public array $basicUnsealedShapedArrayWithStringKeys;
+
+    /** @var array{stdclass: string} */
+    public array $shapedArrayWithLowercaseClassNameAsKey;
+
+    /** @var array{EnumAtRootNamespace: string} */
+    public array $shapedArrayWithEnumNameAsKey;
+
+    /** @var array{enumatrootnamespace: string} */
+    public array $shapedArrayWithLowercaseEnumNameAsKey;
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
 {
     /**
      * @param array{foo: string, bar: int} $basicShapedArrayWithStringKeys
+     * @param array{'foo': string, 'bar fiz': int, 'fiz & $ § % fiz': float} $basicShapedArrayWithSingleQuotedStringKeys
+     * @param array{"foo": string, "bar fiz": int, "fiz & $ § % fiz": float} $basicShapedArrayWithDoubleQuotedStringKeys
      * @param array{0: string, 1: float} $basicShapedArrayWithIntegerKeys
      * @param array{foo: SimpleObject} $shapedArrayWithObject
      * @param array{optionalString?: string} $shapedArrayWithOptionalValue
@@ -160,9 +201,14 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
      * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
+     * @param array{stdclass: string} $shapedArrayWithLowercaseClassNameAsKey
+     * @param array{EnumAtRootNamespace: string} $shapedArrayWithEnumNameAsKey
+     * @param array{enumatrootnamespace: string} $shapedArrayWithLowercaseEnumNameAsKey
      */
     public function __construct(
         array $basicShapedArrayWithStringKeys,
+        array $basicShapedArrayWithSingleQuotedStringKeys,
+        array $basicShapedArrayWithDoubleQuotedStringKeys,
         array $basicShapedArrayWithIntegerKeys,
         array $shapedArrayWithObject,
         array $shapedArrayWithOptionalValue,
@@ -170,9 +216,14 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayOnSeveralLinesWithTrailingComma,
         array $advancedShapedArray,
         array $shapedArrayWithClassNameAsKey,
-        array $basicUnsealedShapedArrayWithStringKeys
+        array $basicUnsealedShapedArrayWithStringKeys,
+        array $shapedArrayWithLowercaseClassNameAsKey,
+        array $shapedArrayWithEnumNameAsKey,
+        array $shapedArrayWithLowercaseEnumNameAsKey,
     ) {
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
+        $this->basicShapedArrayWithSingleQuotedStringKeys = $basicShapedArrayWithSingleQuotedStringKeys;
+        $this->basicShapedArrayWithDoubleQuotedStringKeys = $basicShapedArrayWithDoubleQuotedStringKeys;
         $this->basicShapedArrayWithIntegerKeys = $basicShapedArrayWithIntegerKeys;
         $this->shapedArrayWithObject = $shapedArrayWithObject;
         $this->shapedArrayWithOptionalValue = $shapedArrayWithOptionalValue;
@@ -181,5 +232,8 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         $this->advancedShapedArray = $advancedShapedArray;
         $this->shapedArrayWithClassNameAsKey = $shapedArrayWithClassNameAsKey;
         $this->basicUnsealedShapedArrayWithStringKeys = $basicUnsealedShapedArrayWithStringKeys;
+        $this->shapedArrayWithLowercaseClassNameAsKey = $shapedArrayWithLowercaseClassNameAsKey;
+        $this->shapedArrayWithEnumNameAsKey = $shapedArrayWithEnumNameAsKey;
+        $this->shapedArrayWithLowercaseEnumNameAsKey = $shapedArrayWithLowercaseEnumNameAsKey;
     }
 }

@@ -11,9 +11,7 @@ use ReflectionProperty;
 
 final class FakePropertyDefinition
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function new(string $name = 'someProperty'): PropertyDefinition
     {

@@ -163,7 +163,7 @@ final class TypeCompiler
                 return "new $class($enumName, $pattern, [$cases])";
             case $type instanceof UnresolvableType:
                 $raw = var_export($type->toString(), true);
-                $message = var_export($type->getMessage(), true);
+                $message = var_export($type->message(), true);
 
                 return "new $class($raw, $message)";
             default:

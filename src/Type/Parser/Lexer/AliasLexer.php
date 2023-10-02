@@ -20,8 +20,7 @@ final class AliasLexer implements TypeLexer
         private TypeLexer $delegate,
         /** @var ReflectionClass<object>|ReflectionFunction */
         private Reflector $reflection
-    ) {
-    }
+    ) {}
 
     public function tokenize(string $symbol): Token
     {
@@ -32,6 +31,12 @@ final class AliasLexer implements TypeLexer
 
     private function resolve(string $symbol): string
     {
+        // Matches the case where a class extends a class with the same name but
+        // in a different namespace.
+        if ($symbol === $this->reflection->getShortName() && Reflection::classOrInterfaceExists($symbol)) {
+            return $symbol;
+        }
+
         $alias = $this->resolveAlias($symbol);
 
         if (strtolower($alias) !== strtolower($symbol)) {

@@ -11,16 +11,12 @@ use CuyZ\Valinor\Utility\ValueDumper;
 use LogicException;
 
 /** @internal */
-final class UnresolvableType extends LogicException implements Type
+final class UnresolvableType implements Type
 {
-    private string $rawType;
-
-    public function __construct(string $rawType, string $message)
-    {
-        $this->rawType = $rawType;
-
-        parent::__construct($message);
-    }
+    public function __construct(
+        private string $rawType,
+        private string $message,
+    ) {}
 
     public static function forProperty(string $raw, string $signature, InvalidType $exception): self
     {
@@ -74,14 +70,19 @@ final class UnresolvableType extends LogicException implements Type
         );
     }
 
+    public function message(): string
+    {
+        return $this->message;
+    }
+
     public function accepts(mixed $value): bool
     {
-        throw $this;
+        throw new LogicException();
     }
 
     public function matches(Type $other): bool
     {
-        throw $this;
+        throw new LogicException();
     }
 
     public function toString(): string

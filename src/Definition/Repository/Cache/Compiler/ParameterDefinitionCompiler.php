@@ -6,16 +6,13 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
-use function is_scalar;
-
 /** @internal */
 final class ParameterDefinitionCompiler
 {
     public function __construct(
         private TypeCompiler $typeCompiler,
         private AttributesCompiler $attributesCompiler
-    ) {
-    }
+    ) {}
 
     public function compile(ParameterDefinition $parameter): string
     {
@@ -42,8 +39,8 @@ final class ParameterDefinitionCompiler
     {
         $defaultValue = $parameter->defaultValue();
 
-        return is_scalar($defaultValue)
-            ? var_export($parameter->defaultValue(), true)
-            : 'unserialize(' . var_export(serialize($defaultValue), true) . ')';
+        return is_object($defaultValue)
+            ? 'unserialize(' . var_export(serialize($defaultValue), true) . ')'
+            : var_export($defaultValue, true);
     }
 }

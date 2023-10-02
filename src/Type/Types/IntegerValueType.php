@@ -17,9 +17,7 @@ use function is_bool;
 /** @internal */
 final class IntegerValueType implements IntegerType, FixedType
 {
-    public function __construct(private int $value)
-    {
-    }
+    public function __construct(private int $value) {}
 
     public function accepts(mixed $value): bool
     {

@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Utility\Reflection;
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;
-use ReflectionFunctionAbstract;
 use ReflectionIntersectionType;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -18,17 +17,11 @@ use ReflectionUnionType;
 use Reflector;
 use RuntimeException;
 
-use function assert;
 use function class_exists;
-use function count;
 use function implode;
 use function interface_exists;
-use function is_array;
-use function preg_match_all;
-use function preg_replace;
 use function spl_object_hash;
 use function str_contains;
-use function trim;
 
 /** @internal */
 final class Reflection

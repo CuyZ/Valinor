@@ -30,8 +30,7 @@ final class NativeToken implements TraversingToken
     private function __construct(
         private Type $type,
         private string $symbol
-    ) {
-    }
+    ) {}
 
     public static function accepts(string $symbol): bool
     {

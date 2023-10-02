@@ -32,6 +32,10 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
             'aliasShapedArrayKeyOf' => [
                 'foo', 'bar'
             ],
+            'aliasShapedArrayMultiline' => [
+                'foo' => 'foo',
+                'bar' => 1337,
+            ],
             'aliasGeneric' => [42, 1337],
         ];
 
@@ -44,6 +48,7 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
                 self::assertSame(42, $result->aliasWithEqualsSign);
                 self::assertSame(42, $result->aliasWithoutEqualsSign);
                 self::assertSame($source['aliasShapedArray'], $result->aliasShapedArray);
+                self::assertSame($source['aliasShapedArrayMultiline'], $result->aliasShapedArrayMultiline);
                 self::assertSame($source['aliasGeneric'], $result->aliasGeneric->aliasArray);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
@@ -62,9 +67,13 @@ final class LocalTypeAliasMappingTest extends IntegrationTest
             try {
                 $result = (new MapperBuilder())
                     ->mapper()
-                    ->map($class, 42);
+                    ->map($class, [
+                        'firstImportedType' => 42,
+                        'secondImportedType' => 1337,
+                    ]);
 
-                self::assertSame(42, $result->importedType);
+                self::assertSame(42, $result->firstImportedType);
+                self::assertSame(1337, $result->secondImportedType);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -86,6 +95,10 @@ class GenericObjectWithPhpStanLocalAlias
  * @phpstan-type AliasWithEqualsSign = int
  * @phpstan-type AliasWithoutEqualsSign int
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
+ * @phpstan-type AliasShapedArrayMultiline = array{
+ *   foo: string,
+ *   bar: int
+ * }
  * @phpstan-type AliasGeneric = GenericObjectWithPhpStanLocalAlias<int>
  * @phpstan-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @phpstan-type AliasShapedArrayNestedValueOf = value-of<AliasShapedArrayNested>
@@ -110,6 +123,9 @@ class PhpStanLocalAliases
 
     /** @var AliasShapedArrayKeyOf */
     public array $aliasShapedArrayKeyOf;
+    
+    /** @var AliasShapedArrayMultiline */
+    public array $aliasShapedArrayMultiline;
 
     /** @var AliasGeneric */
     public GenericObjectWithPhpStanLocalAlias $aliasGeneric;
@@ -127,12 +143,25 @@ interface PhpStanLocalAliasesInterface
 }
 
 /**
+ * @phpstan-type AliasWithoutEqualsSign int
+ */
+class AnotherPhpStanLocalAlias
+{
+    /** @var AliasWithoutEqualsSign */
+    public int $aliasWithEqualsSign;
+}
+
+/**
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
+ * @phpstan-import-type AliasWithoutEqualsSign from AnotherPhpStanLocalAlias
  */
 class PhpStanAliasImport
 {
     /** @var AliasWithEqualsSign */
-    public int $importedType;
+    public int $firstImportedType;
+
+    /** @var AliasWithoutEqualsSign */
+    public int $secondImportedType;
 }
 
 /**
@@ -161,6 +190,10 @@ class GenericObjectWithPsalmLocalAlias
  * @psalm-type AliasShapedArrayNested = array{baz: AliasShapedArray}
  * @phpstan-type AliasShapedArrayNestedValueOf = value-of<AliasShapedArrayNested>
  * @phpstan-type AliasShapedArrayKeyOf = list<key-of<AliasShapedArrayNestedValueOf>>
+ * @psalm-type AliasShapedArrayMultiline = array{
+ *   foo: string,
+ *   bar: int
+ * }
  * @psalm-type AliasGeneric = GenericObjectWithPsalmLocalAlias<int>
  */
 class PsalmLocalAliases
@@ -183,6 +216,9 @@ class PsalmLocalAliases
     /** @var AliasShapedArrayKeyOf */
     public array $aliasShapedArrayKeyOf;
 
+    /** @var AliasShapedArrayMultiline */
+    public array $aliasShapedArrayMultiline;
+
     /** @var AliasGeneric */
     public GenericObjectWithPsalmLocalAlias $aliasGeneric;
 }
@@ -198,13 +234,25 @@ interface PsalmLocalAliasesInterface
 {
 }
 
+ * @psalm-type AliasWithoutEqualsSign int
+ */
+class AnotherPsalmLocalAliases
+{
+    /** @var AliasWithoutEqualsSign */
+    public int $aliasWithEqualsSign;
+}
+
 /**
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
+ * @psalm-import-type AliasWithoutEqualsSign from AnotherPsalmLocalAliases
  */
 class PsalmAliasImport
 {
     /** @var AliasWithEqualsSign */
-    public int $importedType;
+    public int $firstImportedType;
+
+    /** @var AliasWithoutEqualsSign */
+    public int $secondImportedType;
 }
 
 /**

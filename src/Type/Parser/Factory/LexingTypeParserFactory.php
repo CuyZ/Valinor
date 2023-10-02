@@ -9,17 +9,12 @@ use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeParserSpecification;
 use CuyZ\Valinor\Type\Parser\Lexer\AdvancedClassLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
-use CuyZ\Valinor\Type\Parser\Template\TemplateParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
 /** @internal */
 final class LexingTypeParserFactory implements TypeParserFactory
 {
     private TypeParser $nativeParser;
-
-    public function __construct(private TemplateParser $templateParser)
-    {
-    }
 
     public function get(TypeParserSpecification ...$specifications): TypeParser
     {
@@ -28,7 +23,7 @@ final class LexingTypeParserFactory implements TypeParserFactory
         }
 
         $lexer = new NativeLexer();
-        $lexer = new AdvancedClassLexer($lexer, $this, $this->templateParser);
+        $lexer = new AdvancedClassLexer($lexer, $this);
 
         foreach ($specifications as $specification) {
             $lexer = $specification->transform($lexer);
@@ -40,9 +35,9 @@ final class LexingTypeParserFactory implements TypeParserFactory
     private function nativeParser(): TypeParser
     {
         $lexer = new NativeLexer();
-        $lexer = new AdvancedClassLexer($lexer, $this, $this->templateParser);
-        $lexer = new LexingParser($lexer);
+        $lexer = new AdvancedClassLexer($lexer, $this);
+        $parser = new LexingParser($lexer);
 
-        return new CachedParser($lexer);
+        return new CachedParser($parser);
     }
 }

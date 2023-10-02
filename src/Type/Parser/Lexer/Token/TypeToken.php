@@ -13,8 +13,7 @@ final class TypeToken implements TraversingToken
     public function __construct(
         private Type $type,
         private string $symbol
-    ) {
-    }
+    ) {}
 
     public function traverse(TokenStream $stream): Type
     {
