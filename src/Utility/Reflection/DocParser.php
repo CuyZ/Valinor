@@ -228,13 +228,28 @@ final class DocParser
      */
     private static function splitStringBy(string $string, string ...$cases): array
     {
-        $result = [$string];
-
-        foreach ($cases as $case) {
-            foreach ($result as $value) {
-                $result = array_merge($result, explode($case, $value));
+        $result = [];
+        $pos = 0;
+        do {
+            $next = false;
+            $len = 0;
+            foreach ($cases as $case) {
+                $tentative = strpos($string, $case, $pos);
+                if ($tentative === false) {
+                    continue;
+                }
+                if ($next === false || $tentative < $next) {
+                    $len = strlen($case);
+                    $next = $tentative;
+                }
             }
-        }
+            if ($next === false) {
+                break;
+            }
+            $result []= substr($string, $pos, $next-$pos);
+            $pos = $next+$len;
+        } while (true);
+        $result []= substr($string, $pos);
 
         return $result;
     }
