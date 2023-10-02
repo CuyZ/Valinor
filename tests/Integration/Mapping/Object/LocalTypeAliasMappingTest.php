@@ -164,11 +164,15 @@ class PhpStanAliasImport
 
 /**
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliasesInterface
+ * @phpstan-import-type AliasWithoutEqualsSign from PhpStanLocalAliasesInterface
  */
 class PhpStanAliasImportFromInterface
 {
     /** @var AliasWithEqualsSign */
-    public int $importedType;
+    public int $firstImportedType;
+
+    /** @var AliasWithoutEqualsSign */
+    public int $secondImportedType;
 }
 
 /**
@@ -254,9 +258,13 @@ class PsalmAliasImport
 
 /**
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliasesInterface
+ * @psalm-import-type AliasWithoutEqualsSign from PsalmLocalAliasesInterface
  */
 class PsalmAliasImportFromInterface
 {
     /** @var AliasWithEqualsSign */
-    public int $importedType;
+    public int $firstImportedType;
+
+    /** @var AliasWithoutEqualsSign */
+    public int $secondImportedType;
 }
