@@ -199,7 +199,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      *     bar: int,
      * } $shapedArrayOnSeveralLinesWithTrailingComma Some description
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
-     * @param array{stdclass: string} $shapedArrayWithClassNameAsKey
+     * @param array{stdClass: string} $shapedArrayWithClassNameAsKey
      * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
      * @param array{stdclass: string} $shapedArrayWithLowercaseClassNameAsKey
      * @param array{EnumAtRootNamespace: string} $shapedArrayWithEnumNameAsKey
