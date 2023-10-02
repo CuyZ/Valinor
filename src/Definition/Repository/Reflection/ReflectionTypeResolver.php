@@ -48,7 +48,7 @@ final class ReflectionTypeResolver
             && ! $nativeType instanceof UnresolvableType
             && ! $typeFromDocBlock->matches($nativeType)
         ) {
-            //throw new TypesDoNotMatch($reflection, $typeFromDocBlock, $nativeType);
+            throw new TypesDoNotMatch($reflection, $typeFromDocBlock, $nativeType);
         }
 
         return $typeFromDocBlock;
