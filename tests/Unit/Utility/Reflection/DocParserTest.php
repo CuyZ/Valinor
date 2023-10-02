@@ -61,12 +61,23 @@ final class DocParserTest extends TestCase
             'int | float',
         ];
 
-        yield 'phpdoc shaped array on several lines' => [
+        yield 'phpdoc shaped array on several lines with comment' => [
             /**
              * @return array{
              *     foo: string,
              *     bar: int,
              * } Some comment
+             */
+            fn () => ['foo' => 'foo', 'bar' => 42],
+            'array{ foo: string, bar: int, }',
+        ];
+
+        yield 'phpdoc shaped array on several lines' => [
+            /**
+             * @return array{
+             *     foo: string,
+             *     bar: int,
+             * }
              */
             fn () => ['foo' => 'foo', 'bar' => 42],
             'array{ foo: string, bar: int, }',
