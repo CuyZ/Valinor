@@ -119,9 +119,9 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
                 ],
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
+            $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->messages()[0];
 
-            self::assertSame('Value object(stdClass) is not a valid string.', (string)$error);
+            self::assertSame('Unexpected key(s) `baz`, expected `foo`, `bar`.', (string)$error);
         }
     }
 }
