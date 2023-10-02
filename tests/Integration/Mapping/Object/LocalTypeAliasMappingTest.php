@@ -234,6 +234,7 @@ interface PsalmLocalAliasesInterface
 {
 }
 
+/**
  * @psalm-type AliasWithoutEqualsSign int
  */
 class AnotherPsalmLocalAliases
