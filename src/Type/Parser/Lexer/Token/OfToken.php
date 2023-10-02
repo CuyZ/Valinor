@@ -46,6 +46,10 @@ final class OfToken implements TraversingToken
             throw new ClosingBracketMissing($this->symbol());
         }
 
+        if ($subType instanceof UnionType && count($subType->types()) === 1) {
+            $subType = $subType->types()[0];
+        }
+
         if ($subType instanceof ShapedArrayType) {
             $list = [];
             foreach ($subType->elements() as $element) {
