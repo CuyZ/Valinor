@@ -49,7 +49,7 @@ final class TypeCompiler
 {
     public function compile(Type $type): string
     {
-        $class = $type::class;
+        $class = '\\'.$type::class;
 
         switch (true) {
             case $type instanceof NullType:
