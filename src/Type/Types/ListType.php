@@ -79,7 +79,7 @@ final class ListType implements CompositeTraversableType
         return false;
     }
 
-    public function keyType(): Type
+    public function keyType(): ArrayKeyType
     {
         return ArrayKeyType::integer();
     }

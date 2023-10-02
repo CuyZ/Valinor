@@ -74,7 +74,7 @@ final class IterableType implements CompositeTraversableType
             && $this->subType->matches($other->subType());
     }
 
-    public function keyType(): Type
+    public function keyType(): ArrayKeyType
     {
         return $this->keyType;
     }
