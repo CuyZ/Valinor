@@ -8,9 +8,7 @@ use ReflectionFunctionAbstract;
 use ReflectionParameter;
 use ReflectionProperty;
 
-use function array_merge;
 use function end;
-use function explode;
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
