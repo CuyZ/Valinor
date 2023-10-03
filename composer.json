@@ -69,8 +69,8 @@
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
-            "pip install -r docs/requirements.txt",
-            "mkdocs serve --config-file docs/mkdocs.yml"
+            "docker build -t valinor-doc ./docs",
+            "docker run --name valinor-doc --rm -it -p 8000:8000 -v ${PWD}/docs:/docs valinor-doc"
         ]
     },
     "config": {
