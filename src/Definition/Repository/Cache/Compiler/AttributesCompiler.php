@@ -20,7 +20,7 @@ final class AttributesCompiler
     public function compile(Attributes $attributes): string
     {
         if (count($attributes) === 0) {
-            return AttributesContainer::class . '::empty()';
+            return '\\'.AttributesContainer::class . '::empty()';
         }
 
         assert($attributes instanceof NativeAttributes);
