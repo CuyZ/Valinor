@@ -49,6 +49,7 @@ final class TypeCompiler
 {
     public function compile(Type $type): string
     {
+        /** @infection-ignore-all */
         $class = '\\'.$type::class;
 
         switch (true) {
