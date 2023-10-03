@@ -36,6 +36,7 @@ theme:
     - navigation.sections
     - navigation.top
     - navigation.indexes
+    - navigation.instant
     - content.code.annotate
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -97,3 +98,4 @@ nav:
       - Alternatives: project/alternatives.md
       - Changelog: project/changelog.md
       - Credits: project/credits.md
+not_in_nav: project/changelog/version-*.md
