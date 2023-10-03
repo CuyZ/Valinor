@@ -101,7 +101,7 @@ final class DocParser
         $types = [];
 
         foreach ($cases as $case) {
-            if (! preg_match('/\s*(?<name>[a-zA-Z]\w*)\s*from\s*(?<class>\w+)/', $case, $matches)) {
+            if (! preg_match('/\s*(?<name>[a-zA-Z]\w*)\s+from\s+(?<class>\w+)/', $case, $matches)) {
                 continue;
             }
 
