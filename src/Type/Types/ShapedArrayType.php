@@ -26,13 +26,25 @@ final class ShapedArrayType implements CompositeType
 
     private string $signature;
 
-    public function __construct(private bool $sealed, ShapedArrayElement ...$elements)
-    {
+    public function __construct(
+        public readonly ArrayKeyType|null $extra_key,
+        public readonly Type|null $extra_type,
+        ShapedArrayElement ...$elements
+    ) {
+        if ($extra_type !== null) {
+            $extra_key ??= ArrayKeyType::default();
+        }
+        assert(is_null($extra_key) === is_null($extra_type));
+
         $this->elements = $elements;
         $this->signature =
             'array{'
             . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements))
-            . ($sealed ? '' : ', ...')
+            . (
+                $extra_key === null || $extra_type === null
+                ? ''
+                : ', ...<'.$extra_key->toString().', '.$extra_type->toString().'>'
+            )
             . '}';
 
         $keys = [];
@@ -70,10 +82,20 @@ final class ShapedArrayType implements CompositeType
             }
         }
 
-        if ($this->sealed) {
-            $excess = array_diff(array_keys($value), $keys);
+        $excess = array_diff(array_keys($value), $keys);
 
+        if ($this->extra_key === null) {
             return count($excess) === 0;
+        }
+
+        assert($this->extra_type !== null);
+        foreach ($excess as $key) {
+            if (!$this->extra_key->accepts($key)) {
+                return false;
+            }
+            if (!$this->extra_type->accepts($value[$key])) {
+                return false;
+            }
         }
 
         return true;
@@ -126,15 +148,38 @@ final class ShapedArrayType implements CompositeType
             }
         }
 
-        return $other->sealed === $this->sealed;
+        if ($other->extra_key === null && $this->extra_key === null) {
+            return true;
+        }
+        if (is_null($other->extra_key) !== is_null($this->extra_key)) {
+            return false;
+        }
+        assert($this->extra_key !== null);
+        assert($this->extra_type !== null);
+        assert($other->extra_key !== null);
+        assert($other->extra_type !== null);
+
+        if (!$other->extra_key->matches($this->extra_key)) {
+            return false;
+        }
+        if (!$other->extra_type->matches($this->extra_type)) {
+            return false;
+        }
+        return true;
     }
 
     public function traverse(): array
     {
         $types = [];
 
-        foreach ($this->elements as $element) {
-            $types[] = $type = $element->type();
+        foreach ([...$this->elements, $this->extra_key, $this->extra_type] as $element) {
+            if ($element === null) {
+                continue;
+            }
+            if ($element instanceof ShapedArrayElement) {
+                $element = $element->type();
+            }
+            $types[] = $type = $element;
 
             if ($type instanceof CompositeType) {
                 $types = [...$types, ...$type->traverse()];
@@ -150,11 +195,6 @@ final class ShapedArrayType implements CompositeType
     public function elements(): array
     {
         return $this->elements;
-    }
-
-    public function sealed(): bool
-    {
-        return $this->sealed;
     }
 
     public function toString(): string

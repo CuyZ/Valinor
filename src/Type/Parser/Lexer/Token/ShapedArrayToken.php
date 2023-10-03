@@ -9,22 +9,28 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayMultipleSplats;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 
 /** @internal */
 abstract class ShapedArrayToken implements TraversingToken
 {
-    protected function shapedArrayType(TokenStream $stream): ShapedArrayType
+    protected function shapedArrayType(TokenStream $stream, bool $list): ShapedArrayType|ShapedListType
     {
         $stream->forward();
 
         $elements = [];
         $index = 0;
-        $sealed = true;
+
+        $extra_key = null;
+        $extra_value = null;
 
         while (! $stream->done()) {
             if ($stream->next() instanceof ClosingCurlyBracketToken) {
@@ -50,7 +56,27 @@ abstract class ShapedArrayToken implements TraversingToken
             if ($stream->next() instanceof UnknownSymbolToken) {
                 $type = $stream->forward()->symbol();
                 if ($type === '...') {
-                    $sealed = false;
+                    if ($extra_value !== null) {
+                        throw new ShapedArrayMultipleSplats($elements);
+                    }
+                    if ($stream->next() instanceof OpeningBracketToken) {
+                        $stream->forward();
+                        if ($list) {
+                            $extra_value = $stream->read();
+                        } else {
+                            $extra_key = ArrayKeyType::from($stream->read());
+                            if (! $stream->forward() instanceof CommaToken) {
+                                throw new ShapedArrayCommaMissing($elements);
+                            }
+                            $extra_value = $stream->read();
+                        }
+                        if (! $stream->forward() instanceof ClosingBracketToken) {
+                            throw new ShapedArrayClosingBracketMissing($elements);
+                        }
+                    } else {
+                        $extra_key = ArrayKeyType::default();
+                        $extra_value = MixedType::get();
+                    }
                     continue;
                 } else {
                     $type = new StringValueType($type);
@@ -114,6 +140,8 @@ abstract class ShapedArrayToken implements TraversingToken
             throw new ShapedArrayEmptyElements();
         }
 
-        return new ShapedArrayType($sealed, ...$elements);
+        return $list
+            ? new ShapedListType($extra_value, ...$elements)
+            : new ShapedArrayType($extra_key, $extra_value, ...$elements);
     }
 }

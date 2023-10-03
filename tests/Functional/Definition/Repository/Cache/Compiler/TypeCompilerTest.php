@@ -34,6 +34,7 @@ use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -121,14 +122,26 @@ final class TypeCompilerTest extends TestCase
         yield [new NonEmptyListType(NativeIntegerType::get())];
         yield [new NonEmptyListType(NativeStringType::get())];
         yield [new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
         )];
         yield [new ShapedArrayType(
-            false,
+            ArrayKeyType::default(),
+            NativeStringType::get(),
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        )];
+        yield [new ShapedListType(
+            null,
+            new ShapedArrayElement(new IntegerValueType(0), NativeStringType::get()),
+            new ShapedArrayElement(new IntegerValueType(1), NativeIntegerType::get(), true)
+        )];
+        yield [new ShapedListType(
+            NativeStringType::get(),
+            new ShapedArrayElement(new IntegerValueType(0), NativeStringType::get()),
+            new ShapedArrayElement(new IntegerValueType(1), NativeIntegerType::get(), true)
         )];
         yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];

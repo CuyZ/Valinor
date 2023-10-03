@@ -41,6 +41,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ShapedListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\StrictNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
@@ -58,6 +59,7 @@ use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use Psr\SimpleCache\CacheInterface;
 
 use function call_user_func;
@@ -100,6 +102,7 @@ final class Container
                     NonEmptyArrayType::class => $arrayNodeBuilder,
                     IterableType::class => $arrayNodeBuilder,
                     ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
+                    ShapedListType::class => new ShapedListNodeBuilder($settings->allowSuperfluousKeys),
                     ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
                     ClassType::class => new NativeClassNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),

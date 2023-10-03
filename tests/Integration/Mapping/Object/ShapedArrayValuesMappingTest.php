@@ -87,7 +87,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             self::assertSame('bar', $result->advancedShapedArray['mandatoryString']);
             self::assertSame(1337, $result->advancedShapedArray[0]);
             self::assertSame(42.404, $result->advancedShapedArray[1]);
-            self::assertSame($source['basicUnsealedShapedArrayWithStringKeys'], $result->basicUnsealedShapedArrayWithStringKeys); // @phpstan-ignore-line
+            self::assertSame($source['basicUnsealedShapedArrayWithStringKeys'], $result->basicUnsealedShapedArrayWithStringKeys);
             self::assertSame('foo', $result->shapedArrayWithClassNameAsKey['stdClass']);
             self::assertSame('foo', $result->shapedArrayWithLowercaseClassNameAsKey['stdclass']);
             self::assertSame('foo', $result->shapedArrayWithEnumNameAsKey['EnumAtRootNamespace']);
@@ -168,8 +168,8 @@ class ShapedArrayValues
     /** @var array{stdClass: string} */
     public array $shapedArrayWithClassNameAsKey;
 
-    /** @var array{foo: string, bar: int, ...} */
-    public array $basicUnsealedShapedArrayWithStringKeys;
+    /** @var array{foo: string, bar: int, ...<string, string>} */
+    public array $basicUnsealedShapedArrayWithStringKeys; // @phpstan-ignore-line
 
     /** @var array{stdclass: string} */
     public array $shapedArrayWithLowercaseClassNameAsKey;
@@ -200,10 +200,11 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * } $shapedArrayOnSeveralLinesWithTrailingComma Some description
      * @param array{0: int, float, optionalString?: string, mandatoryString: string} $advancedShapedArray
      * @param array{stdClass: string} $shapedArrayWithClassNameAsKey
-     * @param array{foo: string, bar: int, ...} $basicUnsealedShapedArrayWithStringKeys
+     * @param array{foo: string, bar: int, ...<string, string>} $basicUnsealedShapedArrayWithStringKeys
      * @param array{stdclass: string} $shapedArrayWithLowercaseClassNameAsKey
      * @param array{EnumAtRootNamespace: string} $shapedArrayWithEnumNameAsKey
      * @param array{enumatrootnamespace: string} $shapedArrayWithLowercaseEnumNameAsKey
+     * @phpstan-ignore-next-line
      */
     public function __construct(
         array $basicShapedArrayWithStringKeys,

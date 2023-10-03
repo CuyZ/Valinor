@@ -67,6 +67,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -683,6 +684,12 @@ final class NativeLexerTest extends TestCase
             'raw' => 'array{stdclass: string}',
             'transformed' => 'array{stdclass: string}',
             'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped list' => [
+            'raw' => 'list{0: string}',
+            'transformed' => 'list{0: string}',
+            'type' => ShapedListType::class,
         ];
 
         yield 'Iterable type' => [

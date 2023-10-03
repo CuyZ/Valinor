@@ -47,7 +47,7 @@ final class ArrayToken extends ShapedArrayToken
         }
 
         if ($this->arrayType === ArrayType::class && $stream->next() instanceof OpeningCurlyBracketToken) {
-            return $this->shapedArrayType($stream);
+            return $this->shapedArrayType($stream, false);
         }
 
         return ($this->arrayType)::native();

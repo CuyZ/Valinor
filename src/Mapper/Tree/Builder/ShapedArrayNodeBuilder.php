@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedShapedArrayKeys;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
 use function array_key_exists;
@@ -38,7 +37,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         $node = TreeNode::branch($shell, $array, $children);
 
         if (! $this->allowSuperfluousKeys
-            && $type->sealed()
+            && $type->extra_key === null
             && count($value) > count($children)
         ) {
             $node = $node->withMessage(new UnexpectedShapedArrayKeys($value, $children));
@@ -73,10 +72,13 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             unset($value[$key]);
         }
 
-        if (!$type->sealed()) {
+        if ($type->extra_key !== null) {
+            assert($type->extra_type !== null);
             foreach ($value as $k => $v) {
                 if (!array_key_exists($k, $children)) {
-                    $children[$k] = TreeNode::leaf(Shell::root(new MixedType(), $v), $v);
+                    $children[$k] = $rootBuilder->build(
+                        $shell->child((string)$k, $type->extra_type)->withValue($v)
+                    );
                 }
             }
         }

@@ -37,7 +37,7 @@ final class ShapedArrayTypeTest extends TestCase
             new ShapedArrayElement(new IntegerValueType(1337), new NativeIntegerType(), true),
         ];
 
-        $this->type = new ShapedArrayType(true, ...$this->elements);
+        $this->type = new ShapedArrayType(null, null, ...$this->elements);
     }
 
     public function test_shape_elements_can_be_retrieved(): void
@@ -52,7 +52,8 @@ final class ShapedArrayTypeTest extends TestCase
         $this->expectExceptionMessage('Key `foo` cannot be used several times in shaped array signature `array{foo: string, foo: string}`.');
 
         new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
             new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
         );
@@ -91,13 +92,15 @@ final class ShapedArrayTypeTest extends TestCase
     public function test_matches_valid_array_shaped_type(): void
     {
         $otherA = new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
             new ShapedArrayElement(new IntegerValueType(42), new NativeIntegerType()),
         );
 
         $otherB = new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), new NativeStringType())
         );
 
@@ -108,12 +111,14 @@ final class ShapedArrayTypeTest extends TestCase
     public function test_does_not_match_invalid_array_shaped_type(): void
     {
         $otherA = new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), new NativeFloatType()),
         );
 
         $otherB = new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('bar'), new NativeStringType())
         );
 
@@ -167,7 +172,8 @@ final class ShapedArrayTypeTest extends TestCase
         $unionType = new UnionType(
             new FakeType(),
             new ShapedArrayType(
-                true,
+                null,
+                null,
                 new ShapedArrayElement(new StringValueType('bar'), new NativeStringType())
             ),
             new FakeType(),
@@ -182,7 +188,8 @@ final class ShapedArrayTypeTest extends TestCase
         $subTypeB = new FakeType();
 
         $type = new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), $subTypeA),
             new ShapedArrayElement(new StringValueType('bar'), $subTypeB),
         );
@@ -200,7 +207,8 @@ final class ShapedArrayTypeTest extends TestCase
         $compositeTypeB = new FakeCompositeType($subTypeB);
 
         $type = new ShapedArrayType(
-            true,
+            null,
+            null,
             new ShapedArrayElement(new StringValueType('foo'), $compositeTypeA),
             new ShapedArrayElement(new StringValueType('bar'), $compositeTypeB),
         );

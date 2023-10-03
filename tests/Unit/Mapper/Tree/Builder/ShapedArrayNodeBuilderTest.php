@@ -26,7 +26,7 @@ final class ShapedArrayNodeBuilderTest extends TestCase
 
     public function test_build_with_null_source_throws_exception(): void
     {
-        $type = new ShapedArrayType(true, new ShapedArrayElement(new StringValueType('foo'), new FakeType('SomeType')));
+        $type = new ShapedArrayType(null, null, new ShapedArrayElement(new StringValueType('foo'), new FakeType('SomeType')));
 
         $this->expectException(SourceMustBeIterable::class);
         $this->expectExceptionCode(1618739163);

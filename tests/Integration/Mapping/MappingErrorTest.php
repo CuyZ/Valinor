@@ -39,7 +39,6 @@ final class MappingErrorTest extends IntegrationTest
         (new MapperBuilder())->argumentsMapper()->mapArguments(fn (string $foo) => $foo, 42);
     }
 
-
     public function test_single_argument_mapper_error_excess_args(): void
     {
         $this->expectException(MappingError::class);
