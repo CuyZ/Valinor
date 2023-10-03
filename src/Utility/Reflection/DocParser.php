@@ -226,6 +226,7 @@ final class DocParser
      */
     private static function splitStringBy(string $string, string ...$cases): array
     {
+        $first = true;
         $result = [];
         $pos = 0;
         do {
@@ -244,7 +245,11 @@ final class DocParser
             if ($next === false) {
                 break;
             }
-            $result []= substr($string, $pos, $next-$pos);
+            if ($first) {
+                $first = false;
+            } else {
+                $result []= substr($string, $pos, $next-$pos);
+            }
             $pos = $next+$len;
         } while (true);
         $result []= substr($string, $pos);
