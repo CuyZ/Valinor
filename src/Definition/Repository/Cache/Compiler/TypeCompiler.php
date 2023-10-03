@@ -188,7 +188,7 @@ final class TypeCompiler
 
     private function compileArrayShapeElement(ShapedArrayElement $element): string
     {
-        $class = ShapedArrayElement::class;
+        $class = '\\'.ShapedArrayElement::class;
         $key = $this->compile($element->key());
         $type = $this->compile($element->type());
         $optional = var_export($element->isOptional(), true);
