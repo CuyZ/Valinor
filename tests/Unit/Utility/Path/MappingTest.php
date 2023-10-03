@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
+namespace CuyZ\Valinor\Tests\Unit\Utility\Path;
 
-use CuyZ\Valinor\Mapper\Source\Modifier\Mapping;
+use CuyZ\Valinor\Utility\Path\Mapping;
 use PHPUnit\Framework\TestCase;
 
 final class MappingTest extends TestCase

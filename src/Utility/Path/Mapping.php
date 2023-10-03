@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Mapper\Source\Modifier;
+namespace CuyZ\Valinor\Utility\Path;
 
 /** @internal */
 final class Mapping
