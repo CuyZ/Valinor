@@ -65,12 +65,12 @@ abstract class ShapedArrayToken implements TraversingToken
                             $extra_value = $stream->read();
                         } else {
                             $extra_key = ArrayKeyType::from($stream->read());
-                            if (! $stream->forward() instanceof CommaToken) {
+                            if ($stream->done() || ! $stream->forward() instanceof CommaToken) {
                                 throw new ShapedArrayCommaMissing($elements);
                             }
                             $extra_value = $stream->read();
                         }
-                        if (! $stream->forward() instanceof ClosingBracketToken) {
+                        if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
                             throw new ShapedArrayClosingBracketMissing($elements);
                         }
                     } else {

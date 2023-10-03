@@ -692,6 +692,18 @@ final class NativeLexerTest extends TestCase
             'type' => ShapedListType::class,
         ];
 
+        yield 'Shaped list with several keys' => [
+            'raw' => 'list{0: string, 1: int}',
+            'transformed' => 'list{0: string, 1: int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list with no key' => [
+            'raw' => 'list{string, int}',
+            'transformed' => 'list{0: string, 1: int}',
+            'type' => ShapedListType::class,
+        ];
+
         yield 'Iterable type' => [
             'raw' => 'iterable',
             'transformed' => 'iterable',
@@ -1212,6 +1224,15 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int`.');
 
         $this->parser->parse('array{int,');
+    }
+
+    public function test_shaped_unsealed_array_closing_bracket_missing_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1631283658);
+        $this->expectExceptionMessage('Missing closing s bracket in shaped array signature `array{0: int`.');
+
+        $this->parser->parse('array{int, ...<string, int');
     }
 
     public function test_shaped_array_colon_missing_throws_exception(): void
