@@ -67,6 +67,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTest
             'shapedArrayWithLowercaseEnumNameAsKey' => [
                 'enumatrootnamespace' => 'foo',
             ],
+            'porperty_from_name' => 0
         ];
 
         foreach ([ShapedArrayValues::class, ShapedArrayValuesWithConstructor::class] as $class) {
@@ -179,6 +180,8 @@ class ShapedArrayValues
 
     /** @var array{enumatrootnamespace: string} */
     public array $shapedArrayWithLowercaseEnumNameAsKey;
+
+    public int $property_from_name;
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
@@ -204,6 +207,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{stdclass: string} $shapedArrayWithLowercaseClassNameAsKey
      * @param array{EnumAtRootNamespace: string} $shapedArrayWithEnumNameAsKey
      * @param array{enumatrootnamespace: string} $shapedArrayWithLowercaseEnumNameAsKey
+     * @param int $property_from_name
      * @phpstan-ignore-next-line
      */
     public function __construct(
@@ -221,6 +225,7 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         array $shapedArrayWithLowercaseClassNameAsKey,
         array $shapedArrayWithEnumNameAsKey,
         array $shapedArrayWithLowercaseEnumNameAsKey,
+        int $property_from_name
     ) {
         $this->basicShapedArrayWithStringKeys = $basicShapedArrayWithStringKeys;
         $this->basicShapedArrayWithSingleQuotedStringKeys = $basicShapedArrayWithSingleQuotedStringKeys;
@@ -236,5 +241,6 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
         $this->shapedArrayWithLowercaseClassNameAsKey = $shapedArrayWithLowercaseClassNameAsKey;
         $this->shapedArrayWithEnumNameAsKey = $shapedArrayWithEnumNameAsKey;
         $this->shapedArrayWithLowercaseEnumNameAsKey = $shapedArrayWithLowercaseEnumNameAsKey;
+        $this->property_from_name = $property_from_name;
     }
 }
