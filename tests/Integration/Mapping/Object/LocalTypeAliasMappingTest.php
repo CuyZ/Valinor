@@ -186,6 +186,7 @@ class GenericObjectWithPsalmLocalAlias
 }
 
 /**
+ * Testing https://google.com
  * @psalm-type AliasWithEqualsSign = int
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
