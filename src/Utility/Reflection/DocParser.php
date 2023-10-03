@@ -252,7 +252,9 @@ final class DocParser
             }
             $pos = $next+$len;
         } while (true);
-        $result []= substr($string, $pos);
+        if (!$first) {
+            $result []= substr($string, $pos);
+        }
 
         return $result;
     }
