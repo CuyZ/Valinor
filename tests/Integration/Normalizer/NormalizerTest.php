@@ -169,20 +169,22 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'unit enum' => [
-            'input' => PureEnum::FOO,
-            'expected' => 'FOO',
-        ];
+        if (PHP_VERSION_ID >= 8_01_00) {
+            yield 'unit enum' => [
+                'input' => PureEnum::FOO,
+                'expected' => 'FOO',
+            ];
 
-        yield 'backed string enum' => [
-            'input' => BackedStringEnum::FOO,
-            'expected' => 'foo',
-        ];
+            yield 'backed string enum' => [
+                'input' => BackedStringEnum::FOO,
+                'expected' => 'foo',
+            ];
 
-        yield 'backed integer enum' => [
-            'input' => BackedIntegerEnum::FOO,
-            'expected' => 42,
-        ];
+            yield 'backed integer enum' => [
+                'input' => BackedIntegerEnum::FOO,
+                'expected' => 42,
+            ];
+        }
 
         yield 'class with public properties' => [
             'input' => new class () {
