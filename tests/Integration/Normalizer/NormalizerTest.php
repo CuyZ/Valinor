@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Traversable;
 
+use function array_merge;
+
 final class NormalizerTest extends TestCase
 {
     /**
@@ -54,14 +56,49 @@ final class NormalizerTest extends TestCase
             'expected' => 'foo bar',
         ];
 
+        yield 'string with handler' => [
+            'input' => 'foo',
+            'expected' => 'foo!',
+            'handlers' => [
+                [fn (string $value) => $value . '!'],
+            ],
+        ];
+
         yield 'integer' => [
             'input' => 42,
             'expected' => 42,
         ];
 
+        yield 'integer with handler' => [
+            'input' => 42,
+            'expected' => 43,
+            'handlers' => [
+                [fn (int $value) => $value + 1],
+            ],
+        ];
+
+        yield 'integer with negative-int handler' => [
+            'input' => 42,
+            'expected' => 42,
+            'handlers' => [
+                [
+                    /** @param negative-int $value */
+                    fn (int $value) => $value + 1
+                ],
+            ],
+        ];
+
         yield 'float' => [
             'input' => 1337.404,
             'expected' => 1337.404,
+        ];
+
+        yield 'float with handler' => [
+            'input' => 1337.404,
+            'expected' => 1337.405,
+            'handlers' => [
+                [fn (float $value) => $value + 0.001],
+            ],
         ];
 
         yield 'boolean' => [
@@ -81,6 +118,14 @@ final class NormalizerTest extends TestCase
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
+            ],
+        ];
+
+        yield 'array with handler' => [
+            'input' => ['foo'],
+            'expected' => ['foo', 'bar'],
+            'handlers' => [
+                [fn (array $value) => array_merge($value, ['bar'])],
             ],
         ];
 
@@ -267,14 +312,14 @@ final class NormalizerTest extends TestCase
                 'value' => 'foo',
                 'bar' => 'bar',
             ],
-            'handlers' => [
-                [function (object $object, callable $next) {
+            'handlers' => [[
+                function (object $object, callable $next) {
                     $result = $next();
                     $result['bar'] = 'bar';
 
                     return $result;
-                }],
-            ],
+                }
+            ]],
         ];
 
         yield 'object with several prioritized handlers' => [
@@ -335,7 +380,6 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionMessageMatches('/Normalizer handler must have at most 2 parameters, 3 given for `.*`\./');
 
         (new MapperBuilder())
-            // @phpstan-ignore-next-line
             ->registerNormalizer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
             ->normalizer()
             ->normalize(new stdClass());
@@ -348,7 +392,6 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionMessageMatches('/Normalizer handler\'s second parameter must be a callable, `int` given for `.*`\./');
 
         (new MapperBuilder())
-            // @phpstan-ignore-next-line
             ->registerNormalizer(fn (stdClass $object, int $unexpectedParameterType) => 42)
             ->normalizer()
             ->normalize(new stdClass());

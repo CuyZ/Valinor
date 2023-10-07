@@ -459,7 +459,7 @@ final class MapperBuilder
     /**
      * @todo doc
      *
-     * @param callable(object, callable(): mixed): mixed $callback
+     * @psalm-param pure-callable $callback
      */
     public function registerNormalizer(callable $callback, int $priority = 0): self
     {

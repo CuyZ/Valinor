@@ -10,10 +10,8 @@ use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
-use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use Generator;
-use RuntimeException;
 use stdClass;
 use UnitEnum;
 
@@ -41,6 +39,57 @@ final class RecursiveNormalizer implements Normalizer
      */
     private function doNormalize(mixed $value, array $references): mixed
     {
+        if (is_object($value)) {
+            $id = spl_object_id($value);
+
+            if (isset($references[$id])) {
+                throw new CircularReferenceFoundDuringNormalization($value);
+            }
+
+            $references[$id] = true;
+        }
+
+        if ($this->handlers->count() === 0) {
+            $value = $this->defaultNormalizer($value);
+        } else {
+            $handlers = array_filter(
+                [...$this->handlers],
+                fn (FunctionObject $function) => $function->definition()->parameters()->at(0)->type()->accepts($value),
+            );
+
+            $value = $this->nextNormalizer($handlers, $value)();
+        }
+
+        if (is_array($value)) {
+            $value = array_map(
+                fn (mixed $value) => $this->doNormalize($value, $references),
+                $value,
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<FunctionObject> $handlers
+     */
+    private function nextNormalizer(array $handlers, mixed $value): callable
+    {
+        if ($handlers === []) {
+            return fn () => $this->defaultNormalizer($value);
+        }
+
+        $handler = array_shift($handlers);
+        $arguments = [
+            $value,
+            fn () => $this->nextNormalizer($handlers, $value)(),
+        ];
+
+        return fn () => ($handler->callback())(...$arguments);
+    }
+
+    private function defaultNormalizer(mixed $value): mixed
+    {
         if ($value === null) {
             return null;
         }
@@ -50,15 +99,19 @@ final class RecursiveNormalizer implements Normalizer
         }
 
         if (is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator) {
-            $id = spl_object_id($value);
-
-            if (isset($references[$id])) {
-                throw new CircularReferenceFoundDuringNormalization($value);
+            if ($value instanceof UnitEnum) {
+                return $value instanceof BackedEnum ? $value->value : $value->name;
             }
 
-            $references[$id] = true;
+            if ($value instanceof DateTimeInterface) {
+                return $value->format('Y-m-d\\TH:i:s.uP'); // RFC 3339
+            }
 
-            return $this->doNormalize($this->normalizeObject($value), $references);
+            if ($value::class === stdClass::class) {
+                return (array)$value;
+            }
+
+            return (fn () => get_object_vars($this))->call($value);
         }
 
         if (is_iterable($value)) {
@@ -66,63 +119,9 @@ final class RecursiveNormalizer implements Normalizer
                 $value = iterator_to_array($value);
             }
 
-            return array_map(
-                fn (mixed $value) => $this->doNormalize($value, $references),
-                $value
-            );
+            return $value;
         }
 
         throw new TypeUnhandledByNormalizer($value);
-    }
-
-    private function normalizeObject(object $object): mixed
-    {
-        if ($this->handlers->count() === 0) {
-            return ($this->defaultObjectNormalizer($object))();
-        }
-
-        $type = new NativeClassType($object::class);
-
-        $handlers = array_filter(
-            [...$this->handlers],
-            fn (FunctionObject $function) => $type->matches($function->definition()->parameters()->at(0)->type())
-        );
-
-        return $this->nextNormalizer($handlers, $object)();
-    }
-
-    /**
-     * @param array<FunctionObject> $handlers
-     */
-    private function nextNormalizer(array $handlers, object $object): callable
-    {
-        if ($handlers === []) {
-            return $this->defaultObjectNormalizer($object);
-        }
-
-        $handler = array_shift($handlers);
-        $arguments = [
-            $object,
-            fn () => $this->nextNormalizer($handlers, $object)(),
-        ];
-
-        return fn () => ($handler->callback())(...$arguments);
-    }
-
-    private function defaultObjectNormalizer(object $object): callable
-    {
-        if ($object instanceof UnitEnum) {
-            return fn () => $object instanceof BackedEnum ? $object->value : $object->name;
-        }
-
-        if ($object instanceof DateTimeInterface) {
-            return fn () => $object->format('Y-m-d\\TH:i:s.uP'); // RFC 3339
-        }
-
-        if ($object::class === stdClass::class) {
-            return fn () => (array)$object;
-        }
-
-        return fn () => (fn () => get_object_vars($this))->call($object);
     }
 }

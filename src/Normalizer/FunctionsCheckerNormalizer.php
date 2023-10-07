@@ -9,7 +9,6 @@ use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasInvalidCallableParamet
 use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasNoParameter;
 use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasTooManyParameters;
 use CuyZ\Valinor\Type\Types\CallableType;
-use RuntimeException;
 
 /** @internal */
 final class FunctionsCheckerNormalizer implements Normalizer
