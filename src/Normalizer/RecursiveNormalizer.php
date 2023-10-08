@@ -15,6 +15,8 @@ use Generator;
 use stdClass;
 use UnitEnum;
 
+use WeakMap;
+
 use function array_filter;
 use function array_shift;
 use function is_array;
@@ -22,7 +24,6 @@ use function is_iterable;
 use function is_object;
 use function is_scalar;
 use function iterator_to_array;
-use function spl_object_id;
 
 /** @internal */
 final class RecursiveNormalizer implements Normalizer
@@ -31,22 +32,23 @@ final class RecursiveNormalizer implements Normalizer
 
     public function normalize(mixed $value): mixed
     {
-        return $this->doNormalize($value, []);
+        /** @var WeakMap<object, true> $references */
+        $references = new WeakMap();
+
+        return $this->doNormalize($value, $references);
     }
 
     /**
-     * @param array<int, true> $references
+     * @param WeakMap<object, true> $references
      */
-    private function doNormalize(mixed $value, array $references): mixed
+    private function doNormalize(mixed $value, WeakMap $references): mixed
     {
         if (is_object($value)) {
-            $id = spl_object_id($value);
-
-            if (isset($references[$id])) {
+            if (isset($references[$value])) {
                 throw new CircularReferenceFoundDuringNormalization($value);
             }
 
-            $references[$id] = true;
+            $references[$value] = true;
         }
 
         if ($this->handlers->count() === 0) {
