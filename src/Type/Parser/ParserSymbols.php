@@ -60,7 +60,7 @@ final class ParserSymbols
                 continue;
             }
 
-            if ($symbol === ':' && $this->symbols[$key - 1] === ':') {
+            if ($symbol === ':' && isset($this->symbols[$key - 1]) && $this->symbols[$key - 1] === ':') {
                 $this->symbols[$key - 1] = '::';
                 unset($this->symbols[$key]);
             }
