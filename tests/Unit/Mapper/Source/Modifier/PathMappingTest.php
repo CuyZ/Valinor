@@ -19,6 +19,16 @@ final class PathMappingTest extends TestCase
         self::assertSame(['new_A' => 'bar'], iterator_to_array($source));
     }
 
+    public function test_root_integer_path_is_mapped(): void
+    {
+        $source = new PathMapping(
+            [0 => 'bar'],
+            [0 => 'new_A']
+        );
+
+        self::assertSame(['new_A' => 'bar'], iterator_to_array($source));
+    }
+
     public function test_sub_path_is_mapped(): void
     {
         $source = new PathMapping(
@@ -37,6 +47,24 @@ final class PathMappingTest extends TestCase
         ], iterator_to_array($source));
     }
 
+    public function test_sub_path_with_integer_is_mapped(): void
+    {
+        $source = new PathMapping(
+            [
+                'A' => [
+                    1 => 'foo',
+                ],
+            ],
+            ['A.1' => 'new_B']
+        );
+
+        self::assertSame([
+            'A' => [
+                'new_B' => 'foo',
+            ],
+        ], iterator_to_array($source));
+    }
+
     public function test_root_iterable_path_is_mapped(): void
     {
         $source = new PathMapping(
@@ -45,6 +73,22 @@ final class PathMappingTest extends TestCase
                 ['A' => 'buz'],
             ],
             ['*.A' => 'new_A']
+        );
+
+        self::assertSame([
+            ['new_A' => 'bar'],
+            ['new_A' => 'buz'],
+        ], iterator_to_array($source));
+    }
+
+    public function test_root_iterable_path_with_integer_is_mapped(): void
+    {
+        $source = new PathMapping(
+            [
+                [2 => 'bar'],
+                [2 => 'buz'],
+            ],
+            ['*.2' => 'new_A']
         );
 
         self::assertSame([
