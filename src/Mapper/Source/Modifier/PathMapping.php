@@ -22,7 +22,7 @@ final class PathMapping implements IteratorAggregate
 
     /**
      * @param iterable<mixed> $source
-     * @param array<string, string> $map
+     * @param array<string> $map
      */
     public function __construct(iterable $source, array $map)
     {
@@ -62,7 +62,7 @@ final class PathMapping implements IteratorAggregate
     }
 
     /**
-     * @param array<string, string> $map
+     * @param array<string> $map
      * @return array<Mapping>
      */
     private function prepareMappings(array $map): array
@@ -70,7 +70,7 @@ final class PathMapping implements IteratorAggregate
         $mappings = [];
 
         foreach ($map as $from => $to) {
-            $mappings[] = new Mapping(explode('.', $from), $to);
+            $mappings[] = new Mapping(explode('.', (string)$from), $to);
         }
 
         return $mappings;

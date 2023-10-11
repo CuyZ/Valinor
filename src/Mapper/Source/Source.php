@@ -66,7 +66,7 @@ final class Source implements IteratorAggregate
     }
 
     /**
-     * @param array<string, string> $map
+     * @param array<string> $map
      */
     public function map(array $map): Source
     {
