@@ -53,6 +53,9 @@ final class MessageBuilder
         return $instance;
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function from(Throwable $error): ErrorMessage
     {
         if ($error instanceof ErrorMessage) {
@@ -116,6 +119,8 @@ final class MessageBuilder
     }
 
     /**
+     * @psalm-pure
+     *
      * PHP8.1 intersection
      * @return MessageType&HasCode&HasParameters
      */
