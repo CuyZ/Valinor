@@ -231,10 +231,15 @@ final class DocParser
         $result = [$string];
 
         foreach ($cases as $case) {
-            foreach ($result as $value) {
+            $previousResult = $result;
+            $result = [];
+            foreach ($previousResult as $value) {
                 $result = array_merge($result, explode($case, $value));
             }
         }
+
+        // Remove the first segment of the docs before the first `$cases` string
+        array_shift($result);
 
         return $result;
     }
