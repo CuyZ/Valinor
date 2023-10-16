@@ -74,6 +74,9 @@ class GenericObjectWithPhpStanLocalAlias
 }
 
 /**
+ * Comment:
+ * Some comment before types
+ *
  * @phpstan-type AliasWithEqualsSign = int
  * @phpstan-type AliasWithoutEqualsSign int
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
@@ -134,6 +137,9 @@ class GenericObjectWithPsalmLocalAlias
 }
 
 /**
+ * Comment:
+ * Some comment before types
+ *
  * @psalm-type AliasWithEqualsSign = int
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
