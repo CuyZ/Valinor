@@ -74,6 +74,9 @@ class GenericObjectWithPhpStanLocalAlias
 }
 
 /**
+ * Comment:
+ * Some comment before types
+ *
  * @phpstan-type AliasWithEqualsSign = int
  * @phpstan-type AliasWithoutEqualsSign int
  * @phpstan-type AliasShapedArray = array{foo: string, bar: int}
@@ -111,6 +114,9 @@ class AnotherPhpStanLocalAlias
 }
 
 /**
+ * Comment:
+ * Some comment before import
+ *
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
  * @phpstan-import-type AliasWithoutEqualsSign from AnotherPhpStanLocalAlias
  */
@@ -134,6 +140,9 @@ class GenericObjectWithPsalmLocalAlias
 }
 
 /**
+ * Comment:
+ * Some comment before types
+ *
  * @psalm-type AliasWithEqualsSign = int
  * @psalm-type AliasWithoutEqualsSign int
  * @psalm-type AliasShapedArray = array{foo: string, bar: int}
@@ -171,6 +180,9 @@ class AnotherPsalmLocalAliases
 }
 
 /**
+ * Comment:
+ * Some comment before import
+ *
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
  * @psalm-import-type AliasWithoutEqualsSign from AnotherPsalmLocalAliases
  */
