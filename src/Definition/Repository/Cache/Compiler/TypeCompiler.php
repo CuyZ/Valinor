@@ -33,6 +33,7 @@ use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -49,7 +50,8 @@ final class TypeCompiler
 {
     public function compile(Type $type): string
     {
-        $class = $type::class;
+        /** @infection-ignore-all */
+        $class = '\\'.$type::class;
 
         switch (true) {
             case $type instanceof NullType:
@@ -97,7 +99,20 @@ final class TypeCompiler
                 );
                 $shapes = implode(', ', $shapes);
 
-                return "new $class(...[$shapes])";
+                return "new $class("
+                    .($type->extra_key ? $this->compile($type->extra_key) : 'null').', '
+                    .($type->extra_type ? $this->compile($type->extra_type) : 'null').', '
+                    ."...[$shapes])";
+            case $type instanceof ShapedListType:
+                $shapes = array_map(
+                    fn (ShapedArrayElement $element) => $this->compileArrayShapeElement($element),
+                    $type->elements()
+                );
+                $shapes = implode(', ', $shapes);
+
+                return "new $class("
+                    .($type->extra ? $this->compile($type->extra) : 'null').', '
+                    ."...[$shapes])";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
                 if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {
@@ -173,7 +188,7 @@ final class TypeCompiler
 
     private function compileArrayShapeElement(ShapedArrayElement $element): string
     {
-        $class = ShapedArrayElement::class;
+        $class = '\\'.ShapedArrayElement::class;
         $key = $this->compile($element->key());
         $type = $this->compile($element->type());
         $optional = var_export($element->isOptional(), true);

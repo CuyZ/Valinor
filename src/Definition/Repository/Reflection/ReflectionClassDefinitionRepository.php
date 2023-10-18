@@ -24,6 +24,7 @@ use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecificati
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
@@ -160,16 +161,16 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return array<string, Type>
      */
-    private function localTypeAliases(ClassType $type): array
+    private function localTypeAliases(ClassType|InterfaceType $type): array
     {
         $reflection = Reflection::class($type->className());
         $rawTypes = DocParser::localTypeAliases($reflection);
 
-        $typeParser = $this->typeParser($type);
-
         $types = [];
 
         foreach ($rawTypes as $name => $raw) {
+            $typeParser = $this->typeParser($type, $types);
+
             try {
                 $types[$name] = $typeParser->parse($raw);
             } catch (InvalidType $exception) {
@@ -201,7 +202,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
                 throw new InvalidTypeAliasImportClass($type, $class);
             }
 
-            if (! $classType instanceof ClassType) {
+            if (! $classType instanceof ClassType && ! $classType instanceof InterfaceType) {
                 throw new InvalidTypeAliasImportClassType($type, $classType);
             }
 
@@ -219,7 +220,10 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         return $importedTypes;
     }
 
-    private function typeParser(ClassType $type): TypeParser
+    /**
+     * @param array<string, Type> $aliases
+     */
+    private function typeParser(ClassType|InterfaceType $type, array $aliases = []): TypeParser
     {
         $specs = [
             new ClassContextSpecification($type->className()),
@@ -227,7 +231,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         ];
 
         if ($type instanceof GenericType) {
-            $specs[] = new TypeAliasAssignerSpecification($type->generics());
+            $specs[] = new TypeAliasAssignerSpecification($type->generics() + $aliases);
         }
 
         return $this->typeParserFactory->get(...$specs);

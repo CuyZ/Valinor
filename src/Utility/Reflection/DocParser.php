@@ -8,9 +8,7 @@ use ReflectionFunctionAbstract;
 use ReflectionParameter;
 use ReflectionProperty;
 
-use function array_merge;
 use function end;
-use function explode;
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
@@ -103,7 +101,7 @@ final class DocParser
         $types = [];
 
         foreach ($cases as $case) {
-            if (! preg_match('/\s*(?<name>[a-zA-Z]\w*)\s*from\s*(?<class>\w+)/', $case, $matches)) {
+            if (! preg_match('/\s*(?<name>[a-zA-Z]\w*)\s+from\s+(?<class>\w+)/', $case, $matches)) {
                 continue;
             }
 
@@ -144,7 +142,7 @@ final class DocParser
 
         $templates = [];
 
-        preg_match_all("/@(phpstan-|psalm-)?template\s+(?<name>\w+)(\s+of\s+(?<type>.+))?/", $doc, $matches);
+        preg_match_all("/@(phpstan-|psalm-)?template(?:-covariant)?\s+(?<name>\w+)(\s+of\s+(?<type>.+))?/", $doc, $matches);
 
         foreach ($matches['name'] as $key => $name) {
             /** @var string $name */
@@ -228,12 +226,34 @@ final class DocParser
      */
     private static function splitStringBy(string $string, string ...$cases): array
     {
-        $result = [$string];
-
-        foreach ($cases as $case) {
-            foreach ($result as $value) {
-                $result = array_merge($result, explode($case, $value));
+        $first = true;
+        $result = [];
+        $pos = 0;
+        do {
+            $next = false;
+            $len = 0;
+            foreach ($cases as $case) {
+                $tentative = strpos($string, $case, $pos);
+                if ($tentative === false) {
+                    continue;
+                }
+                if ($next === false || $tentative < $next) {
+                    $len = strlen($case);
+                    $next = $tentative;
+                }
             }
+            if ($next === false) {
+                break;
+            }
+            if ($first) {
+                $first = false;
+            } else {
+                $result []= substr($string, $pos, $next-$pos);
+            }
+            $pos = $next+$len;
+        } while (true);
+        if (!$first) {
+            $result []= substr($string, $pos);
         }
 
         return $result;

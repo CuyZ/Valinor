@@ -39,6 +39,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'stringValueContainingSpaceWithSingleQuote' => 'baz baz',
             'stringValueContainingSpecialCharsWithSingleQuote' => 'baz & $ § % baz',
             'stringValueWithDoubleQuote' => 'fiz',
+            'stringValueWithSpaces' => 'a a',
+            'stringValueWithUtf8' => '🦄$',
             'stringValueContainingSpaceWithDoubleQuote' => 'fiz fiz',
             'stringValueContainingSpecialCharsWithDoubleQuote' => 'fiz & $ § % fiz',
             'classString' => self::class,
@@ -73,6 +75,8 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame('baz baz', $result->stringValueContainingSpaceWithSingleQuote); // @phpstan-ignore-line
             self::assertSame('baz & $ § % baz', $result->stringValueContainingSpecialCharsWithSingleQuote); // @phpstan-ignore-line
             self::assertSame('fiz', $result->stringValueWithDoubleQuote); // @phpstan-ignore-line
+            self::assertSame('a a', $result->stringValueWithSpaces); // @phpstan-ignore-line
+            self::assertSame('🦄$', $result->stringValueWithUtf8); // @phpstan-ignore-line
             self::assertSame('fiz fiz', $result->stringValueContainingSpaceWithDoubleQuote); // @phpstan-ignore-line
             self::assertSame('fiz & $ § % fiz', $result->stringValueContainingSpecialCharsWithDoubleQuote); // @phpstan-ignore-line
             self::assertSame(self::class, $result->classString);
@@ -150,6 +154,12 @@ class ScalarValues
     /** @var "fiz" */
     public string $stringValueWithDoubleQuote;
 
+    /** @var "a a" */
+    public string $stringValueWithSpaces;
+
+    /** @var "🦄$" */
+    public string $stringValueWithUtf8;
+
     /** @var "fiz fiz" */
     public string $stringValueContainingSpaceWithDoubleQuote;
 
@@ -184,6 +194,8 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param 'baz baz' $stringValueContainingSpaceWithSingleQuote
      * @param 'baz & $ § % baz' $stringValueContainingSpecialCharsWithSingleQuote
      * @param "fiz" $stringValueWithDoubleQuote
+     * @param "a a" $stringValueWithSpaces
+     * @param "🦄$" $stringValueWithUtf8
      * @param "fiz fiz" $stringValueContainingSpaceWithDoubleQuote
      * @param "fiz & $ § % fiz" $stringValueContainingSpecialCharsWithDoubleQuote
      * @param class-string $classString
@@ -211,6 +223,8 @@ class ScalarValuesWithConstructor extends ScalarValues
         string $stringValueContainingSpaceWithSingleQuote,
         string $stringValueContainingSpecialCharsWithSingleQuote,
         string $stringValueWithDoubleQuote,
+        string $stringValueWithSpaces,
+        string $stringValueWithUtf8,
         string $stringValueContainingSpaceWithDoubleQuote,
         string $stringValueContainingSpecialCharsWithDoubleQuote,
         string $classString,
@@ -237,6 +251,8 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->stringValueContainingSpaceWithSingleQuote = $stringValueContainingSpaceWithSingleQuote;
         $this->stringValueContainingSpecialCharsWithSingleQuote = $stringValueContainingSpecialCharsWithSingleQuote;
         $this->stringValueWithDoubleQuote = $stringValueWithDoubleQuote;
+        $this->stringValueWithSpaces = $stringValueWithSpaces;
+        $this->stringValueWithUtf8 = $stringValueWithUtf8;
         $this->stringValueContainingSpaceWithDoubleQuote = $stringValueContainingSpaceWithDoubleQuote;
         $this->stringValueContainingSpecialCharsWithDoubleQuote = $stringValueContainingSpecialCharsWithDoubleQuote;
         $this->classString = $classString;

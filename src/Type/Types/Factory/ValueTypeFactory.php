@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -26,6 +27,10 @@ final class ValueTypeFactory
 {
     public static function from(mixed $value): Type
     {
+        if (is_null($value)) {
+            return new NullType();
+        }
+
         if (is_bool($value)) {
             return $value ? BooleanValueType::true() : BooleanValueType::false();
         }
@@ -63,7 +68,7 @@ final class ValueTypeFactory
                 $elements[] = new ShapedArrayElement($keyType, self::from($child));
             }
 
-            return new ShapedArrayType(...$elements);
+            return new ShapedArrayType(null, null, ...$elements);
         }
 
         throw new CannotBuildTypeFromValue($value);

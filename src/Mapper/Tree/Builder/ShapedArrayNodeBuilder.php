@@ -36,7 +36,10 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         $node = TreeNode::branch($shell, $array, $children);
 
-        if (! $this->allowSuperfluousKeys && count($value) > count($children)) {
+        if (! $this->allowSuperfluousKeys
+            && $type->extra_key === null
+            && count($value) > count($children)
+        ) {
             $node = $node->withMessage(new UnexpectedShapedArrayKeys($value, $children));
         }
 
@@ -67,6 +70,17 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $children[$key] = $rootBuilder->build($child);
 
             unset($value[$key]);
+        }
+
+        if ($type->extra_key !== null) {
+            assert($type->extra_type !== null);
+            foreach ($value as $k => $v) {
+                if (!array_key_exists($k, $children)) {
+                    $children[$k] = $rootBuilder->build(
+                        $shell->child((string)$k, $type->extra_type)->withValue($v)
+                    );
+                }
+            }
         }
 
         return $children;
