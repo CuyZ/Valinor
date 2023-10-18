@@ -151,7 +151,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                             return SomeClassThatInheritsInterfaceB::class;
                         }
 
-                        self::fail("Combinaison `$type` / `$key` not handled.");
+                        self::fail("Combination `$type` / `$key` not handled.");
                     }
                 )
                 ->mapper()
