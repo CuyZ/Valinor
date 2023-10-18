@@ -114,6 +114,9 @@ class AnotherPhpStanLocalAlias
 }
 
 /**
+ * Comment:
+ * Some comment before import
+ *
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
  * @phpstan-import-type AliasWithoutEqualsSign from AnotherPhpStanLocalAlias
  */
@@ -177,6 +180,9 @@ class AnotherPsalmLocalAliases
 }
 
 /**
+ * Comment:
+ * Some comment before import
+ *
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
  * @psalm-import-type AliasWithoutEqualsSign from AnotherPsalmLocalAliases
  */
