@@ -27,6 +27,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'integer' => 1337,
             'positiveInteger' => 1337,
             'negativeInteger' => -1337,
+            'nonNegativeInteger' => 1337,
             'integerRangeWithPositiveValue' => 1337,
             'integerRangeWithNegativeValue' => -1337,
             'integerRangeWithMinAndMax' => 42,
@@ -61,6 +62,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->integer);
             self::assertSame(1337, $result->positiveInteger);
             self::assertSame(-1337, $result->negativeInteger);
+            self::assertSame(1337, $result->nonNegativeInteger);
             self::assertSame(1337, $result->integerRangeWithPositiveValue);
             self::assertSame(-1337, $result->integerRangeWithNegativeValue);
             self::assertSame(42, $result->integerRangeWithMinAndMax);
@@ -114,6 +116,9 @@ class ScalarValues
 
     /** @var negative-int */
     public int $negativeInteger = -1;
+
+    /** @var non-negative-int */
+    public int $nonNegativeInteger = 1;
 
     /** @var int<-1337, 1337> */
     public int $integerRangeWithPositiveValue = -1;
@@ -173,6 +178,7 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param -42.404 $negativeFloatValue
      * @param positive-int $positiveInteger
      * @param negative-int $negativeInteger
+     * @param non-negative-int $nonNegativeInteger
      * @param int<-1337, 1337> $integerRangeWithPositiveValue
      * @param int<-1337, 1337> $integerRangeWithNegativeValue
      * @param int<min, max> $integerRangeWithMinAndMax
@@ -199,6 +205,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         int $integer,
         int $positiveInteger,
         int $negativeInteger,
+        int $nonNegativeInteger,
         int $integerRangeWithPositiveValue,
         int $integerRangeWithNegativeValue,
         int $integerRangeWithMinAndMax,
@@ -225,6 +232,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->integer = $integer;
         $this->positiveInteger = $positiveInteger;
         $this->negativeInteger = $negativeInteger;
+        $this->nonNegativeInteger = $nonNegativeInteger;
         $this->integerRangeWithPositiveValue = $integerRangeWithPositiveValue;
         $this->integerRangeWithNegativeValue = $integerRangeWithNegativeValue;
         $this->integerRangeWithMinAndMax = $integerRangeWithMinAndMax;

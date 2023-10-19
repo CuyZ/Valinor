@@ -22,6 +22,9 @@ final class SomeClass
         /** @var negative-int */
         private int $negativeInteger,
 
+        /** @var non-negative-int */
+        private int $nonNegativeInteger,
+
         /** @var int<-42, 1337> */
         private int $integerRange,
 
