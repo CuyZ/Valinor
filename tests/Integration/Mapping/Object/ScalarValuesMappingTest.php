@@ -27,6 +27,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             'integer' => 1337,
             'positiveInteger' => 1337,
             'negativeInteger' => -1337,
+            'nonPositiveInteger' => -1337,
             'nonNegativeInteger' => 1337,
             'integerRangeWithPositiveValue' => 1337,
             'integerRangeWithNegativeValue' => -1337,
@@ -62,6 +63,7 @@ final class ScalarValuesMappingTest extends IntegrationTest
             self::assertSame(1337, $result->integer);
             self::assertSame(1337, $result->positiveInteger);
             self::assertSame(-1337, $result->negativeInteger);
+            self::assertSame(-1337, $result->nonPositiveInteger);
             self::assertSame(1337, $result->nonNegativeInteger);
             self::assertSame(1337, $result->integerRangeWithPositiveValue);
             self::assertSame(-1337, $result->integerRangeWithNegativeValue);
@@ -116,6 +118,9 @@ class ScalarValues
 
     /** @var negative-int */
     public int $negativeInteger = -1;
+
+    /** @var non-positive-int */
+    public int $nonPositiveInteger = -1;
 
     /** @var non-negative-int */
     public int $nonNegativeInteger = 1;
@@ -178,6 +183,7 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param -42.404 $negativeFloatValue
      * @param positive-int $positiveInteger
      * @param negative-int $negativeInteger
+     * @param non-positive-int $nonPositiveInteger
      * @param non-negative-int $nonNegativeInteger
      * @param int<-1337, 1337> $integerRangeWithPositiveValue
      * @param int<-1337, 1337> $integerRangeWithNegativeValue
@@ -205,6 +211,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         int $integer,
         int $positiveInteger,
         int $negativeInteger,
+        int $nonPositiveInteger,
         int $nonNegativeInteger,
         int $integerRangeWithPositiveValue,
         int $integerRangeWithNegativeValue,
@@ -232,6 +239,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->integer = $integer;
         $this->positiveInteger = $positiveInteger;
         $this->negativeInteger = $negativeInteger;
+        $this->nonPositiveInteger = $nonPositiveInteger;
         $this->nonNegativeInteger = $nonNegativeInteger;
         $this->integerRangeWithPositiveValue = $integerRangeWithPositiveValue;
         $this->integerRangeWithNegativeValue = $integerRangeWithNegativeValue;

@@ -30,6 +30,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -85,6 +86,7 @@ final class TypeCompilerTest extends TestCase
         yield [NativeIntegerType::get()];
         yield [PositiveIntegerType::get()];
         yield [NegativeIntegerType::get()];
+        yield [NonPositiveIntegerType::get()];
         yield [NonNegativeIntegerType::get()];
         yield [new IntegerValueType(1337)];
         yield [new IntegerValueType(-1337)];

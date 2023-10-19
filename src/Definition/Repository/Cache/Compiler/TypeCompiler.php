@@ -29,6 +29,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -59,6 +60,7 @@ final class TypeCompiler
             case $type instanceof NativeIntegerType:
             case $type instanceof PositiveIntegerType:
             case $type instanceof NegativeIntegerType:
+            case $type instanceof NonPositiveIntegerType:
             case $type instanceof NonNegativeIntegerType:
             case $type instanceof NativeStringType:
             case $type instanceof NonEmptyStringType:
