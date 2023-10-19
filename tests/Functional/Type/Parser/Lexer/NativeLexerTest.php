@@ -61,11 +61,15 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
+use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -208,67 +212,85 @@ final class NativeLexerTest extends TestCase
         yield 'Integer type' => [
             'raw' => 'int',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type - uppercase' => [
             'raw' => 'INT',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type followed by description' => [
             'raw' => 'int lorem ipsum',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type (longer version)' => [
             'raw' => 'integer',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type (longer version) - uppercase' => [
             'raw' => 'INTEGER',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Positive integer type' => [
             'raw' => 'positive-int',
             'transformed' => 'positive-int',
-            'type' => IntegerType::class,
+            'type' => PositiveIntegerType::class,
         ];
 
         yield 'Positive integer type - uppercase' => [
             'raw' => 'POSITIVE-INT',
             'transformed' => 'positive-int',
-            'type' => IntegerType::class,
+            'type' => PositiveIntegerType::class,
         ];
 
         yield 'Positive integer type followed by description' => [
             'raw' => 'positive-int lorem ipsum',
             'transformed' => 'positive-int',
-            'type' => IntegerType::class,
+            'type' => PositiveIntegerType::class,
         ];
 
         yield 'Negative integer type' => [
             'raw' => 'negative-int',
             'transformed' => 'negative-int',
-            'type' => IntegerType::class,
+            'type' => NegativeIntegerType::class,
         ];
 
         yield 'Negative integer type - uppercase' => [
             'raw' => 'NEGATIVE-INT',
             'transformed' => 'negative-int',
-            'type' => IntegerType::class,
+            'type' => NegativeIntegerType::class,
         ];
 
         yield 'Negative integer type followed by description' => [
             'raw' => 'negative-int lorem ipsum',
             'transformed' => 'negative-int',
-            'type' => IntegerType::class,
+            'type' => NegativeIntegerType::class,
+        ];
+
+        yield 'Non-negative integer type' => [
+            'raw' => 'non-negative-int',
+            'transformed' => 'non-negative-int',
+            'type' => NonNegativeIntegerType::class,
+        ];
+
+        yield 'Non-negative integer type - uppercase' => [
+            'raw' => 'NON-NEGATIVE-INT',
+            'transformed' => 'non-negative-int',
+            'type' => NonNegativeIntegerType::class,
+        ];
+
+        yield 'Non-negative integer type followed by description' => [
+            'raw' => 'non-negative-int lorem ipsum',
+            'transformed' => 'non-negative-int',
+            'type' => NonNegativeIntegerType::class,
         ];
 
         yield 'Positive integer value' => [
