@@ -67,6 +67,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -291,6 +292,24 @@ final class NativeLexerTest extends TestCase
             'raw' => 'non-negative-int lorem ipsum',
             'transformed' => 'non-negative-int',
             'type' => NonNegativeIntegerType::class,
+        ];
+
+        yield 'Non-positive integer type' => [
+            'raw' => 'non-positive-int',
+            'transformed' => 'non-positive-int',
+            'type' => NonPositiveIntegerType::class,
+        ];
+
+        yield 'Non-positive integer type - uppercase' => [
+            'raw' => 'NON-POSITIVE-INT',
+            'transformed' => 'non-positive-int',
+            'type' => NonPositiveIntegerType::class,
+        ];
+
+        yield 'Non-positive integer type followed by description' => [
+            'raw' => 'non-positive-int lorem ipsum',
+            'transformed' => 'non-positive-int',
+            'type' => NonPositiveIntegerType::class,
         ];
 
         yield 'Positive integer value' => [

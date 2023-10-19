@@ -22,6 +22,9 @@ final class SomeClass
         /** @var negative-int */
         private int $negativeInteger,
 
+        /** @var non-positive-int */
+        private int $nonPositiveInteger,
+
         /** @var non-negative-int */
         private int $nonNegativeInteger,
 
