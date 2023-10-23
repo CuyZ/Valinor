@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
-use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Type\BooleanType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
@@ -14,7 +14,7 @@ use function assert;
 use function is_bool;
 
 /** @internal */
-final class NativeBooleanType implements ScalarType
+final class NativeBooleanType implements BooleanType
 {
     use IsSingleton;
 
