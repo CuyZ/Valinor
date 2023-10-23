@@ -9,6 +9,7 @@ Below are listed the changelogs for all released version of the library.
 
 ## Version 1
 
+- [`1.7.0` — 23rd of October 2023](changelog/version-1.7.0.md)
 - [`1.6.1` — 11th of October 2023](changelog/version-1.6.1.md)
 - [`1.6.0` — 25th of August 2023](changelog/version-1.6.0.md)
 - [`1.5.0` — 7th of August 2023](changelog/version-1.5.0.md)
