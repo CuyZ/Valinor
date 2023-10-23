@@ -459,12 +459,12 @@ final class MapperBuilder
     /**
      * @todo doc
      *
-     * @psalm-param pure-callable $callback
+     * @psalm-param pure-callable $transformer
      */
-    public function registerNormalizer(callable $callback, int $priority = 0): self
+    public function registerTransformer(callable $transformer, int $priority = 0): self
     {
         $clone = clone $this;
-        $clone->settings->normalizers[$priority][] = $callback;
+        $clone->settings->transformers[$priority][] = $transformer;
 
         return $clone;
     }

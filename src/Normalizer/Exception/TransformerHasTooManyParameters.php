@@ -8,13 +8,13 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use LogicException;
 
 /** @internal */
-final class NormalizerHandlerHasNoParameter extends LogicException
+final class TransformerHasTooManyParameters extends LogicException
 {
     public function __construct(FunctionDefinition $function)
     {
         parent::__construct(
-            "Normalizer handler must have at least one parameter, none given for `{$function->signature()}`.",
-            1695064946,
+            "Transformer must have at most 2 parameters, {$function->parameters()->count()} given for `{$function->signature()}`.",
+            1695065433,
         );
     }
 }

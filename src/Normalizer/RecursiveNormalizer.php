@@ -14,7 +14,6 @@ use DateTimeInterface;
 use Generator;
 use stdClass;
 use UnitEnum;
-
 use WeakMap;
 
 use function array_filter;
@@ -28,7 +27,7 @@ use function iterator_to_array;
 /** @internal */
 final class RecursiveNormalizer implements Normalizer
 {
-    public function __construct(private FunctionsContainer $handlers) {}
+    public function __construct(private FunctionsContainer $transformers) {}
 
     public function normalize(mixed $value): mixed
     {
@@ -51,15 +50,15 @@ final class RecursiveNormalizer implements Normalizer
             $references[$value] = true;
         }
 
-        if ($this->handlers->count() === 0) {
-            $value = $this->defaultNormalizer($value);
+        if ($this->transformers->count() === 0) {
+            $value = $this->defaultTransformer($value);
         } else {
-            $handlers = array_filter(
-                [...$this->handlers],
+            $transformers = array_filter(
+                [...$this->transformers],
                 fn (FunctionObject $function) => $function->definition()->parameters()->at(0)->type()->accepts($value),
             );
 
-            $value = $this->nextNormalizer($handlers, $value)();
+            $value = $this->nextTransformer($transformers, $value)();
         }
 
         if (is_array($value)) {
@@ -73,24 +72,24 @@ final class RecursiveNormalizer implements Normalizer
     }
 
     /**
-     * @param array<FunctionObject> $handlers
+     * @param array<FunctionObject> $transformers
      */
-    private function nextNormalizer(array $handlers, mixed $value): callable
+    private function nextTransformer(array $transformers, mixed $value): callable
     {
-        if ($handlers === []) {
-            return fn () => $this->defaultNormalizer($value);
+        if ($transformers === []) {
+            return fn () => $this->defaultTransformer($value);
         }
 
-        $handler = array_shift($handlers);
+        $transformer = array_shift($transformers);
         $arguments = [
             $value,
-            fn () => $this->nextNormalizer($handlers, $value)(),
+            fn () => $this->nextTransformer($transformers, $value)(),
         ];
 
-        return fn () => ($handler->callback())(...$arguments);
+        return fn () => ($transformer->callback())(...$arguments);
     }
 
-    private function defaultNormalizer(mixed $value): mixed
+    private function defaultTransformer(mixed $value): mixed
     {
         if ($value === null) {
             return null;

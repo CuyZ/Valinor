@@ -35,7 +35,7 @@ final class MapperBuilderTest extends TestCase
         $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
         $builderI = $builderA->withCache(new FakeCache());
         $builderJ = $builderA->supportDateFormats('Y-m-d');
-        $builderK = $builderA->registerNormalizer(fn (stdClass $object) => 'foo');
+        $builderK = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer;
 
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasInvalidCallableParameter;
-use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasNoParameter;
-use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasTooManyParameters;
+use CuyZ\Valinor\Normalizer\Exception\TransformerHasInvalidCallableParameter;
+use CuyZ\Valinor\Normalizer\Exception\TransformerHasNoParameter;
+use CuyZ\Valinor\Normalizer\Exception\TransformerHasTooManyParameters;
 use CuyZ\Valinor\Type\Types\CallableType;
 
 /** @internal */
@@ -29,15 +29,15 @@ final class FunctionsCheckerNormalizer implements Normalizer
                 $parameters = $function->definition()->parameters();
 
                 if ($parameters->count() === 0) {
-                    throw new NormalizerHandlerHasNoParameter($function->definition());
+                    throw new TransformerHasNoParameter($function->definition());
                 }
 
                 if ($parameters->count() > 2) {
-                    throw new NormalizerHandlerHasTooManyParameters($function->definition());
+                    throw new TransformerHasTooManyParameters($function->definition());
                 }
 
                 if ($parameters->count() > 1 && ! $parameters->at(1)->type() instanceof CallableType) {
-                    throw new NormalizerHandlerHasInvalidCallableParameter($function->definition(), $parameters->at(1)->type());
+                    throw new TransformerHasInvalidCallableParameter($function->definition(), $parameters->at(1)->type());
                 }
             }
         }

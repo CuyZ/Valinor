@@ -182,7 +182,7 @@ final class Container
             Normalizer::class => function () use ($settings) {
                 $functions = new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
-                    $settings->sortedHandlers()
+                    $settings->transformersSortedByPriority()
                 );
 
                 $normalizer = new RecursiveNormalizer($functions);

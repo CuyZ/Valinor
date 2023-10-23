@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
-use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasInvalidCallableParameter;
-use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasNoParameter;
-use CuyZ\Valinor\Normalizer\Exception\NormalizerHandlerHasTooManyParameters;
+use CuyZ\Valinor\Normalizer\Exception\TransformerHasInvalidCallableParameter;
+use CuyZ\Valinor\Normalizer\Exception\TransformerHasNoParameter;
+use CuyZ\Valinor\Normalizer\Exception\TransformerHasTooManyParameters;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
@@ -27,15 +27,15 @@ final class NormalizerTest extends TestCase
     /**
      * @dataProvider normalize_basic_values_yields_expected_output_data_provider
      *
-     * @param array<int, list<callable>> $handlers
+     * @param array<int, list<callable>> $transformers
      */
-    public function test_normalize_basic_values_yields_expected_output(mixed $input, mixed $expected, array $handlers = []): void
+    public function test_normalize_basic_values_yields_expected_output(mixed $input, mixed $expected, array $transformers = []): void
     {
         $builder = new MapperBuilder();
 
-        foreach ($handlers as $priority => $handlersList) {
-            foreach ($handlersList as $handler) {
-                $builder = $builder->registerNormalizer($handler, $priority);
+        foreach ($transformers as $priority => $transformersList) {
+            foreach ($transformersList as $transformer) {
+                $builder = $builder->registerTransformer($transformer, $priority);
             }
         }
 
@@ -56,10 +56,10 @@ final class NormalizerTest extends TestCase
             'expected' => 'foo bar',
         ];
 
-        yield 'string with handler' => [
+        yield 'string with transformer' => [
             'input' => 'foo',
             'expected' => 'foo!',
-            'handlers' => [
+            'transformers' => [
                 [fn (string $value) => $value . '!'],
             ],
         ];
@@ -69,18 +69,18 @@ final class NormalizerTest extends TestCase
             'expected' => 42,
         ];
 
-        yield 'integer with handler' => [
+        yield 'integer with transformer' => [
             'input' => 42,
             'expected' => 43,
-            'handlers' => [
+            'transformers' => [
                 [fn (int $value) => $value + 1],
             ],
         ];
 
-        yield 'integer with negative-int handler' => [
+        yield 'integer with negative-int transformer' => [
             'input' => 42,
             'expected' => 42,
-            'handlers' => [
+            'transformers' => [
                 [
                     /** @param negative-int $value */
                     fn (int $value) => $value + 1
@@ -93,10 +93,10 @@ final class NormalizerTest extends TestCase
             'expected' => 1337.404,
         ];
 
-        yield 'float with handler' => [
+        yield 'float with transformer' => [
             'input' => 1337.404,
             'expected' => 1337.405,
-            'handlers' => [
+            'transformers' => [
                 [fn (float $value) => $value + 0.001],
             ],
         ];
@@ -121,10 +121,10 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'array with handler' => [
+        yield 'array with transformer' => [
             'input' => ['foo'],
             'expected' => ['foo', 'bar'],
-            'handlers' => [
+            'transformers' => [
                 [fn (array $value) => array_merge($value, ['bar'])],
             ],
         ];
@@ -255,36 +255,36 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'date with default handler' => [
+        yield 'date with default transformer' => [
             'input' => new DateTimeImmutable('1971-11-08'),
             'expected' => '1971-11-08T00:00:00.000000+00:00',
         ];
 
-        yield 'date with handler' => [
+        yield 'date with transformer' => [
             'input' => new DateTimeImmutable('1971-11-08'),
             'expected' => '1971-11-08',
-            'handlers' => [
+            'transformers' => [
                 [fn (DateTimeInterface $object) => $object->format('Y-m-d')],
             ],
         ];
 
-        yield 'object with handler' => [
+        yield 'object with transformer' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
-            'handlers' => [
+            'transformers' => [
                 [fn (BasicObject $object) => $object->value . '!'],
             ],
         ];
 
-        yield 'object with undefined object handler' => [
+        yield 'object with undefined object transformer' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
-            'handlers' => [
+            'transformers' => [
                 [fn (object $object) => $object->value . '!'], // @phpstan-ignore-line
             ],
         ];
 
-        yield 'iterable class with handler' => [
+        yield 'iterable class with transformer' => [
             'input' => new class () implements IteratorAggregate {
                 public string $foo = 'foo';
                 public string $bar = 'bar';
@@ -295,26 +295,26 @@ final class NormalizerTest extends TestCase
                 }
             },
             'output' => 'value',
-            'handlers' => [
+            'transformers' => [
                 [fn (object $object) => 'value'],
             ],
         ];
 
-        yield 'object with union object handler' => [
+        yield 'object with union object transformer' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo!',
-            'handlers' => [
+            'transformers' => [
                 [fn (stdClass|BasicObject $object) => $object->value . '!'],
             ],
         ];
 
-        yield 'object with handler calling next' => [
+        yield 'object with transformer calling next' => [
             'input' => new BasicObject('foo'),
             'expected' => [
                 'value' => 'foo',
                 'bar' => 'bar',
             ],
-            'handlers' => [[
+            'transformers' => [[
                 function (object $object, callable $next) {
                     $result = $next();
                     $result['bar'] = 'bar';
@@ -324,10 +324,10 @@ final class NormalizerTest extends TestCase
             ]],
         ];
 
-        yield 'object with several prioritized handlers' => [
+        yield 'object with several prioritized transformers' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo*!?',
-            'handlers' => [
+            'transformers' => [
                 -20 => [fn (BasicObject $object, callable $next) => $object->value],
                 -15 => [fn (stdClass $object) => 'bar'], // Should be ignored by the normalizer
                 -10 => [fn (BasicObject $object, callable $next) => $next() . '*'],
@@ -337,10 +337,10 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
-        yield 'object with several prioritized handlers with same priority' => [
+        yield 'object with several prioritized transformers with same priority' => [
             'input' => new BasicObject('foo'),
             'expected' => 'foo?!*',
-            'handlers' => [
+            'transformers' => [
                 10 => [
                     fn (BasicObject $object, callable $next) => $next() . '*',
                     fn (BasicObject $object, callable $next) => $next() . '!',
@@ -353,10 +353,10 @@ final class NormalizerTest extends TestCase
     public function test_no_priority_given_is_set_to_0(): void
     {
         $result = (new MapperBuilder())
-            ->registerNormalizer(fn (object $object) => 'foo', -2)
-            ->registerNormalizer(fn (object $object, callable $next) => $next() . '!', -1)
-            ->registerNormalizer(fn (object $object, callable $next) => $next() . '?')
-            ->registerNormalizer(fn (object $object, callable $next) => $next() . '*', 1)
+            ->registerTransformer(fn (object $object) => 'foo', -2)
+            ->registerTransformer(fn (object $object, callable $next) => $next() . '!', -1)
+            ->registerTransformer(fn (object $object, callable $next) => $next() . '?')
+            ->registerTransformer(fn (object $object, callable $next) => $next() . '*', 1)
             ->normalizer()
             ->normalize(new stdClass());
 
@@ -365,36 +365,36 @@ final class NormalizerTest extends TestCase
 
     public function test_no_param_in_callable_throws_exception(): void
     {
-        $this->expectException(NormalizerHandlerHasNoParameter::class);
+        $this->expectException(TransformerHasNoParameter::class);
         $this->expectExceptionCode(1695064946);
-        $this->expectExceptionMessageMatches('/Normalizer handler must have at least one parameter, none given for `.*`\./');
+        $this->expectExceptionMessageMatches('/Transformer must have at least one parameter, none given for `.*`\./');
 
         (new MapperBuilder())
-            ->registerNormalizer(fn () => 42)
+            ->registerTransformer(fn () => 42)
             ->normalizer()
             ->normalize(new stdClass());
     }
 
     public function test_too_many_params_in_callable_throws_exception(): void
     {
-        $this->expectException(NormalizerHandlerHasTooManyParameters::class);
+        $this->expectException(TransformerHasTooManyParameters::class);
         $this->expectExceptionCode(1695065433);
-        $this->expectExceptionMessageMatches('/Normalizer handler must have at most 2 parameters, 3 given for `.*`\./');
+        $this->expectExceptionMessageMatches('/Transformer must have at most 2 parameters, 3 given for `.*`\./');
 
         (new MapperBuilder())
-            ->registerNormalizer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
+            ->registerTransformer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
             ->normalizer()
             ->normalize(new stdClass());
     }
 
     public function test_second_param_is_not_callable_throws_exception(): void
     {
-        $this->expectException(NormalizerHandlerHasInvalidCallableParameter::class);
+        $this->expectException(TransformerHasInvalidCallableParameter::class);
         $this->expectExceptionCode(1695065710);
-        $this->expectExceptionMessageMatches('/Normalizer handler\'s second parameter must be a callable, `int` given for `.*`\./');
+        $this->expectExceptionMessageMatches('/Transformer\'s second parameter must be a callable, `int` given for `.*`\./');
 
         (new MapperBuilder())
-            ->registerNormalizer(fn (stdClass $object, int $unexpectedParameterType) => 42)
+            ->registerTransformer(fn (stdClass $object, int $unexpectedParameterType) => 42)
             ->normalizer()
             ->normalize(new stdClass());
     }
