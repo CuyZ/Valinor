@@ -457,7 +457,52 @@ final class MapperBuilder
     }
 
     /**
-     * @todo doc
+     * A transformer is responsible for transforming specific values during a
+     * normalization process.
+     *
+     * Transformers can be chained, the last registered one will take precedence
+     * over the previous ones.
+     *
+     * By specifying the type of its first parameter, the given callable will
+     * determine when the transformer is used. Advanced type annotations like
+     * `non-empty-string` can be used to target a more specific type.
+     *
+     * A second `callable` parameter may be declared, allowing to call the next
+     * transformer in the chain and get the modified value from it, before
+     * applying its own transformations.
+     *
+     * A priority can be given to a transformer, to make sure it is called
+     * before or after another one. The higher the priority, the sooner the
+     * transformer will be called. Default priority is 0.
+     *
+     * Example:
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *
+     *     // The type of the first parameter of the transformer will determine
+     *     // when it will be used by the normalizer.
+     *     ->registerTransformer(
+     *         fn (string $value, callable $next) => strtoupper($next())
+     *     )
+     *
+     *     // Transformers can be chained, the last registered one will take
+     *     // precedence over the previous ones, which can be called using the
+     *     // `$next` parameter.
+     *     ->registerTransformer(
+     *         fn (string $value, callable $next) => $next() . '!'
+     *     )
+     *
+     *     // A priority can be given to a transformer, to make sure it is
+     *     // called before or after another one.
+     *     ->registerTransformer(
+     *         fn (string $value, callable $next) => $next() . '?',
+     *         priority: -100 // Negative priority: transformer is called early
+     *     )
+     *
+     *     ->normalizer()
+     *     ->normalize('Hello world'); // HELLO WORLD?!
+     * ```
      *
      * @psalm-param pure-callable $transformer
      */
