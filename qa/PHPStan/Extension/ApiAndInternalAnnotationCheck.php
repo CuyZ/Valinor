@@ -34,7 +34,8 @@ final class ApiAndInternalAnnotationCheck implements Rule
             return [];
         }
 
-        if (str_starts_with($reflection->getName(), 'CuyZ\Valinor\Tests')) {
+        if (str_starts_with($reflection->getName(), 'CuyZ\Valinor\Tests')
+            || str_starts_with($reflection->getName(), 'CuyZValinorTests')) {
             return [];
         }
 

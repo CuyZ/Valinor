@@ -83,6 +83,7 @@ final class SingleNodeMappingTest extends IntegrationTest
 
     public function single_property_and_constructor_parameter_data_provider(): iterable
     {
+        require_once(__DIR__ .'/Fixture/SimpleNamespaceSimpleObject.php');
         yield 'Single scalar property' => [
             SingleScalarProperty::class, 'foo',
         ];
@@ -112,6 +113,9 @@ final class SingleNodeMappingTest extends IntegrationTest
         ];
         yield 'Single constructor array parameter with array containing entry with same key as parameter name' => [
             SingleConstructorArrayParameter::class, ['value' => 'foo', 'otherValue' => 'bar'],
+        ];
+        yield 'Single scalar property in simple namespace' => [
+            \CuyZValinorTestsIntegrationMappingFixture\Foo::class, ['foo'],
         ];
     }
 
