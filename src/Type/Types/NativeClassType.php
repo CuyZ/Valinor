@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function array_map;
 use function assert;
+use function get_parent_class;
 use function is_a;
 
 /** @internal */
@@ -25,6 +26,17 @@ final class NativeClassType implements ClassType, GenericType
         private ?self $parent = null,
     ) {
         $this->className = ltrim($this->className, '\\');
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public static function for(string $className): self
+    {
+        $parentClass = get_parent_class($className);
+        $parent = $parentClass ? self::for($parentClass) : null;
+
+        return new self($className, [], $parent);
     }
 
     public function className(): string

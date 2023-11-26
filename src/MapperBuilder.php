@@ -475,6 +475,10 @@ final class MapperBuilder
      * before or after another one. The higher the priority, the sooner the
      * transformer will be called. Default priority is 0.
      *
+     * An attribute on a property or a class can act as a transformer if:
+     *  1. It is callable (they define an `__invoke` method)
+     *  2. It is registered using `registerTransformer()`
+     *
      * Example:
      *
      * ```php
@@ -500,16 +504,26 @@ final class MapperBuilder
      *         priority: -100 // Negative priority: transformer is called early
      *     )
      *
+     *     // Transformer attributes must be registered before they are used by
+     *     // the normalizer.
+     *     ->registerTransformer(SomeAttribute::class)
+     *
      *     ->normalizer()
      *     ->normalize('Hello world'); // HELLO WORLD?!
      * ```
      *
-     * @psalm-param pure-callable $transformer
+     * @psalm-param pure-callable|class-string $transformer
+     * @param callable|class-string $transformer
      */
-    public function registerTransformer(callable $transformer, int $priority = 0): self
+    public function registerTransformer(callable|string $transformer, int $priority = 0): self
     {
         $clone = clone $this;
-        $clone->settings->transformers[$priority][] = $transformer;
+
+        if (is_callable($transformer)) {
+            $clone->settings->transformers[$priority][] = $transformer;
+        } else {
+            $clone->settings->transformerAttributes[$transformer] = null;
+        }
 
         return $clone;
     }

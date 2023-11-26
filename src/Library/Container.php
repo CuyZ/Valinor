@@ -47,9 +47,9 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
-use CuyZ\Valinor\Normalizer\FunctionsCheckerNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\RecursiveNormalizer;
+use CuyZ\Valinor\Normalizer\TransformersHandler;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
@@ -63,6 +63,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use Psr\SimpleCache\CacheInterface;
 
+use function array_keys;
 use function call_user_func;
 use function count;
 
@@ -179,16 +180,14 @@ final class Container
                 return new CacheObjectBuilderFactory($factory, $cache);
             },
 
-            Normalizer::class => function () use ($settings) {
-                $functions = new FunctionsContainer(
+            Normalizer::class => fn () => new RecursiveNormalizer(
+                $this->get(ClassDefinitionRepository::class),
+                new TransformersHandler(
                     $this->get(FunctionDefinitionRepository::class),
-                    $settings->transformersSortedByPriority()
-                );
-
-                $normalizer = new RecursiveNormalizer($functions);
-
-                return new FunctionsCheckerNormalizer($normalizer, $functions);
-            },
+                    $settings->transformersSortedByPriority(),
+                    array_keys($settings->transformerAttributes),
+                ),
+            ),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
                 new ReflectionClassDefinitionRepository(

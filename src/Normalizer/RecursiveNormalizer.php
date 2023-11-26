@@ -6,64 +6,70 @@ namespace CuyZ\Valinor\Normalizer;
 
 use BackedEnum;
 use Closure;
-use CuyZ\Valinor\Definition\FunctionObject;
-use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Definition\AttributesAggregate;
+use CuyZ\Valinor\Definition\AttributesContainer;
+use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use Generator;
 use stdClass;
 use UnitEnum;
 use WeakMap;
 
-use function array_filter;
-use function array_shift;
-use function is_array;
-use function is_iterable;
-use function is_object;
-use function is_scalar;
-use function iterator_to_array;
-
 /** @internal */
 final class RecursiveNormalizer implements Normalizer
 {
-    public function __construct(private FunctionsContainer $transformers) {}
+    public function __construct(
+        private ClassDefinitionRepository $classDefinitionRepository,
+        private TransformersHandler $transformers,
+    ) {}
 
     public function normalize(mixed $value): mixed
     {
-        /** @var WeakMap<object, true> $references */
-        $references = new WeakMap();
-
-        return $this->doNormalize($value, $references);
+        return $this->doNormalize($value, new WeakMap()); // @phpstan-ignore-line
     }
 
     /**
      * @param WeakMap<object, true> $references
      */
-    private function doNormalize(mixed $value, WeakMap $references): mixed
+    private function doNormalize(mixed $value, WeakMap $references, ?Attributes $attributes = null): mixed
     {
+        if ($value instanceof AlreadyNormalizedValue) {
+            return $value->value;
+        }
+
         if (is_object($value)) {
             if (isset($references[$value])) {
                 throw new CircularReferenceFoundDuringNormalization($value);
             }
 
+            // @infection-ignore-all
             $references[$value] = true;
         }
 
-        if ($this->transformers->count() === 0) {
-            $value = $this->defaultTransformer($value);
-        } else {
-            $transformers = array_filter(
-                [...$this->transformers],
-                fn (FunctionObject $function) => $function->definition()->parameters()->at(0)->type()->accepts($value),
-            );
+        if (is_object($value)) {
+            $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes();
 
-            $value = $this->nextTransformer($transformers, $value)();
+            $attributes = $attributes
+                ? new AttributesAggregate($attributes, $classAttributes)
+                : $classAttributes;
         }
+
+        // @infection-ignore-all / This is just an optimization, this is not tested.
+        $value = $this->transformers->count() === 0
+            ? $this->defaultTransformer($value, $references)
+            : $this->transformers->transform(
+                $value,
+                $attributes ?? AttributesContainer::empty(),
+                fn (mixed $value) => $this->defaultTransformer($value, $references),
+            );
 
         if (is_array($value)) {
             $value = array_map(
-                fn (mixed $value) => $this->doNormalize($value, $references),
+                fn (mixed $value) => $this->doNormalize($value, $references, null),
                 $value,
             );
         }
@@ -72,24 +78,9 @@ final class RecursiveNormalizer implements Normalizer
     }
 
     /**
-     * @param array<FunctionObject> $transformers
+     * @param WeakMap<object, true> $references
      */
-    private function nextTransformer(array $transformers, mixed $value): callable
-    {
-        if ($transformers === []) {
-            return fn () => $this->defaultTransformer($value);
-        }
-
-        $transformer = array_shift($transformers);
-        $arguments = [
-            $value,
-            fn () => $this->nextTransformer($transformers, $value)(),
-        ];
-
-        return fn () => ($transformer->callback())(...$arguments);
-    }
-
-    private function defaultTransformer(mixed $value): mixed
+    private function defaultTransformer(mixed $value, WeakMap $references): mixed
     {
         if ($value === null) {
             return null;
@@ -112,7 +103,16 @@ final class RecursiveNormalizer implements Normalizer
                 return (array)$value;
             }
 
-            return (fn () => get_object_vars($this))->call($value);
+            $values = (fn () => get_object_vars($this))->call($value);
+            $class = $this->classDefinitionRepository->for(NativeClassType::for($value::class));
+
+            foreach ($values as $key => $subValue) {
+                $attributes = $class->properties()->get($key)->attributes();
+
+                $values[$key] = new AlreadyNormalizedValue($this->doNormalize($subValue, $references, $attributes));
+            }
+
+            return $values;
         }
 
         if (is_iterable($value)) {

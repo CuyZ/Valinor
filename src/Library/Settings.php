@@ -50,6 +50,9 @@ final class Settings
     /** @var array<int, list<callable>> */
     public array $transformers = [];
 
+    /** @var array<class-string, null> */
+    public array $transformerAttributes = [];
+
     public function __construct()
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
@@ -57,7 +60,7 @@ final class Settings
     }
 
     /**
-     * @return array<callable>
+     * @return list<callable>
      */
     public function transformersSortedByPriority(): array
     {
