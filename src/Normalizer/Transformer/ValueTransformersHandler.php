@@ -2,58 +2,43 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer;
+namespace CuyZ\Valinor\Normalizer\Transformer;
 
-use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Normalizer\Exception\TransformerAttributeIsNotCallable;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasInvalidCallableParameter;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasNoParameter;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasTooManyParameters;
 use CuyZ\Valinor\Type\Types\CallableType;
 
-use CuyZ\Valinor\Utility\Reflection\Reflection;
-
 use function array_shift;
 use function call_user_func;
-use function count;
-use function is_callable;
+use function method_exists;
 
 /** @internal */
-final class TransformersHandler
+final class ValueTransformersHandler
 {
     /** @var array<string, true> */
     private array $transformerCheck = [];
 
     public function __construct(
         private FunctionDefinitionRepository $functionDefinitionRepository,
-        /** @var list<callable> */
-        private array $transformers,
-        /** @var list<class-string> */
-        private array $transformerAttributes,
     ) {}
 
-    public function transform(mixed $value, Attributes $attributes, callable $defaultTransformer): mixed
+    /**
+     * @param array<object> $attributes
+     * @param list<callable> $transformers
+     */
+    public function transform(mixed $value, array $attributes, array $transformers, callable $defaultTransformer): mixed
     {
-        $filteredAttributes = [];
-
-        foreach ($this->transformerAttributes as $transformerAttribute) {
-            $filteredAttributes = [...$filteredAttributes, ...$attributes->ofType($transformerAttribute)];
-        }
-
         return call_user_func(
-            $this->next($this->transformers, $value, $filteredAttributes, $defaultTransformer),
+            $this->next($transformers, $value, $attributes, $defaultTransformer),
         );
-    }
-
-    public function count(): int
-    {
-        return count($this->transformers) + count($this->transformerAttributes);
     }
 
     /**
      * @param list<callable> $transformers
-     * @param array<object> $attributes
+     * @param list<object> $attributes
      */
     private function next(array $transformers, mixed $value, array $attributes, callable $defaultTransformer): callable
     {
@@ -71,11 +56,11 @@ final class TransformersHandler
             return fn () => $defaultTransformer($value);
         }
 
-        $this->checkTransformer($transformer);
+        $function = $this->functionDefinitionRepository->for($transformer);
 
-        $parameters = $this->functionDefinitionRepository->for($transformer)->parameters();
+        $this->checkTransformer($function);
 
-        if (! $parameters->at(0)->type()->accepts($value)) {
+        if (! $function->parameters()->at(0)->type()->accepts($value)) {
             return $this->next($transformers, $value, [], $defaultTransformer);
         }
 
@@ -93,33 +78,30 @@ final class TransformersHandler
             return $next;
         }
 
-        if (! is_callable($attribute)) {
-            throw new TransformerAttributeIsNotCallable($attribute::class);
-        }
-
-        $this->checkTransformer($attribute);
-
-        $definition = $this->functionDefinitionRepository->for($attribute);
-
-        if (! $definition->parameters()->at(0)->type()->accepts($value)) {
+        if (! method_exists($attribute, 'normalize')) {
             return $this->nextAttribute($value, $attributes, $next);
         }
 
-        return fn () => $attribute($value, fn () => call_user_func($this->nextAttribute($value, $attributes, $next)));
+        // PHP8.1 First-class callable syntax
+        $function = $this->functionDefinitionRepository->for([$attribute, 'normalize']);
+
+        $this->checkTransformer($function);
+
+        if (! $function->parameters()->at(0)->type()->accepts($value)) {
+            return $this->nextAttribute($value, $attributes, $next);
+        }
+
+        return fn () => $attribute->normalize($value, fn () => call_user_func($this->nextAttribute($value, $attributes, $next)));
     }
 
-    private function checkTransformer(callable $transformer): void
+    private function checkTransformer(FunctionDefinition $function): void
     {
-        $key = Reflection::signature(Reflection::function($transformer));
-
-        if (isset($this->transformerCheck[$key])) {
+        if (isset($this->transformerCheck[$function->signature()])) {
             return;
         }
 
         // @infection-ignore-all
-        $this->transformerCheck[$key] = true;
-
-        $function = $this->functionDefinitionRepository->for($transformer);
+        $this->transformerCheck[$function->signature()] = true;
 
         $parameters = $function->parameters();
 

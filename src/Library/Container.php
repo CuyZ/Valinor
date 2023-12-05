@@ -30,14 +30,14 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
-use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -49,7 +49,8 @@ use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\RecursiveNormalizer;
-use CuyZ\Valinor\Normalizer\TransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
@@ -182,11 +183,14 @@ final class Container
 
             Normalizer::class => fn () => new RecursiveNormalizer(
                 $this->get(ClassDefinitionRepository::class),
-                new TransformersHandler(
+                new ValueTransformersHandler(
                     $this->get(FunctionDefinitionRepository::class),
-                    $settings->transformersSortedByPriority(),
-                    array_keys($settings->transformerAttributes),
                 ),
+                new KeyTransformersHandler(
+                    $this->get(FunctionDefinitionRepository::class),
+                ),
+                $settings->transformersSortedByPriority(),
+                array_keys($settings->transformerAttributes),
             ),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(

@@ -9,6 +9,7 @@ use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
+use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
@@ -549,7 +550,7 @@ final class MapperBuilder
         return $this->container()->argumentsMapper();
     }
 
-    public function normalizer(): Normalizer
+    public function normalizer(Format $format): Normalizer
     {
         return $this->container()->normalizer();
     }

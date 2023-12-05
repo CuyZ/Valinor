@@ -35,6 +35,14 @@ There are many benefits of using objects instead of plain arrays in a codebase:
    contain valid data.
 3. **Encapsulation** — the logic of an object is isolated from the outside.
 
+## What about serialization?
+
+This library also provides a serialization system that can help transform a
+given input into a data format (JSON, CSV, …), while preserving the original
+structure.
+
+You can find more information on this topic in the [normalizer chapter].
+
 ---
 
 Validating and transforming raw data into an object can be achieved easily with 
@@ -88,3 +96,5 @@ try {
 
 This library provides advanced features for more complex cases, check out the
 [next chapter](getting-started.md) to get started.
+
+[normalizer chapter]: serialization/normalizer.md

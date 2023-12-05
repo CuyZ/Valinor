@@ -7,11 +7,13 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 use Attribute;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
-use CuyZ\Valinor\Normalizer\Exception\TransformerAttributeIsNotCallable;
+use CuyZ\Valinor\Normalizer\Exception\KeyTransformerHasTooManyParameters;
+use CuyZ\Valinor\Normalizer\Exception\KeyTransformerParameterInvalidType;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasInvalidCallableParameter;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasNoParameter;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasTooManyParameters;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -23,19 +25,6 @@ use stdClass;
 use Traversable;
 
 use function array_merge;
-
-interface SomePropertyAttributeInterface
-{
-    public function __invoke(string $value, callable $next): string;
-}
-
-interface SomeClassAttributeInterface
-{
-    /**
-     * @return array<mixed>
-     */
-    public function __invoke(object $value, callable $next): array;
-}
 
 final class NormalizerTest extends TestCase
 {
@@ -63,7 +52,7 @@ final class NormalizerTest extends TestCase
             $builder = $builder->registerTransformer($transformerAttribute);
         }
 
-        $result = $builder->normalizer()->normalize($input);
+        $result = $builder->normalizer(Format::array())->normalize($input);
 
         self::assertSame($expected, $result);
     }
@@ -464,6 +453,113 @@ final class NormalizerTest extends TestCase
                 AddSuffixToPropertyAttribute::class,
             ],
         ];
+
+        yield 'object with attribute registered both by attribute name and interface name' => [
+            'input' => new class () {
+                public function __construct(
+                    #[AddPrefixToPropertyAttribute('prefix_')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['value' => 'prefix_value'],
+            'transformers' => [],
+            'transformerAttributes' => [
+                AddPrefixToPropertyAttribute::class,
+                SomePropertyAttributeInterface::class,
+            ],
+        ];
+
+        yield 'object with key transformer attributes on property' => [
+            'input' => new class () {
+                public function __construct(
+                    #[RenamePropertyKey('renamed')]
+                    #[AddPrefixToPropertyKey('prefix_')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['prefix_renamed' => 'value'],
+            'transformers' => [],
+            'transformerAttributes' => [
+                RenamePropertyKey::class,
+                AddPrefixToPropertyKey::class,
+            ],
+        ];
+
+        yield 'object with key transformer attributes on property are called in order' => [
+            'input' => new class () {
+                public function __construct(
+                    #[AddPrefixToPropertyKey('prefix1_')]
+                    #[AddPrefixToPropertyKeyBis('prefix2_')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['prefix2_prefix1_value' => 'value'],
+            'transformers' => [],
+            'transformerAttributes' => [
+                AddPrefixToPropertyKeyBis::class,
+                AddPrefixToPropertyKey::class,
+            ],
+        ];
+
+        yield 'object with key transformer attribute on property with matching attribute interface' => [
+            'input' => new class () {
+                public function __construct(
+                    #[RenamePropertyKey('renamed')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['renamed' => 'value'],
+            'transformers' => [],
+            'transformerAttributes' => [SomeKeyTransformerInterface::class],
+        ];
+
+        yield 'object with *registered* key transformer attribute and *unregistered* key transformer attribute on property' => [
+            'input' => new class () {
+                public function __construct(
+                    #[AddPrefixToPropertyKey('prefix1_')]
+                    #[AddPrefixToPropertyKeyBis('prefix2_')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['prefix2_value' => 'value'],
+            'transformers' => [],
+            'transformerAttributes' => [
+                AddPrefixToPropertyKeyBis::class,
+            ],
+        ];
+
+        yield 'object with key transformer attributes *and* transformer attribute on property' => [
+            'input' => new class () {
+                public function __construct(
+                    #[RenamePropertyKey('renamed')]
+                    #[AddPrefixToPropertyAttribute('prefix_')]
+                    #[AddPrefixToPropertyKey('prefix_')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['prefix_renamed' => 'prefix_value'],
+            'transformers' => [],
+            'transformerAttributes' => [
+                RenamePropertyKey::class,
+                AddPrefixToPropertyKey::class,
+                AddPrefixToPropertyAttribute::class,
+            ],
+        ];
+
+        yield 'object with key transformer attribute registered both by attribute name and interface name' => [
+            'input' => new class () {
+                public function __construct(
+                    #[RenamePropertyKey('renamed')]
+                    public string $value = 'value',
+                ) {}
+            },
+            'expected' => ['renamed' => 'value'],
+            'transformers' => [],
+            'transformerAttributes' => [
+                RenamePropertyKey::class,
+                SomeKeyTransformerInterface::class,
+            ],
+        ];
     }
 
     public function test_transformer_is_called_only_once_on_object_property_when_using_default_transformer(): void
@@ -472,7 +568,7 @@ final class NormalizerTest extends TestCase
             ->registerTransformer(
                 fn (string $value, callable $next) => $next() . '!',
             )
-            ->normalizer()
+            ->normalizer(Format::array())
             ->normalize(new BasicObject('foo'));
 
         self::assertSame(['value' => 'foo!'], $result);
@@ -496,7 +592,7 @@ final class NormalizerTest extends TestCase
                 fn (object $object, callable $next) => $next() . '*',
                 1,
             )
-            ->normalizer()
+            ->normalizer(Format::array())
             ->normalize(new stdClass());
 
         self::assertSame('foo!?*', $result);
@@ -510,7 +606,7 @@ final class NormalizerTest extends TestCase
 
         (new MapperBuilder())
             ->registerTransformer(fn () => 42)
-            ->normalizer()
+            ->normalizer(Format::array())
             ->normalize(new stdClass());
     }
 
@@ -522,7 +618,7 @@ final class NormalizerTest extends TestCase
 
         (new MapperBuilder())
             ->registerTransformer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
-            ->normalizer()
+            ->normalizer(Format::array())
             ->normalize(new stdClass());
     }
 
@@ -534,22 +630,8 @@ final class NormalizerTest extends TestCase
 
         (new MapperBuilder())
             ->registerTransformer(fn (stdClass $object, int $unexpectedParameterType) => 42)
-            ->normalizer()
+            ->normalizer(Format::array())
             ->normalize(new stdClass());
-    }
-
-    public function test_transformer_attribute_is_not_callable_throws_exception(): void
-    {
-        $this->expectException(TransformerAttributeIsNotCallable::class);
-        $this->expectExceptionCode(1700858616);
-        $this->expectExceptionMessageMatches('/Transformer attribute `.*` is not callable, it should provide a method `__invoke` with at least one parameter./');
-
-        $class = new #[NonCallableAttribute] class () {};
-
-        (new MapperBuilder())
-            ->registerTransformer(NonCallableAttribute::class)
-            ->normalizer()
-            ->normalize($class);
     }
 
     public function test_no_param_in_transformer_attribute_throws_exception(): void
@@ -558,11 +640,11 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695064946);
         $this->expectExceptionMessageMatches('/Transformer must have at least one parameter, none given for `.*`./');
 
-        $class = new #[CallableAttributeWithNoParameter] class () {};
+        $class = new #[TransformerAttributeWithNoParameter] class () {};
 
         (new MapperBuilder())
-            ->registerTransformer(CallableAttributeWithNoParameter::class)
-            ->normalizer()
+            ->registerTransformer(TransformerAttributeWithNoParameter::class)
+            ->normalizer(Format::array())
             ->normalize($class);
     }
 
@@ -572,11 +654,11 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695065433);
         $this->expectExceptionMessageMatches('/Transformer must have at most 2 parameters, 3 given for `.*`./');
 
-        $class = new #[CallableAttributeWithTooManyParameters] class () {};
+        $class = new #[TransformerAttributeWithTooManyParameters] class () {};
 
         (new MapperBuilder())
-            ->registerTransformer(CallableAttributeWithTooManyParameters::class)
-            ->normalizer()
+            ->registerTransformer(TransformerAttributeWithTooManyParameters::class)
+            ->normalizer(Format::array())
             ->normalize($class);
     }
 
@@ -586,11 +668,49 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695065710);
         $this->expectExceptionMessageMatches('/Transformer\'s second parameter must be a callable, `int` given for `.*`./');
 
-        $class = new #[CallableAttributeWithSecondParameterNotCallable] class () {};
+        $class = new #[TransformerAttributeWithSecondParameterNotCallable] class () {};
 
         (new MapperBuilder())
-            ->registerTransformer(CallableAttributeWithSecondParameterNotCallable::class)
-            ->normalizer()
+            ->registerTransformer(TransformerAttributeWithSecondParameterNotCallable::class)
+            ->normalizer(Format::array())
+            ->normalize($class);
+    }
+
+    public function test_too_many_params_in_key_transformer_attribute_throws_exception(): void
+    {
+        $this->expectException(KeyTransformerHasTooManyParameters::class);
+        $this->expectExceptionCode(1701701102);
+        $this->expectExceptionMessageMatches('/Key transformer must have at most 1 parameter, 2 given for `.*`./');
+
+        $class = new class () {
+            public function __construct(
+                #[KeyTransformerAttributeWithTooManyParameters]
+                public string $value = 'value',
+            ) {}
+        };
+
+        (new MapperBuilder())
+            ->registerTransformer(KeyTransformerAttributeWithTooManyParameters::class)
+            ->normalizer(Format::array())
+            ->normalize($class);
+    }
+
+    public function test_invalid_param_type_in_key_transformer_attribute_throws_exception(): void
+    {
+        $this->expectException(KeyTransformerParameterInvalidType::class);
+        $this->expectExceptionCode(1701706316);
+        $this->expectExceptionMessageMatches('/Key transformer parameter must be a string, stdClass given for `.*`./');
+
+        $class = new class () {
+            public function __construct(
+                #[KeyTransformerAttributeParameterNotStringOrInteger]
+                public string $value = 'value',
+            ) {}
+        };
+
+        (new MapperBuilder())
+            ->registerTransformer(KeyTransformerAttributeParameterNotStringOrInteger::class)
+            ->normalizer(Format::array())
             ->normalize($class);
     }
 
@@ -605,7 +725,7 @@ final class NormalizerTest extends TestCase
         $a->b = $b;
         $b->a = $a;
 
-        (new MapperBuilder())->normalizer()->normalize($a);
+        (new MapperBuilder())->normalizer(Format::array())->normalize($a);
     }
 
     public function test_unhandled_type_throws_exception(): void
@@ -614,7 +734,7 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695062925);
         $this->expectExceptionMessage('Value of type `Closure` cannot be normalized.');
 
-        (new MapperBuilder())->normalizer()->normalize(fn () => 42);
+        (new MapperBuilder())->normalizer(Format::array())->normalize(fn () => 42);
     }
 }
 
@@ -644,24 +764,49 @@ final class ObjectWithCircularReferenceB
 }
 
 #[Attribute]
-final class NonCallableAttribute {}
+final class NonTransformerAttribute {}
 
 #[Attribute]
-final class CallableAttributeWithNoParameter
+final class TransformerAttributeWithNoParameter
 {
-    public function __invoke(): void {}
+    public function normalize(): void {}
 }
 
 #[Attribute]
-final class CallableAttributeWithTooManyParameters
+final class TransformerAttributeWithTooManyParameters
 {
-    public function __invoke(stdClass $object, callable $next, int $unexpectedParameter): void {}
+    public function normalize(stdClass $object, callable $next, int $unexpectedParameter): void {}
 }
 
 #[Attribute]
-final class CallableAttributeWithSecondParameterNotCallable
+final class TransformerAttributeWithSecondParameterNotCallable
 {
-    public function __invoke(stdClass $object, int $unexpectedParameterType): void {}
+    public function normalize(stdClass $object, int $unexpectedParameterType): void {}
+}
+
+#[Attribute]
+final class KeyTransformerAttributeWithTooManyParameters
+{
+    public function normalizeKey(string $key, int $unexpectedParameter): void {}
+}
+
+#[Attribute]
+final class KeyTransformerAttributeParameterNotStringOrInteger
+{
+    public function normalizeKey(stdClass $unexpectedParameterType): void {}
+}
+
+interface SomePropertyAttributeInterface
+{
+    public function normalize(string $value, callable $next): string;
+}
+
+interface SomeClassAttributeInterface
+{
+    /**
+     * @return array<mixed>
+     */
+    public function normalize(object $value, callable $next): array;
 }
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
@@ -669,7 +814,7 @@ final class AddPrefixToPropertyAttribute implements SomePropertyAttributeInterfa
 {
     public function __construct(private string $prefix) {}
 
-    public function __invoke(string $value, callable $next): string
+    public function normalize(string $value, callable $next): string
     {
         return $this->prefix . $next();
     }
@@ -680,9 +825,47 @@ final class AddSuffixToPropertyAttribute implements SomePropertyAttributeInterfa
 {
     public function __construct(private string $suffix) {}
 
-    public function __invoke(string $value, callable $next): string
+    public function normalize(string $value, callable $next): string
     {
         return $next() . $this->suffix;
+    }
+}
+
+interface SomeKeyTransformerInterface
+{
+    public function normalizeKey(): string;
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+final class RenamePropertyKey implements SomeKeyTransformerInterface
+{
+    public function __construct(private string $value) {}
+
+    public function normalizeKey(): string
+    {
+        return $this->value;
+    }
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+final class AddPrefixToPropertyKey
+{
+    public function __construct(private string $prefix) {}
+
+    public function normalizeKey(string $key): string
+    {
+        return $this->prefix . $key;
+    }
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
+final class AddPrefixToPropertyKeyBis
+{
+    public function __construct(private string $prefix) {}
+
+    public function normalizeKey(string $key): string
+    {
+        return $this->prefix . $key;
     }
 }
 
@@ -708,7 +891,7 @@ final class AddPrefixToClassPropertiesAttribute implements SomeClassAttributeInt
 {
     public function __construct(private string $prefix) {}
 
-    public function __invoke(object $value, callable $next): array
+    public function normalize(object $value, callable $next): array
     {
         $prefixed = [];
 
@@ -723,7 +906,7 @@ final class AddPrefixToClassPropertiesAttribute implements SomeClassAttributeInt
 #[Attribute(Attribute::TARGET_CLASS)]
 final class TransformObjectToString
 {
-    public function __invoke(object $object): string
+    public function normalize(object $object): string
     {
         return 'foo';
     }

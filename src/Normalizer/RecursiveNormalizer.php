@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Normalizer;
 use BackedEnum;
 use Closure;
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Definition\AttributesAggregate;
-use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use Generator;
@@ -19,12 +19,19 @@ use stdClass;
 use UnitEnum;
 use WeakMap;
 
+use function array_map;
+
 /** @internal */
 final class RecursiveNormalizer implements Normalizer
 {
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
-        private TransformersHandler $transformers,
+        private ValueTransformersHandler $valueTransformers,
+        private KeyTransformersHandler $keyTransformers,
+        /** @var list<callable> */
+        private array $transformers,
+        /** @var list<class-string> */
+        private array $transformerAttributes,
     ) {}
 
     public function normalize(mixed $value): mixed
@@ -34,13 +41,10 @@ final class RecursiveNormalizer implements Normalizer
 
     /**
      * @param WeakMap<object, true> $references
+     * @param list<object> $attributes
      */
-    private function doNormalize(mixed $value, WeakMap $references, ?Attributes $attributes = null): mixed
+    private function doNormalize(mixed $value, WeakMap $references, array $attributes = []): mixed
     {
-        if ($value instanceof AlreadyNormalizedValue) {
-            return $value->value;
-        }
-
         if (is_object($value)) {
             if (isset($references[$value])) {
                 throw new CircularReferenceFoundDuringNormalization($value);
@@ -50,31 +54,31 @@ final class RecursiveNormalizer implements Normalizer
             $references[$value] = true;
         }
 
-        if (is_object($value)) {
+        if ($this->transformers === [] && $this->transformerAttributes === []) {
+            $value = $this->defaultTransformer($value, $references);
+
+            if (is_array($value)) {
+                $value = array_map(
+                    fn (mixed $value) => $this->doNormalize($value, $references),
+                    $value,
+                );
+            }
+
+            return $value;
+        }
+
+        if ($this->transformerAttributes !== [] && is_object($value)) {
             $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes();
 
-            $attributes = $attributes
-                ? new AttributesAggregate($attributes, $classAttributes)
-                : $classAttributes;
+            $attributes = [...$attributes, ...$classAttributes];
         }
 
-        // @infection-ignore-all / This is just an optimization, this is not tested.
-        $value = $this->transformers->count() === 0
-            ? $this->defaultTransformer($value, $references)
-            : $this->transformers->transform(
-                $value,
-                $attributes ?? AttributesContainer::empty(),
-                fn (mixed $value) => $this->defaultTransformer($value, $references),
-            );
-
-        if (is_array($value)) {
-            $value = array_map(
-                fn (mixed $value) => $this->doNormalize($value, $references, null),
-                $value,
-            );
-        }
-
-        return $value;
+        return $this->valueTransformers->transform(
+            $value,
+            $attributes,
+            $this->transformers,
+            fn (mixed $value) => $this->defaultTransformer($value, $references),
+        );
     }
 
     /**
@@ -100,19 +104,26 @@ final class RecursiveNormalizer implements Normalizer
             }
 
             if ($value::class === stdClass::class) {
-                return (array)$value;
+                return array_map(
+                    fn (mixed $value) => $this->doNormalize($value, $references),
+                    (array)$value
+                );
             }
 
             $values = (fn () => get_object_vars($this))->call($value);
+            $transformed = [];
+
             $class = $this->classDefinitionRepository->for(NativeClassType::for($value::class));
 
             foreach ($values as $key => $subValue) {
-                $attributes = $class->properties()->get($key)->attributes();
+                $attributes = $this->filterAttributes($class->properties()->get($key)->attributes());
 
-                $values[$key] = new AlreadyNormalizedValue($this->doNormalize($subValue, $references, $attributes));
+                $key = $this->keyTransformers->transformKey($key, $attributes);
+
+                $transformed[$key] = $this->doNormalize($subValue, $references, $attributes);
             }
 
-            return $values;
+            return $transformed;
         }
 
         if (is_iterable($value)) {
@@ -124,5 +135,24 @@ final class RecursiveNormalizer implements Normalizer
         }
 
         throw new TypeUnhandledByNormalizer($value);
+    }
+
+    /**
+     * @return list<object>
+     */
+    private function filterAttributes(Attributes $attributes): array
+    {
+        $filteredAttributes = [];
+
+        foreach ($attributes as $attribute) {
+            foreach ($this->transformerAttributes as $transformerAttribute) {
+                if ($attribute instanceof $transformerAttribute) {
+                    $filteredAttributes[] = $attribute;
+                    break;
+                }
+            }
+        }
+
+        return $filteredAttributes;
     }
 }
