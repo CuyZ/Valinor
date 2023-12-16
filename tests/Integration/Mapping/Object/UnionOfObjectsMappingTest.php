@@ -51,6 +51,27 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
         self::assertSame('fiz', $result->fiz);
     }
 
+    public function test_mapping_to_union_of_string_and_object_can_infer_object(): void
+    {
+        try {
+            $result = (new MapperBuilder())
+                ->mapper()
+                ->map(
+                    'string|' . SomeObjectWithBazAndFiz::class,
+                    [
+                        'baz' => 'baz',
+                        'fiz' => 'fiz',
+                    ]
+                );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeObjectWithBazAndFiz::class, $result);
+        self::assertSame('baz', $result->baz);
+        self::assertSame('fiz', $result->fiz);
+    }
+
     /**
      *
      * @dataProvider mapping_error_when_cannot_resolve_union_data_provider
