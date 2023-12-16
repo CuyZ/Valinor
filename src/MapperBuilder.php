@@ -385,6 +385,48 @@ final class MapperBuilder
     }
 
     /**
+     * Object with only one value (one constructor argument or one property)
+     * will be not be flattened.
+     *
+     * ```php
+     * final class Identifier
+     * {
+     *      public readonly string $value;
+     * }
+     *
+     * final class SomeClass
+     * {
+     *      public readonly Identifier $identifier;
+     *
+     *      public readonly string $description;
+     * }
+     *
+     * $mapper = (new \CuyZ\Valinor\MapperBuilder())->mapper();
+     *
+     * $mapper->map(SomeClass::class, [
+     *      // By default the input has been flattened and is easier to read.
+     *          'identifier' => 'some-identifier',
+     *          'description' => 'Lorem ipsum…',
+     *      ]);
+     *
+     *  $mapper->disableSinglePropertyFlattening()->map(SomeClass::class, [
+     *       'identifier' => [
+     *           // When deactivated the `value` key feels a bit excessive but follows mapped class.
+     *           'value' => 'some-identifier'
+     *       ],
+     *       'description' => 'Lorem ipsum…',
+     *  ]);
+     * ```
+     */
+    public function disableSinglePropertyFlattening(): self
+    {
+        $clone = clone $this;
+        $clone->settings->enableSinglePropertyFlattening = false;
+
+        return $clone;
+    }
+
+    /**
      * Allows permissive types `mixed` and `object` to be used during mapping.
      *
      * ```php

@@ -40,6 +40,8 @@ final class Settings
 
     public bool $enableFlexibleCasting = false;
 
+    public bool $enableSinglePropertyFlattening = true;
+
     public bool $allowSuperfluousKeys = false;
 
     public bool $allowPermissiveTypes = false;

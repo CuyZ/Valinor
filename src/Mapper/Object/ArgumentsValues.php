@@ -29,15 +29,17 @@ final class ArgumentsValues implements IteratorAggregate
     private bool $forInterface = false;
 
     private bool $hadSingleArgument = false;
+    private bool $enableSinglePropertyFlattening;
 
-    private function __construct(Arguments $arguments)
+    private function __construct(Arguments $arguments, bool $enableSinglePropertyFlattening)
     {
         $this->arguments = $arguments;
+        $this->enableSinglePropertyFlattening = $enableSinglePropertyFlattening;
     }
 
-    public static function forInterface(Arguments $arguments, mixed $value): self
+    public static function forInterface(Arguments $arguments, mixed $value, bool $enableSinglePropertyFlattening): self
     {
-        $self = new self($arguments);
+        $self = new self($arguments, $enableSinglePropertyFlattening);
         $self->forInterface = true;
 
         if (count($arguments) > 0) {
@@ -47,9 +49,9 @@ final class ArgumentsValues implements IteratorAggregate
         return $self;
     }
 
-    public static function forClass(Arguments $arguments, mixed $value): self
+    public static function forClass(Arguments $arguments, mixed $value, bool $enableSinglePropertyFlattening): self
     {
-        $self = new self($arguments);
+        $self = new self($arguments, $enableSinglePropertyFlattening);
         $self = $self->transform($value);
 
         return $self;
@@ -110,7 +112,7 @@ final class ArgumentsValues implements IteratorAggregate
 
     private function transformValueForSingleArgument(mixed $value): mixed
     {
-        if (count($this->arguments) !== 1) {
+        if (count($this->arguments) !== 1 || $this->enableSinglePropertyFlattening === false) {
             return $value;
         }
 

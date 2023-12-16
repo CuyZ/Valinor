@@ -123,7 +123,8 @@ final class Container
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectNodeBuilder::class),
-                    $settings->enableFlexibleCasting
+                    $settings->enableFlexibleCasting,
+                    $settings->enableSinglePropertyFlattening
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
@@ -144,7 +145,10 @@ final class Container
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
 
-            ObjectNodeBuilder::class => fn () => new ObjectNodeBuilder($settings->allowSuperfluousKeys),
+            ObjectNodeBuilder::class => fn () => new ObjectNodeBuilder(
+                $settings->allowSuperfluousKeys,
+                $settings->enableSinglePropertyFlattening
+            ),
 
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(

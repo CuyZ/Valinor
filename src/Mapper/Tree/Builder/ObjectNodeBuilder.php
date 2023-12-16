@@ -14,17 +14,20 @@ use function count;
 /** @internal */
 final class ObjectNodeBuilder
 {
-    public function __construct(private bool $allowSuperfluousKeys) {}
+    public function __construct(
+        private bool $allowSuperfluousKeys,
+        private bool $enableSinglePropertyFlattening
+    ) {}
 
     public function build(ObjectBuilder $builder, Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
-        $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell->value());
+        $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell->value(), $this->enableSinglePropertyFlattening);
 
         $children = $this->children($shell, $arguments, $rootBuilder);
 
         $object = $this->buildObject($builder, $children);
 
-        $node = $arguments->hadSingleArgument()
+        $node = ($arguments->hadSingleArgument() && $this->enableSinglePropertyFlattening)
             ? TreeNode::flattenedBranch($shell, $object, $children[0])
             : TreeNode::branch($shell, $object, $children);
 
