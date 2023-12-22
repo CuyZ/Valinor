@@ -28,6 +28,7 @@ final class ValueTransformersHandler
     /**
      * @param array<object> $attributes
      * @param list<callable> $transformers
+     * @return array<mixed>|scalar|null
      */
     public function transform(mixed $value, array $attributes, array $transformers, callable $defaultTransformer): mixed
     {

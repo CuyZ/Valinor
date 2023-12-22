@@ -47,6 +47,9 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
+use CuyZ\Valinor\Normalizer\FormatNormalizer;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
+use CuyZ\Valinor\Normalizer\Formatter\FormatterFactory;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\RecursiveNormalizer;
 use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
@@ -181,7 +184,7 @@ final class Container
                 return new CacheObjectBuilderFactory($factory, $cache);
             },
 
-            Normalizer::class => fn () => new RecursiveNormalizer(
+            RecursiveNormalizer::class => fn () => new RecursiveNormalizer(
                 $this->get(ClassDefinitionRepository::class),
                 new ValueTransformersHandler(
                     $this->get(FunctionDefinitionRepository::class),
@@ -198,7 +201,7 @@ final class Container
                     $this->get(TypeParserFactory::class),
                     $this->get(AttributesRepository::class),
                 ),
-                $this->get(CacheInterface::class)
+                $this->get(CacheInterface::class),
             ),
 
             FunctionDefinitionRepository::class => fn () => new CacheFunctionDefinitionRepository(
@@ -245,9 +248,18 @@ final class Container
         return $this->get(ArgumentsMapper::class);
     }
 
-    public function normalizer(): Normalizer
+    /**
+     * @template T
+     *
+     * @param FormatterFactory<Formatter<T>> $formatterFactory
+     * @return Normalizer<T>
+     */
+    public function normalizer(FormatterFactory $formatterFactory): Normalizer
     {
-        return $this->get(Normalizer::class);
+        return new FormatNormalizer(
+            $formatterFactory,
+            $this->get(RecursiveNormalizer::class),
+        );
     }
 
     public function cacheWarmupService(): RecursiveCacheWarmupService

@@ -26,6 +26,10 @@ providing precise and human-readable error messages.
 The mapper can handle native PHP types as well as other advanced types supported
 by [PHPStan] and [Psalm] like shaped arrays, generics, integer ranges and more.
 
+The library also provides a normalization mechanism that can help transform any
+input into a data format (JSON, CSV, …), while preserving the original 
+structure.
+
 ## Installation
 
 ```bash
