@@ -26,7 +26,7 @@ $userAsArray = $normalizer->normalize(
     new \My\App\User(
         name: 'John Doe',
         age: 42,
-        country: new Country(
+        country: new \My\App\Country(
             name: 'France',
             countryCode: 'FR',
         ),
@@ -62,9 +62,27 @@ A transformer can be a callable (function, closure or a class implementing the
 ### Callable transformers
 
 A callable transformer must declare at least one argument, for which the type
-will determine when it is used during normalization. For instance, when a string
-is found during normalization, all transformers that have a first parameter with
-a `string` type will be called.
+will determine when it is used during normalization. In the example below, a
+global transformer is used to format any date found by the normalizer.
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerTransformer(
+        fn (\DateTimeInterface $date) => $date->format('Y/m/d')
+    )
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize(
+        new \My\App\Event(
+            eventName: 'Release of legendary album',
+            date: new \DateTimeImmutable('1971-11-08'),
+        )
+    );
+
+// [
+//     'eventName' => 'Release of legendary album',
+//     'date' => '1971/11/08',
+// ]
+```
 
 Transformers can be chained. To do so, a second parameter of type `callable`
 must be declared in a transformer. This parameter — named `$next` by convention
@@ -74,31 +92,36 @@ must be declared in a transformer. This parameter — named `$next` by conventio
 (new \CuyZ\Valinor\MapperBuilder())
 
     // The type of the first parameter of the transformer will determine when it
-    // is used during normalization. Note that advanced type annotations
-    // like `non-empty-string` can be used to target a more specific type.
+    // is used during normalization.
     ->registerTransformer(
-        /**
-         * @param non-empty-string $value 
-         */
         fn (string $value, callable $next) => strtoupper($next())
     )
 
     // Transformers can be chained, the last registered one will take precedence
     // over the previous ones, which can be called using the `$next` parameter.
     ->registerTransformer(
+        /**
+         * Advanced type annotations like `non-empty-string` can be used to
+         * target a more specific type.
+         * 
+         * @param non-empty-string $value 
+         */
         fn (string $value, callable $next) => $next() . '!'
     )
 
     // A priority can be given to a transformer, to make sure it is called
-    // before or after another one. The higher the priority, the sooner the
-    // transformer will be called. Default priority is 0.
+    // before or after another one. The higher priority, the sooner the
+    // transformer will be called. The default priority is 0.
     ->registerTransformer(
+        /**
+         * @param non-empty-string $value 
+         */
         fn (string $value, callable $next) => $next() . '?',
-        priority: -100
+        priority: 100
     )
 
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
-    ->normalize('Hello world'); // HELLO WORLD?!
+    ->normalize('Hello world'); // HELLO WORLD!?
 ```
 
 ### Attribute transformers
@@ -120,10 +143,10 @@ giving its class name to the `registerTransformer` method.
     interface SomeAttributeInterface {}
 
     #[\Attribute]
-    final class SomeAttribute implements SomeAttributeInterface {}
+    final class SomeAttribute implements \My\App\SomeAttributeInterface {}
 
     #[\Attribute]
-    final class SomeOtherAttribute implements SomeAttributeInterface {}
+    final class SomeOtherAttribute implements \My\App\SomeAttributeInterface {}
 
     (new \CuyZ\Valinor\MapperBuilder())
         // Registers both `SomeAttribute` and `SomeOtherAttribute` attributes

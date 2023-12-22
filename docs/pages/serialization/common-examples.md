@@ -75,8 +75,8 @@ final readonly class Event
 {
     public function __construct(
         public string $eventName,
-        #[DateTimeFormat('Y/m/d')]
-        public DateTimeInterface $date,
+        #[\My\App\DateTimeFormat('Y/m/d')]
+        public \DateTimeInterface $date,
     ) {}
 }
 

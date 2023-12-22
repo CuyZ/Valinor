@@ -23,7 +23,7 @@ final class Format
      *     new \My\App\User(
      *         name: 'John Doe',
      *         age: 42,
-     *         country: new Country(
+     *         country: new \My\App\Country(
      *             name: 'France',
      *             countryCode: 'FR',
      *         ),
