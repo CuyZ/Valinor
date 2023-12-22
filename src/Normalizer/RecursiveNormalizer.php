@@ -16,11 +16,14 @@ use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use Generator;
+use ReflectionClass;
 use stdClass;
 use UnitEnum;
 use WeakMap;
 
 use function array_map;
+use function array_reverse;
+use function get_object_vars;
 
 /**  @internal */
 final class RecursiveNormalizer
@@ -120,6 +123,32 @@ final class RecursiveNormalizer
             }
 
             $values = (fn () => get_object_vars($this))->call($value);
+
+            // @infection-ignore-all
+            if (PHP_VERSION_ID < 8_01_00) {
+                // In PHP 8.1, behavior changed for `get_object_vars` function:
+                // the sorting order was taking children properties first, now
+                // it takes parents properties first. This code is a temporary
+                // workaround to keep the same behavior in PHP 8.0 and later
+                // versions.
+                $sorted = [];
+
+                $parents = array_reverse(class_parents($value));
+                $parents[] = $value::class;
+
+                foreach ($parents as $parent) {
+                    foreach ((new ReflectionClass($parent))->getProperties() as $property) {
+                        if (! isset($values[$property->name])) {
+                            continue;
+                        }
+
+                        $sorted[$property->name] = $values[$property->name];
+                    }
+                }
+
+                $values = $sorted;
+            }
+
             $transformed = [];
 
             $class = $this->classDefinitionRepository->for(NativeClassType::for($value::class));

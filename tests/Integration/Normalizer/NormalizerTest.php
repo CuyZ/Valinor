@@ -247,8 +247,9 @@ final class NormalizerTest extends TestCase
         yield 'class with inherited properties' => [
             'input' => new SomeChildClass(),
             'output' => [
-                'stringFromParentClass' => 'foo',
-                'stringFromChildClass' => 'bar',
+                'stringFromGrandParentClass' => 'foo',
+                'stringFromParentClass' => 'bar',
+                'stringFromChildClass' => 'baz',
             ],
         ];
 
@@ -743,14 +744,19 @@ final class BasicObject
     public function __construct(public string $value) {}
 }
 
-class SomeParentClass
+class SomeGrandParentClass
 {
-    public string $stringFromParentClass = 'foo';
+    public string $stringFromGrandParentClass = 'foo';
+}
+
+class SomeParentClass extends SomeGrandParentClass
+{
+    public string $stringFromParentClass = 'bar';
 }
 
 final class SomeChildClass extends SomeParentClass
 {
-    public string $stringFromChildClass = 'bar';
+    public string $stringFromChildClass = 'baz';
 }
 
 final class ObjectWithCircularReferenceA
