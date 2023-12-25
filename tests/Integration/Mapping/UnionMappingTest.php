@@ -10,9 +10,6 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\City;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
-/**
- * @requires PHP >= 8.1
- */
 final class UnionMappingTest extends IntegrationTest
 {
     public function test_union_with_int_or_object(): void
