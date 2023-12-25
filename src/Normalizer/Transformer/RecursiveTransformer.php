@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer;
+namespace CuyZ\Valinor\Normalizer\Transformer;
 
 use BackedEnum;
 use Closure;
@@ -10,9 +10,6 @@ use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
-use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
-use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use Generator;
@@ -24,9 +21,11 @@ use WeakMap;
 use function array_map;
 use function array_reverse;
 use function get_object_vars;
+use function is_array;
+use function is_iterable;
 
 /**  @internal */
-final class RecursiveNormalizer
+final class RecursiveTransformer
 {
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
@@ -39,22 +38,19 @@ final class RecursiveNormalizer
     ) {}
 
     /**
-     * @param Formatter<mixed> $formatter
+     * @return array<mixed>|scalar|null
      */
-    public function normalize(mixed $value, Formatter $formatter): mixed
+    public function transform(mixed $value): mixed
     {
-        $this->doNormalize($value, $formatter, new WeakMap()); // @phpstan-ignore-line
-
-        return $formatter->value();
+        return $this->doTransform($value, new WeakMap()); // @phpstan-ignore-line
     }
 
     /**
-     * @param Formatter<mixed> $formatter
      * @param WeakMap<object, true> $references
      * @param list<object> $attributes
      * @return iterable<mixed>|scalar|null
      */
-    private function doNormalize(mixed $value, Formatter $formatter, WeakMap $references, array $attributes = []): mixed
+    private function doTransform(mixed $value, WeakMap $references, array $attributes = []): mixed
     {
         if (is_object($value)) {
             if (isset($references[$value])) {
@@ -66,11 +62,7 @@ final class RecursiveNormalizer
         }
 
         if ($this->transformers === [] && $this->transformerAttributes === []) {
-            $value = $this->defaultTransformer($value, $formatter, $references);
-
-            $formatter->push($value);
-
-            return $value;
+            return $this->defaultTransformer($value, $references);
         }
 
         if ($this->transformerAttributes !== [] && is_object($value)) {
@@ -79,24 +71,19 @@ final class RecursiveNormalizer
             $attributes = [...$attributes, ...$classAttributes];
         }
 
-        $value = $this->valueTransformers->transform(
+        return $this->valueTransformers->transform(
             $value,
             $attributes,
             $this->transformers,
-            fn (mixed $value) => $this->defaultTransformer($value, $formatter, $references),
+            fn (mixed $value) => $this->defaultTransformer($value, $references),
         );
-
-        $formatter->push($value);
-
-        return $value;
     }
 
     /**
-     * @param Formatter<mixed> $formatter
      * @param WeakMap<object, true> $references
      * @return iterable<mixed>|scalar|null
      */
-    private function defaultTransformer(mixed $value, Formatter $formatter, WeakMap $references): mixed
+    private function defaultTransformer(mixed $value, WeakMap $references): mixed
     {
         if ($value === null) {
             return null;
@@ -117,7 +104,7 @@ final class RecursiveNormalizer
 
             if ($value::class === stdClass::class) {
                 return array_map(
-                    fn (mixed $value) => $this->doNormalize($value, $formatter, $references),
+                    fn (mixed $value) => $this->doTransform($value, $references),
                     (array)$value
                 );
             }
@@ -158,16 +145,23 @@ final class RecursiveNormalizer
 
                 $key = $this->keyTransformers->transformKey($key, $attributes);
 
-                $transformed[$key] = $this->doNormalize($subValue, $formatter, $references, $attributes);
+                $transformed[$key] = $this->doTransform($subValue, $references, $attributes);
             }
 
             return $transformed;
         }
 
         if (is_iterable($value)) {
-            return (function () use ($value, $formatter, $references) {
+            if (is_array($value)) {
+                return array_map(
+                    fn (mixed $value) => $this->doTransform($value, $references),
+                    $value
+                );
+            }
+
+            return (function () use ($value, $references) {
                 foreach ($value as $key => $item) {
-                    yield $key => $this->doNormalize($item, $formatter, $references);
+                    yield $key => $this->doTransform($item, $references);
                 }
             })();
         }

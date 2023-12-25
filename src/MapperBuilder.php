@@ -9,8 +9,7 @@ use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
-use CuyZ\Valinor\Normalizer\Formatter\FormatterFactory;
+use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
@@ -552,17 +551,14 @@ final class MapperBuilder
     }
 
     /**
-     * Returns a normalizer instance. To see list of available formats, check
-     * out: @see \CuyZ\Valinor\Normalizer\Format
+     * @template T of Normalizer
      *
-     * @template T
-     *
-     * @param FormatterFactory<Formatter<T>> $formatterFactory
-     * @return Normalizer<T>
+     * @param Format<T> $format
+     * @return T
      */
-    public function normalizer(FormatterFactory $formatterFactory): Normalizer
+    public function normalizer(Format $format): Normalizer
     {
-        return $this->container()->normalizer($formatterFactory);
+        return $this->container()->normalizer($format);
     }
 
     public function __clone()

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer;
 
-use CuyZ\Valinor\Normalizer\Formatter\ArrayFormatterFactory;
-
-/** @api */
+/**
+ * @api
+ *
+ * @template T of Normalizer
+ */
 final class Format
 {
     /**
@@ -42,9 +44,24 @@ final class Format
      * //     ],
      * // ];
      * ```
+     *
+     * @return self<ArrayNormalizer>
      */
-    public static function array(): ArrayFormatterFactory
+    public static function array(): self
     {
-        return new ArrayFormatterFactory();
+        return new self(ArrayNormalizer::class);
+    }
+
+    /**
+     * @param class-string<T> $type
+     */
+    private function __construct(private string $type) {}
+
+    /**
+     * @return class-string<T>
+     */
+    public function type(): string
+    {
+        return $this->type;
     }
 }

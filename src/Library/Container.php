@@ -47,12 +47,11 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
-use CuyZ\Valinor\Normalizer\FormatNormalizer;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
-use CuyZ\Valinor\Normalizer\Formatter\FormatterFactory;
+use CuyZ\Valinor\Normalizer\ArrayNormalizer;
+use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
-use CuyZ\Valinor\Normalizer\RecursiveNormalizer;
 use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
@@ -184,7 +183,7 @@ final class Container
                 return new CacheObjectBuilderFactory($factory, $cache);
             },
 
-            RecursiveNormalizer::class => fn () => new RecursiveNormalizer(
+            RecursiveTransformer::class => fn () => new RecursiveTransformer(
                 $this->get(ClassDefinitionRepository::class),
                 new ValueTransformersHandler(
                     $this->get(FunctionDefinitionRepository::class),
@@ -194,6 +193,10 @@ final class Container
                 ),
                 $settings->transformersSortedByPriority(),
                 array_keys($settings->transformerAttributes),
+            ),
+
+            ArrayNormalizer::class => fn () => new ArrayNormalizer(
+                $this->get(RecursiveTransformer::class),
             ),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
@@ -249,17 +252,14 @@ final class Container
     }
 
     /**
-     * @template T
+     * @template T of Normalizer
      *
-     * @param FormatterFactory<Formatter<T>> $formatterFactory
-     * @return Normalizer<T>
+     * @param Format<T> $format
+     * @return T
      */
-    public function normalizer(FormatterFactory $formatterFactory): Normalizer
+    public function normalizer(Format $format): Normalizer
     {
-        return new FormatNormalizer(
-            $formatterFactory,
-            $this->get(RecursiveNormalizer::class),
-        );
+        return $this->get($format->type());
     }
 
     public function cacheWarmupService(): RecursiveCacheWarmupService
