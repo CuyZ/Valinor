@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CuyZValinorTestsIntegrationMappingFixture;
+namespace SimpleNamespace;
 
-final class Foo
+final class SimpleNamespacedObject
 {
     public function __construct(
         /** @var list<string> */
