@@ -70,9 +70,11 @@ final class SourceTest extends IntegrationTest
             Source::json('{"someValue": {"someNestedValue": "foo", "someOtherNestedValue": "bar"}, "someOtherValue": {"someNestedValue": "foo2", "someOtherNestedValue": "bar2"}}'),
         ];
 
-        yield 'YAML' => [
-            Source::yaml("someValue:\n someNestedValue: foo\n someOtherNestedValue: bar\nsomeOtherValue:\n someNestedValue: foo2\n someOtherNestedValue: bar2"),
-        ];
+        if (extension_loaded('yaml')) {
+            yield 'YAML' => [
+                Source::yaml("someValue:\n someNestedValue: foo\n someOtherNestedValue: bar\nsomeOtherValue:\n someNestedValue: foo2\n someOtherNestedValue: bar2"),
+            ];
+        }
 
         yield 'Camel case' => [
             Source::array([

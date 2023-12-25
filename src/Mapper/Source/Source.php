@@ -21,8 +21,7 @@ final class Source implements IteratorAggregate
     private function __construct(
         /** @var iterable<mixed> */
         private iterable $delegate
-    ) {
-    }
+    ) {}
 
     /**
      * @param iterable<mixed> $data
@@ -67,7 +66,7 @@ final class Source implements IteratorAggregate
     }
 
     /**
-     * @param array<string, string> $map
+     * @param array<string> $map
      */
     public function map(array $map): Source
     {

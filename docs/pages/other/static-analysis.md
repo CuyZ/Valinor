@@ -5,18 +5,26 @@ To help static analysis of a codebase using this library, an extension for
 better understand the behaviour of the mapper.
 
 !!! note
-    
-    To activate this feature, the plugin must be registered correcly:
-    
+
+    To activate this feature, the plugin must be registered correctly:
+
     === "PHPStan"
 
         ```yaml title="phpstan.neon"
         includes:
             - vendor/cuyz/valinor/qa/PHPStan/valinor-phpstan-configuration.php
         ```
-    
+
     === "Psalm"
-    
+
+        ```json title="composer.json"
+        "autoload-dev": {
+            "files": [
+                "vendor/cuyz/valinor/qa/Psalm/ValinorPsalmPlugin.php"
+            ]
+        }
+        ```
+
         ```xml title="psalm.xml"
         <plugins>
             <pluginClass class="CuyZ\Valinor\QA\Psalm\ValinorPsalmPlugin"/>
@@ -49,16 +57,16 @@ $objects = (new \CuyZ\Valinor\MapperBuilder())
 foreach ($objects as $object) {
     // ✅
     echo $object->foo;
-    
+
     // ✅
     echo $object->bar * 2;
-    
+
     // ❌ Cannot perform operation between `string` and `int`
     echo $object->foo * $object->bar;
-    
+
     // ❌ Property `SomeClass::$fiz` is not defined
     echo $object->fiz;
-} 
+}
 ```
 
 **Mapping to a shaped array**
@@ -88,7 +96,7 @@ echo $array['fiz'];
 
 ```php
 $someFunction = function(string $foo, int $bar): string {
-	return "$foo / $bar";
+    return "$foo / $bar";
 };
 
 $arguments = (new \CuyZ\Valinor\MapperBuilder())

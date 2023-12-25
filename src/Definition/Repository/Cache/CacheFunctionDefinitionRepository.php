@@ -16,8 +16,7 @@ final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepos
         private FunctionDefinitionRepository $delegate,
         /** @var CacheInterface<FunctionDefinition> */
         private CacheInterface $cache
-    ) {
-    }
+    ) {}
 
     public function for(callable $function): FunctionDefinition
     {

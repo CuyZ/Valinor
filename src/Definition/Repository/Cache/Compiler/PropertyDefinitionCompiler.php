@@ -12,8 +12,7 @@ final class PropertyDefinitionCompiler
     public function __construct(
         private TypeCompiler $typeCompiler,
         private AttributesCompiler $attributesCompiler
-    ) {
-    }
+    ) {}
 
     public function compile(PropertyDefinition $property): string
     {

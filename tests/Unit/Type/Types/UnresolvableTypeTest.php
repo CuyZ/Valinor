@@ -6,31 +6,25 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 final class UnresolvableTypeTest extends TestCase
 {
-    public function test_unresolvable_type_has_correct_code(): void
+    public function test_call_unresolvable_type_accepts_throws_exception(): void
     {
         $type = new UnresolvableType('some-type', 'some message');
 
-        self::assertSame(1679578492, $type->getCode());
-    }
-
-    public function test_call_unresolvable_type_accepts_throws_itself(): void
-    {
-        $type = new UnresolvableType('some-type', 'some message');
-
-        $this->expectExceptionObject($type);
+        $this->expectException(LogicException::class);
 
         $type->accepts('foo');
     }
 
-    public function test_call_unresolvable_type_matches_throws_itself(): void
+    public function test_call_unresolvable_type_matches_throws_exception(): void
     {
         $type = new UnresolvableType('some-type', 'some message');
 
-        $this->expectExceptionObject($type);
+        $this->expectException(LogicException::class);
 
         $type->matches(new FakeType());
     }

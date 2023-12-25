@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Unit\Cache\Compiled;
 
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
+use CuyZ\Valinor\Tests\Fake\Cache\FakeCacheWithWarmup;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 use org\bovigo\vfs\vfsStream;
@@ -34,6 +35,27 @@ final class FileWatchingCacheTest extends TestCase
 
         $this->delegateCache = new FakeCache();
         $this->cache = new FileWatchingCache($this->delegateCache);
+    }
+
+    public function test_cache_warmup_calls_delegate_warmup(): void
+    {
+        $delegate = new FakeCacheWithWarmup();
+        $cache = new FileWatchingCache($delegate);
+
+        $cache->warmup();
+
+        self::assertSame(1, $delegate->timesWarmupWasCalled());
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function test_cache_warmup_does_not_call_delegate_warmup_if_not_handled(): void
+    {
+        $delegate = new FakeCache();
+        $cache = new FileWatchingCache($delegate);
+
+        $cache->warmup();
     }
 
     public function test_value_can_be_fetched_and_deleted(): void

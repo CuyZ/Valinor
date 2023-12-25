@@ -7,12 +7,12 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
-use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
+use function array_unique;
 use function is_callable;
 
 /** @api */
@@ -219,7 +219,7 @@ final class MapperBuilder
     /**
      * Describes which date formats will be supported during mapping.
      *
-     * By default, the dates will accept any valid timestamp or ATOM-formatted
+     * By default, the dates will accept any valid timestamp or RFC 3339-formatted
      * value.
      *
      * ```php
@@ -235,7 +235,23 @@ final class MapperBuilder
      */
     public function supportDateFormats(string $format, string ...$formats): self
     {
-        return $this->registerConstructor(new DateTimeFormatConstructor($format, ...$formats));
+        $clone = clone $this;
+        $clone->settings->supportedDateFormats = array_unique([$format, ...$formats]);
+
+        return $clone;
+    }
+
+    /**
+     * Returns the date formats supported during mapping.
+     *
+     * By default, any valid timestamp or RFC 3339-formatted value are accepted.
+     * Custom formats can be set using method `supportDateFormats()`.
+     *
+     * @return non-empty-array<non-empty-string>
+     */
+    public function supportedDateFormats(): array
+    {
+        return $this->settings->supportedDateFormats;
     }
 
     /**

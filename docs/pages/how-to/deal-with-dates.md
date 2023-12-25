@@ -1,7 +1,7 @@
 # Dealing with dates
 
 When the mapper builds a date object, it has to know which format(s) are
-supported. By default, any valid timestamp or ATOM-formatted value will be
+supported. By default, any valid timestamp or RFC 3339-formatted value will be
 accepted.
 
 If other formats are to be supported, they need to be registered using the

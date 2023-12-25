@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Cache\Compiled;
 use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
 use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
+use CuyZ\Valinor\Cache\WarmupCache;
 use DateInterval;
 use DateTime;
 use Error;
 use FilesystemIterator;
-use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
 use function bin2hex;
@@ -30,9 +30,9 @@ use function unlink;
  * @internal
  *
  * @template EntryType
- * @implements CacheInterface<EntryType>
+ * @implements WarmupCache<EntryType>
  */
-final class CompiledPhpFileCache implements CacheInterface
+final class CompiledPhpFileCache implements WarmupCache
 {
     private const TEMPORARY_DIR_PERMISSION = 510;
 
@@ -44,7 +44,11 @@ final class CompiledPhpFileCache implements CacheInterface
     public function __construct(
         private string $cacheDir,
         private CacheCompiler $compiler
-    ) {
+    ) {}
+
+    public function warmup(): void
+    {
+        $this->createTemporaryDir();
     }
 
     public function has($key): bool
@@ -75,11 +79,7 @@ final class CompiledPhpFileCache implements CacheInterface
 
         $code = $this->compile($value, $ttl);
 
-        $tmpDir = $this->cacheDir . DIRECTORY_SEPARATOR . '.valinor.tmp';
-
-        if (! is_dir($tmpDir) && ! @mkdir($tmpDir, self::TEMPORARY_DIR_PERMISSION, true)) {
-            throw new CacheDirectoryNotWritable($this->cacheDir);
-        }
+        $tmpDir = $this->createTemporaryDir();
 
         /** @infection-ignore-all */
         $tmpFilename = $tmpDir . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
@@ -114,6 +114,10 @@ final class CompiledPhpFileCache implements CacheInterface
 
     public function clear(): bool
     {
+        if (! is_dir($this->cacheDir)) {
+            return true;
+        }
+
         $success = true;
 
         /** @var FilesystemIterator $file */
@@ -223,6 +227,17 @@ final class CompiledPhpFileCache implements CacheInterface
         }
 
         return $this->files[$filename];
+    }
+
+    private function createTemporaryDir(): string
+    {
+        $tmpDir = $this->cacheDir . DIRECTORY_SEPARATOR . '.valinor.tmp';
+
+        if (! is_dir($tmpDir) && ! @mkdir($tmpDir, self::TEMPORARY_DIR_PERMISSION, true)) {
+            throw new CacheDirectoryNotWritable($this->cacheDir);
+        }
+
+        return $tmpDir;
     }
 
     private function path(string $key): string

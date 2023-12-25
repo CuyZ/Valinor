@@ -7,6 +7,4 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 use Throwable;
 
 /** @api */
-interface ErrorMessage extends Message, Throwable
-{
-}
+interface ErrorMessage extends Message, Throwable {}

@@ -137,7 +137,7 @@ You can click on the entries below to get advice on available replacements.
 
 ??? tip "Mapper builder `flexible` method removal"
 
-    The flexible has been splitted in three disctint modes, see [type strictness
+    The flexible has been split in three disctint modes, see [type strictness
     & flexibility chapter].
 
 ??? tip "Mapper builder `withCacheDir` method removal"

@@ -31,8 +31,8 @@ final class GenericInheritanceTest extends IntegrationTest
 }
 
 /**
- * @template FirstTemplate
- * @template SecondTemplate
+ * @template FirstTemplate Some comment
+ * @template SecondTemplate Some comment
  */
 abstract class ParentClassWithGenericTypes
 {
@@ -45,7 +45,7 @@ abstract class ParentClassWithGenericTypes
 
 /**
  * @template FirstTemplate
- * @extends ParentClassWithGenericTypes<FirstTemplate, int>
+ * @extends ParentClassWithGenericTypes<FirstTemplate, int> Some comment
  */
 abstract class SecondParentClassWithGenericTypes extends ParentClassWithGenericTypes
 {
@@ -54,8 +54,6 @@ abstract class SecondParentClassWithGenericTypes extends ParentClassWithGenericT
 }
 
 /**
- * @extends SecondParentClassWithGenericTypes<string>
+ * @extends SecondParentClassWithGenericTypes<string> Some comment
  */
-final class ChildClassWithInheritedGenericType extends SecondParentClassWithGenericTypes
-{
-}
+final class ChildClassWithInheritedGenericType extends SecondParentClassWithGenericTypes {}

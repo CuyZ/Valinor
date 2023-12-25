@@ -12,11 +12,9 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumColon;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
@@ -63,11 +61,16 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
+use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -210,67 +213,103 @@ final class NativeLexerTest extends TestCase
         yield 'Integer type' => [
             'raw' => 'int',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type - uppercase' => [
             'raw' => 'INT',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type followed by description' => [
             'raw' => 'int lorem ipsum',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type (longer version)' => [
             'raw' => 'integer',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Integer type (longer version) - uppercase' => [
             'raw' => 'INTEGER',
             'transformed' => 'int',
-            'type' => IntegerType::class,
+            'type' => NativeIntegerType::class,
         ];
 
         yield 'Positive integer type' => [
             'raw' => 'positive-int',
             'transformed' => 'positive-int',
-            'type' => IntegerType::class,
+            'type' => PositiveIntegerType::class,
         ];
 
         yield 'Positive integer type - uppercase' => [
             'raw' => 'POSITIVE-INT',
             'transformed' => 'positive-int',
-            'type' => IntegerType::class,
+            'type' => PositiveIntegerType::class,
         ];
 
         yield 'Positive integer type followed by description' => [
             'raw' => 'positive-int lorem ipsum',
             'transformed' => 'positive-int',
-            'type' => IntegerType::class,
+            'type' => PositiveIntegerType::class,
         ];
 
         yield 'Negative integer type' => [
             'raw' => 'negative-int',
             'transformed' => 'negative-int',
-            'type' => IntegerType::class,
+            'type' => NegativeIntegerType::class,
         ];
 
         yield 'Negative integer type - uppercase' => [
             'raw' => 'NEGATIVE-INT',
             'transformed' => 'negative-int',
-            'type' => IntegerType::class,
+            'type' => NegativeIntegerType::class,
         ];
 
         yield 'Negative integer type followed by description' => [
             'raw' => 'negative-int lorem ipsum',
             'transformed' => 'negative-int',
-            'type' => IntegerType::class,
+            'type' => NegativeIntegerType::class,
+        ];
+
+        yield 'Non-negative integer type' => [
+            'raw' => 'non-negative-int',
+            'transformed' => 'non-negative-int',
+            'type' => NonNegativeIntegerType::class,
+        ];
+
+        yield 'Non-negative integer type - uppercase' => [
+            'raw' => 'NON-NEGATIVE-INT',
+            'transformed' => 'non-negative-int',
+            'type' => NonNegativeIntegerType::class,
+        ];
+
+        yield 'Non-negative integer type followed by description' => [
+            'raw' => 'non-negative-int lorem ipsum',
+            'transformed' => 'non-negative-int',
+            'type' => NonNegativeIntegerType::class,
+        ];
+
+        yield 'Non-positive integer type' => [
+            'raw' => 'non-positive-int',
+            'transformed' => 'non-positive-int',
+            'type' => NonPositiveIntegerType::class,
+        ];
+
+        yield 'Non-positive integer type - uppercase' => [
+            'raw' => 'NON-POSITIVE-INT',
+            'transformed' => 'non-positive-int',
+            'type' => NonPositiveIntegerType::class,
+        ];
+
+        yield 'Non-positive integer type followed by description' => [
+            'raw' => 'non-positive-int lorem ipsum',
+            'transformed' => 'non-positive-int',
+            'type' => NonPositiveIntegerType::class,
         ];
 
         yield 'Positive integer value' => [
@@ -831,6 +870,12 @@ final class NativeLexerTest extends TestCase
             'type' => UnionType::class,
         ];
 
+        yield 'Union type with empty string and other string' => [
+            'raw' => "''|'foo'",
+            'transformed' => "''|'foo'",
+            'type' => UnionType::class,
+        ];
+
         if (PHP_VERSION_ID >= 8_01_00) {
             yield 'Union type with enum' => [
                 'raw' => PureEnum::class . '|' . BackedStringEnum::class,
@@ -1036,7 +1081,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(InvalidArrayKey::class);
         $this->expectExceptionCode(1604335007);
-        $this->expectExceptionMessage('Invalid key type `float` for `array<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('array<float, string>');
     }
@@ -1045,7 +1090,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(InvalidArrayKey::class);
         $this->expectExceptionCode(1604335007);
-        $this->expectExceptionMessage('Invalid key type `float` for `non-empty-array<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('non-empty-array<float, string>');
     }
@@ -1192,6 +1237,15 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.');
 
         $this->parser->parse('array{int, foo: string');
+    }
+
+    public function test_shaped_array_closing_bracket_missing_after_comma_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1631283658);
+        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int`.');
+
+        $this->parser->parse('array{int,');
     }
 
     public function test_shaped_array_colon_missing_throws_exception(): void
@@ -1371,30 +1425,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::*');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_missing_enum_colon_and_case_throws_exception(): void
-    {
-        $this->expectException(MissingEnumColon::class);
-        $this->expectExceptionCode(1653468435);
-        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::?`.');
-
-        $this->parser->parse(PureEnum::class . ':');
-    }
-
-    /**
-     * @requires PHP >= 8.1
-     */
-    public function test_missing_enum_colon_throws_exception(): void
-    {
-        $this->expectException(MissingEnumColon::class);
-        $this->expectExceptionCode(1653468435);
-        $this->expectExceptionMessage('Missing second colon symbol for enum `' . PureEnum::class . '::FOO`.');
-
-        $this->parser->parse(PureEnum::class . ':FOO');
-    }
-
     public function test_missing_class_constant_case_throws_exception(): void
     {
         $this->expectException(MissingClassConstantCase::class);
@@ -1438,23 +1468,5 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::className() . '::?` (cannot be `*`).');
 
         $this->parser->parse(ObjectWithConstants::className() . '::*');
-    }
-
-    public function test_missing_class_constant_colon_and_case_throws_exception(): void
-    {
-        $this->expectException(MissingClassConstantColon::class);
-        $this->expectExceptionCode(1652189143);
-        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::?`.');
-
-        $this->parser->parse(ObjectWithConstants::className() . ':');
-    }
-
-    public function test_missing_class_constant_colon_throws_exception(): void
-    {
-        $this->expectException(MissingClassConstantColon::class);
-        $this->expectExceptionCode(1652189143);
-        $this->expectExceptionMessage('Missing second colon symbol for class constant `' . ObjectWithConstants::className() . '::FOO`.');
-
-        $this->parser->parse(ObjectWithConstants::className() . ':FOO');
     }
 }

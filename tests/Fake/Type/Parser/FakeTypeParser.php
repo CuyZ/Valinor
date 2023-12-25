@@ -28,7 +28,7 @@ final class FakeTypeParser implements TypeParser
         $type = FakeType::from($raw);
 
         if ($type instanceof FakeType) {
-            throw new class ("Type `$raw` not handled by `FakeTypeParser`.") extends RuntimeException implements InvalidType { };
+            throw new class ("Type `$raw` not handled by `FakeTypeParser`.") extends RuntimeException implements InvalidType {};
         }
 
         return $type;

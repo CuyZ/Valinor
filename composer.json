@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "~8.0.0 || ~8.1.0 || ~8.2.0",
+        "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
         "composer-runtime-api": "^2.0",
         "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
     },
@@ -29,7 +29,7 @@
         "marcocesarato/php-conventional-changelog": "^1.12",
         "vimeo/psalm": "^5.0",
         "mikey179/vfsstream": "^1.6.10",
-        "rector/rector": "~0.15.0"
+        "rector/rector": "~0.17.0"
     },
     "autoload": {
         "psr-4": {
@@ -51,23 +51,26 @@
             "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix --dry-run",
-            "rector --dry-run"
+            "rector --dry-run",
+            "@check-todo"
+        ],
+        "check-todo": [
+            "! git --no-pager grep --extended-regexp --ignore-case 'todo|fixme' -- ':!composer.json' ':!*/quality-assurance.yml'"
         ],
         "fix": [
             "@putenv XDEBUG_MODE=off",
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix",
             "rector"
         ],
         "mutation": [
+            "@putenv XDEBUG_MODE=off",
             "infection --threads=max --git-diff-lines"
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
-            "pip install -r docs/requirements.txt",
-            "mkdocs serve --config-file docs/mkdocs.yml"
+            "docker build -t valinor-doc ./docs",
+            "docker run --name valinor-doc --rm -it -p 8000:8000 -v ${PWD}/docs:/docs valinor-doc"
         ]
     },
     "config": {

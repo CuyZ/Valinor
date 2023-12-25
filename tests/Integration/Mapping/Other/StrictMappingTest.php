@@ -192,6 +192,18 @@ final class StrictMappingTest extends IntegrationTest
         }
     }
 
+    public function test_invalid_utf8_union_value_throws_exception(): void
+    {
+        try {
+            (new MapperBuilder())->mapper()->map('bool|int|float', '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄');
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('1607027306', $error->code());
+            self::assertSame("Value '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄…' does not match any of `bool`, `int`, `float`.", (string)$error);
+        }
+    }
+
     public function test_null_in_union_value_throws_exception(): void
     {
         try {

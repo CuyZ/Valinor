@@ -11,9 +11,7 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class UnknownSymbolToken implements TraversingToken
 {
-    public function __construct(private string $symbol)
-    {
-    }
+    public function __construct(private string $symbol) {}
 
     public function traverse(TokenStream $stream): Type
     {

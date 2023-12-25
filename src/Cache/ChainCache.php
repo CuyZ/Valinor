@@ -11,9 +11,9 @@ use Traversable;
  * @internal
  *
  * @template EntryType
- * @implements CacheInterface<EntryType>
+ * @implements WarmupCache<EntryType>
  */
-final class ChainCache implements CacheInterface
+final class ChainCache implements WarmupCache
 {
     /** @var array<CacheInterface<EntryType>> */
     private array $delegates;
@@ -27,6 +27,15 @@ final class ChainCache implements CacheInterface
     {
         $this->delegates = $delegates;
         $this->count = count($delegates);
+    }
+
+    public function warmup(): void
+    {
+        foreach ($this->delegates as $delegate) {
+            if ($delegate instanceof WarmupCache) {
+                $delegate->warmup();
+            }
+        }
     }
 
     public function get($key, $default = null): mixed

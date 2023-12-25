@@ -22,6 +22,12 @@ final class SomeClass
         /** @var negative-int */
         private int $negativeInteger,
 
+        /** @var non-positive-int */
+        private int $nonPositiveInteger,
+
+        /** @var non-negative-int */
+        private int $nonNegativeInteger,
+
         /** @var int<-42, 1337> */
         private int $integerRange,
 
@@ -95,6 +101,18 @@ final class SomeClass
 
         /** @var array<int, SomeClass> */
         private array $arrayOfClassWithIntegerKeys,
+
+        /** @var array<non-empty-string, string> */
+        private array $arrayOfClassWithNonEmptyStringKeys,
+        
+        /** @var array<'foo'|'bar', string> */
+        private array $arrayOfClassWithStringValueKeys,
+        
+        /** @var array<42|1337, string> */
+        private array $arrayOfClassWithIntegerValueKeys,
+        
+        /** @var array<positive-int, string> */
+        private array $arrayOfClassWithPositiveIntegerValueKeys,
 
         /** @var non-empty-array<string> */
         private array $nonEmptyArrayOfStrings,

@@ -12,9 +12,7 @@ final class CachedParser implements TypeParser
     /** @var array<string, Type> */
     private array $types = [];
 
-    public function __construct(private TypeParser $delegate)
-    {
-    }
+    public function __construct(private TypeParser $delegate) {}
 
     public function parse(string $raw): Type
     {

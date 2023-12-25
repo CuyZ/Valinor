@@ -14,6 +14,8 @@ use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -30,8 +32,7 @@ final class NativeToken implements TraversingToken
     private function __construct(
         private Type $type,
         private string $symbol
-    ) {
-    }
+    ) {}
 
     public static function accepts(string $symbol): bool
     {
@@ -68,6 +69,8 @@ final class NativeToken implements TraversingToken
             'float' => NativeFloatType::get(),
             'positive-int' => PositiveIntegerType::get(),
             'negative-int' => NegativeIntegerType::get(),
+            'non-positive-int' => NonPositiveIntegerType::get(),
+            'non-negative-int' => NonNegativeIntegerType::get(),
             'string' => NativeStringType::get(),
             'non-empty-string' => NonEmptyStringType::get(),
             'numeric-string' => NumericStringType::get(),

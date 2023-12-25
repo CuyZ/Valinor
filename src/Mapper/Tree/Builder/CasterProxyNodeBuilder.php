@@ -9,9 +9,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 /** @internal */
 final class CasterProxyNodeBuilder implements NodeBuilder
 {
-    public function __construct(private NodeBuilder $delegate)
-    {
-    }
+    public function __construct(private NodeBuilder $delegate) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {

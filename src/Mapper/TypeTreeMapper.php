@@ -17,8 +17,7 @@ final class TypeTreeMapper implements TreeMapper
     public function __construct(
         private TypeParser $typeParser,
         private RootNodeBuilder $nodeBuilder
-    ) {
-    }
+    ) {}
 
     /** @pure */
     public function map(string $signature, mixed $source): mixed

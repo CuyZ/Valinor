@@ -11,9 +11,7 @@ use CuyZ\Valinor\Type\Types\FloatValueType;
 /** @internal */
 final class FloatValueToken implements TraversingToken
 {
-    public function __construct(private float $value)
-    {
-    }
+    public function __construct(private float $value) {}
 
     public function traverse(TokenStream $stream): Type
     {

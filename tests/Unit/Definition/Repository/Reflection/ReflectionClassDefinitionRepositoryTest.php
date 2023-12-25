@@ -13,6 +13,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
+use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -75,9 +76,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
     public function test_methods_can_be_retrieved(): void
     {
         $object = new class () {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             /**
              * @param string $parameterWithDocBlockType
@@ -88,8 +87,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
                 $parameterWithNoType,
                 $parameterWithDocBlockType,
                 string $optionalParameter = 'Optional parameter value'
-            ): void {
-            }
+            ): void {}
 
             public function publicMethodWithReturnType(): string
             {
@@ -148,6 +146,15 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertSame('Optional parameter value', $optionalParameter->defaultValue());
     }
 
+    public function test_methods_can_be_retrieved_from_abstract_object_with_interface_and_with_method_referencing_self(): void
+    {
+        $type = new NativeClassType(AbstractObjectWithInterface::class);
+        $methods = $this->repository->for($type)->methods();
+
+        self::assertTrue($methods->has('of'));
+        self::assertTrue($methods->has('jsonSerialize'));
+    }
+
     public function test_private_parent_constructor_is_listed_in_methods(): void
     {
         $type = new NativeClassType(ClassWithInheritedPrivateConstructor::class, parent: new NativeClassType(AbstractClassWithPrivateConstructor::class));
@@ -169,7 +176,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
-        self::assertMatchesRegularExpression('/^The type `InvalidType` for property `.*` could not be resolved: .*$/', $type->getMessage());
+        self::assertMatchesRegularExpression('/^The type `InvalidType` for property `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_property_default_value_throws_exception(): void
@@ -183,7 +190,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->properties()->get('propertyWithInvalidDefaultValue')->type();
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->getMessage());
+        self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->message());
     }
 
     public function test_property_with_non_matching_types_throws_exception(): void
@@ -212,9 +219,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @formatter:on
              * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidType): void
-            {
-            }
+            public function publicMethod($parameterWithInvalidType): void {}
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -222,7 +227,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
-        self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->getMessage());
+        self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_method_return_type_throws_exception(): void
@@ -232,9 +237,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @return InvalidType
              * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidType): void
-            {
-            }
+            public function publicMethod($parameterWithInvalidType): void {}
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -242,7 +245,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
-        self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->getMessage());
+        self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_parameter_default_value_throws_exception(): void
@@ -252,16 +255,14 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @param string $parameterWithInvalidDefaultValue
              * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidDefaultValue = false): void
-            {
-            }
+            public function publicMethod($parameterWithInvalidDefaultValue = false): void {}
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
         $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidDefaultValue')->type();
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->getMessage());
+        self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->message());
     }
 
     public function test_parameter_with_non_matching_types_throws_exception(): void
@@ -271,9 +272,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @param string $parameterWithNotMatchingTypes
              * @phpstan-ignore-next-line
              */
-            public function publicMethod(bool $parameterWithNotMatchingTypes): void
-            {
-            }
+            public function publicMethod(bool $parameterWithNotMatchingTypes): void {}
         })::class;
 
         $this->expectException(TypesDoNotMatch::class);
@@ -381,11 +380,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
 abstract class AbstractClassWithPrivateConstructor
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 }
 
-final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor
-{
-}
+final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor {}

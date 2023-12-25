@@ -151,7 +151,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                             return SomeClassThatInheritsInterfaceB::class;
                         }
 
-                        self::fail("Combinaison `$type` / `$key` not handled.");
+                        self::fail("Combination `$type` / `$key` not handled.");
                     }
                 )
                 ->mapper()
@@ -451,9 +451,7 @@ final class InterfaceInferringMappingTest extends IntegrationTest
     }
 }
 
-interface SomeInterface
-{
-}
+interface SomeInterface {}
 
 final class SomeClassThatInheritsInterfaceA implements SomeInterface
 {
@@ -465,6 +463,4 @@ final class SomeClassThatInheritsInterfaceB implements SomeInterface
     public string $valueB;
 }
 
-final class SomeClassThatInheritsInterfaceC implements SomeInterface
-{
-}
+final class SomeClassThatInheritsInterfaceC implements SomeInterface {}

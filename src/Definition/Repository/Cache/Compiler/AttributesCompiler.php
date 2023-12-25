@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Definition\NativeAttributes;
-use ReflectionAttribute;
 
-use function array_map;
 use function count;
 use function implode;
+use function is_array;
+use function is_object;
 use function var_export;
 
 /** @internal */
@@ -32,32 +32,40 @@ final class AttributesCompiler
             PHP;
     }
 
-    /**
-     * @param ReflectionAttribute<object> $reflectionAttribute
-     */
-    private function compileNativeAttribute(ReflectionAttribute $reflectionAttribute): string
-    {
-        $name = $reflectionAttribute->getName();
-        $arguments = $reflectionAttribute->getArguments();
-
-        /** @infection-ignore-all */
-        if (count($arguments) > 0) {
-            $arguments = serialize($arguments);
-            $arguments = 'unserialize(' . var_export($arguments, true) . ')';
-
-            return "new $name(...$arguments)";
-        }
-
-        return "new $name()";
-    }
-
     private function compileNativeAttributes(NativeAttributes $attributes): string
     {
-        $attributesListCode = array_map(
-            fn (ReflectionAttribute $attribute) => $this->compileNativeAttribute($attribute),
-            $attributes->reflectionAttributes()
-        );
+        $attributesListCode = [];
 
-        return '...[' . implode(",\n", $attributesListCode) . ']';
+        foreach ($attributes->definition() as $className => $arguments) {
+            $argumentsCode = $this->compileAttributeArguments($arguments);
+
+            $attributesListCode[] = "['class' => '$className', 'callback' => fn () => new $className($argumentsCode)]";
+        }
+
+        return implode(', ', $attributesListCode);
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     */
+    private function compileAttributeArguments(array $arguments): string
+    {
+        if (count($arguments) === 0) {
+            return '';
+        }
+
+        $argumentsCode = [];
+
+        foreach ($arguments as $argument) {
+            if (is_object($argument)) {
+                $argumentsCode[] = 'unserialize(' . var_export(serialize($argument), true) . ')';
+            } elseif (is_array($argument)) {
+                $argumentsCode[] = '[' . $this->compileAttributeArguments($argument) . ']';
+            } else {
+                $argumentsCode[] = var_export($argument, true);
+            }
+        }
+
+        return implode(', ', $argumentsCode);
     }
 }

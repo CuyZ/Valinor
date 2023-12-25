@@ -15,9 +15,9 @@ use function sha1;
  * @internal
  *
  * @template EntryType
- * @implements CacheInterface<EntryType>
+ * @implements WarmupCache<EntryType>
  */
-final class KeySanitizerCache implements CacheInterface
+final class KeySanitizerCache implements WarmupCache
 {
     private static string $version;
 
@@ -36,6 +36,13 @@ final class KeySanitizerCache implements CacheInterface
         //    @see https://www.php-fig.org/psr/psr-16/#12-definitions
         // @infection-ignore-all
         $this->sanitize = static fn (string $key) => sha1("$key." . self::$version ??= PHP_VERSION . '/' . Package::version());
+    }
+
+    public function warmup(): void
+    {
+        if ($this->delegate instanceof WarmupCache) {
+            $this->delegate->warmup();
+        }
     }
 
     public function get($key, $default = null): mixed

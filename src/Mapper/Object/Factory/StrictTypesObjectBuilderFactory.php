@@ -12,9 +12,7 @@ use CuyZ\Valinor\Utility\TypeHelper;
 /** @internal */
 final class StrictTypesObjectBuilderFactory implements ObjectBuilderFactory
 {
-    public function __construct(private ObjectBuilderFactory $delegate)
-    {
-    }
+    public function __construct(private ObjectBuilderFactory $delegate) {}
 
     public function for(ClassDefinition $class): array
     {

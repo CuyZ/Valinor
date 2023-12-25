@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
@@ -23,9 +24,10 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
 {
     public function __construct(
         private ObjectBuilderFactory $delegate,
+        /** @var non-empty-array<non-empty-string> */
+        private array $supportedDateFormats,
         private FunctionDefinitionRepository $functionDefinitionRepository
-    ) {
-    }
+    ) {}
 
     public function for(ClassDefinition $class): array
     {
@@ -40,27 +42,18 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
         // Remove `DateTime` & `DateTimeImmutable` native constructors
         $builders = array_filter($builders, fn (ObjectBuilder $builder) => ! $builder instanceof NativeConstructorObjectBuilder);
 
-        $useDefaultBuilder = true;
+        $buildersWithOneArgument = array_filter($builders, fn (ObjectBuilder $builder) => count($builder->describeArguments()) === 1);
 
-        foreach ($builders as $builder) {
-            if (count($builder->describeArguments()) === 1) {
-                $useDefaultBuilder = false;
-                // @infection-ignore-all
-                break;
-            }
-        }
-
-        if ($useDefaultBuilder) {
-            // @infection-ignore-all / Ignore memoization
-            $builders[] = $this->defaultBuilder($class->type());
+        if (count($buildersWithOneArgument) === 0 || $this->supportedDateFormats !== Settings::DEFAULT_SUPPORTED_DATETIME_FORMATS) {
+            $builders[] = $this->internalDateTimeBuilder($class->type());
         }
 
         return $builders;
     }
 
-    private function defaultBuilder(ClassType $type): FunctionObjectBuilder
+    private function internalDateTimeBuilder(ClassType $type): FunctionObjectBuilder
     {
-        $constructor = new DateTimeFormatConstructor(DATE_ATOM, 'U');
+        $constructor = new DateTimeFormatConstructor(...$this->supportedDateFormats);
         $function = new FunctionObject($this->functionDefinitionRepository->for($constructor), $constructor);
 
         return new FunctionObjectBuilder($function, $type);

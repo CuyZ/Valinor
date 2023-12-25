@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Utility;
 
 use BackedEnum;
+use CuyZ\Valinor\Utility\String\StringCutter;
 use DateTimeInterface;
 use UnitEnum;
 
@@ -112,11 +113,11 @@ final class ValueDumper
             return $string;
         }
 
-        $string = substr($string, 0, self::MAX_STRING_LENGTH + 1);
+        $string = StringCutter::cut($string, self::MAX_STRING_LENGTH + 1);
 
         for ($i = strlen($string) - 1; $i > 10; $i--) {
             if ($string[$i] === ' ') {
-                return substr($string, 0, $i) . '…';
+                return StringCutter::cut($string, $i) . '…';
             }
         }
 

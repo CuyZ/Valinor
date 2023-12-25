@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Integration\Cache;
 use CuyZ\Valinor\Cache\Exception\InvalidSignatureToWarmup;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
+use CuyZ\Valinor\Tests\Fake\Cache\FakeCacheWithWarmup;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 use DateTimeInterface;
 
@@ -22,6 +23,26 @@ final class CacheWarmupTest extends IntegrationTest
 
         $this->cache = new FakeCache();
         $this->mapper = (new MapperBuilder())->withCache($this->cache);
+    }
+
+    public function test_cache_warmup_is_called_only_once(): void
+    {
+        $cache = new FakeCacheWithWarmup();
+        $mapper = (new MapperBuilder())->withCache($cache);
+
+        $mapper->warmup();
+        $mapper->warmup();
+
+        self::assertSame(1, $cache->timesWarmupWasCalled());
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function test_cache_warmup_does_not_call_delegate_warmup_if_not_handled(): void
+    {
+        $mapper = new MapperBuilder(); // no cache registered
+        $mapper->warmup();
     }
 
     public function test_will_warmup_type_parser_cache_for_object_with_properties(): void
@@ -74,9 +95,7 @@ final class CacheWarmupTest extends IntegrationTest
     }
 }
 
-interface SomeInterface
-{
-}
+interface SomeInterface {}
 
 final class ObjectToWarmupWithProperties implements SomeInterface
 {
@@ -123,42 +142,22 @@ final class ObjectToWarmupWithConstructors implements SomeInterface
     }
 }
 
-class SomeObjectA
-{
-}
+class SomeObjectA {}
 
-class SomeObjectB
-{
-}
+class SomeObjectB {}
 
-class SomeObjectC
-{
-}
+class SomeObjectC {}
 
-class SomeObjectD
-{
-}
+class SomeObjectD {}
 
-class SomeObjectE
-{
-}
+class SomeObjectE {}
 
-class SomeObjectF
-{
-}
+class SomeObjectF {}
 
-class SomeObjectG
-{
-}
+class SomeObjectG {}
 
-class SomeObjectH
-{
-}
+class SomeObjectH {}
 
-class SomeObjectI
-{
-}
+class SomeObjectI {}
 
-class SomeObjectJ
-{
-}
+class SomeObjectJ {}

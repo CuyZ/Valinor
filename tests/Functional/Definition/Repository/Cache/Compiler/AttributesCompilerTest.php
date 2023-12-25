@@ -54,7 +54,7 @@ final class AttributesCompilerTest extends TestCase
 
     public function test_compiles_native_php_attributes_for_class_without_attributes(): void
     {
-        $reflection = new ReflectionClass(new class () { });
+        $reflection = new ReflectionClass(new class () {});
         $attributes = $this->compile(new NativeAttributes($reflection));
 
         self::assertSame(AttributesContainer::empty(), $attributes);
