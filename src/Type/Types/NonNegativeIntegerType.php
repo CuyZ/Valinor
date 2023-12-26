@@ -10,6 +10,9 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function is_string;
+use function ltrim;
+
 /** @internal */
 final class NonNegativeIntegerType implements IntegerType
 {
@@ -33,6 +36,10 @@ final class NonNegativeIntegerType implements IntegerType
 
     public function canCast(mixed $value): bool
     {
+        if (is_string($value)) {
+            $value = ltrim($value, '0') . '0';
+        }
+
         return ! is_bool($value)
             && filter_var($value, FILTER_VALIDATE_INT) !== false
             && $value >= 0;

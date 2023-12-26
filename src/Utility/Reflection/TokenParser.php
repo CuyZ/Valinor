@@ -119,7 +119,7 @@ final class TokenParser
     private function parseNamespace(): string
     {
         while ($token = $this->next()) {
-            if ($token->is([T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+            if ($token->is([T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED, T_STRING])) {
                 return (string)$token;
             }
         }

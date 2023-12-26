@@ -80,17 +80,7 @@ final class AliasLexer implements TypeLexer
 
     private function resolveNamespaced(string $symbol): string
     {
-        $reflection = $this->reflection;
-
-        if ($reflection instanceof ReflectionFunction) {
-            $reflection = $reflection->getClosureScopeClass();
-        }
-
-        if (! $reflection) {
-            return $symbol;
-        }
-
-        $namespace = $reflection->getNamespaceName();
+        $namespace = $this->reflection->getNamespaceName();
 
         if (! $namespace) {
             return $symbol;

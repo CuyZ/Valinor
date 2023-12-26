@@ -79,18 +79,13 @@ final class UnionNodeBuilder implements NodeBuilder
 
     private function tryToBuildClassNode(UnionType $type, Shell $shell, RootNodeBuilder $rootBuilder): ?TreeNode
     {
-        $classTypes = [];
+        $classTypes = array_filter(
+            $type->types(),
+            fn (Type $type) => $type instanceof ClassType,
+        );
 
-        foreach ($type->types() as $subType) {
-            if ($subType instanceof NullType) {
-                continue;
-            }
-
-            if (! $subType instanceof ClassType) {
-                return null;
-            }
-
-            $classTypes[] = $subType;
+        if (count($classTypes) === 0) {
+            return null;
         }
 
         $objectBuilder = $this->objectBuilder($shell->value(), ...$classTypes);
