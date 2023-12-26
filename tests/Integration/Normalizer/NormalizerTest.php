@@ -157,6 +157,33 @@ final class NormalizerTest extends TestCase
             ],
         ];
 
+        yield 'nested iterable of scalar' => [
+            'input' => (function (): iterable {
+                yield 'strings' => (function (): iterable {
+                    yield 'foo';
+                    yield 'bar';
+                })();
+                yield 'integers' => (function (): iterable {
+                    yield 42;
+                    yield 1337;
+                })();
+                yield 'floats' => (function (): iterable {
+                    yield 42.5;
+                    yield 1337.404;
+                })();
+                yield 'booleans' => (function (): iterable {
+                    yield true;
+                    yield false;
+                })();
+            })(),
+            'expected' => [
+                'strings' => ['foo', 'bar'],
+                'integers' => [42, 1337],
+                'floats' => [42.5, 1337.404],
+                'booleans' => [true, false],
+            ],
+        ];
+
         yield 'stdClass' => [
             'input' => (function () {
                 $object = new stdClass();
