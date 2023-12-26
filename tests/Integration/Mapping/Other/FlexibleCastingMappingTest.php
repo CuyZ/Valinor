@@ -24,6 +24,71 @@ final class FlexibleCastingMappingTest extends IntegrationTest
         $this->mapper = (new MapperBuilder())->enableFlexibleCasting()->mapper();
     }
 
+    public function test_leading_zero_in_numeric_is_mapped_properly(): void
+    {
+        $source = ['000', '040', '00040', '0001337.404'];
+
+        try {
+            $result = $this->mapper->map('array<int|float>', $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([0, 40, 40, 1337.404], $result);
+    }
+
+    public function test_leading_zero_in_integer_range_is_mapped_properly(): void
+    {
+        $source = ['060', '042', '000404'];
+
+        try {
+            $result = $this->mapper->map('array<int<1, 500>>', $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([60, 42, 404], $result);
+    }
+
+    public function test_leading_zero_in_integer_value_is_mapped_properly(): void
+    {
+        $source = ['000', '040', '000404'];
+
+        try {
+            $result = $this->mapper->map('array<0|40|404>', $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([0, 40, 404], $result);
+    }
+
+    public function test_leading_zero_in_positive_integer_is_mapped_properly(): void
+    {
+        $source = ['040', '000404'];
+
+        try {
+            $result = $this->mapper->map('array<positive-int>', $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([40, 404], $result);
+    }
+
+    public function test_leading_zero_in_non_negative_integer_is_mapped_properly(): void
+    {
+        $source = ['000', '040', '000404'];
+
+        try {
+            $result = $this->mapper->map('array<non-negative-int>', $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([0, 40, 404], $result);
+    }
+
     public function test_array_of_scalars_is_mapped_properly(): void
     {
         $source = ['foo', 42, 1337.404];
