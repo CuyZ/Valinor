@@ -30,14 +30,14 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
-use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -47,6 +47,12 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
+use CuyZ\Valinor\Normalizer\ArrayNormalizer;
+use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\Normalizer\Normalizer;
+use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
@@ -60,6 +66,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use Psr\SimpleCache\CacheInterface;
 
+use function array_keys;
 use function call_user_func;
 use function count;
 
@@ -176,12 +183,28 @@ final class Container
                 return new CacheObjectBuilderFactory($factory, $cache);
             },
 
+            RecursiveTransformer::class => fn () => new RecursiveTransformer(
+                $this->get(ClassDefinitionRepository::class),
+                new ValueTransformersHandler(
+                    $this->get(FunctionDefinitionRepository::class),
+                ),
+                new KeyTransformersHandler(
+                    $this->get(FunctionDefinitionRepository::class),
+                ),
+                $settings->transformersSortedByPriority(),
+                array_keys($settings->transformerAttributes),
+            ),
+
+            ArrayNormalizer::class => fn () => new ArrayNormalizer(
+                $this->get(RecursiveTransformer::class),
+            ),
+
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
                 new ReflectionClassDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     $this->get(AttributesRepository::class),
                 ),
-                $this->get(CacheInterface::class)
+                $this->get(CacheInterface::class),
             ),
 
             FunctionDefinitionRepository::class => fn () => new CacheFunctionDefinitionRepository(
@@ -226,6 +249,17 @@ final class Container
     public function argumentsMapper(): ArgumentsMapper
     {
         return $this->get(ArgumentsMapper::class);
+    }
+
+    /**
+     * @template T of Normalizer
+     *
+     * @param Format<T> $format
+     * @return T
+     */
+    public function normalizer(Format $format): Normalizer
+    {
+        return $this->get($format->type());
     }
 
     public function cacheWarmupService(): RecursiveCacheWarmupService

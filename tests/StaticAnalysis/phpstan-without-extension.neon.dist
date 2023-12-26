@@ -1,5 +1,6 @@
 parameters:
     level: max
     paths:
+        - inferring-normalizer-types.php
         - inferring-types-from-annotations.php
     tmpDir: ../../var/cache/phpstan

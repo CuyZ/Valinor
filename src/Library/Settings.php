@@ -47,9 +47,31 @@ final class Settings
     /** @var callable(Throwable): ErrorMessage */
     public $exceptionFilter;
 
+    /** @var array<int, list<callable>> */
+    public array $transformers = [];
+
+    /** @var array<class-string, null> */
+    public array $transformerAttributes = [];
+
     public function __construct()
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
         $this->exceptionFilter = fn (Throwable $exception) => throw $exception;
+    }
+
+    /**
+     * @return list<callable>
+     */
+    public function transformersSortedByPriority(): array
+    {
+        krsort($this->transformers);
+
+        $callables = [];
+
+        foreach ($this->transformers as $list) {
+            $callables = [...$callables, ...$list];
+        }
+
+        return $callables;
     }
 }

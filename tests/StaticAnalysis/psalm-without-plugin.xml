@@ -7,6 +7,7 @@
         xsi:schemaLocation="https://getpsalm.org/schema/config ../../vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
+        <file name="inferring-normalizer-types.php"/>
         <file name="inferring-types-from-annotations.php" />
     </projectFiles>
     

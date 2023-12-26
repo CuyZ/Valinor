@@ -90,6 +90,9 @@ nav:
       - Transform input: how-to/transform-input.md
       - Map arguments of a callable: how-to/map-arguments-of-a-callable.md
       - Customize error messages: how-to/customize-error-messages.md
+  - Serialization:
+      - Normalizing data: serialization/normalizer.md
+      - Common examples: serialization/common-examples.md
   - Other:
       - Performance & caching: other/performance-and-caching.md
       - App & framework integration: other/app-and-framework-integration.md
