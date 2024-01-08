@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
@@ -134,6 +135,7 @@ final class TypeCompilerTest extends TestCase
         yield [new ClassStringType()];
         yield [new ClassStringType(new NativeClassType(stdClass::class))];
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
+        yield [new CallableType()];
         yield [new UnresolvableType('some-type', 'some message')];
     }
 
