@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
@@ -66,6 +67,7 @@ final class TypeCompiler
             case $type instanceof NonEmptyStringType:
             case $type instanceof NumericStringType:
             case $type instanceof UndefinedObjectType:
+            case $type instanceof CallableType:
             case $type instanceof MixedType:
                 return "$class::get()";
             case $type instanceof BooleanValueType:
