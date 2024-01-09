@@ -53,6 +53,37 @@ final class Format
     }
 
     /**
+     * Allows a normalizer to format an input to JSON syntax.
+     *
+     * ```php
+     * namespace My\App;
+     *
+     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json());
+     *
+     * $userAsJson = $normalizer->normalize(
+     *     new \My\App\User(
+     *         name: 'John Doe',
+     *         age: 42,
+     *         country: new \My\App\Country(
+     *             name: 'France',
+     *             code: 'FR',
+     *         ),
+     *     )
+     * );
+     *
+     * // `$userAsJson` is a valid JSON string representing the data:
+     * // {"name":"John Doe","age":42,"country":{"name":"France","code":"FR"}}
+     * ```
+     *
+     * @return self<JsonNormalizer>
+     */
+    public static function json(): self
+    {
+        return new self(JsonNormalizer::class);
+    }
+
+    /**
      * @param class-string<T> $type
      */
     private function __construct(private string $type) {}

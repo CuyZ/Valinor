@@ -49,6 +49,7 @@ use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
 use CuyZ\Valinor\Normalizer\ArrayNormalizer;
 use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
@@ -196,6 +197,10 @@ final class Container
             ),
 
             ArrayNormalizer::class => fn () => new ArrayNormalizer(
+                $this->get(RecursiveTransformer::class),
+            ),
+
+            JsonNormalizer::class => fn () => new JsonNormalizer(
                 $this->get(RecursiveTransformer::class),
             ),
 
