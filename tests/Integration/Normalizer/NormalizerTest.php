@@ -22,6 +22,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use IteratorAggregate;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use stdClass;
 use Traversable;
 
@@ -37,7 +38,8 @@ final class NormalizerTest extends TestCase
      */
     public function test_normalize_basic_values_yields_expected_output(
         mixed $input,
-        mixed $expected,
+        mixed $expectedArray,
+        string $expectedJson,
         array $transformers = [],
         array $transformerAttributes = [],
     ): void {
@@ -53,26 +55,31 @@ final class NormalizerTest extends TestCase
             $builder = $builder->registerTransformer($transformerAttribute);
         }
 
-        $result = $builder->normalizer(Format::array())->normalize($input);
+        $arrayResult = $builder->normalizer(Format::array())->normalize($input);
+        $jsonResult = $builder->normalizer(Format::json())->normalize($input);
 
-        self::assertSame($expected, $result);
+        self::assertSame($expectedArray, $arrayResult);
+        self::assertSame($expectedJson, $jsonResult);
     }
 
     public function normalize_basic_values_yields_expected_output_data_provider(): iterable
     {
         yield 'null' => [
             'input' => null,
-            'expected' => null,
+            'expected array' => null,
+            'expected json' => 'null',
         ];
 
         yield 'string' => [
             'input' => 'foo bar',
-            'expected' => 'foo bar',
+            'expected array' => 'foo bar',
+            'expected json' => '"foo bar"',
         ];
 
         yield 'string with transformer' => [
             'input' => 'foo',
-            'expected' => 'foo!',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
             'transformers' => [
                 [fn (string $value) => $value . '!'],
             ],
@@ -80,12 +87,14 @@ final class NormalizerTest extends TestCase
 
         yield 'integer' => [
             'input' => 42,
-            'expected' => 42,
+            'expected array' => 42,
+            'expected json' => '42',
         ];
 
         yield 'integer with transformer' => [
             'input' => 42,
-            'expected' => 43,
+            'expected array' => 43,
+            'expected json' => '43',
             'transformers' => [
                 [fn (int $value) => $value + 1],
             ],
@@ -93,7 +102,8 @@ final class NormalizerTest extends TestCase
 
         yield 'integer with negative-int transformer' => [
             'input' => 42,
-            'expected' => 42,
+            'expected array' => 42,
+            'expected json' => '42',
             'transformers' => [
                 [
                     /** @param negative-int $value */
@@ -104,12 +114,14 @@ final class NormalizerTest extends TestCase
 
         yield 'float' => [
             'input' => 1337.404,
-            'expected' => 1337.404,
+            'expected array' => 1337.404,
+            'expected json' => '1337.404',
         ];
 
         yield 'float with transformer' => [
             'input' => 1337.404,
-            'expected' => 1337.405,
+            'expected array' => 1337.405,
+            'expected json' => '1337.405',
             'transformers' => [
                 [fn (float $value) => $value + 0.001],
             ],
@@ -117,7 +129,8 @@ final class NormalizerTest extends TestCase
 
         yield 'boolean' => [
             'input' => true,
-            'expected' => true,
+            'expected array' => true,
+            'expected json' => 'true',
         ];
 
         yield 'array of scalar' => [
@@ -127,61 +140,21 @@ final class NormalizerTest extends TestCase
                 'float' => 1337.404,
                 'boolean' => true,
             ],
-            'expected' => [
+            'expected array' => [
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
+            'expected json' => '{"string":"foo","integer":42,"float":1337.404,"boolean":true}',
         ];
 
         yield 'array with transformer' => [
             'input' => ['foo'],
-            'expected' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
             'transformers' => [
                 [fn (array $value) => array_merge($value, ['bar'])],
-            ],
-        ];
-
-        yield 'iterable of scalar' => [
-            'input' => (function (): iterable {
-                yield 'string' => 'foo';
-                yield 'integer' => 42;
-                yield 'float' => 1337.404;
-                yield 'boolean' => true;
-            })(),
-            'expected' => [
-                'string' => 'foo',
-                'integer' => 42,
-                'float' => 1337.404,
-                'boolean' => true,
-            ],
-        ];
-
-        yield 'nested iterable of scalar' => [
-            'input' => (function (): iterable {
-                yield 'strings' => (function (): iterable {
-                    yield 'foo';
-                    yield 'bar';
-                })();
-                yield 'integers' => (function (): iterable {
-                    yield 42;
-                    yield 1337;
-                })();
-                yield 'floats' => (function (): iterable {
-                    yield 42.5;
-                    yield 1337.404;
-                })();
-                yield 'booleans' => (function (): iterable {
-                    yield true;
-                    yield false;
-                })();
-            })(),
-            'expected' => [
-                'strings' => ['foo', 'bar'],
-                'integers' => [42, 1337],
-                'floats' => [42.5, 1337.404],
-                'booleans' => [true, false],
             ],
         ];
 
@@ -193,10 +166,11 @@ final class NormalizerTest extends TestCase
 
                 return $object;
             })(),
-            'expected' => [
+            'expected array' => [
                 'foo' => 'foo',
                 'bar' => 'bar',
             ],
+            'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
         yield 'array of object' => [
@@ -204,26 +178,30 @@ final class NormalizerTest extends TestCase
                 'foo' => new BasicObject('foo'),
                 'bar' => new BasicObject('bar'),
             ],
-            'expected' => [
+            'expected array' => [
                 'foo' => ['value' => 'foo'],
                 'bar' => ['value' => 'bar'],
             ],
+            'expected json' => '{"foo":{"value":"foo"},"bar":{"value":"bar"}}',
         ];
 
         if (PHP_VERSION_ID >= 8_01_00) {
             yield 'unit enum' => [
                 'input' => PureEnum::FOO,
-                'expected' => 'FOO',
+                'expected array' => 'FOO',
+                'expected json' => '"FOO"',
             ];
 
             yield 'backed string enum' => [
                 'input' => BackedStringEnum::FOO,
-                'expected' => 'foo',
+                'expected array' => 'foo',
+                'expected json' => '"foo"',
             ];
 
             yield 'backed integer enum' => [
                 'input' => BackedIntegerEnum::FOO,
-                'expected' => 42,
+                'expected array' => 42,
+                'expected json' => '42',
             ];
         }
 
@@ -234,12 +212,13 @@ final class NormalizerTest extends TestCase
                 public float $float = 1337.404;
                 public bool $boolean = true;
             },
-            'output' => [
+            'expected array' => [
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
+            'expected json' => '{"string":"foo","integer":42,"float":1337.404,"boolean":true}',
         ];
 
         yield 'class with protected properties' => [
@@ -249,12 +228,13 @@ final class NormalizerTest extends TestCase
                 protected float $float = 1337.404;
                 protected bool $boolean = true;
             },
-            'output' => [
+            'expected array' => [
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
+            'expected json' => '{"string":"foo","integer":42,"float":1337.404,"boolean":true}',
         ];
 
         yield 'class with private properties' => [
@@ -264,21 +244,23 @@ final class NormalizerTest extends TestCase
                 private float $float = 1337.404; // @phpstan-ignore-line
                 private bool $boolean = true; // @phpstan-ignore-line
             },
-            'output' => [
+            'expected array' => [
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
+            'expected json' => '{"string":"foo","integer":42,"float":1337.404,"boolean":true}',
         ];
 
         yield 'class with inherited properties' => [
             'input' => new SomeChildClass(),
-            'output' => [
+            'expected array' => [
                 'stringFromGrandParentClass' => 'foo',
                 'stringFromParentClass' => 'bar',
                 'stringFromChildClass' => 'baz',
             ],
+            'expected json' => '{"stringFromGrandParentClass":"foo","stringFromParentClass":"bar","stringFromChildClass":"baz"}',
         ];
 
         yield 'iterable class' => [
@@ -291,20 +273,23 @@ final class NormalizerTest extends TestCase
                     yield 'baz' => 'baz';
                 }
             },
-            'output' => [
+            'expected array' => [
                 'foo' => 'foo',
                 'bar' => 'bar',
             ],
+            'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
         yield 'date with default transformer' => [
             'input' => new DateTimeImmutable('1971-11-08'),
-            'expected' => '1971-11-08T00:00:00.000000+00:00',
+            'expected array' => '1971-11-08T00:00:00.000000+00:00',
+            'expected json' => '"1971-11-08T00:00:00.000000+00:00"',
         ];
 
         yield 'date with transformer' => [
             'input' => new DateTimeImmutable('1971-11-08'),
-            'expected' => '1971-11-08',
+            'expected array' => '1971-11-08',
+            'expected json' => '"1971-11-08"',
             'transformers' => [
                 [fn (DateTimeInterface $object) => $object->format('Y-m-d')],
             ],
@@ -313,6 +298,7 @@ final class NormalizerTest extends TestCase
         yield 'time zone with default transformer' => [
             'input' => new DateTimeZone('Europe/Paris'),
             'expected array' => 'Europe/Paris',
+            'expected json' => '"Europe/Paris"',
         ];
 
         yield 'time zone with transformer' => [
@@ -321,6 +307,7 @@ final class NormalizerTest extends TestCase
                 'name' => 'Europe/Paris',
                 'country_code' => 'FR',
             ],
+            'expected json' => '{"name":"Europe/Paris","country_code":"FR"}',
             'transformers' => [
                 [fn (DateTimeZone $object) => [
                     'name' => $object->getName(),
@@ -331,7 +318,8 @@ final class NormalizerTest extends TestCase
 
         yield 'object with transformer' => [
             'input' => new BasicObject('foo'),
-            'expected' => 'foo!',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
             'transformers' => [
                 [fn (BasicObject $object) => $object->value . '!'],
             ],
@@ -339,7 +327,8 @@ final class NormalizerTest extends TestCase
 
         yield 'object with undefined object transformer' => [
             'input' => new BasicObject('foo'),
-            'expected' => 'foo!',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
             'transformers' => [
                 [fn (object $object) => $object->value . '!'], // @phpstan-ignore-line
             ],
@@ -355,7 +344,8 @@ final class NormalizerTest extends TestCase
                     yield 'baz' => 'baz';
                 }
             },
-            'output' => 'value',
+            'expected array' => 'value',
+            'expected json' => '"value"',
             'transformers' => [
                 [fn (object $object) => 'value'],
             ],
@@ -363,7 +353,8 @@ final class NormalizerTest extends TestCase
 
         yield 'object with union object transformer' => [
             'input' => new BasicObject('foo'),
-            'expected' => 'foo!',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
             'transformers' => [
                 [fn (stdClass|BasicObject $object) => $object->value . '!'],
             ],
@@ -371,10 +362,11 @@ final class NormalizerTest extends TestCase
 
         yield 'object with transformer calling next' => [
             'input' => new BasicObject('foo'),
-            'expected' => [
+            'expected array' => [
                 'value' => 'foo',
                 'bar' => 'bar',
             ],
+            'expected json' => '{"value":"foo","bar":"bar"}',
             'transformers' => [
                 [
                     function (object $object, callable $next) {
@@ -389,7 +381,8 @@ final class NormalizerTest extends TestCase
 
         yield 'object with several prioritized transformers' => [
             'input' => new BasicObject('foo'),
-            'expected' => 'foo*!?',
+            'expected array' => 'foo*!?',
+            'expected json' => '"foo*!?"',
             'transformers' => [
                 -20 => [fn (BasicObject $object, callable $next) => $object->value],
                 -15 => [fn (stdClass $object) => 'bar'], // Should be ignored by the normalizer
@@ -402,7 +395,8 @@ final class NormalizerTest extends TestCase
 
         yield 'object with several prioritized transformers with same priority' => [
             'input' => new BasicObject('foo'),
-            'expected' => 'foo?!*',
+            'expected array' => 'foo?!*',
+            'expected json' => '"foo?!*"',
             'transformers' => [
                 10 => [
                     fn (BasicObject $object, callable $next) => $next() . '*',
@@ -420,7 +414,8 @@ final class NormalizerTest extends TestCase
 
                 return $class;
             })(),
-            'expected' => ['foo' => 'foo!', 'bar' => 'bar!'],
+            'expected array' => ['foo' => 'foo!', 'bar' => 'bar!'],
+            'expected json' => '{"foo":"foo!","bar":"bar!"}',
             'transformers' => [
                 [
                     fn (string $value, callable $next) => $next() . '!',
@@ -430,14 +425,16 @@ final class NormalizerTest extends TestCase
 
         yield 'object with attribute on property with matching transformer' => [
             'input' => new SomeClassWithAttributeOnProperty('foo'),
-            'expected' => ['value' => 'prefix_foo'],
+            'expected array' => ['value' => 'prefix_foo'],
+            'expected json' => '{"value":"prefix_foo"}',
             'transformers' => [],
             'transformerAttributes' => [AddPrefixToPropertyAttribute::class],
         ];
 
         yield 'object with two attributes on property with matching transformers' => [
             'input' => new SomeClassWithTwoAttributesOnProperty('foo'),
-            'expected' => ['value' => 'prefix_foo_suffix'],
+            'expected array' => ['value' => 'prefix_foo_suffix'],
+            'expected json' => '{"value":"prefix_foo_suffix"}',
             'transformers' => [],
             'transformerAttributes' => [
                 AddPrefixToPropertyAttribute::class,
@@ -447,49 +444,56 @@ final class NormalizerTest extends TestCase
 
         yield 'object with attribute on property with matching transformer from attribute interface' => [
             'input' => new SomeClassWithAttributeOnProperty('foo'),
-            'expected' => ['value' => 'prefix_foo'],
+            'expected array' => ['value' => 'prefix_foo'],
+            'expected json' => '{"value":"prefix_foo"}',
             'transformers' => [],
             'transformerAttributes' => [SomePropertyAttributeInterface::class],
         ];
 
         yield 'object with attribute on class with matching transformer' => [
             'input' => new SomeClassWithAttributeOnClass('foo'),
-            'expected' => ['prefix_from_class_value' => 'foo'],
+            'expected array' => ['prefix_from_class_value' => 'foo'],
+            'expected json' => '{"prefix_from_class_value":"foo"}',
             'transformers' => [],
             'transformerAttributes' => [AddPrefixToClassPropertiesAttribute::class],
         ];
 
         yield 'object with two attributes on class with matching transformers' => [
             'input' => new SomeClassWithTwoAttributesOnClass('foo'),
-            'expected' => ['prefix1_prefix2_value' => 'foo'],
+            'expected array' => ['prefix1_prefix2_value' => 'foo'],
+            'expected json' => '{"prefix1_prefix2_value":"foo"}',
             'transformers' => [],
             'transformerAttributes' => [AddPrefixToClassPropertiesAttribute::class],
         ];
 
         yield 'object with attribute on class with matching transformer from attribute interface' => [
             'input' => new SomeClassWithAttributeOnClass('foo'),
-            'expected' => ['prefix_from_class_value' => 'foo'],
+            'expected array' => ['prefix_from_class_value' => 'foo'],
+            'expected json' => '{"prefix_from_class_value":"foo"}',
             'transformers' => [],
             'transformerAttributes' => [SomeClassAttributeInterface::class],
         ];
 
         yield 'object with attribute on property *and* on class with matching transformer' => [
             'input' => new SomeClassWithAttributeOnPropertyAndOnClass(new SomeClassWithAttributeOnClass('foo')),
-            'expected' => ['value' => ['prefix_from_property_prefix_from_class_value' => 'foo']],
+            'expected array' => ['value' => ['prefix_from_property_prefix_from_class_value' => 'foo']],
+            'expected json' => '{"value":{"prefix_from_property_prefix_from_class_value":"foo"}}',
             'transformers' => [],
             'transformerAttributes' => [AddPrefixToClassPropertiesAttribute::class],
         ];
 
         yield 'object with attribute on class to transform object to string' => [
             'input' => new SomeClassWithAttributeToTransformObjectToString(),
-            'expected' => 'foo',
+            'expected array' => 'foo',
+            'expected json' => '"foo"',
             'transformers' => [],
             'transformerAttributes' => [TransformObjectToString::class],
         ];
 
         yield 'object with attributes and custom transformers' => [
             'input' => new SomeClassWithTwoAttributesOnProperty('foo'),
-            'expected' => ['value' => 'prefix_foobazbar_suffix'],
+            'expected array' => ['value' => 'prefix_foobazbar_suffix'],
+            'expected json' => '{"value":"prefix_foobazbar_suffix"}',
             'transformers' => [
                 [
                     fn (string $value, callable $next) => $next() . 'bar',
@@ -509,7 +513,8 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['value' => 'prefix_value'],
+            'expected array' => ['value' => 'prefix_value'],
+            'expected json' => '{"value":"prefix_value"}',
             'transformers' => [],
             'transformerAttributes' => [
                 AddPrefixToPropertyAttribute::class,
@@ -525,7 +530,8 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['prefix_renamed' => 'value'],
+            'expected array' => ['prefix_renamed' => 'value'],
+            'expected json' => '{"prefix_renamed":"value"}',
             'transformers' => [],
             'transformerAttributes' => [
                 RenamePropertyKey::class,
@@ -541,7 +547,8 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['prefix2_prefix1_value' => 'value'],
+            'expected array' => ['prefix2_prefix1_value' => 'value'],
+            'expected json' => '{"prefix2_prefix1_value":"value"}',
             'transformers' => [],
             'transformerAttributes' => [
                 AddPrefixToPropertyKeyBis::class,
@@ -556,7 +563,8 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['renamed' => 'value'],
+            'expected array' => ['renamed' => 'value'],
+            'expected json' => '{"renamed":"value"}',
             'transformers' => [],
             'transformerAttributes' => [SomeKeyTransformerInterface::class],
         ];
@@ -569,7 +577,8 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['prefix2_value' => 'value'],
+            'expected array' => ['prefix2_value' => 'value'],
+            'expected json' => '{"prefix2_value":"value"}',
             'transformers' => [],
             'transformerAttributes' => [
                 AddPrefixToPropertyKeyBis::class,
@@ -585,7 +594,8 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['prefix_renamed' => 'prefix_value'],
+            'expected array' => ['prefix_renamed' => 'prefix_value'],
+            'expected json' => '{"prefix_renamed":"prefix_value"}',
             'transformers' => [],
             'transformerAttributes' => [
                 RenamePropertyKey::class,
@@ -601,13 +611,156 @@ final class NormalizerTest extends TestCase
                     public string $value = 'value',
                 ) {}
             },
-            'expected' => ['renamed' => 'value'],
+            'expected array' => ['renamed' => 'value'],
+            'expected json' => '{"renamed":"value"}',
             'transformers' => [],
             'transformerAttributes' => [
                 RenamePropertyKey::class,
                 SomeKeyTransformerInterface::class,
             ],
         ];
+    }
+
+    public function test_generator_of_scalar_yields_expected_array(): void
+    {
+        $input = (function (): iterable {
+            yield 'string' => 'foo';
+            yield 'integer' => 42;
+            yield 'float' => 1337.404;
+            yield 'boolean' => true;
+        })();
+
+        $expected = [
+            'string' => 'foo',
+            'integer' => 42,
+            'float' => 1337.404,
+            'boolean' => true,
+        ];
+
+        $arrayResult = (new MapperBuilder())
+            ->normalizer(Format::array())
+            ->normalize($input);
+
+        self::assertSame($expected, $arrayResult);
+    }
+
+    public function test_generator_of_scalar_yields_expected_json(): void
+    {
+        $input = (function (): iterable {
+            yield 'string' => 'foo';
+            yield 'integer' => 42;
+            yield 'float' => 1337.404;
+            yield 'boolean' => true;
+        })();
+
+        $expected = '{"string":"foo","integer":42,"float":1337.404,"boolean":true}';
+
+        $jsonResult = (new MapperBuilder())
+            ->normalizer(Format::json())
+            ->normalize($input);
+
+        self::assertSame($expected, $jsonResult);
+    }
+
+    public function test_generator_yielding_list_yields_list_json(): void
+    {
+        $input = (function (): iterable {
+            yield 'foo';
+            yield 42;
+            yield 1337.404;
+            yield true;
+        })();
+
+        $expected = '["foo",42,1337.404,true]';
+
+        $jsonResult = (new MapperBuilder())
+            ->normalizer(Format::json())
+            ->normalize($input);
+
+        self::assertSame($expected, $jsonResult);
+    }
+
+    public function test_generator_with_first_key_0_yields_list_json(): void
+    {
+        $input = (function (): iterable {
+            yield 0 => 'foo';
+            yield 'integer' => 42;
+            yield 'float' => 1337.404;
+            yield 'boolean' => true;
+        })();
+
+        $expected = '["foo",42,1337.404,true]';
+
+        $jsonResult = (new MapperBuilder())
+            ->normalizer(Format::json())
+            ->normalize($input);
+
+        self::assertSame($expected, $jsonResult);
+    }
+
+    public function test_nested_generator_of_scalar_yields_expected_array(): void
+    {
+        $input = (function (): iterable {
+            yield 'strings' => (function (): iterable {
+                yield 'foo';
+                yield 'bar';
+            })();
+            yield 'integers' => (function (): iterable {
+                yield 42;
+                yield 1337;
+            })();
+            yield 'floats' => (function (): iterable {
+                yield 42.5;
+                yield 1337.404;
+            })();
+            yield 'booleans' => (function (): iterable {
+                yield true;
+                yield false;
+            })();
+        })();
+
+        $expected = [
+            'strings' => ['foo', 'bar'],
+            'integers' => [42, 1337],
+            'floats' => [42.5, 1337.404],
+            'booleans' => [true, false],
+        ];
+
+        $arrayResult = (new MapperBuilder())
+            ->normalizer(Format::array())
+            ->normalize($input);
+
+        self::assertSame($expected, $arrayResult);
+    }
+
+    public function test_nested_generator_of_scalar_yields_expected_json(): void
+    {
+        $input = (function (): iterable {
+            yield 'strings' => (function (): iterable {
+                yield 'foo';
+                yield 'bar';
+            })();
+            yield 'integers' => (function (): iterable {
+                yield 42;
+                yield 1337;
+            })();
+            yield 'floats' => (function (): iterable {
+                yield 42.5;
+                yield 1337.404;
+            })();
+            yield 'booleans' => (function (): iterable {
+                yield true;
+                yield false;
+            })();
+        })();
+
+        $expected = '{"strings":["foo","bar"],"integers":[42,1337],"floats":[42.5,1337.404],"booleans":[true,false]}';
+
+        $jsonResult = (new MapperBuilder())
+            ->normalizer(Format::json())
+            ->normalize($input);
+
+        self::assertSame($expected, $jsonResult);
     }
 
     public function test_transformer_is_called_only_once_on_object_property_when_using_default_transformer(): void
@@ -783,6 +936,15 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionMessage('Value of type `Closure` cannot be normalized.');
 
         (new MapperBuilder())->normalizer(Format::array())->normalize(fn () => 42);
+    }
+
+    public function test_giving_invalid_resource_to_json_normalizer_throws_exception(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Expected a valid resource, got string');
+
+        // @phpstan-ignore-next-line
+        (new MapperBuilder())->normalizer(Format::json())->streamTo('foo');
     }
 }
 
