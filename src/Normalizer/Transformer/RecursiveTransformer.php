@@ -12,6 +12,7 @@ use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
+use DateTimeZone;
 use Generator;
 use ReflectionClass;
 use stdClass;
@@ -100,6 +101,10 @@ final class RecursiveTransformer
 
             if ($value instanceof DateTimeInterface) {
                 return $value->format('Y-m-d\\TH:i:s.uP'); // RFC 3339
+            }
+
+            if ($value instanceof DateTimeZone) {
+                return $value->getName();
             }
 
             if ($value::class === stdClass::class) {

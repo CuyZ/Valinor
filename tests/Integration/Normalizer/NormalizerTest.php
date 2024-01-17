@@ -19,6 +19,7 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use IteratorAggregate;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -306,6 +307,25 @@ final class NormalizerTest extends TestCase
             'expected' => '1971-11-08',
             'transformers' => [
                 [fn (DateTimeInterface $object) => $object->format('Y-m-d')],
+            ],
+        ];
+
+        yield 'time zone with default transformer' => [
+            'input' => new DateTimeZone('Europe/Paris'),
+            'expected array' => 'Europe/Paris',
+        ];
+
+        yield 'time zone with transformer' => [
+            'input' => new DateTimeZone('Europe/Paris'),
+            'expected array' => [
+                'name' => 'Europe/Paris',
+                'country_code' => 'FR',
+            ],
+            'transformers' => [
+                [fn (DateTimeZone $object) => [
+                    'name' => $object->getName(),
+                    'country_code' => $object->getLocation()['country_code'] ?? 'Unknown',
+                ]],
             ],
         ];
 
