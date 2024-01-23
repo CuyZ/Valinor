@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\MixedType;
 use ReflectionProperty;
 
 final class FakePropertyDefinition
@@ -18,18 +19,18 @@ final class FakePropertyDefinition
         return new PropertyDefinition(
             $name,
             $name,
-            new FakeType(),
+            new MixedType(),
             false,
             null,
             false,
-            new FakeAttributes()
+            new Attributes()
         );
     }
 
     public static function fromReflection(ReflectionProperty $reflection): PropertyDefinition
     {
         $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
-        $type = new FakeType();
+        $type = new MixedType();
 
         if ($reflection->hasType()) {
             $type = FakeType::from($reflection->getType()->getName()); // @phpstan-ignore-line
@@ -42,20 +43,7 @@ final class FakePropertyDefinition
             isset($defaultProperties[$reflection->name]),
             $defaultProperties[$reflection->name] ?? null,
             $reflection->isPublic(),
-            new FakeAttributes()
-        );
-    }
-
-    public static function withType(Type $type): PropertyDefinition
-    {
-        return new PropertyDefinition(
-            'someProperty',
-            'someProperty',
-            $type,
-            false,
-            null,
-            false,
-            new FakeAttributes()
+            new Attributes()
         );
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
+use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
@@ -26,6 +28,7 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -40,7 +43,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 {
     private TypeParserFactory $typeParserFactory;
 
-    private AttributesRepository $attributesFactory;
+    private AttributesRepository $attributesRepository;
 
     private ReflectionPropertyDefinitionBuilder $propertyBuilder;
 
@@ -49,12 +52,12 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /** @var array<string, ReflectionTypeResolver> */
     private array $typeResolver = [];
 
-    public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesFactory)
+    public function __construct(TypeParserFactory $typeParserFactory)
     {
         $this->typeParserFactory = $typeParserFactory;
-        $this->attributesFactory = $attributesFactory;
-        $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($attributesFactory);
-        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($attributesFactory);
+        $this->attributesRepository = new ReflectionAttributesRepository($this);
+        $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($this->attributesRepository);
+        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($this->attributesRepository);
     }
 
     public function for(ClassType $type): ClassDefinition
@@ -63,11 +66,23 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 
         return new ClassDefinition(
             $type,
-            $this->attributesFactory->for($reflection),
+            new Attributes(...$this->attributes($reflection)),
             new Properties(...$this->properties($type)),
             new Methods(...$this->methods($type)),
             $reflection->isFinal(),
             $reflection->isAbstract(),
+        );
+    }
+
+    /**
+     * @param ReflectionClass<object> $reflection
+     * @return list<AttributeDefinition>
+     */
+    private function attributes(ReflectionClass $reflection): array
+    {
+        return array_map(
+            fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
+            Reflection::attributes($reflection)
         );
     }
 
@@ -82,7 +97,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 
                 return $this->propertyBuilder->for($property, $typeResolver);
             },
-            Reflection::class($type->className())->getProperties()
+            Reflection::class($type->className())->getProperties(),
         );
     }
 
@@ -147,11 +162,11 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $advancedParser = $this->typeParserFactory->get(
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
-            new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases)
+            new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases),
         );
 
         $nativeParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($type->className())
+            new ClassContextSpecification($type->className()),
         );
 
         return $this->typeResolver[$typeKey] = new ReflectionTypeResolver($nativeParser, $advancedParser);

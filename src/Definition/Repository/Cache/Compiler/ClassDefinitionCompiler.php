@@ -28,7 +28,7 @@ final class ClassDefinitionCompiler implements CacheCompiler
     public function __construct()
     {
         $this->typeCompiler = new TypeCompiler();
-        $this->attributesCompiler = new AttributesCompiler();
+        $this->attributesCompiler = new AttributesCompiler($this);
 
         $this->methodCompiler = new MethodDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
         $this->propertyCompiler = new PropertyDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);

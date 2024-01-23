@@ -6,24 +6,76 @@ namespace CuyZ\Valinor\Definition;
 
 use Countable;
 use IteratorAggregate;
+use Traversable;
+
+use function array_filter;
+use function count;
+use function is_a;
 
 /**
  * @internal
  *
- * @extends IteratorAggregate<object>
+ * @implements IteratorAggregate<AttributeDefinition>
  */
-interface Attributes extends IteratorAggregate, Countable
+final class Attributes implements IteratorAggregate, Countable
 {
-    /**
-     * @param class-string $className
-     */
-    public function has(string $className): bool;
+    private static self $empty;
+
+    /** @var list<AttributeDefinition> */
+    private array $attributes;
 
     /**
-     * @template T of object
-     *
-     * @param class-string<T> $className
-     * @return list<T>
+     * @no-named-arguments
      */
-    public function ofType(string $className): array;
+    public function __construct(AttributeDefinition ...$attributes)
+    {
+        $this->attributes = $attributes;
+    }
+
+    public static function empty(): self
+    {
+        return self::$empty ??= new self();
+    }
+
+    public function has(string $className): bool
+    {
+        foreach ($this->attributes as $attribute) {
+            if (is_a($attribute->class()->type()->className(), $className, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param callable(AttributeDefinition): bool $callback
+     */
+    public function filter(callable $callback): self
+    {
+        return new self(
+            ...array_filter($this->attributes, $callback)
+        );
+    }
+
+    public function count(): int
+    {
+        return count($this->attributes);
+    }
+
+    /**
+     * @return list<AttributeDefinition>
+     */
+    public function toArray(): array
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @return Traversable<AttributeDefinition>
+     */
+    public function getIterator(): Traversable
+    {
+        yield from $this->attributes;
+    }
 }

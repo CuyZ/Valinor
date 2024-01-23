@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
@@ -22,7 +23,7 @@ final class FakeParameterDefinition
             false,
             false,
             null,
-            new FakeAttributes()
+            new Attributes()
         );
     }
 
@@ -35,7 +36,7 @@ final class FakeParameterDefinition
             true,
             false,
             $defaultValue,
-            new FakeAttributes()
+            new Attributes()
         );
     }
 
@@ -54,7 +55,7 @@ final class FakeParameterDefinition
             $reflection->isOptional(),
             $reflection->isVariadic(),
             $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null,
-            new FakeAttributes()
+            new Attributes()
         );
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
@@ -17,7 +18,7 @@ final class FakeFunctionDefinition
         return new FunctionDefinition(
             'foo',
             'foo:42-1337',
-            new FakeAttributes(),
+            new Attributes(),
             $fileName ?? 'foo/bar',
             stdClass::class,
             true,
@@ -30,7 +31,7 @@ final class FakeFunctionDefinition
                     false,
                     false,
                     'foo',
-                    new FakeAttributes()
+                    new Attributes()
                 )
             ),
             NativeStringType::get()

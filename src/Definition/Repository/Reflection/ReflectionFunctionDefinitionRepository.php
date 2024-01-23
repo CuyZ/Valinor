@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
+use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
@@ -12,9 +14,11 @@ use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use ReflectionAttribute;
 use ReflectionFunction;
 use ReflectionParameter;
 
+use function array_map;
 use function str_ends_with;
 
 /** @internal */
@@ -52,7 +56,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         return new FunctionDefinition(
             $name,
             Reflection::signature($reflection),
-            $this->attributesRepository->for($reflection),
+            new Attributes(...$this->attributes($reflection)),
             $reflection->getFileName() ?: null,
             $class?->name,
             $reflection->getClosureThis() === null,
@@ -78,5 +82,16 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         $advancedParser = $this->typeParserFactory->get(...$advancedSpecification);
 
         return new ReflectionTypeResolver($nativeParser, $advancedParser);
+    }
+
+    /**
+     * @return list<AttributeDefinition>
+     */
+    private function attributes(ReflectionFunction $reflection): array
+    {
+        return array_map(
+            fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
+            Reflection::attributes($reflection)
+        );
     }
 }

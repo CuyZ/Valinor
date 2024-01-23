@@ -10,7 +10,6 @@ use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
 use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
-use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeAttributesRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
@@ -32,7 +31,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         $this->repository = new ReflectionClassDefinitionRepository(
             new FakeTypeParserFactory(),
-            new FakeAttributesRepository(),
         );
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
@@ -26,7 +27,7 @@ final class FakeClassDefinition
     {
         return new ClassDefinition(
             new NativeClassType($name),
-            new FakeAttributes(),
+            new Attributes(),
             new Properties(),
             new Methods(),
             true,
@@ -51,7 +52,7 @@ final class FakeClassDefinition
 
         return new ClassDefinition(
             new NativeClassType($reflection->name),
-            new FakeAttributes(),
+            new Attributes(),
             new Properties(...$properties),
             new Methods(...$methods),
             $reflection->isFinal(),

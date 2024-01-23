@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
 
@@ -65,7 +65,7 @@ final class ShellTest extends TestCase
     {
         $value = 'some value';
         $type = FakeType::permissive();
-        $attributes = new FakeAttributes();
+        $attributes = new Attributes();
 
         $shell = Shell::root(new FakeType(), []);
         $child = $shell->child('foo', $type, $attributes)->withValue($value);

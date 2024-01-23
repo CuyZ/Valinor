@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\PropertyDefinition;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +19,7 @@ final class PropertyDefinitionTest extends TestCase
         $hasDefaultValue = true;
         $defaultValue = 'Some property default value';
         $isPublic = true;
-        $attributes = new FakeAttributes();
+        $attributes = new Attributes();
 
         $property = new PropertyDefinition(
             $name,

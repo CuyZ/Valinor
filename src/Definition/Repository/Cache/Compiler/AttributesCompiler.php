@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Definition\AttributesContainer;
-use CuyZ\Valinor\Definition\NativeAttributes;
 
 use function count;
 use function implode;
@@ -17,29 +15,35 @@ use function var_export;
 /** @internal */
 final class AttributesCompiler
 {
+    public function __construct(private ClassDefinitionCompiler $classDefinitionCompiler) {}
+
     public function compile(Attributes $attributes): string
     {
         if (count($attributes) === 0) {
-            return AttributesContainer::class . '::empty()';
+            return Attributes::class . '::empty()';
         }
 
-        assert($attributes instanceof NativeAttributes);
-
-        $attributesListCode = $this->compileNativeAttributes($attributes);
+        $attributesListCode = $this->compileAttributes($attributes);
 
         return <<<PHP
-            new \CuyZ\Valinor\Definition\AttributesContainer($attributesListCode)
+            new \CuyZ\Valinor\Definition\Attributes($attributesListCode)
             PHP;
     }
 
-    private function compileNativeAttributes(NativeAttributes $attributes): string
+    private function compileAttributes(Attributes $attributes): string
     {
         $attributesListCode = [];
 
-        foreach ($attributes->definition() as $className => $arguments) {
-            $argumentsCode = $this->compileAttributeArguments($arguments);
+        foreach ($attributes as $attribute) {
+            $class = $this->classDefinitionCompiler->compile($attribute->class());
+            $arguments = $this->compileAttributeArguments($attribute->arguments());
 
-            $attributesListCode[] = "['class' => '$className', 'callback' => fn () => new $className($argumentsCode)]";
+            $attributesListCode[] = <<<PHP
+            new \CuyZ\Valinor\Definition\AttributeDefinition(
+                $class,
+                [$arguments],
+            )
+            PHP;
         }
 
         return implode(', ', $attributesListCode);

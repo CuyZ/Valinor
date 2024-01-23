@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Transformer;
 
+use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasInvalidCallableParameter;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasNoParameter;
@@ -13,7 +15,6 @@ use CuyZ\Valinor\Type\Types\CallableType;
 
 use function array_shift;
 use function call_user_func;
-use function method_exists;
 
 /** @internal */
 final class ValueTransformersHandler
@@ -26,7 +27,7 @@ final class ValueTransformersHandler
     ) {}
 
     /**
-     * @param array<object> $attributes
+     * @param array<AttributeDefinition> $attributes
      * @param list<callable> $transformers
      * @return array<mixed>|scalar|null
      */
@@ -39,7 +40,7 @@ final class ValueTransformersHandler
 
     /**
      * @param list<callable> $transformers
-     * @param list<object> $attributes
+     * @param array<AttributeDefinition> $attributes
      */
     private function next(array $transformers, mixed $value, array $attributes, callable $defaultTransformer): callable
     {
@@ -69,7 +70,7 @@ final class ValueTransformersHandler
     }
 
     /**
-     * @param array<object> $attributes
+     * @param array<AttributeDefinition> $attributes
      */
     private function nextAttribute(mixed $value, array $attributes, callable $next): callable
     {
@@ -79,43 +80,46 @@ final class ValueTransformersHandler
             return $next;
         }
 
-        if (! method_exists($attribute, 'normalize')) {
+        if (! $attribute->class()->methods()->has('normalize')) {
             return $this->nextAttribute($value, $attributes, $next);
         }
 
-        // PHP8.1 First-class callable syntax
-        $function = $this->functionDefinitionRepository->for([$attribute, 'normalize']);
+        $method = $attribute->class()->methods()->get('normalize');
 
-        $this->checkTransformer($function);
+        $this->checkTransformer($method);
 
-        if (! $function->parameters()->at(0)->type()->accepts($value)) {
+        if (! $method->parameters()->at(0)->type()->accepts($value)) {
             return $this->nextAttribute($value, $attributes, $next);
         }
 
-        return fn () => $attribute->normalize($value, fn () => call_user_func($this->nextAttribute($value, $attributes, $next)));
+        // @phpstan-ignore-next-line / We know the method exists
+        return fn () => $attribute->instantiate()->normalize(
+            $value,
+            fn () => call_user_func($this->nextAttribute($value, $attributes, $next))
+        );
     }
 
-    private function checkTransformer(FunctionDefinition $function): void
+    private function checkTransformer(MethodDefinition|FunctionDefinition $method): void
     {
-        if (isset($this->transformerCheck[$function->signature()])) {
+        if (isset($this->transformerCheck[$method->signature()])) {
             return;
         }
 
         // @infection-ignore-all
-        $this->transformerCheck[$function->signature()] = true;
+        $this->transformerCheck[$method->signature()] = true;
 
-        $parameters = $function->parameters();
+        $parameters = $method->parameters();
 
         if ($parameters->count() === 0) {
-            throw new TransformerHasNoParameter($function);
+            throw new TransformerHasNoParameter($method);
         }
 
         if ($parameters->count() > 2) {
-            throw new TransformerHasTooManyParameters($function);
+            throw new TransformerHasTooManyParameters($method);
         }
 
         if ($parameters->count() > 1 && ! $parameters->at(1)->type() instanceof CallableType) {
-            throw new TransformerHasInvalidCallableParameter($function, $parameters->at(1)->type());
+            throw new TransformerHasInvalidCallableParameter($method, $parameters->at(1)->type());
         }
     }
 }

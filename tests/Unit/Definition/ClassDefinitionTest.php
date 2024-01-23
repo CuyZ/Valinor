@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeMethodDefinition;
 use CuyZ\Valinor\Tests\Fake\Definition\FakePropertyDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
@@ -20,7 +20,7 @@ final class ClassDefinitionTest extends TestCase
     public function test_class_data_can_be_retrieved(): void
     {
         $type = new NativeClassType(stdClass::class, ['T' => new FakeType()]);
-        $attributes = new FakeAttributes();
+        $attributes = new Attributes();
         $properties = new Properties(FakePropertyDefinition::new());
         $methods = new Methods(FakeMethodDefinition::new());
 

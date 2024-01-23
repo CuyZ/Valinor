@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Mapper\FakeShell;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
@@ -41,7 +40,7 @@ final class FakeTreeNode
             $childShell = $shell->child(
                 $child['name'] ?? (string)$key,
                 $child['type'] ?? FakeType::permissive(),
-                $child['attributes'] ?? new FakeAttributes(),
+                $child['attributes'] ?? new Attributes(),
             )->withValue($childValue);
 
             $node = TreeNode::leaf($childShell, $childValue);
