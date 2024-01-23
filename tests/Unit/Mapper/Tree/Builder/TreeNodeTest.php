@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 
 use AssertionError;
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder\FakeTreeNode;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
@@ -48,8 +48,8 @@ final class TreeNodeTest extends TestCase
     {
         $typeChildA = FakeType::permissive();
         $typeChildB = FakeType::permissive();
-        $attributesChildA = new FakeAttributes();
-        $attributesChildB = new FakeAttributes();
+        $attributesChildA = new Attributes();
+        $attributesChildB = new Attributes();
 
         $node = FakeTreeNode::branch([
             'foo' => ['type' => $typeChildA, 'value' => 'foo', 'attributes' => $attributesChildA],

@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer;
 
 use BackedEnum;
 use Closure;
+use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
@@ -22,6 +23,7 @@ use WeakMap;
 use function array_map;
 use function array_reverse;
 use function get_object_vars;
+use function is_a;
 use function is_array;
 use function is_iterable;
 
@@ -48,7 +50,7 @@ final class RecursiveTransformer
 
     /**
      * @param WeakMap<object, true> $references
-     * @param list<object> $attributes
+     * @param list<AttributeDefinition> $attributes
      * @return iterable<mixed>|scalar|null
      */
     private function doTransform(mixed $value, WeakMap $references, array $attributes = []): mixed
@@ -68,6 +70,7 @@ final class RecursiveTransformer
 
         if ($this->transformerAttributes !== [] && is_object($value)) {
             $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes();
+            $classAttributes = $this->filterAttributes($classAttributes);
 
             $attributes = [...$attributes, ...$classAttributes];
         }
@@ -146,7 +149,7 @@ final class RecursiveTransformer
             $class = $this->classDefinitionRepository->for(NativeClassType::for($value::class));
 
             foreach ($values as $key => $subValue) {
-                $attributes = $this->filterAttributes($class->properties()->get($key)->attributes());
+                $attributes = $this->filterAttributes($class->properties()->get($key)->attributes())->toArray();
 
                 $key = $this->keyTransformers->transformKey($key, $attributes);
 
@@ -174,22 +177,16 @@ final class RecursiveTransformer
         throw new TypeUnhandledByNormalizer($value);
     }
 
-    /**
-     * @return list<object>
-     */
-    private function filterAttributes(Attributes $attributes): array
+    private function filterAttributes(Attributes $attributes): Attributes
     {
-        $filteredAttributes = [];
-
-        foreach ($attributes as $attribute) {
+        return $attributes->filter(function (AttributeDefinition $attribute) {
             foreach ($this->transformerAttributes as $transformerAttribute) {
-                if ($attribute instanceof $transformerAttribute) {
-                    $filteredAttributes[] = $attribute;
-                    break;
+                if (is_a($attribute->class()->type()->className(), $transformerAttribute, true)) {
+                    return true;
                 }
             }
-        }
 
-        return $filteredAttributes;
+            return false;
+        });
     }
 }

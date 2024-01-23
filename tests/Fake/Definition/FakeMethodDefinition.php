@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Fake\Definition;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Types\MixedType;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -35,7 +36,7 @@ final class FakeMethodDefinition
 
     public static function fromReflection(ReflectionMethod $reflection): MethodDefinition
     {
-        $returnType = new FakeType();
+        $returnType = new MixedType();
 
         if ($reflection->hasReturnType()) {
             $returnType = FakeType::from($reflection->getReturnType()->getName()); // @phpstan-ignore-line

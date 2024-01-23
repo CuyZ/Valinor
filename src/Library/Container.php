@@ -9,12 +9,11 @@ use CuyZ\Valinor\Cache\KeySanitizerCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Reflection\NativeAttributesRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
@@ -189,9 +188,7 @@ final class Container
                 new ValueTransformersHandler(
                     $this->get(FunctionDefinitionRepository::class),
                 ),
-                new KeyTransformersHandler(
-                    $this->get(FunctionDefinitionRepository::class),
-                ),
+                new KeyTransformersHandler(),
                 $settings->transformersSortedByPriority(),
                 array_keys($settings->transformerAttributes),
             ),
@@ -207,7 +204,6 @@ final class Container
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
                 new ReflectionClassDefinitionRepository(
                     $this->get(TypeParserFactory::class),
-                    $this->get(AttributesRepository::class),
                 ),
                 $this->get(CacheInterface::class),
             ),
@@ -215,12 +211,12 @@ final class Container
             FunctionDefinitionRepository::class => fn () => new CacheFunctionDefinitionRepository(
                 new ReflectionFunctionDefinitionRepository(
                     $this->get(TypeParserFactory::class),
-                    $this->get(AttributesRepository::class),
+                    new ReflectionAttributesRepository(
+                        $this->get(ClassDefinitionRepository::class),
+                    ),
                 ),
                 $this->get(CacheInterface::class)
             ),
-
-            AttributesRepository::class => fn () => new NativeAttributesRepository(),
 
             TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +30,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
         $function = new FunctionDefinition(
             'foo',
             'foo:42-1337',
-            new FakeAttributes(),
+            new Attributes(),
             'foo/bar',
             stdClass::class,
             true,
@@ -43,7 +43,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
                     false,
                     false,
                     'foo',
-                    new FakeAttributes()
+                    new Attributes()
                 )
             ),
             NativeStringType::get()

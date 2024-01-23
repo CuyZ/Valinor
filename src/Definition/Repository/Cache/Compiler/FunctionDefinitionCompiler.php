@@ -22,9 +22,9 @@ final class FunctionDefinitionCompiler implements CacheCompiler
     public function __construct()
     {
         $this->typeCompiler = new TypeCompiler();
-        $this->attributesCompiler = new AttributesCompiler();
+        $this->attributesCompiler = new AttributesCompiler(new ClassDefinitionCompiler());
 
-        $this->parameterCompiler = new ParameterDefinitionCompiler($this->typeCompiler, new AttributesCompiler());
+        $this->parameterCompiler = new ParameterDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
     }
 
     public function compile(mixed $value): string

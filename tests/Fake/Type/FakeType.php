@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Fake\Type;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -41,6 +42,10 @@ final class FakeType implements Type
 
         if ($raw === 'bool') {
             return NativeBooleanType::get();
+        }
+
+        if ($raw === 'array') {
+            return ArrayType::native();
         }
 
         if ($raw === 'array-key') {

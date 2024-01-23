@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Definition\AttributesContainer;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
@@ -95,7 +94,7 @@ final class Shell
 
     public function attributes(): Attributes
     {
-        return $this->attributes ?? AttributesContainer::empty();
+        return $this->attributes ?? Attributes::empty();
     }
 
     public function path(): string
