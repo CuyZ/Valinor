@@ -60,6 +60,8 @@ final class RecursiveTransformer
                 throw new CircularReferenceFoundDuringNormalization($value);
             }
 
+            $references = clone $references;
+
             // @infection-ignore-all
             $references[$value] = true;
         }
