@@ -799,6 +799,74 @@ final class NormalizerTest extends TestCase
         self::assertSame('foo!?*', $result);
     }
 
+    public function test_can_normalize_same_object_in_array_without_throwing_circular_reference_exception(): void
+    {
+        $objectA = new stdClass();
+        $objectA->foo = 'foo';
+
+        $objectB = new stdClass();
+        $objectB->bar = 'bar';
+
+        $result = (new MapperBuilder())
+            ->normalizer(Format::array())
+            ->normalize([$objectA, $objectB, $objectA]);
+
+        self::assertSame([['foo' => 'foo'], ['bar' => 'bar'], ['foo' => 'foo']], $result);
+    }
+
+    public function test_can_normalize_same_object_in_iterable_without_throwing_circular_reference_exception(): void
+    {
+        $iterable = (function () {
+            $objectA = new stdClass();
+            $objectA->foo = 'foo';
+
+            $objectB = new stdClass();
+            $objectB->bar = 'bar';
+
+            yield $objectA;
+            yield $objectB;
+            yield $objectA;
+        })();
+
+        $result = (new MapperBuilder())
+            ->normalizer(Format::array())
+            ->normalize($iterable);
+
+        self::assertSame([['foo' => 'foo'], ['bar' => 'bar'], ['foo' => 'foo']], $result);
+    }
+
+    public function test_can_normalize_same_object_in_properties_without_throwing_circular_reference_exception(): void
+    {
+        $object = new class () {
+            public stdClass $object1;
+            public stdClass $object2;
+            public stdClass $object3;
+
+            public function __construct()
+            {
+                $objectA = new stdClass();
+                $objectA->foo = 'foo';
+
+                $objectB = new stdClass();
+                $objectB->bar = 'bar';
+
+                $this->object1 = $objectA;
+                $this->object2 = $objectB;
+                $this->object3 = $objectA;
+            }
+        };
+
+        $result = (new MapperBuilder())
+            ->normalizer(Format::array())
+            ->normalize($object);
+
+        self::assertSame([
+            'object1' => ['foo' => 'foo'],
+            'object2' => ['bar' => 'bar'],
+            'object3' => ['foo' => 'foo']
+        ], $result);
+    }
+
     public function test_no_param_in_transformer_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);
