@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
-use CuyZ\Valinor\Cache\Compiled\CacheCompiler;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
 use function var_export;
 
 /** @internal */
-final class FunctionDefinitionCompiler implements CacheCompiler
+final class FunctionDefinitionCompiler
 {
     private TypeCompiler $typeCompiler;
 

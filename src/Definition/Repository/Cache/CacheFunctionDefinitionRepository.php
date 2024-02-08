@@ -9,6 +9,8 @@ use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use Psr\SimpleCache\CacheInterface;
 
+use function sha1;
+
 /** @internal */
 final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepository
 {
@@ -21,7 +23,9 @@ final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepos
     public function for(callable $function): FunctionDefinition
     {
         $reflection = Reflection::function($function);
-        $key = "function-definition-{$reflection->getFileName()}-{$reflection->getStartLine()}-{$reflection->getEndLine()}";
+
+        // @infection-ignore-all
+        $key = 'function-definition-' . sha1($reflection->getFileName() . $reflection->getStartLine() . $reflection->getEndLine());
 
         $entry = $this->cache->get($key);
 

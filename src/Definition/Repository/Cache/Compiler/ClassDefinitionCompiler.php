@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
-use CuyZ\Valinor\Cache\Compiled\CacheCompiler;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\PropertyDefinition;
@@ -16,7 +15,7 @@ use function iterator_to_array;
 use function var_export;
 
 /** @internal */
-final class ClassDefinitionCompiler implements CacheCompiler
+final class ClassDefinitionCompiler
 {
     private TypeCompiler $typeCompiler;
 

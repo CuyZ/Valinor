@@ -35,7 +35,7 @@ final class KeySanitizerCache implements WarmupCache
         // 2. The key is sha1'd so that it does not contain illegal characters.
         //    @see https://www.php-fig.org/psr/psr-16/#12-definitions
         // @infection-ignore-all
-        $this->sanitize = static fn (string $key) => sha1("$key." . self::$version ??= PHP_VERSION . '/' . Package::version());
+        $this->sanitize = static fn (string $key) => $key . sha1(self::$version ??= PHP_VERSION . '/' . Package::version());
     }
 
     public function warmup(): void
