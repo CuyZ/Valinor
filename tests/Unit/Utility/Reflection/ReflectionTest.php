@@ -10,6 +10,7 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNor
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use Iterator;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
@@ -135,9 +136,7 @@ final class ReflectionTest extends TestCase
         self::assertSame('Countable&Iterator', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8.2
-     */
+    #[RequiresPhp('8.2')]
     public function test_disjunctive_normal_form_type_is_handled(): void
     {
         $class = ObjectWithPropertyWithNativeDisjunctiveNormalFormType::class;
@@ -148,9 +147,7 @@ final class ReflectionTest extends TestCase
         self::assertSame('Countable&Iterator|Countable&DateTime', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8.2
-     */
+    #[RequiresPhp('8.2')]
     public function test_native_null_type_is_handled(): void
     {
         $class = ObjectWithPropertyWithNativePhp82StandaloneTypes::class;
@@ -161,9 +158,7 @@ final class ReflectionTest extends TestCase
         self::assertSame('null', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8.2
-     */
+    #[RequiresPhp('8.2')]
     public function test_native_true_type_is_handled(): void
     {
         $class = ObjectWithPropertyWithNativePhp82StandaloneTypes::class;
@@ -174,9 +169,7 @@ final class ReflectionTest extends TestCase
         self::assertSame('true', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8.2
-     */
+    #[RequiresPhp('8.2')]
     public function test_native_false_type_is_handled(): void
     {
         $class = ObjectWithPropertyWithNativePhp82StandaloneTypes::class;

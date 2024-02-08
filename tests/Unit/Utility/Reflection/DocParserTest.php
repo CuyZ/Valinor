@@ -7,6 +7,7 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
 use CuyZ\Valinor\Utility\Reflection\DocParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
@@ -18,8 +19,8 @@ final class DocParserTest extends TestCase
 {
     /**
      * @param non-empty-string $expectedType
-     * @dataProvider callables_with_docblock_typed_return_type
      */
+    #[DataProvider('callables_with_docblock_typed_return_type')]
     public function test_docblock_return_type_is_fetched_correctly(
         callable $dockblockTypedCallable,
         string $expectedType
@@ -32,7 +33,7 @@ final class DocParserTest extends TestCase
     /**
      * @return iterable<non-empty-string,array{0:callable,1:non-empty-string}>
      */
-    public function callables_with_docblock_typed_return_type(): iterable
+    public static function callables_with_docblock_typed_return_type(): iterable
     {
         yield 'phpdoc' => [
             /** @return int */
@@ -144,8 +145,8 @@ final class DocParserTest extends TestCase
 
     /**
      * @param non-empty-string $expectedType
-     * @dataProvider objects_with_docblock_typed_properties
      */
+    #[DataProvider('objects_with_docblock_typed_properties')]
     public function test_docblock_var_type_is_fetched_correctly(
         ReflectionParameter|ReflectionProperty $reflection,
         string $expectedType
@@ -160,7 +161,7 @@ final class DocParserTest extends TestCase
     /**
      * @return iterable<non-empty-string,array{0:ReflectionProperty|ReflectionParameter,1:non-empty-string}>
      */
-    public function objects_with_docblock_typed_properties(): iterable
+    public static function objects_with_docblock_typed_properties(): iterable
     {
         yield 'phpdoc @var' => [
             new ReflectionProperty(new class () {

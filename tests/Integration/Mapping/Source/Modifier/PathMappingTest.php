@@ -7,10 +7,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source\Modifier;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\Country;
 
-final class PathMappingTest extends IntegrationTest
+final class PathMappingTest extends IntegrationTestCase
 {
     public function test_path_with_sub_paths_are_mapped(): void
     {

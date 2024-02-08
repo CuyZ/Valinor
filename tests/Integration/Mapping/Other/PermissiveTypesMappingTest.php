@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTime;
 use stdClass;
 
-final class PermissiveTypesMappingTest extends IntegrationTest
+final class PermissiveTypesMappingTest extends IntegrationTestCase
 {
     private TreeMapper $mapper;
 

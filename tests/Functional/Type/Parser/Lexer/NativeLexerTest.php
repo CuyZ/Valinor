@@ -77,6 +77,7 @@ use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -94,10 +95,9 @@ final class NativeLexerTest extends TestCase
     }
 
     /**
-     * @dataProvider parse_valid_types_returns_valid_result_data_provider
-     *
      * @param class-string<Type> $type
      */
+    #[DataProvider('parse_valid_types_returns_valid_result_data_provider')]
     public function test_parse_valid_types_returns_valid_result(string $raw, string $transformed, string $type): void
     {
         $result = $this->parser->parse($raw);
@@ -106,7 +106,7 @@ final class NativeLexerTest extends TestCase
         self::assertInstanceOf($type, $result);
     }
 
-    public function parse_valid_types_returns_valid_result_data_provider(): iterable
+    public static function parse_valid_types_returns_valid_result_data_provider(): iterable
     {
         yield 'Null type' => [
             'raw' => 'null',

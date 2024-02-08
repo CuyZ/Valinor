@@ -6,9 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-final class UnionOfObjectsMappingTest extends IntegrationTest
+final class UnionOfObjectsMappingTest extends IntegrationTestCase
 {
     public function test_objects_sharing_one_property_are_resolved_correctly(): void
     {
@@ -52,11 +53,10 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
 
     /**
      *
-     * @dataProvider mapping_error_when_cannot_resolve_union_data_provider
-     *
      * @param class-string $className
      * @param mixed[] $source
      */
+    #[DataProvider('mapping_error_when_cannot_resolve_union_data_provider')]
     public function test_mapping_error_when_cannot_resolve_union(string $className, array $source): void
     {
         try {
@@ -70,7 +70,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
         }
     }
 
-    public function mapping_error_when_cannot_resolve_union_data_provider(): iterable
+    public static function mapping_error_when_cannot_resolve_union_data_provider(): iterable
     {
         yield [
             'className' => UnionOfFooAndBar::class,

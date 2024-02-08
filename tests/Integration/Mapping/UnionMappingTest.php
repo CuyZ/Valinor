@@ -6,11 +6,11 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\City;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
-final class UnionMappingTest extends IntegrationTest
+final class UnionMappingTest extends IntegrationTestCase
 {
     public function test_union_with_int_or_object(): void
     {

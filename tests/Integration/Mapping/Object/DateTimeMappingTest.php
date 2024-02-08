@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeInterface;
 
-final class DateTimeMappingTest extends IntegrationTest
+final class DateTimeMappingTest extends IntegrationTestCase
 {
     public function test_default_datetime_constructor_cannot_be_used(): void
     {

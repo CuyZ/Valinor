@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeZone;
 
-final class DateTimeZoneMappingTest extends IntegrationTest
+final class DateTimeZoneMappingTest extends IntegrationTestCase
 {
     public function test_can_map_to_timezone_with_default_constructor(): void
     {

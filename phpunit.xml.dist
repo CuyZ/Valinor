@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-         cacheResultFile="var/cache/phpunit/.phpunit.result.cache"
->
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         cacheResultFile="var/cache/phpunit/.phpunit.result.cache">
     <php>
         <ini name="assert.active" value="1" />
         <ini name="assert.exception" value="1" />
@@ -19,10 +18,9 @@
             <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
-
-    <coverage cacheDirectory="var/cache/phpunit/coverage">
+    <source>
         <include>
-            <directory suffix=".php">src/</directory>
+            <directory>src/</directory>
         </include>
-    </coverage>
+    </source>
 </phpunit>

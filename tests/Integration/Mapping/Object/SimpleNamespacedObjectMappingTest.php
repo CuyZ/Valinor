@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use SimpleNamespace\SimpleNamespacedObject;
 
-final class SimpleNamespacedObjectMappingTest extends IntegrationTest
+final class SimpleNamespacedObjectMappingTest extends IntegrationTestCase
 {
     public function test_simple_namespaced_object_can_be_mapped(): void
     {

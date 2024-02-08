@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use function implode;
 use function iterator_to_array;
 
-abstract class IntegrationTest extends TestCase
+abstract class IntegrationTestCase extends TestCase
 {
     protected function mappingFail(MappingError $error): never
     {

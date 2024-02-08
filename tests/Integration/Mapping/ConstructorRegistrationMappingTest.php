@@ -14,7 +14,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObjectWithGeneric;
 use DateTime;
@@ -22,7 +22,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use stdClass;
 
-final class ConstructorRegistrationMappingTest extends IntegrationTest
+final class ConstructorRegistrationMappingTest extends IntegrationTestCase
 {
     public function test_registered_anonymous_function_constructor_is_used(): void
     {
@@ -667,7 +667,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             (new MapperBuilder())
-                // @phpstan-ignore-next-line
                 ->registerConstructor(fn (): stdClass => throw new FakeErrorMessage('some error message', 1656076090))
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -774,7 +773,7 @@ final class SomeClassWithStaticConstructorForOtherClass
     public static function from(string $value): SimpleObject
     {
         $object = new SimpleObject();
-        $object->value= $value;
+        $object->value = $value;
 
         return $object;
     }

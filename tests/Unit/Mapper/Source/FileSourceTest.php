@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Source\Exception\UnableToReadFile;
 use CuyZ\Valinor\Mapper\Source\FileSource;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 
@@ -26,9 +27,7 @@ final class FileSourceTest extends TestCase
         $this->files = vfsStream::setup();
     }
 
-    /**
-     * @dataProvider file_is_handled_properly_data_provider
-     */
+    #[DataProvider('file_is_handled_properly_data_provider')]
     public function test_file_is_handled_properly(string $filename, string $content): void
     {
         $file = (vfsStream::newFile($filename))->withContent($content)->at($this->files);
@@ -39,7 +38,7 @@ final class FileSourceTest extends TestCase
         self::assertSame($file->url(), $source->sourceName());
     }
 
-    public function file_is_handled_properly_data_provider(): iterable
+    public static function file_is_handled_properly_data_provider(): iterable
     {
         yield ['test-json.json', '{"foo": "bar"}'];
         yield ['test-json.JSON', '{"foo": "bar"}'];

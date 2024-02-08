@@ -7,12 +7,11 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\YamlSource;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/**
- * @requires extension yaml
- */
-final class YamlSourceMappingTest extends IntegrationTest
+#[RequiresPhpExtension('yaml')]
+final class YamlSourceMappingTest extends IntegrationTestCase
 {
     public function test_yaml_source_is_mapped_correctly(): void
     {

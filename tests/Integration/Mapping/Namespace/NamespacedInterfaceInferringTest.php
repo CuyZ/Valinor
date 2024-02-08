@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Namespace;
 
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use SimpleNamespace\ImplementationOne;
 
-final class NamespacedInterfaceInferringTest extends IntegrationTest
+final class NamespacedInterfaceInferringTest extends IntegrationTestCase
 {
     // @see https://github.com/CuyZ/Valinor/issues/394#issuecomment-1746722996
     public function test_interface_inferred_from_same_namespace_as_file_runs_correctly(): void

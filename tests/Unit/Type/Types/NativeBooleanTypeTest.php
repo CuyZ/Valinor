@@ -10,6 +10,7 @@ use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -57,9 +58,7 @@ final class NativeBooleanTypeTest extends TestCase
         self::assertFalse($this->booleanType->canCast(new stdClass()));
     }
 
-    /**
-     * @dataProvider cast_value_returns_correct_result_data_provider
-     */
+    #[DataProvider('cast_value_returns_correct_result_data_provider')]
     public function test_cast_value_returns_correct_result(mixed $value, bool $expected): void
     {
         $result = $this->booleanType->cast($value);
@@ -67,7 +66,7 @@ final class NativeBooleanTypeTest extends TestCase
         self::assertSame($expected, $result);
     }
 
-    public function cast_value_returns_correct_result_data_provider(): array
+    public static function cast_value_returns_correct_result_data_provider(): array
     {
         return [
             'True from integer-string' => [

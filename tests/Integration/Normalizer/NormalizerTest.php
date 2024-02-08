@@ -21,6 +21,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use IteratorAggregate;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
@@ -31,11 +32,10 @@ use function array_merge;
 final class NormalizerTest extends TestCase
 {
     /**
-     * @dataProvider normalize_basic_values_yields_expected_output_data_provider
-     *
      * @param array<int, list<callable>> $transformers
      * @param list<class-string> $transformerAttributes
      */
+    #[DataProvider('normalize_basic_values_yields_expected_output_data_provider')]
     public function test_normalize_basic_values_yields_expected_output(
         mixed $input,
         mixed $expectedArray,
@@ -62,7 +62,7 @@ final class NormalizerTest extends TestCase
         self::assertSame($expectedJson, $jsonResult);
     }
 
-    public function normalize_basic_values_yields_expected_output_data_provider(): iterable
+    public static function normalize_basic_values_yields_expected_output_data_provider(): iterable
     {
         yield 'null' => [
             'input' => null,

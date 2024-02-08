@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class SuperfluousKeysMappingTest extends IntegrationTest
+final class SuperfluousKeysMappingTest extends IntegrationTestCase
 {
     private TreeMapper $mapper;
 

@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -63,15 +64,13 @@ final class PositiveIntegerTypeTest extends TestCase
         self::assertFalse($this->positiveIntegerType->canCast(new stdClass()));
     }
 
-    /**
-     * @dataProvider cast_value_returns_correct_result_data_provider
-     */
+    #[DataProvider('cast_value_returns_correct_result_data_provider')]
     public function test_cast_value_returns_correct_result(mixed $value, int $expected): void
     {
         self::assertSame($expected, $this->positiveIntegerType->cast($value));
     }
 
-    public function cast_value_returns_correct_result_data_provider(): array
+    public static function cast_value_returns_correct_result_data_provider(): array
     {
         return [
             'Integer from float' => [

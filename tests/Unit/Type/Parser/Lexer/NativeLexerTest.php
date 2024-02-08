@@ -29,6 +29,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -44,10 +45,9 @@ final class NativeLexerTest extends TestCase
     }
 
     /**
-     * @dataProvider tokenized_type_is_correct_data_provider
-     *
      * @param class-string<Token> $tokenClassName
      */
+    #[DataProvider('tokenized_type_is_correct_data_provider')]
     public function test_tokenized_type_is_correct(string $symbol, string $tokenClassName): void
     {
         $token = $this->lexer->tokenize($symbol);
@@ -56,7 +56,7 @@ final class NativeLexerTest extends TestCase
         self::assertSame($symbol, $token->symbol());
     }
 
-    public function tokenized_type_is_correct_data_provider(): iterable
+    public static function tokenized_type_is_correct_data_provider(): iterable
     {
         yield 'null' => [
             'symbol' => 'null',

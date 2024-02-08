@@ -8,13 +8,12 @@ use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Type\Types\Factory\CannotBuildTypeFromValue;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use DateTime;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ValueTypeFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider type_from_value_returns_expected_type_data_provider
-     */
+    #[DataProvider('type_from_value_returns_expected_type_data_provider')]
     public function test_type_from_value_returns_expected_type(mixed $value, string $expectedType): void
     {
         $type = ValueTypeFactory::from($value);
@@ -22,7 +21,7 @@ final class ValueTypeFactoryTest extends TestCase
         self::assertSame($expectedType, $type->toString());
     }
 
-    public function type_from_value_returns_expected_type_data_provider(): iterable
+    public static function type_from_value_returns_expected_type_data_provider(): iterable
     {
         yield 'true' => [
             'value' => true,

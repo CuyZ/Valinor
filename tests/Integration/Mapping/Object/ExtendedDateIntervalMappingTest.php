@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\DateInterval;
 
-final class ExtendedDateIntervalMappingTest extends IntegrationTest
+final class ExtendedDateIntervalMappingTest extends IntegrationTestCase
 {
     public function test_extended_date_interval_is_mapped_properly(): void
     {

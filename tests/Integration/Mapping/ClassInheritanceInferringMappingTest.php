@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use LogicException;
 
-final class ClassInheritanceInferringMappingTest extends IntegrationTest
+final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
 {
     public function test_infer_abstract_class_works_as_expected(): void
     {

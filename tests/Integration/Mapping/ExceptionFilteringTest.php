@@ -8,11 +8,11 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DomainException;
 use Throwable;
 
-final class ExceptionFilteringTest extends IntegrationTest
+final class ExceptionFilteringTest extends IntegrationTestCase
 {
     public function test_userland_exception_not_filtered_is_not_caught(): void
     {

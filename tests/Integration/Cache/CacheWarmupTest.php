@@ -8,10 +8,10 @@ use CuyZ\Valinor\Cache\Exception\InvalidSignatureToWarmup;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCacheWithWarmup;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeInterface;
 
-final class CacheWarmupTest extends IntegrationTest
+final class CacheWarmupTest extends IntegrationTestCase
 {
     private FakeCache $cache;
 

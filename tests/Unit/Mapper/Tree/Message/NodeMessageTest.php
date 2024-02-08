@@ -10,6 +10,7 @@ use CuyZ\Valinor\Tests\Fake\Mapper\Tree\FakeNode;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 
 final class NodeMessageTest extends TestCase
@@ -102,9 +103,7 @@ final class NodeMessageTest extends TestCase
         self::assertNotSame($messageA, $messageB);
     }
 
-    /**
-     * @requires extension intl
-     */
+    #[RequiresPhpExtension('intl')]
     public function test_custom_locale_is_used(): void
     {
         $originalMessage = (new FakeMessage('un message: {value, spellout}'))->withParameters(['value' => '42']);

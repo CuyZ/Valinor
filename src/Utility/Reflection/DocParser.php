@@ -219,7 +219,7 @@ final class DocParser
 
         $doc = preg_replace('#^\s*/\*\*([^/]+)\*/\s*$#', '$1', $doc);
 
-        return preg_replace('/^\s*\*\s*(\S*)/m', '$1', $doc); // @phpstan-ignore-line
+        return preg_replace('/^\s*\*\s*(\S*)/m', '$1', (string)$doc);
     }
 
     /**

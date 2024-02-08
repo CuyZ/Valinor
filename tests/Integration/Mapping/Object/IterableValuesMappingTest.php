@@ -6,11 +6,11 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
 
-final class IterableValuesMappingTest extends IntegrationTest
+final class IterableValuesMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {
