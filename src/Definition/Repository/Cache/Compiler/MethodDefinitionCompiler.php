@@ -26,18 +26,18 @@ final class MethodDefinitionCompiler
     {
         $parameters = array_map(
             fn (ParameterDefinition $parameter) => $this->parameterCompiler->compile($parameter),
-            iterator_to_array($method->parameters())
+            iterator_to_array($method->parameters)
         );
 
         $parameters = implode(', ', $parameters);
-        $isStatic = var_export($method->isStatic(), true);
-        $isPublic = var_export($method->isPublic(), true);
-        $returnType = $this->typeCompiler->compile($method->returnType());
+        $isStatic = var_export($method->isStatic, true);
+        $isPublic = var_export($method->isPublic, true);
+        $returnType = $this->typeCompiler->compile($method->returnType);
 
         return <<<PHP
             new \CuyZ\Valinor\Definition\MethodDefinition(
-                '{$method->name()}',
-                '{$method->signature()}',
+                '{$method->name}',
+                '{$method->signature}',
                 new \CuyZ\Valinor\Definition\Parameters($parameters),
                 $isStatic,
                 $isPublic,

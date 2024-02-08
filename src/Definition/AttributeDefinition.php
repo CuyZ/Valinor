@@ -8,26 +8,13 @@ namespace CuyZ\Valinor\Definition;
 final class AttributeDefinition
 {
     public function __construct(
-        private ClassDefinition $class,
+        public readonly ClassDefinition $class,
         /** @var list<mixed> */
-        private array $arguments,
+        public readonly array $arguments,
     ) {}
-
-    public function class(): ClassDefinition
-    {
-        return $this->class;
-    }
-
-    /**
-     * @return list<mixed>
-     */
-    public function arguments(): array
-    {
-        return $this->arguments;
-    }
 
     public function instantiate(): object
     {
-        return new ($this->class->type()->className())(...$this->arguments);
+        return new ($this->class->type->className())(...$this->arguments);
     }
 }

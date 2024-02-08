@@ -125,7 +125,7 @@ final class FileWatchingCache implements WarmupCache
         $fileNames = [];
 
         if ($value instanceof ClassDefinition) {
-            $reflection = Reflection::class($value->name());
+            $reflection = Reflection::class($value->name);
 
             do {
                 $fileNames[] = $reflection->getFileName();
@@ -133,7 +133,7 @@ final class FileWatchingCache implements WarmupCache
         }
 
         if ($value instanceof FunctionDefinition) {
-            $fileNames[] = $value->fileName();
+            $fileNames[] = $value->fileName;
         }
 
         foreach ($fileNames as $fileName) {

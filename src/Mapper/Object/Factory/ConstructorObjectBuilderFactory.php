@@ -45,7 +45,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         $builders = $this->builders($class);
 
         if (count($builders) === 0) {
-            if ($class->methods()->hasConstructor()) {
+            if ($class->methods->hasConstructor()) {
                 throw new CannotInstantiateObject($class);
             }
 
@@ -60,9 +60,9 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
      */
     private function builders(ClassDefinition $class): array
     {
-        $className = $class->name();
-        $classType = $class->type();
-        $methods = $class->methods();
+        $className = $class->name;
+        $classType = $class->type;
+        $methods = $class->methods;
 
         $builders = [];
 
@@ -71,13 +71,13 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
                 continue;
             }
 
-            $definition = $constructor->definition();
-            $functionClass = $definition->class();
+            $definition = $constructor->definition;
+            $functionClass = $definition->class;
 
-            if ($functionClass && $definition->isStatic() && ! $definition->isClosure()) {
+            if ($functionClass && $definition->isStatic && ! $definition->isClosure) {
                 $scopedClass = is_a($className, $functionClass, true) ? $className : $functionClass;
 
-                $builders[] = new MethodObjectBuilder($scopedClass, $definition->name(), $definition->parameters());
+                $builders[] = new MethodObjectBuilder($scopedClass, $definition->name, $definition->parameters);
             } else {
                 $builders[] = new FunctionObjectBuilder($constructor, $classType);
             }
@@ -89,7 +89,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 
         if ($classType instanceof EnumType) {
             $builders[] = new NativeEnumObjectBuilder($classType);
-        } elseif ($methods->hasConstructor() && $methods->constructor()->isPublic()) {
+        } elseif ($methods->hasConstructor() && $methods->constructor()->isPublic) {
             $builders[] = new NativeConstructorObjectBuilder($class);
         }
 
@@ -98,23 +98,21 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 
     private function constructorMatches(FunctionObject $function, ClassType $classType): bool
     {
-        $definition = $function->definition();
-        $parameters = $definition->parameters();
-        $returnType = $definition->returnType();
+        $definition = $function->definition;
 
-        if (! $classType->matches($returnType)) {
+        if (! $classType->matches($definition->returnType)) {
             return false;
         }
 
-        if (! $definition->attributes()->has(DynamicConstructor::class)) {
+        if (! $definition->attributes->has(DynamicConstructor::class)) {
             return true;
         }
 
-        if (count($parameters) === 0) {
+        if (count($definition->parameters) === 0) {
             throw new MissingConstructorClassTypeParameter($definition);
         }
 
-        $parameterType = $parameters->at(0)->type();
+        $parameterType = $definition->parameters->at(0)->type;
 
         if ($parameterType instanceof NativeStringType) {
             $parameterType = ClassStringType::get();
@@ -142,13 +140,13 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             $this->filteredConstructors = [];
 
             foreach ($this->constructors as $constructor) {
-                $function = $constructor->definition();
+                $function = $constructor->definition;
 
-                if (enum_exists($function->class() ?? '') && in_array($function->name(), ['from', 'tryFrom'], true)) {
+                if (enum_exists($function->class ?? '') && in_array($function->name, ['from', 'tryFrom'], true)) {
                     continue;
                 }
 
-                if (! $function->returnType() instanceof ObjectType) {
+                if (! $function->returnType instanceof ObjectType) {
                     throw new InvalidConstructorReturnType($function);
                 }
 

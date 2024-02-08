@@ -65,6 +65,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $reflection = Reflection::class($type->className());
 
         return new ClassDefinition(
+            $reflection->name,
             $type,
             new Attributes(...$this->attributes($reflection)),
             new Properties(...$this->properties($type)),

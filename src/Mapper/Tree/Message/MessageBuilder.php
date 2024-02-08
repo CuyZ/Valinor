@@ -121,10 +121,9 @@ final class MessageBuilder
     /**
      * @psalm-pure
      *
-     * PHP8.1 intersection
      * @return MessageType&HasCode&HasParameters
      */
-    public function build(): Message
+    public function build(): Message&HasCode&HasParameters
     {
         /** @var MessageType&HasCode&HasParameters */
         return $this->isError
@@ -132,7 +131,7 @@ final class MessageBuilder
             : $this->buildMessage();
     }
 
-    private function buildMessage(): Message
+    private function buildMessage(): Message&HasCode&HasParameters
     {
         return new class ($this->body, $this->code, $this->parameters) implements Message, HasCode, HasParameters {
             /**
@@ -161,7 +160,7 @@ final class MessageBuilder
         };
     }
 
-    private function buildErrorMessage(): ErrorMessage
+    private function buildErrorMessage(): ErrorMessage&HasCode&HasParameters
     {
         return new class ($this->body, $this->code, $this->parameters) extends RuntimeException implements ErrorMessage, HasCode, HasParameters {
             /**

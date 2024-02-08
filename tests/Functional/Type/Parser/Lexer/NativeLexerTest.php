@@ -876,13 +876,11 @@ final class NativeLexerTest extends TestCase
             'type' => UnionType::class,
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'Union type with enum' => [
-                'raw' => PureEnum::class . '|' . BackedStringEnum::class,
-                'transformed' => PureEnum::class . '|' . BackedStringEnum::class,
-                'type' => UnionType::class,
-            ];
-        }
+        yield 'Union type with enum' => [
+            'raw' => PureEnum::class . '|' . BackedStringEnum::class,
+            'transformed' => PureEnum::class . '|' . BackedStringEnum::class,
+            'type' => UnionType::class,
+        ];
 
         yield 'Union type with class-string' => [
             'raw' => 'class-string|int',
@@ -921,98 +919,94 @@ final class NativeLexerTest extends TestCase
         ];
 
         yield 'Class constant with string value' => [
-            'raw' => ObjectWithConstants::className() . '::CONST_WITH_STRING_VALUE_A',
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_STRING_VALUE_A',
             'transformed' => "'some string value'",
             'type' => StringValueType::class,
         ];
 
         yield 'Class constant with integer value' => [
-            'raw' => ObjectWithConstants::className() . '::CONST_WITH_INTEGER_VALUE_A',
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_INTEGER_VALUE_A',
             'transformed' => '1653398288',
             'type' => IntegerValueType::class,
         ];
 
         yield 'Class constant with float value' => [
-            'raw' => ObjectWithConstants::className() . '::CONST_WITH_FLOAT_VALUE_A',
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_FLOAT_VALUE_A',
             'transformed' => '1337.42',
             'type' => FloatValueType::class,
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'Class constant with enum value' => [
-                'raw' => ObjectWithConstants::className() . '::CONST_WITH_ENUM_VALUE_A',
-                'transformed' => BackedIntegerEnum::class . '::FOO',
-                'type' => EnumType::class,
-            ];
-        }
+        yield 'Class constant with enum value' => [
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_ENUM_VALUE_A',
+            'transformed' => BackedIntegerEnum::class . '::FOO',
+            'type' => EnumType::class,
+        ];
 
         yield 'Class constant with array value' => [
-            'raw' => ObjectWithConstants::className() . '::CONST_WITH_ARRAY_VALUE_A',
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_ARRAY_VALUE_A',
             'transformed' => "array{string: 'some string value', integer: 1653398288, float: 1337.42}",
             'type' => ShapedArrayType::class,
         ];
 
         yield 'Class constant with nested array value' => [
-            'raw' => ObjectWithConstants::className() . '::CONST_WITH_NESTED_ARRAY_VALUE_A',
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_NESTED_ARRAY_VALUE_A',
             'transformed' => "array{nested_array: array{string: 'some string value', integer: 1653398288, float: 1337.42}}",
             'type' => ShapedArrayType::class,
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'Pure enum' => [
-                'raw' => PureEnum::class,
-                'transformed' => PureEnum::class,
-                'type' => EnumType::class,
-            ];
+        yield 'Pure enum' => [
+            'raw' => PureEnum::class,
+            'transformed' => PureEnum::class,
+            'type' => EnumType::class,
+        ];
 
-            yield 'Backed integer enum' => [
-                'raw' => BackedIntegerEnum::class,
-                'transformed' => BackedIntegerEnum::class,
-                'type' => EnumType::class,
-            ];
+        yield 'Backed integer enum' => [
+            'raw' => BackedIntegerEnum::class,
+            'transformed' => BackedIntegerEnum::class,
+            'type' => EnumType::class,
+        ];
 
-            yield 'Backed string enum' => [
-                'raw' => BackedStringEnum::class,
-                'transformed' => BackedStringEnum::class,
-                'type' => EnumType::class,
-            ];
+        yield 'Backed string enum' => [
+            'raw' => BackedStringEnum::class,
+            'transformed' => BackedStringEnum::class,
+            'type' => EnumType::class,
+        ];
 
-            yield 'Pure enum value' => [
-                'raw' => PureEnum::class . '::FOO',
-                'transformed' => PureEnum::class . '::FOO',
-                'type' => EnumType::class,
-            ];
+        yield 'Pure enum value' => [
+            'raw' => PureEnum::class . '::FOO',
+            'transformed' => PureEnum::class . '::FOO',
+            'type' => EnumType::class,
+        ];
 
-            yield 'Backed integer enum value' => [
-                'raw' => BackedIntegerEnum::class . '::FOO',
-                'transformed' => BackedIntegerEnum::class . '::FOO',
-                'type' => EnumType::class,
-            ];
+        yield 'Backed integer enum value' => [
+            'raw' => BackedIntegerEnum::class . '::FOO',
+            'transformed' => BackedIntegerEnum::class . '::FOO',
+            'type' => EnumType::class,
+        ];
 
-            yield 'Backed string enum value' => [
-                'raw' => BackedStringEnum::class . '::FOO',
-                'transformed' => BackedStringEnum::class . '::FOO',
-                'type' => EnumType::class,
-            ];
+        yield 'Backed string enum value' => [
+            'raw' => BackedStringEnum::class . '::FOO',
+            'transformed' => BackedStringEnum::class . '::FOO',
+            'type' => EnumType::class,
+        ];
 
-            yield 'Pure enum value with pattern with wildcard at the beginning' => [
-                'raw' => PureEnum::class . '::*OO',
-                'transformed' => PureEnum::class . '::*OO',
-                'type' => EnumType::class,
-            ];
+        yield 'Pure enum value with pattern with wildcard at the beginning' => [
+            'raw' => PureEnum::class . '::*OO',
+            'transformed' => PureEnum::class . '::*OO',
+            'type' => EnumType::class,
+        ];
 
-            yield 'Pure enum value with pattern with wildcard at the end' => [
-                'raw' => PureEnum::class . '::FO*',
-                'transformed' => PureEnum::class . '::FO*',
-                'type' => EnumType::class,
-            ];
+        yield 'Pure enum value with pattern with wildcard at the end' => [
+            'raw' => PureEnum::class . '::FO*',
+            'transformed' => PureEnum::class . '::FO*',
+            'type' => EnumType::class,
+        ];
 
-            yield 'Pure enum value with pattern with wildcard at the beginning and end' => [
-                'raw' => PureEnum::class . '::*A*',
-                'transformed' => PureEnum::class . '::*A*',
-                'type' => EnumType::class,
-            ];
-        }
+        yield 'Pure enum value with pattern with wildcard at the beginning and end' => [
+            'raw' => PureEnum::class . '::*A*',
+            'transformed' => PureEnum::class . '::*A*',
+            'type' => EnumType::class,
+        ];
     }
 
     public function test_multiple_union_types_are_parsed(): void
@@ -1365,9 +1359,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse('"foo');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_missing_enum_case_throws_exception(): void
     {
         $this->expectException(MissingEnumCase::class);
@@ -1377,9 +1368,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_no_enum_case_found_throws_exception(): void
     {
         $this->expectException(EnumCaseNotFound::class);
@@ -1389,9 +1377,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::ABC');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_no_enum_case_found_with_wildcard_throws_exception(): void
     {
         $this->expectException(EnumCaseNotFound::class);
@@ -1401,9 +1386,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::ABC*');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_no_enum_case_found_with_several_wildcards_in_a_row_throws_exception(): void
     {
         $this->expectException(EnumCaseNotFound::class);
@@ -1413,9 +1395,6 @@ final class NativeLexerTest extends TestCase
         $this->parser->parse(PureEnum::class . '::F**O');
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_missing_specific_enum_case_throws_exception(): void
     {
         $this->expectException(MissingSpecificEnumCase::class);
@@ -1429,44 +1408,44 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(MissingClassConstantCase::class);
         $this->expectExceptionCode(1664905018);
-        $this->expectExceptionMessage('Missing case name for class constant `' . ObjectWithConstants::className() . '::?`.');
+        $this->expectExceptionMessage('Missing case name for class constant `' . ObjectWithConstants::class . '::?`.');
 
-        $this->parser->parse(ObjectWithConstants::className() . '::');
+        $this->parser->parse(ObjectWithConstants::class . '::');
     }
 
     public function test_no_class_constant_case_found_throws_exception(): void
     {
         $this->expectException(ClassConstantCaseNotFound::class);
         $this->expectExceptionCode(1652189140);
-        $this->expectExceptionMessage('Unknown class constant case `' . ObjectWithConstants::className() . '::ABC`.');
+        $this->expectExceptionMessage('Unknown class constant case `' . ObjectWithConstants::class . '::ABC`.');
 
-        $this->parser->parse(ObjectWithConstants::className() . '::ABC');
+        $this->parser->parse(ObjectWithConstants::class . '::ABC');
     }
 
     public function test_no_class_constant_case_found_with_wildcard_throws_exception(): void
     {
         $this->expectException(ClassConstantCaseNotFound::class);
         $this->expectExceptionCode(1652189140);
-        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::className() . '::ABC*`.');
+        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::ABC*`.');
 
-        $this->parser->parse(ObjectWithConstants::className() . '::ABC*');
+        $this->parser->parse(ObjectWithConstants::class . '::ABC*');
     }
 
     public function test_no_class_constant_case_found_with_several_wildcards_in_a_row_throws_exception(): void
     {
         $this->expectException(ClassConstantCaseNotFound::class);
         $this->expectExceptionCode(1652189140);
-        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::className() . '::F**O`.');
+        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::F**O`.');
 
-        $this->parser->parse(ObjectWithConstants::className() . '::F**O');
+        $this->parser->parse(ObjectWithConstants::class . '::F**O');
     }
 
     public function test_missing_specific_class_constant_case_throws_exception(): void
     {
         $this->expectException(MissingSpecificClassConstantCase::class);
         $this->expectExceptionCode(1664904636);
-        $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::className() . '::?` (cannot be `*`).');
+        $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::class . '::?` (cannot be `*`).');
 
-        $this->parser->parse(ObjectWithConstants::className() . '::*');
+        $this->parser->parse(ObjectWithConstants::class . '::*');
     }
 }

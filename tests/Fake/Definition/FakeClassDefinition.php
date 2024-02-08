@@ -26,6 +26,7 @@ final class FakeClassDefinition
     public static function new(string $name = stdClass::class): ClassDefinition
     {
         return new ClassDefinition(
+            $name,
             new NativeClassType($name),
             new Attributes(),
             new Properties(),
@@ -51,6 +52,7 @@ final class FakeClassDefinition
         );
 
         return new ClassDefinition(
+            $reflection->name,
             new NativeClassType($reflection->name),
             new Attributes(),
             new Properties(...$properties),

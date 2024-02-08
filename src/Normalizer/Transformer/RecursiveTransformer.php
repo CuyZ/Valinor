@@ -15,13 +15,11 @@ use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use DateTimeZone;
 use Generator;
-use ReflectionClass;
 use stdClass;
 use UnitEnum;
 use WeakMap;
 
 use function array_map;
-use function array_reverse;
 use function get_object_vars;
 use function is_a;
 use function is_array;
@@ -71,7 +69,7 @@ final class RecursiveTransformer
         }
 
         if ($this->transformerAttributes !== [] && is_object($value)) {
-            $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes();
+            $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes;
             $classAttributes = $this->filterAttributes($classAttributes);
 
             $attributes = [...$attributes, ...$classAttributes];
@@ -121,37 +119,12 @@ final class RecursiveTransformer
 
             $values = (fn () => get_object_vars($this))->call($value);
 
-            // @infection-ignore-all
-            if (PHP_VERSION_ID < 8_01_00) {
-                // In PHP 8.1, behavior changed for `get_object_vars` function:
-                // the sorting order was taking children properties first, now
-                // it takes parents properties first. This code is a temporary
-                // workaround to keep the same behavior in PHP 8.0 and later
-                // versions.
-                $sorted = [];
-
-                $parents = array_reverse(class_parents($value));
-                $parents[] = $value::class;
-
-                foreach ($parents as $parent) {
-                    foreach ((new ReflectionClass($parent))->getProperties() as $property) {
-                        if (! isset($values[$property->name])) {
-                            continue;
-                        }
-
-                        $sorted[$property->name] = $values[$property->name];
-                    }
-                }
-
-                $values = $sorted;
-            }
-
             $transformed = [];
 
             $class = $this->classDefinitionRepository->for(NativeClassType::for($value::class));
 
             foreach ($values as $key => $subValue) {
-                $attributes = $this->filterAttributes($class->properties()->get($key)->attributes())->toArray();
+                $attributes = $this->filterAttributes($class->properties->get($key)->attributes)->toArray();
 
                 $key = $this->keyTransformers->transformKey($key, $attributes);
 
@@ -183,7 +156,7 @@ final class RecursiveTransformer
     {
         return $attributes->filter(function (AttributeDefinition $attribute) {
             foreach ($this->transformerAttributes as $transformerAttribute) {
-                if (is_a($attribute->class()->type()->className(), $transformerAttribute, true)) {
+                if (is_a($attribute->class->type->className(), $transformerAttribute, true)) {
                     return true;
                 }
             }

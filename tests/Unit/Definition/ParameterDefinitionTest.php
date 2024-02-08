@@ -31,12 +31,12 @@ final class ParameterDefinitionTest extends TestCase
             $attributes
         );
 
-        self::assertSame($name, $parameter->name());
-        self::assertSame($signature, $parameter->signature());
-        self::assertSame($type, $parameter->type());
-        self::assertSame($isOptional, $parameter->isOptional());
-        self::assertSame($isVariadic, $parameter->isVariadic());
-        self::assertSame($defaultValue, $parameter->defaultValue());
-        self::assertSame($attributes, $parameter->attributes());
+        self::assertSame($name, $parameter->name);
+        self::assertSame($signature, $parameter->signature);
+        self::assertSame($type, $parameter->type);
+        self::assertSame($isOptional, $parameter->isOptional);
+        self::assertSame($isVariadic, $parameter->isVariadic);
+        self::assertSame($defaultValue, $parameter->defaultValue);
+        self::assertSame($attributes, $parameter->attributes);
     }
 }

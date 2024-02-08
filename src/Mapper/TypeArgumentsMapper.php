@@ -32,11 +32,11 @@ final class TypeArgumentsMapper implements ArgumentsMapper
 
         $elements = array_map(
             fn (ParameterDefinition $parameter) => new ShapedArrayElement(
-                new StringValueType($parameter->name()),
-                $parameter->type(),
-                $parameter->isOptional()
+                new StringValueType($parameter->name),
+                $parameter->type,
+                $parameter->isOptional
             ),
-            iterator_to_array($function->parameters())
+            iterator_to_array($function->parameters)
         );
 
         $type = new ShapedArrayType(...$elements);

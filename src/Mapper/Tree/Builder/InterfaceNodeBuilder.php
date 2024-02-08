@@ -44,7 +44,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $className = $type->className();
 
         if (! $this->implementations->has($className)) {
-            if ($type instanceof InterfaceType || $this->classDefinitionRepository->for($type)->isAbstract()) {
+            if ($type instanceof InterfaceType || $this->classDefinitionRepository->for($type)->isAbstract) {
                 throw new CannotResolveObjectType($className);
             }
 
@@ -52,9 +52,9 @@ final class InterfaceNodeBuilder implements NodeBuilder
         }
 
         $function = $this->implementations->function($className);
-        $arguments = Arguments::fromParameters($function->parameters());
+        $arguments = Arguments::fromParameters($function->parameters);
 
-        if ($type instanceof NativeClassType && $this->classDefinitionRepository->for($type)->isFinal()) {
+        if ($type instanceof NativeClassType && $this->classDefinitionRepository->for($type)->isFinal) {
             throw new CannotInferFinalClass($type, $function);
         }
 

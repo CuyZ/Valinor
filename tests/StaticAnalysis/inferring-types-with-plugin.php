@@ -53,8 +53,7 @@ function mapping_function_arguments_will_infer_object_of_same_type(ArgumentsMapp
 
 function mapping_static_method_arguments_will_infer_object_of_same_type(ArgumentsMapper $mapper): void
 {
-    // PHP8.1 First-class callable syntax
-    $result = $mapper->mapArguments(Closure::fromCallable([SomeClass::class, 'someStaticMethod']), []);
+    $result = $mapper->mapArguments(Closure::fromCallable(SomeClass::someStaticMethod(...)), []);
 
     /** @psalm-check-type $result = array{foo: string, bar?: int|null} */
     assertType('array{foo: string, bar?: int|null}', $result);
@@ -62,8 +61,7 @@ function mapping_static_method_arguments_will_infer_object_of_same_type(Argument
 
 function mapping_method_arguments_will_infer_object_of_same_type(ArgumentsMapper $mapper): void
 {
-    // PHP8.1 First-class callable syntax
-    $result = $mapper->mapArguments(Closure::fromCallable([new SomeClass(), 'someMethod']), []);
+    $result = $mapper->mapArguments(Closure::fromCallable((new SomeClass())->someMethod(...)), []);
 
     /** @psalm-check-type $result = array{foo: string, bar?: int|null} */
     assertType('array{foo: string, bar?: int|null}', $result);

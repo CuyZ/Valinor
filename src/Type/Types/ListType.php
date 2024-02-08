@@ -42,7 +42,6 @@ final class ListType implements CompositeTraversableType
             return false;
         }
 
-        // PHP8.1 use `array_is_list`
         $i = 0;
 
         foreach ($value as $key => $item) {

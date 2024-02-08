@@ -23,8 +23,8 @@ final class MethodsTest extends TestCase
         self::assertFalse($methods->has('unknownMethod'));
         self::assertFalse($methods->hasConstructor());
 
-        self::assertTrue($methods->has($method->name()));
-        self::assertSame($method, $methods->get($method->name()));
+        self::assertTrue($methods->has($method->name));
+        self::assertSame($method, $methods->get($method->name));
     }
 
     public function test_constructor_is_found(): void

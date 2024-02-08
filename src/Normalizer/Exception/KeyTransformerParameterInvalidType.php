@@ -13,7 +13,7 @@ final class KeyTransformerParameterInvalidType extends LogicException
     public function __construct(MethodDefinition $method)
     {
         parent::__construct(
-            "Key transformer parameter must be a string, {$method->parameters()->at(0)->type()->toString()} given for `{$method->signature()}`.",
+            "Key transformer parameter must be a string, {$method->parameters->at(0)->type->toString()} given for `$method->signature`.",
             1701706316,
         );
     }

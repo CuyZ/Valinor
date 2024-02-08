@@ -17,12 +17,12 @@ final class ReflectionObjectBuilder implements ObjectBuilder
 
     public function describeArguments(): Arguments
     {
-        return $this->arguments ??= Arguments::fromProperties($this->class->properties());
+        return $this->arguments ??= Arguments::fromProperties($this->class->properties);
     }
 
     public function build(array $arguments): object
     {
-        $object = new ($this->class->name())();
+        $object = new ($this->class->name)();
 
         if (count($arguments) > 0) {
             (function () use ($arguments): void {
@@ -37,6 +37,6 @@ final class ReflectionObjectBuilder implements ObjectBuilder
 
     public function signature(): string
     {
-        return $this->class->name() . ' (properties)';
+        return $this->class->name . ' (properties)';
     }
 }

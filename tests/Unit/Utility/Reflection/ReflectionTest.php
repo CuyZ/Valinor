@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
 use Closure;
+use Countable;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeIntersectionType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use Iterator;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
@@ -59,8 +60,8 @@ final class ReflectionTest extends TestCase
         $reflectionProperty = $reflectionClass->getProperty('property');
         $reflectionMethod = $reflectionClass->getMethod('method');
         $reflectionParameter = $reflectionMethod->getParameters()[0];
-        $reflectionFunction = new ReflectionFunction(__NAMESPACE__ . '\some_function'); // PHP8.1 First-class callable syntax
-        $reflectionFunctionMethod = new ReflectionFunction(Closure::fromCallable([self::class, 'test_reflection_signatures_are_correct'])); // PHP8.1 First-class callable syntax
+        $reflectionFunction = new ReflectionFunction(some_function(...));
+        $reflectionFunctionMethod = new ReflectionFunction(Closure::fromCallable(self::test_reflection_signatures_are_correct(...)));
         $reflectionFunctionOnOneLineClosure = new ReflectionFunction($functions['function_on_one_line']);
         $reflectionFunctionOnSeveralLinesClosure = new ReflectionFunction($functions['function_on_several_lines']);
 
@@ -121,12 +122,12 @@ final class ReflectionTest extends TestCase
         self::assertSame('mixed', Reflection::flattenType($type));
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_intersection_type_is_handled(): void
     {
-        $class = ObjectWithPropertyWithNativeIntersectionType::class;
+        $class = new class () {
+            /** @var Countable&Iterator<mixed> */
+            public Countable&Iterator $someProperty;
+        };
 
         /** @var ReflectionType $type */
         $type = (new ReflectionProperty($class, 'someProperty'))->getType();

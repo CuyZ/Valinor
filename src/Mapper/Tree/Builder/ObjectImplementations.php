@@ -44,7 +44,7 @@ final class ObjectImplementations
 
     public function function(string $name): FunctionDefinition
     {
-        return $this->functions->get($name)->definition();
+        return $this->functions->get($name)->definition;
     }
 
     /**
@@ -64,7 +64,7 @@ final class ObjectImplementations
     private function call(string $name, array $arguments): string
     {
         try {
-            $signature = ($this->functions->get($name)->callback())(...$arguments);
+            $signature = ($this->functions->get($name)->callback)(...$arguments);
         } catch (Exception $exception) {
             throw new ObjectImplementationCallbackError($name, $exception);
         }
@@ -81,7 +81,7 @@ final class ObjectImplementations
      */
     private function implementations(string $name): array
     {
-        $function = $this->functions->get($name)->definition();
+        $function = $this->functions->get($name)->definition;
 
         try {
             $type = $this->typeParser->parse($name);
@@ -113,10 +113,10 @@ final class ObjectImplementations
      */
     private function implementationsByReturnSignature(string $name, FunctionDefinition $function): array
     {
-        $returnType = $function->returnType();
+        $returnType = $function->returnType;
 
         if (! $returnType instanceof ClassStringType && ! $returnType instanceof UnionType) {
-            if (count($function->parameters()) > 0) {
+            if (count($function->parameters) > 0) {
                 return [];
             }
 

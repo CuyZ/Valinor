@@ -23,7 +23,7 @@ final class Parameters implements IteratorAggregate, Countable
     public function __construct(ParameterDefinition ...$parameters)
     {
         foreach ($parameters as $parameter) {
-            $this->parameters[$parameter->name()] = $parameter;
+            $this->parameters[$parameter->name] = $parameter;
         }
     }
 

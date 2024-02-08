@@ -38,7 +38,7 @@ final class TokenParser
 
         while ($token = $this->next()) {
             if ($currentNamespace === $namespaceName && $token->is(T_USE)) {
-                $statements = array_merge($statements, $this->parseUseStatement());
+                $statements = [...$statements, ...$this->parseUseStatement()];
                 continue;
             }
 

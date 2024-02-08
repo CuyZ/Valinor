@@ -51,13 +51,9 @@ final class InterfaceInferringMappingTest extends IntegrationTest
                 ->infer(
                     SomeInterface::class,
                     /** @return class-string<SomeClassThatInheritsInterfaceA>|class-string<SomeClassThatInheritsInterfaceB> */
-                    function (string $value): string {
-                        // PHP8.0 match
-                        if ($value === 'fooA') {
-                            return SomeClassThatInheritsInterfaceA::class;
-                        }
-
-                        return SomeClassThatInheritsInterfaceB::class;
+                    fn (string $value) => match ($value) {
+                        'fooA' => SomeClassThatInheritsInterfaceA::class,
+                        default => SomeClassThatInheritsInterfaceB::class,
                     }
                 )->mapper();
 
@@ -183,13 +179,11 @@ final class InterfaceInferringMappingTest extends IntegrationTest
             $result = (new MapperBuilder())
                 ->infer(
                     InterfaceA::class,
-                    // PHP8.1 first-class callable syntax
-                    [InterfaceAInferer::class, 'infer']
+                    InterfaceAInferer::infer(...)
                 )
                 ->infer(
                     InterfaceB::class,
-                    // PHP8.1 first-class callable syntax
-                    [InterfaceBInferer::class, 'infer']
+                    InterfaceBInferer::infer(...)
                 )
                 ->mapper()
                 ->map(ClassWithBothInterfaces::class, [

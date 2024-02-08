@@ -14,7 +14,6 @@ use Traversable;
 
 use function array_map;
 use function array_values;
-use function iterator_to_array;
 
 /**
  * @internal
@@ -35,7 +34,7 @@ final class Arguments implements IteratorAggregate, Countable
     {
         return new self(...array_map(
             fn (ParameterDefinition $parameter) => Argument::fromParameter($parameter),
-            array_values(iterator_to_array($parameters)) // PHP8.1 array unpacking
+            array_values([...$parameters])
         ));
     }
 
@@ -43,7 +42,7 @@ final class Arguments implements IteratorAggregate, Countable
     {
         return new self(...array_map(
             fn (PropertyDefinition $property) => Argument::fromProperty($property),
-            array_values(iterator_to_array($properties)) // PHP8.1 array unpacking
+            array_values([...$properties])
         ));
     }
 

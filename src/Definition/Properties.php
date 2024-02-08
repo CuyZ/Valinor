@@ -21,7 +21,7 @@ final class Properties implements IteratorAggregate, Countable
     public function __construct(PropertyDefinition ...$properties)
     {
         foreach ($properties as $property) {
-            $this->properties[$property->name()] = $property;
+            $this->properties[$property->name] = $property;
         }
     }
 

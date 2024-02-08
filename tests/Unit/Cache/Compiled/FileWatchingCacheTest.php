@@ -16,8 +16,6 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use stdClass;
 
-use function iterator_to_array;
-
 final class FileWatchingCacheTest extends TestCase
 {
     private vfsStreamDirectory $files;
@@ -115,8 +113,7 @@ final class FileWatchingCacheTest extends TestCase
         self::assertTrue($this->cache->has('foo'));
         self::assertTrue($this->cache->has('bar'));
 
-        // PHP8.1 array unpacking
-        self::assertEquals($values, iterator_to_array($this->cache->getMultiple(['foo', 'bar']))); // @phpstan-ignore-line
+        self::assertEquals($values, [...$this->cache->getMultiple(['foo', 'bar'])]);
 
         self::assertTrue($this->cache->deleteMultiple(['foo', 'bar']));
 

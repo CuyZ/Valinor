@@ -26,13 +26,10 @@ final class ArrayNormalizer implements Normalizer
     {
         $value = $this->transformer->transform($value);
 
+        /** @var array<mixed>|scalar|null */
         return $this->normalizeIterator($value);
     }
 
-    /**
-     * @param iterable<mixed>|scalar|null $value
-     * @return array<mixed>|scalar|null
-     */
     private function normalizeIterator(mixed $value): mixed
     {
         if (is_iterable($value)) {
@@ -40,8 +37,7 @@ final class ArrayNormalizer implements Normalizer
                 $value = iterator_to_array($value);
             }
 
-            // PHP8.1 First-class callable syntax
-            $value = array_map([$this, 'normalizeIterator'], $value);
+            $value = array_map($this->normalizeIterator(...), $value);
         }
 
         return $value;

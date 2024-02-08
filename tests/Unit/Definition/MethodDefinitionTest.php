@@ -30,11 +30,11 @@ final class MethodDefinitionTest extends TestCase
             $returnType
         );
 
-        self::assertSame($name, $method->name());
-        self::assertSame($signature, $method->signature());
-        self::assertSame($parameters, $method->parameters());
-        self::assertSame($isStatic, $method->isStatic());
-        self::assertSame($isPublic, $method->isPublic());
-        self::assertSame($returnType, $method->returnType());
+        self::assertSame($name, $method->name);
+        self::assertSame($signature, $method->signature);
+        self::assertSame($parameters, $method->parameters);
+        self::assertSame($isStatic, $method->isStatic);
+        self::assertSame($isPublic, $method->isPublic);
+        self::assertSame($returnType, $method->returnType);
     }
 }

@@ -35,8 +35,8 @@ final class AttributesCompiler
         $attributesListCode = [];
 
         foreach ($attributes as $attribute) {
-            $class = $this->classDefinitionCompiler->compile($attribute->class());
-            $arguments = $this->compileAttributeArguments($attribute->arguments());
+            $class = $this->classDefinitionCompiler->compile($attribute->class);
+            $arguments = $this->compileAttributeArguments($attribute->arguments);
 
             $attributesListCode[] = <<<PHP
             new \CuyZ\Valinor\Definition\AttributeDefinition(

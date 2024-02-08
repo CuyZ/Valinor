@@ -22,8 +22,8 @@ final class PropertiesTest extends TestCase
 
         self::assertFalse($properties->has('unknownProperty'));
 
-        self::assertTrue($properties->has($property->name()));
-        self::assertSame($property, $properties->get($property->name()));
+        self::assertTrue($properties->has($property->name));
+        self::assertSame($property, $properties->get($property->name));
     }
 
     public function test_properties_are_countable(): void

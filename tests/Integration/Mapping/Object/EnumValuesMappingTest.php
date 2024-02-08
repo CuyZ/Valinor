@@ -12,9 +12,6 @@ use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
-/**
- * @requires PHP >= 8.1
- */
 final class EnumValuesMappingTest extends IntegrationTest
 {
     public function test_values_are_mapped_properly(): void

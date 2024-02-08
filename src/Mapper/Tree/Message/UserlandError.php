@@ -10,11 +10,7 @@ use Throwable;
 /** @internal */
 final class UserlandError extends RuntimeException implements ErrorMessage
 {
-    /**
-     * PHP8.1 intersection
-     * @return Message&Throwable
-     */
-    public static function from(Throwable $message): Message
+    public static function from(Throwable $message): Message&Throwable
     {
         // @infection-ignore-all
         return $message instanceof Message

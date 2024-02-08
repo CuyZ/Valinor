@@ -41,7 +41,7 @@ final class SnakeCaseProperties
         $result = [];
 
         foreach ($next() as $key => $value) {
-            $newKey = strtolower(preg_replace('/[A-Z]/', '_$0', lcfirst($key)) ?? '');
+            $newKey = strtolower(preg_replace('/[A-Z]/', '_$0', lcfirst((string)$key)) ?? '');
 
             $result[$newKey] = $value;
         }

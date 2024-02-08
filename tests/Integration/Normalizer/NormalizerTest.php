@@ -185,25 +185,23 @@ final class NormalizerTest extends TestCase
             'expected json' => '{"foo":{"value":"foo"},"bar":{"value":"bar"}}',
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'unit enum' => [
-                'input' => PureEnum::FOO,
-                'expected array' => 'FOO',
-                'expected json' => '"FOO"',
-            ];
+        yield 'unit enum' => [
+            'input' => PureEnum::FOO,
+            'expected array' => 'FOO',
+            'expected json' => '"FOO"',
+        ];
 
-            yield 'backed string enum' => [
-                'input' => BackedStringEnum::FOO,
-                'expected array' => 'foo',
-                'expected json' => '"foo"',
-            ];
+        yield 'backed string enum' => [
+            'input' => BackedStringEnum::FOO,
+            'expected array' => 'foo',
+            'expected json' => '"foo"',
+        ];
 
-            yield 'backed integer enum' => [
-                'input' => BackedIntegerEnum::FOO,
-                'expected array' => 42,
-                'expected json' => '42',
-            ];
-        }
+        yield 'backed integer enum' => [
+            'input' => BackedIntegerEnum::FOO,
+            'expected array' => 42,
+            'expected json' => '42',
+        ];
 
         yield 'class with public properties' => [
             'input' => new class () {

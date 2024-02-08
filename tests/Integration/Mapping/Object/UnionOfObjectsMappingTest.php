@@ -14,9 +14,8 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeFooAndBarObject::class, 'constructorA'])
-                ->registerConstructor([SomeFooAndBarObject::class, 'constructorB'])
+                ->registerConstructor(SomeFooAndBarObject::constructorA(...))
+                ->registerConstructor(SomeFooAndBarObject::constructorB(...))
                 ->mapper()
                 ->map(UnionOfFooAndBarAndFoo::class, [
                     'foo',
@@ -84,46 +83,39 @@ final class UnionOfObjectsMappingTest extends IntegrationTest
     }
 }
 
-// PHP8.1 Readonly properties
 final class UnionOfFooAndBar
 {
     /** @var array<SomeFooObject|SomeBarObject> */
     public array $objects;
 }
 
-// PHP8.1 Readonly properties
 final class UnionOfFooAndAnotherFoo
 {
     /** @var array<SomeFooObject|SomeOtherFooObject> */
     public array $objects;
 }
 
-// PHP8.1 Readonly properties
 final class UnionOfFooAndBarAndFoo
 {
     /** @var array<SomeFooAndBarObject|SomeFooObject> */
     public array $objects;
 }
 
-// PHP8.1 Readonly properties
 final class SomeFooObject
 {
     public string $foo;
 }
 
-// PHP8.1 Readonly properties
 final class SomeOtherFooObject
 {
     public string $foo;
 }
 
-// PHP8.1 Readonly properties
 final class SomeBarObject
 {
     public string $bar;
 }
 
-// PHP8.1 Readonly properties
 final class SomeFooAndBarObject
 {
     public string $foo;
