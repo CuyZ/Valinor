@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Unit\Cache\Compiled;
+namespace CuyZ\Valinor\Tests\Unit\Cache;
 
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
