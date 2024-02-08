@@ -176,8 +176,8 @@ final class MapperBuilder
      *     case CASE_D = 'BAR_VALUE_2';
      *
      *     /**
-     *      * @param 'FOO'|'BAR' $type
-     *      * @param int<1, 2> $number
+     *      * \@param 'FOO'|'BAR' $type
+     *      * \@param int<1, 2> $number
      *      * /
      *     public static function fromMatrix(string $type, int $number): self
      *     {

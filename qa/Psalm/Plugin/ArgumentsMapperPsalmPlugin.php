@@ -58,13 +58,15 @@ final class ArgumentsMapperPsalmPlugin implements MethodReturnTypeProviderInterf
             return null;
         }
 
-        if (empty($type->params ?? [])) {
+        $typeParams = $type->params ?? [];
+
+        if ($typeParams === []) {
             return null;
         }
 
         $params = [];
 
-        foreach ($type->params as $param) {
+        foreach ($typeParams as $param) {
             $params[$param->name] = $param->type ?? new Union([new TMixed()]);
         }
 

@@ -6,13 +6,13 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
 use function strtolower;
 use function strtoupper;
 
-final class ValueAlteringMappingTest extends IntegrationTest
+final class ValueAlteringMappingTest extends IntegrationTestCase
 {
     public function test_alter_string_alters_value(): void
     {

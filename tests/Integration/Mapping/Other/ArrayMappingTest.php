@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use stdClass;
 
-final class ArrayMappingTest extends IntegrationTest
+final class ArrayMappingTest extends IntegrationTestCase
 {
     public function test_map_to_array_of_scalars_works_properly(): void
     {

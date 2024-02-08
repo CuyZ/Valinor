@@ -10,10 +10,10 @@ use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use stdClass;
 
-final class FlexibleCastingMappingTest extends IntegrationTest
+final class FlexibleCastingMappingTest extends IntegrationTestCase
 {
     private TreeMapper $mapper;
 

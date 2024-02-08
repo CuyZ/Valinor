@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class VariadicParameterMappingTest extends IntegrationTest
+final class VariadicParameterMappingTest extends IntegrationTestCase
 {
     public function test_only_variadic_parameters_are_mapped_properly(): void
     {

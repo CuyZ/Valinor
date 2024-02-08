@@ -11,6 +11,7 @@ use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -58,15 +59,13 @@ final class NativeStringTypeTest extends TestCase
         self::assertFalse($this->stringType->canCast(new stdClass()));
     }
 
-    /**
-     * @dataProvider cast_value_returns_correct_result_data_provider
-     */
+    #[DataProvider('cast_value_returns_correct_result_data_provider')]
     public function test_cast_value_returns_correct_result(mixed $value, string $expected): void
     {
         self::assertSame($expected, $this->stringType->cast($value));
     }
 
-    public function cast_value_returns_correct_result_data_provider(): array
+    public static function cast_value_returns_correct_result_data_provider(): array
     {
         return [
             'String from float' => [

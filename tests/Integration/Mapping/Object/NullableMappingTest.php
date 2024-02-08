@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class NullableMappingTest extends IntegrationTest
+final class NullableMappingTest extends IntegrationTestCase
 {
     public function test_nullable_properties_default_value_are_handled_properly(): void
     {

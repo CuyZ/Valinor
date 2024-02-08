@@ -10,11 +10,11 @@ use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Utility\PermissiveTypeFound;
 use stdClass;
 
-final class StrictMappingTest extends IntegrationTest
+final class StrictMappingTest extends IntegrationTestCase
 {
     public function test_missing_value_throws_exception(): void
     {

@@ -9,20 +9,19 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Utility\ValueDumper;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 final class ValueDumperTest extends TestCase
 {
-    /**
-     * @dataProvider dump_value_returns_correct_signature_data_provider
-     */
+    #[DataProvider('dump_value_returns_correct_signature_data_provider')]
     public function test_dump_value_returns_correct_signature(mixed $value, string $expected): void
     {
         self::assertSame($expected, ValueDumper::dump($value));
     }
 
-    public function dump_value_returns_correct_signature_data_provider(): array
+    public static function dump_value_returns_correct_signature_data_provider(): array
     {
         return [
             'null' => [null, 'null'],

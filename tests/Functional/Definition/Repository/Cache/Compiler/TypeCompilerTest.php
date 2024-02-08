@@ -44,6 +44,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use DateTime;
 use DateTimeInterface;
 use Error;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -58,9 +59,7 @@ final class TypeCompilerTest extends TestCase
         $this->typeCompiler = new TypeCompiler();
     }
 
-    /**
-     * @dataProvider type_is_compiled_correctly_data_provider
-     */
+    #[DataProvider('type_is_compiled_correctly_data_provider')]
     public function test_type_is_compiled_correctly(Type $type): void
     {
         $code = $this->typeCompiler->compile($type);
@@ -75,7 +74,7 @@ final class TypeCompilerTest extends TestCase
         self::assertSame($type->toString(), $compiledType->toString());
     }
 
-    public function type_is_compiled_correctly_data_provider(): iterable
+    public static function type_is_compiled_correctly_data_provider(): iterable
     {
         yield [NullType::get()];
         yield [BooleanValueType::true()];

@@ -10,9 +10,9 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class EnumValuesMappingTest extends IntegrationTest
+final class EnumValuesMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {

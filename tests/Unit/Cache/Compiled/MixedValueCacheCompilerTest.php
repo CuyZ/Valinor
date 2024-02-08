@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Cache\Compiled;
 
 use CuyZ\Valinor\Cache\Compiled\MixedValueCacheCompiler;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -19,9 +20,7 @@ final class MixedValueCacheCompilerTest extends TestCase
         $this->compiler = new MixedValueCacheCompiler();
     }
 
-    /**
-     * @dataProvider values_are_compiled_correctly_data_provider
-     */
+    #[DataProvider('values_are_compiled_correctly_data_provider')]
     public function test_values_are_compiled_correctly(mixed $value): void
     {
         $compiledValue = eval('return ' . $this->compiler->compile($value) . ';');
@@ -29,7 +28,7 @@ final class MixedValueCacheCompilerTest extends TestCase
         self::assertEquals($value, $compiledValue);
     }
 
-    public function values_are_compiled_correctly_data_provider(): iterable
+    public static function values_are_compiled_correctly_data_provider(): iterable
     {
         yield 'Float' => [1337.42];
         yield 'Int' => [404];

@@ -21,13 +21,13 @@ use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\Interface
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceAInferer;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceB;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\InterfaceBInferer;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTime;
 use DateTimeInterface;
 use DomainException;
 use stdClass;
 
-final class InterfaceInferringMappingTest extends IntegrationTest
+final class InterfaceInferringMappingTest extends IntegrationTestCase
 {
     public function test_override_date_time_interface_inferring_overrides_correctly(): void
     {

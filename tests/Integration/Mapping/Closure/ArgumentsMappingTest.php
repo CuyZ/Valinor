@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Closure;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class ArgumentsMappingTest extends IntegrationTest
+final class ArgumentsMappingTest extends IntegrationTestCase
 {
     public function test_can_map_to_anonymous_function(): void
     {

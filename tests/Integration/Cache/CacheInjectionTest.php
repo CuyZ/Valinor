@@ -8,7 +8,7 @@ use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -19,7 +19,7 @@ use stdClass;
 use function file_get_contents;
 use function str_ends_with;
 
-final class CacheInjectionTest extends IntegrationTest
+final class CacheInjectionTest extends IntegrationTestCase
 {
     public function test_cache_entries_are_written_once_during_mapping(): void
     {

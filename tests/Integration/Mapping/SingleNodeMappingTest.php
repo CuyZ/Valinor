@@ -6,16 +6,16 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-final class SingleNodeMappingTest extends IntegrationTest
+final class SingleNodeMappingTest extends IntegrationTestCase
 {
     /**
-     * @dataProvider single_property_and_constructor_parameter_data_provider
-     *
      * @param class-string $className
      */
+    #[DataProvider('single_property_and_constructor_parameter_data_provider')]
     public function test_single_property_and_constructor_parameter_are_mapped_properly(string $className, mixed $value): void
     {
         try {
@@ -28,10 +28,9 @@ final class SingleNodeMappingTest extends IntegrationTest
     }
 
     /**
-     * @dataProvider single_property_and_constructor_parameter_with_default_value_data_provider
-     *
      * @param class-string $className
      */
+    #[DataProvider('single_property_and_constructor_parameter_with_default_value_data_provider')]
     public function test_single_property_and_constructor_parameter_with_default_value_are_mapped_properly(string $className): void
     {
         try {
@@ -44,10 +43,9 @@ final class SingleNodeMappingTest extends IntegrationTest
     }
 
     /**
-     * @dataProvider single_property_and_constructor_parameter_data_provider
-     *
      * @param class-string $className
      */
+    #[DataProvider('single_property_and_constructor_parameter_data_provider')]
     public function test_single_property_and_constructor_parameter_can_be_mapped_with_array_with_property_name(string $className, mixed $value): void
     {
         try {
@@ -81,7 +79,7 @@ final class SingleNodeMappingTest extends IntegrationTest
         }
     }
 
-    public function single_property_and_constructor_parameter_data_provider(): iterable
+    public static function single_property_and_constructor_parameter_data_provider(): iterable
     {
         yield 'Single scalar property' => [
             SingleScalarProperty::class, 'foo',
@@ -115,7 +113,7 @@ final class SingleNodeMappingTest extends IntegrationTest
         ];
     }
 
-    public function single_property_and_constructor_parameter_with_default_value_data_provider(): iterable
+    public static function single_property_and_constructor_parameter_with_default_value_data_provider(): iterable
     {
         yield ['array{foo: ' . SingleScalarPropertyWithDefaultValue::class . '}'];
         yield ['array{foo: ' . SingleConstructorParameterWithDefaultValue::class . '}'];

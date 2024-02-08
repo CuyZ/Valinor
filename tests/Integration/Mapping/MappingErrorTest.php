@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class MappingErrorTest extends IntegrationTest
+final class MappingErrorTest extends IntegrationTestCase
 {
     public function test_single_tree_mapper_error_details_are_reported_in_exception_message(): void
     {

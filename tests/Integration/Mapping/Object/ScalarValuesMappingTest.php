@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use DateTime;
 use DateTimeImmutable;
@@ -14,7 +14,7 @@ use DateTimeInterface;
 use stdClass;
 use stdClass as ObjectAlias;
 
-final class ScalarValuesMappingTest extends IntegrationTest
+final class ScalarValuesMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {

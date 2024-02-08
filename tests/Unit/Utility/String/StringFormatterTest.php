@@ -7,13 +7,12 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\String;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\String\StringFormatterError;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 
 final class StringFormatterTest extends TestCase
 {
-    /**
-     * @requires extension intl
-     */
+    #[RequiresPhpExtension('intl')]
     public function test_wrong_intl_format_throws_exception(): void
     {
         $this->expectException(StringFormatterError::class);
@@ -23,9 +22,7 @@ final class StringFormatterTest extends TestCase
         StringFormatter::format('en', 'some {wrong.format}', []);
     }
 
-    /**
-     * @requires extension intl
-     */
+    #[RequiresPhpExtension('intl')]
     public function test_wrong_intl_format_throws_exception_with_intl_exception(): void
     {
         $oldIni = ini_get('intl.use_exceptions');

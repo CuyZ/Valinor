@@ -5,9 +5,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-class EnumConstructorRegistrationMappingTest extends IntegrationTest
+class EnumConstructorRegistrationMappingTest extends IntegrationTestCase
 {
     public function test_constructor_with_no_argument_is_called_when_no_value_is_given(): void
     {

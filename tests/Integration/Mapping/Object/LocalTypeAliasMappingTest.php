@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class LocalTypeAliasMappingTest extends IntegrationTest
+final class LocalTypeAliasMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {

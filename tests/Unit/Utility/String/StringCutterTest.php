@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Utility\String;
 
 use CuyZ\Valinor\Utility\String\StringCutter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class StringCutterTest extends TestCase
 {
-    /**
-     * @dataProvider mb_strcut_polyfill_data_provider
-     */
+    #[DataProvider('mb_strcut_polyfill_data_provider')]
     public function test_mb_strcut_polyfill(string $base, int $length, string $expected): void
     {
         $cut = StringCutter::cutPolyfill($base, $length);
@@ -19,7 +18,7 @@ final class StringCutterTest extends TestCase
         self::assertSame($expected, $cut);
     }
 
-    public function mb_strcut_polyfill_data_provider(): iterable
+    public static function mb_strcut_polyfill_data_provider(): iterable
     {
         yield '1 byte' => [
             'base' => 'foobar',

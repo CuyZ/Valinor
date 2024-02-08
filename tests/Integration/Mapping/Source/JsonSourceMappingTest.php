@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\JsonSource;
 use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class JsonSourceMappingTest extends IntegrationTest
+final class JsonSourceMappingTest extends IntegrationTestCase
 {
     public function test_json_source_is_mapped_correctly(): void
     {
