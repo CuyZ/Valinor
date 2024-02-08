@@ -78,13 +78,11 @@ final class DocParserTest extends TestCase
             'ObjectWithConstants::CONST_WITH_*',
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'phpdoc enum with joker' => [
-                /** @return BackedStringEnum::BA* */
-                fn () => BackedStringEnum::BAR,
-                'BackedStringEnum::BA*',
-            ];
-        }
+        yield 'phpdoc enum with joker' => [
+            /** @return BackedStringEnum::BA* */
+            fn () => BackedStringEnum::BAR,
+            'BackedStringEnum::BA*',
+        ];
 
         yield 'psalm' => [
             /** @psalm-return int */

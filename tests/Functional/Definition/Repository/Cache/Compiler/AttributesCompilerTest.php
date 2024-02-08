@@ -47,11 +47,11 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(BasicAttribute::class));
         self::assertTrue($attributes->has(AttributeWithArguments::class));
 
-        /** @var AttributeWithArguments $attribute */
         $attribute = $attributes->filter(
-            fn (AttributeDefinition $attribute) => $attribute->class()->type()->className() === AttributeWithArguments::class
+            fn (AttributeDefinition $attribute) => $attribute->class->type->className() === AttributeWithArguments::class
         )->toArray()[0]->instantiate();
 
+        /** @var AttributeWithArguments $attribute */
         self::assertSame('foo', $attribute->foo);
         self::assertSame('bar', $attribute->bar);
     }
@@ -66,9 +66,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertSame(Attributes::empty(), $attributes);
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_compiles_attributes_for_class_with_nested_attributes(): void
     {
         $reflection = new ReflectionClass(ObjectWithNestedAttributes::class);
@@ -81,19 +78,19 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(AttributeWithArguments::class));
         self::assertTrue($attributes->has(NestedAttribute::class));
 
-        /** @var AttributeWithArguments $attribute */
         $attribute = $attributes->filter(
-            fn (AttributeDefinition $attribute) => $attribute->class()->type()->className() === AttributeWithArguments::class
+            fn (AttributeDefinition $attribute) => $attribute->class->type->className() === AttributeWithArguments::class
         )->toArray()[0]->instantiate();
 
+        /** @var AttributeWithArguments $attribute */
         self::assertSame('foo', $attribute->foo);
         self::assertSame('bar', $attribute->bar);
 
-        /** @var NestedAttribute $attribute */
         $attribute = $attributes->filter(
-            fn (AttributeDefinition $attribute) => $attribute->class()->type()->className() === NestedAttribute::class
+            fn (AttributeDefinition $attribute) => $attribute->class->type->className() === NestedAttribute::class
         )->toArray()[0]->instantiate();
 
+        /** @var NestedAttribute $attribute */
         self::assertCount(2, $attribute->nestedAttributes);
         self::assertInstanceOf(BasicAttribute::class, $attribute->nestedAttributes[0]);
         self::assertInstanceOf(AttributeWithArguments::class, $attribute->nestedAttributes[1]);
@@ -105,9 +102,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertSame('bar', $nestedAttribute->bar);
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_compiles_attributes_for_property_with_nested_attributes(): void
     {
         $reflection = new ReflectionProperty(ObjectWithNestedAttributes::class, 'property');
@@ -121,9 +115,6 @@ final class AttributesCompilerTest extends TestCase
         self::assertTrue($attributes->has(NestedAttribute::class));
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_compiles_attributes_for_method_with_nested_attributes(): void
     {
         $reflection = new ReflectionMethod(ObjectWithNestedAttributes::class, 'method');

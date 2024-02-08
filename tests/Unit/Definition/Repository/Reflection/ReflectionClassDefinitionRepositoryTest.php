@@ -52,23 +52,23 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         };
 
         $type = new NativeClassType($object::class);
-        $properties = $this->repository->for($type)->properties();
+        $properties = $this->repository->for($type)->properties;
 
-        self::assertTrue($properties->get('propertyWithDefaultValue')->hasDefaultValue());
-        self::assertSame('Default value for property', $properties->get('propertyWithDefaultValue')->defaultValue());
+        self::assertTrue($properties->get('propertyWithDefaultValue')->hasDefaultValue);
+        self::assertSame('Default value for property', $properties->get('propertyWithDefaultValue')->defaultValue);
 
-        self::assertInstanceOf(NativeBooleanType::class, $properties->get('propertyWithDocBlockType')->type());
+        self::assertInstanceOf(NativeBooleanType::class, $properties->get('propertyWithDocBlockType')->type);
 
-        self::assertInstanceOf(MixedType::class, $properties->get('propertyWithNoType')->type());
+        self::assertInstanceOf(MixedType::class, $properties->get('propertyWithNoType')->type);
 
-        self::assertInstanceOf(StringType::class, $properties->get('publicProperty')->type());
-        self::assertTrue($properties->get('publicProperty')->isPublic());
+        self::assertInstanceOf(StringType::class, $properties->get('publicProperty')->type);
+        self::assertTrue($properties->get('publicProperty')->isPublic);
 
-        self::assertInstanceOf(StringType::class, $properties->get('protectedProperty')->type());
-        self::assertFalse($properties->get('protectedProperty')->isPublic());
+        self::assertInstanceOf(StringType::class, $properties->get('protectedProperty')->type);
+        self::assertFalse($properties->get('protectedProperty')->isPublic);
 
-        self::assertInstanceOf(NativeBooleanType::class, $properties->get('privateProperty')->type());
-        self::assertFalse($properties->get('privateProperty')->isPublic());
+        self::assertInstanceOf(NativeBooleanType::class, $properties->get('privateProperty')->type);
+        self::assertFalse($properties->get('privateProperty')->isPublic);
     }
 
     public function test_methods_can_be_retrieved(): void
@@ -108,15 +108,15 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         $className = $object::class;
         $type = new NativeClassType($className);
-        $methods = $this->repository->for($type)->methods();
+        $methods = $this->repository->for($type)->methods;
 
         self::assertTrue($methods->hasConstructor());
 
-        self::assertInstanceOf(StringType::class, $methods->get('publicMethodWithReturnType')->returnType());
-        self::assertInstanceOf(StringType::class, $methods->get('publicMethodWithDocBlockReturnType')->returnType());
-        self::assertInstanceOf(StringType::class, $methods->get('publicMethodWithNativeAndDocBlockReturnTypes')->returnType());
+        self::assertInstanceOf(StringType::class, $methods->get('publicMethodWithReturnType')->returnType);
+        self::assertInstanceOf(StringType::class, $methods->get('publicMethodWithDocBlockReturnType')->returnType);
+        self::assertInstanceOf(StringType::class, $methods->get('publicMethodWithNativeAndDocBlockReturnTypes')->returnType);
 
-        $parameters = $methods->get('publicMethod')->parameters();
+        $parameters = $methods->get('publicMethod')->parameters;
 
         self::assertTrue($parameters->has('mandatoryParameter'));
         self::assertTrue($parameters->has('parameterWithNoType'));
@@ -128,26 +128,26 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $parameterWithDocBlockType = $parameters->get('parameterWithDocBlockType');
         $optionalParameter = $parameters->get('optionalParameter');
 
-        self::assertSame($className . '::publicMethod($mandatoryParameter)', $mandatoryParameter->signature());
-        self::assertSame($className . '::publicMethod($parameterWithNoType)', $parameterWithNoType->signature());
-        self::assertSame($className . '::publicMethod($parameterWithDocBlockType)', $parameterWithDocBlockType->signature());
-        self::assertSame($className . '::publicMethod($optionalParameter)', $optionalParameter->signature());
+        self::assertSame($className . '::publicMethod($mandatoryParameter)', $mandatoryParameter->signature);
+        self::assertSame($className . '::publicMethod($parameterWithNoType)', $parameterWithNoType->signature);
+        self::assertSame($className . '::publicMethod($parameterWithDocBlockType)', $parameterWithDocBlockType->signature);
+        self::assertSame($className . '::publicMethod($optionalParameter)', $optionalParameter->signature);
 
-        self::assertInstanceOf(NativeBooleanType::class, $mandatoryParameter->type());
-        self::assertFalse($mandatoryParameter->isOptional());
+        self::assertInstanceOf(NativeBooleanType::class, $mandatoryParameter->type);
+        self::assertFalse($mandatoryParameter->isOptional);
 
-        self::assertInstanceOf(MixedType::class, $parameterWithNoType->type());
+        self::assertInstanceOf(MixedType::class, $parameterWithNoType->type);
 
-        self::assertInstanceOf(StringType::class, $parameterWithDocBlockType->type());
+        self::assertInstanceOf(StringType::class, $parameterWithDocBlockType->type);
 
-        self::assertTrue($parameters->get('optionalParameter')->isOptional());
-        self::assertSame('Optional parameter value', $optionalParameter->defaultValue());
+        self::assertTrue($parameters->get('optionalParameter')->isOptional);
+        self::assertSame('Optional parameter value', $optionalParameter->defaultValue);
     }
 
     public function test_methods_can_be_retrieved_from_abstract_object_with_interface_and_with_method_referencing_self(): void
     {
         $type = new NativeClassType(AbstractObjectWithInterface::class);
-        $methods = $this->repository->for($type)->methods();
+        $methods = $this->repository->for($type)->methods;
 
         self::assertTrue($methods->has('of'));
         self::assertTrue($methods->has('jsonSerialize'));
@@ -156,10 +156,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
     public function test_private_parent_constructor_is_listed_in_methods(): void
     {
         $type = new NativeClassType(ClassWithInheritedPrivateConstructor::class, parent: new NativeClassType(AbstractClassWithPrivateConstructor::class));
-        $methods = $this->repository->for($type)->methods();
+        $methods = $this->repository->for($type)->methods;
 
         self::assertTrue($methods->hasConstructor());
-        self::assertFalse($methods->constructor()->isPublic());
+        self::assertFalse($methods->constructor()->isPublic);
     }
 
     public function test_invalid_property_type_throws_exception(): void
@@ -170,7 +170,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
-        $type = $class->properties()->get('propertyWithInvalidType')->type();
+        $type = $class->properties->get('propertyWithInvalidType')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
@@ -185,7 +185,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
-        $type = $class->properties()->get('propertyWithInvalidDefaultValue')->type();
+        $type = $class->properties->get('propertyWithInvalidDefaultValue')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->message());
@@ -221,7 +221,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
-        $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidType')->type();
+        $type = $class->methods->get('publicMethod')->parameters->get('parameterWithInvalidType')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
@@ -239,7 +239,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
-        $type = $class->methods()->get('publicMethod')->returnType();
+        $type = $class->methods->get('publicMethod')->returnType;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         /** @var UnresolvableType $type */
@@ -257,7 +257,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
-        $type = $class->methods()->get('publicMethod')->parameters()->get('parameterWithInvalidDefaultValue')->type();
+        $type = $class->methods->get('publicMethod')->parameters->get('parameterWithInvalidDefaultValue')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->message());

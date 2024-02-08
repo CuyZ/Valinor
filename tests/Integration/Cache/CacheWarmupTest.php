@@ -56,10 +56,9 @@ final class CacheWarmupTest extends IntegrationTest
 
     public function test_will_warmup_type_parser_cache_for_object_with_constructor(): void
     {
-        // PHP8.1 first-class callable syntax
         $mapper = $this->mapper->registerConstructor(
-            [ObjectToWarmupWithConstructors::class, 'constructorA'],
-            [ObjectToWarmupWithConstructors::class, 'constructorB'],
+            ObjectToWarmupWithConstructors::constructorA(...),
+            ObjectToWarmupWithConstructors::constructorB(...),
         );
 
         $mapper->warmup(ObjectToWarmupWithConstructors::class);

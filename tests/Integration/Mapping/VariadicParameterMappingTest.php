@@ -68,8 +68,7 @@ final class VariadicParameterMappingTest extends IntegrationTest
     {
         try {
             $object = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, 'new'])
+                ->registerConstructor(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::new(...))
                 ->mapper()
                 ->map(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, [
                     'int' => 42,

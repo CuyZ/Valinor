@@ -83,8 +83,7 @@ final class NativeLexer implements TypeLexer
             return new FloatValueToken((float)$symbol);
         }
 
-        /** @infection-ignore-all */
-        if (PHP_VERSION_ID >= 8_01_00 && enum_exists($symbol)) {
+        if (enum_exists($symbol)) {
             /** @var class-string<UnitEnum> $symbol */
             return new EnumNameToken($symbol);
         }

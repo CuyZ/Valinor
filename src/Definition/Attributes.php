@@ -40,7 +40,7 @@ final class Attributes implements IteratorAggregate, Countable
     public function has(string $className): bool
     {
         foreach ($this->attributes as $attribute) {
-            if (is_a($attribute->class()->type()->className(), $className, true)) {
+            if (is_a($attribute->class->type->className(), $className, true)) {
                 return true;
             }
         }

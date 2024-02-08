@@ -92,8 +92,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithNamedConstructors::class, 'namedConstructor'])
+                ->registerConstructor(SomeClassWithNamedConstructors::namedConstructor(...))
                 ->mapper()
                 ->map(SomeClassWithNamedConstructors::class, 'foo');
         } catch (MappingError $error) {
@@ -141,8 +140,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([$constructor, 'build'])
+                ->registerConstructor($constructor->build(...))
                 ->mapper()
                 ->map(stdClass::class, []);
         } catch (MappingError $error) {
@@ -156,8 +154,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithStaticConstructorForOtherClass::class, 'from'])
+                ->registerConstructor(SomeClassWithStaticConstructorForOtherClass::from(...))
                 ->mapper()
                 ->map(SimpleObject::class, 'foo');
         } catch (MappingError $error) {
@@ -262,8 +259,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
+                ->registerConstructor(SomeClassWithSimilarNativeConstructorAndNamedConstructor::namedConstructor(...))
                 ->mapper()
                 ->map(SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'foo');
         } catch (MappingError $error) {
@@ -277,9 +273,8 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
                 ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class)
-                ->registerConstructor([SomeClassWithDifferentNativeConstructorAndNamedConstructor::class, 'namedConstructor'])
+                ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::namedConstructor(...))
                 ->mapper()
                 ->map(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class, [
                     'foo' => 'foo',
@@ -464,8 +459,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
         try {
             $result = (new MapperBuilder())
-                // PHP8.1 First-class callable syntax
-                ->registerConstructor([SomeAbstractClassWithStaticConstructor::class, 'from'])
+                ->registerConstructor(SomeAbstractClassWithStaticConstructor::from(...))
                 ->mapper()
                 ->map($class, [
                     'someChild' => ['foo' => 'foo', 'bar' => 42],
@@ -520,9 +514,9 @@ final class ConstructorRegistrationMappingTest extends IntegrationTest
 
         (new MapperBuilder())
             ->registerConstructor(
-                __NAMESPACE__ . '\constructorA', // PHP8.1 First-class callable syntax
+                constructorA(...),
                 fn (int $other, float $arguments): stdClass => new stdClass(),
-                __NAMESPACE__ . '\constructorB', // PHP8.1 First-class callable syntax
+                constructorB(...),
             )
             ->mapper()
             ->map(stdClass::class, []);

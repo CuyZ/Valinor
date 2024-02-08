@@ -35,7 +35,7 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
     {
         $builders = $this->delegate->for($class);
 
-        if ($class->name() !== DateTimeZone::class) {
+        if ($class->name !== DateTimeZone::class) {
             return $builders;
         }
 
@@ -54,7 +54,7 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
 
         if ($useDefaultBuilder) {
             // @infection-ignore-all / Ignore memoization
-            $builders[] = $this->defaultBuilder($class->type());
+            $builders[] = $this->defaultBuilder($class->type);
         }
 
         return $builders;

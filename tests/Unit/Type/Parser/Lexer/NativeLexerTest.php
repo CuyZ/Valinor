@@ -151,11 +151,9 @@ final class NativeLexerTest extends TestCase
             'token' => UnknownSymbolToken::class,
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'enum' => [
-                'symbol' => PureEnum::class,
-                'token' => EnumNameToken::class,
-            ];
-        }
+        yield 'enum' => [
+            'symbol' => PureEnum::class,
+            'token' => EnumNameToken::class,
+        ];
     }
 }

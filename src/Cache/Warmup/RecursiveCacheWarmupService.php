@@ -82,10 +82,10 @@ final class RecursiveCacheWarmupService
 
         $function = $this->implementations->function($interfaceName);
 
-        $this->warmupType($function->returnType());
+        $this->warmupType($function->returnType);
 
-        foreach ($function->parameters() as $parameter) {
-            $this->warmupType($parameter->type());
+        foreach ($function->parameters as $parameter) {
+            $this->warmupType($parameter->type);
         }
     }
 

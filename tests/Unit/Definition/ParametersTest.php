@@ -22,8 +22,8 @@ final class ParametersTest extends TestCase
 
         self::assertFalse($parameters->has('unknownParameter'));
 
-        self::assertTrue($parameters->has($parameter->name()));
-        self::assertSame($parameter, $parameters->get($parameter->name()));
+        self::assertTrue($parameters->has($parameter->name));
+        self::assertSame($parameter, $parameters->get($parameter->name));
     }
 
     public function test_get_parameter_at_index_returns_correct_parameter(): void

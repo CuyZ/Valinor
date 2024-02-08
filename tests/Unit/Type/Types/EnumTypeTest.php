@@ -15,9 +15,6 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-/**
- * @requires PHP >= 8.1
- */
 final class EnumTypeTest extends TestCase
 {
     private EnumType $pureEnumType;

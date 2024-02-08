@@ -31,12 +31,12 @@ final class PropertyDefinitionTest extends TestCase
             $attributes
         );
 
-        self::assertSame($name, $property->name());
-        self::assertSame($signature, $property->signature());
-        self::assertSame($type, $property->type());
-        self::assertSame($hasDefaultValue, $property->hasDefaultValue());
-        self::assertSame($defaultValue, $property->defaultValue());
-        self::assertSame($isPublic, $property->isPublic());
-        self::assertSame($attributes, $property->attributes());
+        self::assertSame($name, $property->name);
+        self::assertSame($signature, $property->signature);
+        self::assertSame($type, $property->type);
+        self::assertSame($hasDefaultValue, $property->hasDefaultValue);
+        self::assertSame($defaultValue, $property->defaultValue);
+        self::assertSame($isPublic, $property->isPublic);
+        self::assertSame($attributes, $property->attributes);
     }
 }

@@ -26,9 +26,9 @@ final class MethodArguments implements IteratorAggregate
     public function __construct(Parameters $parameters, array $arguments)
     {
         foreach ($parameters as $parameter) {
-            $name = $parameter->name();
+            $name = $parameter->name;
 
-            if ($parameter->isVariadic()) {
+            if ($parameter->isVariadic) {
                 $this->arguments = [...$this->arguments, ...array_values($arguments[$name])]; // @phpstan-ignore-line we know that the argument is iterable
             } else {
                 $this->arguments[] = $arguments[$name];

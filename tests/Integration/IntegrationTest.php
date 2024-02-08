@@ -13,11 +13,7 @@ use function iterator_to_array;
 
 abstract class IntegrationTest extends TestCase
 {
-    /**
-     * PHP8.1 never
-     * @return never-return
-     */
-    protected function mappingFail(MappingError $error)
+    protected function mappingFail(MappingError $error): never
     {
         $errorFinder = static function (Node $node, callable $errorFinder) {
             if ($node->isValid()) {

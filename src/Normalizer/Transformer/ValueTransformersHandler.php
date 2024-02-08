@@ -62,7 +62,7 @@ final class ValueTransformersHandler
 
         $this->checkTransformer($function);
 
-        if (! $function->parameters()->at(0)->type()->accepts($value)) {
+        if (! $function->parameters->at(0)->type->accepts($value)) {
             return $this->next($transformers, $value, [], $defaultTransformer);
         }
 
@@ -80,15 +80,15 @@ final class ValueTransformersHandler
             return $next;
         }
 
-        if (! $attribute->class()->methods()->has('normalize')) {
+        if (! $attribute->class->methods->has('normalize')) {
             return $this->nextAttribute($value, $attributes, $next);
         }
 
-        $method = $attribute->class()->methods()->get('normalize');
+        $method = $attribute->class->methods->get('normalize');
 
         $this->checkTransformer($method);
 
-        if (! $method->parameters()->at(0)->type()->accepts($value)) {
+        if (! $method->parameters->at(0)->type->accepts($value)) {
             return $this->nextAttribute($value, $attributes, $next);
         }
 
@@ -101,14 +101,14 @@ final class ValueTransformersHandler
 
     private function checkTransformer(MethodDefinition|FunctionDefinition $method): void
     {
-        if (isset($this->transformerCheck[$method->signature()])) {
+        if (isset($this->transformerCheck[$method->signature])) {
             return;
         }
 
         // @infection-ignore-all
-        $this->transformerCheck[$method->signature()] = true;
+        $this->transformerCheck[$method->signature] = true;
 
-        $parameters = $method->parameters();
+        $parameters = $method->parameters;
 
         if ($parameters->count() === 0) {
             throw new TransformerHasNoParameter($method);
@@ -118,8 +118,8 @@ final class ValueTransformersHandler
             throw new TransformerHasTooManyParameters($method);
         }
 
-        if ($parameters->count() > 1 && ! $parameters->at(1)->type() instanceof CallableType) {
-            throw new TransformerHasInvalidCallableParameter($method, $parameters->at(1)->type());
+        if ($parameters->count() > 1 && ! $parameters->at(1)->type instanceof CallableType) {
+            throw new TransformerHasInvalidCallableParameter($method, $parameters->at(1)->type);
         }
     }
 }

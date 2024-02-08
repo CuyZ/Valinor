@@ -32,15 +32,15 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         $callback = fn (string $foo, $parameterWithDocBlockType): string => $foo . $parameterWithDocBlockType;
 
         $function = $this->repository->for($callback);
-        $parameters = $function->parameters();
+        $parameters = $function->parameters;
 
-        self::assertSame(__NAMESPACE__ . '\{closure}', $function->name());
-        self::assertInstanceOf(NativeStringType::class, $function->returnType());
+        self::assertSame(__NAMESPACE__ . '\{closure}', $function->name);
+        self::assertInstanceOf(NativeStringType::class, $function->returnType);
 
         self::assertTrue($parameters->has('foo'));
         self::assertTrue($parameters->has('parameterWithDocBlockType'));
-        self::assertInstanceOf(NativeStringType::class, $parameters->get('foo')->type());
-        self::assertInstanceOf(NativeStringType::class, $parameters->get('parameterWithDocBlockType')->type());
+        self::assertInstanceOf(NativeStringType::class, $parameters->get('foo')->type);
+        self::assertInstanceOf(NativeStringType::class, $parameters->get('parameterWithDocBlockType')->type);
     }
 
     public function test_function_return_type_is_fetched_from_docblock(): void
@@ -52,6 +52,6 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
 
         $function = $this->repository->for($callback);
 
-        self::assertInstanceOf(NativeStringType::class, $function->returnType());
+        self::assertInstanceOf(NativeStringType::class, $function->returnType);
     }
 }

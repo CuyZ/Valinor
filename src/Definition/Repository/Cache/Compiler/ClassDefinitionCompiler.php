@@ -13,6 +13,7 @@ use function array_map;
 use function assert;
 use function implode;
 use function iterator_to_array;
+use function var_export;
 
 /** @internal */
 final class ClassDefinitionCompiler implements CacheCompiler
@@ -38,28 +39,30 @@ final class ClassDefinitionCompiler implements CacheCompiler
     {
         assert($value instanceof ClassDefinition);
 
-        $type = $this->typeCompiler->compile($value->type());
+        $name = var_export($value->name, true);
+        $type = $this->typeCompiler->compile($value->type);
 
         $properties = array_map(
             fn (PropertyDefinition $property) => $this->propertyCompiler->compile($property),
-            iterator_to_array($value->properties())
+            iterator_to_array($value->properties)
         );
 
         $properties = implode(', ', $properties);
 
         $methods = array_map(
             fn (MethodDefinition $method) => $this->methodCompiler->compile($method),
-            iterator_to_array($value->methods())
+            iterator_to_array($value->methods)
         );
 
         $methods = implode(', ', $methods);
-        $attributes = $this->attributesCompiler->compile($value->attributes());
+        $attributes = $this->attributesCompiler->compile($value->attributes);
 
-        $isFinal = var_export($value->isFinal(), true);
-        $isAbstract = var_export($value->isAbstract(), true);
+        $isFinal = var_export($value->isFinal, true);
+        $isAbstract = var_export($value->isAbstract, true);
 
         return <<<PHP
         new \CuyZ\Valinor\Definition\ClassDefinition(
+            $name,
             $type,
             $attributes,
             new \CuyZ\Valinor\Definition\Properties($properties),

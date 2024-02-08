@@ -14,8 +14,7 @@ final class RegisteredStaticConstructorWithReturnTypeInDocBlockTest extends Inte
     {
         $result = (new MapperBuilder())
             ->registerConstructor(
-                // PHP8.1 first-class callable syntax
-                [SomeClassWithStaticConstructor::class, 'staticConstructorWithReturnTypeInDocBlock'],
+                SomeClassWithStaticConstructor::staticConstructorWithReturnTypeInDocBlock(...),
             )
             ->mapper()
             ->map(SomeClassWithStaticConstructor::class, 'foo');

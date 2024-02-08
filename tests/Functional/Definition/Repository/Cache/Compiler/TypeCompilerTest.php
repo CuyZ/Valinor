@@ -102,12 +102,8 @@ final class TypeCompilerTest extends TestCase
         yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
         yield [new NativeClassType(stdClass::class, ['Template' => NativeStringType::get()])];
         yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new NativeClassType(DateTime::class))];
-
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield [EnumType::native(PureEnum::class)];
-            yield [EnumType::fromPattern(PureEnum::class, 'BA*')];
-        }
-
+        yield [EnumType::native(PureEnum::class)];
+        yield [EnumType::fromPattern(PureEnum::class, 'BA*')];
         yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), NativeFloatType::get())];
         yield [ArrayType::native()];
         yield [new ArrayType(ArrayKeyType::default(), NativeFloatType::get())];

@@ -33,21 +33,21 @@ final class FunctionDefinitionCompiler implements CacheCompiler
 
         $parameters = array_map(
             fn (ParameterDefinition $parameter) => $this->parameterCompiler->compile($parameter),
-            iterator_to_array($value->parameters())
+            iterator_to_array($value->parameters)
         );
 
-        $attributes = $this->attributesCompiler->compile($value->attributes());
-        $fileName = var_export($value->fileName(), true);
-        $class = var_export($value->class(), true);
-        $isStatic = var_export($value->isStatic(), true);
-        $isClosure = var_export($value->isClosure(), true);
+        $attributes = $this->attributesCompiler->compile($value->attributes);
+        $fileName = var_export($value->fileName, true);
+        $class = var_export($value->class, true);
+        $isStatic = var_export($value->isStatic, true);
+        $isClosure = var_export($value->isClosure, true);
         $parameters = implode(', ', $parameters);
-        $returnType = $this->typeCompiler->compile($value->returnType());
+        $returnType = $this->typeCompiler->compile($value->returnType);
 
         return <<<PHP
             new \CuyZ\Valinor\Definition\FunctionDefinition(
-                '{$value->name()}',
-                '{$value->signature()}',
+                '{$value->name}',
+                '{$value->signature}',
                 $attributes,
                 $fileName,
                 $class,

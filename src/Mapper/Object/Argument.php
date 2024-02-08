@@ -30,11 +30,11 @@ final class Argument
 
     public static function fromParameter(ParameterDefinition $parameter): self
     {
-        $instance = new self($parameter->name(), $parameter->type());
-        $instance->attributes = $parameter->attributes();
+        $instance = new self($parameter->name, $parameter->type);
+        $instance->attributes = $parameter->attributes;
 
-        if ($parameter->isOptional()) {
-            $instance->defaultValue = $parameter->defaultValue();
+        if ($parameter->isOptional) {
+            $instance->defaultValue = $parameter->defaultValue;
             $instance->isRequired = false;
         }
 
@@ -43,11 +43,11 @@ final class Argument
 
     public static function fromProperty(PropertyDefinition $property): self
     {
-        $instance = new self($property->name(), $property->type());
-        $instance->attributes = $property->attributes();
+        $instance = new self($property->name, $property->type);
+        $instance->attributes = $property->attributes;
 
-        if ($property->hasDefaultValue()) {
-            $instance->defaultValue = $property->defaultValue();
+        if ($property->hasDefaultValue) {
+            $instance->defaultValue = $property->defaultValue;
             $instance->isRequired = false;
         }
 

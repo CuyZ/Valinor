@@ -31,8 +31,7 @@ final class ArgumentsMappingTest extends IntegrationTest
         $object = new SomeClassWithMethods();
 
         try {
-            // PHP8.1 First-class callable syntax
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments([$object, 'somePublicMethod'], [
+            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($object->somePublicMethod(...), [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -46,8 +45,7 @@ final class ArgumentsMappingTest extends IntegrationTest
     public function test_can_map_to_class_static_method(): void
     {
         try {
-            // PHP8.1 First-class callable syntax
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments([SomeClassWithMethods::class, 'somePublicStaticMethod'], [
+            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments(SomeClassWithMethods::somePublicStaticMethod(...), [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);

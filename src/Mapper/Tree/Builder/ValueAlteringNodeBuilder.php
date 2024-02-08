@@ -26,19 +26,19 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         $value = $node->value();
 
         foreach ($this->functions as $function) {
-            $parameters = $function->definition()->parameters();
+            $parameters = $function->definition->parameters;
 
             if (count($parameters) === 0) {
                 continue;
             }
 
-            $firstParameterType = $parameters->at(0)->type();
+            $firstParameterType = $parameters->at(0)->type;
 
             if (! $firstParameterType->accepts($value)) {
                 continue;
             }
 
-            $value = ($function->callback())($value);
+            $value = ($function->callback)($value);
             $node = $node->withValue($value);
         }
 

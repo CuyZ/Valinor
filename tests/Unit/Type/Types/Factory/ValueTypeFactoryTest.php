@@ -65,12 +65,10 @@ final class ValueTypeFactoryTest extends TestCase
             'type' => "array{foo: array{foo: 'bar', baz: 'fiz'}}",
         ];
 
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield 'enum' => [
-                'symbol' => PureEnum::FOO,
-                'token' => PureEnum::class . '::FOO',
-            ];
-        }
+        yield 'enum' => [
+            'symbol' => PureEnum::FOO,
+            'token' => PureEnum::class . '::FOO',
+        ];
     }
 
     public function test_invalid_value_throws_exception(): void

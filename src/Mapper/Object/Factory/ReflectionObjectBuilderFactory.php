@@ -14,7 +14,7 @@ final class ReflectionObjectBuilderFactory implements ObjectBuilderFactory
 {
     public function for(ClassDefinition $class): array
     {
-        if (enum_exists($class->name())) {
+        if (enum_exists($class->name)) {
             return [];
         }
 

@@ -138,9 +138,6 @@ final class StrictMappingTest extends IntegrationTest
         }
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_invalid_enum_value_throws_exception(): void
     {
         try {
@@ -152,9 +149,6 @@ final class StrictMappingTest extends IntegrationTest
         }
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_invalid_string_enum_value_throws_exception(): void
     {
         try {
@@ -166,9 +160,6 @@ final class StrictMappingTest extends IntegrationTest
         }
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_invalid_integer_enum_value_throws_exception(): void
     {
         try {

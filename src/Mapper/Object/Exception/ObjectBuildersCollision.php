@@ -20,7 +20,7 @@ final class ObjectBuildersCollision extends RuntimeException
         $constructors = implode('`, `', $constructors);
 
         parent::__construct(
-            "A collision was detected between the following constructors of the class `{$class->type()->toString()}`: `$constructors`.",
+            "A collision was detected between the following constructors of the class `{$class->type->toString()}`: `$constructors`.",
             1654955787
         );
     }

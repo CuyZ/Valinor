@@ -8,7 +8,7 @@ use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
 use Generator;
 
 use function addcslashes;
-use function array_values;
+use function array_is_list;
 use function fwrite;
 use function is_array;
 use function is_bool;
@@ -49,7 +49,7 @@ final class JsonFormatter implements StreamFormatter
             // should have been an object. This is a trade-off we accept,
             // considering most generators starting at 0 are actually lists.
             $isList = ($value instanceof Generator && $value->key() === 0)
-                || (is_array($value) && $this->arrayIsList($value));
+                || (is_array($value) && array_is_list($value));
 
             $isFirst = true;
 
@@ -83,34 +83,5 @@ final class JsonFormatter implements StreamFormatter
     private function write(string $content): void
     {
         fwrite($this->resource, $content);
-    }
-
-    /**
-     * PHP8.1: replace with native function.
-     *
-     * `array_is_list` function polyfill.
-     *
-     * Code taken from `symfony/polyfill-php81`
-     *
-     * @param array<mixed> $array
-     *
-     * @codeCoverageIgnore
-     * @infection-ignore-all
-     */
-    private function arrayIsList(array $array): bool
-    {
-        if ([] === $array || $array === array_values($array)) {
-            return true;
-        }
-
-        $nextKey = -1;
-
-        foreach ($array as $k => $v) {
-            if ($k !== ++$nextKey) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

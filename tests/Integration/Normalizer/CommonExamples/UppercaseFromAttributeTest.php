@@ -34,6 +34,6 @@ final class Uppercase
 {
     public function normalize(string $value, callable $next): string
     {
-        return strtoupper($next());
+        return strtoupper((string)$next());
     }
 }

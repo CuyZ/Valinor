@@ -21,7 +21,7 @@ final class Methods implements IteratorAggregate, Countable
     public function __construct(MethodDefinition ...$methods)
     {
         foreach ($methods as $method) {
-            $this->methods[$method->name()] = $method;
+            $this->methods[$method->name] = $method;
         }
     }
 

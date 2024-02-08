@@ -77,11 +77,7 @@ final class TreeNode
         return $instance;
     }
 
-    /**
-     * PHP8.1 intersection
-     * @param Throwable&Message $message
-     */
-    public static function error(Shell $shell, Throwable $message): self
+    public static function error(Shell $shell, Throwable&Message $message): self
     {
         return (new self($shell, null))->withMessage($message);
     }

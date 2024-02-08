@@ -25,11 +25,11 @@ final class ArgumentsMapperError extends RuntimeException implements MappingErro
         if ($errorsCount === 1) {
             $body = $errors
                 ->toArray()[0]
-                ->withBody("Could not map arguments of `{$function->signature()}`. An error occurred at path {node_path}: {original_message}")
+                ->withBody("Could not map arguments of `$function->signature`. An error occurred at path {node_path}: {original_message}")
                 ->toString();
         } else {
             $source = ValueDumper::dump($node->sourceValue());
-            $body = "Could not map arguments of `{$function->signature()}` with value $source. A total of $errorsCount errors were encountered.";
+            $body = "Could not map arguments of `$function->signature` with value $source. A total of $errorsCount errors were encountered.";
         }
 
         parent::__construct($body, 1671115362);

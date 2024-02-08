@@ -74,8 +74,8 @@ final class FileSystemCacheTest extends TestCase
         /** @var FunctionDefinition $cachedFunctionDefinition */
         $cachedFunctionDefinition = $this->cache->get('function-definition');
 
-        self::assertSame($classDefinition->name(), $cachedClassDefinition->name());
-        self::assertSame($functionDefinition->signature(), $cachedFunctionDefinition->signature());
+        self::assertSame($classDefinition->name, $cachedClassDefinition->name);
+        self::assertSame($functionDefinition->signature, $cachedFunctionDefinition->signature);
 
         self::assertTrue($this->cache->delete('class-definition'));
         self::assertTrue($this->cache->delete('function-definition'));
@@ -118,8 +118,8 @@ final class FileSystemCacheTest extends TestCase
         /** @var FunctionDefinition $cachedFunctionDefinition */
         $cachedFunctionDefinition = $cached['function-definition'];
 
-        self::assertSame($classDefinition->name(), $cachedClassDefinition->name());
-        self::assertSame($functionDefinition->signature(), $cachedFunctionDefinition->signature());
+        self::assertSame($classDefinition->name, $cachedClassDefinition->name);
+        self::assertSame($functionDefinition->signature, $cachedFunctionDefinition->signature);
 
         self::assertTrue($this->cache->deleteMultiple(['class-definition', 'function-definition']));
 

@@ -7,9 +7,6 @@ use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Integration\IntegrationTest;
 
-/**
- * @requires PHP >= 8.1
- */
 class EnumConstructorRegistrationMappingTest extends IntegrationTest
 {
     public function test_constructor_with_no_argument_is_called_when_no_value_is_given(): void
@@ -122,8 +119,7 @@ class EnumConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([BackedStringEnum::class, 'from'])
+                ->registerConstructor(BackedStringEnum::from(...))
                 ->mapper()
                 ->map(BackedStringEnum::class, 'fiz');
         } catch (MappingError $exception) {
@@ -138,8 +134,7 @@ class EnumConstructorRegistrationMappingTest extends IntegrationTest
     {
         try {
             (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([BackedStringEnum::class, 'tryFrom'])
+                ->registerConstructor(BackedStringEnum::tryFrom(...))
                 ->mapper()
                 ->map(BackedStringEnum::class, 'fiz');
         } catch (MappingError $exception) {

@@ -22,15 +22,15 @@ final class KeyTransformersHandler
     public function transformKey(string|int $key, array $attributes): string|int
     {
         foreach ($attributes as $attribute) {
-            if (! $attribute->class()->methods()->has('normalizeKey')) {
+            if (! $attribute->class->methods->has('normalizeKey')) {
                 continue;
             }
 
-            $method = $attribute->class()->methods()->get('normalizeKey');
+            $method = $attribute->class->methods->get('normalizeKey');
 
             $this->checkKeyTransformer($method);
 
-            if ($method->parameters()->count() === 0 || $method->parameters()->at(0)->type()->accepts($key)) {
+            if ($method->parameters->count() === 0 || $method->parameters->at(0)->type->accepts($key)) {
                 $key = $attribute->instantiate()->normalizeKey($key); // @phpstan-ignore-line / We know the method exists
             }
         }
@@ -40,21 +40,21 @@ final class KeyTransformersHandler
 
     private function checkKeyTransformer(MethodDefinition $method): void
     {
-        if (isset($this->keyTransformerCheck[$method->signature()])) {
+        if (isset($this->keyTransformerCheck[$method->signature])) {
             return;
         }
 
         // @infection-ignore-all
-        $this->keyTransformerCheck[$method->signature()] = true;
+        $this->keyTransformerCheck[$method->signature] = true;
 
-        $parameters = $method->parameters();
+        $parameters = $method->parameters;
 
         if ($parameters->count() > 1) {
             throw new KeyTransformerHasTooManyParameters($method);
         }
 
         if ($parameters->count() > 0) {
-            $type = $parameters->at(0)->type();
+            $type = $parameters->at(0)->type;
 
             if (! $type instanceof StringType) {
                 throw new KeyTransformerParameterInvalidType($method);

@@ -9,12 +9,8 @@ $finder = PhpCsFixer\Finder::create()->in([
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
     ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php');
 
-if (PHP_VERSION_ID < 8_01_00) {
-    $finder = $finder->notPath('Fixture/Enum/PureEnum.php');
-    $finder = $finder->notPath('Fixture/Enum/BackedStringEnum.php');
-    $finder = $finder->notPath('Fixture/Enum/BackedIntegerEnum.php');
-    $finder = $finder->notPath('Fixture/Object/ObjectWithPropertyWithNativeIntersectionType.php');
-    $finder = $finder->notPath('Integration/Mapping/Fixture/ReadonlyValues.php');
+if (PHP_VERSION_ID < 8_02_00) {
+    $finder = $finder->notPath('Fixture/Object/ObjectWithPropertyWithNativeDisjunctiveNormalFormType.php');
 }
 
 return (new PhpCsFixer\Config())

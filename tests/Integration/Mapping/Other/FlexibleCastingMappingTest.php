@@ -119,9 +119,6 @@ final class FlexibleCastingMappingTest extends IntegrationTest
         self::assertSame(['foo', 'foo' => 42], $result);
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_string_enum_is_cast_correctly(): void
     {
         try {
@@ -133,9 +130,6 @@ final class FlexibleCastingMappingTest extends IntegrationTest
         self::assertSame(BackedStringEnum::FOO, $result);
     }
 
-    /**
-     * @requires PHP >= 8.1
-     */
     public function test_integer_enum_is_cast_correctly(): void
     {
         try {
