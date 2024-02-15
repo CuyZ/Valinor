@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
 use Attribute;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\KeyTransformerHasTooManyParameters;
 use CuyZ\Valinor\Normalizer\Exception\KeyTransformerParameterInvalidType;
@@ -17,19 +16,19 @@ use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use IteratorAggregate;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 use Traversable;
 
 use function array_merge;
 
-final class NormalizerTest extends TestCase
+final class NormalizerTest extends IntegrationTestCase
 {
     /**
      * @param array<int, list<callable>> $transformers
@@ -43,7 +42,7 @@ final class NormalizerTest extends TestCase
         array $transformers = [],
         array $transformerAttributes = [],
     ): void {
-        $builder = new MapperBuilder();
+        $builder = $this->mapperBuilder();
 
         foreach ($transformers as $priority => $transformersList) {
             foreach ($transformersList as $transformer) {
@@ -635,7 +634,7 @@ final class NormalizerTest extends TestCase
             'boolean' => true,
         ];
 
-        $arrayResult = (new MapperBuilder())
+        $arrayResult = $this->mapperBuilder()
             ->normalizer(Format::array())
             ->normalize($input);
 
@@ -653,7 +652,7 @@ final class NormalizerTest extends TestCase
 
         $expected = '{"string":"foo","integer":42,"float":1337.404,"boolean":true}';
 
-        $jsonResult = (new MapperBuilder())
+        $jsonResult = $this->mapperBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -671,7 +670,7 @@ final class NormalizerTest extends TestCase
 
         $expected = '["foo",42,1337.404,true]';
 
-        $jsonResult = (new MapperBuilder())
+        $jsonResult = $this->mapperBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -689,7 +688,7 @@ final class NormalizerTest extends TestCase
 
         $expected = '["foo",42,1337.404,true]';
 
-        $jsonResult = (new MapperBuilder())
+        $jsonResult = $this->mapperBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -724,7 +723,7 @@ final class NormalizerTest extends TestCase
             'booleans' => [true, false],
         ];
 
-        $arrayResult = (new MapperBuilder())
+        $arrayResult = $this->mapperBuilder()
             ->normalizer(Format::array())
             ->normalize($input);
 
@@ -754,7 +753,7 @@ final class NormalizerTest extends TestCase
 
         $expected = '{"strings":["foo","bar"],"integers":[42,1337],"floats":[42.5,1337.404],"booleans":[true,false]}';
 
-        $jsonResult = (new MapperBuilder())
+        $jsonResult = $this->mapperBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -763,7 +762,7 @@ final class NormalizerTest extends TestCase
 
     public function test_transformer_is_called_only_once_on_object_property_when_using_default_transformer(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerTransformer(
                 fn (string $value, callable $next) => $next() . '!',
             )
@@ -775,7 +774,7 @@ final class NormalizerTest extends TestCase
 
     public function test_no_priority_given_is_set_to_0(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerTransformer(
                 fn (object $object) => 'foo',
                 -2,
@@ -805,7 +804,7 @@ final class NormalizerTest extends TestCase
         $objectB = new stdClass();
         $objectB->bar = 'bar';
 
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->normalizer(Format::array())
             ->normalize([$objectA, $objectB, $objectA]);
 
@@ -826,7 +825,7 @@ final class NormalizerTest extends TestCase
             yield $objectA;
         })();
 
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->normalizer(Format::array())
             ->normalize($iterable);
 
@@ -854,7 +853,7 @@ final class NormalizerTest extends TestCase
             }
         };
 
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->normalizer(Format::array())
             ->normalize($object);
 
@@ -871,7 +870,7 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695064946);
         $this->expectExceptionMessageMatches('/Transformer must have at least one parameter, none given for `.*`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(fn () => 42)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -883,7 +882,7 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695065433);
         $this->expectExceptionMessageMatches('/Transformer must have at most 2 parameters, 3 given for `.*`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -895,7 +894,7 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695065710);
         $this->expectExceptionMessageMatches('/Transformer\'s second parameter must be a callable, `int` given for `.*`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(fn (stdClass $object, int $unexpectedParameterType) => 42)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -909,7 +908,7 @@ final class NormalizerTest extends TestCase
 
         $class = new #[TransformerAttributeWithNoParameter] class () {};
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(TransformerAttributeWithNoParameter::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -923,7 +922,7 @@ final class NormalizerTest extends TestCase
 
         $class = new #[TransformerAttributeWithTooManyParameters] class () {};
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(TransformerAttributeWithTooManyParameters::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -937,7 +936,7 @@ final class NormalizerTest extends TestCase
 
         $class = new #[TransformerAttributeWithSecondParameterNotCallable] class () {};
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(TransformerAttributeWithSecondParameterNotCallable::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -956,7 +955,7 @@ final class NormalizerTest extends TestCase
             ) {}
         };
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(KeyTransformerAttributeWithTooManyParameters::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -975,7 +974,7 @@ final class NormalizerTest extends TestCase
             ) {}
         };
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerTransformer(KeyTransformerAttributeParameterNotStringOrInteger::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -992,7 +991,7 @@ final class NormalizerTest extends TestCase
         $a->b = $b;
         $b->a = $a;
 
-        (new MapperBuilder())->normalizer(Format::array())->normalize($a);
+        $this->mapperBuilder()->normalizer(Format::array())->normalize($a);
     }
 
     public function test_unhandled_type_throws_exception(): void
@@ -1001,7 +1000,7 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionCode(1695062925);
         $this->expectExceptionMessage('Value of type `Closure` cannot be normalized.');
 
-        (new MapperBuilder())->normalizer(Format::array())->normalize(fn () => 42);
+        $this->mapperBuilder()->normalizer(Format::array())->normalize(fn () => 42);
     }
 
     public function test_giving_invalid_resource_to_json_normalizer_throws_exception(): void
@@ -1010,7 +1009,7 @@ final class NormalizerTest extends TestCase
         $this->expectExceptionMessage('Expected a valid resource, got string');
 
         // @phpstan-ignore-next-line
-        (new MapperBuilder())->normalizer(Format::json())->streamTo('foo');
+        $this->mapperBuilder()->normalizer(Format::json())->streamTo('foo');
     }
 }
 

@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class SuperfluousKeysMappingTest extends IntegrationTestCase
@@ -17,7 +16,7 @@ final class SuperfluousKeysMappingTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->mapper = (new MapperBuilder())->allowSuperfluousKeys()->mapper();
+        $this->mapper = $this->mapperBuilder()->allowSuperfluousKeys()->mapper();
     }
 
     public function test_superfluous_shaped_array_values_are_mapped_properly(): void

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use SimpleNamespace\SimpleNamespacedObject;
 
@@ -16,7 +15,7 @@ final class SimpleNamespacedObjectMappingTest extends IntegrationTestCase
         require_once(__DIR__ . '/../Fixture/SimpleNamespacedObject.php');
 
         try {
-            $object = (new MapperBuilder())->mapper()->map(SimpleNamespacedObject::class, ['foo']);
+            $object = $this->mapperBuilder()->mapper()->map(SimpleNamespacedObject::class, ['foo']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

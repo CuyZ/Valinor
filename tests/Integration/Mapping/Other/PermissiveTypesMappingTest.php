@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTime;
 use stdClass;
@@ -19,7 +18,7 @@ final class PermissiveTypesMappingTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->mapper = (new MapperBuilder())->allowPermissiveTypes()->mapper();
+        $this->mapper = $this->mapperBuilder()->allowPermissiveTypes()->mapper();
     }
 
     public function test_can_map_to_mixed_type(): void

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
@@ -35,7 +34,7 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
 
         foreach ([ClassWithConstantValues::class, ClassWithConstantValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -63,7 +62,7 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
     public function test_private_constant_cannot_be_mapped(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->mapper()
                 ->map(ObjectWithConstants::class . '::CONST_WITH_STRING_*', 'some private string value');
         } catch (MappingError $exception) {
@@ -77,7 +76,7 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
     public function test_constant_not_matching_pattern_cannot_be_mapped(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->mapper()
                 ->map(ObjectWithConstants::class . '::CONST_WITH_STRING_*', 'some prefixed string value');
         } catch (MappingError $exception) {

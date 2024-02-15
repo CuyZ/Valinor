@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\City;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
@@ -15,7 +14,7 @@ final class UnionMappingTest extends IntegrationTestCase
     public function test_union_with_int_or_object(): void
     {
         try {
-            $array = (new MapperBuilder())->mapper()->map("list<int|" . SimpleObject::class . ">", [123, "foo"]);
+            $array = $this->mapperBuilder()->mapper()->map("list<int|" . SimpleObject::class . ">", [123, "foo"]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -27,7 +26,7 @@ final class UnionMappingTest extends IntegrationTestCase
     public function test_union_with_string_or_object_prioritizes_string(): void
     {
         try {
-            $array = (new MapperBuilder())
+            $array = $this->mapperBuilder()
                 ->mapper()
                 ->map("list<string|" . SimpleObject::class . ">", ["foo", "bar", "baz"]);
         } catch (MappingError $error) {
@@ -40,7 +39,7 @@ final class UnionMappingTest extends IntegrationTestCase
     public function test_union_with_string_literal_or_object_prioritizes_string_literal(): void
     {
         try {
-            $array = (new MapperBuilder())
+            $array = $this->mapperBuilder()
                 ->mapper()
                 ->map("list<'foo'|" . SimpleObject::class . "|'bar'>", ["foo", "bar", "baz"]);
         } catch (MappingError $error) {
@@ -55,7 +54,7 @@ final class UnionMappingTest extends IntegrationTestCase
     public function test_union_of_objects(): void
     {
         try {
-            $array = (new MapperBuilder())
+            $array = $this->mapperBuilder()
                 ->mapper()
                 ->map(
                     "list<" . SimpleObject::class . "|" . City::class . ">",

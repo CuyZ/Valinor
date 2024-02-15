@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 
 use Attribute;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class RenamePropertyFromAttributeTest extends TestCase
+final class RenamePropertyFromAttributeTest extends IntegrationTestCase
 {
     public function test_rename_attribute_works_properly(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerTransformer(Rename::class)
             ->normalizer(Format::array())
             ->normalize(new class () {

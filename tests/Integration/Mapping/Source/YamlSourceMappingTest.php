@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\YamlSource;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
@@ -22,7 +21,7 @@ final class YamlSourceMappingTest extends IntegrationTestCase
         };
 
         try {
-            $object = (new MapperBuilder())->mapper()->map(
+            $object = $this->mapperBuilder()->mapper()->map(
                 $class::class,
                 new YamlSource("foo: foo\nbar: bar")
             );

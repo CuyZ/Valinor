@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use LogicException;
 
@@ -13,7 +12,7 @@ final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
 {
     public function test_infer_abstract_class_works_as_expected(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->infer(
                 SomeAbstractClass::class,
                 fn () => SomeAbstractChildClass::class
@@ -33,7 +32,7 @@ final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
 
     public function test_infer_abstract_class_with_argument_in_callback_works_as_expected(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->infer(
                 SomeAbstractClass::class,
                 /** @return class-string<SomeAbstractChildClass> */
@@ -58,7 +57,7 @@ final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
 
     public function test_infer_class_works_as_expected(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->infer(
                 SomeParentClass::class,
                 fn () => SomeChildClass::class
@@ -78,7 +77,7 @@ final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
 
     public function test_infer_class_with_argument_in_callback_works_as_expected(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->infer(
                 SomeParentClass::class,
                 /** @return class-string<SomeChildClass> */
@@ -107,7 +106,7 @@ final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1671468163);
         $this->expectExceptionMessage('Cannot infer final class `' . SomeAbstractChildClass::class . '` with function');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->infer(SomeAbstractChildClass::class, fn () => SomeAbstractChildClass::class)
             ->mapper()
             ->map(SomeAbstractChildClass::class, []);

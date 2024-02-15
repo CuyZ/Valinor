@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -14,7 +13,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTestCase
     public function test_objects_sharing_one_property_are_resolved_correctly(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeFooAndBarObject::constructorA(...))
                 ->registerConstructor(SomeFooAndBarObject::constructorB(...))
                 ->mapper()
@@ -33,7 +32,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTestCase
     public function test_mapping_to_union_of_null_and_objects_can_infer_object(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(
                     'null|' . SomeObjectWithFooAndBar::class . '|' . SomeObjectWithBazAndFiz::class,
@@ -60,7 +59,7 @@ final class UnionOfObjectsMappingTest extends IntegrationTestCase
     public function test_mapping_error_when_cannot_resolve_union(string $className, array $source): void
     {
         try {
-            (new MapperBuilder())->mapper()->map($className, $source);
+            $this->mapperBuilder()->mapper()->map($className, $source);
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {

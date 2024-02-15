@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\Formatter\AggregateMessageFormatter;
 use CuyZ\Valinor\Mapper\Tree\Message\Formatter\LocaleMessageFormatter;
 use CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter;
 use CuyZ\Valinor\Mapper\Tree\Message\Formatter\TranslationMessageFormatter;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class MessageFormatterTest extends IntegrationTestCase
@@ -17,7 +16,7 @@ final class MessageFormatterTest extends IntegrationTestCase
     public function test_message_is_formatted_correctly(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('int', 'foo');
+            $this->mapperBuilder()->mapper()->map('int', 'foo');
         } catch (MappingError $error) {
             $formatter = new AggregateMessageFormatter(
                 new LocaleMessageFormatter('fr'),

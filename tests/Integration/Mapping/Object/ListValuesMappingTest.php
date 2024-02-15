@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
@@ -27,7 +26,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
 
         foreach ([ListValues::class, ListValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -50,7 +49,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
     public function test_empty_list_in_non_empty_list_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ListValues::class, [
+            $this->mapperBuilder()->mapper()->map(ListValues::class, [
                 'nonEmptyListOfStrings' => [],
             ]);
         } catch (MappingError $exception) {
@@ -64,7 +63,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
     public function test_map_array_with_non_sequential_keys_to_list_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('list<string>', [
+            $this->mapperBuilder()->mapper()->map('list<string>', [
                 0 => 'foo',
                 2 => 'bar',
             ]);
@@ -79,7 +78,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ListValues::class, [
+            $this->mapperBuilder()->mapper()->map(ListValues::class, [
                 'integers' => ['foo'],
             ]);
         } catch (MappingError $exception) {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use stdClass;
 
@@ -16,7 +15,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = ['foo', 'bar', 'baz'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('string[]', $source);
+            $result = $this->mapperBuilder()->mapper()->map('string[]', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -29,7 +28,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = ['foo' => 'foo', 'bar' => 'bar'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map("array<'foo'|'bar', string>", $source);
+            $result = $this->mapperBuilder()->mapper()->map("array<'foo'|'bar', string>", $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -42,7 +41,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = [42 => 'foo', 1337 => 'bar'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array<42|1337, string>', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array<42|1337, string>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -55,7 +54,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = [42 => 'foo', 1337 => 'bar'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array<positive-int, string>', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array<positive-int, string>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -68,7 +67,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = [-42 => 'foo', -1337 => 'bar'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array<negative-int, string>', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array<negative-int, string>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -81,7 +80,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = [-42 => 'foo', 42 => 'foo', 1337 => 'bar'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array<int<-42, 1337>, string>', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array<int<-42, 1337>, string>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -94,7 +93,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = ['foo' => 'foo', 'bar' => 'bar'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array<non-empty-string, string>', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array<non-empty-string, string>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -107,7 +106,7 @@ final class ArrayMappingTest extends IntegrationTestCase
         $source = [stdClass::class => 'foo'];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array<class-string, string>', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array<class-string, string>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -118,7 +117,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_integer_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<int, string>', ['foo' => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array<int, string>', ['foo' => 'foo']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['foo']->messages()[0];
 
@@ -129,7 +128,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_positive_integer_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<positive-int, string>', [-42 => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array<positive-int, string>', [-42 => 'foo']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()[-42]->messages()[0];
 
@@ -140,7 +139,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_negative_integer_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<negative-int, string>', [42 => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array<negative-int, string>', [42 => 'foo']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()[42]->messages()[0];
 
@@ -151,7 +150,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_integer_range_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<int<-42, 1337>, string>', [-404 => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array<int<-42, 1337>, string>', [-404 => 'foo']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()[-404]->messages()[0];
 
@@ -162,7 +161,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_union_string_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map("array<'foo'|'bar', string>", ['baz' => 'baz']);
+            $this->mapperBuilder()->mapper()->map("array<'foo'|'bar', string>", ['baz' => 'baz']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['baz']->messages()[0];
 
@@ -173,7 +172,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_union_integer_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<42|1337, string>', [404 => 'baz']);
+            $this->mapperBuilder()->mapper()->map('array<42|1337, string>', [404 => 'baz']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()[404]->messages()[0];
 
@@ -184,7 +183,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_non_empty_string_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<non-empty-string, string>', ['' => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array<non-empty-string, string>', ['' => 'foo']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['']->messages()[0];
 
@@ -195,7 +194,7 @@ final class ArrayMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_class_string_key_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array<class-string, string>', ['foo bar' => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array<class-string, string>', ['foo bar' => 'foo']);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['foo bar']->messages()[0];
 

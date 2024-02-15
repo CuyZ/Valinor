@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Source;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\ObjectWithSubProperties;
 use IteratorAggregate;
@@ -22,7 +21,7 @@ final class SourceTest extends IntegrationTestCase
     public function test_sources_are_mapped_properly(iterable $source): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(ObjectWithSubProperties::class, $source);
+            $object = $this->mapperBuilder()->mapper()->map(ObjectWithSubProperties::class, $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

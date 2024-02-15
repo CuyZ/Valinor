@@ -22,13 +22,13 @@ final class CacheWarmupTest extends IntegrationTestCase
         parent::setUp();
 
         $this->cache = new FakeCache();
-        $this->mapper = (new MapperBuilder())->withCache($this->cache);
+        $this->mapper = $this->mapperBuilder()->withCache($this->cache);
     }
 
     public function test_cache_warmup_is_called_only_once(): void
     {
         $cache = new FakeCacheWithWarmup();
-        $mapper = (new MapperBuilder())->withCache($cache);
+        $mapper = $this->mapperBuilder()->withCache($cache);
 
         $mapper->warmup();
         $mapper->warmup();
@@ -41,7 +41,7 @@ final class CacheWarmupTest extends IntegrationTestCase
      */
     public function test_cache_warmup_does_not_call_delegate_warmup_if_not_handled(): void
     {
-        $mapper = new MapperBuilder(); // no cache registered
+        $mapper = $this->mapperBuilder(); // no cache registered
         $mapper->warmup();
     }
 

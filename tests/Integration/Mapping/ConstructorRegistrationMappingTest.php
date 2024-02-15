@@ -12,7 +12,6 @@ use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
@@ -29,7 +28,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $object = new stdClass();
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(fn (): stdClass => $object)
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -45,7 +44,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $object = new stdClass();
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(static fn (): stdClass => $object)
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -61,7 +60,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $object = new stdClass();
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeClassProvidingStaticClosure::getConstructor($object))
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -77,7 +76,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $object = new stdClass();
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(/** @return stdClass */ fn () => $object)
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -91,7 +90,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_named_constructor_is_used(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeClassWithNamedConstructors::namedConstructor(...))
                 ->mapper()
                 ->map(SomeClassWithNamedConstructors::class, 'foo');
@@ -115,7 +114,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         };
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor($constructor)
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -139,7 +138,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         };
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor($constructor->build(...))
                 ->mapper()
                 ->map(stdClass::class, []);
@@ -153,7 +152,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_class_static_constructor_for_other_class_is_used(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeClassWithStaticConstructorForOtherClass::from(...))
                 ->mapper()
                 ->map(SimpleObject::class, 'foo');
@@ -167,7 +166,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_constructor_with_injected_class_name_is_used_for_abstract_class(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(
                     /**
                      * @param class-string<SomeAbstractClassWithStaticConstructor> $className
@@ -193,7 +192,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_constructor_with_injected_class_name_is_used_for_interface(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(
                     /**
                      * @param class-string<SomeInterfaceWithStaticConstructor> $className
@@ -221,7 +220,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         try {
             $object = new stdClass();
 
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(
                     #[DynamicConstructor]
                     fn (string $className, string $foo): stdClass => $object
@@ -240,7 +239,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         try {
             $object = new stdClass();
 
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(fn (): DateTimeInterface => new DateTime())
                 ->registerConstructor(
                     #[DynamicConstructor]
@@ -258,7 +257,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_native_constructor_is_not_called_if_not_registered_but_other_constructors_are_registered(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeClassWithSimilarNativeConstructorAndNamedConstructor::namedConstructor(...))
                 ->mapper()
                 ->map(SomeClassWithSimilarNativeConstructorAndNamedConstructor::class, 'foo');
@@ -272,7 +271,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_native_constructor_is_called_if_registered_and_other_constructors_are_registered(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::class)
                 ->registerConstructor(SomeClassWithDifferentNativeConstructorAndNamedConstructor::namedConstructor(...))
                 ->mapper()
@@ -293,7 +292,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $object = new stdClass();
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(fn (): DateTime => new DateTime())
                 // This constructor is surrounded by other ones to ensure it is
                 // still used correctly.
@@ -311,7 +310,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_constructor_with_one_argument_is_used(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(function (int $int): stdClass {
                     $class = new stdClass();
                     $class->int = $int;
@@ -330,7 +329,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_constructor_with_several_arguments_is_used(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(function (string $string, int $int, float $float = 1337.404): stdClass {
                     $class = new stdClass();
                     $class->string = $string;
@@ -355,7 +354,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
 
     public function test_registered_constructors_for_same_class_are_filtered_correctly(): void
     {
-        $mapper = (new MapperBuilder())
+        $mapper = $this->mapperBuilder()
             // Basic constructor
             ->registerConstructor(function (string $foo): stdClass {
                 $class = new stdClass();
@@ -413,7 +412,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
 
     public function test_several_constructors_with_same_arguments_number_are_filtered_correctly(): void
     {
-        $mapper = (new MapperBuilder())
+        $mapper = $this->mapperBuilder()
             ->registerConstructor(function (string $foo, string $bar): stdClass {
                 $class = new stdClass();
                 $class->foo = $foo;
@@ -458,7 +457,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         })::class;
 
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(SomeAbstractClassWithStaticConstructor::from(...))
                 ->mapper()
                 ->map($class, [
@@ -481,7 +480,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessageMatches('/A collision was detected between the following constructors of the class `stdClass`: `Closure .*`, `Closure .*`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(
                 fn (string $foo): stdClass => new stdClass(),
                 fn (): stdClass => new stdClass(),
@@ -497,7 +496,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessageMatches('/A collision was detected between the following constructors of the class `stdClass`: `Closure .*`, `Closure .*`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(
                 fn (int $int): stdClass => new stdClass(),
                 fn (float $float): stdClass => new stdClass(),
@@ -512,7 +511,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessage('A collision was detected between the following constructors of the class `stdClass`: `CuyZ\Valinor\Tests\Integration\Mapping\constructorA()`, `CuyZ\Valinor\Tests\Integration\Mapping\constructorB()`.');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(
                 constructorA(...),
                 fn (int $other, float $arguments): stdClass => new stdClass(),
@@ -525,7 +524,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_source_not_matching_registered_constructors_throws_exception(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->registerConstructor(
                     fn (int $bar, float $baz = 1337.404): stdClass => new stdClass(),
                     fn (string $foo): stdClass => new stdClass(),
@@ -546,7 +545,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1646916477);
         $this->expectExceptionMessage('No available constructor found for class `' . SomeClassWithPrivateNativeConstructor::class . '`');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->mapper()
             ->map(SomeClassWithPrivateNativeConstructor::class, []);
     }
@@ -557,7 +556,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1659446121);
         $this->expectExceptionMessageMatches('/Invalid return type `string` for constructor `.*`\, it must be a valid class name\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(fn (): string => 'foo')
             ->mapper()
             ->map(stdClass::class, []);
@@ -569,7 +568,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1659446121);
         $this->expectExceptionMessageMatches('/The type `.*` for return type of method `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(
                 fn (): SimpleObjectWithGeneric => new SimpleObjectWithGeneric()
             )
@@ -583,7 +582,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1661516853);
         $this->expectExceptionMessageMatches('/Missing first parameter of type `class-string` for the constructor `.*`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(
                 #[DynamicConstructor]
                 fn (): stdClass => new stdClass()
@@ -598,7 +597,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $this->expectExceptionCode(1661517000);
         $this->expectExceptionMessageMatches('/Invalid type `int` for the first parameter of the constructor `.*`, it should be of type `class-string`\./');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->registerConstructor(
                 #[DynamicConstructor]
                 fn (int $invalidParameterType): stdClass => new stdClass()
@@ -612,7 +611,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $default = new DateTime('@1356097062');
         $defaultImmutable = new DateTimeImmutable('@1356097062');
 
-        $mapper = (new MapperBuilder())
+        $mapper = $this->mapperBuilder()
             ->registerConstructor(fn (int $timestamp): DateTime => $default)
             ->registerConstructor(fn (int $timestamp): DateTimeImmutable => $defaultImmutable)
             ->mapper();
@@ -633,7 +632,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         $default = new DateTime('@1659691266');
         $defaultImmutable = new DateTimeImmutable('@1659691266');
 
-        $mapper = (new MapperBuilder())
+        $mapper = $this->mapperBuilder()
             ->registerConstructor(fn (int $timestamp, string $timezone): DateTime => $default)
             ->registerConstructor(fn (int $timestamp, string $timezone): DateTimeImmutable => $defaultImmutable)
             ->mapper();
@@ -652,7 +651,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_datetime_constructor_not_matching_source_uses_default_constructor(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->registerConstructor(fn (string $foo, int $bar): DateTimeImmutable => new DateTimeImmutable())
                 ->mapper()
                 ->map(DateTimeInterface::class, 1647781015);
@@ -666,7 +665,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_registered_constructor_throwing_exception_fails_mapping_with_message(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->registerConstructor(fn (): stdClass => throw new FakeErrorMessage('some error message', 1656076090))
                 ->mapper()
                 ->map(stdClass::class, []);

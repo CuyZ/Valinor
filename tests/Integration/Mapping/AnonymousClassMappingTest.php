@@ -2,7 +2,6 @@
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class AnonymousClassMappingTest extends IntegrationTestCase
@@ -14,7 +13,7 @@ final class AnonymousClassMappingTest extends IntegrationTestCase
             public string $bar;
         };
 
-        $res = (new MapperBuilder())
+        $res = $this->mapperBuilder()
             ->mapper()
             ->map('string|' . $class::class, 'foo');
 

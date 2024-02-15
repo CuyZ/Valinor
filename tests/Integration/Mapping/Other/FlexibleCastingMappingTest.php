@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
@@ -21,7 +20,7 @@ final class FlexibleCastingMappingTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->mapper = (new MapperBuilder())->enableFlexibleCasting()->mapper();
+        $this->mapper = $this->mapperBuilder()->enableFlexibleCasting()->mapper();
     }
 
     public function test_leading_zero_in_numeric_is_mapped_properly(): void
@@ -172,7 +171,7 @@ final class FlexibleCastingMappingTest extends IntegrationTestCase
     public function test_null_value_for_interface_with_no_properties_needed_fills_it_with_empty_array(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->infer(SomeInterfaceForClassWithNoProperties::class, fn () => SomeClassWithNoProperties::class)
                 ->enableFlexibleCasting()
                 ->mapper()
@@ -187,7 +186,7 @@ final class FlexibleCastingMappingTest extends IntegrationTestCase
     public function test_interface_is_inferred_and_mapped_properly_in_flexible_casting_mode(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->infer(SomeInterfaceForClassWithProperties::class, fn () => SomeClassWithProperties::class)
                 ->enableFlexibleCasting()
                 ->mapper()

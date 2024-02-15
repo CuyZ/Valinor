@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Namespace;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class RegisteredStaticConstructorWithReturnTypeInDocBlockTest extends IntegrationTestCase
@@ -12,7 +11,7 @@ final class RegisteredStaticConstructorWithReturnTypeInDocBlockTest extends Inte
     // @see https://github.com/CuyZ/Valinor/issues/461
     public function test_registered_static_constructor_with_return_type_in_doc_block_works_properly(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerConstructor(
                 SomeClassWithStaticConstructor::staticConstructorWithReturnTypeInDocBlock(...),
             )
