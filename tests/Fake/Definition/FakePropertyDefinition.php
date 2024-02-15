@@ -14,6 +14,9 @@ final class FakePropertyDefinition
 {
     private function __construct() {}
 
+    /**
+     * @param non-empty-string $name
+     */
     public static function new(string $name = 'someProperty'): PropertyDefinition
     {
         return new PropertyDefinition(
@@ -29,6 +32,8 @@ final class FakePropertyDefinition
 
     public static function fromReflection(ReflectionProperty $reflection): PropertyDefinition
     {
+        /** @var non-empty-string $name */
+        $name = $reflection->name;
         $defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
         $type = new MixedType();
 
@@ -37,7 +42,7 @@ final class FakePropertyDefinition
         }
 
         return new PropertyDefinition(
-            $reflection->name,
+            $name,
             'Signature::' . $reflection->name,
             $type,
             isset($defaultProperties[$reflection->name]),

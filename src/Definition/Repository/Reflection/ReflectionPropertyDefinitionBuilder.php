@@ -24,6 +24,7 @@ final class ReflectionPropertyDefinitionBuilder
 
     public function for(ReflectionProperty $reflection, ReflectionTypeResolver $typeResolver): PropertyDefinition
     {
+        /** @var non-empty-string $name */
         $name = $reflection->name;
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);

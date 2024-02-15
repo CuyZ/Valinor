@@ -98,6 +98,9 @@ final class Reflection
         );
     }
 
+    /**
+     * @return non-empty-string
+     */
     public static function signature(Reflector $reflection): string
     {
         if ($reflection instanceof ReflectionClass) {

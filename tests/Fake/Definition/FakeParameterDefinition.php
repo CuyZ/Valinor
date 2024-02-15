@@ -14,6 +14,9 @@ final class FakeParameterDefinition
 {
     private function __construct() {}
 
+    /**
+     * @param non-empty-string $name
+     */
     public static function new(string $name = 'someParameter', Type $type = null): ParameterDefinition
     {
         return new ParameterDefinition(
@@ -27,6 +30,9 @@ final class FakeParameterDefinition
         );
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public static function optional(string $name, Type $type, mixed $defaultValue): ParameterDefinition
     {
         return new ParameterDefinition(
@@ -42,6 +48,8 @@ final class FakeParameterDefinition
 
     public static function fromReflection(ReflectionParameter $reflection): ParameterDefinition
     {
+        /** @var non-empty-string $name */
+        $name = $reflection->name;
         $type = new FakeType();
 
         if ($reflection->hasType()) {
@@ -49,7 +57,7 @@ final class FakeParameterDefinition
         }
 
         return new ParameterDefinition(
-            $reflection->name,
+            $name,
             'Signature::' . $reflection->name,
             $type,
             $reflection->isOptional(),

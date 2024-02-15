@@ -17,6 +17,9 @@ final class FakeMethodDefinition
 {
     private function __construct() {}
 
+    /**
+     * @param non-empty-string $name
+     */
     public static function new(string $name = 'someMethod'): MethodDefinition
     {
         return new MethodDefinition(
@@ -36,6 +39,8 @@ final class FakeMethodDefinition
 
     public static function fromReflection(ReflectionMethod $reflection): MethodDefinition
     {
+        /** @var non-empty-string $name */
+        $name = $reflection->name;
         $returnType = new MixedType();
 
         if ($reflection->hasReturnType()) {
@@ -48,7 +53,7 @@ final class FakeMethodDefinition
         );
 
         return new MethodDefinition(
-            $reflection->name,
+            $name,
             'Signature::' . $reflection->name,
             new Parameters(...$parameters),
             $reflection->isStatic(),

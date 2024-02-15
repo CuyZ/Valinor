@@ -162,19 +162,22 @@ final class FileWatchingCacheTest extends TestCase
     {
         $file = $this->functionDefinitionFile();
 
-        $function = FakeFunctionDefinition::new($file->url());
+        /** @var non-empty-string */
+        $url = $file->url();
+
+        $function = FakeFunctionDefinition::new($url);
 
         self::assertTrue($this->cache->set('some-function-definition', $function));
         self::assertTrue($this->cache->has('some-function-definition'));
 
-        unlink($file->url());
+        unlink($url);
         $file->lastModified(time() + 5)->at($this->files);
 
         self::assertFalse($this->cache->has('some-function-definition'));
         self::assertTrue($this->cache->setMultiple(['some-function-definition' => $function]));
         self::assertTrue($this->cache->has('some-function-definition'));
 
-        unlink($file->url());
+        unlink($url);
         $file->lastModified(time() + 10)->at($this->files);
 
         self::assertFalse($this->cache->has('some-function-definition'));
@@ -190,6 +193,7 @@ final class FileWatchingCacheTest extends TestCase
         self::assertFalse($cacheB->has('some-function-definition'));
         self::assertFalse($cacheB->has('some-function-definition'));
 
+        /** @var non-empty-string $file */
         $file = $this->functionDefinitionFile()->url();
 
         $cacheA->set('some-function-definition', FakeFunctionDefinition::new($file));

@@ -10,7 +10,9 @@ use CuyZ\Valinor\Type\Type;
 final class PropertyDefinition
 {
     public function __construct(
+        /** @var non-empty-string */
         public readonly string $name,
+        /** @var non-empty-string */
         public readonly string $signature,
         public readonly Type $type,
         public readonly bool $hasDefaultValue,

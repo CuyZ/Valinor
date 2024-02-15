@@ -22,6 +22,7 @@ final class ReflectionParameterDefinitionBuilder
 
     public function for(ReflectionParameter $reflection, ReflectionTypeResolver $typeResolver): ParameterDefinition
     {
+        /** @var non-empty-string $name */
         $name = $reflection->name;
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);
