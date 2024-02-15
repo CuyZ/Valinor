@@ -25,6 +25,9 @@ final class ReflectionMethodDefinitionBuilder
 
     public function for(ReflectionMethod $reflection, ReflectionTypeResolver $typeResolver): MethodDefinition
     {
+        /** @var non-empty-string $name */
+        $name = $reflection->name;
+
         $parameters = array_map(
             fn (ReflectionParameter $parameter) => $this->parameterBuilder->for($parameter, $typeResolver),
             $reflection->getParameters()
@@ -33,7 +36,7 @@ final class ReflectionMethodDefinitionBuilder
         $returnType = $typeResolver->resolveType($reflection);
 
         return new MethodDefinition(
-            $reflection->name,
+            $name,
             Reflection::signature($reflection),
             new Parameters(...$parameters),
             $reflection->isStatic(),

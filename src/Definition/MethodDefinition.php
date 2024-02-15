@@ -10,7 +10,9 @@ use CuyZ\Valinor\Type\Type;
 final class MethodDefinition
 {
     public function __construct(
+        /** @var non-empty-string */
         public readonly string $name,
+        /** @var non-empty-string */
         public readonly string $signature,
         public readonly Parameters $parameters,
         public readonly bool $isStatic,
