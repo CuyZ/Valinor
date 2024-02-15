@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 use function dechex;
 
-final class CustomObjectNormalizationTest extends TestCase
+final class CustomObjectNormalizationTest extends IntegrationTestCase
 {
     public function test_custom_object_normalization_works_properly(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerTransformer(
                 fn (HasCustomNormalization $object) => $object->normalize(),
             )

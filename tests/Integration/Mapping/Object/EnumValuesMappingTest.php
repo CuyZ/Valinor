@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -28,7 +27,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
 
         foreach ([EnumValues::class, EnumValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -46,7 +45,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
     public function test_invalid_string_enum_value_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(BackedStringEnum::class, new StringableObject('fiz'));
+            $this->mapperBuilder()->mapper()->map(BackedStringEnum::class, new StringableObject('fiz'));
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
@@ -57,7 +56,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
     public function test_invalid_integer_enum_value_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(BackedIntegerEnum::class, '512');
+            $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, '512');
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
@@ -68,7 +67,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
     public function test_value_not_matching_pure_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(PureEnum::class . '::FOO', 'fiz');
+            $this->mapperBuilder()->mapper()->map(PureEnum::class . '::FOO', 'fiz');
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
@@ -79,7 +78,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
     public function test_value_not_matching_backed_integer_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(BackedIntegerEnum::class . '::FOO', '512');
+            $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class . '::FOO', '512');
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
@@ -90,7 +89,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
     public function test_value_not_filled_for_pure_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
+            $this->mapperBuilder()->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['foo']->messages()[0];
 
@@ -101,7 +100,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
     public function test_value_not_filled_for_backed_integer_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
+            $this->mapperBuilder()->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['foo']->messages()[0];
 

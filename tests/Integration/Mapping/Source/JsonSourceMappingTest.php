@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\JsonSource;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class JsonSourceMappingTest extends IntegrationTestCase
@@ -20,7 +19,7 @@ final class JsonSourceMappingTest extends IntegrationTestCase
         };
 
         try {
-            $object = (new MapperBuilder())->mapper()->map(
+            $object = $this->mapperBuilder()->mapper()->map(
                 $class::class,
                 new JsonSource('{"foo": "foo", "bar": "bar"}')
             );

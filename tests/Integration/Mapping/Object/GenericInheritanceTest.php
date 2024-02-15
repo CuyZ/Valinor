@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class GenericInheritanceTest extends IntegrationTestCase
@@ -13,7 +12,7 @@ final class GenericInheritanceTest extends IntegrationTestCase
     public function test_generic_types_are_inherited_properly(): void
     {
         try {
-            $object = (new MapperBuilder())
+            $object = $this->mapperBuilder()
                 ->mapper()
                 ->map(ChildClassWithInheritedGenericType::class, [
                     'valueA' => 'foo',

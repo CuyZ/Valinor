@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeImmutable;
 use DateTimeInterface;
-use PHPUnit\Framework\TestCase;
 
-final class DateFormatFromGlobalTransformerTest extends TestCase
+final class DateFormatFromGlobalTransformerTest extends IntegrationTestCase
 {
     public function test_date_format_from_global_transformer_works_properly(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerTransformer(
                 fn (DateTimeInterface $date) => $date->format('Y/m/d'),
             )

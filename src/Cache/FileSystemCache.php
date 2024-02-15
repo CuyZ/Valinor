@@ -22,6 +22,7 @@ use function is_dir;
 use function mkdir;
 use function random_bytes;
 use function rename;
+use function rmdir;
 use function str_contains;
 use function unlink;
 use function var_export;
@@ -124,20 +125,32 @@ final class FileSystemCache implements WarmupCache
         }
 
         $success = true;
+        $shouldDeleteRootDir = true;
 
         /** @var FilesystemIterator $file */
         foreach (new FilesystemIterator($this->cacheDir) as $file) {
+            if ($file->getFilename() === '.valinor.tmp') {
+                $success = @rmdir($this->cacheDir . DIRECTORY_SEPARATOR . $file->getFilename()) && $success;
+                continue;
+            }
+
             if (! $file->isFile()) {
+                $shouldDeleteRootDir = false;
                 continue;
             }
 
             $line = $file->openFile()->getCurrentLine();
 
             if (! $line || ! str_contains($line, self::GENERATED_MESSAGE)) {
+                $shouldDeleteRootDir = false;
                 continue;
             }
 
             $success = @unlink($this->cacheDir . DIRECTORY_SEPARATOR . $file->getFilename()) && $success;
+        }
+
+        if ($shouldDeleteRootDir) {
+            $success = @rmdir($this->cacheDir) && $success;
         }
 
         return $success;

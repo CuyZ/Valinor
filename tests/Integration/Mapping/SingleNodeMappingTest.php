@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,7 +18,7 @@ final class SingleNodeMappingTest extends IntegrationTestCase
     public function test_single_property_and_constructor_parameter_are_mapped_properly(string $className, mixed $value): void
     {
         try {
-            $result = (new MapperBuilder())->mapper()->map($className, $value);
+            $result = $this->mapperBuilder()->mapper()->map($className, $value);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -34,7 +33,7 @@ final class SingleNodeMappingTest extends IntegrationTestCase
     public function test_single_property_and_constructor_parameter_with_default_value_are_mapped_properly(string $className): void
     {
         try {
-            $result = (new MapperBuilder())->mapper()->map($className, ['foo' => []]);
+            $result = $this->mapperBuilder()->mapper()->map($className, ['foo' => []]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -49,7 +48,7 @@ final class SingleNodeMappingTest extends IntegrationTestCase
     public function test_single_property_and_constructor_parameter_can_be_mapped_with_array_with_property_name(string $className, mixed $value): void
     {
         try {
-            $result = (new MapperBuilder())->mapper()->map($className, ['value' => $value]);
+            $result = $this->mapperBuilder()->mapper()->map($className, ['value' => $value]);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -60,7 +59,7 @@ final class SingleNodeMappingTest extends IntegrationTestCase
     public function test_single_argument_invalid_value_with_key_present_in_source_keeps_path_in_error_nodes(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(SimpleObject::class, ['value' => 42]);
+            $this->mapperBuilder()->mapper()->map(SimpleObject::class, ['value' => 42]);
         } catch (MappingError $exception) {
             $error = $exception->node()->children()['value']->messages()[0];
 
@@ -71,7 +70,7 @@ final class SingleNodeMappingTest extends IntegrationTestCase
     public function test_single_argument_invalid_value_with_key_not_present_in_source_does_not_keep_path_in_error_nodes(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(SimpleObject::class, 42);
+            $this->mapperBuilder()->mapper()->map(SimpleObject::class, 42);
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 

@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\Country;
 
@@ -47,7 +46,7 @@ final class PathMappingTest extends IntegrationTestCase
         ]);
 
         try {
-            $countries = (new MapperBuilder())->mapper()->map('list<' . Country::class . '>', $source);
+            $countries = $this->mapperBuilder()->mapper()->map('list<' . Country::class . '>', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

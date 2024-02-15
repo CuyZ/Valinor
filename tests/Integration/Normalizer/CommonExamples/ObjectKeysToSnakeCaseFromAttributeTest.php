@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 
 use Attribute;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class ObjectKeysToSnakeCaseFromAttributeTest extends TestCase
+final class ObjectKeysToSnakeCaseFromAttributeTest extends IntegrationTestCase
 {
     public function test_object_keys_are_converted_to_snake_case(): void
     {
-        $result = (new MapperBuilder())
+        $result = $this->mapperBuilder()
             ->registerTransformer(SnakeCaseProperties::class)
             ->normalizer(Format::array())
             ->normalize(new #[SnakeCaseProperties] class () {

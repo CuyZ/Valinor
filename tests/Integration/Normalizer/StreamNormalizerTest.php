@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
@@ -18,7 +17,7 @@ final class StreamNormalizerTest extends IntegrationTestCase
         /** @var resource $resource */
         $resource = fopen('php://memory', 'r+');
 
-        (new MapperBuilder())
+        $this->mapperBuilder()
             ->normalizer(Format::json())
             ->streamTo($resource)
             ->normalize(['foo' => 'bar']);

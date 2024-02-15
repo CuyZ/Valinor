@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Closure;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class ArgumentsMappingTest extends IntegrationTestCase
@@ -15,7 +14,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
 
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($function, [
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -31,7 +30,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         $object = new SomeClassWithMethods();
 
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($object->somePublicMethod(...), [
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($object->somePublicMethod(...), [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -45,7 +44,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
     public function test_can_map_to_class_static_method(): void
     {
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments(SomeClassWithMethods::somePublicStaticMethod(...), [
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments(SomeClassWithMethods::somePublicStaticMethod(...), [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -61,7 +60,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         $function = fn (string $foo): string => $foo;
 
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($function, ['foo' => 'foo']);
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, ['foo' => 'foo']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -74,7 +73,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
 
         try {
-            (new MapperBuilder())->argumentsMapper()->mapArguments($function, [
+            $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
                 'foo' => false,
                 'bar' => false,
             ]);
@@ -91,7 +90,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
 
         try {
-            (new MapperBuilder())->argumentsMapper()->mapArguments($function, [
+            $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
                 'foo' => false,
                 'bar' => 42,
             ]);

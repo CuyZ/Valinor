@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class VariadicParameterMappingTest extends IntegrationTestCase
@@ -13,7 +12,7 @@ final class VariadicParameterMappingTest extends IntegrationTestCase
     public function test_only_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
+            $object = $this->mapperBuilder()->mapper()->map(SomeClassWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -24,7 +23,7 @@ final class VariadicParameterMappingTest extends IntegrationTestCase
     public function test_variadic_parameters_are_mapped_properly_when_string_keys_are_given(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
+            $object = $this->mapperBuilder()->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
                 'foo' => 'foo',
                 'bar' => 'bar',
                 'baz' => 'baz',
@@ -39,7 +38,7 @@ final class VariadicParameterMappingTest extends IntegrationTestCase
     public function test_constructor_with_variadic_parameters_with_dots_in_dot_blocks_are_defined_properly(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->mapper()
                 ->map(SomeClassWithVariadicParametersInDocBlock::class, ['']);
         } catch (MappingError $exception) {
@@ -52,7 +51,7 @@ final class VariadicParameterMappingTest extends IntegrationTestCase
     public function test_non_variadic_and_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithNonVariadicAndVariadicParameters::class, [
+            $object = $this->mapperBuilder()->mapper()->map(SomeClassWithNonVariadicAndVariadicParameters::class, [
                 'int' => 42,
                 'values' => ['foo', 'bar', 'baz'],
             ]);
@@ -67,7 +66,7 @@ final class VariadicParameterMappingTest extends IntegrationTestCase
     public function test_named_constructor_with_non_variadic_and_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())
+            $object = $this->mapperBuilder()
                 ->registerConstructor(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::new(...))
                 ->mapper()
                 ->map(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, [

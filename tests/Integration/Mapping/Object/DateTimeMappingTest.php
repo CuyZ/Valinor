@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeInterface;
 
@@ -14,7 +13,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_datetime_constructor_cannot_be_used(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, ['datetime' => '2022/08/05', 'timezone' => 'Europe/Paris']);
         } catch (MappingError $exception) {
@@ -27,7 +26,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_valid_rfc_3339_format_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, '2022-08-05T08:32:06+00:00');
         } catch (MappingError $error) {
@@ -40,7 +39,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_valid_rfc_3339_and_milliseconds_format_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, '2022-08-05T08:32:06.123Z');
         } catch (MappingError $error) {
@@ -55,7 +54,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_valid_rfc_3339_and_microseconds_format_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, '2022-08-05T08:32:06.123456Z');
         } catch (MappingError $error) {
@@ -70,7 +69,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_valid_timestamp_format_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, 1659688380);
         } catch (MappingError $error) {
@@ -83,7 +82,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_timestamp_at_0_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, 0);
         } catch (MappingError $error) {
@@ -96,7 +95,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_a_negative_timestamp_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, -1);
         } catch (MappingError $error) {
@@ -109,7 +108,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_registered_date_constructor_with_valid_source_returns_datetime(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->supportDateFormats('d/m/Y', 'Y/m/d')
                 ->mapper()
                 ->map(DateTimeInterface::class, '2022/08/05');
@@ -123,7 +122,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_default_date_constructor_with_invalid_source_throws_exception(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->mapper()
                 ->map(DateTimeInterface::class, 'invalid datetime');
         } catch (MappingError $exception) {
@@ -137,7 +136,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_registered_date_constructor_with_invalid_source_throws_exception(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->supportDateFormats('Y/m/d')
                 ->mapper()
                 ->map(DateTimeInterface::class, 'invalid datetime');
@@ -152,7 +151,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
     public function test_date_constructor_with_overridden_format_source_throws_exception(): void
     {
         try {
-            (new MapperBuilder())
+            $this->mapperBuilder()
                 ->supportDateFormats('Y/m/d')
                 ->supportDateFormats('d/m/Y')
                 ->mapper()

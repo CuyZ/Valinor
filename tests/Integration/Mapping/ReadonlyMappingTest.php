@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class ReadonlyMappingTest extends IntegrationTestCase
@@ -17,7 +16,7 @@ final class ReadonlyMappingTest extends IntegrationTestCase
         };
 
         try {
-            $object = (new MapperBuilder())->mapper()->map($class::class, 'foo');
+            $object = $this->mapperBuilder()->mapper()->map($class::class, 'foo');
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }

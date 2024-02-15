@@ -35,7 +35,7 @@ final class FileSystemCacheTest extends TestCase
 
         $this->files = vfsStream::setup('cache-dir');
 
-        $this->cache = new FileSystemCache(vfsStream::url('cache-dir'));
+        $this->cache = new FileSystemCache($this->files->url());
     }
 
     public function test_warmup_creates_temporary_dir(): void
@@ -151,6 +151,38 @@ final class FileSystemCacheTest extends TestCase
         self::assertFalse($this->cache->clear());
     }
 
+    public function test_clear_cannot_delete_root_dir_returns_false(): void
+    {
+        $files = vfsStream::setup('cache-dir/sub-dir');
+        $files->chmod(0444);
+
+        $cache = new FileSystemCache(vfsStream::url('cache-dir/sub-dir'));
+
+        self::assertFalse($cache->clear());
+    }
+
+    public function test_clear_cache_does_not_delete_unrelated_file(): void
+    {
+        $this->files->addChild(vfsStream::newFile('some-unrelated-file.php')->withContent('foo'));
+
+        $this->cache->set('foo', 'foo');
+
+        self::assertTrue($this->cache->clear());
+        self::assertCount(1, $this->files->getChildren());
+        self::assertTrue($this->files->hasChild('some-unrelated-file.php'));
+    }
+
+    public function test_clear_cache_does_not_delete_unrelated_directory(): void
+    {
+        $this->files->addChild(vfsStream::newDirectory('some-unrelated-directory'));
+
+        $this->cache->set('foo', 'foo');
+
+        self::assertTrue($this->cache->clear());
+        self::assertCount(1, $this->files->getChildren());
+        self::assertTrue($this->files->hasChild('some-unrelated-directory'));
+    }
+
     public function test_clear_caches_when_cache_directory_does_not_exists_returns_true(): void
     {
         rmdir($this->files->url());
@@ -199,17 +231,6 @@ final class FileSystemCacheTest extends TestCase
         $this->files->chmod(0444);
 
         self::assertFalse($this->cache->deleteMultiple(['foo', 'bar']));
-    }
-
-    public function test_clear_cache_does_not_delete_unrelated_files(): void
-    {
-        (vfsStream::newFile('some-unrelated-file.php'))->withContent('foo')->at($this->files);
-
-        $this->cache->set('foo', 'foo');
-        $this->cache->clear();
-
-        self::assertCount(2, $this->files->getChildren());
-        self::assertTrue($this->files->hasChild('some-unrelated-file.php'));
     }
 
     public function test_corrupted_file_throws_exception(): void

@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class VersionTransformerTest extends TestCase
+final class VersionTransformerTest extends IntegrationTestCase
 {
     public function test_version_transformer_works_properly(): void
     {
-        $normalizeWithVersion = fn (string $version) => (new MapperBuilder())
+        $normalizeWithVersion = fn (string $version) => $this->mapperBuilder()
             ->registerTransformer(
                 fn (HasVersionedNormalization $object, callable $next) => $object->normalizeWithVersion($version, $next),
             )

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use stdClass;
@@ -66,7 +65,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
 
         foreach ([ShapedArrayValues::class, ShapedArrayValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -92,7 +91,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ShapedArrayValues::class, [
+            $this->mapperBuilder()->mapper()->map(ShapedArrayValues::class, [
                 'basicShapedArrayWithStringKeys' => [
                     'foo' => new stdClass(),
                     'bar' => 42,

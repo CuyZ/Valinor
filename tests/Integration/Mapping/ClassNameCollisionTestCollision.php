@@ -3,7 +3,6 @@
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\Error;
 
@@ -12,7 +11,7 @@ final class ClassNameCollisionTestCollision extends IntegrationTestCase
     public function test_mapping_to_class_with_same_class_name_as_native_class_works_properly(): void
     {
         try {
-            $result = (new MapperBuilder())
+            $result = $this->mapperBuilder()
                 ->mapper()
                 ->map(ObjectWithErrorsClassNameCollision::class, ['foo', 'bar']);
         } catch (MappingError $error) {
