@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\StaticAnalysis;
 
-use Closure;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\TreeMapper;
 
@@ -53,7 +52,7 @@ function mapping_function_arguments_will_infer_object_of_same_type(ArgumentsMapp
 
 function mapping_static_method_arguments_will_infer_object_of_same_type(ArgumentsMapper $mapper): void
 {
-    $result = $mapper->mapArguments(Closure::fromCallable(SomeClass::someStaticMethod(...)), []);
+    $result = $mapper->mapArguments(SomeClass::someStaticMethod(...), []);
 
     /** @psalm-check-type $result = array{foo: string, bar?: int|null} */
     assertType('array{foo: string, bar?: int|null}', $result);
@@ -61,7 +60,7 @@ function mapping_static_method_arguments_will_infer_object_of_same_type(Argument
 
 function mapping_method_arguments_will_infer_object_of_same_type(ArgumentsMapper $mapper): void
 {
-    $result = $mapper->mapArguments(Closure::fromCallable((new SomeClass())->someMethod(...)), []);
+    $result = $mapper->mapArguments((new SomeClass())->someMethod(...), []);
 
     /** @psalm-check-type $result = array{foo: string, bar?: int|null} */
     assertType('array{foo: string, bar?: int|null}', $result);
