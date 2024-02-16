@@ -192,7 +192,7 @@ final class ClassWithInheritedStaticConstructor implements InterfaceWithStaticCo
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->registerConstructor(
-        #[\CuyZ\Valinor\Attribute\DynamicConstructor]
+        #[\CuyZ\Valinor\Mapper\Object\DynamicConstructor]
         function (string $className, string $value): InterfaceWithStaticConstructor {
             return $className::from($value);
         }
