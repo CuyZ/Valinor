@@ -9,6 +9,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\SeveralObjectBuildersFound;
 
 use function count;
 use function is_array;
+use function reset;
 
 /** @internal */
 final class FilteredObjectBuilder implements ObjectBuilder
@@ -41,7 +42,7 @@ final class FilteredObjectBuilder implements ObjectBuilder
     private function filterBuilder(mixed $source, ObjectBuilder ...$builders): ObjectBuilder
     {
         if (count($builders) === 1) {
-            return $builders[0];
+            return reset($builders);
         }
 
         /** @var non-empty-list<ObjectBuilder> $builders */

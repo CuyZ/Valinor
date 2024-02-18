@@ -14,6 +14,7 @@ final class MethodDefinition
         public readonly string $name,
         /** @var non-empty-string */
         public readonly string $signature,
+        public readonly Attributes $attributes,
         public readonly Parameters $parameters,
         public readonly bool $isStatic,
         public readonly bool $isPublic,
