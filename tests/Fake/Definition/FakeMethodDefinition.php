@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
@@ -25,6 +26,7 @@ final class FakeMethodDefinition
         return new MethodDefinition(
             $name,
             $name,
+            new Attributes(),
             new Parameters(),
             false,
             true,
@@ -55,6 +57,7 @@ final class FakeMethodDefinition
         return new MethodDefinition(
             $name,
             'Signature::' . $reflection->name,
+            new Attributes(),
             new Parameters(...$parameters),
             $reflection->isStatic(),
             $reflection->isPublic(),

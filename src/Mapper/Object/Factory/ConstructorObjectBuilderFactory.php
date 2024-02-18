@@ -7,9 +7,11 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorClassTypeParameter;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodWithAttributeReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
@@ -24,6 +26,7 @@ use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 
 use function array_key_exists;
+use function array_values;
 use function count;
 use function is_a;
 
@@ -37,7 +40,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         private ObjectBuilderFactory $delegate,
         /** @var array<class-string, null> */
         private array $nativeConstructors,
-        private FunctionsContainer $constructors
+        private FunctionsContainer $constructors,
     ) {}
 
     public function for(ClassDefinition $class): array
@@ -77,23 +80,54 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             if ($functionClass && $definition->isStatic && ! $definition->isClosure) {
                 $scopedClass = is_a($className, $functionClass, true) ? $className : $functionClass;
 
-                $builders[] = new MethodObjectBuilder($scopedClass, $definition->name, $definition->parameters);
+                $builders[$definition->signature] = new MethodObjectBuilder($scopedClass, $definition->name, $definition->parameters);
             } else {
-                $builders[] = new FunctionObjectBuilder($constructor, $classType);
+                $builders[$definition->signature] = new FunctionObjectBuilder($constructor, $classType);
             }
         }
 
-        if (! array_key_exists($className, $this->nativeConstructors) && count($builders) > 0) {
-            return $builders;
+        foreach ($methods as $method) {
+            if (! $method->isStatic) {
+                continue;
+            }
+
+            if (! $method->attributes->has(Constructor::class)) {
+                continue;
+            }
+
+            if (! $method->returnType instanceof ClassType) {
+                throw new InvalidConstructorMethodWithAttributeReturnType($className, $method);
+            }
+
+            if (! is_a($className, $method->returnType->className(), true)) {
+                throw new InvalidConstructorMethodWithAttributeReturnType($className, $method);
+            }
+
+            if (! $class->type->matches($method->returnType)) {
+                continue;
+            }
+
+            $builders[$method->signature] = new MethodObjectBuilder($className, $method->name, $method->parameters);
         }
 
         if ($classType instanceof EnumType) {
-            $builders[] = new NativeEnumObjectBuilder($classType);
-        } elseif ($methods->hasConstructor() && $methods->constructor()->isPublic) {
+            $buildersWithOneArguments = array_filter($builders, fn (ObjectBuilder $builder) => $builder->describeArguments()->count() === 1);
+
+            if (count($buildersWithOneArguments) === 0) {
+                $builders[] = new NativeEnumObjectBuilder($classType);
+            }
+        } elseif ($methods->hasConstructor()
+            && $methods->constructor()->isPublic
+            && (
+                count($builders) === 0
+                || $methods->constructor()->attributes->has(Constructor::class)
+                || array_key_exists($className, $this->nativeConstructors)
+            )
+        ) {
             $builders[] = new NativeConstructorObjectBuilder($class);
         }
 
-        return $builders;
+        return array_values($builders);
     }
 
     private function constructorMatches(FunctionObject $function, ClassType $classType): bool

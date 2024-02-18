@@ -1,8 +1,8 @@
 # Using custom object constructors
 
 An object may have custom ways of being created, in such cases these
-constructors need to be registered to the mapper to be used. A constructor is a
-callable that can be either:
+constructors need to be registered to the mapper to be used. A constructor can
+be either:
 
 1. A named constructor, also known as a static factory method
 2. The method of a service — for instance a repository
@@ -14,22 +14,65 @@ know when to use it. Any argument can be provided and will automatically be
 mapped using the given source. These arguments can then be used to instantiate
 the object in the desired way.
 
-Registering any constructor will disable the native constructor — the
-`__construct` method — of the targeted class. If for some reason it still needs
-to be handled as well, the name of the class must be given to the
-registration method.
-
 If several constructors are registered, they must provide distinct signatures to
 prevent collision during mapping — meaning that if two constructors require
 several arguments with the exact same names, the mapping will fail.
 
+!!! note
+
+    Registering a constructor for a class will prevent its native constructor 
+    (the `__construct` method) to be handled by the mapper. If it needs to be
+    be enabled again, it has to be explicitly registered.
+
+## The `Constructor` attribute
+
+The quickest and easiest way to register a constructor is to use the
+`Constructor` attribute, which will mark a method as a constructor that can be
+used by the mapper.
+
+The targeted method must be public, static and return an instance of the class
+it is part of.
+
+```php
+final readonly class Email
+{
+    // When another constructor is registered for the class, the native
+    // constructor is disabled. To enable it again, it is mandatory to
+    // explicitly register it again.
+    #[\CuyZ\Valinor\Mapper\Object\Constructor]
+    public function __construct(public string $value) {}
+
+    #[\CuyZ\Valinor\Mapper\Object\Constructor]
+    public static function createFrom(string $userName, string $domainName): self
+    {
+        return new self($userName . '@' . $domainName);
+    }
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(Email::class, [
+        'userName' => 'john.doe',
+        'domainName' => 'example.com',
+    ]); // john.doe@example.com
+```
+
+## Manually registering a constructor
+
+There are cases where the `Constructor` attribute cannot be used, for instance
+when the class is an external dependency that cannot be modified. In such cases,
+the `registerConstructor` method can be used to register any callable as a
+constructor.
+
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     ->registerConstructor(
-        // Allow the native constructor to be used
+        // When another constructor is registered for the class, the native
+        // constructor is disabled. To enable it again, it is mandatory to
+        // explicitly register it again by giving the class name to this method.
         Color::class,
 
-        // Register a named constructor (1)
+        // Register a named constructor
         Color::fromHex(...),
 
         /**
@@ -87,74 +130,66 @@ final class Color
 }
 ```
 
-1.  …or for PHP < 8.1:
-    
-    ```php
-    [Color::class, 'fromHex'],
-    ```
-
 ## Custom enum constructor
 
 Registering a constructor for an enum works the same way as for a class, as
 described above.
 
 ```php
-(new \CuyZ\Valinor\MapperBuilder())
-    ->registerConstructor(
-        // Allow the native constructor to be used
-        SomeEnum::class,
-
-        // Register a named constructor
-        SomeEnum::fromMatrix(...)
-    )
-    ->mapper()
-    ->map(SomeEnum::class, [
-        'type' => 'FOO',
-        'number' => 2,
-    ]);
-
-enum SomeEnum: string
+enum Color: string
 {
-    case CASE_A = 'FOO_VALUE_1';
-    case CASE_B = 'FOO_VALUE_2';
-    case CASE_C = 'BAR_VALUE_1';
-    case CASE_D = 'BAR_VALUE_2';
+    case LIGHT_RED = 'LIGHT_RED';
+    case LIGHT_GREEN = 'LIGHT_GREEN';
+    case LIGHT_BLUE = 'LIGHT_BLUE';
+    case DARK_RED = 'DARK_RED';
+    case DARK_GREEN = 'DARK_GREEN';
+    case DARK_BLUE = 'DARK_BLUE';
 
-    /**
-     * @param 'FOO'|'BAR' $type
-     * @param int<1, 2> $number
-     */
-    public static function fromMatrix(string $type, int $number): self
+    #[\CuyZ\Valinor\Mapper\Object\Constructor]
+    public static function fromMatrix(string $type, string $color): Color
     {
-        return self::from("{$type}_VALUE_{$number}");
+        return self::from($type . '_' . $color);
     }
 }
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(Color::class , [
+        'type' => 'DARK',
+        'color' => 'RED'
+    ]); // Color::DARK_RED
 ```
 
 !!! note
 
-    An enum constructor can be for a specific pattern:
+    An enum constructor can target a specific pattern:
 
     ```php
-    enum SomeEnum
+    enum Color: string
     {
-        case FOO;
-        case BAR;
-        case BAZ;
+        case LIGHT_RED = 'LIGHT_RED';
+        case LIGHT_GREEN = 'LIGHT_GREEN';
+        case LIGHT_BLUE = 'LIGHT_BLUE';
+        case DARK_RED = 'DARK_RED';
+        case DARK_GREEN = 'DARK_GREEN';
+        case DARK_BLUE = 'DARK_BLUE';
+    
+        /**
+         * This constructor will be called only when pattern `SomeEnum::DARK_*`
+         * is requested during mapping.
+         *
+         * @return Color::DARK_*
+         */
+        #[\CuyZ\Valinor\Mapper\Object\Constructor]
+        public static function darkFrom(string $value): Color
+        {
+            return self::from('DARK_' . $value);
+        }
     }
     
     (new \CuyZ\Valinor\MapperBuilder())
-        ->registerConstructor(
-            /**
-             * This constructor will be called only when pattern `SomeEnum::BA*`
-             * is requested during mapping.
-             * 
-             * @return SomeEnum::BA*
-             */
-            fn (string $value): SomeEnum => /* Some custom domain logic */
-        )
         ->mapper()
-        ->map(SomeEnum::class . '::BA*', 'some custom value');
+        ->map(Color::class . '::DARK_*', 'RED'); // Color::DARK_RED
     ```
 
 ## Dynamic constructors
