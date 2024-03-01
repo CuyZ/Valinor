@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
 use CuyZ\Valinor\Type\CompositeTraversableType;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use IteratorAggregate;
 use Traversable;
 
@@ -116,15 +117,17 @@ final class ArgumentsValues implements IteratorAggregate
 
         $argument = $this->arguments->at(0);
         $name = $argument->name();
-        $isTraversable = $argument-> type() instanceof CompositeTraversableType;
+        $type = $argument->type();
+        $isTraversableAndAllowsStringKeys = $type instanceof CompositeTraversableType
+            && $type->keyType() !== ArrayKeyType::integer();
 
         if (is_array($value) && array_key_exists($name, $value)) {
-            if ($this->forInterface || ! $isTraversable || count($value) === 1) {
+            if ($this->forInterface || ! $isTraversableAndAllowsStringKeys || count($value) === 1) {
                 return $value;
             }
         }
 
-        if ($value === [] && ! $isTraversable) {
+        if ($value === [] && ! $isTraversableAndAllowsStringKeys) {
             return $value;
         }
 
