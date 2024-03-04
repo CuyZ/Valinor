@@ -20,6 +20,7 @@ final class ParameterDefinitionCompiler
         $isVariadic = var_export($parameter->isVariadic, true);
         $defaultValue = $this->defaultValue($parameter);
         $type = $this->typeCompiler->compile($parameter->type);
+        $nativeType = $this->typeCompiler->compile($parameter->nativeType);
         $attributes = $this->attributesCompiler->compile($parameter->attributes);
 
         return <<<PHP
@@ -27,6 +28,7 @@ final class ParameterDefinitionCompiler
                 '{$parameter->name}',
                 '{$parameter->signature}',
                 $type,
+                $nativeType,
                 $isOptional,
                 $isVariadic,
                 $defaultValue,

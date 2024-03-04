@@ -17,6 +17,7 @@ final class PropertyDefinitionCompiler
     public function compile(PropertyDefinition $property): string
     {
         $type = $this->typeCompiler->compile($property->type);
+        $nativeType = $this->typeCompiler->compile($property->nativeType);
         $hasDefaultValue = var_export($property->hasDefaultValue, true);
         $defaultValue = var_export($property->defaultValue, true);
         $isPublic = var_export($property->isPublic, true);
@@ -27,6 +28,7 @@ final class PropertyDefinitionCompiler
                 '{$property->name}',
                 '{$property->signature}',
                 $type,
+                $nativeType,
                 $hasDefaultValue,
                 $defaultValue,
                 $isPublic,

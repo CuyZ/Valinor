@@ -28,6 +28,7 @@ final class ReflectionPropertyDefinitionBuilder
         $name = $reflection->name;
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);
+        $nativeType = $typeResolver->resolveNativeType($reflection);
         $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
         $defaultValue = $reflection->getDefaultValue();
         $isPublic = $reflection->isPublic();
@@ -43,6 +44,7 @@ final class ReflectionPropertyDefinitionBuilder
             $name,
             $signature,
             $type,
+            $nativeType,
             $hasDefaultValue,
             $defaultValue,
             $isPublic,

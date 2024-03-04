@@ -15,6 +15,7 @@ final class ParameterDefinition
         /** @var non-empty-string */
         public readonly string $signature,
         public readonly Type $type,
+        public readonly Type $nativeType,
         public readonly bool $isOptional,
         public readonly bool $isVariadic,
         public readonly mixed $defaultValue,

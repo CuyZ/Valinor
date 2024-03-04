@@ -40,6 +40,7 @@ final class FunctionDefinitionCompilerTest extends TestCase
                     'bar',
                     'foo::bar',
                     NativeStringType::get(),
+                    NativeStringType::get(),
                     false,
                     false,
                     'foo',

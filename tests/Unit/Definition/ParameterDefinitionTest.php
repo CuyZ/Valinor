@@ -25,6 +25,7 @@ final class ParameterDefinitionTest extends TestCase
             $name,
             $signature,
             $type,
+            $type,
             $isOptional,
             $isVariadic,
             $defaultValue,
