@@ -15,6 +15,7 @@ final class PropertyDefinition
         /** @var non-empty-string */
         public readonly string $signature,
         public readonly Type $type,
+        public readonly Type $nativeType,
         public readonly bool $hasDefaultValue,
         public readonly mixed $defaultValue,
         public readonly bool $isPublic,

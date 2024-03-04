@@ -16,6 +16,7 @@ final class PropertyDefinitionTest extends TestCase
         $name = 'someProperty';
         $signature = 'somePropertySignature';
         $type = new FakeType();
+        $nativeType = new FakeType();
         $hasDefaultValue = true;
         $defaultValue = 'Some property default value';
         $isPublic = true;
@@ -25,6 +26,7 @@ final class PropertyDefinitionTest extends TestCase
             $name,
             $signature,
             $type,
+            $nativeType,
             $hasDefaultValue,
             $defaultValue,
             $isPublic,
@@ -34,6 +36,7 @@ final class PropertyDefinitionTest extends TestCase
         self::assertSame($name, $property->name);
         self::assertSame($signature, $property->signature);
         self::assertSame($type, $property->type);
+        self::assertSame($nativeType, $property->nativeType);
         self::assertSame($hasDefaultValue, $property->hasDefaultValue);
         self::assertSame($defaultValue, $property->defaultValue);
         self::assertSame($isPublic, $property->isPublic);

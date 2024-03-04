@@ -26,6 +26,7 @@ final class ReflectionParameterDefinitionBuilder
         $name = $reflection->name;
         $signature = Reflection::signature($reflection);
         $type = $typeResolver->resolveType($reflection);
+        $nativeType = $typeResolver->resolveNativeType($reflection);
         $isOptional = $reflection->isOptional();
         $isVariadic = $reflection->isVariadic();
 
@@ -48,6 +49,7 @@ final class ReflectionParameterDefinitionBuilder
             $name,
             $signature,
             $type,
+            $nativeType,
             $isOptional,
             $isVariadic,
             $defaultValue,

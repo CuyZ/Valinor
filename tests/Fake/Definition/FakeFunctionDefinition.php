@@ -31,6 +31,7 @@ final class FakeFunctionDefinition
                     'bar',
                     'foo::bar',
                     NativeStringType::get(),
+                    NativeStringType::get(),
                     false,
                     false,
                     'foo',
