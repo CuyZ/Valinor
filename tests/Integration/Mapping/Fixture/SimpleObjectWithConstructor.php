@@ -6,7 +6,5 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Fixture;
 
 final class SimpleObjectWithConstructor
 {
-    public function __construct(public readonly string $value)
-    {
-    }
+    public function __construct(public readonly string $value) {}
 }
