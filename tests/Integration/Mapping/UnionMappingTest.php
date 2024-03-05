@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\City;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObjectWithConstructor;
 
 final class UnionMappingTest extends IntegrationTestCase
 {
@@ -67,5 +68,76 @@ final class UnionMappingTest extends IntegrationTestCase
         self::assertInstanceOf(SimpleObject::class, $array[0]);
         self::assertInstanceOf(City::class, $array[1]);
         self::assertInstanceOf(SimpleObject::class, $array[2]);
+    }
+
+    /**
+     * @dataProvider expectedDeSerializationForUnionHashmapTypes
+     * @param array{key: SimpleObjectWithConstructor|list<SimpleObjectWithConstructor>} $expectedMap
+     */
+    public function test_union_of_object_and_list_types_in_hashmap_key(mixed $input, array $expectedMap): void
+    {
+        try {
+            self::assertEquals(
+                $expectedMap,
+                $this->mapperBuilder()
+                    ->mapper()
+                    ->map(
+                        "array{key:" . SimpleObjectWithConstructor::class . "|list<" . SimpleObjectWithConstructor::class . ">}",
+                        $input
+                    )
+            );
+        } catch (MappingError $error) {
+            var_dump($input);
+            var_dump($expectedMap);
+            $this->mappingFail($error);
+        }
+    }
+
+    /**
+     * @return non-empty-array<
+     *     non-empty-string,
+     *     array{mixed, array{key: SimpleObjectWithConstructor|list<SimpleObjectWithConstructor>}}
+     * >
+     */
+    public static function expectedDeSerializationForUnionHashmapTypes(): array
+    {
+        return [
+            'single hashmap scalar value gets de-serialized into a hashmap containing a single value'       => [
+                ['key' => 'single-value'],
+                ['key' => new SimpleObjectWithConstructor('single-value')],
+            ],
+            'single hashmap value gets de-serialized into a hashmap containing a single value'       => [
+                ['key' => ['value' => 'single-value']],
+                ['key' => new SimpleObjectWithConstructor('single-value')],
+            ],
+            'multiple hashmap scalar values get de-serialized into a hashmap containing a a list of values' => [
+                [
+                    'key' => [
+                        'multi-value-1',
+                        'multi-value-2',
+                    ],
+                ],
+                [
+                    'key' => [
+                        new SimpleObjectWithConstructor('multi-value-1'),
+                        new SimpleObjectWithConstructor('multi-value-2'),
+                    ],
+                ],
+            ],
+            'multiple hashmap values get de-serialized into a hashmap containing a a list of values' => [
+                [
+                    'key' => [
+                        ['value' => 'multi-value-1'],
+                        ['value' => 'multi-value-2'],
+                    ],
+                ],
+                [
+                    'key' => [
+                        new SimpleObjectWithConstructor('multi-value-1'),
+                        new SimpleObjectWithConstructor('multi-value-2'),
+                    ],
+                ],
+            ],
+        ];
     }
 }
