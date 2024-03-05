@@ -633,6 +633,33 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
             ->map(stdClass::class, []);
     }
 
+    public function test_non_intersecting_hashmap_type_constructors_do_not_lead_to_collisions(): void
+    {
+        $mapper = $this->mapperBuilder()
+            ->registerConstructor(
+                /** @param array{key: SimpleObject} $input */
+                static fn (array $input): stdClass => (object)['single-item' => $input],
+                /** @param array{key: list<SimpleObject>} $input */
+                static fn (array $input): stdClass => (object)['multiple-items' => $input],
+            )
+            ->mapper();
+
+        $hello = new SimpleObject();
+        $world = new SimpleObject();
+
+        $hello->value = 'hello';
+        $world->value = 'world';
+
+        try {
+            self::assertEquals(
+                (object) ['multiple-items' => ['key' => [$hello, $world]]],
+                $mapper->map(stdClass::class, ['key' => ['hello', 'world']])
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
     public function test_source_not_matching_registered_constructors_throws_exception(): void
     {
         try {
