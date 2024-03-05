@@ -87,8 +87,6 @@ final class UnionMappingTest extends IntegrationTestCase
                     )
             );
         } catch (MappingError $error) {
-            var_dump($input);
-            var_dump($expectedMap);
             $this->mappingFail($error);
         }
     }
