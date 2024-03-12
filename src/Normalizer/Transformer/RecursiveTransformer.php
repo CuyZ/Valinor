@@ -9,6 +9,7 @@ use Closure;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Normalizer\AsTransformer;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -64,15 +65,15 @@ final class RecursiveTransformer
             $references[$value] = true;
         }
 
-        if ($this->transformers === [] && $this->transformerAttributes === []) {
-            return $this->defaultTransformer($value, $references);
-        }
-
-        if ($this->transformerAttributes !== [] && is_object($value)) {
+        if (is_object($value)) {
             $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes;
             $classAttributes = $this->filterAttributes($classAttributes);
 
             $attributes = [...$attributes, ...$classAttributes];
+        }
+
+        if ($this->transformers === [] && $attributes === []) {
+            return $this->defaultTransformer($value, $references);
         }
 
         return $this->valueTransformers->transform(
@@ -155,6 +156,10 @@ final class RecursiveTransformer
     private function filterAttributes(Attributes $attributes): Attributes
     {
         return $attributes->filter(function (AttributeDefinition $attribute) {
+            if ($attribute->class->attributes->has(AsTransformer::class)) {
+                return true;
+            }
+
             foreach ($this->transformerAttributes as $transformerAttribute) {
                 if (is_a($attribute->class->type->className(), $transformerAttribute, true)) {
                     return true;

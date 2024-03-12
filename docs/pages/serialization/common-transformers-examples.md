@@ -60,6 +60,7 @@ property, as shown in the example below:
 ```php
 namespace My\App;
 
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class DateTimeFormat
 {
@@ -81,7 +82,6 @@ final readonly class Event
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
-    ->registerTransformer(\My\App\DateTimeFormat::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\Event(
@@ -170,6 +170,7 @@ objects, as shown in the example below:
 ```php
 namespace My\App;
 
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class SnakeCaseProperties
 {
@@ -193,7 +194,7 @@ final class SnakeCaseProperties
     }
 }
 
-#[SnakeCaseProperties]
+#[\My\App\SnakeCaseProperties]
 final readonly class Country
 {
     public function __construct(
@@ -203,7 +204,6 @@ final readonly class Country
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
-    ->registerTransformer(\My\App\SnakeCaseProperties::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\User(
@@ -243,6 +243,7 @@ value with a custom object that is afterward removed by a global transformer.
 ```php
 namespace My\App;
 
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class Ignore
 {
@@ -267,7 +268,6 @@ final readonly class User
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
-    ->registerTransformer(\My\App\Ignore::class)
     ->registerTransformer(
         fn (object $value, callable $next) => array_filter(
             $next(),
@@ -297,6 +297,7 @@ renamed during normalization
 ```php
 namespace My\App;
 
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class Rename
 {
@@ -319,7 +320,6 @@ final readonly class Address
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
-    ->registerTransformer(\My\App\Rename::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new Address(

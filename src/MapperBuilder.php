@@ -477,8 +477,9 @@ final class MapperBuilder
      * transformer will be called. Default priority is 0.
      *
      * An attribute on a property or a class can act as a transformer if:
-     *  1. It is callable (they define an `__invoke` method)
-     *  2. It is registered using `registerTransformer()`
+     *  1. It defines a `normalize` or `normalizeKey` method.
+     *  2. It is registered using either the `registerTransformer()` method or
+     *     the following attribute: @see \CuyZ\Valinor\Normalizer\AsTransformer
      *
      * Example:
      *
@@ -505,9 +506,9 @@ final class MapperBuilder
      *         priority: -100 // Negative priority: transformer is called early
      *     )
      *
-     *     // Transformer attributes must be registered before they are used by
-     *     // the normalizer.
-     *     ->registerTransformer(SomeAttribute::class)
+     *     // External transformer attributes must be registered before they are
+     *     // used by the normalizer.
+     *     ->registerTransformer(\Some\External\TransformerAttribute::class)
      *
      *     ->normalizer()
      *     ->normalize('Hello world'); // HELLO WORLD?!
