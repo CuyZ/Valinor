@@ -7,16 +7,14 @@ namespace CuyZ\Valinor\Normalizer\Formatter;
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
 use Generator;
 
-use function addcslashes;
 use function array_is_list;
 use function fwrite;
 use function is_array;
 use function is_bool;
-use function is_float;
-use function is_int;
 use function is_iterable;
 use function is_null;
-use function is_string;
+use function is_scalar;
+use function json_encode;
 
 /** @internal */
 final class JsonFormatter implements StreamFormatter
@@ -34,10 +32,8 @@ final class JsonFormatter implements StreamFormatter
             $this->write('null');
         } elseif (is_bool($value)) {
             $this->write($value ? 'true' : 'false');
-        } elseif (is_int($value) || is_float($value)) {
-            $this->write((string)$value);
-        } elseif (is_string($value)) {
-            $this->write('"' . addcslashes($value, '"') . '"');
+        } elseif (is_scalar($value)) {
+            $this->write(json_encode($value, JSON_THROW_ON_ERROR));
         } elseif (is_iterable($value)) {
             // Note: when a generator is formatted, it is considered as a list
             // if its first key is 0. This is done early because the first JSON
