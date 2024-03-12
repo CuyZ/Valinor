@@ -4,30 +4,26 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveTypeFromUnion;
+use CuyZ\Valinor\Mapper\Tree\Exception\TooManyResolvedTypesFromUnion;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\ScalarType;
-use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\FloatType;
+use CuyZ\Valinor\Type\IntegerType;
+use CuyZ\Valinor\Type\ScalarType;
+use CuyZ\Valinor\Type\StringType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
 use function count;
+use function krsort;
+use function reset;
 
 /** @internal */
 final class UnionNodeBuilder implements NodeBuilder
 {
-    public function __construct(
-        private NodeBuilder $delegate,
-        private ClassDefinitionRepository $classDefinitionRepository,
-        private ObjectBuilderFactory $objectBuilderFactory,
-        private ObjectNodeBuilder $objectNodeBuilder,
-        private bool $enableFlexibleCasting
-    ) {}
+    public function __construct(private NodeBuilder $delegate) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
@@ -37,72 +33,78 @@ final class UnionNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
-        $classNode = $this->tryToBuildClassNode($type, $shell, $rootBuilder);
+        $structs = [];
+        $scalars = [];
+        $all = [];
 
-        if ($classNode instanceof TreeNode) {
-            return $classNode;
-        }
+        foreach ($type->types() as $subType) {
+            $node = $rootBuilder->build($shell->withType($subType));
 
-        $narrowedType = $this->narrow($type, $shell->value());
-
-        return $rootBuilder->build($shell->withType($narrowedType));
-    }
-
-    private function narrow(UnionType $type, mixed $source): Type
-    {
-        $subTypes = $type->types();
-
-        if ($source !== null && count($subTypes) === 2) {
-            if ($subTypes[0] instanceof NullType) {
-                return $subTypes[1];
-            } elseif ($subTypes[1] instanceof NullType) {
-                return $subTypes[0];
-            }
-        }
-
-        foreach ($subTypes as $subType) {
-            if (! $subType instanceof ScalarType) {
+            if (! $node->isValid()) {
                 continue;
             }
 
-            if (! $this->enableFlexibleCasting) {
-                continue;
+            $all[] = $node;
+
+            if ($subType instanceof InterfaceType || $subType instanceof ClassType || $subType instanceof ShapedArrayType) {
+                $structs[] = $node;
+            } elseif ($subType instanceof ScalarType) {
+                $scalars[] = $node;
+            }
+        }
+
+        if ($all === []) {
+            throw new CannotResolveTypeFromUnion($shell->value(), $type);
+        }
+
+        if (count($all) === 1) {
+            return $all[0];
+        }
+
+        if ($structs !== []) {
+            // Structs can be either an interface, a class or a shaped array.
+            // We prioritize the one with the most children, as it's the most
+            // specific type. If there are multiple types with the same number
+            // of children, we consider it as a collision.
+            $childrenCount = [];
+
+            foreach ($structs as $node) {
+                $childrenCount[count($node->children())][] = $node;
             }
 
-            if ($subType->canCast($source)) {
-                return $subType;
+            krsort($childrenCount);
+
+            $first = reset($childrenCount);
+
+            if (count($first) === 1) {
+                return $first[0];
             }
+        } elseif ($scalars !== []) {
+            // Sorting the scalar types by priority: int, float, string, bool.
+            $sorted = [];
+
+            foreach ($scalars as $node) {
+                if ($node->type() instanceof IntegerType) {
+                    $sorted[IntegerType::class] = $node;
+                } elseif ($node->type() instanceof FloatType) {
+                    $sorted[FloatType::class] = $node;
+                } elseif ($node->type() instanceof StringType) {
+                    $sorted[StringType::class] = $node;
+                }
+            }
+
+            if (isset($sorted[IntegerType::class])) {
+                return $sorted[IntegerType::class];
+            } elseif (isset($sorted[FloatType::class])) {
+                return $sorted[FloatType::class];
+            } elseif (isset($sorted[StringType::class])) {
+                return $sorted[StringType::class];
+            }
+
+            // @infection-ignore-all / We know this is a boolean, so we don't need to mutate the index
+            return $scalars[0];
         }
 
-        throw new CannotResolveTypeFromUnion($source, $type);
-    }
-
-    private function tryToBuildClassNode(UnionType $type, Shell $shell, RootNodeBuilder $rootBuilder): ?TreeNode
-    {
-        $classTypes = array_filter(
-            $type->types(),
-            fn (Type $type) => $type instanceof ClassType,
-        );
-
-        if (count($classTypes) === 0) {
-            return null;
-        }
-
-        $objectBuilder = $this->objectBuilder($shell->value(), ...$classTypes);
-
-        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
-    }
-
-    private function objectBuilder(mixed $value, ClassType ...$types): ObjectBuilder
-    {
-        $builders = [];
-
-        foreach ($types as $type) {
-            $class = $this->classDefinitionRepository->for($type);
-
-            $builders = [...$builders, ...$this->objectBuilderFactory->for($class)];
-        }
-
-        return new FilteredObjectBuilder($value, ...$builders);
+        throw new TooManyResolvedTypesFromUnion($type);
     }
 }

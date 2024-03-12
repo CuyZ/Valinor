@@ -78,7 +78,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         }
 
         $class = $this->classDefinitionRepository->for($classType);
-        $objectBuilder = new FilteredObjectBuilder($shell->value(), ...$this->objectBuilderFactory->for($class));
+        $objectBuilder = FilteredObjectBuilder::from($shell->value(), ...$this->objectBuilderFactory->for($class));
 
         $shell = $this->transformSourceForClass($shell, $arguments, $objectBuilder->describeArguments());
 

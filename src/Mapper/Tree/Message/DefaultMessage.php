@@ -35,6 +35,9 @@ interface DefaultMessage
         'Value {source_value} does not match string value {expected_value}.' => [
             'en' => 'Value {source_value} does not match string value {expected_value}.',
         ],
+        'Value {source_value} is not null.' => [
+            'en' => 'Value {source_value} is not null.',
+        ],
         'Value {source_value} is not a valid boolean.' => [
             'en' => 'Value {source_value} is not a valid boolean.',
         ],
@@ -73,6 +76,12 @@ interface DefaultMessage
         ],
         'Invalid value {source_value}.' => [
             'en' => 'Invalid value {source_value}.',
+        ],
+        'Invalid value {source_value}, it matches at least two types from union.' => [
+            'en' => 'Invalid value {source_value}, it matches at least two types from union.',
+        ],
+        'Invalid value {source_value}, it matches at least two types from {allowed_types}.' => [
+            'en' => 'Invalid value {source_value}, it matches at least two types from {allowed_types}.',
         ],
         'Invalid sequential key {key}, expected {expected}.' => [
             'en' => 'Invalid sequential key {key}, expected {expected}.',
