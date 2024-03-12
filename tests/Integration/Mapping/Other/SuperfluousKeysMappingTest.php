@@ -67,6 +67,44 @@ final class SuperfluousKeysMappingTest extends IntegrationTestCase
         }
         self::assertSame('foo', $result->foo);
     }
+
+    public function test_single_list_property_node_can_be_mapped_with_superfluous_key(): void
+    {
+        try {
+            $result = $this->mapper->map(ObjectWithSingleListProperty::class, [
+                'unrelated_key' => 'this-should-be-ignored-and-have-no-effect',
+                'values' => [7, 8, 9],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([7, 8, 9], $result->values);
+    }
+
+    public function test_single_list_property_node_can_be_mapped_with_matching_key_and_without_superfluous_key(): void
+    {
+        try {
+            $result = $this->mapper->map(ObjectWithSingleListProperty::class, [
+                'values' => [7, 8, 9],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([7, 8, 9], $result->values);
+    }
+
+    public function test_single_list_property_node_can_be_mapped_(): void
+    {
+        try {
+            $result = $this->mapper->map(ObjectWithSingleListProperty::class, [7, 8, 9]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([7, 8, 9], $result->values);
+    }
 }
 
 final class UnionOfBarAndFizAndFoo
@@ -85,4 +123,10 @@ final class SomeBarAndFizObject
     public string $bar;
 
     public string $fiz;
+}
+
+final class ObjectWithSingleListProperty
+{
+    /** @var list<int> */
+    public array $values;
 }
