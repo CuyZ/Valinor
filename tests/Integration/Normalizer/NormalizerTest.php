@@ -132,6 +132,12 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => 'true',
         ];
 
+        yield 'class string' => [
+            'input' => 'Some\Namespace\To\Class',
+            'expected array' => 'Some\Namespace\To\Class',
+            'expected json' => '"Some\\\\Namespace\\\\To\\\\Class"',
+        ];
+
         yield 'array of scalar' => [
             'input' => [
                 'string' => 'foo',
@@ -295,7 +301,7 @@ final class NormalizerTest extends IntegrationTestCase
         yield 'time zone with default transformer' => [
             'input' => new DateTimeZone('Europe/Paris'),
             'expected array' => 'Europe/Paris',
-            'expected json' => '"Europe/Paris"',
+            'expected json' => '"Europe\/Paris"',
         ];
 
         yield 'time zone with transformer' => [
@@ -304,7 +310,7 @@ final class NormalizerTest extends IntegrationTestCase
                 'name' => 'Europe/Paris',
                 'country_code' => 'FR',
             ],
-            'expected json' => '{"name":"Europe/Paris","country_code":"FR"}',
+            'expected json' => '{"name":"Europe\/Paris","country_code":"FR"}',
             'transformers' => [
                 [fn (DateTimeZone $object) => [
                     'name' => $object->getName(),
