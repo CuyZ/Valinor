@@ -82,29 +82,8 @@ Callable transformers allow targeting any value during normalization, whereas
 attribute transformers allow targeting a specific class or property for a more
 granular control.
 
-To be detected by the normalizer, an attribute must be registered first by
-giving its class name to the `registerTransformer` method.
-
-!!! tip
-    It is possible to register attributes that share a common interface by
-    giving the interface name to the method.
-
-    ```php
-    namespace My\App;
-
-    interface SomeAttributeInterface {}
-
-    #[\Attribute]
-    final class SomeAttribute implements \My\App\SomeAttributeInterface {}
-
-    #[\Attribute]
-    final class SomeOtherAttribute implements \My\App\SomeAttributeInterface {}
-
-    (new \CuyZ\Valinor\MapperBuilder())
-        // Registers both `SomeAttribute` and `SomeOtherAttribute` attributes
-        ->registerTransformer(\My\App\SomeAttributeInterface::class)
-        …
-    ```
+To be detected by the normalizer, an attribute class must be registered first by
+adding the `AsTransformer` attribute to it.
 
 Attributes must declare a method named `normalize` that follows the same rules
 as callable transformers: a mandatory first parameter and an optional second
@@ -113,6 +92,7 @@ as callable transformers: a mandatory first parameter and an optional second
 ```php
 namespace My\App;
 
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class Uppercase
 {
@@ -126,15 +106,14 @@ final readonly class City
 {
     public function __construct(
         public string $zipCode,
-        #[Uppercase]
+        #[\My\App\Uppercase]
         public string $name,
-        #[Uppercase]
+        #[\My\App\Uppercase]
         public string $country,
     ) {}
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
-    ->registerTransformer(Uppercase::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\City(
@@ -157,6 +136,7 @@ method named `normalizeKey`.
 ```php
 namespace My\App;
 
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class PrefixedWith
 {
@@ -181,7 +161,6 @@ final readonly class Address
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
-    ->registerTransformer(PrefixedWith::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\Address(
@@ -196,4 +175,37 @@ final readonly class Address
 //     'address_zipCode' => 'NW1 6XE',
 //     'address_city' => 'London',
 // ]
+```
+
+---
+
+When there is no control over the transformer attribute class, it is possible to
+register it using the `registerTransformer` method.
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerTransformer(\Some\External\TransformerAttribute::class)
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize(…);
+```
+
+It is also possible to register attributes that share a common interface by
+giving the interface name to the registration method.
+
+```php
+namespace My\App;
+
+interface SomeAttributeInterface {}
+
+#[\Attribute]
+final class SomeAttribute implements \My\App\SomeAttributeInterface {}
+
+#[\Attribute]
+final class SomeOtherAttribute implements \My\App\SomeAttributeInterface {}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    // Registers both `SomeAttribute` and `SomeOtherAttribute` attributes
+    ->registerTransformer(\My\App\SomeAttributeInterface::class)
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize(…);
 ```
