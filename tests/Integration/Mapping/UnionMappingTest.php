@@ -11,6 +11,24 @@ use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
 final class UnionMappingTest extends IntegrationTestCase
 {
+    public function test_union_with_empty_string_or_array_containing_superfluous_key(): void
+    {
+        try {
+            $array = $this->mapperBuilder()
+                ->allowSuperfluousKeys()
+                ->mapper()
+                ->map("list<''|array{foo: int}>", [
+                    '',
+                    ['foo' => 1, 'bar' => 'superfluous'],
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('', $array[0]);
+        self::assertSame(['foo' => 1], $array[1]);
+    }
+
     public function test_union_with_int_or_object(): void
     {
         try {
