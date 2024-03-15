@@ -254,7 +254,7 @@ final class UnionMappingTest extends IntegrationTestCase
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value 'foo', it matches at least two types from union.", (string)$error);
+            self::assertSame("Invalid value 'foo', it matches two or more types from union.", (string)$error);
         }
     }
 
@@ -274,7 +274,7 @@ final class UnionMappingTest extends IntegrationTestCase
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value array{string: 'foo'}, it matches at least two types from union.", (string)$error);
+            self::assertSame("Invalid value array{string: 'foo'}, it matches two or more types from union.", (string)$error);
         }
     }
 
@@ -293,7 +293,7 @@ final class UnionMappingTest extends IntegrationTestCase
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value array{0: 'foo', 1: 'bar'}, it matches at least two types from `array<string>`, `array<'foo'|'bar'>`.", (string)$error);
+            self::assertSame("Invalid value array{0: 'foo', 1: 'bar'}, it matches two or more types from `array<string>`, `array<'foo'|'bar'>`.", (string)$error);
         }
     }
 
@@ -312,7 +312,7 @@ final class UnionMappingTest extends IntegrationTestCase
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value array{string: 'foo'}, it matches at least two types from union.", (string)$error);
+            self::assertSame("Invalid value array{string: 'foo'}, it matches two or more types from union.", (string)$error);
         }
     }
 }

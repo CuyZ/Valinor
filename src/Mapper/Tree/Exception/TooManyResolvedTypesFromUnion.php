@@ -32,8 +32,8 @@ final class TooManyResolvedTypesFromUnion extends RuntimeException implements Er
         ];
 
         $this->body = TypeHelper::containsObject($unionType)
-            ? 'Invalid value {source_value}, it matches at least two types from union.'
-            : 'Invalid value {source_value}, it matches at least two types from {allowed_types}.';
+            ? 'Invalid value {source_value}, it matches two or more types from union.'
+            : 'Invalid value {source_value}, it matches two or more types from {allowed_types}.';
 
         parent::__construct(StringFormatter::for($this), 1710262975);
     }
