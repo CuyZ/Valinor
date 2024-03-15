@@ -130,7 +130,8 @@ final class Container
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
                     $this->get(ObjectNodeBuilder::class),
-                    $settings->enableFlexibleCasting
+                    $settings->enableFlexibleCasting,
+                    $settings->allowSuperfluousKeys,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
