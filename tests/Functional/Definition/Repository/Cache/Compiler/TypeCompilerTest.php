@@ -133,26 +133,4 @@ final class TypeCompilerTest extends TestCase
         yield [new CallableType()];
         yield [new UnresolvableType('some-type', 'some message')];
     }
-
-    public function test_class_parent_is_compiled_properly(): void
-    {
-        $type = new NativeClassType(
-            stdClass::class,
-            parent: new NativeClassType(
-                stdClass::class,
-                ['Template' => NativeStringType::get()],
-            )
-        );
-
-        $code = $this->typeCompiler->compile($type);
-
-        try {
-            $compiledType = eval("return $code;");
-        } catch (Error $exception) {
-            self::fail($exception->getMessage());
-        }
-
-        self::assertInstanceOf(NativeClassType::class, $compiledType);
-        self::assertInstanceOf(NativeStringType::class, $compiledType->parent()->generics()['Template']);
-    }
 }

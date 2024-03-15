@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Type\Parser\Exception\Generic;
+namespace CuyZ\Valinor\Definition\Exception;
 
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use ReflectionClass;
 use RuntimeException;
 
 /** @internal */
-final class InvalidExtendTagClassName extends RuntimeException implements InvalidType
+final class InvalidExtendTagType extends RuntimeException
 {
     /**
      * @param ReflectionClass<object> $reflection
@@ -21,8 +20,8 @@ final class InvalidExtendTagClassName extends RuntimeException implements Invali
         $parentClass = $reflection->getParentClass();
 
         parent::__construct(
-            "The `@extends` tag of the class `$reflection->name` has invalid class `{$invalidExtendTag->toString()}`, it should be `$parentClass->name`.",
-            1670183564
+            "The `@extends` tag of the class `$reflection->name` has invalid type `{$invalidExtendTag->toString()}`, it should be `{$parentClass->name}`.",
+            1670181134,
         );
     }
 }

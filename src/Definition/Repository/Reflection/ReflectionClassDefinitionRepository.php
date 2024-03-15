@@ -8,8 +8,12 @@ use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
+use CuyZ\Valinor\Definition\Exception\ExtendTagTypeError;
+use CuyZ\Valinor\Definition\Exception\InvalidExtendTagClassName;
+use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
+use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
 use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Methods;
@@ -22,17 +26,19 @@ use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericCheckerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Utility\Reflection\DocParser;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
-use CuyZ\Valinor\Utility\Reflection\DocParser;
 
 use function array_filter;
 use function array_keys;
@@ -138,7 +144,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         }
 
         while ($type->className() !== $target->name) {
-            $type = $type->parent();
+            $type = $this->parentType($type);
         }
 
         $generics = $type instanceof GenericType ? $type->generics() : [];
@@ -164,6 +170,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
             new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases),
+            new GenericCheckerSpecification(),
         );
 
         $nativeParser = $this->typeParserFactory->get(
@@ -240,6 +247,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $specs = [
             new ClassContextSpecification($type->className()),
             new AliasSpecification(Reflection::class($type->className())),
+            new GenericCheckerSpecification(),
         ];
 
         if ($type instanceof GenericType) {
@@ -247,5 +255,39 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         }
 
         return $this->typeParserFactory->get(...$specs);
+    }
+
+    private function parentType(ClassType $type): NativeClassType
+    {
+        $reflection = Reflection::class($type->className());
+
+        /** @var ReflectionClass<object> $parentReflection */
+        $parentReflection = $reflection->getParentClass();
+
+        $extendedClass = DocParser::classExtendsTypes($reflection);
+
+        if (count($extendedClass) > 1) {
+            throw new SeveralExtendTagsFound($reflection);
+        } elseif (count($extendedClass) === 0) {
+            $extendedClass = $parentReflection->name;
+        } else {
+            $extendedClass = $extendedClass[0];
+        }
+
+        try {
+            $parentType = $this->typeParser($type)->parse($extendedClass);
+        } catch (InvalidType $exception) {
+            throw new ExtendTagTypeError($reflection, $exception);
+        }
+
+        if (! $parentType instanceof NativeClassType) {
+            throw new InvalidExtendTagType($reflection, $parentType);
+        }
+
+        if ($parentType->className() !== $parentReflection->name) {
+            throw new InvalidExtendTagClassName($reflection, $parentType);
+        }
+
+        return $parentType;
     }
 }

@@ -8,17 +8,14 @@ use CuyZ\Valinor\Tests\Fixture\Object\AbstractObject;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\AssignedGenericNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\ExtendTagTypeError;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidAssignedGeneric;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagClassName;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\InvalidExtendTagType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\SeveralExtendTagsFound;
 use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
 use CuyZ\Valinor\Type\Parser\Exception\Template\InvalidClassTemplate;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericCheckerSpecification;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\ClassType;
@@ -36,7 +33,9 @@ final class GenericLexerTest extends TestCase
     {
         parent::setUp();
 
-        $this->parser = (new LexingTypeParserFactory())->get();
+        $this->parser = (new LexingTypeParserFactory())->get(
+            new GenericCheckerSpecification(),
+        );
     }
 
     /**
@@ -80,6 +79,12 @@ final class GenericLexerTest extends TestCase
         yield 'Class name with generic with three templates' => [
             'raw' => SomeClassWithThreeTemplates::class . '<int, string, float>',
             'transformed' => SomeClassWithThreeTemplates::class . '<int, string, float>',
+            'type' => ClassType::class,
+        ];
+
+        yield 'Class name with generic with first template without type and second template with type' => [
+            'raw' => SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType::class . '<int, stdClass>',
+            'transformed' => SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType::class . '<int, stdClass>',
             'type' => ClassType::class,
         ];
 
@@ -174,6 +179,40 @@ final class GenericLexerTest extends TestCase
         $this->parser->parse("$className<bool>");
     }
 
+    public function test_composite_type_containing_generic_with_non_matching_type_for_template_throws_exception(): void
+    {
+        $object =
+            /**
+             * @template Template of string
+             */
+            new class () {};
+
+        $className = $object::class;
+
+        $this->expectException(InvalidAssignedGeneric::class);
+        $this->expectExceptionCode(1604613633);
+        $this->expectExceptionMessage("The generic `bool` is not a subtype of `string` for the template `Template` of the class `$className`.");
+
+        $this->parser->parse("list<$className<bool>>");
+    }
+
+    public function test_generic_with_non_matching_array_key_type_for_template_throws_exception(): void
+    {
+        $object =
+            /**
+             * @template Template of array-key
+             */
+            new class () {};
+
+        $className = $object::class;
+
+        $this->expectException(InvalidAssignedGeneric::class);
+        $this->expectExceptionCode(1604613633);
+        $this->expectExceptionMessage("The generic `bool` is not a subtype of `int|string` for the template `Template` of the class `$className`.");
+
+        $this->parser->parse("$className<bool>");
+    }
+
     public function test_duplicated_template_name_throws_exception(): void
     {
         $object =
@@ -206,53 +245,7 @@ final class GenericLexerTest extends TestCase
         $this->expectExceptionCode(1630092678);
         $this->expectExceptionMessage("Invalid template `Template` for class `$className`: Cannot parse unknown symbol `InvalidType`.");
 
-        $this->parser->parse("$className<int, string>");
-    }
-
-    public function test_several_extends_tags_throws_exception(): void
-    {
-        $className = SomeChildClassWithSeveralExtendTags::class;
-
-        $this->expectException(SeveralExtendTagsFound::class);
-        $this->expectExceptionCode(1670195494);
-        $this->expectExceptionMessage("Only one `@extends` tag should be set for the class `$className`.");
-
-        $this->parser->parse($className);
-    }
-
-    public function test_wrong_extends_tag_throws_exception(): void
-    {
-        $childClassName = SomeChildClassWithInvalidExtendTag::class;
-        $parentClassName = SomeParentAbstractClass::class;
-
-        $this->expectException(InvalidExtendTagType::class);
-        $this->expectExceptionCode(1670181134);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid type `string`, it should be `$parentClassName`.");
-
-        $this->parser->parse($childClassName);
-    }
-
-    public function test_wrong_extends_tag_class_name_throws_exception(): void
-    {
-        $childClassName = SomeChildClassWithInvalidExtendTagClassName::class;
-        $parentClassName = SomeParentAbstractClass::class;
-
-        $this->expectException(InvalidExtendTagClassName::class);
-        $this->expectExceptionCode(1670183564);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid class `stdClass`, it should be `$parentClassName`.");
-
-        $this->parser->parse($childClassName);
-    }
-
-    public function test_extend_tag_type_error_throws_exception(): void
-    {
-        $className = SomeChildClassWithMissingGenericsInExtendTag::class;
-
-        $this->expectException(ExtendTagTypeError::class);
-        $this->expectExceptionCode(1670193574);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$className` is not valid: Cannot parse unknown symbol `InvalidType`.");
-
-        $this->parser->parse($className);
+        $this->parser->parse("$className<int>");
     }
 }
 
@@ -274,36 +267,7 @@ final class SomeClassWithThreeTemplates {}
 final class SomeClassWithTemplateOfArrayKey {}
 
 /**
- * @template T
+ * @template TemplateA
+ * @template TemplateB of object
  */
-abstract class SomeParentAbstractClass {}
-
-/**
- * @template T
- */
-abstract class SomeOtherParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends SomeParentAbstractClass<string>
- * @extends SomeOtherParentAbstractClass<string>
- */
-final class SomeChildClassWithSeveralExtendTags extends SomeParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends string
- */
-final class SomeChildClassWithInvalidExtendTag extends SomeParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends stdClass
- */
-final class SomeChildClassWithInvalidExtendTagClassName extends SomeParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends SomeParentAbstractClass<InvalidType>
- */
-final class SomeChildClassWithMissingGenericsInExtendTag extends SomeParentAbstractClass {}
+final class SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType {}

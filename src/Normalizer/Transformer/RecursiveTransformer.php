@@ -67,7 +67,7 @@ final class RecursiveTransformer
         }
 
         if (is_object($value)) {
-            $classAttributes = $this->classDefinitionRepository->for(NativeClassType::for($value::class))->attributes;
+            $classAttributes = $this->classDefinitionRepository->for(new NativeClassType($value::class))->attributes;
             $classAttributes = $this->filterAttributes($classAttributes);
 
             $attributes = [...$attributes, ...$classAttributes];
@@ -123,7 +123,7 @@ final class RecursiveTransformer
 
             $transformed = [];
 
-            $class = $this->classDefinitionRepository->for(NativeClassType::for($value::class));
+            $class = $this->classDefinitionRepository->for(new NativeClassType($value::class));
 
             foreach ($values as $key => $subValue) {
                 $attributes = $this->filterAttributes($class->properties->get($key)->attributes)->toArray();

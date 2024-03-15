@@ -19,7 +19,7 @@ final class MissingGenerics extends RuntimeException implements InvalidType
     /**
      * @param class-string $className
      * @param Type[] $generics
-     * @param Type[] $templates
+     * @param array<non-empty-string> $templates
      */
     public function __construct(string $className, array $generics, array $templates)
     {

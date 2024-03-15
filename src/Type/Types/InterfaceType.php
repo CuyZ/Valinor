@@ -18,7 +18,7 @@ final class InterfaceType implements ObjectType, GenericType
     public function __construct(
         /** @var class-string */
         private string $interfaceName,
-        /** @var array<string, Type> */
+        /** @var array<non-empty-string, Type> */
         private array $generics = []
     ) {}
 

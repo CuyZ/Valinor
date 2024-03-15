@@ -11,8 +11,6 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
-use function assert;
-use function get_parent_class;
 use function is_a;
 
 /** @internal */
@@ -21,22 +19,10 @@ final class NativeClassType implements ClassType, GenericType
     public function __construct(
         /** @var class-string */
         private string $className,
-        /** @var array<string, Type> */
+        /** @var array<non-empty-string, Type> */
         private array $generics = [],
-        private ?self $parent = null,
     ) {
         $this->className = ltrim($this->className, '\\');
-    }
-
-    /**
-     * @param class-string $className
-     */
-    public static function for(string $className): self
-    {
-        $parentClass = get_parent_class($className);
-        $parent = $parentClass ? self::for($parentClass) : null;
-
-        return new self($className, [], $parent);
     }
 
     public function className(): string
@@ -47,18 +33,6 @@ final class NativeClassType implements ClassType, GenericType
     public function generics(): array
     {
         return $this->generics;
-    }
-
-    public function hasParent(): bool
-    {
-        return $this->parent instanceof self;
-    }
-
-    public function parent(): self
-    {
-        assert($this->parent instanceof self);
-
-        return $this->parent;
     }
 
     public function accepts(mixed $value): bool

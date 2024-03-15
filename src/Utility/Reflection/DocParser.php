@@ -8,7 +8,9 @@ use ReflectionFunctionAbstract;
 use ReflectionParameter;
 use ReflectionProperty;
 
+use function array_key_exists;
 use function array_merge;
+use function assert;
 use function end;
 use function explode;
 use function preg_match;
@@ -132,7 +134,7 @@ final class DocParser
 
     /**
      * @param ReflectionClass<object> $reflection
-     * @return array<string, string>
+     * @return array<non-empty-string, non-empty-string|null>
      */
     public static function classTemplates(ReflectionClass $reflection): array
     {
@@ -147,12 +149,18 @@ final class DocParser
         preg_match_all("/@(phpstan-|psalm-)?template\s+(?<name>\w+)(\s+of\s+(?<type>.+))?/", $doc, $matches);
 
         foreach ($matches['name'] as $key => $name) {
-            /** @var string $name */
-            if (isset($templates[$name])) {
+            /** @var non-empty-string $name */
+            if (array_key_exists($name, $templates)) {
                 throw new DuplicatedTemplateName($reflection->name, $name);
             }
 
-            $templates[$name] = self::findType($matches['type'][$key]);
+            $template = $matches['type'][$key];
+
+            if ($template === '') {
+                $templates[$name] = null;
+            } else {
+                $templates[$name] = self::findType($template);
+            }
         }
 
         return $templates;
@@ -171,6 +179,9 @@ final class DocParser
         return null;
     }
 
+    /**
+     * @return non-empty-string
+     */
     private static function findType(string $string): string
     {
         $operatorsMatrix = [
@@ -207,7 +218,11 @@ final class DocParser
             $type .= $char;
         }
 
-        return trim($type);
+        $type = trim($type);
+
+        assert($type !== '');
+
+        return $type;
     }
 
     private static function sanitizeDocComment(string|false $doc): ?string
