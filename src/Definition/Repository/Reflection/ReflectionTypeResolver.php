@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
+use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
@@ -41,6 +42,14 @@ final class ReflectionTypeResolver
         }
 
         if (! $typeFromDocBlock) {
+            // When the type is a class, it may declare templates that must be
+            // filled with generics. PHP does not handle generics natively, so
+            // we need to make sure that no generics are left unassigned by
+            // parsing the type again using the advanced parser.
+            if ($nativeType instanceof GenericType) {
+                $nativeType = $this->parseType($nativeType->toString(), $reflection, $this->advancedParser);
+            }
+
             return $nativeType;
         }
 

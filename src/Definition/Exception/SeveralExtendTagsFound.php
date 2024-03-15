@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Type\Parser\Exception\Generic;
+namespace CuyZ\Valinor\Definition\Exception;
 
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use ReflectionClass;
 use RuntimeException;
 
 /** @internal */
-final class SeveralExtendTagsFound extends RuntimeException implements InvalidType
+final class SeveralExtendTagsFound extends RuntimeException
 {
     /**
      * @param ReflectionClass<object> $reflection
@@ -18,7 +17,7 @@ final class SeveralExtendTagsFound extends RuntimeException implements InvalidTy
     {
         parent::__construct(
             "Only one `@extends` tag should be set for the class `$reflection->name`.",
-            1670195494
+            1670195494,
         );
     }
 }

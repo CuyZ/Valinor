@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
+use CuyZ\Valinor\Definition\Exception\ExtendTagTypeError;
+use CuyZ\Valinor\Definition\Exception\InvalidExtendTagClassName;
+use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
+use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
 use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
@@ -14,9 +18,9 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
 use CuyZ\Valinor\Type\StringType;
-use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -155,7 +159,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
     public function test_private_parent_constructor_is_listed_in_methods(): void
     {
-        $type = new NativeClassType(ClassWithInheritedPrivateConstructor::class, parent: new NativeClassType(AbstractClassWithPrivateConstructor::class));
+        $type = new NativeClassType(ClassWithInheritedPrivateConstructor::class);
         $methods = $this->repository->for($type)->methods;
 
         self::assertTrue($methods->hasConstructor());
@@ -374,6 +378,52 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         $this->repository->for(new NativeClassType($class));
     }
+
+    public function test_several_extends_tags_throws_exception(): void
+    {
+        $className = SomeChildClassWithSeveralExtendTags::class;
+
+        $this->expectException(SeveralExtendTagsFound::class);
+        $this->expectExceptionCode(1670195494);
+        $this->expectExceptionMessage("Only one `@extends` tag should be set for the class `$className`.");
+
+        $this->repository->for(new NativeClassType($className));
+    }
+
+    public function test_wrong_extends_tag_throws_exception(): void
+    {
+        $childClassName = SomeChildClassWithInvalidExtendTag::class;
+        $parentClassName = SomeParentAbstractClass::class;
+
+        $this->expectException(InvalidExtendTagType::class);
+        $this->expectExceptionCode(1670181134);
+        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid type `string`, it should be `$parentClassName`.");
+
+        $this->repository->for(new NativeClassType($childClassName));
+    }
+
+    public function test_wrong_extends_tag_class_name_throws_exception(): void
+    {
+        $childClassName = SomeChildClassWithInvalidExtendTagClassName::class;
+        $parentClassName = SomeParentAbstractClass::class;
+
+        $this->expectException(InvalidExtendTagClassName::class);
+        $this->expectExceptionCode(1670183564);
+        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid class `stdClass`, it should be `$parentClassName`.");
+
+        $this->repository->for(new NativeClassType($childClassName));
+    }
+
+    public function test_extend_tag_type_error_throws_exception(): void
+    {
+        $className = SomeChildClassWithMissingGenericsInExtendTag::class;
+
+        $this->expectException(ExtendTagTypeError::class);
+        $this->expectExceptionCode(1670193574);
+        $this->expectExceptionMessage("The `@extends` tag of the class `$className` is not valid: Cannot parse unknown symbol `InvalidType`.");
+
+        $this->repository->for(new NativeClassType($className));
+    }
 }
 
 abstract class AbstractClassWithPrivateConstructor
@@ -382,3 +432,47 @@ abstract class AbstractClassWithPrivateConstructor
 }
 
 final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor {}
+
+/**
+ * @template T of scalar
+ */
+abstract class SomeParentAbstractClass
+{
+    /**
+     * @return T
+     */
+    public function someParentMethod()
+    {
+        return 'foo';
+    }
+}
+
+/**
+ * @template T
+ */
+abstract class SomeOtherParentAbstractClass {}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends SomeParentAbstractClass<string>
+ * @extends SomeOtherParentAbstractClass<string>
+ */
+final class SomeChildClassWithSeveralExtendTags extends SomeParentAbstractClass {}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends string
+ */
+final class SomeChildClassWithInvalidExtendTag extends SomeParentAbstractClass {}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends stdClass
+ */
+final class SomeChildClassWithInvalidExtendTagClassName extends SomeParentAbstractClass {}
+
+/**
+ * @phpstan-ignore-next-line
+ * @extends SomeParentAbstractClass<InvalidType>
+ */
+final class SomeChildClassWithMissingGenericsInExtendTag extends SomeParentAbstractClass {}

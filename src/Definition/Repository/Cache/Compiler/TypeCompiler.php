@@ -138,15 +138,7 @@ final class TypeCompiler
 
                 $generics = implode(', ', $generics);
 
-                if ($type instanceof InterfaceType) {
-                    return "new $class('{$type->className()}', [$generics])";
-                }
-
-                $parent = $type->hasParent()
-                    ? $this->compile($type->parent())
-                    : 'null';
-
-                return "new $class('{$type->className()}', [$generics], $parent)";
+                return "new $class('{$type->className()}', [$generics])";
             case $type instanceof ClassStringType:
                 if (null === $type->subType()) {
                     return "new $class()";

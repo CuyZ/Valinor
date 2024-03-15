@@ -17,7 +17,7 @@ final class ReflectionAttributesRepository implements AttributesRepository
 
     public function for(ReflectionAttribute $reflection): AttributeDefinition
     {
-        $class = $this->classDefinitionRepository->for(NativeClassType::for($reflection->getName()));
+        $class = $this->classDefinitionRepository->for(new NativeClassType($reflection->getName()));
 
         return new AttributeDefinition(
             $class,

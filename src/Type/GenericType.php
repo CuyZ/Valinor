@@ -6,7 +6,12 @@ namespace CuyZ\Valinor\Type;
 interface GenericType extends CompositeType
 {
     /**
-     * @return array<string, Type>
+     * @return class-string
+     */
+    public function className(): string;
+
+    /**
+     * @return array<non-empty-string, Type>
      */
     public function generics(): array;
 }

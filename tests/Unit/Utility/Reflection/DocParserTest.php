@@ -337,7 +337,7 @@ final class DocParserTest extends TestCase
         $templates = DocParser::classTemplates(new ReflectionClass($class::class));
 
         self::assertSame([
-            'TemplateA' => '',
+            'TemplateA' => null,
             'TemplateB' => 'string',
         ], $templates);
     }

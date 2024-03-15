@@ -12,6 +12,7 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericCheckerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionAttribute;
@@ -71,7 +72,10 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         $class = $reflection->getClosureScopeClass();
 
         $nativeSpecifications = [];
-        $advancedSpecification = [new AliasSpecification($reflection)];
+        $advancedSpecification = [
+            new AliasSpecification($reflection),
+            new GenericCheckerSpecification(),
+        ];
 
         if ($class !== null) {
             $nativeSpecifications[] = new ClassContextSpecification($class->name);
