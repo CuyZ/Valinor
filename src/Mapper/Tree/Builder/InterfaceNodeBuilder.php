@@ -26,7 +26,8 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
         private ObjectNodeBuilder $objectNodeBuilder,
-        private bool $enableFlexibleCasting
+        private bool $enableFlexibleCasting,
+        private bool $allowSuperfluousKeys,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -116,7 +117,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
      */
     private function children(Shell $shell, Arguments $arguments, RootNodeBuilder $rootBuilder): array
     {
-        $arguments = ArgumentsValues::forInterface($arguments, $shell->value());
+        $arguments = ArgumentsValues::forInterface($arguments, $shell->value(), $this->allowSuperfluousKeys);
 
         $children = [];
 

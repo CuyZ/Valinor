@@ -18,7 +18,7 @@ final class ObjectNodeBuilder
 
     public function build(ObjectBuilder $builder, Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
-        $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell->value());
+        $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell->value(), $this->allowSuperfluousKeys);
 
         $children = $this->children($shell, $arguments, $rootBuilder);
 

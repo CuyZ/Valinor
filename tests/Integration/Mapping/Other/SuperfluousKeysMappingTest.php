@@ -105,6 +105,26 @@ final class SuperfluousKeysMappingTest extends IntegrationTestCase
 
         self::assertSame([7, 8, 9], $result->values);
     }
+
+    public function test_object_with_one_array_property_can_be_mapped_when_superfluous_key_is_present(): void
+    {
+        $class = new class () {
+            /** @var array<string> */
+            public array $values;
+        };
+
+        try {
+            $result = $this->mapper->map($class::class, [
+                'values' => ['foo', 'bar'],
+                'superfluous_key' => 'useless value',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->values[0]);
+        self::assertSame('bar', $result->values[1]);
+    }
 }
 
 final class UnionOfBarAndFizAndFoo
