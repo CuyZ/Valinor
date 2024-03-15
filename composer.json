@@ -64,7 +64,6 @@
             "rector"
         ],
         "mutation": [
-            "@putenv XDEBUG_MODE=off",
             "infection --threads=max --git-diff-lines"
         ],
         "doc": [
