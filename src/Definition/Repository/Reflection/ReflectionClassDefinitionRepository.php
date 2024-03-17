@@ -38,7 +38,6 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
-use ReflectionProperty;
 
 use function array_filter;
 use function array_keys;
@@ -89,7 +88,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     {
         return array_map(
             fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection)
+            Reflection::attributes($reflection),
         );
     }
 
@@ -98,14 +97,30 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
      */
     private function properties(ClassType $type): array
     {
-        return array_map(
-            function (ReflectionProperty $property) use ($type) {
-                $typeResolver = $this->typeResolver($type, $property->getDeclaringClass());
+        $reflection = Reflection::class($type->className());
 
-                return $this->propertyBuilder->for($property, $typeResolver);
-            },
-            Reflection::class($type->className())->getProperties(),
-        );
+        $properties = [];
+
+        foreach ($reflection->getProperties() as $property) {
+            $typeResolver = $this->typeResolver($type, $property->getDeclaringClass());
+
+            $properties[$property->name] = $this->propertyBuilder->for($property, $typeResolver);
+        }
+
+        // Properties will be sorted by inheritance order, from parent to child.
+        $sortedProperties = [];
+
+        while ($reflection) {
+            foreach ($reflection->getProperties() as $property) {
+                if (isset($properties[$property->name])) {
+                    $sortedProperties[] = $properties[$property->name];
+                }
+            }
+
+            $reflection = $reflection->getParentClass();
+        }
+
+        return $sortedProperties;
     }
 
     /**

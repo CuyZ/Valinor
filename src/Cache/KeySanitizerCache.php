@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Cache;
 
 use Closure;
-use CuyZ\Valinor\Utility\Package;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
-
-use function sha1;
 
 /**
  * @internal
@@ -19,24 +16,14 @@ use function sha1;
  */
 final class KeySanitizerCache implements WarmupCache
 {
-    private static string $version;
-
-    /** @var Closure(string): string */
-    private Closure $sanitize;
+    private string $version;
 
     public function __construct(
         /** @var CacheInterface<EntryType> */
-        private CacheInterface $delegate
-    ) {
-        // Two things:
-        // 1. We append the current version of the package to the cache key in
-        //    order to avoid collisions between entries from different versions
-        //    of the library.
-        // 2. The key is sha1'd so that it does not contain illegal characters.
-        //    @see https://www.php-fig.org/psr/psr-16/#12-definitions
-        // @infection-ignore-all
-        $this->sanitize = static fn (string $key) => $key . sha1(self::$version ??= PHP_VERSION . '/' . Package::version());
-    }
+        private CacheInterface $delegate,
+        /** @var Closure(): string */
+        private Closure $sanitizeCallback,
+    ) {}
 
     public function warmup(): void
     {
@@ -47,17 +34,17 @@ final class KeySanitizerCache implements WarmupCache
 
     public function get($key, $default = null): mixed
     {
-        return $this->delegate->get(($this->sanitize)($key), $default);
+        return $this->delegate->get($this->sanitize($key), $default);
     }
 
     public function set($key, $value, $ttl = null): bool
     {
-        return $this->delegate->set(($this->sanitize)($key), $value, $ttl);
+        return $this->delegate->set($this->sanitize($key), $value, $ttl);
     }
 
     public function delete($key): bool
     {
-        return $this->delegate->delete(($this->sanitize)($key));
+        return $this->delegate->delete($this->sanitize($key));
     }
 
     public function clear(): bool
@@ -67,7 +54,7 @@ final class KeySanitizerCache implements WarmupCache
 
     public function has($key): bool
     {
-        return $this->delegate->has(($this->sanitize)($key));
+        return $this->delegate->has($this->sanitize($key));
     }
 
     /**
@@ -76,7 +63,7 @@ final class KeySanitizerCache implements WarmupCache
     public function getMultiple($keys, $default = null): Traversable
     {
         foreach ($keys as $key) {
-            yield $key => $this->delegate->get(($this->sanitize)($key), $default);
+            yield $key => $this->delegate->get($this->sanitize($key), $default);
         }
     }
 
@@ -85,7 +72,7 @@ final class KeySanitizerCache implements WarmupCache
         $versionedValues = [];
 
         foreach ($values as $key => $value) {
-            $versionedValues[($this->sanitize)($key)] = $value;
+            $versionedValues[$this->sanitize($key)] = $value;
         }
 
         return $this->delegate->setMultiple($versionedValues, $ttl);
@@ -96,9 +83,14 @@ final class KeySanitizerCache implements WarmupCache
         $transformedKeys = [];
 
         foreach ($keys as $key) {
-            $transformedKeys[] = ($this->sanitize)($key);
+            $transformedKeys[] = $this->sanitize($key);
         }
 
         return $this->delegate->deleteMultiple($transformedKeys);
+    }
+
+    private function sanitize(string $key): string
+    {
+        return $key . $this->version ??= ($this->sanitizeCallback)();
     }
 }

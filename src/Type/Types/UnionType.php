@@ -65,12 +65,12 @@ final class UnionType implements CombiningType
         }
 
         foreach ($this->types as $type) {
-            if (! $type->matches($other)) {
-                return false;
+            if ($type->matches($other)) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public function isMatchedBy(Type $other): bool
