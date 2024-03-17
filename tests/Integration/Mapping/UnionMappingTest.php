@@ -71,37 +71,37 @@ final class UnionMappingTest extends IntegrationTestCase
         ];
 
         yield 'list of string or list of integer, with list of string' => [
-            'type' => "list<string>|list<int>",
+            'type' => 'list<string>|list<int>',
             'source' => ['foo', 'bar'],
             'assertion' => fn (mixed $result) => self::assertSame(['foo', 'bar'], $result),
         ];
 
         yield 'list of string or list of integer, with list of integer' => [
-            'type' => "list<string>|list<int>",
+            'type' => 'list<string>|list<int>',
             'source' => [42, 1337],
             'assertion' => fn (mixed $result) => self::assertSame([42, 1337], $result),
         ];
 
         yield 'shaped array with integer or array of integer, with integer' => [
-            'type' => "array{key: int|array<int>}",
+            'type' => 'array{key: int|array<int>}',
             'source' => ['key' => 42],
             'assertion' => fn (mixed $result) => self::assertSame(['key' => 42], $result),
         ];
 
         yield 'shaped array with integer or array of integer, with array of integer' => [
-            'type' => "array{key: int|array<int>}",
+            'type' => 'array{key: int|array<int>}',
             'source' => ['key' => [42, 1337]],
             'assertion' => fn (mixed $result) => self::assertSame(['key' => [42, 1337]], $result),
         ];
 
         yield 'shaped array representing http response with status 200' => [
-            'type' => "array{status: 200, data: array{text: string}} | array{status: 400, error: string}",
+            'type' => 'array{status: 200, data: array{text: string}} | array{status: 400, error: string}',
             'source' => ['status' => 200, 'data' => ['text' => 'foo']],
             'assertion' => fn (mixed $result) => self::assertSame(['status' => 200, 'data' => ['text' => 'foo']], $result),
         ];
 
         yield 'shaped array representing http response with status 400' => [
-            'type' => "array{status: 200, data: array{text: string}} | array{status: 400, error: string}",
+            'type' => 'array{status: 200, data: array{text: string}} | array{status: 400, error: string}',
             'source' => ['status' => 400, 'error' => 'foo'],
             'assertion' => fn (mixed $result) => self::assertSame(['status' => 400, 'error' => 'foo'], $result),
         ];
@@ -251,6 +251,22 @@ final class UnionMappingTest extends IntegrationTestCase
             'source' => 1,
             'assertion' => fn (mixed $result) => self::assertSame(true, $result),
         ];
+    }
+
+    public function test_shaped_array_representing_http_response_with_status_200_with_superfluous_key(): void
+    {
+        $result = $this->mapperBuilder()
+            ->allowSuperfluousKeys()
+            ->mapper()
+            ->map('array{status: 200, data: array{text: string}} | array{status: 400, error: string}', [
+                'status' => 200,
+                'data' => [
+                    'text' => 'foo',
+                    'superfluous' => 'key',
+                ],
+            ]);
+
+        self::assertSame(['status' => 200, 'data' => ['text' => 'foo']], $result);
     }
 
     public function test_scalar_value_matching_two_objects_in_union_throws_exception(): void
