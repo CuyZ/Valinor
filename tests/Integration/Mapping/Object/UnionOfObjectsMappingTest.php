@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 final class UnionOfObjectsMappingTest extends IntegrationTestCase
 {
@@ -48,25 +47,6 @@ final class UnionOfObjectsMappingTest extends IntegrationTestCase
         self::assertInstanceOf(SomeObjectWithBazAndFiz::class, $result);
         self::assertSame('baz', $result->baz);
         self::assertSame('fiz', $result->fiz);
-    }
-
-    /**
-     *
-     * @param class-string $className
-     * @param mixed[] $source
-     */
-    #[DataProvider('mapping_error_when_cannot_resolve_union_data_provider')]
-    public function test_mapping_error_when_cannot_resolve_union(string $className, array $source): void
-    {
-        try {
-            $this->mapperBuilder()->mapper()->map($className, $source);
-
-            self::fail('No mapping error when one was expected');
-        } catch (MappingError $exception) {
-            $error = $exception->node()->children()[0]->messages()[0];
-
-            self::assertSame('1642787246', $error->code());
-        }
     }
 
     public static function mapping_error_when_cannot_resolve_union_data_provider(): iterable

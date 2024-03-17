@@ -153,10 +153,10 @@ final class SomeClass
         private array $unionInsideArray,
         
         /** @var int|true */
-        private int|bool $unionWithLiteralTrueType;
+        private int|bool $unionWithLiteralTrueType,
         
         /** @var int|false */
-        private int|bool $unionWithLiteralFalseType;
+        private int|bool $unionWithLiteralFalseType,
         
         /** @var 404.42|1337.42 */
         private float $unionOfFloatValues,

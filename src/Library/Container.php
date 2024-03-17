@@ -35,6 +35,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
@@ -63,6 +64,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use Psr\SimpleCache\CacheInterface;
 
@@ -108,6 +110,7 @@ final class Container
                     IterableType::class => $arrayNodeBuilder,
                     ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
                     ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
+                    NullType::class => new NullNodeBuilder(),
                     ClassType::class => new NativeClassNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
@@ -116,13 +119,7 @@ final class Container
                     ),
                 ]);
 
-                $builder = new UnionNodeBuilder(
-                    $builder,
-                    $this->get(ClassDefinitionRepository::class),
-                    $this->get(ObjectBuilderFactory::class),
-                    $this->get(ObjectNodeBuilder::class),
-                    $settings->enableFlexibleCasting
-                );
+                $builder = new UnionNodeBuilder($builder);
 
                 $builder = new InterfaceNodeBuilder(
                     $builder,

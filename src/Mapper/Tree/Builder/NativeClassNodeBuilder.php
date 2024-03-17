@@ -34,7 +34,7 @@ final class NativeClassNodeBuilder implements NodeBuilder
         }
 
         $class = $this->classDefinitionRepository->for($type);
-        $objectBuilder = new FilteredObjectBuilder($shell->value(), ...$this->objectBuilderFactory->for($class));
+        $objectBuilder = FilteredObjectBuilder::from($shell->value(), ...$this->objectBuilderFactory->for($class));
 
         return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
     }
