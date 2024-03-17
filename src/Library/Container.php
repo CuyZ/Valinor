@@ -51,9 +51,12 @@ use CuyZ\Valinor\Normalizer\ArrayNormalizer;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
-use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\CacheTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerCompiler;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
-use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
+use CuyZ\Valinor\Normalizer\Transformer\Transformer;
+use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
@@ -66,11 +69,13 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Utility\Package;
 use Psr\SimpleCache\CacheInterface;
 
 use function array_keys;
 use function call_user_func;
 use function count;
+use function sha1;
 
 /** @internal */
 final class Container
@@ -185,22 +190,47 @@ final class Container
                 return new CacheObjectBuilderFactory($factory, $cache);
             },
 
-            RecursiveTransformer::class => fn () => new RecursiveTransformer(
-                $this->get(ClassDefinitionRepository::class),
-                new ValueTransformersHandler(
+            Transformer::class => function () use ($settings) {
+                $transformer = new RecursiveTransformer(
+                    $this->get(ClassDefinitionRepository::class),
                     $this->get(FunctionDefinitionRepository::class),
-                ),
-                new KeyTransformersHandler(),
+                    $this->get(TransformerContainer::class),
+                );
+
+                if (isset($settings->cache)) {
+                    $transformer = new CacheTransformer(
+                        $transformer,
+                        $this->get(TransformerCompiler::class),
+                        $this->get(CacheInterface::class),
+                        $settings->transformersSortedByPriority(),
+                    );
+                }
+
+                return $transformer;
+            },
+
+            TransformerCompiler::class => fn () => new TransformerCompiler(
+                $this->get(TransformerDefinitionBuilder::class),
+            ),
+
+            TransformerContainer::class => fn () => new TransformerContainer(
+                $this->get(FunctionDefinitionRepository::class),
                 $settings->transformersSortedByPriority(),
                 array_keys($settings->transformerAttributes),
             ),
 
             ArrayNormalizer::class => fn () => new ArrayNormalizer(
-                $this->get(RecursiveTransformer::class),
+                $this->get(Transformer::class),
             ),
 
             JsonNormalizer::class => fn () => new JsonNormalizer(
-                $this->get(RecursiveTransformer::class),
+                $this->get(Transformer::class),
+            ),
+
+            TransformerDefinitionBuilder::class => fn () => new TransformerDefinitionBuilder(
+                $this->get(ClassDefinitionRepository::class),
+                $this->get(FunctionDefinitionRepository::class),
+                $this->get(TransformerContainer::class),
             ),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
@@ -236,7 +266,19 @@ final class Container
                 $cache = new RuntimeCache();
 
                 if (isset($settings->cache)) {
-                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache));
+                    // This cache wrapper will append information to cache keys
+                    // to avoid collisions between entries from different
+                    // versions of PHP, the library or with different settings.
+                    //
+                    // The key is sha1'd so that it does not contain illegal
+                    // characters.
+                    // @see https://www.php-fig.org/psr/psr-16/#12-definitions
+                    $keySanitizerCache = new KeySanitizerCache(
+                        $settings->cache,
+                        fn () => sha1(PHP_VERSION . '/' . Package::version() . '/' . $settings->hash()),
+                    );
+
+                    $cache = new ChainCache($cache, $keySanitizerCache);
                 }
 
                 return $cache;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer;
 
-use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 
 use function array_map;
 use function is_array;
@@ -19,7 +19,7 @@ use function iterator_to_array;
 final class ArrayNormalizer implements Normalizer
 {
     public function __construct(
-        private RecursiveTransformer $transformer,
+        private Transformer $transformer,
     ) {}
 
     public function normalize(mixed $value): mixed

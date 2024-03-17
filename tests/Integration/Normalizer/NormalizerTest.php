@@ -21,6 +21,7 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use Generator;
 use IteratorAggregate;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -475,6 +476,7 @@ final class NormalizerTest extends IntegrationTestCase
             'transformers' => [],
             'transformerAttributes' => [
                 AddPrefixToPropertyAttribute::class,
+                DoubleIntegerAttribute::class,
                 AddSuffixToPropertyAttribute::class,
             ],
         ];
@@ -525,6 +527,22 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '"foo"',
             'transformers' => [],
             'transformerAttributes' => [TransformObjectToString::class],
+        ];
+
+        yield 'object with attribute on class with object in constructor' => [
+            'input' => new SomeClassWithAttributeWithObjectInConstructor(),
+            'expected array' => 'bar',
+            'expected json' => '"bar"',
+            'transformers' => [],
+            'transformerAttributes' => [AttributeWithObjectInConstructor::class],
+        ];
+
+        yield 'object with attribute on class with array in constructor' => [
+            'input' => new SomeClassWithAttributeWithArrayInConstructor(),
+            'expected array' => 'baz',
+            'expected json' => '"baz"',
+            'transformers' => [],
+            'transformerAttributes' => [AttributeWithArrayInConstructor::class],
         ];
 
         yield 'object with attributes and custom transformers' => [
@@ -678,6 +696,59 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [],
             'jsonEncodingOptions' => JSON_HEX_AMP,
         ];
+    }
+
+    public function test_class_with_property_of_type_generator_yields_expected_array(): void
+    {
+        $input = new class () {
+            public string $string;
+
+            public Generator $generator;
+
+            public function __construct()
+            {
+                $this->string = 'foo';
+                $this->generator = (function () {
+                    yield 'foo' => 'bar';
+                })();
+            }
+        };
+
+        $arrayResult = $this->mapperBuilder()
+            ->normalizer(Format::array())
+            ->normalize($input);
+
+        $expected = [
+            'string' => 'foo',
+            'generator' => ['foo' => 'bar'],
+        ];
+
+        self::assertSame($expected, $arrayResult);
+    }
+
+    public function test_class_with_property_of_type_generator_yields_expected_json(): void
+    {
+        $input = new class () {
+            public string $string;
+
+            public Generator $generator;
+
+            public function __construct()
+            {
+                $this->string = 'foo';
+                $this->generator = (function () {
+                    yield 'foo' => 'bar';
+                })();
+            }
+        };
+
+        $arrayResult = $this->mapperBuilder()
+            ->normalizer(Format::json())
+            ->normalize($input);
+
+        $expected = '{"string":"foo","generator":{"foo":"bar"}}';
+
+        self::assertSame($expected, $arrayResult);
     }
 
     public function test_generator_of_scalar_yields_expected_array(): void
@@ -1200,6 +1271,15 @@ final class AddSuffixToPropertyAttribute implements SomePropertyAttributeInterfa
     }
 }
 
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
+final class DoubleIntegerAttribute
+{
+    public function normalize(int $value): int
+    {
+        return $value * 2;
+    }
+}
+
 interface SomeKeyTransformerInterface
 {
     public function normalizeKey(): string;
@@ -1250,6 +1330,7 @@ final class SomeClassWithTwoAttributesOnProperty
 {
     public function __construct(
         #[AddPrefixToPropertyAttribute('prefix_')]
+        #[DoubleIntegerAttribute] // This attribute should be ignored
         #[AddSuffixToPropertyAttribute('_suffix')]
         public string $value = 'value',
     ) {}
@@ -1308,3 +1389,41 @@ final class SomeClassWithAttributeOnPropertyAndOnClass
 
 #[TransformObjectToString]
 final class SomeClassWithAttributeToTransformObjectToString {}
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final class AttributeWithObjectInConstructor
+{
+    /**
+     * This attribute is there mostly to test that the compiled normalizer can
+     * handle attributes with objects in their constructor.
+     */
+    public function __construct(private BasicObject $object) {}
+
+    public function normalize(object $object): string
+    {
+        return $this->object->value;
+    }
+}
+
+#[AttributeWithObjectInConstructor(new BasicObject('bar'))]
+final class SomeClassWithAttributeWithObjectInConstructor {}
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final class AttributeWithArrayInConstructor
+{
+    /**
+     * This attribute is there mostly to test that the compiled normalizer can
+     * handler attributes with an array in their constructor.
+     *
+     * @param array{value: string} $data
+     */
+    public function __construct(private array $data) {}
+
+    public function normalize(object $object): string
+    {
+        return $this->data['value'];
+    }
+}
+
+#[AttributeWithArrayInConstructor(['value' => 'baz'])]
+final class SomeClassWithAttributeWithArrayInConstructor {}
