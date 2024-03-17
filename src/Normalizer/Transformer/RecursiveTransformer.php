@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Transformer;
 
+use ArrayObject;
 use BackedEnum;
 use Closure;
 use CuyZ\Valinor\Definition\AttributeDefinition;
@@ -111,7 +112,7 @@ final class RecursiveTransformer
                 return $value->getName();
             }
 
-            if ($value::class === stdClass::class) {
+            if ($value::class === stdClass::class || $value instanceof ArrayObject) {
                 return array_map(
                     fn (mixed $value) => $this->doTransform($value, $references),
                     (array)$value

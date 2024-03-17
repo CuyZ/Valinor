@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
+use ArrayObject;
 use Attribute;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\KeyTransformerHasTooManyParameters;
@@ -171,6 +172,24 @@ final class NormalizerTest extends IntegrationTestCase
 
                 return $object;
             })(),
+            'expected array' => [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ],
+            'expected json' => '{"foo":"foo","bar":"bar"}',
+        ];
+
+        yield 'ArrayObject' => [
+            'input' => new ArrayObject(['foo' => 'foo', 'bar' => 'bar']),
+            'expected array' => [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ],
+            'expected json' => '{"foo":"foo","bar":"bar"}',
+        ];
+
+        yield 'class inheriting ArrayObject' => [
+            'input' => new class (['foo' => 'foo', 'bar' => 'bar']) extends ArrayObject {},
             'expected array' => [
                 'foo' => 'foo',
                 'bar' => 'bar',
