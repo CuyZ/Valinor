@@ -94,6 +94,18 @@ final class UnionMappingTest extends IntegrationTestCase
             'assertion' => fn (mixed $result) => self::assertSame(['key' => [42, 1337]], $result),
         ];
 
+        yield 'shaped array representing http response with status 200' => [
+            'type' => "array{status: 200, data: array{text: string}} | array{status: 400, error: string}",
+            'source' => ['status' => 200, 'data' => ['text' => 'foo']],
+            'assertion' => fn (mixed $result) => self::assertSame(['status' => 200, 'data' => ['text' => 'foo']], $result),
+        ];
+
+        yield 'shaped array representing http response with status 400' => [
+            'type' => "array{status: 200, data: array{text: string}} | array{status: 400, error: string}",
+            'source' => ['status' => 400, 'error' => 'foo'],
+            'assertion' => fn (mixed $result) => self::assertSame(['status' => 400, 'error' => 'foo'], $result),
+        ];
+
         yield 'array of string or object with one string value, with array of string' => [
             'type' => 'array<string>|' . SomeObjectWithOneStringValue::class,
             'source' => ['foo', 'bar'],
