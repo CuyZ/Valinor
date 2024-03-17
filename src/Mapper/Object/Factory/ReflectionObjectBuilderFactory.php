@@ -6,15 +6,14 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Mapper\Object\ReflectionObjectBuilder;
-
-use function enum_exists;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 /** @internal */
 final class ReflectionObjectBuilderFactory implements ObjectBuilderFactory
 {
     public function for(ClassDefinition $class): array
     {
-        if (enum_exists($class->name)) {
+        if (Reflection::enumExists($class->name)) {
             return [];
         }
 

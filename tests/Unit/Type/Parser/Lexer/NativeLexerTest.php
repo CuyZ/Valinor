@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\ObjectLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ArrayToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassStringToken;
@@ -41,7 +42,7 @@ final class NativeLexerTest extends TestCase
     {
         parent::setUp();
 
-        $this->lexer = new NativeLexer();
+        $this->lexer = new NativeLexer(new ObjectLexer());
     }
 
     /**

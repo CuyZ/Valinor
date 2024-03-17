@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ArrayToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CallableToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassStringToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingCurlyBracketToken;
@@ -14,7 +13,6 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CommaToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\DoubleColonToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\EnumNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\FloatValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerValueToken;
@@ -29,9 +27,6 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\QuoteToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
-use UnitEnum;
 
 use function filter_var;
 use function is_numeric;
@@ -40,6 +35,8 @@ use function strtolower;
 /** @internal */
 final class NativeLexer implements TypeLexer
 {
+    public function __construct(private TypeLexer $delegate) {}
+
     public function tokenize(string $symbol): Token
     {
         if (NativeToken::accepts($symbol)) {
@@ -83,16 +80,6 @@ final class NativeLexer implements TypeLexer
             return new FloatValueToken((float)$symbol);
         }
 
-        if (enum_exists($symbol)) {
-            /** @var class-string<UnitEnum> $symbol */
-            return new EnumNameToken($symbol);
-        }
-
-        if (Reflection::classOrInterfaceExists($symbol)) {
-            /** @var class-string $symbol */
-            return new ClassNameToken($symbol);
-        }
-
-        return new UnknownSymbolToken($symbol);
+        return $this->delegate->tokenize($symbol);
     }
 }

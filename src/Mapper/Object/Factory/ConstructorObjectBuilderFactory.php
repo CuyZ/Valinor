@@ -24,6 +24,7 @@ use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function array_key_exists;
 use function array_values;
@@ -176,7 +177,10 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             foreach ($this->constructors as $constructor) {
                 $function = $constructor->definition;
 
-                if (enum_exists($function->class ?? '') && in_array($function->name, ['from', 'tryFrom'], true)) {
+                if ($function->class
+                    && Reflection::enumExists($function->class)
+                    && in_array($function->name, ['from', 'tryFrom'], true)
+                ) {
                     continue;
                 }
 
