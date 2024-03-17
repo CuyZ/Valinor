@@ -23,8 +23,10 @@ use RuntimeException;
 use function array_filter;
 use function array_map;
 use function class_exists;
+use function enum_exists;
 use function implode;
 use function interface_exists;
+use function ltrim;
 use function spl_object_hash;
 use function str_contains;
 
@@ -37,16 +39,26 @@ final class Reflection
     /** @var array<string, ReflectionFunction> */
     private static array $functionReflection = [];
 
+    /** @var array<string, bool> */
+    private static array $classOrInterfaceExists = [];
+
+    /** @var array<string, bool> */
+    private static array $enumExists = [];
+
     /**
      * Case-sensitive implementation of `class_exists` and `interface_exists`.
      */
     public static function classOrInterfaceExists(string $name): bool
     {
-        if (! class_exists($name) && ! interface_exists($name)) {
-            return false;
-        }
+        // @infection-ignore-all / We don't need to test the cache
+        return self::$classOrInterfaceExists[$name] ??= (class_exists($name) || interface_exists($name))
+            && self::class($name)->name === ltrim($name, '\\');
+    }
 
-        return self::class($name)->name === ltrim($name, '\\');
+    public static function enumExists(string $name): bool
+    {
+        // @infection-ignore-all / We don't need to test the cache
+        return self::$enumExists[$name] ??= enum_exists($name);
     }
 
     /**

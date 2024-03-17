@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\CachedParser;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeParserSpecification;
 use CuyZ\Valinor\Type\Parser\Lexer\AdvancedClassLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\ObjectLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
@@ -22,20 +23,23 @@ final class LexingTypeParserFactory implements TypeParserFactory
             return $this->nativeParser ??= $this->nativeParser();
         }
 
-        $lexer = new NativeLexer();
+        $lexer = new ObjectLexer();
         $lexer = new AdvancedClassLexer($lexer, $this);
 
         foreach ($specifications as $specification) {
             $lexer = $specification->transform($lexer);
         }
 
+        $lexer = new NativeLexer($lexer);
+
         return new LexingParser($lexer);
     }
 
     private function nativeParser(): TypeParser
     {
-        $lexer = new NativeLexer();
+        $lexer = new ObjectLexer();
         $lexer = new AdvancedClassLexer($lexer, $this);
+        $lexer = new NativeLexer($lexer);
         $parser = new LexingParser($lexer);
 
         return new CachedParser($parser);
