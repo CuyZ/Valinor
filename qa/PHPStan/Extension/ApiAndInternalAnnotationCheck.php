@@ -10,6 +10,7 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
+use function str_contains;
 use function str_starts_with;
 
 /**
@@ -34,9 +35,7 @@ final class ApiAndInternalAnnotationCheck implements Rule
             return [];
         }
 
-        if (str_starts_with($reflection->getName(), 'CuyZ\Valinor\Tests')
-            || str_starts_with($reflection->getName(), 'SimpleNamespace')
-        ) {
+        if (str_contains($reflection->getFileName() ?? '', '/tests/')) {
             return [];
         }
 

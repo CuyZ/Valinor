@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\Token\FakeToken;
 use CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer as PathAlias;
 use CuyZ\Valinor\Type\Parser\Lexer\AliasLexer;
 use DateTimeInterface as SecondClassAlias;
+use ObjectWithNameMatchingRootNamespace\ObjectWithNameMatchingRootNamespace;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
@@ -70,6 +71,17 @@ final class AliasLexerTest extends TestCase
         self::assertSame($token, $lexer->tokenize($symbol));
     }
 
+    public function test_object_with_same_name_as_root_namespace_are_checked_in_class(): void
+    {
+        $lexer = new AliasLexer($this->delegate, new ReflectionClass(ClassWithAlias::class));
+        $symbol = ObjectWithNameMatchingRootNamespace::class;
+        $token = new FakeToken();
+
+        $this->delegate->will(ObjectWithNameMatchingRootNamespace::class, $token);
+
+        self::assertSame($token, $lexer->tokenize($symbol));
+    }
+
     public function test_resolve_unsupported_type_in_function_returns_same_type(): void
     {
         $function = fn () => 42;
@@ -118,6 +130,19 @@ final class AliasLexerTest extends TestCase
         $token = new FakeToken();
 
         $this->delegate->will(ClassWithAlias::class, $token);
+
+        self::assertSame($token, $lexer->tokenize($symbol));
+    }
+
+    public function test_object_with_same_name_as_root_namespace_are_checked_in_function(): void
+    {
+        $function = fn () => 42;
+
+        $lexer = new AliasLexer($this->delegate, new ReflectionFunction($function));
+        $symbol = ObjectWithNameMatchingRootNamespace::class;
+        $token = new FakeToken();
+
+        $this->delegate->will(ObjectWithNameMatchingRootNamespace::class, $token);
 
         self::assertSame($token, $lexer->tokenize($symbol));
     }
