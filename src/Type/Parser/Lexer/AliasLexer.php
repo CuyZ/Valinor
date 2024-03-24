@@ -69,6 +69,10 @@ final class AliasLexer implements TypeLexer
             return $symbol;
         }
 
+        if ($aliases[$alias] === $symbol) {
+            return $symbol;
+        }
+
         $full = $aliases[$alias];
 
         if (! empty($namespaceParts)) {
