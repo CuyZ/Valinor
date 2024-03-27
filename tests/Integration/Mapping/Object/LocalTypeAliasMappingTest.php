@@ -51,10 +51,12 @@ final class LocalTypeAliasMappingTest extends IntegrationTestCase
                     ->map($class, [
                         'firstImportedType' => 42,
                         'secondImportedType' => 1337,
+                        'thirdImportedType' => 404,
                     ]);
 
                 self::assertSame(42, $result->firstImportedType);
                 self::assertSame(1337, $result->secondImportedType);
+                self::assertSame(404, $result->thirdImportedType);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -113,11 +115,17 @@ class AnotherPhpStanLocalAlias
 }
 
 /**
+ * @phpstan-type AliasOfInteger = int
+ */
+interface InterfaceWithPhpStanLocalAlias {}
+
+/**
  * Comment:
  * Some comment before import
  *
  * @phpstan-import-type AliasWithEqualsSign from PhpStanLocalAliases
  * @phpstan-import-type AliasWithoutEqualsSign from AnotherPhpStanLocalAlias
+ * @phpstan-import-type AliasOfInteger from InterfaceWithPhpStanLocalAlias
  */
 class PhpStanAliasImport
 {
@@ -126,6 +134,9 @@ class PhpStanAliasImport
 
     /** @var AliasWithoutEqualsSign */
     public int $secondImportedType;
+
+    /** @var AliasOfInteger */
+    public int $thirdImportedType;
 }
 
 /**
@@ -179,11 +190,17 @@ class AnotherPsalmLocalAliases
 }
 
 /**
+ * @phpstan-type AliasOfInteger = int
+ */
+interface InterfaceWithPsalmLocalAlias {}
+
+/**
  * Comment:
  * Some comment before import
  *
  * @psalm-import-type AliasWithEqualsSign from PsalmLocalAliases
  * @psalm-import-type AliasWithoutEqualsSign from AnotherPsalmLocalAliases
+ * @psalm-import-type AliasOfInteger from InterfaceWithPsalmLocalAlias
  */
 class PsalmAliasImport
 {
@@ -192,4 +209,7 @@ class PsalmAliasImport
 
     /** @var AliasWithoutEqualsSign */
     public int $secondImportedType;
+
+    /** @var AliasOfInteger */
+    public int $thirdImportedType;
 }

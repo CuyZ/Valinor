@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
@@ -81,7 +81,7 @@ final class UnresolvableType implements Type
         return new self($typeFromDocBlock->toString(), $message);
     }
 
-    public static function forLocalAlias(string $raw, string $name, ClassType $type, InvalidType $exception): self
+    public static function forLocalAlias(string $raw, string $name, ObjectType $type, InvalidType $exception): self
     {
         return new self(
             $raw,
