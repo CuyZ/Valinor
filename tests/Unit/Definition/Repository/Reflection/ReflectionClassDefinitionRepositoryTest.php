@@ -290,6 +290,23 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $this->repository->for(new NativeClassType($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
     }
 
+    public function test_class_with_invalid_type_alias_throws_exception(): void
+    {
+        $class =
+            /**
+             * @phpstan-type T = array{foo: string
+             */
+            (new class () {
+                /** @var T */
+                public $value; // @phpstan-ignore-line
+            })::class;
+
+        $type = $this->repository->for(new NativeClassType($class))->properties->get('value')->type;
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertMatchesRegularExpression('/^The type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: Missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
+    }
+
     public function test_class_with_invalid_type_alias_import_class_throws_exception(): void
     {
         $class =
