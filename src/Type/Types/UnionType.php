@@ -15,30 +15,34 @@ use function implode;
 /** @internal */
 final class UnionType implements CombiningType
 {
-    /** @var Type[] */
-    private array $types = [];
+    /** @var non-empty-list<Type> */
+    private array $types;
 
     private string $signature;
 
-    public function __construct(Type ...$types)
+    public function __construct(Type $type, Type $otherType, Type ...$otherTypes)
     {
-        $this->signature = implode('|', array_map(fn (Type $type) => $type->toString(), $types));
+        $types = [$type, $otherType, ...$otherTypes];
+        $filteredTypes = [];
 
-        foreach ($types as $type) {
-            if ($type instanceof self) {
-                foreach ($type->types as $subType) {
-                    $this->types[] = $subType;
+        foreach ($types as $subType) {
+            if ($subType instanceof self) {
+                foreach ($subType->types as $anotherSubType) {
+                    $filteredTypes[] = $anotherSubType;
                 }
 
                 continue;
             }
 
-            if ($type instanceof MixedType) {
+            if ($subType instanceof MixedType) {
                 throw new ForbiddenMixedType();
             }
 
-            $this->types[] = $type;
+            $filteredTypes[] = $subType;
         }
+
+        $this->types = $filteredTypes;
+        $this->signature = implode('|', array_map(fn (Type $type) => $type->toString(), $this->types));
     }
 
     public function accepts(mixed $value): bool
@@ -65,12 +69,12 @@ final class UnionType implements CombiningType
         }
 
         foreach ($this->types as $type) {
-            if (! $type->matches($other)) {
-                return false;
+            if ($type->matches($other)) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public function isMatchedBy(Type $other): bool

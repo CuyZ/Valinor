@@ -25,6 +25,7 @@ use ReflectionClassConstant;
 use function array_keys;
 use function array_map;
 use function array_shift;
+use function array_values;
 use function count;
 use function explode;
 
@@ -101,7 +102,7 @@ final class ClassNameToken implements TraversingToken
         $cases = array_map(static fn ($value) => ValueTypeFactory::from($value), $cases);
 
         if (count($cases) > 1) {
-            return new UnionType(...$cases);
+            return new UnionType(...array_values($cases));
         }
 
         return reset($cases);

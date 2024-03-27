@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Type\CombiningType;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
+use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
+use LogicException;
 
 use function is_int;
 
 /** @internal */
-final class ArrayKeyType implements Type
+final class ArrayKeyType implements ScalarType
 {
     private static self $default;
 
@@ -21,28 +24,36 @@ final class ArrayKeyType implements Type
 
     private static self $string;
 
-    /** @var array<Type> */
+    /** @var non-empty-list<IntegerType|StringType> */
     private array $types;
 
     private string $signature;
 
     private function __construct(Type $type)
     {
-        $this->signature = $type->toString();
-        $this->types = $type instanceof CombiningType
+        $types = $type instanceof UnionType
             ? [...$type->types()]
             : [$type];
 
-        foreach ($this->types as $subType) {
+        foreach ($types as $subType) {
             if (! $subType instanceof IntegerType && ! $subType instanceof StringType) {
                 throw new InvalidArrayKey($subType);
             }
         }
+
+        /** @var non-empty-list<IntegerType|StringType> $types */
+        $this->types = $types;
+        $this->signature = $type->toString();
     }
 
     public static function default(): self
     {
-        return self::$default ??= new self(new UnionType(NativeIntegerType::get(), NativeStringType::get()));
+        if (!isset(self::$default)) {
+            self::$default = new self(new UnionType(NativeIntegerType::get(), NativeStringType::get()));
+            self::$default->signature = 'array-key';
+        }
+
+        return self::$default;
     }
 
     public static function integer(): self
@@ -86,6 +97,10 @@ final class ArrayKeyType implements Type
             return true;
         }
 
+        if ($other instanceof UnionType) {
+            return $this->isMatchedBy($other);
+        }
+
         if (! $other instanceof self) {
             return false;
         }
@@ -112,6 +127,33 @@ final class ArrayKeyType implements Type
         }
 
         return false;
+    }
+
+    public function canCast(mixed $value): bool
+    {
+        foreach ($this->types as $type) {
+            if ($type->canCast($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function cast(mixed $value): string|int
+    {
+        foreach ($this->types as $type) {
+            if ($type->canCast($value)) {
+                return $type->cast($value);
+            }
+        }
+
+        throw new LogicException();
+    }
+
+    public function errorMessage(): ErrorMessage
+    {
+        return MessageBuilder::newError('Value {source_value} is not a valid array key.')->build();
     }
 
     public function toString(): string

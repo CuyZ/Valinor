@@ -79,7 +79,7 @@ final class UndefinedObjectTypeTest extends TestCase
 
     public function test_matches_intersection_type(): void
     {
-        self::assertTrue($this->undefinedObjectType->matches(new IntersectionType()));
+        self::assertTrue($this->undefinedObjectType->matches(new IntersectionType(new FakeObjectType(), new FakeObjectType())));
     }
 
     public function test_matches_mixed_type(): void

@@ -326,6 +326,17 @@ final class FlexibleCastingMappingTest extends IntegrationTestCase
 
         self::assertSame('foo', $result);
     }
+
+    public function test_source_can_be_casted_to_array_key(): void
+    {
+        try {
+            $result = $this->mapper->map('array-key', new StringableObject('foo'));
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result);
+    }
 }
 
 interface SomeInterfaceForClassWithNoProperties {}
