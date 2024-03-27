@@ -1,7 +1,7 @@
 # Changelog 1.10.0 — 12th of March 2024
 
 !!! info inline end "[See release on GitHub]"
-[See release on GitHub]: https://github.com/CuyZ/Valinor/releases/tag/1.9.0
+    [See release on GitHub]: https://github.com/CuyZ/Valinor/releases/tag/1.10.0
 
 ## Notable changes
 
