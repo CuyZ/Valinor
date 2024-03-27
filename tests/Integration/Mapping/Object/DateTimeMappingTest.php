@@ -10,17 +10,32 @@ use DateTimeInterface;
 
 final class DateTimeMappingTest extends IntegrationTestCase
 {
-    public function test_default_datetime_constructor_cannot_be_used(): void
+    public function test_default_datetime_constructor_can_be_used_with_valid_rfc_3339(): void
     {
         try {
-            $this->mapperBuilder()
+            $result = $this->mapperBuilder()
                 ->mapper()
-                ->map(DateTimeInterface::class, ['datetime' => '2022/08/05', 'timezone' => 'Europe/Paris']);
-        } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
+                ->map(DateTimeInterface::class, ['datetime' => '2024-03-27T21:12:27+00:00', 'timezone' => 'Europe/Paris']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
         }
+
+        self::assertSame('2024-03-27T22:12:27+01:00', $result->format(DATE_ATOM));
+        self::assertSame('Europe/Paris', $result->getTimezone()->getName());
+    }
+
+    public function test_default_datetime_constructor_can_be_used_with_valid_timestamp(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(DateTimeInterface::class, ['datetime' => 1711573053, 'timezone' => 'Europe/Paris']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('2024-03-27T21:57:33+01:00', $result->format(DATE_ATOM));
+        self::assertSame('Europe/Paris', $result->getTimezone()->getName());
     }
 
     public function test_default_date_constructor_with_valid_rfc_3339_format_source_returns_datetime(): void

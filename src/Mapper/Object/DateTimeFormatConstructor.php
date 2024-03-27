@@ -9,6 +9,10 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
+use DateTimeZone;
+
+use function is_array;
+
 /**
  * Can be given to {@see MapperBuilder::registerConstructor()} to describe which
  * date formats should be allowed during mapping.
@@ -44,15 +48,27 @@ final class DateTimeFormatConstructor
 
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
-     * @param non-empty-string|int $value
+     * @param non-empty-string|int|array{datetime: non-empty-string|int, timezone: DateTimeZone} $value
      */
     #[DynamicConstructor]
-    public function __invoke(string $className, string|int $value): DateTimeInterface
+    public function __invoke(string $className, string|int|array $value): DateTimeInterface
     {
+        if (is_array($value)) {
+            $datetime = $value['datetime'];
+            $timezone = $value['timezone'];
+        } else {
+            $datetime = $value;
+            $timezone = null;
+        }
+
         foreach ($this->formats as $format) {
-            $date = $className::createFromFormat($format, (string)$value) ?: null;
+            $date = $className::createFromFormat($format, (string)$datetime) ?: null;
 
             if ($date) {
+                if ($timezone) {
+                    $date = $date->setTimezone($timezone);
+                }
+
                 return $date;
             }
         }
