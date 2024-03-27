@@ -133,7 +133,7 @@ final class UnionTypeTest extends TestCase
         $typeC = new FakeType();
 
         $unionTypeA = new UnionType($typeA, $typeB, $typeC);
-        $unionTypeB = new UnionType($typeB);
+        $unionTypeB = new UnionType($typeB, $typeC);
 
         self::assertFalse($unionTypeA->matches($unionTypeB));
     }

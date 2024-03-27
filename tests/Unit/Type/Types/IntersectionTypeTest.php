@@ -20,8 +20,14 @@ final class IntersectionTypeTest extends TestCase
         $typeA = new FakeObjectType();
         $typeB = new FakeObjectType();
         $typeC = new FakeObjectType();
+        $typeD = new FakeObjectType();
 
-        $types = (new IntersectionType($typeA, $typeB, $typeC))->types();
+        $types = (new IntersectionType(
+            $typeA,
+            $typeB,
+            // Putting those in associative array on purpose
+            ...['C' => $typeC, 'D' => $typeD],
+        ))->types();
 
         self::assertSame($typeA, $types[0]);
         self::assertSame($typeB, $types[1]);

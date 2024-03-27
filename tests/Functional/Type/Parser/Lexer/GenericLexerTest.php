@@ -208,7 +208,7 @@ final class GenericLexerTest extends TestCase
 
         $this->expectException(InvalidAssignedGeneric::class);
         $this->expectExceptionCode(1604613633);
-        $this->expectExceptionMessage("The generic `bool` is not a subtype of `int|string` for the template `Template` of the class `$className`.");
+        $this->expectExceptionMessage("The generic `bool` is not a subtype of `array-key` for the template `Template` of the class `$className`.");
 
         $this->parser->parse("$className<bool>");
     }

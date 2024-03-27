@@ -10,7 +10,7 @@ interface CombiningType extends CompositeType
     public function isMatchedBy(Type $other): bool;
 
     /**
-     * @return Type[]
+     * @return non-empty-list<Type>
      */
-    public function types(): iterable;
+    public function types(): array;
 }

@@ -45,6 +45,8 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
             'classString' => self::class,
             'classStringOfDateTime' => DateTimeImmutable::class,
             'classStringOfAlias' => stdClass::class,
+            'arrayKeyWithString' => 'foo',
+            'arrayKeyWithInteger' => 42,
         ];
 
         foreach ([ScalarValues::class, ScalarValuesWithConstructor::class] as $class) {
@@ -81,6 +83,8 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
             self::assertSame(self::class, $result->classString);
             self::assertSame(DateTimeImmutable::class, $result->classStringOfDateTime);
             self::assertSame(stdClass::class, $result->classStringOfAlias);
+            self::assertSame('foo', $result->arrayKeyWithString);
+            self::assertSame(42, $result->arrayKeyWithInteger);
         }
     }
 
@@ -92,6 +96,17 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
             $error = $exception->node()->messages()[0];
 
             self::assertSame('Value object(stdClass) is not a valid string.', (string)$error);
+        }
+    }
+
+    public function test_invalid_array_key_throws_exception(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map('array-key', new stdClass());
+        } catch (MappingError $exception) {
+            $error = $exception->node()->messages()[0];
+
+            self::assertSame('Value object(stdClass) is not a valid array key.', (string)$error);
         }
     }
 }
@@ -173,6 +188,12 @@ class ScalarValues
 
     /** @var class-string<ObjectAlias> */
     public string $classStringOfAlias;
+
+    /** @var array-key */
+    public string|int $arrayKeyWithString;
+
+    /** @var array-key */
+    public string|int $arrayKeyWithInteger;
 }
 
 class ScalarValuesWithConstructor extends ScalarValues
@@ -200,6 +221,8 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param class-string $classString
      * @param class-string<DateTimeInterface> $classStringOfDateTime
      * @param class-string<ObjectAlias> $classStringOfAlias
+     * @param array-key $arrayKeyWithString
+     * @param array-key $arrayKeyWithInteger
      */
     public function __construct(
         bool $boolean,
@@ -228,7 +251,9 @@ class ScalarValuesWithConstructor extends ScalarValues
         string $stringValueContainingSpecialCharsWithDoubleQuote,
         string $classString,
         string $classStringOfDateTime,
-        string $classStringOfAlias
+        string $classStringOfAlias,
+        int|string $arrayKeyWithString,
+        int|string $arrayKeyWithInteger,
     ) {
         $this->boolean = $boolean;
         $this->float = $float;
@@ -257,5 +282,7 @@ class ScalarValuesWithConstructor extends ScalarValues
         $this->classString = $classString;
         $this->classStringOfDateTime = $classStringOfDateTime;
         $this->classStringOfAlias = $classStringOfAlias;
+        $this->arrayKeyWithString = $arrayKeyWithString;
+        $this->arrayKeyWithInteger = $arrayKeyWithInteger;
     }
 }
