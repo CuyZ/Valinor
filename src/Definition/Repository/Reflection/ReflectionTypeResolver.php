@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
@@ -51,7 +50,7 @@ final class ReflectionTypeResolver
         }
 
         if (! $typeFromDocBlock->matches($nativeType)) {
-            throw new TypesDoNotMatch($reflection, $typeFromDocBlock, $nativeType);
+            return UnresolvableType::forDocBlockTypeNotMatchingNative($reflection, $typeFromDocBlock, $nativeType);
         }
 
         return $typeFromDocBlock;
