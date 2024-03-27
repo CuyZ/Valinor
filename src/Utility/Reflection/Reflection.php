@@ -10,6 +10,7 @@ use Error;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionFunctionAbstract;
 use ReflectionIntersectionType;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -18,7 +19,6 @@ use ReflectionProperty;
 use ReflectionType;
 use ReflectionUnionType;
 use Reflector;
-use RuntimeException;
 
 use function array_filter;
 use function array_map;
@@ -111,14 +111,11 @@ final class Reflection
     }
 
     /**
+     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunctionAbstract|ReflectionParameter $reflection
      * @return non-empty-string
      */
-    public static function signature(Reflector $reflection): string
+    public static function signature(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionFunctionAbstract|ReflectionParameter $reflection): string
     {
-        if ($reflection instanceof ReflectionClass) {
-            return $reflection->name;
-        }
-
         if ($reflection instanceof ReflectionProperty) {
             return "{$reflection->getDeclaringClass()->name}::\$$reflection->name";
         }
@@ -127,7 +124,7 @@ final class Reflection
             return "{$reflection->getDeclaringClass()->name}::$reflection->name()";
         }
 
-        if ($reflection instanceof ReflectionFunction) {
+        if ($reflection instanceof ReflectionFunctionAbstract) {
             if (str_contains($reflection->name, '{closure}')) {
                 $startLine = $reflection->getStartLine();
                 $endLine = $reflection->getEndLine();
@@ -153,7 +150,7 @@ final class Reflection
             return $signature;
         }
 
-        throw new RuntimeException('Invalid reflection type `' . $reflection::class . '`.');
+        return $reflection->name;
     }
 
     public static function flattenType(ReflectionType $type): string
