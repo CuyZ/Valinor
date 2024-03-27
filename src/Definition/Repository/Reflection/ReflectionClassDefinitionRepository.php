@@ -23,6 +23,7 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\GenericType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
@@ -183,7 +184,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return array<string, Type>
      */
-    private function localTypeAliases(ClassType $type): array
+    private function localTypeAliases(ObjectType $type): array
     {
         $reflection = Reflection::class($type->className());
         $rawTypes = DocParser::localTypeAliases($reflection);
@@ -224,7 +225,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
                 throw new InvalidTypeAliasImportClass($type, $class);
             }
 
-            if (! $classType instanceof ClassType) {
+            if (! $classType instanceof ObjectType) {
                 throw new InvalidTypeAliasImportClassType($type, $classType);
             }
 
@@ -242,7 +243,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         return $importedTypes;
     }
 
-    private function typeParser(ClassType $type): TypeParser
+    private function typeParser(ObjectType $type): TypeParser
     {
         $specs = [
             new ClassContextSpecification($type->className()),
