@@ -35,6 +35,7 @@ return static function (RectorConfig $config): void {
         ReadOnlyPropertyRector::class,
         MixedTypeRector::class => [
             __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
+            __DIR__ . '/tests/Integration/Mapping/TypeErrorDuringMappingTest.php',
         ],
         NullToStrictStringFuncCallArgRector::class => [
             __DIR__ . '/tests/Traits/TestIsSingleton.php',

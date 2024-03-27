@@ -11,7 +11,6 @@ use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
 use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
 use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
-use CuyZ\Valinor\Definition\Exception\TypesDoNotMatch;
 use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
@@ -177,7 +176,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->properties->get('propertyWithInvalidType')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        /** @var UnresolvableType $type */
         self::assertMatchesRegularExpression('/^The type `InvalidType` for property `.*` could not be resolved: .*$/', $type->message());
     }
 
@@ -193,23 +191,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->message());
-    }
-
-    public function test_property_with_non_matching_types_throws_exception(): void
-    {
-        $class = (new class () {
-            /**
-             * @phpstan-ignore-next-line
-             * @var string
-             */
-            public bool $propertyWithNotMatchingTypes;
-        })::class;
-
-        $this->expectException(TypesDoNotMatch::class);
-        $this->expectExceptionCode(1638471381);
-        $this->expectExceptionMessage("Types for property `$class::\$propertyWithNotMatchingTypes` do not match: `string` (docblock) does not accept `bool` (native).");
-
-        $this->repository->for(new NativeClassType($class));
     }
 
     public function test_invalid_parameter_type_throws_exception(): void
@@ -228,7 +209,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->methods->get('publicMethod')->parameters->get('parameterWithInvalidType')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        /** @var UnresolvableType $type */
         self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->message());
     }
 
@@ -246,7 +226,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->methods->get('publicMethod')->returnType;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        /** @var UnresolvableType $type */
         self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->message());
     }
 
@@ -267,23 +246,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->message());
     }
 
-    public function test_parameter_with_non_matching_types_throws_exception(): void
-    {
-        $class = (new class () {
-            /**
-             * @param string $parameterWithNotMatchingTypes
-             * @phpstan-ignore-next-line
-             */
-            public function publicMethod(bool $parameterWithNotMatchingTypes): void {}
-        })::class;
-
-        $this->expectException(TypesDoNotMatch::class);
-        $this->expectExceptionCode(1638471381);
-        $this->expectExceptionMessage("Types for parameter `$class::publicMethod(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
-
-        $this->repository->for(new NativeClassType($class));
-    }
-
     public function test_method_with_non_matching_return_types_throws_exception(): void
     {
         $class = (new class () {
@@ -297,11 +259,14 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             }
         })::class;
 
-        $this->expectException(TypesDoNotMatch::class);
-        $this->expectExceptionCode(1638471381);
-        $this->expectExceptionMessage("Return types for method `$class::publicMethod()` do not match: `bool` (docblock) does not accept `string` (native).");
+        $returnType = $this->repository
+            ->for(new NativeClassType($class))
+            ->methods
+            ->get('publicMethod')
+            ->returnType;
 
-        $this->repository->for(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $returnType);
+        self::assertMatchesRegularExpression('/^Return types for method `.*` do not match: `bool` \(docblock\) does not accept `string` \(native\).$/', $returnType->message());
     }
 
     public function test_class_with_local_type_alias_name_duplication_throws_exception(): void
