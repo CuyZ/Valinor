@@ -3,6 +3,7 @@
 namespace CuyZ\Valinor\Utility\Reflection;
 
 use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
+use CuyZ\Valinor\Type\Parser\Lexer\TokensExtractor;
 use ReflectionClass;
 use ReflectionFunctionAbstract;
 use ReflectionParameter;
@@ -10,9 +11,13 @@ use ReflectionProperty;
 
 use function array_key_exists;
 use function array_merge;
+use function array_search;
+use function array_shift;
+use function array_splice;
 use function assert;
 use function end;
 use function explode;
+use function in_array;
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
@@ -43,11 +48,25 @@ final class DocParser
             return null;
         }
 
-        if (! preg_match("/(?<type>.*)\\$$reflection->name(\s|\z)/s", $doc, $matches)) {
-            return null;
+        $parameters = [];
+
+        $tokens = (new TokensExtractor($doc))->all();
+
+        while (($token = array_shift($tokens)) !== null) {
+            if (! in_array($token, ['@param', '@phpstan-param', '@psalm-param'], true)) {
+                continue;
+            }
+
+            $dollarSignKey = (int)array_search('$', $tokens, true);
+            $name = $tokens[$dollarSignKey + 1] ?? null;
+
+            $parameters[$name][$token] = implode('', array_splice($tokens, 0, $dollarSignKey));
         }
 
-        return self::annotationType($matches['type'], 'param');
+        return $parameters[$reflection->name]['@phpstan-param']
+            ?? $parameters[$reflection->name]['@psalm-param']
+            ?? $parameters[$reflection->name]['@param']
+            ?? null;
     }
 
     public static function functionReturnType(ReflectionFunctionAbstract $reflection): ?string

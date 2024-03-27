@@ -2,6 +2,7 @@
 
 namespace CuyZ\Valinor\Type\Parser;
 
+use CuyZ\Valinor\Type\Parser\Lexer\TokensExtractor;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
 use CuyZ\Valinor\Type\Type;
@@ -13,7 +14,7 @@ class LexingParser implements TypeParser
 
     public function parse(string $raw): Type
     {
-        $symbols = new ParserSymbols($raw);
+        $symbols = new TokensExtractor($raw);
 
         $tokens = array_map(
             fn (string $symbol) => $this->lexer->tokenize($symbol),
