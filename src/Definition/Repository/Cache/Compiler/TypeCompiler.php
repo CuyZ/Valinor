@@ -97,13 +97,20 @@ final class TypeCompiler
                     default => "$class::default()",
                 };
             case $type instanceof ShapedArrayType:
-                $shapes = array_map(
+                $elements = implode(', ', array_map(
                     fn (ShapedArrayElement $element) => $this->compileArrayShapeElement($element),
                     $type->elements()
-                );
-                $shapes = implode(', ', $shapes);
+                ));
 
-                return "new $class(...[$shapes])";
+                if ($type->hasUnsealedType()) {
+                    $unsealedType = $this->compile($type->unsealedType());
+
+                    return "$class::unsealed($unsealedType, $elements)";
+                } elseif ($type->isUnsealed()) {
+                    return "$class::unsealedWithoutType($elements)";
+                }
+
+                return "new $class($elements)";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
                 if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {
