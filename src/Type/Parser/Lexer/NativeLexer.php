@@ -26,6 +26,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\QuoteToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\TripleDotsToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 
 use function filter_var;
@@ -56,6 +57,7 @@ final class NativeLexer implements TypeLexer
             ':' => ColonToken::get(),
             '?' => NullableToken::get(),
             ',' => CommaToken::get(),
+            '...' => TripleDotsToken::get(),
             '"', "'" => new QuoteToken($symbol),
             'int', 'integer' => IntegerToken::get(),
             'array' => ArrayToken::array(),

@@ -106,6 +106,18 @@ final class UnionMappingTest extends IntegrationTestCase
             'assertion' => fn (mixed $result) => self::assertSame(['status' => 400, 'error' => 'foo'], $result),
         ];
 
+        yield 'unsealed shaped array of non-empty-string or string with array of strings' => [
+            'type' => "array{'en_US': non-empty-string, ...array<non-empty-string, non-empty-string>} | string",
+            'source' => ['en_US' => 'Hello', 'fr_FR' => 'Salut'],
+            'assertion' => fn (mixed $result) => self::assertSame(['en_US' => 'Hello', 'fr_FR' => 'Salut'], $result),
+        ];
+
+        yield 'unsealed shaped array of non-empty-string or string with string' => [
+            'type' => "array{'en_US': non-empty-string, ...array<non-empty-string, non-empty-string>} | string",
+            'source' => 'Hello',
+            'assertion' => fn (mixed $result) => self::assertSame('Hello', $result),
+        ];
+
         yield 'array of string or object with one string value, with array of string' => [
             'type' => 'array<string>|' . SomeObjectWithOneStringValue::class,
             'source' => ['foo', 'bar'],

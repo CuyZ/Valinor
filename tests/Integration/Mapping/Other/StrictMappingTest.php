@@ -53,13 +53,22 @@ final class StrictMappingTest extends IntegrationTestCase
         $this->mapperBuilder()->mapper()->map(ObjectContainingUndefinedObjectType::class, ['value' => new stdClass()]);
     }
 
-    public function test_map_to_type_containing_mixed_type_throws_exception(): void
+    public function test_map_to_shaped_array_containing_mixed_type_throws_exception(): void
     {
         $this->expectException(PermissiveTypeFound::class);
         $this->expectExceptionCode(1655231817);
         $this->expectExceptionMessage('Type `mixed` in `array{foo: string, bar: mixed}` is too permissive.');
 
         $this->mapperBuilder()->mapper()->map('array{foo: string, bar: mixed}', ['foo' => 'foo', 'bar' => 42]);
+    }
+
+    public function test_map_to_unsealed_shaped_array_without_type_throws_exception(): void
+    {
+        $this->expectException(PermissiveTypeFound::class);
+        $this->expectExceptionCode(1655231817);
+        $this->expectExceptionMessage('Type `mixed` in `array{foo: string, ...}` is too permissive.');
+
+        $this->mapperBuilder()->mapper()->map('array{foo: string, ...}', ['foo' => 'foo', 'bar' => 42]);
     }
 
     public function test_map_to_object_containing_mixed_type_throws_exception(): void
