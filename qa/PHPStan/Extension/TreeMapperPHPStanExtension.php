@@ -8,6 +8,7 @@ use CuyZ\Valinor\Mapper\TreeMapper;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\PhpDoc\TypeStringResolver;
+use PHPStan\PhpDocParser\Parser\ParserException;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\ClassStringType;
 use PHPStan\Type\Constant\ConstantStringType;
@@ -46,7 +47,11 @@ final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtensi
             return $type->traverse(fn (Type $type) => $this->type($type));
         }
 
-        return $this->type($type);
+        try {
+            return $this->type($type);
+        } catch (ParserException) {
+            return new MixedType();
+        }
     }
 
     private function type(Type $type): Type

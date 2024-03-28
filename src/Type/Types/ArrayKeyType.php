@@ -66,7 +66,7 @@ final class ArrayKeyType implements ScalarType
         return self::$string ??= new self(NativeStringType::get());
     }
 
-    public static function from(Type $type): ?self
+    public static function from(Type $type): self
     {
         return match (true) {
             $type instanceof self => $type,

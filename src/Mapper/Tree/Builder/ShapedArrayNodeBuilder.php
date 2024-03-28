@@ -69,6 +69,15 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             unset($value[$key]);
         }
 
+        if ($type->isUnsealed()) {
+            $unsealedShell = $shell->withType($type->unsealedType())->withValue($value);
+            $unsealedChildren = $rootBuilder->build($unsealedShell)->children();
+
+            foreach ($unsealedChildren as $unsealedChild) {
+                $children[$unsealedChild->name()] = $unsealedChild;
+            }
+        }
+
         return $children;
     }
 

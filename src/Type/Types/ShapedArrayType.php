@@ -9,10 +9,9 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\Type;
 
-use function array_diff;
 use function array_key_exists;
-use function array_keys;
 use function array_map;
+use function assert;
 use function count;
 use function implode;
 use function in_array;
@@ -24,15 +23,13 @@ final class ShapedArrayType implements CompositeType
     /** @var ShapedArrayElement[] */
     private array $elements;
 
-    private string $signature;
+    private bool $isUnsealed = false;
+
+    private ?ArrayType $unsealedType = null;
 
     public function __construct(ShapedArrayElement ...$elements)
     {
         $this->elements = $elements;
-        $this->signature =
-            'array{' .
-            implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements))
-            . '}';
 
         $keys = [];
 
@@ -40,11 +37,45 @@ final class ShapedArrayType implements CompositeType
             $key = $element->key()->value();
 
             if (in_array($key, $keys, true)) {
-                throw new ShapedArrayElementDuplicatedKey((string)$key, $this->signature);
+                throw new ShapedArrayElementDuplicatedKey((string)$key, $this->toString());
             }
 
             $keys[] = $key;
         }
+    }
+
+    public static function unsealed(ArrayType $unsealedType, ShapedArrayElement ...$elements): self
+    {
+        $self = new self(...$elements);
+        $self->isUnsealed = true;
+        $self->unsealedType = $unsealedType;
+
+        return $self;
+    }
+
+    public static function unsealedWithoutType(ShapedArrayElement ...$elements): self
+    {
+        $self = new self(...$elements);
+        $self->isUnsealed = true;
+
+        return $self;
+    }
+
+    public function isUnsealed(): bool
+    {
+        return $this->isUnsealed;
+    }
+
+    public function hasUnsealedType(): bool
+    {
+        return $this->unsealedType !== null;
+    }
+
+    public function unsealedType(): ArrayType
+    {
+        assert($this->isUnsealed);
+
+        return $this->unsealedType ?? ArrayType::native();
     }
 
     public function accepts(mixed $value): bool
@@ -53,11 +84,9 @@ final class ShapedArrayType implements CompositeType
             return false;
         }
 
-        $keys = [];
-
         foreach ($this->elements as $shape) {
             $type = $shape->type();
-            $keys[] = $key = $shape->key()->value();
+            $key = $shape->key()->value();
             $valueExists = array_key_exists($key, $value);
 
             if (! $valueExists && ! $shape->isOptional()) {
@@ -67,11 +96,15 @@ final class ShapedArrayType implements CompositeType
             if ($valueExists && ! $type->accepts($value[$key])) {
                 return false;
             }
+
+            unset($value[$key]);
         }
 
-        $excess = array_diff(array_keys($value), $keys);
+        if ($this->isUnsealed) {
+            return $this->unsealedType()->accepts($value);
+        }
 
-        return count($excess) === 0;
+        return count($value) === 0;
     }
 
     public function matches(Type $other): bool
@@ -98,6 +131,10 @@ final class ShapedArrayType implements CompositeType
                 }
             }
 
+            if ($this->isUnsealed && ! $this->unsealedType()->matches($other)) {
+                return false;
+            }
+
             return true;
         }
 
@@ -107,11 +144,9 @@ final class ShapedArrayType implements CompositeType
 
         foreach ($this->elements as $element) {
             foreach ($other->elements as $otherElement) {
-                if ($element->key()->matches($otherElement->key())) {
-                    if (! $element->type()->matches($otherElement->type())) {
-                        return false;
-                    }
-
+                if ($element->key()->matches($otherElement->key())
+                    && $element->type()->matches($otherElement->type())
+                ) {
                     continue 2;
                 }
             }
@@ -119,6 +154,11 @@ final class ShapedArrayType implements CompositeType
             if (! $element->isOptional()) {
                 return false;
             }
+        }
+
+        if ($other->isUnsealed) {
+            return $this->isUnsealed
+                && $this->unsealedType()->matches($other->unsealedType());
         }
 
         return true;
@@ -136,6 +176,10 @@ final class ShapedArrayType implements CompositeType
             }
         }
 
+        if ($this->isUnsealed) {
+            $types = [...$types, $this->unsealedType(), ...$this->unsealedType()->traverse()];
+        }
+
         return $types;
     }
 
@@ -149,6 +193,19 @@ final class ShapedArrayType implements CompositeType
 
     public function toString(): string
     {
-        return $this->signature;
+        $signature = 'array{';
+        $signature .= implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $this->elements));
+
+        if ($this->isUnsealed) {
+            $signature .= ', ...';
+
+            if ($this->unsealedType) {
+                $signature .= $this->unsealedType->toString();
+            }
+        }
+
+        $signature .= '}';
+
+        return $signature;
     }
 }
