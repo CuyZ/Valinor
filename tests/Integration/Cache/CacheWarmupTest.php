@@ -64,8 +64,8 @@ final class CacheWarmupTest extends IntegrationTestCase
         $mapper->warmup(ObjectToWarmupWithConstructors::class);
         $mapper->warmup(ObjectToWarmupWithConstructors::class, SomeObjectC::class);
 
-        self::assertSame(7, $this->cache->countEntries());
-        self::assertSame(7, $this->cache->timeSetWasCalled());
+        self::assertSame(6, $this->cache->countEntries());
+        self::assertSame(6, $this->cache->timeSetWasCalled());
     }
 
     public function test_will_warmup_type_parser_cache_for_interface(): void
