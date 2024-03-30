@@ -74,7 +74,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         try {
             $classType = $this->implementations->implementation($className, $values);
         } catch (ObjectImplementationCallbackError $exception) {
-            throw UserlandError::from($exception->original());
+            throw UserlandError::from($exception);
         }
 
         $class = $this->classDefinitionRepository->for($classType);

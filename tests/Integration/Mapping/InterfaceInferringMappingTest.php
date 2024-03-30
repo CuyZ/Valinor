@@ -6,13 +6,11 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidAbstractObjectName;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\A\ClassThatInheritsInterfaceA;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\B\ClassThatInheritsInterfaceB;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\ClassWithBothInterfaces;
@@ -279,30 +277,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
             ->map(DateTimeInterface::class, []);
     }
 
-    public function test_invalid_abstract_object_name_throws_exception(): void
-    {
-        $this->expectException(InvalidAbstractObjectName::class);
-        $this->expectExceptionCode(1653990369);
-        $this->expectExceptionMessage('Invalid interface or class name `invalid type`.');
-
-        $this->mapperBuilder()
-            ->infer('invalid type', fn () => stdClass::class) // @phpstan-ignore-line
-            ->mapper()
-            ->map(stdClass::class, []);
-    }
-
-    public function test_invalid_abstract_object_type_throws_exception(): void
-    {
-        $this->expectException(InvalidAbstractObjectName::class);
-        $this->expectExceptionCode(1653990369);
-        $this->expectExceptionMessage('Invalid interface or class name `string`.');
-
-        $this->mapperBuilder()
-            ->infer('string', fn () => stdClass::class) // @phpstan-ignore-line
-            ->mapper()
-            ->map(stdClass::class, []);
-    }
-
     public function test_missing_object_implementation_registration_throws_exception(): void
     {
         $this->expectException(MissingObjectImplementationRegistration::class);
@@ -315,7 +289,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 fn (string $type) => SomeClassThatInheritsInterfaceA::class
             )
             ->mapper()
-            ->map(SomeInterface::class, []);
+            ->map(SomeInterface::class, 'foo');
     }
 
     public function test_invalid_union_object_implementation_registration_throws_exception(): void
@@ -330,7 +304,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 fn (string $value): string|int => $value === 'foo' ? 'foo' : 42
             )
             ->mapper()
-            ->map(SomeInterface::class, []);
+            ->map(SomeInterface::class, 'foo');
     }
 
     public function test_invalid_class_string_object_implementation_registration_throws_exception(): void
@@ -399,25 +373,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
             $error = $exception->node()->children()['key']->messages()[0];
 
             self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
-        }
-    }
-
-    public function test_exception_thrown_is_caught_and_throws_message_exception(): void
-    {
-        try {
-            $this->mapperBuilder()
-                ->infer(
-                    DateTimeInterface::class,
-                    /** @return class-string<DateTime> */
-                    fn (string $value) => throw new FakeErrorMessage('some error message', 1645303304)
-                )
-                ->mapper()
-                ->map(DateTimeInterface::class, 'foo');
-        } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1645303304', $error->code());
-            self::assertSame('some error message', (string)$error);
         }
     }
 

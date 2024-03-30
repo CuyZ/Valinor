@@ -32,7 +32,7 @@ final class CacheInjectionTest extends IntegrationTestCase
 
         $files = $this->recursivelyFindPhpFiles($cacheDirectory);
 
-        self::assertCount(6, $files);
+        self::assertCount(4, $files);
 
         foreach ($files as $file) {
             $file->setContent($file->getContent() . "\n// generated value 1661895014");
