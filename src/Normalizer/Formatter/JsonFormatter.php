@@ -24,6 +24,7 @@ final class JsonFormatter implements StreamFormatter
      */
     public function __construct(
         private mixed $resource,
+        private readonly int $jsonEncodingOptions,
     ) {}
 
     public function format(mixed $value): void
@@ -33,7 +34,7 @@ final class JsonFormatter implements StreamFormatter
         } elseif (is_bool($value)) {
             $this->write($value ? 'true' : 'false');
         } elseif (is_scalar($value)) {
-            $this->write(json_encode($value, JSON_THROW_ON_ERROR));
+            $this->write(json_encode($value, $this->jsonEncodingOptions));
         } elseif (is_iterable($value)) {
             // Note: when a generator is formatted, it is considered as a list
             // if its first key is 0. This is done early because the first JSON
