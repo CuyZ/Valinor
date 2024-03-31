@@ -18,6 +18,7 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -37,6 +38,7 @@ final class NormalizerTest extends IntegrationTestCase
     /**
      * @param array<int, list<callable>> $transformers
      * @param list<class-string> $transformerAttributes
+     * @param int-mask-of<JsonNormalizer::JSON_*> $jsonEncodingOptions
      */
     #[DataProvider('normalize_basic_values_yields_expected_output_data_provider')]
     public function test_normalize_basic_values_yields_expected_output(
@@ -60,7 +62,9 @@ final class NormalizerTest extends IntegrationTestCase
         }
 
         $arrayResult = $builder->normalizer(Format::array())->normalize($input);
-        $jsonResult = $builder->normalizer(Format::json())->withOptions($jsonEncodingOptions)->normalize($input);
+        $jsonNormalizer = $builder->normalizer(Format::json())->withOptions($jsonEncodingOptions);
+
+        $jsonResult = $jsonNormalizer->normalize($input);
 
         self::assertSame($expectedArray, $arrayResult);
         self::assertSame($expectedJson, $jsonResult);
@@ -1068,15 +1072,19 @@ final class NormalizerTest extends IntegrationTestCase
 
     public function test_json_transformer_only_accepts_acceptable_json_options(): void
     {
+        // @phpstan-ignore-next-line / Verify that unaccepted flags are ignored
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT);
         self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
 
+        // @phpstan-ignore-next-line / Verify that unaccepted flags are ignored
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR);
         self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
 
+        // @phpstan-ignore-next-line / Verify that unaccepted flags are ignored
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PRETTY_PRINT);
         self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
 
+        // @phpstan-ignore-next-line / Verify that unaccepted flags are ignored
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_PRETTY_PRINT);
         self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
     }

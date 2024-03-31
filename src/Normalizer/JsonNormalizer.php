@@ -15,9 +15,17 @@ use function get_debug_type;
 use function is_resource;
 use function stream_get_contents;
 
+use const JSON_HEX_QUOT;
 use const JSON_HEX_TAG;
+use const JSON_HEX_AMP;
+use const JSON_HEX_APOS;
 use const JSON_INVALID_UTF8_IGNORE;
 use const JSON_INVALID_UTF8_SUBSTITUTE;
+use const JSON_NUMERIC_CHECK;
+use const JSON_PRESERVE_ZERO_FRACTION;
+use const JSON_UNESCAPED_LINE_TERMINATORS;
+use const JSON_UNESCAPED_SLASHES;
+use const JSON_UNESCAPED_UNICODE;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -38,8 +46,7 @@ final class JsonNormalizer implements Normalizer
     public const JSON_UNESCAPED_LINE_TERMINATORS = JSON_UNESCAPED_LINE_TERMINATORS;
     public const JSON_UNESCAPED_SLASHES = JSON_UNESCAPED_SLASHES;
     public const JSON_UNESCAPED_UNICODE = JSON_UNESCAPED_UNICODE;
-    private const DEFAULT_JSON_FLAG_THROW_ON_ERROR = JSON_THROW_ON_ERROR;
-
+    public const JSON_THROW_ON_ERROR = JSON_THROW_ON_ERROR;
     private const ACCEPTABLE_JSON_OPTIONS = self::JSON_HEX_QUOT
     | self::JSON_HEX_TAG
     | self::JSON_HEX_AMP
@@ -50,22 +57,37 @@ final class JsonNormalizer implements Normalizer
     | self::JSON_PRESERVE_ZERO_FRACTION
     | self::JSON_UNESCAPED_LINE_TERMINATORS
     | self::JSON_UNESCAPED_SLASHES
-    | self::JSON_UNESCAPED_UNICODE;
+    | self::JSON_UNESCAPED_UNICODE
+    | self::JSON_THROW_ON_ERROR;
 
     /**
-     * @param int-mask-of<JsonNormalizer::JSON_*|JsonNormalizer::DEFAULT_JSON_FLAG_THROW_ON_ERROR> $jsonEncodingOptions
+     * @param int-mask-of<JsonNormalizer::JSON_*> $jsonEncodingOptions
      */
     public function __construct(
         private RecursiveTransformer $transformer,
-        public readonly int $jsonEncodingOptions = self::DEFAULT_JSON_FLAG_THROW_ON_ERROR,
-    ) {}
+        public readonly int $jsonEncodingOptions = self::JSON_THROW_ON_ERROR,
+    ) {
+        assert(
+            ($this->jsonEncodingOptions & JSON_THROW_ON_ERROR) === JSON_THROW_ON_ERROR,
+            'JSON encoding options always have to contain JSON_THROW_ON_ERROR.',
+        );
+    }
 
     /**
      * @param int-mask-of<JsonNormalizer::JSON_*> $options
      */
     public function withOptions(int $options): self
     {
-        return new self($this->transformer, (self::ACCEPTABLE_JSON_OPTIONS & $options) | self::DEFAULT_JSON_FLAG_THROW_ON_ERROR);
+        /**
+         * SA tools are not able to infer that we end up having only accepted options here. Therefore, inlining the
+         * type for now should be okayish.
+         * Might be fixed with https://github.com/phpstan/phpstan/issues/9384 for phpstan but psalm does have some
+         * (not all) issues as well.
+         *
+         * @var int-mask-of<JsonNormalizer::JSON_*> $acceptedOptions
+         */
+        $acceptedOptions = (self::ACCEPTABLE_JSON_OPTIONS & $options) | self::JSON_THROW_ON_ERROR;
+        return new self($this->transformer, $acceptedOptions);
     }
 
     public function normalize(mixed $value): string

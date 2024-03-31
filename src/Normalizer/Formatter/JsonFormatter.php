@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
+use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use Generator;
 
 use function array_is_list;
@@ -16,11 +17,14 @@ use function is_null;
 use function is_scalar;
 use function json_encode;
 
+use const JSON_THROW_ON_ERROR;
+
 /** @internal */
 final class JsonFormatter implements StreamFormatter
 {
     /**
      * @param resource $resource
+     * @param int-mask-of<JsonNormalizer::JSON_*> $jsonEncodingOptions
      */
     public function __construct(
         private mixed $resource,
@@ -34,6 +38,11 @@ final class JsonFormatter implements StreamFormatter
         } elseif (is_bool($value)) {
             $this->write($value ? 'true' : 'false');
         } elseif (is_scalar($value)) {
+            assert(($this->jsonEncodingOptions & JSON_THROW_ON_ERROR) === JSON_THROW_ON_ERROR);
+            /**
+             * @phpstan-ignore-next-line / Due to the new json encoding options feature, it is not possible to let SA
+             *                             tools understand that JSON_THROW_ON_ERROR is always set.
+             */
             $this->write(json_encode($value, $this->jsonEncodingOptions));
         } elseif (is_iterable($value)) {
             // Note: when a generator is formatted, it is considered as a list
