@@ -72,6 +72,49 @@ $normalizer = (new \CuyZ\Valinor\MapperBuilder())
 $normalizer->normalize($users);
 ```
 
+## Passing `json_encode` flags
+
+By default, the JSON normalizer will only use `JSON_THROW_ON_ERROR` to encode non-boolean scalar values.
+There might be use-cases where projects will need flags like `JSON_JSON_PRESERVE_ZERO_FRACTION` and/or other flags.
+
+This can be achieved by passing these flags to the `JsonNormalizer#withOptions` method:
+
+```php
+namespace My\App;
+
+use const JSON_PRESERVE_ZERO_FRACTION;
+
+$normalizer = (new \CuyZ\Valinor\MapperBuilder())
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
+    ->withOptions(JSON_PRESERVE_ZERO_FRACTION);
+
+$lowerManhattanAsJson = $normalizer->normalize(
+    new \My\App\Coordinates(
+        longitude: 40.7128,
+        latitude: -74.0000
+    )
+);
+
+// `$lowerManhattanAsJson` is a valid JSON string representing the data:
+// {"longitude":"40.7128","latitude":-74.0000}
+```
+
+The method only accepts an int-mask of the following `JSON_*` [constant](https://www.php.net/manual/de/json.constants.php) representations:
+
+- `JSON_HEX_QUOT`
+- `JSON_HEX_TAG`
+- `JSON_HEX_AMP`
+- `JSON_HEX_APOS`
+- `JSON_INVALID_UTF8_IGNORE`
+- `JSON_INVALID_UTF8_SUBSTITUTE`
+- `JSON_NUMERIC_CHECK`
+- `JSON_PRESERVE_ZERO_FRACTION`
+- `JSON_UNESCAPED_LINE_TERMINATORS`
+- `JSON_UNESCAPED_SLASHES`
+- `JSON_UNESCAPED_UNICODE`
+
+`JSON_THROW_ON_ERROR` is always enforced and thus is not accepted.
+
 [default transformations]: normalizer.md#supported-transformations
 
 [registered transformers]: extending-normalizer.md
