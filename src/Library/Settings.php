@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
+use Closure;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
+use ReflectionFunction;
 use Throwable;
+
+use function array_map;
+use function implode;
+use function serialize;
+use function sha1;
 
 /** @internal */
 final class Settings
@@ -73,5 +80,36 @@ final class Settings
         }
 
         return $callables;
+    }
+
+    /**
+     * Returns a unique hash, based on all the settings values that were set in
+     * this instance.
+     */
+    public function hash(): string
+    {
+        return sha1(serialize([
+            implode('', array_map($this->callableSignature(...), $this->inferredMapping)),
+            $this->nativeConstructors,
+            implode('', array_map($this->callableSignature(...), $this->customConstructors)),
+            implode('', array_map($this->callableSignature(...), $this->valueModifier)),
+            $this->supportedDateFormats,
+            $this->enableFlexibleCasting,
+            $this->allowSuperfluousKeys,
+            $this->allowPermissiveTypes,
+            $this->callableSignature($this->exceptionFilter),
+            array_map(
+                fn (array $transformers) => implode('', array_map($this->callableSignature(...), $transformers)),
+                $this->transformers,
+            ),
+            $this->transformerAttributes,
+        ]));
+    }
+
+    private function callableSignature(callable $callable): string
+    {
+        $reflection = new ReflectionFunction(Closure::fromCallable($callable));
+
+        return $reflection->getFileName() . $reflection->getStartLine() . $reflection->getEndLine();
     }
 }

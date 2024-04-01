@@ -10,7 +10,7 @@ use Closure;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Normalizer\AsTransformer;
+use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -23,26 +23,18 @@ use WeakMap;
 
 use function array_map;
 use function get_object_vars;
-use function is_a;
 use function is_array;
 use function is_iterable;
 
 /**  @internal */
-final class RecursiveTransformer
+final class RecursiveTransformer implements Transformer
 {
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
-        private ValueTransformersHandler $valueTransformers,
-        private KeyTransformersHandler $keyTransformers,
-        /** @var list<callable> */
-        private array $transformers,
-        /** @var list<class-string> */
-        private array $transformerAttributes,
+        private FunctionDefinitionRepository $functionDefinitionRepository,
+        private TransformerContainer $transformerContainer,
     ) {}
 
-    /**
-     * @return array<mixed>|scalar|null
-     */
     public function transform(mixed $value): mixed
     {
         return $this->doTransform($value, new WeakMap()); // @phpstan-ignore-line
@@ -64,25 +56,56 @@ final class RecursiveTransformer
 
             // @infection-ignore-all
             $references[$value] = true;
+
+            $class = $this->classDefinitionRepository->for(new NativeClassType($value::class));
+
+            $attributes = [...$attributes, ...$class->attributes];
         }
 
-        if (is_object($value)) {
-            $classAttributes = $this->classDefinitionRepository->for(new NativeClassType($value::class))->attributes;
-            $classAttributes = $this->filterAttributes($classAttributes);
-
-            $attributes = [...$attributes, ...$classAttributes];
+        if ($attributes !== []) {
+            $attributes = (new Attributes(...$attributes))
+                ->filter($this->transformerContainer->filterTransformerAttributes(...))
+                ->toArray();
         }
 
-        if ($this->transformers === [] && $attributes === []) {
+        if (! $this->transformerContainer->hasTransformers() && $attributes === []) {
             return $this->defaultTransformer($value, $references);
         }
 
-        return $this->valueTransformers->transform(
-            $value,
-            $attributes,
-            $this->transformers,
+        $transformers = [
+            // First chunk of transformers to be used: attributes, coming from
+            // class or property.
+            ...array_map(
+                fn (AttributeDefinition $attribute) => $attribute->instantiate()->normalize(...), // @phpstan-ignore-line / We know the method exists
+                $attributes,
+            ),
+            // Second chunk of transformers to be used: registered transformers.
+            ...$this->transformerContainer->transformers(),
+            // Last one: default transformer.
             fn (mixed $value) => $this->defaultTransformer($value, $references),
-        );
+        ];
+
+        return call_user_func($this->nextTransformer($transformers, $value));
+    }
+
+    /**
+     * @param non-empty-list<callable> $transformers
+     */
+    private function nextTransformer(array $transformers, mixed $value): callable
+    {
+        $transformer = array_shift($transformers);
+
+        if ($transformers === []) {
+            return fn () => $transformer($value);
+        }
+
+        $function = $this->functionDefinitionRepository->for($transformer);
+
+        if (! $function->parameters->at(0)->type->accepts($value)) {
+            return $this->nextTransformer($transformers, $value);
+        }
+
+        return fn () => $transformer($value, fn () => call_user_func($this->nextTransformer($transformers, $value)));
     }
 
     /**
@@ -115,7 +138,7 @@ final class RecursiveTransformer
             if ($value::class === stdClass::class || $value instanceof ArrayObject) {
                 return array_map(
                     fn (mixed $value) => $this->doTransform($value, $references),
-                    (array)$value
+                    (array)$value,
                 );
             }
 
@@ -126,11 +149,19 @@ final class RecursiveTransformer
             $class = $this->classDefinitionRepository->for(new NativeClassType($value::class));
 
             foreach ($values as $key => $subValue) {
-                $attributes = $this->filterAttributes($class->properties->get($key)->attributes)->toArray();
+                $property = $class->properties->get($key);
 
-                $key = $this->keyTransformers->transformKey($key, $attributes);
+                $keyTransformersAttributes = $property->attributes->filter($this->transformerContainer->filterKeyTransformerAttributes(...));
 
-                $transformed[$key] = $this->doTransform($subValue, $references, $attributes);
+                foreach ($keyTransformersAttributes as $attribute) {
+                    $method = $attribute->class->methods->get('normalizeKey');
+
+                    if ($method->parameters->count() === 0 || $method->parameters->at(0)->type->accepts($key)) {
+                        $key = $attribute->instantiate()->normalizeKey($key); // @phpstan-ignore-line / We know the method exists
+                    }
+                }
+
+                $transformed[$key] = $this->doTransform($subValue, $references, $property->attributes->toArray());
             }
 
             return $transformed;
@@ -140,7 +171,7 @@ final class RecursiveTransformer
             if (is_array($value)) {
                 return array_map(
                     fn (mixed $value) => $this->doTransform($value, $references),
-                    $value
+                    $value,
                 );
             }
 
@@ -152,22 +183,5 @@ final class RecursiveTransformer
         }
 
         throw new TypeUnhandledByNormalizer($value);
-    }
-
-    private function filterAttributes(Attributes $attributes): Attributes
-    {
-        return $attributes->filter(function (AttributeDefinition $attribute) {
-            if ($attribute->class->attributes->has(AsTransformer::class)) {
-                return true;
-            }
-
-            foreach ($this->transformerAttributes as $transformerAttribute) {
-                if (is_a($attribute->class->type->className(), $transformerAttribute, true)) {
-                    return true;
-                }
-            }
-
-            return false;
-        });
     }
 }
