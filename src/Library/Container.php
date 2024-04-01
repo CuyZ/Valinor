@@ -37,7 +37,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\NativeClassNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\FilteredObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -54,7 +54,7 @@ use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
-use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
@@ -111,10 +111,10 @@ final class Container
                     ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
                     ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
                     NullType::class => new NullNodeBuilder(),
-                    ClassType::class => new NativeClassNodeBuilder(
+                    ObjectType::class => new NativeClassNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
-                        $this->get(ObjectNodeBuilder::class),
+                        $this->get(FilteredObjectNodeBuilder::class),
                         $settings->enableFlexibleCasting,
                     ),
                 ]);
@@ -126,7 +126,11 @@ final class Container
                     $this->get(ObjectImplementations::class),
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(ObjectBuilderFactory::class),
-                    $this->get(ObjectNodeBuilder::class),
+                    $this->get(FilteredObjectNodeBuilder::class),
+                    new FunctionsContainer(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->customConstructors
+                    ),
                     $settings->enableFlexibleCasting,
                     $settings->allowSuperfluousKeys,
                 );
@@ -149,7 +153,7 @@ final class Container
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
 
-            ObjectNodeBuilder::class => fn () => new ObjectNodeBuilder($settings->allowSuperfluousKeys),
+            FilteredObjectNodeBuilder::class => fn () => new FilteredObjectNodeBuilder($settings->allowSuperfluousKeys),
 
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(

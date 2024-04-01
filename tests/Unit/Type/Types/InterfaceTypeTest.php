@@ -66,8 +66,8 @@ final class InterfaceTypeTest extends TestCase
 
     public function test_matches_sub_class(): void
     {
-        $interfaceTypeA = new InterfaceType(DateTimeInterface::class);
-        $interfaceTypeB = new InterfaceType(DateTime::class);
+        $interfaceTypeA = new InterfaceType(SomeChildInterface::class);
+        $interfaceTypeB = new InterfaceType(SomeParentInterface::class);
 
         self::assertTrue($interfaceTypeA->matches($interfaceTypeB));
     }
@@ -117,11 +117,11 @@ final class InterfaceTypeTest extends TestCase
     public function test_matches_intersection_of_valid_types(): void
     {
         $intersectionType = new IntersectionType(
-            new InterfaceType(DateTimeInterface::class),
-            new InterfaceType(DateTime::class)
+            new InterfaceType(SomeParentInterface::class),
+            new InterfaceType(SomeOtherParentInterface::class),
         );
 
-        self::assertTrue((new InterfaceType(DateTimeInterface::class))->matches($intersectionType));
+        self::assertTrue((new InterfaceType(SomeChildInterface::class))->matches($intersectionType));
     }
 
     public function test_does_not_match_intersection_containing_invalid_type(): void
@@ -134,3 +134,9 @@ final class InterfaceTypeTest extends TestCase
         self::assertFalse((new InterfaceType(DateTime::class))->matches($intersectionType));
     }
 }
+
+interface SomeParentInterface {}
+
+interface SomeOtherParentInterface {}
+
+interface SomeChildInterface extends SomeParentInterface, SomeOtherParentInterface {}

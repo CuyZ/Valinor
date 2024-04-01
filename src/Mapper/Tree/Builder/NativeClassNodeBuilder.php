@@ -8,7 +8,8 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\ClassType;
+
+use CuyZ\Valinor\Type\ObjectType;
 
 use function assert;
 
@@ -18,7 +19,7 @@ final class NativeClassNodeBuilder implements NodeBuilder
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
-        private ObjectNodeBuilder $objectNodeBuilder,
+        private FilteredObjectNodeBuilder $filteredObjectNodeBuilder,
         private bool $enableFlexibleCasting,
     ) {}
 
@@ -27,7 +28,7 @@ final class NativeClassNodeBuilder implements NodeBuilder
         $type = $shell->type();
 
         // @infection-ignore-all
-        assert($type instanceof ClassType);
+        assert($type instanceof ObjectType);
 
         if ($this->enableFlexibleCasting && $shell->value() === null) {
             $shell = $shell->withValue([]);
@@ -36,6 +37,6 @@ final class NativeClassNodeBuilder implements NodeBuilder
         $class = $this->classDefinitionRepository->for($type);
         $objectBuilder = FilteredObjectBuilder::from($shell->value(), ...$this->objectBuilderFactory->for($class));
 
-        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $this->filteredObjectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
     }
 }

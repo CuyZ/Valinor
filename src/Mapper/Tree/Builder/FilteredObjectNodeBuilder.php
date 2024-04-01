@@ -12,7 +12,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use function count;
 
 /** @internal */
-final class ObjectNodeBuilder
+final class FilteredObjectNodeBuilder
 {
     public function __construct(private bool $allowSuperfluousKeys) {}
 

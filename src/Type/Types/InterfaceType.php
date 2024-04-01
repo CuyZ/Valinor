@@ -51,7 +51,7 @@ final class InterfaceType implements ObjectType, GenericType
             return false;
         }
 
-        return is_a($other->className(), $this->interfaceName, true);
+        return is_a($this->interfaceName, $other->className(), true);
     }
 
     public function traverse(): array

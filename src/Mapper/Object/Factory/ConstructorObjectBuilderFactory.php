@@ -131,7 +131,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         return array_values($builders);
     }
 
-    private function constructorMatches(FunctionObject $function, ClassType $classType): bool
+    private function constructorMatches(FunctionObject $function, ObjectType $classType): bool
     {
         $definition = $function->definition;
 

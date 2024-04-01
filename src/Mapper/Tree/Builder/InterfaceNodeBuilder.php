@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
@@ -11,9 +12,11 @@ use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
+use CuyZ\Valinor\Mapper\Tree\Exception\InterfaceHasBothConstructorAndInfer;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 
@@ -25,7 +28,8 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
-        private ObjectNodeBuilder $objectNodeBuilder,
+        private FilteredObjectNodeBuilder $filteredObjectNodeBuilder,
+        private FunctionsContainer $constructors,
         private bool $enableFlexibleCasting,
         private bool $allowSuperfluousKeys,
     ) {}
@@ -35,6 +39,14 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $type = $shell->type();
 
         if (! $type instanceof InterfaceType && ! $type instanceof NativeClassType) {
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
+        if ($this->constructorRegisteredFor($type)) {
+            if ($this->implementations->has($type->className())) {
+                throw new InterfaceHasBothConstructorAndInfer($type->className());
+            }
+
             return $this->delegate->build($shell, $rootBuilder);
         }
 
@@ -82,7 +94,18 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         $shell = $this->transformSourceForClass($shell, $arguments, $objectBuilder->describeArguments());
 
-        return $this->objectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $this->filteredObjectNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+    }
+
+    private function constructorRegisteredFor(Type $type): bool
+    {
+        foreach ($this->constructors as $constructor) {
+            if ($type->matches($constructor->definition->returnType)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function transformSourceForClass(Shell $shell, Arguments $interfaceArguments, Arguments $classArguments): Shell
