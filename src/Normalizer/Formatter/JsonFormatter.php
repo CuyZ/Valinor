@@ -36,7 +36,6 @@ final class JsonFormatter implements StreamFormatter
         } elseif (is_bool($value)) {
             $this->write($value ? 'true' : 'false');
         } elseif (is_scalar($value)) {
-            assert(($this->jsonEncodingOptions & JSON_THROW_ON_ERROR) === JSON_THROW_ON_ERROR);
             /**
              * @phpstan-ignore-next-line / Due to the new json encoding options feature, it is not possible to let SA
              *                             tools understand that JSON_THROW_ON_ERROR is always set.
