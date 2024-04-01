@@ -14,7 +14,7 @@ use CuyZ\Valinor\Type\ObjectType;
 use function assert;
 
 /** @internal */
-final class NativeClassNodeBuilder implements NodeBuilder
+final class ObjectNodeBuilder implements NodeBuilder
 {
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
