@@ -74,10 +74,12 @@ $normalizer->normalize($users);
 
 ## Passing `json_encode` flags
 
-By default, the JSON normalizer will only use `JSON_THROW_ON_ERROR` to encode non-boolean scalar values.
-There might be use-cases where projects will need flags like `JSON_JSON_PRESERVE_ZERO_FRACTION` and/or other flags.
+By default, the JSON normalizer will only use `JSON_THROW_ON_ERROR` to encode
+non-boolean scalar values. There might be use-cases where projects will need
+flags like `JSON_JSON_PRESERVE_ZERO_FRACTION`.
 
-This can be achieved by passing these flags to the `JsonNormalizer#withOptions` method:
+This can be achieved by passing these flags to the
+`JsonNormalizer::withOptions()` method:
 
 ```php
 namespace My\App;
@@ -99,7 +101,8 @@ $lowerManhattanAsJson = $normalizer->normalize(
 // {"longitude":"40.7128","latitude":-74.0000}
 ```
 
-The method only accepts an int-mask of the following `JSON_*` [constant](https://www.php.net/manual/de/json.constants.php) representations:
+The method accepts an int-mask of the following `JSON_*` constant
+representations ([see official doc for more information]):
 
 - `JSON_HEX_QUOT`
 - `JSON_HEX_TAG`
@@ -120,3 +123,5 @@ The method only accepts an int-mask of the following `JSON_*` [constant](https:/
 [registered transformers]: extending-normalizer.md
 
 [can be streamed to a PHP resource]: #streaming-to-a-php-resource
+
+[see official doc for more information]: https://www.php.net/manual/en/json.constants.php
