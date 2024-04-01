@@ -84,11 +84,9 @@ This can be achieved by passing these flags to the
 ```php
 namespace My\App;
 
-use const JSON_PRESERVE_ZERO_FRACTION;
-
 $normalizer = (new \CuyZ\Valinor\MapperBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
-    ->withOptions(JSON_PRESERVE_ZERO_FRACTION);
+    ->withOptions(\JSON_PRESERVE_ZERO_FRACTION);
 
 $lowerManhattanAsJson = $normalizer->normalize(
     new \My\App\Coordinates(

@@ -72,6 +72,29 @@ final class JsonNormalizer implements Normalizer
         $this->jsonEncodingOptions = (self::ACCEPTABLE_JSON_OPTIONS & $jsonEncodingOptions) | JSON_THROW_ON_ERROR;
     }
 
+    /**
+     * By default, the JSON normalizer will only use `JSON_THROW_ON_ERROR` to
+     * encode non-boolean scalar values. There might be use-cases where projects
+     * will need flags like `JSON_JSON_PRESERVE_ZERO_FRACTION`.
+     *
+     * This can be achieved by passing these flags to this method:
+     *
+     * ```php
+     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
+     *     ->withOptions(\JSON_PRESERVE_ZERO_FRACTION);
+     *
+     * $lowerManhattanAsJson = $normalizer->normalize(
+     *     new \My\App\Coordinates(
+     *         longitude: 40.7128,
+     *         latitude: -74.0000
+     *     )
+     * );
+     *
+     * // `$lowerManhattanAsJson` is a valid JSON string representing the data:
+     * // {"longitude":"40.7128","latitude":-74.0000}
+     * ```
+     */
     public function withOptions(int $options): self
     {
         return new self($this->transformer, $options);
