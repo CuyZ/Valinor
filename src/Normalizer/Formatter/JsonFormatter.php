@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
-use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use Generator;
 
 use function array_is_list;
@@ -24,11 +23,10 @@ final class JsonFormatter implements StreamFormatter
 {
     /**
      * @param resource $resource
-     * @param int-mask-of<JsonNormalizer::JSON_*> $jsonEncodingOptions
      */
     public function __construct(
         private mixed $resource,
-        private readonly int $jsonEncodingOptions,
+        private int $jsonEncodingOptions,
     ) {}
 
     public function format(mixed $value): void
