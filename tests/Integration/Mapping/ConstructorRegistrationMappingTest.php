@@ -12,6 +12,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\Exception\ObjectBuildersCollision;
+use CuyZ\Valinor\Mapper\Tree\Exception\InterfaceHasBothConstructorAndInfer;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
@@ -678,6 +679,54 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
             self::assertSame('some error message', (string)$error);
         }
     }
+
+    public function test_two_registered_constructors_for_interface_work_properly(): void
+    {
+        $mapper = $this
+            ->mapperBuilder()
+            ->registerConstructor(
+                fn (string $foo, int $bar): SomeInterfaceWithRegisteredConstructor => new SomeClassImplementingInterfaceWithRegisteredConstructor($foo, $bar),
+                fn (string $bar, int $baz): SomeInterfaceWithRegisteredConstructor => new SomeOtherClassImplementingInterfaceWithRegisteredConstructor($bar, $baz),
+            )
+            ->mapper();
+
+        try {
+            $resultA = $mapper->map(SomeInterfaceWithRegisteredConstructor::class, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+
+            $resultB = $mapper->map(SomeInterfaceWithRegisteredConstructor::class, [
+                'bar' => 'bar',
+                'baz' => 1337,
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassImplementingInterfaceWithRegisteredConstructor::class, $resultA);
+        self::assertSame('foo', $resultA->foo);
+        self::assertSame(42, $resultA->bar);
+
+        self::assertInstanceOf(SomeOtherClassImplementingInterfaceWithRegisteredConstructor::class, $resultB);
+        self::assertSame('bar', $resultB->bar);
+        self::assertSame(1337, $resultB->baz);
+    }
+
+    public function test_interface_with_both_constructor_and_infer_configurations_throws_exception(): void
+    {
+        $this->expectException(InterfaceHasBothConstructorAndInfer::class);
+        $this->expectExceptionCode(1711915749);
+        $this->expectExceptionMessage('Interface `' . SomeInterfaceWithRegisteredConstructor::class . '` is configured with at least one constructor but also has an infer configuration. Only one method can be used.');
+
+        $this->mapperBuilder()
+            ->registerConstructor(
+                fn (): SomeInterfaceWithRegisteredConstructor => new SomeClassImplementingInterfaceWithRegisteredConstructor('foo', 42)
+            )
+            ->infer(SomeInterfaceWithRegisteredConstructor::class, fn () => SomeClassImplementingInterfaceWithRegisteredConstructor::class)
+            ->mapper()
+            ->map(SomeInterfaceWithRegisteredConstructor::class, []);
+    }
 }
 
 final class SomeClassWithNamedConstructors
@@ -784,4 +833,22 @@ final class SomeClassProvidingStaticClosure
     {
         return fn (): stdClass => $object;
     }
+}
+
+interface SomeInterfaceWithRegisteredConstructor {}
+
+final class SomeClassImplementingInterfaceWithRegisteredConstructor implements SomeInterfaceWithRegisteredConstructor
+{
+    public function __construct(
+        public string $foo,
+        public int $bar
+    ) {}
+}
+
+final class SomeOtherClassImplementingInterfaceWithRegisteredConstructor implements SomeInterfaceWithRegisteredConstructor
+{
+    public function __construct(
+        public string $bar,
+        public int $baz
+    ) {}
 }

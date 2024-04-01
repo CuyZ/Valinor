@@ -130,6 +130,37 @@ final class Color
 }
 ```
 
+## Interface implementation constructor
+
+By default, the mapper cannot instantiate an interface, as it does not know
+which implementation to use. To do so, it is possible to register a constructor
+for an interface, in the same way as for a class.
+
+!!! note
+
+    Because the mapper cannot automatically guess which implementation can be
+    used for an interface, it is not possible to use the `Constructor`
+    attribute, the `MapperBuilder::registerConstructor()` method must be used
+    instead.
+
+In the example below, the mapper is taught how to instantiate an implementation
+of `UuidInterface` from package [`ramsey/uuid`](https://github.com/ramsey/uuid):
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConstructor(
+        // The static method below has return type `UuidInterface`; therefore,
+        // the mapper will build an instance of `Uuid` when it needs to 
+        // instantiate an implementation of `UuidInterface`.
+        Ramsey\Uuid\Uuid::fromString(...)
+    )
+    ->mapper()
+    ->map(
+        Ramsey\Uuid\UuidInterface::class,
+        '663bafbf-c3b5-4336-b27f-1796be8554e0'
+    );
+```
+
 ## Custom enum constructor
 
 Registering a constructor for an enum works the same way as for a class, as

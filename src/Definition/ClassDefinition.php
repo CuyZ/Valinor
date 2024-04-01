@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
-use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 
 /** @internal */
 final class ClassDefinition
@@ -12,7 +12,7 @@ final class ClassDefinition
     public function __construct(
         /** @var class-string */
         public readonly string $name,
-        public readonly ClassType $type,
+        public readonly ObjectType $type,
         public readonly Attributes $attributes,
         public readonly Properties $properties,
         public readonly Methods $methods,
