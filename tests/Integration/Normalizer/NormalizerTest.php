@@ -1059,28 +1059,28 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_json_transformer_will_always_throw_on_error(): void
     {
         $normalizer = $this->mapperBuilder()->normalizer(Format::json());
-        self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $normalizer->withOptions(JSON_HEX_TAG);
-        self::assertSame(JSON_THROW_ON_ERROR | JSON_HEX_TAG, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR | JSON_HEX_TAG, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $normalizer->withOptions(JSON_HEX_TAG & ~JSON_THROW_ON_ERROR);
-        self::assertSame(JSON_THROW_ON_ERROR | JSON_HEX_TAG, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR | JSON_HEX_TAG, (fn () => $this->jsonEncodingOptions)->call($normalizer));
     }
 
     public function test_json_transformer_only_accepts_acceptable_json_options(): void
     {
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT);
-        self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR);
-        self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PRETTY_PRINT);
-        self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_PRETTY_PRINT);
-        self::assertSame(JSON_THROW_ON_ERROR, $normalizer->jsonEncodingOptions);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
     }
 }
 

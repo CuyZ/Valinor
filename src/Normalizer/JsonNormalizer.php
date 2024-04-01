@@ -47,34 +47,34 @@ final class JsonNormalizer implements Normalizer
     | JSON_UNESCAPED_UNICODE
     | JSON_THROW_ON_ERROR;
 
+    private RecursiveTransformer $transformer;
+
+    private int $jsonEncodingOptions;
+
+    /**
+     * Internal note
+     * -------------
+     *
+     * We could use the `int-mask-of<JsonNormalizer::JSON_*>` annotation
+     * to let PHPStan infer the type of the accepted options, but some caveats
+     * were found:
+     * - SA tools are not able to infer that we end up having only accepted
+     *   options. Might be fixed with https://github.com/phpstan/phpstan/issues/9384
+     *   for PHPStan but Psalm does have some (not all) issues as well.
+     * - Using this annotation provokes *severe* performance issues when
+     *   running PHPStan analysis, therefore it is preferable to avoid it.
+     */
     public function __construct(
-        private RecursiveTransformer $transformer,
-        public readonly int $jsonEncodingOptions = JSON_THROW_ON_ERROR,
+        RecursiveTransformer $transformer,
+        int $jsonEncodingOptions = JSON_THROW_ON_ERROR,
     ) {
-        assert(
-            ($this->jsonEncodingOptions & JSON_THROW_ON_ERROR) === JSON_THROW_ON_ERROR,
-            'JSON encoding options always have to contain JSON_THROW_ON_ERROR.',
-        );
+        $this->transformer = $transformer;
+        $this->jsonEncodingOptions = (self::ACCEPTABLE_JSON_OPTIONS & $jsonEncodingOptions) | JSON_THROW_ON_ERROR;
     }
 
     public function withOptions(int $options): self
     {
-        /**
-         * Internal note
-         * -------------
-         *
-         * We could use the `int-mask-of<JsonNormalizer::JSON_*>` annotation
-         * to let PHPStan infer the type of the accepted options, but we found
-         * some caveats:
-         * - SA tools are not able to infer that we end up having only accepted
-         *   options. Might be fixed with https://github.com/phpstan/phpstan/issues/9384
-         *   for PHPStan but Psalm does have some (not all) issues as well.
-         * - Using this annotation provokes *severe* performance issues when
-         *   running PHPStan analysis, therefore it is preferable to avoid it.
-         */
-        $acceptedOptions = (self::ACCEPTABLE_JSON_OPTIONS & $options) | JSON_THROW_ON_ERROR;
-
-        return new self($this->transformer, $acceptedOptions);
+        return new self($this->transformer, $options);
     }
 
     public function normalize(mixed $value): string
