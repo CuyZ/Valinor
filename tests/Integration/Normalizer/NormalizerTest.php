@@ -660,6 +660,15 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [],
             'jsonEncodingOptions' => JSON_PRESERVE_ZERO_FRACTION,
         ];
+
+        yield 'array with key and value containing ampersand' => [
+            'input' => ['foo&bar' => 'bar&baz'],
+            'expected array' => ['foo&bar' => 'bar&baz'],
+            'expected_json' => '{"foo\u0026bar":"bar\u0026baz"}',
+            'transformers' => [],
+            'transformerAttributes' => [],
+            'jsonEncodingOptions' => JSON_HEX_AMP,
+        ];
     }
 
     public function test_generator_of_scalar_yields_expected_array(): void

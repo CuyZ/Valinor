@@ -66,7 +66,9 @@ final class JsonFormatter implements StreamFormatter
                 $isFirst = false;
 
                 if (! $isList) {
-                    $this->write('"' . $key . '":');
+                    $key = json_encode($key, $this->jsonEncodingOptions);
+
+                    $this->write($key . ':');
                 }
 
                 $this->format($val);
