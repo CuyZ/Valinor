@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Type\Parser\Factory;
 use CuyZ\Valinor\Type\Parser\CachedParser;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeParserSpecification;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\ObjectLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
@@ -27,12 +27,7 @@ final class LexingTypeParserFactory implements TypeParserFactory
 
     private function buildTypeParser(TypeParserSpecification ...$specifications): TypeParser
     {
-        $lexer = new ObjectLexer();
-
-        foreach ($specifications as $specification) {
-            $lexer = $specification->manipulateLexer($lexer);
-        }
-
+        $lexer = new SpecificationsLexer($specifications);
         $lexer = new NativeLexer($lexer);
 
         $parser = new LexingParser($lexer);
