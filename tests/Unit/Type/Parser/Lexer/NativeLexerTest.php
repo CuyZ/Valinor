@@ -6,16 +6,14 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer;
 
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\ObjectLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ArrayToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassStringToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CommaToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\EnumNameToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\FloatValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerValueToken;
@@ -29,7 +27,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\UnknownSymbolToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\VacantToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -42,7 +40,7 @@ final class NativeLexerTest extends TestCase
     {
         parent::setUp();
 
-        $this->lexer = new NativeLexer(new ObjectLexer());
+        $this->lexer = new NativeLexer(new SpecificationsLexer([]));
     }
 
     /**
@@ -145,16 +143,16 @@ final class NativeLexerTest extends TestCase
         ];
         yield 'class' => [
             'symbol' => stdClass::class,
-            'token' => ClassNameToken::class,
+            'token' => VacantToken::class,
         ];
         yield 'unknown' => [
             'symbol' => 'unknown',
-            'token' => UnknownSymbolToken::class,
+            'token' => VacantToken::class,
         ];
 
         yield 'enum' => [
             'symbol' => PureEnum::class,
-            'token' => EnumNameToken::class,
+            'token' => VacantToken::class,
         ];
     }
 }

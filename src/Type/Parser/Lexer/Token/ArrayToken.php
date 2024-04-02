@@ -135,7 +135,7 @@ final class ArrayToken implements TraversingToken
                 throw new ShapedArrayClosingBracketMissing($elements, unsealedType: false);
             }
 
-            if ($stream->next() instanceof UnknownSymbolToken) {
+            if ($stream->next() instanceof VacantToken) {
                 $type = new StringValueType($stream->forward()->symbol());
             } elseif ($isUnsealed && $stream->next() instanceof ClosingCurlyBracketToken) {
                 $stream->forward();

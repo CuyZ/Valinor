@@ -45,7 +45,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\ObjectLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
@@ -93,7 +93,7 @@ final class NativeLexerTest extends TestCase
     {
         parent::setUp();
 
-        $lexer = new NativeLexer(new ObjectLexer());
+        $lexer = new NativeLexer(new SpecificationsLexer([]));
 
         $this->parser = new LexingParser($lexer);
     }
