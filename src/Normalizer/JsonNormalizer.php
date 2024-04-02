@@ -92,7 +92,7 @@ final class JsonNormalizer implements Normalizer
      * );
      *
      * // `$lowerManhattanAsJson` is a valid JSON string representing the data:
-     * // {"longitude":"40.7128","latitude":-74.0000}
+     * // {"longitude":40.7128,"latitude":-74.0000}
      * ```
      */
     public function withOptions(int $options): self

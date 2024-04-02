@@ -96,7 +96,7 @@ $lowerManhattanAsJson = $normalizer->normalize(
 );
 
 // `$lowerManhattanAsJson` is a valid JSON string representing the data:
-// {"longitude":"40.7128","latitude":-74.0000}
+// {"longitude":40.7128,"latitude":-74.0000}
 ```
 
 The method accepts an int-mask of the following `JSON_*` constant
