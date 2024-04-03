@@ -32,12 +32,10 @@ final class VacantToken implements TraversingToken
         }
 
         if (Reflection::enumExists($this->symbol)) {
-            // @phpstan-ignore-next-line / We know `$this->symbol` matches `class-string<UnitEnum>`
             return (new EnumNameToken($this->symbol))->traverse($stream);
         }
 
         if (Reflection::classOrInterfaceExists($this->symbol)) {
-            // @phpstan-ignore-next-line / We know `$this->symbol` matches `class-string`
             return (new ClassNameToken($this->symbol))->traverse($stream);
         }
 
