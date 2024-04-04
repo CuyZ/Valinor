@@ -19,7 +19,7 @@ final class ObjectToken implements TraversingToken
     public function traverse(TokenStream $stream): Type
     {
         return Reflection::enumExists($this->className)
-            ? (new EnumNameToken($this->className))->traverse($stream) // @phpstan-ignore-line / We know `$this->className` matches `class-string<UnitEnum>`
+            ? (new EnumNameToken($this->className))->traverse($stream)
             : (new ClassNameToken($this->className))->traverse($stream);
     }
 
