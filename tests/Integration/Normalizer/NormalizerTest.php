@@ -147,18 +147,20 @@ final class NormalizerTest extends IntegrationTestCase
 
         yield 'array of scalar' => [
             'input' => [
+                0 => 'first value',
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
             'expected array' => [
+                0 => 'first value',
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
-            'expected json' => '{"string":"foo","integer":42,"float":1337.404,"boolean":true}',
+            'expected json' => '{"0":"first value","string":"foo","integer":42,"float":1337.404,"boolean":true}',
         ];
 
         yield 'array with transformer' => [
