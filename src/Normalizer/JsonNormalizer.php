@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Normalizer;
 
 use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
-
 use RuntimeException;
 
 use function fclose;
@@ -15,6 +14,19 @@ use function get_debug_type;
 use function is_resource;
 use function stream_get_contents;
 
+use const JSON_HEX_AMP;
+use const JSON_HEX_APOS;
+use const JSON_HEX_QUOT;
+use const JSON_HEX_TAG;
+use const JSON_INVALID_UTF8_IGNORE;
+use const JSON_INVALID_UTF8_SUBSTITUTE;
+use const JSON_NUMERIC_CHECK;
+use const JSON_PRESERVE_ZERO_FRACTION;
+use const JSON_THROW_ON_ERROR;
+use const JSON_UNESCAPED_LINE_TERMINATORS;
+use const JSON_UNESCAPED_SLASHES;
+use const JSON_UNESCAPED_UNICODE;
+
 /**
  * @api
  *
@@ -22,9 +34,71 @@ use function stream_get_contents;
  */
 final class JsonNormalizer implements Normalizer
 {
+    private const ACCEPTABLE_JSON_OPTIONS = JSON_HEX_QUOT
+    | JSON_HEX_TAG
+    | JSON_HEX_AMP
+    | JSON_HEX_APOS
+    | JSON_INVALID_UTF8_IGNORE
+    | JSON_INVALID_UTF8_SUBSTITUTE
+    | JSON_NUMERIC_CHECK
+    | JSON_PRESERVE_ZERO_FRACTION
+    | JSON_UNESCAPED_LINE_TERMINATORS
+    | JSON_UNESCAPED_SLASHES
+    | JSON_UNESCAPED_UNICODE
+    | JSON_THROW_ON_ERROR;
+
+    private RecursiveTransformer $transformer;
+
+    private int $jsonEncodingOptions;
+
+    /**
+     * Internal note
+     * -------------
+     *
+     * We could use the `int-mask-of<JsonNormalizer::JSON_*>` annotation
+     * to let PHPStan infer the type of the accepted options, but some caveats
+     * were found:
+     * - SA tools are not able to infer that we end up having only accepted
+     *   options. Might be fixed with https://github.com/phpstan/phpstan/issues/9384
+     *   for PHPStan but Psalm does have some (not all) issues as well.
+     * - Using this annotation provokes *severe* performance issues when
+     *   running PHPStan analysis, therefore it is preferable to avoid it.
+     */
     public function __construct(
-        private RecursiveTransformer $transformer,
-    ) {}
+        RecursiveTransformer $transformer,
+        int $jsonEncodingOptions = JSON_THROW_ON_ERROR,
+    ) {
+        $this->transformer = $transformer;
+        $this->jsonEncodingOptions = (self::ACCEPTABLE_JSON_OPTIONS & $jsonEncodingOptions) | JSON_THROW_ON_ERROR;
+    }
+
+    /**
+     * By default, the JSON normalizer will only use `JSON_THROW_ON_ERROR` to
+     * encode non-boolean scalar values. There might be use-cases where projects
+     * will need flags like `JSON_JSON_PRESERVE_ZERO_FRACTION`.
+     *
+     * This can be achieved by passing these flags to this method:
+     *
+     * ```php
+     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
+     *     ->withOptions(\JSON_PRESERVE_ZERO_FRACTION);
+     *
+     * $lowerManhattanAsJson = $normalizer->normalize(
+     *     new \My\App\Coordinates(
+     *         longitude: 40.7128,
+     *         latitude: -74.0000
+     *     )
+     * );
+     *
+     * // `$lowerManhattanAsJson` is a valid JSON string representing the data:
+     * // {"longitude":40.7128,"latitude":-74.0000}
+     * ```
+     */
+    public function withOptions(int $options): self
+    {
+        return new self($this->transformer, $options);
+    }
 
     public function normalize(mixed $value): string
     {
@@ -33,7 +107,7 @@ final class JsonNormalizer implements Normalizer
         /** @var resource $resource */
         $resource = fopen('php://memory', 'w');
 
-        (new JsonFormatter($resource))->format($value);
+        (new JsonFormatter($resource, $this->jsonEncodingOptions))->format($value);
 
         rewind($resource);
 
@@ -80,6 +154,6 @@ final class JsonNormalizer implements Normalizer
             throw new RuntimeException('Expected a valid resource, got ' . get_debug_type($resource));
         }
 
-        return new StreamNormalizer($this->transformer, new JsonFormatter($resource));
+        return new StreamNormalizer($this->transformer, new JsonFormatter($resource, $this->jsonEncodingOptions));
     }
 }

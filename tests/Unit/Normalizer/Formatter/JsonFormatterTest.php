@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 use function fopen;
 
+use const JSON_THROW_ON_ERROR;
+
 final class JsonFormatterTest extends TestCase
 {
     public function test_invalid_closure_type_given_to_formatter_throws_exception(): void
@@ -21,6 +23,6 @@ final class JsonFormatterTest extends TestCase
         /** @var resource $resource */
         $resource = fopen('php://memory', 'r+');
 
-        (new JsonFormatter($resource))->format(fn () => 42);
+        (new JsonFormatter($resource, JSON_THROW_ON_ERROR))->format(fn () => 42);
     }
 }

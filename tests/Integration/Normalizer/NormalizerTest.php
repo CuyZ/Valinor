@@ -29,6 +29,9 @@ use Traversable;
 
 use function array_merge;
 
+use const JSON_HEX_TAG;
+use const JSON_THROW_ON_ERROR;
+
 final class NormalizerTest extends IntegrationTestCase
 {
     /**
@@ -42,6 +45,7 @@ final class NormalizerTest extends IntegrationTestCase
         string $expectedJson,
         array $transformers = [],
         array $transformerAttributes = [],
+        int $jsonEncodingOptions = JSON_THROW_ON_ERROR,
     ): void {
         $builder = $this->mapperBuilder();
 
@@ -56,7 +60,9 @@ final class NormalizerTest extends IntegrationTestCase
         }
 
         $arrayResult = $builder->normalizer(Format::array())->normalize($input);
-        $jsonResult = $builder->normalizer(Format::json())->normalize($input);
+        $jsonNormalizer = $builder->normalizer(Format::json())->withOptions($jsonEncodingOptions);
+
+        $jsonResult = $jsonNormalizer->normalize($input);
 
         self::assertSame($expectedArray, $arrayResult);
         self::assertSame($expectedJson, $jsonResult);
@@ -141,18 +147,20 @@ final class NormalizerTest extends IntegrationTestCase
 
         yield 'array of scalar' => [
             'input' => [
+                0 => 'first value',
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
             'expected array' => [
+                0 => 'first value',
                 'string' => 'foo',
                 'integer' => 42,
                 'float' => 1337.404,
                 'boolean' => true,
             ],
-            'expected json' => '{"string":"foo","integer":42,"float":1337.404,"boolean":true}',
+            'expected json' => '{"0":"first value","string":"foo","integer":42,"float":1337.404,"boolean":true}',
         ];
 
         yield 'array with transformer' => [
@@ -303,13 +311,13 @@ final class NormalizerTest extends IntegrationTestCase
         ];
 
         yield 'date with default transformer' => [
-            'input' => new DateTimeImmutable('1971-11-08'),
+            'input' => new DateTimeImmutable('1971-11-08', new DateTimeZone('UTC')),
             'expected array' => '1971-11-08T00:00:00.000000+00:00',
             'expected json' => '"1971-11-08T00:00:00.000000+00:00"',
         ];
 
         yield 'date with transformer' => [
-            'input' => new DateTimeImmutable('1971-11-08'),
+            'input' => new DateTimeImmutable('1971-11-08', new DateTimeZone('UTC')),
             'expected array' => '1971-11-08',
             'expected json' => '"1971-11-08"',
             'transformers' => [
@@ -640,6 +648,28 @@ final class NormalizerTest extends IntegrationTestCase
                 RenamePropertyKey::class,
                 SomeKeyTransformerInterface::class,
             ],
+        ];
+
+        yield 'object with float property containing zero fraction' => [
+            'input' => new class () {
+                public function __construct(
+                    public float $value = 1.0,
+                ) {}
+            },
+            'expected array' => ['value' => 1.0],
+            'expected_json' => '{"value":1.0}',
+            'transformers' => [],
+            'transformerAttributes' => [],
+            'jsonEncodingOptions' => JSON_PRESERVE_ZERO_FRACTION,
+        ];
+
+        yield 'array with key and value containing ampersand' => [
+            'input' => ['foo&bar' => 'bar&baz'],
+            'expected array' => ['foo&bar' => 'bar&baz'],
+            'expected_json' => '{"foo\u0026bar":"bar\u0026baz"}',
+            'transformers' => [],
+            'transformerAttributes' => [],
+            'jsonEncodingOptions' => JSON_HEX_AMP,
         ];
     }
 
@@ -1035,6 +1065,33 @@ final class NormalizerTest extends IntegrationTestCase
 
         // @phpstan-ignore-next-line
         $this->mapperBuilder()->normalizer(Format::json())->streamTo('foo');
+    }
+
+    public function test_json_transformer_will_always_throw_on_error(): void
+    {
+        $normalizer = $this->mapperBuilder()->normalizer(Format::json());
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
+
+        $normalizer = $normalizer->withOptions(JSON_HEX_TAG);
+        self::assertSame(JSON_THROW_ON_ERROR | JSON_HEX_TAG, (fn () => $this->jsonEncodingOptions)->call($normalizer));
+
+        $normalizer = $normalizer->withOptions(JSON_HEX_TAG & ~JSON_THROW_ON_ERROR);
+        self::assertSame(JSON_THROW_ON_ERROR | JSON_HEX_TAG, (fn () => $this->jsonEncodingOptions)->call($normalizer));
+    }
+
+    public function test_json_transformer_only_accepts_acceptable_json_options(): void
+    {
+        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
+
+        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
+
+        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PRETTY_PRINT);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
+
+        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_PRETTY_PRINT);
+        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
     }
 }
 

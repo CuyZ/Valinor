@@ -16,6 +16,8 @@ use function is_null;
 use function is_scalar;
 use function json_encode;
 
+use const JSON_THROW_ON_ERROR;
+
 /** @internal */
 final class JsonFormatter implements StreamFormatter
 {
@@ -24,6 +26,7 @@ final class JsonFormatter implements StreamFormatter
      */
     public function __construct(
         private mixed $resource,
+        private int $jsonEncodingOptions,
     ) {}
 
     public function format(mixed $value): void
@@ -33,7 +36,11 @@ final class JsonFormatter implements StreamFormatter
         } elseif (is_bool($value)) {
             $this->write($value ? 'true' : 'false');
         } elseif (is_scalar($value)) {
-            $this->write(json_encode($value, JSON_THROW_ON_ERROR));
+            /**
+             * @phpstan-ignore-next-line / Due to the new json encoding options feature, it is not possible to let SA
+             *                             tools understand that JSON_THROW_ON_ERROR is always set.
+             */
+            $this->write(json_encode($value, $this->jsonEncodingOptions));
         } elseif (is_iterable($value)) {
             // Note: when a generator is formatted, it is considered as a list
             // if its first key is 0. This is done early because the first JSON
@@ -59,7 +66,9 @@ final class JsonFormatter implements StreamFormatter
                 $isFirst = false;
 
                 if (! $isList) {
-                    $this->write('"' . $key . '":');
+                    $key = json_encode((string)$key, $this->jsonEncodingOptions);
+
+                    $this->write($key . ':');
                 }
 
                 $this->format($val);
