@@ -11,7 +11,7 @@ use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
-use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 use DateTimeZone;
 use Exception;
 
@@ -60,7 +60,7 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
         return $builders;
     }
 
-    private function defaultBuilder(ClassType $type): FunctionObjectBuilder
+    private function defaultBuilder(ObjectType $type): FunctionObjectBuilder
     {
         $constructor = function (string $timezone) {
             try {

@@ -124,6 +124,15 @@ final class TypeCompilerTest extends TestCase
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
         )];
+        yield [ShapedArrayType::unsealedWithoutType(
+            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        )];
+        yield [ShapedArrayType::unsealed(
+            new ArrayType(ArrayKeyType::default(), NativeFloatType::get()),
+            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        )];
         yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new IterableType(ArrayKeyType::string(), NativeStringType::get())];

@@ -19,6 +19,7 @@ use ReflectionProperty;
 use ReflectionType;
 use ReflectionUnionType;
 use Reflector;
+use UnitEnum;
 
 use function array_filter;
 use function array_map;
@@ -47,6 +48,8 @@ final class Reflection
 
     /**
      * Case-sensitive implementation of `class_exists` and `interface_exists`.
+     *
+     * @phpstan-assert-if-true class-string $name
      */
     public static function classOrInterfaceExists(string $name): bool
     {
@@ -55,6 +58,9 @@ final class Reflection
             && self::class($name)->name === ltrim($name, '\\');
     }
 
+    /**
+     * @phpstan-assert-if-true class-string<UnitEnum> $name
+     */
     public static function enumExists(string $name): bool
     {
         // @infection-ignore-all / We don't need to test the cache

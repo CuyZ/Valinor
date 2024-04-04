@@ -6,15 +6,15 @@ namespace CuyZ\Valinor\Type\Parser\Factory\Specifications;
 
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\GenericCheckerParser;
-use CuyZ\Valinor\Type\Parser\Lexer\TypeLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
 /** @internal */
 final class GenericCheckerSpecification implements TypeParserSpecification
 {
-    public function manipulateLexer(TypeLexer $lexer): TypeLexer
+    public function manipulateToken(TraversingToken $token): TraversingToken
     {
-        return $lexer;
+        return $token;
     }
 
     public function manipulateParser(TypeParser $parser, TypeParserFactory $typeParserFactory): TypeParser

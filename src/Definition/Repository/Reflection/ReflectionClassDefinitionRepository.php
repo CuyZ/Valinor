@@ -21,7 +21,6 @@ use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
@@ -67,7 +66,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $this->methodBuilder = new ReflectionMethodDefinitionBuilder($this->attributesRepository);
     }
 
-    public function for(ClassType $type): ClassDefinition
+    public function for(ObjectType $type): ClassDefinition
     {
         $reflection = Reflection::class($type->className());
 
@@ -97,7 +96,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return list<PropertyDefinition>
      */
-    private function properties(ClassType $type): array
+    private function properties(ObjectType $type): array
     {
         return array_map(
             function (ReflectionProperty $property) use ($type) {
@@ -112,7 +111,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return list<MethodDefinition>
      */
-    private function methods(ClassType $type): array
+    private function methods(ObjectType $type): array
     {
         $reflection = Reflection::class($type->className());
         $methods = $reflection->getMethods();
@@ -134,7 +133,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @param ReflectionClass<object> $target
      */
-    private function typeResolver(ClassType $type, ReflectionClass $target): ReflectionTypeResolver
+    private function typeResolver(ObjectType $type, ReflectionClass $target): ReflectionTypeResolver
     {
         $typeKey = $target->isInterface()
             ? "{$type->toString()}/{$type->className()}"
@@ -209,7 +208,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /**
      * @return array<string, Type>
      */
-    private function importedTypeAliases(ClassType $type): array
+    private function importedTypeAliases(ObjectType $type): array
     {
         $reflection = Reflection::class($type->className());
         $importedTypesRaw = DocParser::importedTypeAliases($reflection);
@@ -258,7 +257,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         return $this->typeParserFactory->get(...$specs);
     }
 
-    private function parentType(ClassType $type): NativeClassType
+    private function parentType(ObjectType $type): NativeClassType
     {
         $reflection = Reflection::class($type->className());
 

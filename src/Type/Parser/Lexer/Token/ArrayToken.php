@@ -12,6 +12,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayInvalidUnsealedType;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayUnexpectedTokenAfterSealedType;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSealedType;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -99,6 +102,8 @@ final class ArrayToken implements TraversingToken
 
         $elements = [];
         $index = 0;
+        $isUnsealed = false;
+        $unsealedType = null;
 
         while (! $stream->done()) {
             if ($stream->next() instanceof ClosingCurlyBracketToken) {
@@ -121,10 +126,48 @@ final class ArrayToken implements TraversingToken
 
             $optional = false;
 
-            if ($stream->next() instanceof UnknownSymbolToken) {
+            if ($stream->next() instanceof TripleDotsToken) {
+                $isUnsealed = true;
+                $stream->forward();
+            }
+
+            if ($stream->done()) {
+                throw new ShapedArrayClosingBracketMissing($elements, unsealedType: false);
+            }
+
+            if ($stream->next() instanceof VacantToken) {
                 $type = new StringValueType($stream->forward()->symbol());
+            } elseif ($isUnsealed && $stream->next() instanceof ClosingCurlyBracketToken) {
+                $stream->forward();
+                break;
             } else {
                 $type = $stream->read();
+            }
+
+            if ($isUnsealed) {
+                $unsealedType = $type;
+
+                if ($elements === []) {
+                    throw new ShapedArrayWithoutElementsWithSealedType($unsealedType);
+                }
+
+                if (! $unsealedType instanceof ArrayType) {
+                    throw new ShapedArrayInvalidUnsealedType($elements, $unsealedType);
+                }
+
+                if ($stream->done()) {
+                    throw new ShapedArrayClosingBracketMissing($elements, $unsealedType);
+                } elseif (! $stream->next() instanceof ClosingCurlyBracketToken) {
+                    $unexpected = [];
+
+                    while (! $stream->done() && ! $stream->next() instanceof ClosingCurlyBracketToken) {
+                        $unexpected[] = $stream->forward();
+                    }
+
+                    throw new ShapedArrayUnexpectedTokenAfterSealedType($elements, $unsealedType, $unexpected);
+                }
+
+                continue;
             }
 
             if ($stream->done()) {
@@ -178,8 +221,14 @@ final class ArrayToken implements TraversingToken
             }
         }
 
-        if (empty($elements)) {
+        if ($elements === []) {
             throw new ShapedArrayEmptyElements();
+        }
+
+        if ($unsealedType) {
+            return ShapedArrayType::unsealed($unsealedType, ...$elements);
+        } elseif ($isUnsealed) {
+            return ShapedArrayType::unsealedWithoutType(...$elements);
         }
 
         return new ShapedArrayType(...$elements);

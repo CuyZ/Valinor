@@ -1,8 +1,10 @@
 # Inferring interfaces
 
 When the mapper meets an interface, it needs to understand which implementation
-(a class that implements this interface) will be used — this information must be
-provided in the mapper builder, using the method `infer()`.
+will be used. This can be done by [registering a constructor for the interface],
+but it can have limitations. A more powerful way to handle this is to infer the
+implementation based on the data provided to the mapper. This can be done using
+the `infer()` method.
 
 The callback given to this method must return the name of a class that
 implements the interface. Any arguments can be required by the callback; they
@@ -124,3 +126,5 @@ assert($result->foo === 'foo');
 assert($result->bar === 'bar');
 assert($result->baz === 'baz');
 ```
+
+[registering a constructor for the interface]: use-custom-object-constructors.md#interface-implementation-constructor

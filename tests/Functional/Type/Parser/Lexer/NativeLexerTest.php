@@ -29,6 +29,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayInvalidUnsealedType;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayUnexpectedTokenAfterSealedType;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\SimpleArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\MissingClosingQuoteChar;
 use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
@@ -42,7 +45,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
-use CuyZ\Valinor\Type\Parser\Lexer\ObjectLexer;
+use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
@@ -90,7 +93,7 @@ final class NativeLexerTest extends TestCase
     {
         parent::setUp();
 
-        $lexer = new NativeLexer(new ObjectLexer());
+        $lexer = new NativeLexer(new SpecificationsLexer([]));
 
         $this->parser = new LexingParser($lexer);
     }
@@ -1286,6 +1289,51 @@ final class NativeLexerTest extends TestCase
         $this->expectExceptionMessage('Comma missing in shaped array signature `array{0: int, 1: string`.');
 
         $this->parser->parse('array{int, string]');
+    }
+
+    public function test_unsealed_shaped_array_with_missing_closing_bracket_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1631283658);
+        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, ...`.');
+
+        $this->parser->parse('array{int, ...');
+    }
+
+    public function test_shaped_array_with_unsealed_type_with_missing_closing_bracket_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1631283658);
+        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, ...array`.');
+
+        $this->parser->parse('array{int, ...array');
+    }
+
+    public function test_shaped_array_with_invalid_unsealed_type_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayInvalidUnsealedType::class);
+        $this->expectExceptionCode(1711618899);
+        $this->expectExceptionMessage('Invalid unsealed type `string` in shaped array signature `array{0: int, ...string}`, it should be a valid array.');
+
+        $this->parser->parse('array{int, ...string}');
+    }
+
+    public function test_shaped_array_with_unsealed_type_followed_by_unexpected_token_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayUnexpectedTokenAfterSealedType::class);
+        $this->expectExceptionCode(1711618958);
+        $this->expectExceptionMessage('Unexpected `int|string` after sealed type in shaped array signature `array{0: int, ...array<string>int|string`, expected a `}`.');
+
+        $this->parser->parse('array{int, ...array<string>int|string}');
+    }
+
+    public function test_unsealed_shaped_array_without_elements_throws_exception(): void
+    {
+        $this->expectException(ShapedArrayWithoutElementsWithSealedType::class);
+        $this->expectExceptionCode(1711629845);
+        $this->expectExceptionMessage('Missing elements in shaped array signature `array{...array<string>}`.');
+
+        $this->parser->parse('array{...array<string>}');
     }
 
     public function test_missing_min_value_for_integer_range_throws_exception(): void

@@ -134,6 +134,15 @@ final class SomeClass
 
         /** @var array{string, bar: int} */
         private array $shapedArrayWithUndefinedKey,
+
+        /** @var array{foo: string, ...} */
+        private array $unsealedShapedArray,
+        
+        /** @var array{foo: string, ...array<string>} */
+        private array $unsealedShapedArrayWithExplicitType,
+        
+        /** @var array{foo: string, ...array<int, string>} */
+        private array $unsealedShapedArrayWithExplicitKeyAndType,
     ) {}
 }
 ```
