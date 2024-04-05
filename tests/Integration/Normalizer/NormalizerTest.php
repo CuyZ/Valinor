@@ -22,6 +22,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use IteratorAggregate;
+use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use stdClass;
@@ -66,6 +67,12 @@ final class NormalizerTest extends IntegrationTestCase
 
         self::assertSame($expectedArray, $arrayResult);
         self::assertSame($expectedJson, $jsonResult);
+
+        try {
+            json_decode($jsonResult, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            self::fail("The JSON result is not valid (error: {$exception->getMessage()}): `$jsonResult`");
+        }
     }
 
     public static function normalize_basic_values_yields_expected_output_data_provider(): iterable
