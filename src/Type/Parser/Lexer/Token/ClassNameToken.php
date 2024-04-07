@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassTemplatesResolver;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
@@ -80,10 +79,6 @@ final class ClassNameToken implements TraversingToken
         }
 
         $symbol = $stream->forward()->symbol();
-
-        if ($symbol === '*') {
-            throw new MissingSpecificClassConstantCase($this->reflection->name);
-        }
 
         $cases = [];
 

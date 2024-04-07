@@ -14,6 +14,8 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
     public function test_values_are_mapped_properly(): void
     {
         $source = [
+            'anyConstantWithStringValue' => 'some string value',
+            'anyConstantWithIntegerValue' => 1653398289,
             'constantStringValue' => 'another string value',
             'constantIntegerValue' => 1653398289,
             'constantFloatValue' => 404.512,
@@ -39,6 +41,8 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
                 $this->mappingFail($error);
             }
 
+            self::assertSame('some string value', $result->anyConstantWithStringValue);
+            self::assertSame(1653398289, $result->anyConstantWithIntegerValue);
             self::assertSame('another string value', $result->constantStringValue);
             self::assertSame(1653398289, $result->constantIntegerValue);
             self::assertSame(404.512, $result->constantFloatValue);
@@ -90,6 +94,12 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
 
 class ClassWithConstantValues
 {
+    /** @var ObjectWithConstants::* */
+    public mixed $anyConstantWithStringValue;
+
+    /** @var ObjectWithConstants::* */
+    public mixed $anyConstantWithIntegerValue;
+
     /** @var ObjectWithConstants::CONST_WITH_STRING_* */
     public string $constantStringValue;
 
@@ -112,6 +122,8 @@ class ClassWithConstantValues
 final class ClassWithConstantValuesWithConstructor extends ClassWithConstantValues
 {
     /**
+     * @param ObjectWithConstants::* $anyConstantWithStringValue
+     * @param ObjectWithConstants::* $anyConstantWithIntegerValue
      * @param ObjectWithConstants::CONST_WITH_STRING_* $constantStringValue
      * @param ObjectWithConstants::CONST_WITH_INTEGER_* $constantIntegerValue
      * @param ObjectWithConstants::CONST_WITH_FLOAT_* $constantFloatValue
@@ -120,6 +132,8 @@ final class ClassWithConstantValuesWithConstructor extends ClassWithConstantValu
      * @param ObjectWithConstants::CONST_WITH_NESTED_ARRAY_VALUE_* $constantNestedArrayValue
      */
     public function __construct(
+        mixed $anyConstantWithStringValue,
+        mixed $anyConstantWithIntegerValue,
         string $constantStringValue,
         int $constantIntegerValue,
         float $constantFloatValue,
@@ -127,6 +141,8 @@ final class ClassWithConstantValuesWithConstructor extends ClassWithConstantValu
         array $constantArrayValue,
         array $constantNestedArrayValue
     ) {
+        $this->anyConstantWithStringValue = $anyConstantWithStringValue;
+        $this->anyConstantWithIntegerValue = $anyConstantWithIntegerValue;
         $this->constantStringValue = $constantStringValue;
         $this->constantIntegerValue = $constantIntegerValue;
         $this->constantFloatValue = $constantFloatValue;

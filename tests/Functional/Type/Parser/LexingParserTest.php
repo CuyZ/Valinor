@@ -14,7 +14,6 @@ use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
@@ -1535,15 +1534,6 @@ final class LexingParserTest extends TestCase
         $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::F**O`.');
 
         $this->parser->parse(ObjectWithConstants::class . '::F**O');
-    }
-
-    public function test_missing_specific_class_constant_case_throws_exception(): void
-    {
-        $this->expectException(MissingSpecificClassConstantCase::class);
-        $this->expectExceptionCode(1664904636);
-        $this->expectExceptionMessage('Missing specific case for class constant `' . ObjectWithConstants::class . '::?` (cannot be `*`).');
-
-        $this->parser->parse(ObjectWithConstants::class . '::*');
     }
 
     public function test_missing_generics_throws_exception(): void
