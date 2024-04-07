@@ -81,5 +81,47 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                 'SomeType' => 'int<42, 1337>',
             ]
         ];
+
+        yield 'types can be nested' => [
+            'className' => (
+                /**
+                 * @phpstan-type SomeType = non-empty-string
+                 * @phpstan-type SomeNestedType = array<SomeType>
+                 */
+                new class () {}
+            )::class,
+            [
+                'SomeType' => 'non-empty-string',
+                'SomeNestedType' => 'array<non-empty-string>',
+            ]
+        ];
+
+        yield 'PHPStan type can use a Psalm type' => [
+            'className' => (
+                /**
+                 * @psalm-type SomeType = non-empty-string
+                 * @phpstan-type SomeNestedType = array<SomeType>
+                 */
+                new class () {}
+            )::class,
+            [
+                'SomeType' => 'non-empty-string',
+                'SomeNestedType' => 'array<non-empty-string>',
+            ]
+        ];
+
+        yield 'Psalm type can use a PHPStan type' => [
+            'className' => (
+                /**
+                 * @phpstan-type SomeType = non-empty-string
+                 * @psalm-type SomeNestedType = array<SomeType>
+                 */
+                new class () {}
+            )::class,
+            [
+                'SomeType' => 'non-empty-string',
+                'SomeNestedType' => 'array<non-empty-string>',
+            ]
+        ];
     }
 }

@@ -32,12 +32,12 @@ final class ClassLocalTypeAliasResolver
             return [];
         }
 
-        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type);
-
         $types = [];
 
         foreach ($localAliases as $name => $raw) {
             try {
+                $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type, $types);
+
                 $types[$name] = $typeParser->parse($raw);
             } catch (InvalidType $exception) {
                 $types[$name] = UnresolvableType::forLocalAlias($raw, $name, $type, $exception);
@@ -61,7 +61,7 @@ final class ClassLocalTypeAliasResolver
 
         $aliases = [];
 
-        $annotations = (new Annotations($docBlock))->allOf(
+        $annotations = (new Annotations($docBlock))->filteredInOrder(
             '@phpstan-type',
             '@psalm-type',
         );
@@ -80,7 +80,7 @@ final class ClassLocalTypeAliasResolver
             $key = key($tokens);
 
             if ($key !== null) {
-                $aliases[$name] ??= $annotation->allAfter($key);
+                $aliases[$name] = $annotation->allAfter($key);
             }
         }
 

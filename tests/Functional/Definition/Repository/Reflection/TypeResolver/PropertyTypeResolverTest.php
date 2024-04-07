@@ -139,5 +139,15 @@ final class PropertyTypeResolverTest extends TestCase
             }, 'foo'),
             'non-empty-string',
         ];
+
+        yield 'docBlock present but no @var annotation' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * Some comment
+                 */
+                public string $foo;
+            }, 'foo'),
+            'string',
+        ];
     }
 }

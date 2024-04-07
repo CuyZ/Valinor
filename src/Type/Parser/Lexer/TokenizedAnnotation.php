@@ -11,9 +11,19 @@ use function trim;
 final class TokenizedAnnotation
 {
     public function __construct(
+        /** @var non-empty-string */
+        private string $name,
         /** @var non-empty-list<string>> */
         private array $tokens,
     ) {}
+
+    /**
+     * @return non-empty-string
+     */
+    public function name(): string
+    {
+        return $this->name;
+    }
 
     public function splice(int $length): string
     {

@@ -58,7 +58,7 @@ final class ParameterTypeResolver
             return null;
         }
 
-        $annotations = (new Annotations($docBlock))->allOf(
+        $annotations = (new Annotations($docBlock))->filteredByPriority(
             '@phpstan-param',
             '@psalm-param',
             '@param',

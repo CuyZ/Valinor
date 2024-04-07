@@ -24,7 +24,7 @@ final class AnnotationsTest extends TestCase
         foreach ($expectedAnnotations as $name => $expected) {
             $result = array_map(
                 fn (TokenizedAnnotation $annotation) => $annotation->raw(),
-                $annotations->allOf($name)
+                $annotations->filteredByPriority($name)
             );
 
             self::assertSame($expected, $result);
