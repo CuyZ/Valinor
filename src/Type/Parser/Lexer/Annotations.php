@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
+use function array_filter;
 use function array_merge;
 use function current;
+use function in_array;
 use function trim;
 
 /** @internal */
 final class Annotations
 {
-    /** @var array<non-empty-string, non-empty-list<TokenizedAnnotation>> */
+    /** @var list<TokenizedAnnotation> */
     private array $annotations = [];
 
     public function __construct(string $docBlock)
@@ -27,7 +29,7 @@ final class Annotations
                 $current = $this->trimArrayTips($current);
 
                 if ($current !== []) {
-                    $this->annotations[$token][] = new TokenizedAnnotation($current);
+                    array_unshift($this->annotations, new TokenizedAnnotation($token, $current));
                 }
 
                 $current = [];
@@ -37,11 +39,13 @@ final class Annotations
         }
     }
 
-    public function firstOf(string ...$annotations): ?string
+    public function firstOf(string ...$annotations): ?TokenizedAnnotation
     {
         foreach ($annotations as $annotation) {
-            if (isset($this->annotations[$annotation])) {
-                return $this->annotations[$annotation][0]->raw();
+            foreach ($this->annotations as $tokenizedAnnotation) {
+                if ($tokenizedAnnotation->name() === $annotation) {
+                    return $tokenizedAnnotation;
+                }
             }
         }
 
@@ -49,19 +53,33 @@ final class Annotations
     }
 
     /**
+     * @return array<TokenizedAnnotation>
+     */
+    public function filteredInOrder(string ...$annotations): array
+    {
+        return array_filter(
+            $this->annotations,
+            static fn (TokenizedAnnotation $tokenizedAnnotation) => in_array($tokenizedAnnotation->name(), $annotations, true),
+        );
+    }
+
+    /**
      * @return list<TokenizedAnnotation>
      */
-    public function allOf(string ...$annotations): array
+    public function filteredByPriority(string ...$annotations): array
     {
-        $all = [];
+        $result = [];
 
         foreach ($annotations as $annotation) {
-            if (isset($this->annotations[$annotation])) {
-                $all = array_merge($all, $this->annotations[$annotation]);
-            }
+            $filtered = array_filter(
+                $this->annotations,
+                static fn (TokenizedAnnotation $tokenizedAnnotation) => $tokenizedAnnotation->name() === $annotation,
+            );
+
+            $result = array_merge($result, $filtered);
         }
 
-        return $all;
+        return $result;
     }
 
     private function sanitizeDocComment(string $value): string

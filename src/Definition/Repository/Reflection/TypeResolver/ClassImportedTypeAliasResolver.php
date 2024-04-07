@@ -77,7 +77,7 @@ final class ClassImportedTypeAliasResolver
 
         $importedAliases = [];
 
-        $annotations = (new Annotations($docBlock))->allOf(
+        $annotations = (new Annotations($docBlock))->filteredByPriority(
             '@phpstan-import-type',
             '@psalm-import-type',
         );

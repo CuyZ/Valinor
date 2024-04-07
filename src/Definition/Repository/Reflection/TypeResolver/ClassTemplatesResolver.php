@@ -10,7 +10,6 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function array_key_exists;
 use function array_keys;
-use function array_reverse;
 use function current;
 use function key;
 
@@ -40,7 +39,7 @@ final class ClassTemplatesResolver
 
         $templates = [];
 
-        $annotations = (new Annotations($docBlock))->allOf(
+        $annotations = (new Annotations($docBlock))->filteredByPriority(
             '@phpstan-template',
             '@psalm-template',
             '@template',
@@ -72,6 +71,6 @@ final class ClassTemplatesResolver
             }
         }
 
-        return array_reverse($templates);
+        return $templates;
     }
 }

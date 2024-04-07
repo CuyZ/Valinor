@@ -37,6 +37,6 @@ final class PropertyTypeResolver
             '@phpstan-var',
             '@psalm-var',
             '@var',
-        );
+        )?->raw();
     }
 }

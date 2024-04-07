@@ -72,7 +72,7 @@ final class ClassParentTypeResolver
             return [];
         }
 
-        $annotations = (new Annotations($docBlock))->allOf(
+        $annotations = (new Annotations($docBlock))->filteredByPriority(
             '@phpstan-extends',
             '@psalm-extends',
             '@extends',

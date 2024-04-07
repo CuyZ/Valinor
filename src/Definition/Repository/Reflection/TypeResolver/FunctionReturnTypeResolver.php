@@ -37,6 +37,6 @@ final class FunctionReturnTypeResolver
             '@phpstan-return',
             '@psalm-return',
             '@return',
-        );
+        )?->raw();
     }
 }
