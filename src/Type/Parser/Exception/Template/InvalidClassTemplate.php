@@ -8,7 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use LogicException;
 
 /** @internal */
-final class InvalidClassTemplate extends LogicException
+final class InvalidClassTemplate extends LogicException implements InvalidType
 {
     /**
      * @param class-string $className

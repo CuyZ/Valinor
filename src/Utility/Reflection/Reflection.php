@@ -10,14 +10,9 @@ use Error;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
-use ReflectionFunctionAbstract;
-use ReflectionIntersectionType;
 use ReflectionMethod;
-use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
-use ReflectionType;
-use ReflectionUnionType;
 use Reflector;
 use UnitEnum;
 
@@ -25,11 +20,9 @@ use function array_filter;
 use function array_map;
 use function class_exists;
 use function enum_exists;
-use function implode;
 use function interface_exists;
 use function ltrim;
 use function spl_object_hash;
-use function str_contains;
 
 /** @internal */
 final class Reflection
@@ -114,68 +107,5 @@ final class Reflection
                 $attributes,
             ),
         );
-    }
-
-    /**
-     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunctionAbstract|ReflectionParameter $reflection
-     * @return non-empty-string
-     */
-    public static function signature(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionFunctionAbstract|ReflectionParameter $reflection): string
-    {
-        if ($reflection instanceof ReflectionProperty) {
-            return "{$reflection->getDeclaringClass()->name}::\$$reflection->name";
-        }
-
-        if ($reflection instanceof ReflectionMethod) {
-            return "{$reflection->getDeclaringClass()->name}::$reflection->name()";
-        }
-
-        if ($reflection instanceof ReflectionFunctionAbstract) {
-            if (str_contains($reflection->name, '{closure}')) {
-                $startLine = $reflection->getStartLine();
-                $endLine = $reflection->getEndLine();
-
-                return $startLine === $endLine
-                    ? "Closure (line $startLine of {$reflection->getFileName()})"
-                    : "Closure (lines $startLine to $endLine of {$reflection->getFileName()})";
-            }
-
-            return $reflection->getClosureScopeClass()
-                ? $reflection->getClosureScopeClass()->name . '::' . $reflection->name . '()'
-                : $reflection->name . '()';
-        }
-
-        if ($reflection instanceof ReflectionParameter) {
-            $signature = $reflection->getDeclaringFunction()->name . "(\$$reflection->name)";
-            $class = $reflection->getDeclaringClass();
-
-            if ($class) {
-                $signature = $class->name . '::' . $signature;
-            }
-
-            return $signature;
-        }
-
-        return $reflection->name;
-    }
-
-    public static function flattenType(ReflectionType $type): string
-    {
-        if ($type instanceof ReflectionUnionType) {
-            return implode('|', $type->getTypes());
-        }
-
-        if ($type instanceof ReflectionIntersectionType) {
-            return implode('&', $type->getTypes());
-        }
-
-        /** @var ReflectionNamedType $type */
-        $name = $type->getName();
-
-        if ($name !== 'null' && $type->allowsNull() && $name !== 'mixed') {
-            return $name . '|null';
-        }
-
-        return $name;
     }
 }

@@ -44,14 +44,14 @@ final class ValueTypeFactory
 
         if (is_string($value)) {
             if (str_contains($value, "'") && str_contains($value, '"')) {
-                return StringValueType::singleQuote(str_replace("'", "\'", $value));
+                $value = "'" . str_replace("'", "\'", $value) . "'";
+            } elseif (str_contains($value, "'")) {
+                $value = '"' . $value . '"';
+            } else {
+                $value = "'" . $value . "'";
             }
 
-            if (str_contains($value, "'")) {
-                return StringValueType::doubleQuote($value);
-            }
-
-            return StringValueType::singleQuote($value);
+            return StringValueType::from($value);
         }
 
         if (is_array($value)) {

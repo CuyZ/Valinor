@@ -3,19 +3,21 @@
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use function array_map;
-use function array_shift;
 use function implode;
 use function preg_split;
+use function trim;
 
 /** @internal */
 final class TokensExtractor
 {
     private const TOKEN_PATTERNS = [
         'Anonymous class' => '[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)[0-9a-fA-F]++',
+        'Simple quoted string' => '\'(?:\\\\[^\\r\\n]|[^\'\\r\\n])*+\'?',
+        'Double quoted string' => '"(?:\\\\[^\\r\\n]|[^"\\r\\n])*+"?',
         'Double colons' => '\:\:',
         'Triple dots' => '\.\.\.',
         'Dollar sign' => '\$',
-        'Whitespace' => '\s',
+        'Whitespace' => '\s+',
         'Union' => '\|',
         'Intersection' => '&',
         'Opening bracket' => '\<',
@@ -31,52 +33,33 @@ final class TokensExtractor
         'Double quote' => '"',
     ];
 
-    /** @var list<string> */
-    private array $symbols = [];
+    /** @var non-empty-list<string> */
+    private array $symbols;
 
-    public function __construct(string $string)
+    public function __construct(string $raw)
     {
         $pattern = '/(' . implode('|', self::TOKEN_PATTERNS) . ')' . '/';
-        $tokens = preg_split($pattern, $string, flags: PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-        $quote = null;
-        $text = null;
-
-        while (($token = array_shift($tokens)) !== null) {
-            if ($token === $quote) {
-                if ($text !== null) {
-                    $this->symbols[] = $text;
-                }
-
-                $this->symbols[] = $token;
-
-                $text = null;
-                $quote = null;
-            } elseif ($quote !== null) {
-                $text .= $token;
-            } elseif ($token === '"' || $token === "'") {
-                $quote = $token;
-
-                $this->symbols[] = $token;
-            } else {
-                $this->symbols[] = $token;
-            }
-        }
-
-        if ($text !== null) {
-            $this->symbols[] = $text;
-        }
-
-        $this->symbols = array_map('trim', $this->symbols);
-        $this->symbols = array_filter($this->symbols, static fn ($value) => $value !== '');
-        $this->symbols = array_values($this->symbols);
+        // @phpstan-ignore-next-line / We know the pattern is valid and the returned array contains at least one string
+        $this->symbols = preg_split($pattern, $raw, flags: PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
     }
 
     /**
-     * @return list<string>
+     * @return non-empty-list<string>
      */
     public function all(): array
     {
         return $this->symbols;
+    }
+
+    /**
+     * @return array<non-empty-string>
+     */
+    public function filtered(): array
+    {
+        return array_filter(
+            array_map(trim(...), $this->symbols),
+            static fn ($value) => $value !== '',
+        );
     }
 }

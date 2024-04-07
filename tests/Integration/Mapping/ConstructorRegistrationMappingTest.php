@@ -567,7 +567,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     {
         $this->expectException(InvalidConstructorReturnType::class);
         $this->expectExceptionCode(1659446121);
-        $this->expectExceptionMessageMatches('/The type `.*` for return type of method `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
+        $this->expectExceptionMessageMatches('/The return type `.*` of function `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
 
         $this->mapperBuilder()
             ->registerConstructor(

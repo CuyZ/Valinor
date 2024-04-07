@@ -222,7 +222,7 @@ final class Container
 
             TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
 
-            TypeParser::class => fn () => $this->get(TypeParserFactory::class)->get(),
+            TypeParser::class => fn () => $this->get(TypeParserFactory::class)->buildDefaultTypeParser(),
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),

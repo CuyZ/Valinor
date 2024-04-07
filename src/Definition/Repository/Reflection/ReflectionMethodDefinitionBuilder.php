@@ -8,6 +8,9 @@ use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\FunctionReturnTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionAttribute;
 use ReflectionMethod;
@@ -32,6 +35,7 @@ final class ReflectionMethodDefinitionBuilder
     {
         /** @var non-empty-string $name */
         $name = $reflection->name;
+        $signature = $reflection->getDeclaringClass()->name . '::' . $reflection->name . '()';
 
         $attributes = array_map(
             fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
@@ -43,11 +47,20 @@ final class ReflectionMethodDefinitionBuilder
             $reflection->getParameters()
         );
 
-        $returnType = $typeResolver->resolveType($reflection);
+        $returnTypeResolver = new FunctionReturnTypeResolver($typeResolver);
+
+        $returnType = $returnTypeResolver->resolveReturnTypeFor($reflection);
+        $nativeReturnType = $returnTypeResolver->resolveNativeReturnTypeFor($reflection);
+
+        if ($returnType instanceof UnresolvableType) {
+            $returnType = $returnType->forMethodReturnType($signature);
+        } elseif (! $returnType->matches($nativeReturnType)) {
+            $returnType = UnresolvableType::forNonMatchingMethodReturnTypes($name, $nativeReturnType, $returnType);
+        }
 
         return new MethodDefinition(
             $name,
-            Reflection::signature($reflection),
+            $signature,
             new Attributes(...$attributes),
             new Parameters(...$parameters),
             $reflection->isStatic(),

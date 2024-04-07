@@ -32,13 +32,11 @@ return static function (RectorConfig $config): void {
     $config->skip([
         AddLiteralSeparatorToNumberRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class,
+        NullToStrictStringFuncCallArgRector::class,
         ReadOnlyPropertyRector::class,
         MixedTypeRector::class => [
             __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ReflectionClassDefinitionRepositoryTest',
             __DIR__ . '/tests/Integration/Mapping/TypeErrorDuringMappingTest.php',
-        ],
-        NullToStrictStringFuncCallArgRector::class => [
-            __DIR__ . '/tests/Traits/TestIsSingleton.php',
         ],
         RestoreDefaultNullToNullableTypePropertyRector::class => [
             __DIR__ . '/tests/Integration/Mapping/Other/FlexibleCastingMappingTest.php',

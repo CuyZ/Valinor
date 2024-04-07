@@ -14,6 +14,8 @@ use Stringable;
 
 use function is_numeric;
 use function is_string;
+use function str_starts_with;
+use function substr;
 
 /** @internal */
 final class StringValueType implements StringType, FixedType
@@ -22,18 +24,14 @@ final class StringValueType implements StringType, FixedType
 
     public function __construct(private string $value) {}
 
-    public static function singleQuote(string $value): self
+    public static function from(string $value): self
     {
-        $instance = new self($value);
-        $instance->quoteChar = "'";
+        if (! str_starts_with($value, '"') && ! str_starts_with($value, "'")) {
+            return new self($value);
+        }
 
-        return $instance;
-    }
-
-    public static function doubleQuote(string $value): self
-    {
-        $instance = new self($value);
-        $instance->quoteChar = '"';
+        $instance = new self(substr($value, 1, -1));
+        $instance->quoteChar = $value[0];
 
         return $instance;
     }

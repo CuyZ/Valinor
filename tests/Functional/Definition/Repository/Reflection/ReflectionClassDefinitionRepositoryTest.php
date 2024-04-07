@@ -2,27 +2,19 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection;
+namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
-use CuyZ\Valinor\Definition\Exception\ExtendTagTypeError;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagClassName;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
-use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
-use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Fake\Type\Parser\Factory\FakeTypeParserFactory;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
+use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 final class ReflectionClassDefinitionRepositoryTest extends TestCase
 {
@@ -33,7 +25,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         parent::setUp();
 
         $this->repository = new ReflectionClassDefinitionRepository(
-            new FakeTypeParserFactory(),
+            new LexingTypeParserFactory()
         );
     }
 
@@ -226,7 +218,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->methods->get('publicMethod')->returnType;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/^The type `InvalidType` for return type of method `.*` could not be resolved: .*$/', $type->message());
+        self::assertMatchesRegularExpression('/^The return type `InvalidType` of method `.*` could not be resolved: .*$/', $type->message());
     }
 
     public function test_invalid_parameter_default_value_throws_exception(): void
@@ -304,107 +296,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $this->repository->for(new NativeClassType($class))->properties->get('value')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/^The type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: Missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
-    }
-
-    public function test_class_with_invalid_type_alias_import_class_throws_exception(): void
-    {
-        $class =
-            /**
-             * @phpstan-import-type T from UnknownType
-             */
-            (new class () {
-                /** @var T */
-                public $value; // @phpstan-ignore-line
-            })::class;
-
-        $this->expectException(InvalidTypeAliasImportClass::class);
-        $this->expectExceptionCode(1638535486);
-        $this->expectExceptionMessage("Cannot import a type alias from unknown class `UnknownType` in class `$class`.");
-
-        $this->repository->for(new NativeClassType($class));
-    }
-
-    public function test_class_with_invalid_type_alias_import_class_type_throws_exception(): void
-    {
-        $class =
-            /**
-             * @phpstan-import-type T from string
-             */
-            (new class () {
-                /** @var T */
-                public $value; // @phpstan-ignore-line
-            })::class;
-
-        $this->expectException(InvalidTypeAliasImportClassType::class);
-        $this->expectExceptionCode(1638535608);
-        $this->expectExceptionMessage("Importing a type alias can only be done with classes, `string` was given in class `$class`.");
-
-        $this->repository->for(new NativeClassType($class));
-    }
-
-    public function test_class_with_unknown_type_alias_import_throws_exception(): void
-    {
-        $class =
-            /**
-             * @phpstan-import-type T from stdClass
-             */
-            (new class () {
-                /** @var T */
-                public $value; // @phpstan-ignore-line
-            })::class;
-
-        $this->expectException(UnknownTypeAliasImport::class);
-        $this->expectExceptionCode(1638535757);
-        $this->expectExceptionMessage("Type alias `T` imported in `$class` could not be found in `stdClass`");
-
-        $this->repository->for(new NativeClassType($class));
-    }
-
-    public function test_several_extends_tags_throws_exception(): void
-    {
-        $className = SomeChildClassWithSeveralExtendTags::class;
-
-        $this->expectException(SeveralExtendTagsFound::class);
-        $this->expectExceptionCode(1670195494);
-        $this->expectExceptionMessage("Only one `@extends` tag should be set for the class `$className`.");
-
-        $this->repository->for(new NativeClassType($className));
-    }
-
-    public function test_wrong_extends_tag_throws_exception(): void
-    {
-        $childClassName = SomeChildClassWithInvalidExtendTag::class;
-        $parentClassName = SomeParentAbstractClass::class;
-
-        $this->expectException(InvalidExtendTagType::class);
-        $this->expectExceptionCode(1670181134);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid type `string`, it should be `$parentClassName`.");
-
-        $this->repository->for(new NativeClassType($childClassName));
-    }
-
-    public function test_wrong_extends_tag_class_name_throws_exception(): void
-    {
-        $childClassName = SomeChildClassWithInvalidExtendTagClassName::class;
-        $parentClassName = SomeParentAbstractClass::class;
-
-        $this->expectException(InvalidExtendTagClassName::class);
-        $this->expectExceptionCode(1670183564);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$childClassName` has invalid class `stdClass`, it should be `$parentClassName`.");
-
-        $this->repository->for(new NativeClassType($childClassName));
-    }
-
-    public function test_extend_tag_type_error_throws_exception(): void
-    {
-        $className = SomeChildClassWithMissingGenericsInExtendTag::class;
-
-        $this->expectException(ExtendTagTypeError::class);
-        $this->expectExceptionCode(1670193574);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$className` is not valid: Cannot parse unknown symbol `InvalidType`.");
-
-        $this->repository->for(new NativeClassType($className));
+        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: The type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: Missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
     }
 }
 
@@ -414,47 +306,3 @@ abstract class AbstractClassWithPrivateConstructor
 }
 
 final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor {}
-
-/**
- * @template T of scalar
- */
-abstract class SomeParentAbstractClass
-{
-    /**
-     * @return T
-     */
-    public function someParentMethod()
-    {
-        return 'foo';
-    }
-}
-
-/**
- * @template T
- */
-abstract class SomeOtherParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends SomeParentAbstractClass<string>
- * @extends SomeOtherParentAbstractClass<string>
- */
-final class SomeChildClassWithSeveralExtendTags extends SomeParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends string
- */
-final class SomeChildClassWithInvalidExtendTag extends SomeParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends stdClass
- */
-final class SomeChildClassWithInvalidExtendTagClassName extends SomeParentAbstractClass {}
-
-/**
- * @phpstan-ignore-next-line
- * @extends SomeParentAbstractClass<InvalidType>
- */
-final class SomeChildClassWithMissingGenericsInExtendTag extends SomeParentAbstractClass {}

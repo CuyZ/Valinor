@@ -10,10 +10,23 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class TypeToken implements TraversingToken
 {
-    public function __construct(
-        private Type $type,
-        private string $symbol
-    ) {}
+    private Type $type;
+
+    private string $symbol;
+
+    public function __construct(Type $type)
+    {
+        $this->type = $type;
+        $this->symbol = $type->toString();
+    }
+
+    public static function withSymbol(Type $type, string $symbol): self
+    {
+        $self = new self($type);
+        $self->symbol = $symbol;
+
+        return $self;
+    }
 
     public function traverse(TokenStream $stream): Type
     {
