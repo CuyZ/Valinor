@@ -6,8 +6,12 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
+use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
+use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
 use PHPUnit\Framework\TestCase;
@@ -19,11 +23,14 @@ final class ClassDefinitionCompilerTest extends TestCase
 {
     private ClassDefinitionCompiler $compiler;
 
+    private ClassDefinitionRepository $classDefinitionRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->compiler = new ClassDefinitionCompiler();
+        $this->classDefinitionRepository = new ReflectionClassDefinitionRepository(new LexingTypeParserFactory());
     }
 
     public function test_class_definition_is_compiled_correctly(): void
@@ -43,8 +50,8 @@ final class ClassDefinitionCompilerTest extends TestCase
                 }
             };
 
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
         $className = $object::class;
+        $class = $this->classDefinitionRepository->for(new NativeClassType($className));
 
         $class = $this->eval($this->compiler->compile($class));
 
@@ -62,7 +69,7 @@ final class ClassDefinitionCompilerTest extends TestCase
         $property = $properties->get('property');
 
         self::assertSame('property', $property->name);
-        self::assertSame('Signature::property', $property->signature);
+        self::assertSame($className . '::$property', $property->signature);
         self::assertSame(NativeStringType::get(), $property->type);
         self::assertTrue($property->hasDefaultValue);
         self::assertSame('Some property default value', $property->defaultValue);
@@ -71,7 +78,7 @@ final class ClassDefinitionCompilerTest extends TestCase
         $method = $class->methods->get('method');
 
         self::assertSame('method', $method->name);
-        self::assertSame('Signature::method', $method->signature);
+        self::assertSame($className . '::method()', $method->signature);
         self::assertTrue($method->isStatic);
         self::assertTrue($method->isPublic);
         self::assertSame(NativeStringType::get(), $method->returnType);
@@ -79,7 +86,7 @@ final class ClassDefinitionCompilerTest extends TestCase
         $parameter = $method->parameters->get('parameter');
 
         self::assertSame('parameter', $parameter->name);
-        self::assertSame('Signature::parameter', $parameter->signature);
+        self::assertSame($className . '::method($parameter)', $parameter->signature);
         self::assertSame(NativeStringType::get(), $parameter->type);
         self::assertTrue($parameter->isOptional);
         self::assertFalse($parameter->isVariadic);

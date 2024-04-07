@@ -8,6 +8,8 @@ use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\PropertyTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -24,19 +26,22 @@ final class ReflectionPropertyDefinitionBuilder
 
     public function for(ReflectionProperty $reflection, ReflectionTypeResolver $typeResolver): PropertyDefinition
     {
+        $propertyTypeResolver = new PropertyTypeResolver($typeResolver);
+
         /** @var non-empty-string $name */
         $name = $reflection->name;
-        $signature = Reflection::signature($reflection);
-        $type = $typeResolver->resolveType($reflection);
-        $nativeType = $typeResolver->resolveNativeType($reflection);
+        $signature = $reflection->getDeclaringClass()->name . '::$' . $reflection->name;
+        $type = $propertyTypeResolver->resolveTypeFor($reflection);
+        $nativeType = $propertyTypeResolver->resolveNativeTypeFor($reflection);
         $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
         $defaultValue = $reflection->getDefaultValue();
         $isPublic = $reflection->isPublic();
 
-        if ($hasDefaultValue
-            && ! $type instanceof UnresolvableType
-            && ! $type->accepts($defaultValue)
-        ) {
+        if ($type instanceof UnresolvableType) {
+            $type = $type->forProperty($signature);
+        } elseif (! $type->matches($nativeType)) {
+            $type = UnresolvableType::forNonMatchingPropertyTypes($signature, $nativeType, $type);
+        } elseif ($hasDefaultValue && ! $type->accepts($defaultValue)) {
             $type = UnresolvableType::forInvalidPropertyDefaultValue($signature, $type, $defaultValue);
         }
 

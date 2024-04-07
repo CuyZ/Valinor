@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Factory\Specifications;
 
-use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ObjectToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
-use CuyZ\Valinor\Type\Parser\TypeParser;
 
 /** @internal */
 final class ClassContextSpecification implements TypeParserSpecification
@@ -24,10 +22,5 @@ final class ClassContextSpecification implements TypeParserSpecification
         }
 
         return $token;
-    }
-
-    public function manipulateParser(TypeParser $parser, TypeParserFactory $typeParserFactory): TypeParser
-    {
-        return $parser;
     }
 }

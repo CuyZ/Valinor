@@ -8,32 +8,19 @@ use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
-use CuyZ\Valinor\Definition\Exception\ExtendTagTypeError;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagClassName;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
-use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
-use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassImportedTypeAliasResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassLocalTypeAliasResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassParentTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericCheckerSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\TypeParser;
-use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\NativeClassType;
-use CuyZ\Valinor\Type\Types\UnresolvableType;
-use CuyZ\Valinor\Utility\Reflection\DocParser;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -89,7 +76,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     {
         return array_map(
             fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection)
+            Reflection::attributes($reflection),
         );
     }
 
@@ -143,13 +130,18 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             return $this->typeResolver[$typeKey];
         }
 
+        $parentTypeResolver = new ClassParentTypeResolver($this->typeParserFactory);
+
         while ($type->className() !== $target->name) {
-            $type = $this->parentType($type);
+            $type = $parentTypeResolver->resolveParentTypeFor($type);
         }
 
+        $localTypeAliasResolver = new ClassLocalTypeAliasResolver($this->typeParserFactory);
+        $importedTypeAliasResolver = new ClassImportedTypeAliasResolver($this->typeParserFactory);
+
         $generics = $type instanceof GenericType ? $type->generics() : [];
-        $localAliases = $this->localTypeAliases($type);
-        $importedAliases = $this->importedTypeAliases($type);
+        $localAliases = $localTypeAliasResolver->resolveLocalTypeAliases($type);
+        $importedAliases = $importedTypeAliasResolver->resolveImportedTypeAliases($type);
 
         $duplicates = [];
         $keys = [...array_keys($generics), ...array_keys($localAliases), ...array_keys($importedAliases)];
@@ -166,128 +158,9 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             throw new ClassTypeAliasesDuplication($type->className(), ...array_keys($duplicates));
         }
 
-        $advancedParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($type->className()),
-            new AliasSpecification(Reflection::class($type->className())),
-            new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases),
-            new GenericCheckerSpecification(),
-        );
-
-        $nativeParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($type->className()),
-        );
+        $advancedParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type, $generics + $localAliases + $importedAliases);
+        $nativeParser = $this->typeParserFactory->buildNativeTypeParserForClass($type->className());
 
         return $this->typeResolver[$typeKey] = new ReflectionTypeResolver($nativeParser, $advancedParser);
-    }
-
-    /**
-     * @return array<string, Type>
-     */
-    private function localTypeAliases(ObjectType $type): array
-    {
-        $reflection = Reflection::class($type->className());
-        $rawTypes = DocParser::localTypeAliases($reflection);
-
-        $typeParser = $this->typeParser($type);
-
-        $types = [];
-
-        foreach ($rawTypes as $name => $raw) {
-            try {
-                $types[$name] = $typeParser->parse($raw);
-            } catch (InvalidType $exception) {
-                $raw = trim($raw);
-
-                $types[$name] = UnresolvableType::forLocalAlias($raw, $name, $type, $exception);
-            }
-        }
-
-        return $types;
-    }
-
-    /**
-     * @return array<string, Type>
-     */
-    private function importedTypeAliases(ObjectType $type): array
-    {
-        $reflection = Reflection::class($type->className());
-        $importedTypesRaw = DocParser::importedTypeAliases($reflection);
-
-        $typeParser = $this->typeParser($type);
-
-        $importedTypes = [];
-
-        foreach ($importedTypesRaw as $class => $types) {
-            try {
-                $classType = $typeParser->parse($class);
-            } catch (InvalidType) {
-                throw new InvalidTypeAliasImportClass($type, $class);
-            }
-
-            if (! $classType instanceof ObjectType) {
-                throw new InvalidTypeAliasImportClassType($type, $classType);
-            }
-
-            $localTypes = $this->localTypeAliases($classType);
-
-            foreach ($types as $importedType) {
-                if (! isset($localTypes[$importedType])) {
-                    throw new UnknownTypeAliasImport($type, $classType->className(), $importedType);
-                }
-
-                $importedTypes[$importedType] = $localTypes[$importedType];
-            }
-        }
-
-        return $importedTypes;
-    }
-
-    private function typeParser(ObjectType $type): TypeParser
-    {
-        $specs = [
-            new ClassContextSpecification($type->className()),
-            new AliasSpecification(Reflection::class($type->className())),
-            new GenericCheckerSpecification(),
-        ];
-
-        if ($type instanceof GenericType) {
-            $specs[] = new TypeAliasAssignerSpecification($type->generics());
-        }
-
-        return $this->typeParserFactory->get(...$specs);
-    }
-
-    private function parentType(ObjectType $type): NativeClassType
-    {
-        $reflection = Reflection::class($type->className());
-
-        /** @var ReflectionClass<object> $parentReflection */
-        $parentReflection = $reflection->getParentClass();
-
-        $extendedClass = DocParser::classExtendsTypes($reflection);
-
-        if (count($extendedClass) > 1) {
-            throw new SeveralExtendTagsFound($reflection);
-        } elseif (count($extendedClass) === 0) {
-            $extendedClass = $parentReflection->name;
-        } else {
-            $extendedClass = $extendedClass[0];
-        }
-
-        try {
-            $parentType = $this->typeParser($type)->parse($extendedClass);
-        } catch (InvalidType $exception) {
-            throw new ExtendTagTypeError($reflection, $exception);
-        }
-
-        if (! $parentType instanceof NativeClassType) {
-            throw new InvalidExtendTagType($reflection, $parentType);
-        }
-
-        if ($parentType->className() !== $parentReflection->name) {
-            throw new InvalidExtendTagClassName($reflection, $parentType);
-        }
-
-        return $parentType;
     }
 }

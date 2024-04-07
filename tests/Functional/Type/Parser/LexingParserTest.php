@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Functional\Type\Parser\Lexer;
+namespace CuyZ\Valinor\Tests\Functional\Type\Parser;
 
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObject;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
@@ -16,6 +18,10 @@ use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
@@ -44,6 +50,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingComma;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
+use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
@@ -53,7 +60,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -63,7 +70,6 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
@@ -85,7 +91,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class NativeLexerTest extends TestCase
+final class LexingParserTest extends TestCase
 {
     private TypeParser $parser;
 
@@ -93,9 +99,9 @@ final class NativeLexerTest extends TestCase
     {
         parent::setUp();
 
-        $lexer = new NativeLexer(new SpecificationsLexer([]));
-
-        $this->parser = new LexingParser($lexer);
+        $this->parser = new LexingParser(
+            new NativeLexer(new SpecificationsLexer([]))
+        );
     }
 
     /**
@@ -826,6 +832,48 @@ final class NativeLexerTest extends TestCase
             'type' => ClassType::class,
         ];
 
+        yield 'Interface name with no template' => [
+            'raw' => DateTimeInterface::class,
+            'transformed' => DateTimeInterface::class,
+            'type' => InterfaceType::class,
+        ];
+
+        yield 'Class name with generic with one template' => [
+            'raw' => SomeClassWithOneTemplate::class . '<int>',
+            'transformed' => SomeClassWithOneTemplate::class . '<int>',
+            'type' => ClassType::class,
+        ];
+
+        yield 'Class name with generic with three templates' => [
+            'raw' => SomeClassWithThreeTemplates::class . '<int, string, float>',
+            'transformed' => SomeClassWithThreeTemplates::class . '<int, string, float>',
+            'type' => ClassType::class,
+        ];
+
+        yield 'Class name with generic with first template without type and second template with type' => [
+            'raw' => SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType::class . '<int, stdClass>',
+            'transformed' => SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType::class . '<int, stdClass>',
+            'type' => ClassType::class,
+        ];
+
+        yield 'Class name with generic with template of array-key with string' => [
+            'raw' => SomeClassWithTemplateOfArrayKey::class . '<string>',
+            'transformed' => SomeClassWithTemplateOfArrayKey::class . '<string>',
+            'type' => ClassType::class,
+        ];
+
+        yield 'Class name with generic with template of array-key with integer' => [
+            'raw' => SomeClassWithTemplateOfArrayKey::class . '<int>',
+            'transformed' => SomeClassWithTemplateOfArrayKey::class . '<int>',
+            'type' => ClassType::class,
+        ];
+
+        yield 'Simple array of class name with no template' => [
+            'raw' => stdClass::class . '[]',
+            'transformed' => stdClass::class . '[]',
+            'type' => CompositeTraversableType::class,
+        ];
+
         yield 'Interface name' => [
             'raw' => DateTimeInterface::class,
             'transformed' => DateTimeInterface::class,
@@ -1394,7 +1442,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(MissingClosingQuoteChar::class);
         $this->expectExceptionCode(1666024605);
-        $this->expectExceptionMessage("Closing quote is missing for `foo`.");
+        $this->expectExceptionMessage("Closing quote is missing for `'foo`.");
 
         $this->parser->parse("'foo");
     }
@@ -1403,7 +1451,7 @@ final class NativeLexerTest extends TestCase
     {
         $this->expectException(MissingClosingQuoteChar::class);
         $this->expectExceptionCode(1666024605);
-        $this->expectExceptionMessage('Closing quote is missing for `foo`.');
+        $this->expectExceptionMessage('Closing quote is missing for `"foo`.');
 
         $this->parser->parse('"foo');
     }
@@ -1497,4 +1545,89 @@ final class NativeLexerTest extends TestCase
 
         $this->parser->parse(ObjectWithConstants::class . '::*');
     }
+
+    public function test_missing_generics_throws_exception(): void
+    {
+        $genericClassName = SomeClassWithThreeTemplates::class;
+
+        $this->expectException(MissingGenerics::class);
+        $this->expectExceptionCode(1618054357);
+        $this->expectExceptionMessage("There are 2 missing generics for `$genericClassName<int, ?, ?>`.");
+
+        $this->parser->parse("$genericClassName<int,");
+    }
+
+    public function test_missing_generic_closing_bracket_throws_exception(): void
+    {
+        $genericClassName = stdClass::class;
+
+        $this->expectException(GenericClosingBracketMissing::class);
+        $this->expectExceptionCode(1604333677);
+        $this->expectExceptionMessage("The closing bracket is missing for the generic `$genericClassName<string>`.");
+
+        $this->parser->parse("$genericClassName<string");
+    }
+
+    public function test_missing_comma_in_generics_throws_exception(): void
+    {
+        $className = SomeClassWithThreeTemplates::class;
+
+        $this->expectException(GenericCommaMissing::class);
+        $this->expectExceptionCode(1615829484);
+        $this->expectExceptionMessage("A comma is missing for the generic `$className<int, string, ?>`.");
+
+        $this->parser->parse("$className<int, string bool>");
+    }
+
+    public function test_generic_with_no_template_throws_exception(): void
+    {
+        $className = SomeClassWithOneTemplate::class;
+
+        $this->expectException(CannotAssignGeneric::class);
+        $this->expectExceptionCode(1604660485);
+        $this->expectExceptionMessage("Could not find a template to assign the generic(s) `string`, `bool` for the class `$className`.");
+
+        $this->parser->parse("$className<int, string, bool>");
+    }
+
+    public function test_duplicated_template_name_throws_exception(): void
+    {
+        $object =
+            /**
+             * @template TemplateA
+             * @template TemplateA
+             */
+            new class () {};
+
+        $className = $object::class;
+
+        $this->expectException(DuplicatedTemplateName::class);
+        $this->expectExceptionCode(1604612898);
+        $this->expectExceptionMessage("The template `TemplateA` in class `$className` was defined at least twice.");
+
+        $this->parser->parse("$className<int, string>");
+    }
 }
+
+/**
+ * @template TemplateA
+ */
+final class SomeClassWithOneTemplate {}
+
+/**
+ * @template TemplateA
+ * @template TemplateB
+ * @template TemplateC
+ */
+final class SomeClassWithThreeTemplates {}
+
+/**
+ * @template TemplateA of array-key
+ */
+final class SomeClassWithTemplateOfArrayKey {}
+
+/**
+ * @template TemplateA
+ * @template TemplateB of object
+ */
+final class SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType {}

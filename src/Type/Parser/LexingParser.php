@@ -14,11 +14,9 @@ class LexingParser implements TypeParser
 
     public function parse(string $raw): Type
     {
-        $symbols = new TokensExtractor($raw);
-
         $tokens = array_map(
             fn (string $symbol) => $this->lexer->tokenize($symbol),
-            $symbols->all()
+            (new TokensExtractor($raw))->filtered()
         );
 
         return (new TokenStream(...$tokens))->read();

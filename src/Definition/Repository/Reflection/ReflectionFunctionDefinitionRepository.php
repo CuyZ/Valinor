@@ -10,10 +10,10 @@ use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\GenericCheckerSpecification;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\FunctionReturnTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionAttribute;
 use ReflectionFunction;
@@ -42,50 +42,42 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
     {
         $reflection = Reflection::function($function);
 
-        $typeResolver = $this->typeResolver($reflection);
+        $nativeParser = $this->typeParserFactory->buildNativeTypeParserForFunction($reflection);
+        $advancedParser = $this->typeParserFactory->buildAdvancedTypeParserForFunction($reflection);
+
+        $typeResolver = new ReflectionTypeResolver($nativeParser, $advancedParser);
+
+        $returnTypeResolver = new FunctionReturnTypeResolver($typeResolver);
 
         $parameters = array_map(
             fn (ReflectionParameter $parameter) => $this->parameterBuilder->for($parameter, $typeResolver),
-            $reflection->getParameters()
+            $reflection->getParameters(),
         );
 
         $name = $reflection->getName();
+        $signature = $this->signature($reflection);
         $class = $reflection->getClosureScopeClass();
-        $returnType = $typeResolver->resolveType($reflection);
+        $returnType = $returnTypeResolver->resolveReturnTypeFor($reflection);
+        $nativeReturnType = $returnTypeResolver->resolveNativeReturnTypeFor($reflection);
         $isClosure = $name === '{closure}' || str_ends_with($name, '\\{closure}');
+
+        if ($returnType instanceof UnresolvableType) {
+            $returnType = $returnType->forFunctionReturnType($signature);
+        } elseif (! $returnType->matches($nativeReturnType)) {
+            $returnType = UnresolvableType::forNonMatchingFunctionReturnTypes($name, $nativeReturnType, $returnType);
+        }
 
         return new FunctionDefinition(
             $name,
-            Reflection::signature($reflection),
+            $signature,
             new Attributes(...$this->attributes($reflection)),
             $reflection->getFileName() ?: null,
             $class?->name,
             $reflection->getClosureThis() === null,
             $isClosure,
             new Parameters(...$parameters),
-            $returnType
+            $returnType,
         );
-    }
-
-    private function typeResolver(ReflectionFunction $reflection): ReflectionTypeResolver
-    {
-        $class = $reflection->getClosureScopeClass();
-
-        $nativeSpecifications = [];
-        $advancedSpecification = [
-            new AliasSpecification($reflection),
-            new GenericCheckerSpecification(),
-        ];
-
-        if ($class !== null) {
-            $nativeSpecifications[] = new ClassContextSpecification($class->name);
-            $advancedSpecification[] = new ClassContextSpecification($class->name);
-        }
-
-        $nativeParser = $this->typeParserFactory->get(...$nativeSpecifications);
-        $advancedParser = $this->typeParserFactory->get(...$advancedSpecification);
-
-        return new ReflectionTypeResolver($nativeParser, $advancedParser);
     }
 
     /**
@@ -95,7 +87,26 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
     {
         return array_map(
             fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection)
+            Reflection::attributes($reflection),
         );
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    private function signature(ReflectionFunction $reflection): string
+    {
+        if (str_contains($reflection->name, '{closure}')) {
+            $startLine = $reflection->getStartLine();
+            $endLine = $reflection->getEndLine();
+
+            return $startLine === $endLine
+                ? "Closure (line $startLine of {$reflection->getFileName()})"
+                : "Closure (lines $startLine to $endLine of {$reflection->getFileName()})";
+        }
+
+        return $reflection->getClosureScopeClass()
+            ? $reflection->getClosureScopeClass()->name . '::' . $reflection->name . '()'
+            : $reflection->name . '()';
     }
 }

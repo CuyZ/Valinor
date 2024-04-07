@@ -33,8 +33,8 @@ final class StringValueTypeTest extends TestCase
     public function test_accepts_correct_values(): void
     {
         $type = new StringValueType('Schwifty!');
-        $typeSingleQuote = StringValueType::singleQuote('Schwifty!');
-        $typeDoubleQuote = StringValueType::doubleQuote('Schwifty!');
+        $typeSingleQuote = StringValueType::from("'Schwifty!'");
+        $typeDoubleQuote = StringValueType::from('"Schwifty!"');
 
         self::assertTrue($type->accepts('Schwifty!'));
         self::assertTrue($typeSingleQuote->accepts('Schwifty!'));
@@ -112,8 +112,8 @@ final class StringValueTypeTest extends TestCase
     public function test_string_value_is_correct(): void
     {
         $type = new StringValueType('Schwifty!');
-        $typeSingleQuote = StringValueType::singleQuote('Schwifty!');
-        $typeDoubleQuote = StringValueType::doubleQuote('Schwifty!');
+        $typeSingleQuote = StringValueType::from("'Schwifty!'");
+        $typeDoubleQuote = StringValueType::from('"Schwifty!"');
 
         self::assertSame('Schwifty!', $type->toString());
         self::assertSame("'Schwifty!'", $typeSingleQuote->toString());
@@ -124,8 +124,8 @@ final class StringValueTypeTest extends TestCase
     {
         $typeA = new StringValueType('Schwifty!');
         $typeB = new StringValueType('Schwifty!');
-        $typeC = StringValueType::singleQuote('Schwifty!');
-        $typeD = StringValueType::doubleQuote('Schwifty!');
+        $typeC = StringValueType::from("'Schwifty!'");
+        $typeD = StringValueType::from('"Schwifty!"');
 
         self::assertTrue($typeA->matches($typeB));
         self::assertTrue($typeA->matches($typeC));

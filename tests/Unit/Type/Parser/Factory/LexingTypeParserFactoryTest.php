@@ -20,10 +20,10 @@ final class LexingTypeParserFactoryTest extends TestCase
         $this->typeParserFactory = new LexingTypeParserFactory();
     }
 
-    public function test_get_parser_without_specification_returns_same_cached_parser(): void
+    public function test_get_default_parser_returns_same_cached_parser(): void
     {
-        $parserA = $this->typeParserFactory->get();
-        $parserB = $this->typeParserFactory->get();
+        $parserA = $this->typeParserFactory->buildDefaultTypeParser();
+        $parserB = $this->typeParserFactory->buildDefaultTypeParser();
 
         self::assertInstanceOf(CachedParser::class, $parserA);
         self::assertSame($parserA, $parserB);

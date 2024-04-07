@@ -26,8 +26,10 @@ final class PhpParser
      */
     public static function parseUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
     {
+        $signature = "{$reflection->getFileName()}:{$reflection->getStartLine()}";
+
         // @infection-ignore-all
-        return self::$statements[Reflection::signature($reflection)] ??= self::fetchUseStatements($reflection);
+        return self::$statements[$signature] ??= self::fetchUseStatements($reflection);
     }
 
     /**

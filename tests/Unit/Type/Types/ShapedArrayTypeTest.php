@@ -40,7 +40,7 @@ final class ShapedArrayTypeTest extends TestCase
             new ShapedArrayElement(new IntegerValueType(1337), new NativeIntegerType(), true),
         ];
         $this->unsealedType = new ArrayType(
-            ArrayKeyType::from(StringValueType::singleQuote('unsealed-key')),
+            ArrayKeyType::from(StringValueType::from("'unsealed-key'")),
             new NativeFloatType(),
         );
 
