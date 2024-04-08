@@ -2,6 +2,7 @@
 
 use CuyZ\Valinor\QA\PHPStan\Extension\ArgumentsMapperPHPStanExtension;
 use CuyZ\Valinor\QA\PHPStan\Extension\TreeMapperPHPStanExtension;
+use CuyZ\Valinor\QA\PHPStan\Extension\TypeMappingHelper;
 
 require_once 'Extension/ArgumentsMapperPHPStanExtension.php';
 require_once 'Extension/TreeMapperPHPStanExtension.php';
@@ -15,6 +16,8 @@ return [
         ], [
             'class' => ArgumentsMapperPHPStanExtension::class,
             'tags' => ['phpstan.broker.dynamicMethodReturnTypeExtension']
-        ],
+        ], [
+            'class' => TypeMappingHelper::class,
+        ]
     ],
 ];
