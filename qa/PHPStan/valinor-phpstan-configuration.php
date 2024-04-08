@@ -5,6 +5,7 @@ use CuyZ\Valinor\QA\PHPStan\Extension\TreeMapperPHPStanExtension;
 
 require_once 'Extension/ArgumentsMapperPHPStanExtension.php';
 require_once 'Extension/TreeMapperPHPStanExtension.php';
+require_once 'Extension/TypeMappingHelper.php';
 
 return [
     'services' => [
