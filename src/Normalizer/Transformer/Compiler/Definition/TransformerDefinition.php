@@ -8,7 +8,7 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianttNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\RegisteredTransformersNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Node\RegisteredTransformersNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -16,6 +16,8 @@ use CuyZ\Valinor\Type\Types\MixedType;
 /** @internal */
 final class TransformerDefinition
 {
+    public readonly Type $nativeType;
+
     public function __construct(
         public readonly Type $type,
         /** @var array<int, Type> */
@@ -26,6 +28,14 @@ final class TransformerDefinition
         public readonly array $keyTransformerAttributes,
         public readonly TypeTransformer $typeTransformer,
     ) {}
+
+    public function withNativeType(Type $nativeType): self
+    {
+        $self = clone $this;
+        $self->nativeType = $nativeType;
+
+        return $self;
+    }
 
     public function valueTransformationNode(ComplianttNode $valueNode): Node
     {

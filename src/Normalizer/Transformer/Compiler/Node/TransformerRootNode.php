@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Node;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;

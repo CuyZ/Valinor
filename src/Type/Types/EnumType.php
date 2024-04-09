@@ -21,7 +21,7 @@ final class EnumType implements ClassType
     /** @var class-string<UnitEnum> */
     private string $enumName;
 
-    private string $pattern;
+    private ?string $pattern;
 
     /** @var array<UnitEnum> */
     private array $cases;
@@ -30,7 +30,7 @@ final class EnumType implements ClassType
      * @param class-string<UnitEnum> $enumName
      * @param array<UnitEnum> $cases
      */
-    public function __construct(string $enumName, string $pattern, array $cases)
+    public function __construct(string $enumName, ?string $pattern, array $cases)
     {
         $this->enumName = $enumName;
         $this->pattern = $pattern;
@@ -49,7 +49,7 @@ final class EnumType implements ClassType
      */
     public static function native(string $enumName): self
     {
-        return new self($enumName, '', $enumName::cases());
+        return new self($enumName, null, $enumName::cases());
     }
 
     /**
@@ -85,7 +85,7 @@ final class EnumType implements ClassType
         return $this->cases;
     }
 
-    public function pattern(): string
+    public function pattern(): ?string
     {
         return $this->pattern;
     }
@@ -126,7 +126,7 @@ final class EnumType implements ClassType
 
     public function toString(): string
     {
-        return $this->pattern === ''
+        return $this->pattern === null
             ? $this->enumName
             : "$this->enumName::$this->pattern";
     }

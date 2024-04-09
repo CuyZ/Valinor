@@ -12,6 +12,8 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitio
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\ScalarType;
 
+use function str_contains;
+
 /** @internal */
 final class ClassTransformerNode implements TypeTransformer
 {
@@ -35,12 +37,19 @@ final class ClassTransformerNode implements TypeTransformer
         $methodName = $this->methodName();
 
         if ($this->transformationIsAppliedOnAnyProperty() && ! $class->hasMethod($methodName)) {
+            $className = $this->type->className();
+
+            // Checking if the class is anonymous
+            if (str_contains($className, '@')) {
+                $className = 'object';
+            }
+
             $class = $class->withMethods(
                 Node::method($methodName)
                     ->witParameters(
-                        Node::parameterDeclaration('value', 'mixed'),
+                        Node::parameterDeclaration('value', $className),
                     )
-                    ->withReturnType('mixed')
+                    ->withReturnType('array')
                     ->withBody($this->objectTransformationNode()),
             );
         }
@@ -123,6 +132,6 @@ final class ClassTransformerNode implements TypeTransformer
     {
         $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->type->toString()));
 
-        return "transform_{$slug}_" . sha1($this->type->toString());
+        return "transform_object_{$slug}_" . sha1($this->type->toString());
     }
 }

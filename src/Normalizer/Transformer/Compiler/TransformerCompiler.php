@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Node\TransformerRootNode;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Type\Type;
 

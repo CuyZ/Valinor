@@ -8,10 +8,9 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianttNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
-use CuyZ\Valinor\Type\CompositeTraversableType;
 
 /** @internal */
-final class TraversableTransformerNode implements TypeTransformer
+final class IterableTransformerNode implements TypeTransformer
 {
     public function __construct(
         private TransformerDefinition $subDefinition,
@@ -35,9 +34,9 @@ final class TraversableTransformerNode implements TypeTransformer
         return $class->withMethods(
             Node::method($methodName)
                 ->witParameters(
-                    Node::parameterDeclaration('value', 'mixed'),
+                    Node::parameterDeclaration('value', 'iterable'),
                 )
-                ->withReturnType('mixed')
+                ->withReturnType('iterable')
                 ->withBody(
                     Node::if(
                         condition: Node::functionCall('is_array', [Node::variable('value')]),
@@ -52,24 +51,23 @@ final class TraversableTransformerNode implements TypeTransformer
                                 ],
                             ),
                         ),
-                    )->else(
-                        body: Node::return(
-                            Node::anonymousFunction()
-                                ->withBody(
-                                    Node::forEach(
-                                        value: Node::variable('value'),
-                                        item: 'item',
-                                        key: 'key',
-                                        body: Node::yield(
-                                            key: Node::variable('key'),
-                                            value: $this->subDefinition->valueTransformationNode(Node::variable('item')),
-                                        )->asExpression(),
-                                    ),
-                                )
-                                ->witParameters(Node::parameterDeclaration('value', 'mixed'))
-                                ->wrap()
-                                ->call([Node::variable('value')]),
-                        ),
+                    ),
+                    Node::return(
+                        Node::anonymousFunction()
+                            ->withBody(
+                                Node::forEach(
+                                    value: Node::variable('value'),
+                                    item: 'item',
+                                    key: 'key',
+                                    body: Node::yield(
+                                        key: Node::variable('key'),
+                                        value: $this->subDefinition->valueTransformationNode(Node::variable('item')),
+                                    )->asExpression(),
+                                ),
+                            )
+                            ->witParameters(Node::parameterDeclaration('value', 'mixed'))
+                            ->wrap()
+                            ->call([Node::variable('value')]),
                     ),
                 ),
         );
@@ -82,6 +80,6 @@ final class TraversableTransformerNode implements TypeTransformer
     {
         $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->subDefinition->type->toString()));
 
-        return "transform_traversable_{$slug}_" . sha1($this->subDefinition->type->toString());
+        return "transform_iterable_{$slug}_" . sha1($this->subDefinition->type->toString());
     }
 }

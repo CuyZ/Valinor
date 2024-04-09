@@ -16,9 +16,11 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\EnumTransformer
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\MixedTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\NullTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\ScalarTransformerNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\ShapedArrayTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\StdClassTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\DelegateTransformerNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TraversableTransformerNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\IterableTransformerNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeConditionTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\CompositeTraversableType;
@@ -33,6 +35,7 @@ use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use DateTimeInterface;
 use DateTimeZone;
 use Generator;
@@ -59,7 +62,6 @@ final class TransformerDefinitionBuilder
     private function buildDefinitionFor(Type $type, array $transformerAttributes, array $keyTransformerAttributes): TransformerDefinition
     {
         $transformerTypes = [];
-        $typeTransformer = $this->typeTransformer($type);
 
         if ($type instanceof NativeClassType) {
             // A class may have transformer attributes, in which case they are
@@ -88,6 +90,9 @@ final class TransformerDefinitionBuilder
         $transformerTypes = array_reverse($transformerTypes, preserve_keys: true);
         $transformerAttributes = array_reverse($transformerAttributes);
 
+        $typeTransformer = $this->typeTransformer($type);
+        $typeTransformer = new TypeConditionTransformerNode($type, $typeTransformer);
+
         return new TransformerDefinition(
             $type,
             $transformerTypes,
@@ -100,7 +105,7 @@ final class TransformerDefinitionBuilder
     public function typeTransformer(Type $type): TypeTransformer
     {
         return match (true) {
-            $type instanceof CompositeTraversableType => new TraversableTransformerNode($this->for($type->subType())),
+            $type instanceof CompositeTraversableType => new IterableTransformerNode($this->for($type->subType())),
             $type instanceof EnumType => new EnumTransformerNode($type),
             $type instanceof MixedType => new MixedTransformerNode([
                 $this->for(NativeBooleanType::get()),
@@ -112,7 +117,7 @@ final class TransformerDefinitionBuilder
             $type instanceof NativeClassType => $this->classDefaultTransformer($type),
             $type instanceof NullType => new NullTransformerNode(),
             $type instanceof ScalarType => new ScalarTransformerNode(),
-            //            $type instanceof ShapedArrayType => , // @todo
+            $type instanceof ShapedArrayType => $this->shapedArrayDefaultTransformer($type),
             default => new DelegateTransformerNode(),
         };
     }
@@ -129,7 +134,7 @@ final class TransformerDefinitionBuilder
             return new DateTimeZoneTransformerNode();
         } elseif (is_a($type->className(), Generator::class, true)) {
             // @todo handle Generator generic types
-            return new TraversableTransformerNode($this->for(MixedType::get()));
+            return new IterableTransformerNode($this->for(MixedType::get()));
         }
 
         $definitions = [];
@@ -149,9 +154,25 @@ final class TransformerDefinitionBuilder
                     ),
                 )->toArray();
 
-            $definitions[$property->name] = $this->buildDefinitionFor($property->type, $transformerAttributes, $keyTransformerAttributes);
+            $definition = $this->buildDefinitionFor($property->type, $transformerAttributes, $keyTransformerAttributes);
+            $definition = $definition->withNativeType($property->nativeType);
+
+            $definitions[$property->name] = $definition;
         }
 
         return new ClassTransformerNode($type, $definitions);
+    }
+
+    private function shapedArrayDefaultTransformer(ShapedArrayType $type): TypeTransformer
+    {
+        $definitions = [];
+
+        foreach ($type->elements() as $element) {
+            $definitions[$element->key()->toString()] = $this->buildDefinitionFor($element->type(), [], []);
+        }
+
+        $defaultDefinition = $this->for(MixedType::get());
+
+        return new ShapedArrayTransformerNode($type, $defaultDefinition, $definitions);
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Node;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
@@ -19,23 +19,12 @@ final class RegisteredTransformersNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        $nodes = [
-            Node::if(
-                condition: Node::negate(new TypeAcceptNode($this->definition->type)),
-                body: Node::return(
-                    Node::this()
-                        ->access('delegate')
-                        ->callMethod('transform', [Node::variable('value')]),
-                ),
-            ),
-        ];
-
         if ($this->definition->transformerTypes === [] && $this->definition->transformerAttributes === []) {
-            $nodes[] = $this->definition->typeTransformer->valueTransformationNode(Node::variable('value'));
+            $nodes = [
+                $this->definition->typeTransformer->valueTransformationNode(Node::variable('value'))
+            ];
         } else {
             $nodes = [
-                ...$nodes,
-
                 Node::variable('next')->assign(
                     Node::shortClosure(
                         $this->definition->typeTransformer->valueTransformationNode(Node::variable('value'))

@@ -12,6 +12,7 @@ use CuyZ\Valinor\Compiler\Native\ExpressionNode;
 use CuyZ\Valinor\Compiler\Native\ForEachNode;
 use CuyZ\Valinor\Compiler\Native\FunctionCallNode;
 use CuyZ\Valinor\Compiler\Native\IfNode;
+use CuyZ\Valinor\Compiler\Native\MatchNode;
 use CuyZ\Valinor\Compiler\Native\MethodNode;
 use CuyZ\Valinor\Compiler\Native\NegateNode;
 use CuyZ\Valinor\Compiler\Native\NewClassNode;
@@ -80,6 +81,11 @@ abstract class Node
     public static function if(Node $condition, Node $body): IfNode
     {
         return new IfNode($condition, $body);
+    }
+
+    public static function match(Node $value): MatchNode
+    {
+        return new MatchNode($value);
     }
 
     /**
