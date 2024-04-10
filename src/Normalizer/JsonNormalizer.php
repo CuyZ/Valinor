@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer;
 
 use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
+use CuyZ\Valinor\Normalizer\Formatter\JsonStreamFormatter;
 
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use RuntimeException;
 
-use function fclose;
 use function get_debug_type;
 use function is_resource;
-use function stream_get_contents;
 
 use const JSON_HEX_AMP;
 use const JSON_HEX_APOS;
@@ -102,21 +101,7 @@ final class JsonNormalizer implements Normalizer
 
     public function normalize(mixed $value): string
     {
-        $value = $this->transformer->transform($value);
-
-        /** @var resource $resource */
-        $resource = fopen('php://memory', 'w');
-
-        (new JsonFormatter($resource, $this->jsonEncodingOptions))->format($value);
-
-        rewind($resource);
-
-        /** @var string */
-        $json = stream_get_contents($resource);
-
-        fclose($resource);
-
-        return $json;
+        return $this->transformer->transform($value, new JsonFormatter($this->jsonEncodingOptions));
     }
 
     /**
@@ -154,6 +139,6 @@ final class JsonNormalizer implements Normalizer
             throw new RuntimeException('Expected a valid resource, got ' . get_debug_type($resource));
         }
 
-        return new StreamNormalizer($this->transformer, new JsonFormatter($resource, $this->jsonEncodingOptions));
+        return new StreamNormalizer($this->transformer, new JsonStreamFormatter($resource, $this->jsonEncodingOptions));
     }
 }

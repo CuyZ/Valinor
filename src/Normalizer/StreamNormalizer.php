@@ -19,12 +19,11 @@ final class StreamNormalizer implements Normalizer
         private StreamFormatter $formatter,
     ) {}
 
+    /**
+     * @return resource
+     */
     public function normalize(mixed $value): mixed
     {
-        $value = $this->transformer->transform($value);
-
-        $this->formatter->format($value);
-
-        return $this->formatter->resource();
+        return $this->transformer->transform($value, $this->formatter);
     }
 }

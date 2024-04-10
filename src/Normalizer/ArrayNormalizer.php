@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer;
 
+use CuyZ\Valinor\Normalizer\Formatter\ArrayFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
-
-use function array_map;
-use function is_array;
-use function is_iterable;
-use function iterator_to_array;
 
 /**
  * @api
@@ -24,22 +20,6 @@ final class ArrayNormalizer implements Normalizer
 
     public function normalize(mixed $value): mixed
     {
-        $value = $this->transformer->transform($value);
-
-        /** @var array<mixed>|scalar|null */
-        return $this->normalizeIterator($value);
-    }
-
-    private function normalizeIterator(mixed $value): mixed
-    {
-        if (is_iterable($value)) {
-            if (! is_array($value)) {
-                $value = iterator_to_array($value);
-            }
-
-            $value = array_map($this->normalizeIterator(...), $value);
-        }
-
-        return $value;
+        return $this->transformer->transform($value, new ArrayFormatter());
     }
 }

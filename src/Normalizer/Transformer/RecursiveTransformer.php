@@ -13,6 +13,7 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use DateTimeZone;
@@ -35,9 +36,11 @@ final class RecursiveTransformer implements Transformer
         private TransformerContainer $transformerContainer,
     ) {}
 
-    public function transform(mixed $value): mixed
+    public function transform(mixed $value, Formatter $formatter): mixed
     {
-        return $this->doTransform($value, new WeakMap()); // @phpstan-ignore-line
+        $value = $this->doTransform($value, new WeakMap()); // @phpstan-ignore-line
+
+        return $formatter->format($value);
     }
 
     /**

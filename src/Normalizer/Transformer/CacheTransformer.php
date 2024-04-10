@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer;
 
 use Closure;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerCompiler;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Type;
@@ -45,7 +46,7 @@ final class CacheTransformer implements Transformer
         private array $transformers,
     ) {}
 
-    public function transform(mixed $value): mixed
+    public function transform(mixed $value, Formatter $formatter): mixed
     {
         $key = "transformer-" . sha1($this->rawType($value));
 
@@ -54,7 +55,7 @@ final class CacheTransformer implements Transformer
         if ($entry) {
             $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $this);
 
-            return $transformer->transform($value);
+            return $transformer->transform($value, $formatter);
         }
 
         $type = $this->inferType($value);
@@ -62,7 +63,7 @@ final class CacheTransformer implements Transformer
 
         $this->cache->set($key, $transformer);
 
-        return $this->delegate->transform($value);
+        return $this->delegate->transform($value, $formatter);
     }
 
     private function inferType(mixed $value): Type
