@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
@@ -38,6 +39,12 @@ final class UnionNodeBuilder implements NodeBuilder
         $all = [];
 
         foreach ($type->types() as $subType) {
+            // Performance optimisation: No need to perform a node build for NullType if the value is not null.
+            // This speeds up the very common case of nullable types by halving the amount of node build calls.
+            if ($subType instanceof NullType && $shell->value() !== null) {
+                continue;
+            }
+
             $node = $rootBuilder->build($shell->withType($subType));
 
             if (! $node->isValid()) {
