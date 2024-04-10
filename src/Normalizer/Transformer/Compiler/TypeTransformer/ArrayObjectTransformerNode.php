@@ -16,6 +16,7 @@ final class ArrayObjectTransformerNode implements TypeTransformer
         return Node::functionCall(
             name: 'array_map',
             arguments: [
+                // @todo call "mixed_transform" instead of delegate
                 Node::shortClosure(
                     return: Node::this()
                         ->access('delegate')

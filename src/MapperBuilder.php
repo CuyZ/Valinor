@@ -530,6 +530,8 @@ final class MapperBuilder
         return $clone;
     }
 
+    // @todo allow normalizer to cast even if value does not match property type
+
     /**
      * Warms up the injected cache implementation with the provided class names.
      *
