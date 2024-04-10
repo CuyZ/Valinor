@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
 
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 use CuyZ\Valinor\Type\ClassType;
@@ -23,7 +23,7 @@ final class ClassTransformerNode implements TypeTransformer
         private array $propertiesDefinitions,
     ) {}
 
-    public function valueTransformationNode(ComplianttNode $valueNode): Node
+    public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         if ($this->transformationIsAppliedOnAnyProperty()) {
             return Node::this()->callMethod($this->methodName(), [$valueNode]);
@@ -61,7 +61,7 @@ final class ClassTransformerNode implements TypeTransformer
         return $class;
     }
 
-    private function valuesNode(ComplianttNode $valueNode): Node
+    private function valuesNode(CompliantNode $valueNode): Node
     {
         return Node::shortClosure(
             return: Node::functionCall(

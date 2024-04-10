@@ -21,7 +21,7 @@ use CuyZ\Valinor\Compiler\Native\PropertyDeclarationNode;
 use CuyZ\Valinor\Compiler\Native\PropertyNode;
 use CuyZ\Valinor\Compiler\Native\ReturnNode;
 use CuyZ\Valinor\Compiler\Native\ShortClosureNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Native\ValueNode;
 use CuyZ\Valinor\Compiler\Native\VariableNode;
 use CuyZ\Valinor\Compiler\Native\WrapNode;
@@ -37,9 +37,9 @@ abstract class Node
         return new ExpressionNode($this);
     }
 
-    public function wrap(): ComplianttNode
+    public function wrap(): CompliantNode
     {
-        return new ComplianttNode(new WrapNode($this));
+        return new CompliantNode(new WrapNode($this));
     }
 
     public static function aggregate(Node ...$nodes): AggregateNode
@@ -114,9 +114,9 @@ abstract class Node
         return new ParameterDeclarationNode($name, $type);
     }
 
-    public static function property(string $name): ComplianttNode
+    public static function property(string $name): CompliantNode
     {
-        return new ComplianttNode(new PropertyNode($name));
+        return new CompliantNode(new PropertyNode($name));
     }
 
     public static function propertyDeclaration(string $name): PropertyDeclarationNode
@@ -134,7 +134,7 @@ abstract class Node
         return new ShortClosureNode($return);
     }
 
-    public static function this(): ComplianttNode
+    public static function this(): CompliantNode
     {
         return self::variable('this');
     }
@@ -144,9 +144,9 @@ abstract class Node
         return new ValueNode($value);
     }
 
-    public static function variable(string $name): ComplianttNode
+    public static function variable(string $name): CompliantNode
     {
-        return new ComplianttNode(new VariableNode($name));
+        return new CompliantNode(new VariableNode($name));
     }
 
     public static function yield(Node $value, ?Node $key = null): YieldNode

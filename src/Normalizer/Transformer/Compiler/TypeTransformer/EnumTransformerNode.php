@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
 
 use BackedEnum;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Types\EnumType;
 
@@ -15,7 +15,7 @@ final class EnumTransformerNode implements TypeTransformer
 {
     public function __construct(private EnumType $type) {}
 
-    public function valueTransformationNode(ComplianttNode $valueNode): Node
+    public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         return is_a($this->type->className(), BackedEnum::class, true)
             ? $valueNode->access('value')

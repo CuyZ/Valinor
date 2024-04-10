@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AggregateNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 
@@ -19,7 +19,7 @@ final class MixedTransformerNode implements TypeTransformer
         private array $transformerDefinitions,
     ) {}
 
-    public function valueTransformationNode(ComplianttNode $valueNode): Node
+    public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         return Node::this()->callMethod('transform_mixed', [$valueNode]);
     }

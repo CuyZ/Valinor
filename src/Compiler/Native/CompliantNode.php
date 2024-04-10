@@ -8,7 +8,7 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
 /** @internal */
-final class ComplianttNode extends Node
+final class CompliantNode extends Node
 {
     public function __construct(private Node $node) {}
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -20,7 +20,7 @@ final class ShapedArrayTransformerNode implements TypeTransformer
         private array $elementsDefinitions,
     ) {}
 
-    public function valueTransformationNode(ComplianttNode $valueNode): Node
+    public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         return Node::this()->callMethod($this->methodName(), [$valueNode]);
     }

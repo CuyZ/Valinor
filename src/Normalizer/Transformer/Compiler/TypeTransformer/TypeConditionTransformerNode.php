@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
@@ -21,7 +21,7 @@ final class TypeConditionTransformerNode implements TypeTransformer
         private TypeTransformer $next,
     ) {}
 
-    public function valueTransformationNode(ComplianttNode $valueNode): Node
+    public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         // @todo use nativeType
         if (! $this->shouldTodo()) {

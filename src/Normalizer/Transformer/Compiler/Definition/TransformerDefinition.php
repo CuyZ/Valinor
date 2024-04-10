@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianttNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Node\RegisteredTransformersNode;
@@ -38,7 +38,7 @@ final class TransformerDefinition
         return $self;
     }
 
-    public function valueTransformationNode(ComplianttNode $valueNode): Node
+    public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         if ($this->type instanceof MixedType || ! $this->hasTransformation()) {
             return $this->typeTransformer()->valueTransformationNode($valueNode);
