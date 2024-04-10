@@ -10,7 +10,6 @@ use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
@@ -23,7 +22,6 @@ use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use LogicException;
-use UnitEnum;
 
 use function array_map;
 use function implode;
@@ -43,7 +41,6 @@ final class TypeAcceptNode extends Node
     {
         return match (true) {
             $type instanceof CompositeTraversableType => $compiler->write('\is_iterable($value)'),
-            $type instanceof EnumType => $this->compileEnumType($compiler, $type),
             $type instanceof FixedType => $compiler->write('$value === ' . var_export($type->value(), true)),
             $type instanceof MixedType => $compiler->write('true'),
             $type instanceof NativeBooleanType => $compiler->write('\is_bool($value)'),
@@ -61,34 +58,12 @@ final class TypeAcceptNode extends Node
         };
     }
 
-    private function compileEnumType(Compiler $compiler, EnumType $type): Compiler
-    {
-        $code = '$value instanceof ' . $type->className();
-
-        if ($type->pattern() === null) {
-            return $compiler->write($code);
-        }
-
-        $code .= ' && (' . implode(
-            ' || ',
-            array_map(
-                fn (UnitEnum $enum) => '$value === ' . $enum::class . '::' . $enum->name,
-                $type->cases()
-            )
-        ) . ')';
-
-        return $compiler->write($code);
-    }
-
     private function compileUnionType(Compiler $compiler, UnionType $type): Compiler
     {
-        $code = implode(
-            ' || ',
-            array_map(
-                fn (Type $type) => $this->compileType($compiler->sub(), $type)->code(),
-                $type->types()
-            )
-        );
+        $code = implode(' || ', array_map(
+            fn (Type $type) => $this->compileType($compiler->sub(), $type)->code(),
+            $type->types(),
+        ));
 
         return $compiler->write($code);
     }

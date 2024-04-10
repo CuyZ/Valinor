@@ -20,14 +20,12 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\ShapedArrayTran
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\StdClassTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\DelegateTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\IterableTransformerNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeConditionTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
-use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -91,7 +89,6 @@ final class TransformerDefinitionBuilder
         $transformerAttributes = array_reverse($transformerAttributes);
 
         $typeTransformer = $this->typeTransformer($type);
-        $typeTransformer = new TypeConditionTransformerNode($type, $typeTransformer);
 
         return new TransformerDefinition(
             $type,

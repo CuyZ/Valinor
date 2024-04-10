@@ -61,6 +61,7 @@ final class ShapedArrayTransformerNode implements TypeTransformer
                                     );
                                 }
 
+                                // @todo handle unsealed array
                                 return $match->withDefaultCase(
                                     $this->defaultTransformer->valueTransformationNode(Node::variable('value')->key(Node::value($name)))
                                 );

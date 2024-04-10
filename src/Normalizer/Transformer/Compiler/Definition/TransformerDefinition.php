@@ -9,6 +9,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianttNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Node\RegisteredTransformersNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeConditionTransformerNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -40,7 +41,7 @@ final class TransformerDefinition
     public function valueTransformationNode(ComplianttNode $valueNode): Node
     {
         if ($this->type instanceof MixedType || ! $this->hasTransformation()) {
-            return $this->typeTransformer->valueTransformationNode($valueNode);
+            return $this->typeTransformer()->valueTransformationNode($valueNode);
         }
 
         return Node::this()->callMethod($this->methodName(), [$valueNode]);
@@ -48,7 +49,7 @@ final class TransformerDefinition
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->typeTransformer->manipulateTransformerClass($class);
+        $class = $this->typeTransformer()->manipulateTransformerClass($class);
 
         if ($this->type instanceof MixedType) {
             return $class;
@@ -78,6 +79,15 @@ final class TransformerDefinition
     public function hasKeyTransformation(): bool
     {
         return $this->keyTransformerAttributes !== [];
+    }
+
+    private function typeTransformer(): TypeTransformer
+    {
+        if (! isset($this->nativeType) || $this->nativeType instanceof MixedType) {
+            return new TypeConditionTransformerNode($this->type, $this->typeTransformer);
+        }
+
+        return $this->typeTransformer;
     }
 
     /**
