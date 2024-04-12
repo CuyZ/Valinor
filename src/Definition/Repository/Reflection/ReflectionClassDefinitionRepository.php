@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
@@ -22,7 +21,6 @@ use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -45,10 +43,15 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /** @var array<string, ReflectionTypeResolver> */
     private array $typeResolver = [];
 
-    public function __construct(TypeParserFactory $typeParserFactory)
-    {
+    /**
+     * @param list<class-string> $allowedAttributes
+     */
+    public function __construct(
+        TypeParserFactory $typeParserFactory,
+        array $allowedAttributes,
+    ) {
         $this->typeParserFactory = $typeParserFactory;
-        $this->attributesRepository = new ReflectionAttributesRepository($this);
+        $this->attributesRepository = new ReflectionAttributesRepository($this, $allowedAttributes);
         $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($this->attributesRepository);
         $this->methodBuilder = new ReflectionMethodDefinitionBuilder($this->attributesRepository);
     }
@@ -60,23 +63,11 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         return new ClassDefinition(
             $reflection->name,
             $type,
-            new Attributes(...$this->attributes($reflection)),
+            new Attributes(...$this->attributesRepository->for($reflection)),
             new Properties(...$this->properties($type)),
             new Methods(...$this->methods($type)),
             $reflection->isFinal(),
             $reflection->isAbstract(),
-        );
-    }
-
-    /**
-     * @param ReflectionClass<object> $reflection
-     * @return list<AttributeDefinition>
-     */
-    private function attributes(ReflectionClass $reflection): array
-    {
-        return array_map(
-            fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection),
         );
     }
 

@@ -30,7 +30,10 @@ final class ClassDefinitionCompilerTest extends TestCase
         parent::setUp();
 
         $this->compiler = new ClassDefinitionCompiler();
-        $this->classDefinitionRepository = new ReflectionClassDefinitionRepository(new LexingTypeParserFactory());
+        $this->classDefinitionRepository = new ReflectionClassDefinitionRepository(
+            new LexingTypeParserFactory(),
+            [],
+        );
     }
 
     public function test_class_definition_is_compiled_correctly(): void

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
@@ -13,11 +12,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeRes
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
-use ReflectionAttribute;
 use ReflectionProperty;
-
-use function array_map;
 
 /** @internal */
 final class ReflectionPropertyDefinitionBuilder
@@ -53,7 +48,7 @@ final class ReflectionPropertyDefinitionBuilder
             $hasDefaultValue,
             $defaultValue,
             $isPublic,
-            new Attributes(...$this->attributes($reflection)),
+            new Attributes(...$this->attributesRepository->for($reflection)),
         );
     }
 
@@ -65,16 +60,5 @@ final class ReflectionPropertyDefinitionBuilder
 
         return $reflection->getDeclaringClass()->getDefaultProperties()[$reflection->name] !== null
             || NullType::get()->matches($type);
-    }
-
-    /**
-     * @return list<AttributeDefinition>
-     */
-    private function attributes(ReflectionProperty $reflection): array
-    {
-        return array_map(
-            fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection)
-        );
     }
 }

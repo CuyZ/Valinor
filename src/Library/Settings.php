@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
+use CuyZ\Valinor\Mapper\Object\Constructor;
+use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Normalizer\AsTransformer;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
+
+use function array_keys;
 
 /** @internal */
 final class Settings
@@ -57,6 +62,19 @@ final class Settings
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
         $this->exceptionFilter = fn (Throwable $exception) => throw $exception;
+    }
+
+    /**
+     * @return non-empty-list<class-string>
+     */
+    public function allowedAttributes(): array
+    {
+        return [
+            AsTransformer::class,
+            Constructor::class,
+            DynamicConstructor::class,
+            ...array_keys($this->transformerAttributes),
+        ];
     }
 
     /**

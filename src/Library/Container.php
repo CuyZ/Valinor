@@ -206,6 +206,7 @@ final class Container
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
                 new ReflectionClassDefinitionRepository(
                     $this->get(TypeParserFactory::class),
+                    $settings->allowedAttributes(),
                 ),
                 $this->get(CacheInterface::class),
             ),
@@ -215,6 +216,7 @@ final class Container
                     $this->get(TypeParserFactory::class),
                     new ReflectionAttributesRepository(
                         $this->get(ClassDefinitionRepository::class),
+                        $settings->allowedAttributes(),
                     ),
                 ),
                 $this->get(CacheInterface::class)

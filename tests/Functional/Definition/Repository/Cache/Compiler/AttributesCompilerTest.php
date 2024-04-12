@@ -17,7 +17,6 @@ use Error;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
-use ReflectionParameter;
 use ReflectionProperty;
 
 final class AttributesCompilerTest extends TestCase
@@ -137,16 +136,6 @@ final class AttributesCompilerTest extends TestCase
 
         self::assertCount(1, $attributes);
         self::assertTrue($attributes->has(PropertyTargetAttribute::class));
-    }
-
-    public function test_compiles_an_empty_attributes_instance_for_promoted_parameter_with_property_target_attribute(): void
-    {
-        $reflection = new ReflectionParameter([ObjectWithAttributes::class, '__construct'], 'promotedProperty');
-        $attributes = FakeAttributes::fromReflection($reflection);
-
-        $attributes = $this->compile($attributes);
-
-        self::assertSame(Attributes::empty(), $attributes);
     }
 
     private function compile(Attributes $attributes): Attributes
