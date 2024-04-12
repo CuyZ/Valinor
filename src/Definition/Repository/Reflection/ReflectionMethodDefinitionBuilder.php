@@ -11,8 +11,6 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\FunctionReturnTypeResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
-use ReflectionAttribute;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -37,11 +35,6 @@ final class ReflectionMethodDefinitionBuilder
         $name = $reflection->name;
         $signature = $reflection->getDeclaringClass()->name . '::' . $reflection->name . '()';
 
-        $attributes = array_map(
-            fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection)
-        );
-
         $parameters = array_map(
             fn (ReflectionParameter $parameter) => $this->parameterBuilder->for($parameter, $typeResolver),
             $reflection->getParameters()
@@ -61,7 +54,7 @@ final class ReflectionMethodDefinitionBuilder
         return new MethodDefinition(
             $name,
             $signature,
-            new Attributes(...$attributes),
+            new Attributes(...$this->attributesRepository->for($reflection)),
             new Parameters(...$parameters),
             $reflection->isStatic(),
             $reflection->isPublic(),

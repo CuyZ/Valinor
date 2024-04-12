@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Parameters;
@@ -15,7 +14,6 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeRes
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use ReflectionAttribute;
 use ReflectionFunction;
 use ReflectionParameter;
 
@@ -70,24 +68,13 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         return new FunctionDefinition(
             $name,
             $signature,
-            new Attributes(...$this->attributes($reflection)),
+            new Attributes(...$this->attributesRepository->for($reflection)),
             $reflection->getFileName() ?: null,
             $class?->name,
             $reflection->getClosureThis() === null,
             $isClosure,
             new Parameters(...$parameters),
             $returnType,
-        );
-    }
-
-    /**
-     * @return list<AttributeDefinition>
-     */
-    private function attributes(ReflectionFunction $reflection): array
-    {
-        return array_map(
-            fn (ReflectionAttribute $attribute) => $this->attributesRepository->for($attribute),
-            Reflection::attributes($reflection),
         );
     }
 
