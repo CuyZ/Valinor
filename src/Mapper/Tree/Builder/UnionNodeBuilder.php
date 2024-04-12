@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
@@ -38,6 +39,16 @@ final class UnionNodeBuilder implements NodeBuilder
         $all = [];
 
         foreach ($type->types() as $subType) {
+            // Performance optimisation: a `NullType` only accepts a `null`
+            // value, in which case the `CasterProxyNodeBuilder` would have
+            // handled it already. We can safely skip it here.
+            //
+            // @infection-ignore-all / This is a performance optimisation, so we
+            // cannot easily test this behavior.
+            if ($subType instanceof NullType) {
+                continue;
+            }
+
             $node = $rootBuilder->build($shell->withType($subType));
 
             if (! $node->isValid()) {
