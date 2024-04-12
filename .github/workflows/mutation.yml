@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       php-version: '8.1'
-      php-extensions: yaml
+      php-extensions: ds,yaml
     steps:
       - name: Checkout
         uses: actions/checkout@v3
