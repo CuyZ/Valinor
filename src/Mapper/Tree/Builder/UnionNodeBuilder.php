@@ -39,9 +39,13 @@ final class UnionNodeBuilder implements NodeBuilder
         $all = [];
 
         foreach ($type->types() as $subType) {
-            // Performance optimisation: No need to perform a node build for NullType if the value is not null.
-            // This speeds up the very common case of nullable types by halving the amount of node build calls.
-            if ($subType instanceof NullType && $shell->value() !== null) {
+            // Performance optimisation: a `NullType` only accepts a `null`
+            // value, in which case the `CasterProxyNodeBuilder` would have
+            // handled it already. We can safely skip it here.
+            //
+            // @infection-ignore-all / This is a performance optimisation, so we
+            // cannot easily test this behavior.
+            if ($subType instanceof NullType) {
                 continue;
             }
 
