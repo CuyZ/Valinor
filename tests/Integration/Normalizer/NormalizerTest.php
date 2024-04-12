@@ -203,6 +203,24 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
+        yield 'Ds Map' => [
+            'input' => new \Ds\Map(['foo' => 'foo', 'bar' => 'bar']),
+            'expected array' => [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ],
+            'expected json' => '{"foo":"foo","bar":"bar"}',
+        ];
+
+        yield 'Ds Set' => [
+            'input' => new \Ds\Set(['foo', 'bar']),
+            'expected array' => [
+                0 => 'foo',
+                1 => 'bar',
+            ],
+            'expected json' => '["foo","bar"]',
+        ];
+
         yield 'class inheriting ArrayObject' => [
             'input' => new class (['foo' => 'foo', 'bar' => 'bar']) extends ArrayObject {},
             'expected array' => [
