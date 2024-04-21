@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Node\TransformerRootNode;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
@@ -18,14 +19,16 @@ final class TransformerCompiler
         private TransformerDefinitionBuilder $definitionBuilder,
     ) {}
 
-    public function compileFor(Type $type): string
+    public function compileFor(Type $type, Formatter $formatter): string
     {
-        $definition = $this->definitionBuilder->for($type);
-        $rootNode = new TransformerRootNode($definition);
+        $definition = $this->definitionBuilder->for($type, $formatter->compiler());
+
+        $rootNode = new TransformerRootNode($definition, $formatter);
 
         $node = Node::shortClosure($rootNode)
             ->witParameters(
                 Node::parameterDeclaration('transformers', 'array'),
+                Node::parameterDeclaration('formatter', $formatter::class),
                 Node::parameterDeclaration('delegate', Transformer::class),
             );
 

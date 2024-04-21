@@ -23,7 +23,6 @@ final class TypeConditionTransformerNode implements TypeTransformer
 
     public function valueTransformationNode(CompliantNode $valueNode): Node
     {
-        // @todo use nativeType
         if (! $this->shouldTodo()) {
             return $this->next->valueTransformationNode($valueNode);
         }

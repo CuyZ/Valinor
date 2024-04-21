@@ -119,9 +119,9 @@ abstract class Node
         return new CompliantNode(new PropertyNode($name));
     }
 
-    public static function propertyDeclaration(string $name): PropertyDeclarationNode
+    public static function propertyDeclaration(string $name, string $type): PropertyDeclarationNode
     {
-        return new PropertyDeclarationNode($name);
+        return new PropertyDeclarationNode($name, $type);
     }
 
     public static function return(Node $node): ReturnNode

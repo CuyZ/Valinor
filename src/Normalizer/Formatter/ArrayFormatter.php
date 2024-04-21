@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\ArrayFormatterCompiler;
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\FormatterCompiler;
+
 use function array_map;
 use function is_array;
 use function is_iterable;
@@ -22,5 +25,10 @@ final class ArrayFormatter implements Formatter
         }
 
         return $value;
+    }
+
+    public function compiler(): FormatterCompiler
+    {
+        return new ArrayFormatterCompiler();
     }
 }

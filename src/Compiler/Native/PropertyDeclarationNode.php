@@ -10,10 +10,13 @@ use CuyZ\Valinor\Compiler\Node;
 /** @internal */
 final class PropertyDeclarationNode extends Node
 {
-    public function __construct(private string $name) {}
+    public function __construct(
+        private string $name,
+        private string $type,
+    ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
-        return $compiler->write('private $' . $this->name . ';');
+        return $compiler->write('private ' . $this->type . ' $' . $this->name . ';');
     }
 }

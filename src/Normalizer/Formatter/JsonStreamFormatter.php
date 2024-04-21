@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\FormatterCompiler;
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\JsonFormatterCompiler;
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
 use Generator;
 
@@ -17,14 +19,14 @@ use function is_scalar;
 use function json_encode;
 
 /** @internal */
-final class JsonStreamFormatter implements StreamFormatter
+final class JsonStreamFormatter implements Formatter
 {
     /**
      * @param resource $resource
      */
     public function __construct(
-        private mixed $resource,
-        private int $jsonEncodingOptions,
+        public readonly mixed $resource,
+        public readonly int $jsonEncodingOptions,
     ) {}
 
     /**
@@ -35,6 +37,11 @@ final class JsonStreamFormatter implements StreamFormatter
         $this->formatRecursively($value);
 
         return $this->resource;
+    }
+
+    public function compiler(): FormatterCompiler
+    {
+        return new JsonFormatterCompiler();
     }
 
     private function formatRecursively(mixed $value): void
@@ -86,11 +93,6 @@ final class JsonStreamFormatter implements StreamFormatter
         } else {
             throw new CannotFormatInvalidTypeToJson($value);
         }
-    }
-
-    public function resource(): mixed
-    {
-        return $this->resource;
     }
 
     private function write(string $content): void

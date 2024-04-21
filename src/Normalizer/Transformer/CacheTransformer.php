@@ -53,13 +53,15 @@ final class CacheTransformer implements Transformer
         $entry = $this->cache->get($key);
 
         if ($entry) {
-            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $this);
+            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $formatter, $this);
 
             return $transformer->transform($value, $formatter);
         }
 
         $type = $this->inferType($value);
-        $transformer = new EvaluatedTransformer($this->delegate, fn () => $this->compiler->compileFor($type));
+        $compilationCallback = fn () => $this->compiler->compileFor($type, $formatter);
+
+        $transformer = new EvaluatedTransformer($this->delegate, $compilationCallback);
 
         $this->cache->set($key, $transformer);
 
