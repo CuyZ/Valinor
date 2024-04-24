@@ -49,14 +49,14 @@ final class ClassNameToken implements TraversingToken
             return $constant;
         }
 
-        if ($this->reflection->isInterface()) {
-            return new InterfaceType($this->reflection->name);
-        }
-
         $templates = (new ClassTemplatesResolver())->resolveTemplateNamesFrom($this->reflection->name);
 
         $generics = $this->generics($stream, $this->reflection->name, $templates);
         $generics = $this->assignGenerics($this->reflection->name, $templates, $generics);
+
+        if ($this->reflection->isInterface()) {
+            return new InterfaceType($this->reflection->name, $generics);
+        }
 
         return new NativeClassType($this->reflection->name, $generics);
     }

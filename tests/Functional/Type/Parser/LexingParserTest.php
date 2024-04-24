@@ -837,6 +837,12 @@ final class LexingParserTest extends TestCase
             'type' => InterfaceType::class,
         ];
 
+        yield 'Interface name with one template' => [
+            'raw' => SomeInterfaceWithOneTemplate::class . '<string>',
+            'transformed' => SomeInterfaceWithOneTemplate::class . '<string>',
+            'type' => InterfaceType::class,
+        ];
+
         yield 'Class name with generic with one template' => [
             'raw' => SomeClassWithOneTemplate::class . '<int>',
             'transformed' => SomeClassWithOneTemplate::class . '<int>',
@@ -1621,3 +1627,8 @@ final class SomeClassWithTemplateOfArrayKey {}
  * @template TemplateB of object
  */
 final class SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType {}
+
+/**
+ * @template TemplateA
+ */
+interface SomeInterfaceWithOneTemplate {}
