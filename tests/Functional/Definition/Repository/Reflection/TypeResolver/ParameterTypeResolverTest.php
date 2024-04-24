@@ -154,4 +154,19 @@ final class ParameterTypeResolverTest extends TestCase
             'string',
         ];
     }
+
+    public function test_invalid_parameter_type_stays_invalid_when_variadic(): void
+    {
+        $reflection = new ReflectionParameter(
+            /**
+             * @param InvalidValue $value
+             */
+            static function (...$value): void {},
+            'value',
+        );
+
+        $type = $this->resolver->resolveTypeFor($reflection);
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+    }
 }
