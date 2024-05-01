@@ -23,6 +23,7 @@ final class Settings
         'Y-m-d\\TH:i:sP', // RFC 3339
         'Y-m-d\\TH:i:s.uP', // RFC 3339 with microseconds
         'U', // Unix Timestamp
+        'U.u', // Unix Timestamp with microseconds
     ];
 
     /** @var array<class-string|interface-string, callable> */

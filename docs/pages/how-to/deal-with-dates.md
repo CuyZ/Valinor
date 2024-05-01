@@ -2,7 +2,7 @@
 
 When the mapper builds a date object, it has to know which format(s) are
 supported. By default, any valid timestamp or RFC 3339-formatted value will be
-accepted.
+accepted with or without microseconds.
 
 If other formats are to be supported, they need to be registered using the
 following method:
