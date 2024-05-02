@@ -20,6 +20,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\IntersectionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IterableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\ValueOfToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
@@ -78,6 +79,7 @@ final class NativeLexer implements TypeLexer
             'iterable' => IterableToken::get(),
             'class-string' => ClassStringToken::get(),
             'callable' => CallableToken::get(),
+            'value-of' => ValueOfToken::get(),
 
             'null' => new TypeToken(NullType::get()),
             'true' => new TypeToken(BooleanValueType::true()),

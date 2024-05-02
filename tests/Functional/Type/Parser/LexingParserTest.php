@@ -1064,6 +1064,16 @@ final class LexingParserTest extends TestCase
             'transformed' => PureEnum::class . '::*A*',
             'type' => EnumType::class,
         ];
+        yield 'value-of<BackedStringEnum>' => [
+            'raw' => "value-of<" . BackedStringEnum::class . ">",
+            'transformed' => "'foo'|'bar'|'baz'",
+            'type' => UnionType::class,
+        ];
+        yield 'value-of<BackedIntegerEnum>' => [
+            'raw' => "value-of<" . BackedIntegerEnum::class . ">",
+            'transformed' => "42|404|1337",
+            'type' => UnionType::class,
+        ];
     }
 
     public function test_multiple_union_types_are_parsed(): void
