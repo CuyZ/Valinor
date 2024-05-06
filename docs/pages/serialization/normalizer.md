@@ -51,7 +51,7 @@ unsupported by serialization functions like `json_encode()`:
 - Objects are transformed to arrays based on their properties, no matter their
   visibility (public, protected or private)
 - Dates are formatted to the RFC 3339 format
-- Baked enums use their value, unit enums use their name
+- Backed enums use their value, unit enums use their name
 
 Custom transformations can be applied, see [normalizer extension chapter] for
 more information.
