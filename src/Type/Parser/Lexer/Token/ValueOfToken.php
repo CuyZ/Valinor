@@ -45,10 +45,11 @@ final class ValueOfToken implements TraversingToken
             throw new ValueOfIncorrectSubType($subType);
         }
 
-        $cases = array_values(array_map(
+        $cases = array_map(
+            // @phpstan-ignore-next-line / We know it's a BackedEnum
             fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
-            $subType->cases(),
-        ));
+            array_values($subType->cases()),
+        );
 
         if (count($cases) > 1) {
             return new UnionType(...$cases);

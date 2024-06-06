@@ -32,7 +32,7 @@ final class EnumValueOfMappingTest extends IntegrationTestCase
             $this->mappingFail($error);
         }
 
-        self::assertSame(SomeStringEnumForValueOf::FOO->value, $result);
+        self::assertSame(SomeStringEnumForValueOf::FOO->value, $result); // @phpstan-ignore-line
     }
 
     public function test_can_map_value_of_integer_enum(): void
