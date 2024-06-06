@@ -8,13 +8,13 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use RuntimeException;
 
 /** @internal */
-final class ClosingBracketMissing extends RuntimeException implements InvalidType
+final class ValueOfOpeningBracketMissing extends RuntimeException implements InvalidType
 {
-    public function __construct(string $symbol)
+    public function __construct()
     {
         parent::__construct(
-            "The closing bracket is missing for `$symbol<...>`.",
-            1618994728
+            "The opening bracket is missing for `value-of<...>`.",
+            1717702268
         );
     }
 }
