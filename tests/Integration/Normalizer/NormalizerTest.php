@@ -311,10 +311,9 @@ final class NormalizerTest extends IntegrationTestCase
                 }
             },
             'expected array' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
+                'baz' => 'baz',
             ],
-            'expected json' => '{"foo":"foo","bar":"bar"}',
+            'expected json' => '{"baz":"baz"}',
         ];
 
         yield 'date with default transformer' => [
@@ -384,7 +383,7 @@ final class NormalizerTest extends IntegrationTestCase
             'expected array' => 'value',
             'expected json' => '"value"',
             'transformers' => [
-                [fn (object $object) => 'value'],
+                [fn (IteratorAggregate $object) => 'value'],
             ],
         ];
 

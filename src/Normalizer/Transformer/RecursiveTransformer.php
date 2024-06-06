@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Transformer;
 
-use ArrayObject;
 use BackedEnum;
 use Closure;
 use CuyZ\Valinor\Definition\AttributeDefinition;
@@ -16,7 +15,6 @@ use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use DateTimeZone;
-use Generator;
 use stdClass;
 use UnitEnum;
 use WeakMap;
@@ -99,7 +97,22 @@ final class RecursiveTransformer
             return $value;
         }
 
-        if (is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator) {
+        if (is_iterable($value)) {
+            if (is_array($value)) {
+                return array_map(
+                    fn (mixed $value) => $this->doTransform($value, $references),
+                    $value
+                );
+            }
+
+            return (function () use ($value, $references) {
+                foreach ($value as $key => $item) {
+                    yield $key => $this->doTransform($item, $references);
+                }
+            })();
+        }
+
+        if (is_object($value) && ! $value instanceof Closure) {
             if ($value instanceof UnitEnum) {
                 return $value instanceof BackedEnum ? $value->value : $value->name;
             }
@@ -112,7 +125,7 @@ final class RecursiveTransformer
                 return $value->getName();
             }
 
-            if ($value::class === stdClass::class || $value instanceof ArrayObject) {
+            if ($value::class === stdClass::class) {
                 return array_map(
                     fn (mixed $value) => $this->doTransform($value, $references),
                     (array)$value
@@ -134,21 +147,6 @@ final class RecursiveTransformer
             }
 
             return $transformed;
-        }
-
-        if (is_iterable($value)) {
-            if (is_array($value)) {
-                return array_map(
-                    fn (mixed $value) => $this->doTransform($value, $references),
-                    $value
-                );
-            }
-
-            return (function () use ($value, $references) {
-                foreach ($value as $key => $item) {
-                    yield $key => $this->doTransform($item, $references);
-                }
-            })();
         }
 
         throw new TypeUnhandledByNormalizer($value);
