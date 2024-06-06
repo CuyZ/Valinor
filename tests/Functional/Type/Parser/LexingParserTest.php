@@ -38,6 +38,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayInvalidUnsealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayUnexpectedTokenAfterSealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\SimpleArrayClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\MissingClosingQuoteChar;
 use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\RightUnionTypeMissing;
@@ -1612,6 +1615,46 @@ final class LexingParserTest extends TestCase
         $this->expectExceptionMessage("The template `TemplateA` in class `$className` was defined at least twice.");
 
         $this->parser->parse("$className<int, string>");
+    }
+
+    public function test_value_of_enum_missing_opening_bracket_throws_exception(): void
+    {
+        $this->expectException(ValueOfOpeningBracketMissing::class);
+        $this->expectExceptionCode(1717702268);
+        $this->expectExceptionMessage('The opening bracket is missing for `value-of<...>`.');
+
+        $this->parser->parse('value-of');
+    }
+
+    public function test_value_of_enum_missing_closing_bracket_throws_exception(): void
+    {
+        $enumName = BackedStringEnum::class;
+
+        $this->expectException(ValueOfClosingBracketMissing::class);
+        $this->expectExceptionCode(1717702289);
+        $this->expectExceptionMessage("The closing bracket is missing for `value-of<$enumName>`.");
+
+        $this->parser->parse("value-of<$enumName");
+    }
+
+    public function test_value_of_incorrect_type_throws_exception(): void
+    {
+        $this->expectException(ValueOfIncorrectSubType::class);
+        $this->expectExceptionCode(1717702683);
+        $this->expectExceptionMessage('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.');
+
+        $this->parser->parse('value-of<string>');
+    }
+
+    public function test_value_of_unit_enum_type_throws_exception(): void
+    {
+        $enumName = PureEnum::class;
+
+        $this->expectException(ValueOfIncorrectSubType::class);
+        $this->expectExceptionCode(1717702683);
+        $this->expectExceptionMessage("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.");
+
+        $this->parser->parse("value-of<$enumName>");
     }
 }
 
