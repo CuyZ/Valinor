@@ -9,7 +9,7 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class EnumValueOfMappingTest extends IntegrationTestCase
 {
-    public function test_can_map_string_enum_value_of(): void
+    public function test_can_map_value_of_string_enum(): void
     {
         try {
             $result = $this->mapperBuilder()
@@ -22,7 +22,20 @@ final class EnumValueOfMappingTest extends IntegrationTestCase
         self::assertSame(SomeStringEnumForValueOf::FOO->value, $result);
     }
 
-    public function test_can_map_integer_enum_value_of(): void
+    public function test_can_map_value_of_enum_with_one_case(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map('value-of<' . SomeStringEnumForValueOfWithOneCase::class . '>', SomeStringEnumForValueOf::FOO->value);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(SomeStringEnumForValueOf::FOO->value, $result);
+    }
+
+    public function test_can_map_value_of_integer_enum(): void
     {
         try {
             $result = $this->mapperBuilder()
@@ -66,12 +79,16 @@ enum SomeStringEnumForValueOf: string
     case FOO = 'FOO';
     case FOZ = 'FOZ';
     case BAZ = 'BAZ';
-
 }
+
+enum SomeStringEnumForValueOfWithOneCase: string
+{
+    case FOO = 'FOO';
+}
+
 enum SomeIntegerEnumForValueOf: int
 {
     case FOO = 42;
     case FOZ = 404;
     case BAZ = 1337;
-
 }
