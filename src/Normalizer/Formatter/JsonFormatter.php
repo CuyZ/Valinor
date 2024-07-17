@@ -17,6 +17,7 @@ use function is_null;
 use function is_scalar;
 use function json_encode;
 
+use const JSON_FORCE_OBJECT;
 use const JSON_THROW_ON_ERROR;
 
 /** @internal */
@@ -45,6 +46,12 @@ final class JsonFormatter implements StreamFormatter
         } elseif ($value instanceof EmptyObject) {
             $this->write('{}');
         } elseif (is_iterable($value)) {
+            if ($value === [] && $this->jsonEncodingOptions & JSON_FORCE_OBJECT) {
+                $this->write('{}');
+
+                return;
+
+            }
             // Note: when a generator is formatted, it is considered as a list
             // if its first key is 0. This is done early because the first JSON
             // character for an array differs from the one for an object, and we
