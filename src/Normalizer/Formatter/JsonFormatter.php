@@ -46,12 +46,6 @@ final class JsonFormatter implements StreamFormatter
         } elseif ($value instanceof EmptyObject) {
             $this->write('{}');
         } elseif (is_iterable($value)) {
-            if ($value === [] && $this->jsonEncodingOptions & JSON_FORCE_OBJECT) {
-                $this->write('{}');
-
-                return;
-
-            }
             // Note: when a generator is formatted, it is considered as a list
             // if its first key is 0. This is done early because the first JSON
             // character for an array differs from the one for an object, and we
@@ -61,8 +55,11 @@ final class JsonFormatter implements StreamFormatter
             // afterward, this leads to a JSON array being written, while it
             // should have been an object. This is a trade-off we accept,
             // considering most generators starting at 0 are actually lists.
-            $isList = ($value instanceof Generator && $value->key() === 0)
-                || (is_array($value) && array_is_list($value));
+            $isList = ! ($this->jsonEncodingOptions & JSON_FORCE_OBJECT)
+                && (
+                    ($value instanceof Generator && $value->key() === 0)
+                    || (is_array($value) && array_is_list($value))
+                );
 
             $isFirst = true;
 
