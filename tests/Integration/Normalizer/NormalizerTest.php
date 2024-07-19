@@ -979,6 +979,23 @@ final class NormalizerTest extends IntegrationTestCase
             ->normalize(new stdClass());
     }
 
+    public function test_second_param_in_transformer_is_callable_with_phpdoc_spec_does_not_throw(): void
+    {
+        $class = new class () {
+            /** @param callable():mixed $next */
+            public function __invoke(stdClass $object, callable $next): int
+            {
+                return 42;
+            }
+        };
+        $this->mapperBuilder()
+            ->registerTransformer($class)
+            ->normalizer(Format::array())
+            ->normalize(new stdClass());
+
+        self::addToAssertionCount(1);
+    }
+
     public function test_no_param_in_transformer_attribute_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);
