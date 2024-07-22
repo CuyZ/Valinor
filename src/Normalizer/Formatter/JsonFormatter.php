@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
+use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use Generator;
 
 use function array_is_list;
@@ -41,6 +42,8 @@ final class JsonFormatter implements StreamFormatter
              *                             tools understand that JSON_THROW_ON_ERROR is always set.
              */
             $this->write(json_encode($value, $this->jsonEncodingOptions));
+        } elseif ($value instanceof EmptyObject) {
+            $this->write('{}');
         } elseif (is_iterable($value)) {
             // Note: when a generator is formatted, it is considered as a list
             // if its first key is 0. This is done early because the first JSON
