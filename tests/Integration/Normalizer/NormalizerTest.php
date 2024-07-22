@@ -695,6 +695,32 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [],
             'jsonEncodingOptions' => JSON_HEX_AMP,
         ];
+
+        yield 'stdClass with no property' => [
+            'input' => new stdClass(),
+            'expected array' => [],
+            'expected_json' => '{}',
+        ];
+
+        yield 'ArrayObject with no property' => [
+            'input' => new ArrayObject(),
+            'expected array' => [],
+            'expected_json' => '{}',
+        ];
+
+        yield 'iterable class with no property' => [
+            'input' => new class () implements IteratorAggregate {
+                public function getIterator(): Traversable
+                {
+                    // @phpstan-ignore-next-line / Empty array is here on purpose
+                    foreach ([] as $value) {
+                        yield $value;
+                    }
+                }
+            },
+            'expected array' => [],
+            'expected_json' => '{}',
+        ];
     }
 
     public function test_generator_of_scalar_yields_expected_array(): void

@@ -24,6 +24,7 @@ use function get_object_vars;
 use function is_a;
 use function is_array;
 use function is_iterable;
+use function is_object;
 
 /**  @internal */
 final class RecursiveTransformer
@@ -105,11 +106,17 @@ final class RecursiveTransformer
                 );
             }
 
-            return (function () use ($value, $references) {
+            $result = (function () use ($value, $references) {
                 foreach ($value as $key => $item) {
                     yield $key => $this->doTransform($item, $references);
                 }
             })();
+
+            if (! $result->valid()) {
+                return EmptyObject::get();
+            }
+
+            return $result;
         }
 
         if (is_object($value) && ! $value instanceof Closure) {
@@ -126,9 +133,15 @@ final class RecursiveTransformer
             }
 
             if ($value::class === stdClass::class) {
+                $result = (array)$value;
+
+                if ($result === []) {
+                    return EmptyObject::get();
+                }
+
                 return array_map(
                     fn (mixed $value) => $this->doTransform($value, $references),
-                    (array)$value
+                    $result
                 );
             }
 
