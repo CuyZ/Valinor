@@ -210,6 +210,21 @@ final class NormalizerTest extends IntegrationTestCase
             JSON_FORCE_OBJECT
         ];
 
+        yield 'list' => [
+            'input' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
+        ];
+
+        yield 'list kept as object in json' => [
+            'input' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '{"0":"foo","1":"bar"}',
+            [],
+            [],
+            JSON_FORCE_OBJECT
+        ];
+
         yield 'ArrayObject' => [
             'input' => new ArrayObject(['foo' => 'foo', 'bar' => 'bar']),
             'expected array' => [
