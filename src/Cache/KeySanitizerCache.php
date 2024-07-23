@@ -9,7 +9,7 @@ use CuyZ\Valinor\Utility\Package;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
-use function sha1;
+use function hash;
 
 /**
  * @internal
@@ -32,10 +32,10 @@ final class KeySanitizerCache implements WarmupCache
         // 1. We append the current version of the package to the cache key in
         //    order to avoid collisions between entries from different versions
         //    of the library.
-        // 2. The key is sha1'd so that it does not contain illegal characters.
+        // 2. The key is hashed so that it does not contain illegal characters.
         //    @see https://www.php-fig.org/psr/psr-16/#12-definitions
         // @infection-ignore-all
-        $this->sanitize = static fn (string $key) => $key . sha1(self::$version ??= PHP_VERSION . '/' . Package::version());
+        $this->sanitize = static fn (string $key) => $key . hash('sha1', self::$version ??= PHP_VERSION . '/' . Package::version());
     }
 
     public function warmup(): void
