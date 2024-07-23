@@ -198,16 +198,7 @@ final class NormalizerTest extends IntegrationTestCase
         yield 'empty stdClass' => [
             'input' => (fn () => new stdClass())(),
             'expected array' => [],
-            'expected json' => '[]',
-        ];
-
-        yield 'empty stdClass kept as object in json' => [
-            'input' => (fn () => new stdClass())(),
-            'expected array' => [],
             'expected json' => '{}',
-            [],
-            [],
-            JSON_FORCE_OBJECT
         ];
 
         yield 'list' => [
