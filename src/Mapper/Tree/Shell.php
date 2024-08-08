@@ -38,7 +38,7 @@ final class Shell
         return (new self($type))->withValue($value);
     }
 
-    public function child(string $name, Type $type, Attributes $attributes = null): self
+    public function child(string $name, Type $type, ?Attributes $attributes = null): self
     {
         $instance = new self($type);
         $instance->name = $name;
