@@ -27,7 +27,7 @@ final class ClassStringType implements StringType, CompositeType
 
     private string $signature;
 
-    public function __construct(ObjectType|UnionType $subType = null)
+    public function __construct(ObjectType|UnionType|null $subType = null)
     {
         if ($subType instanceof UnionType) {
             foreach ($subType->types() as $type) {
