@@ -6,33 +6,22 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedArrayKeysForClass;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-
-use function count;
 
 /** @internal */
 final class FilteredObjectNodeBuilder
 {
-    public function __construct(private bool $allowSuperfluousKeys) {}
-
     public function build(ObjectBuilder $builder, Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
-        $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell->value(), $this->allowSuperfluousKeys);
+        $arguments = ArgumentsValues::forClass($builder->describeArguments(), $shell);
 
         $children = $this->children($shell, $arguments, $rootBuilder);
 
         $object = $this->buildObject($builder, $children);
 
-        $node = $arguments->hadSingleArgument()
+        return $arguments->hadSingleArgument()
             ? TreeNode::flattenedBranch($shell, $object, $children[0])
             : TreeNode::branch($shell, $object, $children);
-
-        if (! $this->allowSuperfluousKeys && count($arguments->superfluousKeys()) > 0) {
-            $node = $node->withMessage(new UnexpectedArrayKeysForClass($arguments));
-        }
-
-        return $node;
     }
 
     /**

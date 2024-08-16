@@ -59,7 +59,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             $rootError = $exception->node()->messages()[0];
             $nestedError = $exception->node()->children()['stringA']->messages()[0];
 
-            self::assertSame('1655149208', $rootError->code());
+            self::assertSame('1655117782', $rootError->code());
             self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.', (string)$rootError);
             self::assertSame('Value 42 is not a valid string.', (string)$nestedError);
         }

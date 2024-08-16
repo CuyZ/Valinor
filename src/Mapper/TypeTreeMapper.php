@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper;
 
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
@@ -18,7 +19,8 @@ final class TypeTreeMapper implements TreeMapper
 {
     public function __construct(
         private TypeParser $typeParser,
-        private RootNodeBuilder $nodeBuilder
+        private RootNodeBuilder $nodeBuilder,
+        private Settings $settings,
     ) {}
 
     /** @pure */
@@ -41,7 +43,7 @@ final class TypeTreeMapper implements TreeMapper
             throw new InvalidMappingTypeSignature($signature, $exception);
         }
 
-        $shell = Shell::root($type, $source);
+        $shell = Shell::root($this->settings, $type, $source);
 
         try {
             return $this->nodeBuilder->build($shell);

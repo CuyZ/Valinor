@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -16,6 +17,10 @@ use function implode;
 /** @internal */
 final class Shell
 {
+    private Settings $settings;
+
+    private Type $type;
+
     private string $name;
 
     private bool $hasValue = false;
@@ -26,21 +31,27 @@ final class Shell
 
     private self $parent;
 
-    private function __construct(private Type $type)
+    private function __construct(Settings $settings, Type $type)
     {
         if ($type instanceof UnresolvableType) {
             throw new UnresolvableShellType($type);
         }
+
+        $this->settings = $settings;
+        $this->type = $type;
     }
 
-    public static function root(Type $type, mixed $value): self
-    {
-        return (new self($type))->withValue($value);
+    public static function root(
+        Settings $settings,
+        Type $type,
+        mixed $value,
+    ): self {
+        return (new self($settings, $type))->withValue($value);
     }
 
     public function child(string $name, Type $type, Attributes $attributes = null): self
     {
-        $instance = new self($type);
+        $instance = new self($this->settings, $type);
         $instance->name = $name;
         $instance->parent = $this;
 
@@ -93,6 +104,21 @@ final class Shell
         assert($this->hasValue);
 
         return $this->value;
+    }
+
+    public function enableFlexibleCasting(): bool
+    {
+        return $this->settings->enableFlexibleCasting;
+    }
+
+    public function allowSuperfluousKeys(): bool
+    {
+        return $this->settings->allowSuperfluousKeys;
+    }
+
+    public function allowPermissiveTypes(): bool
+    {
+        return $this->settings->allowPermissiveTypes;
     }
 
     public function attributes(): Attributes

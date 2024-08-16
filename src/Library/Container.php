@@ -86,12 +86,14 @@ final class Container
         $this->factories = [
             TreeMapper::class => fn () => new TypeTreeMapper(
                 $this->get(TypeParser::class),
-                $this->get(RootNodeBuilder::class)
+                $this->get(RootNodeBuilder::class),
+                $settings,
             ),
 
             ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
                 $this->get(FunctionDefinitionRepository::class),
-                $this->get(RootNodeBuilder::class)
+                $this->get(RootNodeBuilder::class),
+                $settings,
             ),
 
             RootNodeBuilder::class => fn () => new RootNodeBuilder(
@@ -99,8 +101,8 @@ final class Container
             ),
 
             NodeBuilder::class => function () use ($settings) {
-                $listNodeBuilder = new ListNodeBuilder($settings->enableFlexibleCasting);
-                $arrayNodeBuilder = new ArrayNodeBuilder($settings->enableFlexibleCasting);
+                $listNodeBuilder = new ListNodeBuilder();
+                $arrayNodeBuilder = new ArrayNodeBuilder();
 
                 $builder = new CasterNodeBuilder([
                     ListType::class => $listNodeBuilder,
@@ -108,14 +110,13 @@ final class Container
                     ArrayType::class => $arrayNodeBuilder,
                     NonEmptyArrayType::class => $arrayNodeBuilder,
                     IterableType::class => $arrayNodeBuilder,
-                    ShapedArrayType::class => new ShapedArrayNodeBuilder($settings->allowSuperfluousKeys),
-                    ScalarType::class => new ScalarNodeBuilder($settings->enableFlexibleCasting),
+                    ShapedArrayType::class => new ShapedArrayNodeBuilder(),
+                    ScalarType::class => new ScalarNodeBuilder(),
                     NullType::class => new NullNodeBuilder(),
                     ObjectType::class => new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
                         $this->get(FilteredObjectNodeBuilder::class),
-                        $settings->enableFlexibleCasting,
                     ),
                 ]);
 
@@ -131,8 +132,6 @@ final class Container
                         $this->get(FunctionDefinitionRepository::class),
                         $settings->customConstructors
                     ),
-                    $settings->enableFlexibleCasting,
-                    $settings->allowSuperfluousKeys,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
@@ -148,12 +147,12 @@ final class Container
                     );
                 }
 
-                $builder = new StrictNodeBuilder($builder, $settings->allowPermissiveTypes, $settings->enableFlexibleCasting);
+                $builder = new StrictNodeBuilder($builder);
 
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
 
-            FilteredObjectNodeBuilder::class => fn () => new FilteredObjectNodeBuilder($settings->allowSuperfluousKeys),
+            FilteredObjectNodeBuilder::class => fn () => new FilteredObjectNodeBuilder(),
 
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(

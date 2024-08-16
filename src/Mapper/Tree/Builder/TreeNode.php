@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
+use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedKeysInSource;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -14,6 +15,8 @@ use Throwable;
 
 use function array_map;
 use function assert;
+use function count;
+use function is_array;
 
 /** @internal */
 final class TreeNode
@@ -141,14 +144,23 @@ final class TreeNode
         foreach ($this->children as $child) {
             if (! $child->valid) {
                 $this->valid = false;
-
-                return;
             }
         }
 
-        if ($this->valid && ! $this->shell->type()->accepts($this->value)) {
+        $value = $this->shell->value();
+        $type = $this->shell->type();
+
+        if (! $this->shell->allowSuperfluousKeys()
+            && is_array($value)
+            && count($value) > count($this->children)
+        ) {
             $this->valid = false;
-            $this->messages[] = new InvalidNodeValue($this->shell->type());
+            $this->messages[] = new UnexpectedKeysInSource($value, $this->children);
+        }
+
+        if ($this->valid && ! $type->accepts($this->value)) {
+            $this->valid = false;
+            $this->messages[] = new InvalidNodeValue($type);
         }
     }
 
