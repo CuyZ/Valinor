@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +17,7 @@ final class ShellTest extends TestCase
         $type = new FakeType();
         $value = 'foo';
 
-        $shell = Shell::root($type, $value);
+        $shell = Shell::root(new Settings(), $type, $value);
 
         self::assertSame($type, $shell->type());
         self::assertSame($value, $shell->value());
@@ -24,7 +25,7 @@ final class ShellTest extends TestCase
 
     public function test_root_path_is_fixed(): void
     {
-        $shell = Shell::root(new FakeType(), 'foo');
+        $shell = Shell::root(new Settings(), new FakeType(), 'foo');
 
         self::assertSame('*root*', $shell->path());
     }
@@ -34,7 +35,7 @@ final class ShellTest extends TestCase
         $typeA = new FakeType();
         $typeB = FakeType::matching($typeA);
 
-        $shellA = Shell::root($typeA, []);
+        $shellA = Shell::root(new Settings(), $typeA, []);
         $shellB = $shellA->withType($typeB);
 
         self::assertNotSame($shellA, $shellB);
@@ -46,7 +47,7 @@ final class ShellTest extends TestCase
         $valueA = 'foo';
         $valueB = 'bar';
 
-        $shellA = Shell::root(new FakeType(), $valueA);
+        $shellA = Shell::root(new Settings(), new FakeType(), $valueA);
         $shellB = $shellA->withValue($valueB);
 
         self::assertNotSame($shellA, $shellB);
@@ -55,7 +56,7 @@ final class ShellTest extends TestCase
 
     public function test_root_shell_is_root(): void
     {
-        $shell = Shell::root(new FakeType(), []);
+        $shell = Shell::root(new Settings(), new FakeType(), []);
 
         self::assertTrue($shell->isRoot());
         self::assertSame('', $shell->name());
@@ -67,7 +68,7 @@ final class ShellTest extends TestCase
         $type = FakeType::permissive();
         $attributes = new Attributes();
 
-        $shell = Shell::root(new FakeType(), []);
+        $shell = Shell::root(new Settings(), new FakeType(), []);
         $child = $shell->child('foo', $type, $attributes)->withValue($value);
 
         self::assertSame('foo', $child->name());

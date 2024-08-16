@@ -30,8 +30,6 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ObjectBuilderFactory $objectBuilderFactory,
         private FilteredObjectNodeBuilder $filteredObjectNodeBuilder,
         private FunctionsContainer $constructors,
-        private bool $enableFlexibleCasting,
-        private bool $allowSuperfluousKeys,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -50,7 +48,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
-        if ($this->enableFlexibleCasting && $shell->value() === null) {
+        if ($shell->enableFlexibleCasting() && $shell->value() === null) {
             $shell = $shell->withValue([]);
         }
 
@@ -140,7 +138,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
      */
     private function children(Shell $shell, Arguments $arguments, RootNodeBuilder $rootBuilder): array
     {
-        $arguments = ArgumentsValues::forInterface($arguments, $shell->value(), $this->allowSuperfluousKeys);
+        $arguments = ArgumentsValues::forInterface($arguments, $shell);
 
         $children = [];
 

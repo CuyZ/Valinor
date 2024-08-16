@@ -12,8 +12,6 @@ use function assert;
 /** @internal */
 final class ScalarNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $enableFlexibleCasting) {}
-
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
@@ -21,7 +19,7 @@ final class ScalarNodeBuilder implements NodeBuilder
 
         assert($type instanceof ScalarType);
 
-        if (! $this->enableFlexibleCasting || ! $type->canCast($value)) {
+        if (! $shell->enableFlexibleCasting() || ! $type->canCast($value)) {
             throw $type->errorMessage();
         }
 

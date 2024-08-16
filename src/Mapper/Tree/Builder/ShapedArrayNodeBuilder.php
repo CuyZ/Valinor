@@ -5,20 +5,16 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
-use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedShapedArrayKeys;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
 use function array_key_exists;
 use function assert;
-use function count;
 use function is_array;
 
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $allowSuperfluousKeys) {}
-
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
@@ -34,13 +30,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         $array = $this->buildArray($children);
 
-        $node = TreeNode::branch($shell, $array, $children);
-
-        if (! $this->allowSuperfluousKeys && count($value) > count($children)) {
-            $node = $node->withMessage(new UnexpectedShapedArrayKeys($value, $children));
-        }
-
-        return $node;
+        return TreeNode::branch($shell, $array, $children);
     }
 
     /**

@@ -20,7 +20,6 @@ final class ObjectNodeBuilder implements NodeBuilder
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
         private FilteredObjectNodeBuilder $filteredObjectNodeBuilder,
-        private bool $enableFlexibleCasting,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -30,7 +29,7 @@ final class ObjectNodeBuilder implements NodeBuilder
         // @infection-ignore-all
         assert($type instanceof ObjectType);
 
-        if ($this->enableFlexibleCasting && $shell->value() === null) {
+        if ($shell->enableFlexibleCasting() && $shell->value() === null) {
             $shell = $shell->withValue([]);
         }
 
