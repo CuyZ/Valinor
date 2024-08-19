@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
+use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
@@ -87,6 +88,14 @@ final class Shell
 
     public function withValue(mixed $value): self
     {
+        // When the value is an integer and the type is a float, the value is
+        // cast to float, to follow the rule of PHP regarding acceptance of an
+        // integer value in a float type. Note that PHPStan/Psalm analysis
+        // applies the same rule.
+        if ($this->type instanceof FloatType && is_int($value)) {
+            $value = (float)$value;
+        }
+
         $clone = clone $this;
         $clone->hasValue = true;
         $clone->value = $value;
