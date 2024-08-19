@@ -12,7 +12,6 @@ use CuyZ\Valinor\Utility\IsSingleton;
 
 use function assert;
 use function is_float;
-use function is_integer;
 use function is_numeric;
 
 /** @internal */
@@ -22,7 +21,7 @@ final class NativeFloatType implements FloatType
 
     public function accepts(mixed $value): bool
     {
-        return is_float($value) || is_integer($value);
+        return is_float($value);
     }
 
     public function matches(Type $other): bool
