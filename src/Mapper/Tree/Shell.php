@@ -32,6 +32,9 @@ final class Shell
 
     private self $parent;
 
+    /** @var list<string> */
+    private array $allowedSuperfluousKeys = [];
+
     private function __construct(Settings $settings, Type $type)
     {
         if ($type instanceof UnresolvableType) {
@@ -133,6 +136,25 @@ final class Shell
     public function attributes(): Attributes
     {
         return $this->attributes ?? Attributes::empty();
+    }
+
+    /**
+     * @param list<string> $allowedSuperfluousKeys
+     */
+    public function withAllowedSuperfluousKeys(array $allowedSuperfluousKeys): self
+    {
+        $clone = clone $this;
+        $clone->allowedSuperfluousKeys = $allowedSuperfluousKeys;
+
+        return $clone;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function allowedSuperfluousKeys(): array
+    {
+        return $this->allowedSuperfluousKeys;
     }
 
     public function path(): string

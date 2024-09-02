@@ -20,28 +20,36 @@ final class CasterProxyNodeBuilder implements NodeBuilder
         if ($shell->hasValue()) {
             $value = $shell->value();
 
-            if ($this->typeAcceptsValue($shell->type(), $value)) {
-                return TreeNode::leaf($shell, $value);
+            $typeAcceptingValue = $this->typeAcceptingValue($shell->type(), $value);
+
+            if ($typeAcceptingValue) {
+                return TreeNode::leaf($shell->withType($typeAcceptingValue), $value);
             }
         }
 
         return $this->delegate->build($shell, $rootBuilder);
     }
 
-    private function typeAcceptsValue(Type $type, mixed $value): bool
+    private function typeAcceptingValue(Type $type, mixed $value): ?Type
     {
         if ($type instanceof UnionType) {
             foreach ($type->types() as $subType) {
-                if ($this->typeAcceptsValue($subType, $value)) {
-                    return true;
+                if ($this->typeAcceptingValue($subType, $value)) {
+                    return $subType;
                 }
             }
 
-            return false;
+            return null;
         }
 
-        return ! $type instanceof CompositeTraversableType
-            && ! $type instanceof ShapedArrayType
-            && $type->accepts($value);
+        if ($type instanceof CompositeTraversableType || $type instanceof ShapedArrayType) {
+            return null;
+        }
+
+        if ($type->accepts($value)) {
+            return $type;
+        }
+
+        return null;
     }
 }

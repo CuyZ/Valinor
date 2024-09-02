@@ -6,9 +6,13 @@ namespace CuyZ\Valinor\Utility;
 
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
+use CuyZ\Valinor\Type\BooleanType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\FixedType;
+use CuyZ\Valinor\Type\FloatType;
+use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -17,6 +21,20 @@ use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 /** @internal */
 final class TypeHelper
 {
+    /**
+     * Sorting the scalar types by priority: int, float, string, bool.
+     */
+    public static function typePriority(Type $type): int
+    {
+        return match (true) {
+            $type instanceof IntegerType => 4,
+            $type instanceof FloatType => 3,
+            $type instanceof StringType => 2,
+            $type instanceof BooleanType => 1,
+            default => 0,
+        };
+    }
+
     public static function dump(Type $type, bool $surround = true): string
     {
         if ($type instanceof EnumType) {
@@ -51,7 +69,7 @@ final class TypeHelper
 
                 return $argument->isRequired() ? "$name: $signature" : "$name?: $signature";
             },
-            [...$arguments]
+            [...$arguments],
         );
 
         return '`array{' . implode(', ', $parameters) . '}`';
