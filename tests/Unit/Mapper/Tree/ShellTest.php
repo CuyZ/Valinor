@@ -42,6 +42,15 @@ final class ShellTest extends TestCase
         self::assertSame($typeB, $shellB->type());
     }
 
+    public function test_allows_superfluous_keys(): void
+    {
+        $shellA = Shell::root(new Settings(), new FakeType(), []);
+        $shellB = $shellA->withAllowedSuperfluousKeys(['foo', 'bar']);
+
+        self::assertNotSame($shellA, $shellB);
+        self::assertSame(['foo', 'bar'], $shellB->allowedSuperfluousKeys());
+    }
+
     public function test_change_value_changes_value(): void
     {
         $valueA = 'foo';

@@ -30,7 +30,10 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         $array = $this->buildArray($children);
 
-        return TreeNode::branch($shell, $array, $children);
+        $node = TreeNode::branch($shell, $array, $children);
+        $node = $node->checkUnexpectedKeys();
+
+        return $node;
     }
 
     /**

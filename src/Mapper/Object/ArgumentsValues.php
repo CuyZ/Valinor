@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -27,6 +26,8 @@ final class ArgumentsValues implements IteratorAggregate
 
     private Arguments $arguments;
 
+    private bool $hasInvalidValue = false;
+
     private bool $forInterface = false;
 
     private bool $hadSingleArgument = false;
@@ -42,7 +43,7 @@ final class ArgumentsValues implements IteratorAggregate
         $self->forInterface = true;
 
         if (count($arguments) > 0) {
-            $self = $self->transform($shell);
+            $self->transform($shell);
         }
 
         return $self;
@@ -51,9 +52,14 @@ final class ArgumentsValues implements IteratorAggregate
     public static function forClass(Arguments $arguments, Shell $shell): self
     {
         $self = new self($arguments);
-        $self = $self->transform($shell);
+        $self->transform($shell);
 
         return $self;
+    }
+
+    public function hasInvalidValue(): bool
+    {
+        return $this->hasInvalidValue;
     }
 
     public function hasValue(string $name): bool
@@ -71,18 +77,18 @@ final class ArgumentsValues implements IteratorAggregate
         return $this->hadSingleArgument;
     }
 
-    private function transform(Shell $shell): self
+    private function transform(Shell $shell): void
     {
-        $clone = clone $this;
-
         $transformedValue = $this->transformValueForSingleArgument($shell);
 
         if (! is_array($transformedValue)) {
-            throw new InvalidSource($transformedValue, $this->arguments);
+            $this->hasInvalidValue = true;
+
+            return;
         }
 
         if ($transformedValue !== $shell->value()) {
-            $clone->hadSingleArgument = true;
+            $this->hadSingleArgument = true;
         }
 
         foreach ($this->arguments as $argument) {
@@ -93,9 +99,7 @@ final class ArgumentsValues implements IteratorAggregate
             }
         }
 
-        $clone->value = $transformedValue;
-
-        return $clone;
+        $this->value = $transformedValue;
     }
 
     private function transformValueForSingleArgument(Shell $shell): mixed

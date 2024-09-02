@@ -18,7 +18,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\CollisionObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
@@ -37,7 +37,6 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
-use CuyZ\Valinor\Mapper\Tree\Builder\FilteredObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -116,7 +115,6 @@ final class Container
                     ObjectType::class => new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
-                        $this->get(FilteredObjectNodeBuilder::class),
                     ),
                 ]);
 
@@ -126,8 +124,6 @@ final class Container
                     $builder,
                     $this->get(ObjectImplementations::class),
                     $this->get(ClassDefinitionRepository::class),
-                    $this->get(ObjectBuilderFactory::class),
-                    $this->get(FilteredObjectNodeBuilder::class),
                     new FunctionsContainer(
                         $this->get(FunctionDefinitionRepository::class),
                         $settings->customConstructors
@@ -152,8 +148,6 @@ final class Container
                 return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
             },
 
-            FilteredObjectNodeBuilder::class => fn () => new FilteredObjectNodeBuilder(),
-
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
@@ -172,7 +166,7 @@ final class Container
                 $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
                 $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->get(FunctionDefinitionRepository::class));
-                $factory = new CollisionObjectBuilderFactory($factory);
+                $factory = new SortingObjectBuilderFactory($factory);
 
                 if (! $settings->allowPermissiveTypes) {
                     $factory = new StrictTypesObjectBuilderFactory($factory);

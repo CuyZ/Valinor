@@ -12,9 +12,10 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
 use Throwable;
 
+use function array_diff;
+use function array_keys;
 use function array_map;
 use function assert;
-use function count;
 use function is_array;
 
 /** @internal */
@@ -130,6 +131,23 @@ final class TreeNode
         return $this->buildNode($this);
     }
 
+    public function checkUnexpectedKeys(): self
+    {
+        $value = $this->shell->value();
+
+        if ($this->shell->allowSuperfluousKeys() || ! is_array($value)) {
+            return $this;
+        }
+
+        $diff = array_diff(array_keys($value), array_keys($this->children), $this->shell->allowedSuperfluousKeys());
+
+        if ($diff !== []) {
+            return $this->withMessage(new UnexpectedKeysInSource($value, $this->children));
+        }
+
+        return $this;
+    }
+
     private function check(): void
     {
         foreach ($this->children as $child) {
@@ -138,16 +156,7 @@ final class TreeNode
             }
         }
 
-        $value = $this->shell->value();
         $type = $this->shell->type();
-
-        if (! $this->shell->allowSuperfluousKeys()
-            && is_array($value)
-            && count($value) > count($this->children)
-        ) {
-            $this->valid = false;
-            $this->messages[] = new UnexpectedKeysInSource($value, $this->children);
-        }
 
         if ($this->valid && ! $type->accepts($this->value)) {
             $this->valid = false;
