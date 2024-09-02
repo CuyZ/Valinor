@@ -26,7 +26,7 @@ final class PhpParserTest extends TestCase
 {
     /**
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
-     * @param array<string, string> $expectedMap
+     * @param array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}> $expectedMap
      */
     #[DataProvider('use_statements_data_provider')]
     public function test_parse_use_statements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection, array $expectedMap): void
@@ -46,120 +46,282 @@ final class PhpParserTest extends TestCase
         yield 'one namespace' => [
             new ReflectionClass(ClassInSingleNamespace::class),
             [
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'multiple namespaces, class A' => [
             new ReflectionClass(ClassA::class),
             [
-                'classb' => ClassB::class,
-                'classbalias' => ClassB::class,
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'classb' => [
+                    'fqcn' => ClassB::class,
+                    'isExplicitAlias' => false,
+                ],
+                'classbalias' => [
+                    'fqcn' => ClassB::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'multiple namespaces, class B' => [
             new ReflectionClass(ClassB::class),
             [
-                'classa' => ClassA::class,
-                'classaalias' => ClassA::class,
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'classa' => [
+                    'fqcn' => ClassA::class,
+                    'isExplicitAlias' => false,
+                ],
+                'classaalias' => [
+                    'fqcn' => ClassA::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'multiple namespaces, function A' => [
             new ReflectionFunction('\CuyZ\Valinor\Tests\Fixtures\WithAliasA\functionA'),
             [
-                'classb' => ClassB::class,
-                'classbalias' => ClassB::class,
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'classb' => [
+                    'fqcn' => ClassB::class,
+                    'isExplicitAlias' => false,
+                ],
+                'classbalias' => [
+                    'fqcn' => ClassB::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'multiple namespaces, function B' => [
             new ReflectionFunction('\CuyZ\Valinor\Tests\Fixtures\WithAliasB\functionB'),
             [
-                'classa' => ClassA::class,
-                'classaalias' => ClassA::class,
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'classa' => [
+                    'fqcn' => ClassA::class,
+                    'isExplicitAlias' => false,
+                ],
+                'classaalias' => [
+                    'fqcn' => ClassA::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'one namespace, method' => [
             new ReflectionMethod(ClassInSingleNamespace::class, '__construct'),
             [
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'multiple namespaces, class A method' => [
             new ReflectionMethod(ClassA::class, '__construct'),
             [
-                'classb' => ClassB::class,
-                'classbalias' => ClassB::class,
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'classb' => [
+                    'fqcn' => ClassB::class,
+                    'isExplicitAlias' => false,
+                ],
+                'classbalias' => [
+                    'fqcn' => ClassB::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'multiple namespaces, class B method' => [
             new ReflectionMethod(ClassB::class, '__construct'),
             [
-                'classa' => ClassA::class,
-                'classaalias' => ClassA::class,
-                'baralias' => Bar::class,
-                'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'classa' => [
+                    'fqcn' => ClassA::class,
+                    'isExplicitAlias' => false,
+                ],
+                'classaalias' => [
+                    'fqcn' => ClassA::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'foo' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => false,
+                ],
+                'datetimeimmutable' => [
+                    'fqcn' => \DateTimeImmutable::class,
+                    'isExplicitAlias' => false,
+                ],
+                'stdclassalias' => [
+                    'fqcn' => \stdClass::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'function in root namespace' => [
             new ReflectionFunction('function_in_root_namespace'),
             [
-                'fooalias' => Foo::class,
-                'baralias' => Bar::class,
+                'fooalias' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'one namespace, one use statement, two import statements' => [
             new ReflectionFunction('CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_with_several_import_statements_in_same_use_statement'),
             [
-                'fooalias' => Foo::class,
-                'baralias' => Bar::class,
-                'anotherfooalias' => Foo::class,
-                'anotherbaralias' => Bar::class,
+                'fooalias' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'anotherfooalias' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => true,
+                ],
+                'anotherbaralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
             ]
         ];
 
         yield 'one namespace, one use statement, two grouped import statements' => [
             new ReflectionFunction('\CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_with_grouped_import_statements'),
             [
-                'fooalias' => Foo::class,
-                'baralias' => Bar::class,
-                'anotherfooalias' => Foo::class,
-                'anotherbaralias' => Bar::class,
+                'fooalias' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => true,
+                ],
+                'baralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
+                'anotherfooalias' => [
+                    'fqcn' => Foo::class,
+                    'isExplicitAlias' => true,
+                ],
+                'anotherbaralias' => [
+                    'fqcn' => Bar::class,
+                    'isExplicitAlias' => true,
+                ],
             ],
         ];
     }

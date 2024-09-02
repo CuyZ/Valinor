@@ -17,12 +17,12 @@ use SplFileObject;
  */
 final class PhpParser
 {
-    /** @var array<string, array<string, string>> */
+    /** @var array<string, array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}>> */
     private static array $statements = [];
 
     /**
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
-     * @return array<string, string>
+     * @return array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}>
      */
     public static function parseUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
     {
@@ -34,7 +34,7 @@ final class PhpParser
 
     /**
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
-     * @return array<string, string>
+     * @return array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}>
      */
     private static function fetchUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
     {
