@@ -80,6 +80,7 @@ final class Shell
     {
         $clone = clone $this;
         $clone->type = $newType;
+        $clone->value = self::castCompatibleValue($newType, $this->value);
 
         return $clone;
     }
@@ -91,17 +92,9 @@ final class Shell
 
     public function withValue(mixed $value): self
     {
-        // When the value is an integer and the type is a float, the value is
-        // cast to float, to follow the rule of PHP regarding acceptance of an
-        // integer value in a float type. Note that PHPStan/Psalm analysis
-        // applies the same rule.
-        if ($this->type instanceof FloatType && is_int($value)) {
-            $value = (float)$value;
-        }
-
         $clone = clone $this;
         $clone->hasValue = true;
-        $clone->value = $value;
+        $clone->value = self::castCompatibleValue($clone->type, $value);
 
         return $clone;
     }
@@ -172,5 +165,18 @@ final class Shell
         }
 
         return implode('.', $path);
+    }
+
+    private static function castCompatibleValue(Type $type, mixed $value): mixed
+    {
+        // When the value is an integer and the type is a float, the value is
+        // cast to float, to follow the rule of PHP regarding acceptance of an
+        // integer value in a float type. Note that PHPStan/Psalm analysis
+        // applies the same rule.
+        if ($type instanceof FloatType && is_int($value)) {
+            return (float)$value;
+        }
+
+        return $value;
     }
 }
