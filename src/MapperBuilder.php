@@ -536,7 +536,7 @@ final class MapperBuilder
         $clone = clone $this;
         $clone->settings->interfaceResolver = $resolver;
 
-        return $clone->registerTransformer([$resolver, 'transform']);
+        return $clone->registerTransformer($resolver->transform(...));
     }
 
     /**
