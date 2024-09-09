@@ -28,7 +28,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private FunctionsContainer $constructors,
-        private InterfaceResolver $interfaceResolver,
+        private ?InterfaceResolver $interfaceResolver,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -55,17 +55,19 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         if (! $this->implementations->has($className)) {
             if ($type instanceof InterfaceType || $this->classDefinitionRepository->for($type)->isAbstract) {
-                 if ($this->interfaceResolver){
+                if ($this->interfaceResolver) {
                     $value = $shell->value();
-                     $resolver_props = [];
-                    foreach($this->interfaceResolver->getResolverProps($className) as $prop){
-                         $resolver_props[$prop] = $value[$prop];
-                         unset($value[$prop]);
-                    }
-                    $resolvedClassName = $this->interfaceResolver->resolve($className, $resolver_props);
-                    if ($resolvedClassName !== null) {
-                        $shell = $shell->withType(new NativeClassType($resolvedClassName))->withValue($value);
-                        return $this->delegate->build($shell, $rootBuilder);
+                    if (is_array($value)) {
+                        $resolver_props = [];
+                        foreach($this->interfaceResolver->getResolverProps($className) as $prop) {
+                            $resolver_props[$prop] = $value[$prop];
+                            unset($value[$prop]);
+                        }
+                        $resolvedClassName = $this->interfaceResolver->resolve($className, $resolver_props);
+                        if ($resolvedClassName !== null) {
+                            $shell = $shell->withType(new NativeClassType($resolvedClassName))->withValue($value);
+                            return $this->delegate->build($shell, $rootBuilder);
+                        }
                     }
                 }
                 throw new CannotResolveObjectType($className);

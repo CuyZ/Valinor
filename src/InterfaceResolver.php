@@ -2,11 +2,24 @@
 
 namespace CuyZ\Valinor;
 
+/**
+ * @api
+ */
 interface InterfaceResolver
 {
-    public function resolve(string $interface, ?array $props) : ?string;
+    /**
+     * @param array<string,mixed>|null $props
+     * @return class-string|null
+     */
+    public function resolve(string $interface, ?array $props): ?string;
 
-    public function getResolverProps(string $interface) : array;
+    /**
+     * @return string[]
+     */
+    public function getResolverProps(string $interface): array;
 
-    public function transform(object $input, callable $next) : array;
+    /**
+     * @return array<string|int,mixed>
+     */
+    public function transform(object $input, callable $next): array;
 }

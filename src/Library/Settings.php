@@ -60,7 +60,6 @@ final class Settings
     /** @var array<class-string, null> */
     public array $transformerAttributes = [];
 
-    /** @var InterfaceResolver|null */
     public ?InterfaceResolver $interfaceResolver = null;
 
     public function __construct()
