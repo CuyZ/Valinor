@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
+use CuyZ\Valinor\InterfaceResolver;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
@@ -528,6 +529,19 @@ final class MapperBuilder
         }
 
         return $clone;
+    }
+
+    /**
+     * @param string $factoryClass
+     * @return void
+     */
+    public function withInterfaceResolver(InterfaceResolver $resolver): self
+    {
+
+        $clone = clone $this;
+        $clone->settings->interfaceResolver = $resolver;
+
+        return $clone->registerTransformer([$resolver, 'transform']);
     }
 
     /**

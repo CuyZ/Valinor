@@ -128,6 +128,7 @@ final class Container
                         $this->get(FunctionDefinitionRepository::class),
                         $settings->customConstructors
                     ),
+                    $settings->interfaceResolver,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);

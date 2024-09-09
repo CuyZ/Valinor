@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
+use CuyZ\Valinor\InterfaceResolver;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
@@ -58,6 +59,9 @@ final class Settings
 
     /** @var array<class-string, null> */
     public array $transformerAttributes = [];
+
+    /** @var InterfaceResolver|null */
+    public ?InterfaceResolver $interfaceResolver = null;
 
     public function __construct()
     {
