@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Mapper;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
@@ -17,15 +18,11 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 /** @internal */
 final class TypeArgumentsMapper implements ArgumentsMapper
 {
-    private FunctionDefinitionRepository $functionDefinitionRepository;
-
-    private RootNodeBuilder $nodeBuilder;
-
-    public function __construct(FunctionDefinitionRepository $functionDefinitionRepository, RootNodeBuilder $nodeBuilder)
-    {
-        $this->functionDefinitionRepository = $functionDefinitionRepository;
-        $this->nodeBuilder = $nodeBuilder;
-    }
+    public function __construct(
+        private FunctionDefinitionRepository $functionDefinitionRepository,
+        private RootNodeBuilder $nodeBuilder,
+        private Settings $settings,
+    ) {}
 
     /** @pure */
     public function mapArguments(callable $callable, mixed $source): array
@@ -42,7 +39,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
         );
 
         $type = new ShapedArrayType(...$elements);
-        $shell = Shell::root($type, $source);
+        $shell = Shell::root($this->settings, $type, $source);
 
         try {
             $node = $this->nodeBuilder->build($shell);

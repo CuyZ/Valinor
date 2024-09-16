@@ -57,6 +57,7 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
             $builders[] = $this->defaultBuilder($class->type);
         }
 
+        /** @var non-empty-list<ObjectBuilder> */
         return $builders;
     }
 

@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
+use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedKeysInSource;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use Throwable;
 
+use function array_diff;
+use function array_keys;
 use function array_map;
 use function assert;
+use function is_array;
 
 /** @internal */
 final class TreeNode
@@ -32,14 +35,6 @@ final class TreeNode
 
     private function __construct(Shell $shell, mixed $value)
     {
-        // When the value is an integer and the type is a float, the value needs
-        // to be cast to float — this special case needs to be handled in case a
-        // node is not a *native* PHP float type (for instance a class property
-        // with a `@var float` annotation).
-        if ($shell->type() instanceof FloatType && is_int($value)) {
-            $value = (float)$value;
-        }
-
         $this->shell = $shell;
         $this->value = $value;
     }
@@ -136,19 +131,36 @@ final class TreeNode
         return $this->buildNode($this);
     }
 
+    public function checkUnexpectedKeys(): self
+    {
+        $value = $this->shell->value();
+
+        if ($this->shell->allowSuperfluousKeys() || ! is_array($value)) {
+            return $this;
+        }
+
+        $diff = array_diff(array_keys($value), array_keys($this->children), $this->shell->allowedSuperfluousKeys());
+
+        if ($diff !== []) {
+            return $this->withMessage(new UnexpectedKeysInSource($value, $this->children));
+        }
+
+        return $this;
+    }
+
     private function check(): void
     {
         foreach ($this->children as $child) {
             if (! $child->valid) {
                 $this->valid = false;
-
-                return;
             }
         }
 
-        if ($this->valid && ! $this->shell->type()->accepts($this->value)) {
+        $type = $this->shell->type();
+
+        if ($this->valid && ! $type->accepts($this->value)) {
             $this->valid = false;
-            $this->messages[] = new InvalidNodeValue($this->shell->type());
+            $this->messages[] = new InvalidNodeValue($type);
         }
     }
 
