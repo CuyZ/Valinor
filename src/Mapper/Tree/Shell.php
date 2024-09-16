@@ -53,7 +53,7 @@ final class Shell
         return (new self($settings, $type))->withValue($value);
     }
 
-    public function child(string $name, Type $type, Attributes $attributes = null): self
+    public function child(string $name, Type $type, ?Attributes $attributes = null): self
     {
         $instance = new self($this->settings, $type);
         $instance->name = $name;
