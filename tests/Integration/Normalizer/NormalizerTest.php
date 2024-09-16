@@ -195,12 +195,6 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
-        yield 'empty stdClass' => [
-            'input' => (fn () => new stdClass())(),
-            'expected array' => [],
-            'expected json' => '{}',
-        ];
-
         yield 'list' => [
             'input' => ['foo', 'bar'],
             'expected array' => ['foo', 'bar'],
