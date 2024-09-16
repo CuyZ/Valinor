@@ -13,7 +13,7 @@ final class TokenizedAnnotation
     public function __construct(
         /** @var non-empty-string */
         private string $name,
-        /** @var non-empty-list<string>> */
+        /** @var non-empty-list<string> */
         private array $tokens,
     ) {}
 
