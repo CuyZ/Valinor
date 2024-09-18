@@ -9,8 +9,6 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Type\ObjectType;
 use Psr\SimpleCache\CacheInterface;
 
-use function hash;
-
 /** @internal */
 final class CacheClassDefinitionRepository implements ClassDefinitionRepository
 {
@@ -23,7 +21,7 @@ final class CacheClassDefinitionRepository implements ClassDefinitionRepository
     public function for(ObjectType $type): ClassDefinition
     {
         // @infection-ignore-all
-        $key = 'class-definition' . hash('sha1', $type->toString());
+        $key = "class-definition-\0" . $type->toString();
 
         $entry = $this->cache->get($key);
 
