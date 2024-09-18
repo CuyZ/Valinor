@@ -14,6 +14,7 @@ use function get_debug_type;
 use function is_resource;
 use function stream_get_contents;
 
+use const JSON_FORCE_OBJECT;
 use const JSON_HEX_AMP;
 use const JSON_HEX_APOS;
 use const JSON_HEX_QUOT;
@@ -34,7 +35,8 @@ use const JSON_UNESCAPED_UNICODE;
  */
 final class JsonNormalizer implements Normalizer
 {
-    private const ACCEPTABLE_JSON_OPTIONS = JSON_HEX_QUOT
+    private const ACCEPTABLE_JSON_OPTIONS = JSON_FORCE_OBJECT
+    | JSON_HEX_QUOT
     | JSON_HEX_TAG
     | JSON_HEX_AMP
     | JSON_HEX_APOS
