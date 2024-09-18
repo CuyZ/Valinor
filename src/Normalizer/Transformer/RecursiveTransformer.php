@@ -12,6 +12,7 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Normalizer\AsTransformer;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
 use DateTimeZone;
@@ -63,10 +64,12 @@ final class RecursiveTransformer
 
             // @infection-ignore-all
             $references[$value] = true;
-        }
 
-        if (is_object($value)) {
-            $classAttributes = $this->classDefinitionRepository->for(new NativeClassType($value::class))->attributes;
+            $type = $value instanceof UnitEnum
+                ? EnumType::native($value::class)
+                : new NativeClassType($value::class);
+
+            $classAttributes = $this->classDefinitionRepository->for($type)->attributes;
             $classAttributes = $this->filterAttributes($classAttributes);
 
             $attributes = [...$attributes, ...$classAttributes];

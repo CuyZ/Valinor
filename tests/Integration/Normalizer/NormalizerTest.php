@@ -276,6 +276,16 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '42',
         ];
 
+        yield 'enum with transformer attribute' => [
+            'input' => SomeEnumWithTransformerAttribute::FOO,
+            'expected array' => 'normalizedValue-foo',
+            'expected json' => '"normalizedValue-foo"',
+            'transformers' => [],
+            'transformerAttributes' => [
+                TransformEnumToString::class,
+            ],
+        ];
+
         yield 'class with public properties' => [
             'input' => new class () {
                 public string $string = 'foo';
@@ -1381,3 +1391,19 @@ final class SomeClassWithAttributeOnPropertyAndOnClass
 
 #[TransformObjectToString]
 final class SomeClassWithAttributeToTransformObjectToString {}
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final class TransformEnumToString
+{
+    public function normalize(SomeEnumWithTransformerAttribute $enum): string
+    {
+        return 'normalizedValue-' . $enum->value;
+    }
+}
+
+#[TransformEnumToString]
+enum SomeEnumWithTransformerAttribute: string
+{
+    case FOO = 'foo';
+    case BAR = 'bar';
+}
