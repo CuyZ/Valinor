@@ -118,8 +118,8 @@ final class ValueTransformersHandler
             throw new TransformerHasTooManyParameters($method);
         }
 
-        if ($parameters->count() > 1 && ! $parameters->at(1)->type instanceof CallableType) {
-            throw new TransformerHasInvalidCallableParameter($method, $parameters->at(1)->type);
+        if ($parameters->count() > 1 && ! $parameters->at(1)->nativeType instanceof CallableType) {
+            throw new TransformerHasInvalidCallableParameter($method, $parameters->at(1)->nativeType);
         }
     }
 }
