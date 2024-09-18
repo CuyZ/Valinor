@@ -29,7 +29,7 @@ final class TokenParser
     }
 
     /**
-     * @return array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}>
+     * @return array<string, string>
      */
     public function parseUseStatements(string $namespaceName): array
     {
@@ -58,7 +58,7 @@ final class TokenParser
     }
 
     /**
-     * @return array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}>
+     * @return array<string, string>
      */
     private function parseUseStatement(): array
     {
@@ -86,18 +86,12 @@ final class TokenParser
                 $explicitAlias = true;
                 $alias = '';
             } elseif ($name === ',') {
-                $statements[strtolower($alias)] = [
-                    'fqcn' => $groupRoot . $class,
-                    'isExplicitAlias' => $explicitAlias,
-                ];
+                $statements[strtolower($alias)] = $groupRoot . $class;
                 $class = $alias = '';
                 $explicitAlias = false;
             } elseif ($name === ';') {
                 if ($alias !== '') {
-                    $statements[strtolower($alias)] = [
-                        'fqcn' => $groupRoot . $class,
-                        'isExplicitAlias' => $explicitAlias,
-                    ];
+                    $statements[strtolower($alias)] = $groupRoot . $class;
                 }
                 break;
             } elseif ($name === '{') {
@@ -106,7 +100,6 @@ final class TokenParser
             }
         }
 
-        /** @var array<non-empty-string, array{fqcn: non-empty-string, isExplicitAlias: bool}> */
         return $statements;
     }
 

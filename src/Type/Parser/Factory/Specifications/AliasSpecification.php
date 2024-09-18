@@ -53,32 +53,27 @@ final class AliasSpecification implements TypeParserSpecification
 
     private function resolveAlias(string $symbol): string
     {
-        $alias = $symbol;
+        $aliases = PhpParser::parseUseStatements($this->reflection);
 
         $namespaceParts = explode('\\', $symbol);
-        $firstPart = array_shift($namespaceParts);
 
-        if ($firstPart) {
-            $alias = strtolower($firstPart);
+        $lastPart = strtolower(end($namespaceParts));
+
+        if (isset($aliases[$lastPart])) {
+            return $aliases[$lastPart];
         }
 
-        $aliases = PhpParser::parseUseStatements($this->reflection);
+        $alias = strtolower(array_shift($namespaceParts));
 
         if (! isset($aliases[$alias])) {
             return $symbol;
         }
 
-        $fqcn = $aliases[$alias]['fqcn'];
-
         if ($namespaceParts === []) {
-            return $fqcn;
+            return $aliases[$alias];
         }
 
-        if (! $aliases[$alias]['isExplicitAlias']) {
-            return $symbol;
-        }
-
-        return $fqcn . '\\' . implode('\\', $namespaceParts);
+        return $aliases[$alias] . '\\' . implode('\\', $namespaceParts);
     }
 
     private function resolveNamespaced(string $symbol): string
