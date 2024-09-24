@@ -12,6 +12,10 @@ use ReflectionClass;
 use ReflectionFunction;
 use Reflector;
 
+use function array_shift;
+use function explode;
+use function strtolower;
+
 /** @internal */
 final class AliasSpecification implements TypeParserSpecification
 {
@@ -49,32 +53,27 @@ final class AliasSpecification implements TypeParserSpecification
 
     private function resolveAlias(string $symbol): string
     {
-        $alias = $symbol;
+        $aliases = PhpParser::parseUseStatements($this->reflection);
 
         $namespaceParts = explode('\\', $symbol);
-        $lastPart = array_shift($namespaceParts);
 
-        if ($lastPart) {
-            $alias = strtolower($lastPart);
+        $lastPart = strtolower(end($namespaceParts));
+
+        if (isset($aliases[$lastPart])) {
+            return $aliases[$lastPart];
         }
 
-        $aliases = PhpParser::parseUseStatements($this->reflection);
+        $alias = strtolower(array_shift($namespaceParts));
 
         if (! isset($aliases[$alias])) {
             return $symbol;
         }
 
-        if ($aliases[$alias] === $symbol) {
-            return $symbol;
+        if ($namespaceParts === []) {
+            return $aliases[$alias];
         }
 
-        $full = $aliases[$alias];
-
-        if (! empty($namespaceParts)) {
-            $full .= '\\' . implode('\\', $namespaceParts);
-        }
-
-        return $full;
+        return $aliases[$alias] . '\\' . implode('\\', $namespaceParts);
     }
 
     private function resolveNamespaced(string $symbol): string
