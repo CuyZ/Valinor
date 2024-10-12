@@ -39,7 +39,11 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         $function = $this->repository->for($callback);
         $parameters = $function->parameters;
 
-        self::assertSame(__NAMESPACE__ . '\{closure}', $function->name);
+        if (PHP_VERSION_ID < 8_04_00) {
+            self::assertSame(__NAMESPACE__ . '\{closure}', $function->name);
+        } else {
+            self::assertSame('{closure:' . self::class . '::' . __FUNCTION__ . '():37}', $function->name);
+        }
         self::assertInstanceOf(NativeStringType::class, $function->returnType);
 
         self::assertTrue($parameters->has('foo'));

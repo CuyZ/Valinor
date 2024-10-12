@@ -15,6 +15,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
 
     env:
       php-extensions: ds,yaml
@@ -33,6 +34,7 @@ jobs:
       - uses: "ramsey/composer-install@v2"
         with:
           dependency-versions: ${{ matrix.dependencies }}
+          composer-options: "--ignore-platform-reqs" # Remove when Psalm supports PHP 8.4 / @see https://github.com/vimeo/psalm/pull/10928
 
       - name: Running unit tests
         run: php vendor/bin/phpunit --testsuite=unit
