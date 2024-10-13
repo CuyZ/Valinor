@@ -88,6 +88,9 @@ final class IntegerValueType implements IntegerType, FixedType
         return $this->value;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return (string)$this->value;

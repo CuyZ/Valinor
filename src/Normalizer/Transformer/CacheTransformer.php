@@ -53,7 +53,7 @@ final class CacheTransformer implements Transformer
         $entry = $this->cache->get($key);
 
         if ($entry) {
-            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $formatter, $this);
+            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $formatter);
 
             return $transformer->transform($value, $formatter);
         }

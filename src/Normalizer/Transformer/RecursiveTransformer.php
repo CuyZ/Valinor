@@ -12,6 +12,7 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
@@ -58,19 +59,26 @@ final class RecursiveTransformer implements Transformer
 
             // @infection-ignore-all
             $references[$value] = true;
+        }
 
+        if (is_object($value)) {
             $type = $value instanceof UnitEnum
                 ? EnumType::native($value::class)
                 : new NativeClassType($value::class);
 
             $classAttributes = $this->classDefinitionRepository->for($type)->attributes;
-            $classAttributes = $this->filterAttributes($classAttributes);
 
             $attributes = [...$attributes, ...$classAttributes];
         }
 
         if (! $this->transformerContainer->hasTransformers() && $attributes === []) {
             return $this->defaultTransformer($value, $references);
+        }
+
+        if ($attributes !== []) {
+            $attributes = (new Attributes(...$attributes))
+                ->filter($this->transformerContainer->filterTransformerAttributes(...))
+                ->toArray();
         }
 
         $transformers = [

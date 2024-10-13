@@ -84,6 +84,9 @@ final class StringValueType implements StringType, FixedType
             ->build();
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         if (isset($this->quoteChar)) {

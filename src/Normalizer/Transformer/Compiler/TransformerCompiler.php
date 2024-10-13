@@ -21,7 +21,7 @@ final class TransformerCompiler
 
     public function compileFor(Type $type, Formatter $formatter): string
     {
-        $definition = $this->definitionBuilder->for($type, $formatter->compiler());
+        $definition = $this->definitionBuilder->for($type);
 
         $rootNode = new TransformerRootNode($definition, $formatter);
 

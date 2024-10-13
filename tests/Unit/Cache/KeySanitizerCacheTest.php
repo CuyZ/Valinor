@@ -22,7 +22,7 @@ final class KeySanitizerCacheTest extends TestCase
         parent::setUp();
 
         $this->delegate = new FakeCache();
-        $this->cache = new KeySanitizerCache($this->delegate, fn () => 'sanitized-key');
+        $this->cache = new KeySanitizerCache($this->delegate);
     }
 
     public function test_set_value_sets_value_in_delegate_with_changed_key(): void

@@ -8,6 +8,9 @@ use CuyZ\Valinor\Normalizer\Formatter\Compiler\FormatterCompiler;
 
 interface Formatter
 {
+    /**
+     * @return array<mixed>|scalar|null
+     */
     public function format(mixed $value): mixed;
 
     public function compiler(): FormatterCompiler;

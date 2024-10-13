@@ -19,7 +19,8 @@ use function strstr;
  */
 final class KeySanitizerCache implements WarmupCache
 {
-    private string $version;
+    private static string $version;
+
     public function __construct(
         /** @var CacheInterface<EntryType> */
         private CacheInterface $delegate
@@ -106,10 +107,5 @@ final class KeySanitizerCache implements WarmupCache
         }
 
         return $this->delegate->deleteMultiple($transformedKeys);
-    }
-
-    private function sanitize(string $key): string
-    {
-        return $key . $this->version ??= ($this->sanitizeCallback)();
     }
 }

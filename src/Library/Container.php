@@ -261,19 +261,7 @@ final class Container
                 $cache = new RuntimeCache();
 
                 if (isset($settings->cache)) {
-                    // This cache wrapper will append information to cache keys
-                    // to avoid collisions between entries from different
-                    // versions of PHP, the library or with different settings.
-                    //
-                    // The key is sha1'd so that it does not contain illegal
-                    // characters.
-                    // @see https://www.php-fig.org/psr/psr-16/#12-definitions
-                    $keySanitizerCache = new KeySanitizerCache(
-                        $settings->cache,
-                        fn () => sha1(PHP_VERSION . '/' . Package::version() . '/' . $settings->hash()),
-                    );
-
-                    $cache = new ChainCache($cache, $keySanitizerCache);
+                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache));
                 }
 
                 return $cache;
