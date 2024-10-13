@@ -14,7 +14,7 @@ use CuyZ\Valinor\Type\Type;
 use function str_contains;
 
 /** @internal */
-final class TypeConditionTransformerNode implements TypeTransformer
+final class TypeConditionTypeTransformer implements TypeTransformer
 {
     public function __construct(
         private Type $type,

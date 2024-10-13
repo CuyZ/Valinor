@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
+use Closure;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
@@ -101,7 +102,7 @@ final class Settings
      */
     public function hash(): string
     {
-        return sha1(serialize([
+        return hash('xxh128', serialize([
             implode('', array_map($this->callableSignature(...), $this->inferredMapping)),
             $this->nativeConstructors,
             implode('', array_map($this->callableSignature(...), $this->customConstructors)),

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
+namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Array;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 
-/** @internal */
-final class ArrayObjectTransformerNode implements TypeTransformer
+final class ArrayObjectToArrayNode implements TypeTransformer
 {
     public function valueTransformationNode(CompliantNode $valueNode): Node
     {
@@ -20,7 +20,10 @@ final class ArrayObjectTransformerNode implements TypeTransformer
                 Node::shortClosure(
                     return: Node::this()
                         ->access('delegate')
-                        ->callMethod('transform', [Node::variable('value')]),
+                        ->callMethod('transform', [
+                            Node::variable('value'),
+                            Node::this()->access('formatter'),
+                        ]),
                 )->witParameters(Node::parameterDeclaration('value', 'mixed')),
                 $valueNode->castToArray(),
             ],

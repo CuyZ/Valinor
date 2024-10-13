@@ -2,22 +2,18 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
+namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Array;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 
-/** @internal */
-final class ShapedArrayTransformerNode implements TypeTransformer
+final class ShapedArrayToArrayNode implements TypeTransformer
 {
     public function __construct(
-        private ShapedArrayType $type,
-        private TransformerDefinition $defaultTransformer,
-        /** @var array<non-empty-string, TransformerDefinition> */
-        private array $elementsDefinitions,
+        private ShapedArrayDefinitionNode $shapedArray,
     ) {}
 
     public function valueTransformationNode(CompliantNode $valueNode): Node
@@ -27,10 +23,10 @@ final class ShapedArrayTransformerNode implements TypeTransformer
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->defaultTransformer->manipulateTransformerClass($class);
+        $class = $this->shapedArray->defaultTransformer->typeTransformer->manipulateTransformerClass($class);
 
-        foreach ($this->elementsDefinitions as $definition) {
-            $class = $definition->manipulateTransformerClass($class);
+        foreach ($this->shapedArray->elementsDefinitions as $definition) {
+            $class = $definition->typeTransformer->manipulateTransformerClass($class);
         }
 
         $methodName = $this->methodName();
@@ -54,16 +50,16 @@ final class ShapedArrayTransformerNode implements TypeTransformer
                             (function () {
                                 $match = Node::match(Node::variable('key'));
 
-                                foreach ($this->elementsDefinitions as $name => $definition) {
+                                foreach ($this->shapedArray->elementsDefinitions as $name => $definition) {
                                     $match = $match->withCase(
                                         Node::value($name),
-                                        $definition->valueTransformationNode(Node::variable('value')->key(Node::value($name)))
+                                        $definition->typeTransformer->valueTransformationNode(Node::variable('value')->key(Node::value($name))),
                                     );
                                 }
 
                                 // @todo handle unsealed array
                                 return $match->withDefaultCase(
-                                    $this->defaultTransformer->valueTransformationNode(Node::variable('value')->key(Node::value($name)))
+                                    $this->shapedArray->defaultTransformer->typeTransformer->valueTransformationNode(Node::variable('value')->key(Node::value($name))),
                                 );
                             })(),
                         )->asExpression(),
@@ -79,6 +75,6 @@ final class ShapedArrayTransformerNode implements TypeTransformer
      */
     private function methodName(): string
     {
-        return 'transform_shaped_array_' . sha1($this->type->toString());
+        return 'transform_shaped_array_' . sha1($this->shapedArray->type->toString());
     }
 }

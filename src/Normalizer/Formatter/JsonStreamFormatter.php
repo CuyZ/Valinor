@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\FormatterCompiler;
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\JsonFormatterCompiler;
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use Generator;
@@ -36,6 +38,11 @@ final class JsonStreamFormatter implements Formatter
         $this->formatRecursively($value);
 
         return $this->resource;
+    }
+
+    public function compiler(): FormatterCompiler
+    {
+        return new JsonFormatterCompiler();
     }
 
     private function formatRecursively(mixed $value): void

@@ -261,7 +261,7 @@ final class Container
                 $cache = new RuntimeCache();
 
                 if (isset($settings->cache)) {
-                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache));
+                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache, $settings));
                 }
 
                 return $cache;

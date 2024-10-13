@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+// @todo rename to Statement?
 /** @internal */
 final class ExpressionNode extends Node
 {

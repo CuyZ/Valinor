@@ -2,21 +2,20 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
+namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Array;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AggregateNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\MixedDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 
-/** @internal */
-final class MixedTransformerNode implements TypeTransformer
+final class MixedToArrayNode implements TypeTransformer
 {
     public function __construct(
-        /** @var non-empty-list<TransformerDefinition> */
-        private array $transformerDefinitions,
+        private MixedDefinitionNode $mixed,
     ) {}
 
     public function valueTransformationNode(CompliantNode $valueNode): Node
@@ -26,7 +25,7 @@ final class MixedTransformerNode implements TypeTransformer
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        foreach ($this->transformerDefinitions as $definition) {
+        foreach ($this->mixed->definitions as $definition) {
             $class = $definition->manipulateTransformerClass($class);
         }
 
@@ -50,14 +49,14 @@ final class MixedTransformerNode implements TypeTransformer
     {
         $nodes = [];
 
-        foreach ($this->transformerDefinitions as $definition) {
+        foreach ($this->mixed->definitions as $definition) {
             if (! $definition->hasTransformation()) {
                 continue;
             }
 
             $nodes[] = Node::if(
                 condition: new TypeAcceptNode($definition->type),
-                body: Node::return($definition->valueTransformationNode(Node::variable('value')))
+                body: Node::return($definition->valueTransformationNode(Node::variable('value'))),
             );
         }
 
@@ -69,7 +68,10 @@ final class MixedTransformerNode implements TypeTransformer
         $nodes[] = Node::return(
             Node::this()
                 ->access('delegate')
-                ->callMethod('transform', [Node::variable('value')])
+                ->callMethod('transform', [
+                    Node::variable('value'),
+                    Node::this()->access('formatter'),
+                ]),
         );
 
         return new AggregateNode(...$nodes);

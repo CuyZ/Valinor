@@ -48,12 +48,12 @@ final class CacheTransformer implements Transformer
 
     public function transform(mixed $value, Formatter $formatter): mixed
     {
-        $key = "transformer-" . sha1($this->rawType($value));
+        $key = "transformer-\0" . $this->rawType($value);
 
         $entry = $this->cache->get($key);
 
         if ($entry) {
-            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $formatter);
+            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $formatter, $this);
 
             return $transformer->transform($value, $formatter);
         }

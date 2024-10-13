@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Node;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
@@ -23,7 +23,7 @@ final class TransformerRootNode extends Node
     public function compile(Compiler $compiler): Compiler
     {
         $transformerClassNode = $this->transformerClassNode($this->definition);
-        $transformerClassNode = $this->definition->manipulateTransformerClass($transformerClassNode);
+        $transformerClassNode = $this->definition->typeTransformer->manipulateTransformerClass($transformerClassNode);
 
         return $transformerClassNode->compile($compiler);
     }
@@ -63,7 +63,7 @@ final class TransformerRootNode extends Node
                     )
                     ->withReturnType('mixed')
                     ->withBody(Node::return(
-                        $definition->valueTransformationNode(Node::variable('value')),
+                        $definition->typeTransformer->valueTransformationNode(Node::variable('value')),
                     )),
             );
     }

@@ -8,7 +8,6 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Node\TransformerRootNode;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Type\Type;
 
@@ -21,7 +20,7 @@ final class TransformerCompiler
 
     public function compileFor(Type $type, Formatter $formatter): string
     {
-        $definition = $this->definitionBuilder->for($type);
+        $definition = $this->definitionBuilder->for($type, $formatter->compiler());
 
         $rootNode = new TransformerRootNode($definition, $formatter);
 

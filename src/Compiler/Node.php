@@ -32,6 +32,7 @@ abstract class Node
 {
     abstract public function compile(Compiler $compiler): Compiler;
 
+    // @todo rename to Statement?
     public function asExpression(): ExpressionNode
     {
         return new ExpressionNode($this);
