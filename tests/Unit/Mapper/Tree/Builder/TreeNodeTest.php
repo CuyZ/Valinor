@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 
 use AssertionError;
 use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder\FakeTreeNode;
@@ -22,7 +23,7 @@ final class TreeNodeTest extends TestCase
     {
         $type = FakeType::permissive();
 
-        $shell = Shell::root($type, 'some source value');
+        $shell = Shell::root(new Settings(), $type, 'some source value');
         $node = TreeNode::leaf($shell, 'some value')->node();
 
         self::assertTrue($node->isRoot());

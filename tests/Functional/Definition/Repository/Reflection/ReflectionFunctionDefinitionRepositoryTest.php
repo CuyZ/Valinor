@@ -23,7 +23,8 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         $this->repository = new ReflectionFunctionDefinitionRepository(
             new LexingTypeParserFactory(),
             new ReflectionAttributesRepository(
-                new ReflectionClassDefinitionRepository(new LexingTypeParserFactory())
+                new ReflectionClassDefinitionRepository(new LexingTypeParserFactory(), []),
+                []
             ),
         );
     }

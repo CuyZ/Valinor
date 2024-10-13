@@ -8,17 +8,17 @@ use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveTypeFromUnion;
 use CuyZ\Valinor\Mapper\Tree\Exception\TooManyResolvedTypesFromUnion;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\FloatType;
-use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ScalarType;
-use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Utility\TypeHelper;
 
 use function count;
 use function krsort;
 use function reset;
+use function usort;
 
 /** @internal */
 final class UnionNodeBuilder implements NodeBuilder
@@ -38,6 +38,16 @@ final class UnionNodeBuilder implements NodeBuilder
         $all = [];
 
         foreach ($type->types() as $subType) {
+            // Performance optimisation: a `NullType` only accepts a `null`
+            // value, in which case the `CasterProxyNodeBuilder` would have
+            // handled it already. We can safely skip it here.
+            //
+            // @infection-ignore-all / This is a performance optimisation, so we
+            // cannot easily test this behavior.
+            if ($subType instanceof NullType) {
+                continue;
+            }
+
             $node = $rootBuilder->build($shell->withType($subType));
 
             if (! $node->isValid()) {
@@ -80,28 +90,11 @@ final class UnionNodeBuilder implements NodeBuilder
                 return $first[0];
             }
         } elseif ($scalars !== []) {
-            // Sorting the scalar types by priority: int, float, string, bool.
-            $sorted = [];
+            usort(
+                $scalars,
+                fn (TreeNode $a, TreeNode $b): int => TypeHelper::typePriority($b->type()) <=> TypeHelper::typePriority($a->type()),
+            );
 
-            foreach ($scalars as $node) {
-                if ($node->type() instanceof IntegerType) {
-                    $sorted[IntegerType::class] = $node;
-                } elseif ($node->type() instanceof FloatType) {
-                    $sorted[FloatType::class] = $node;
-                } elseif ($node->type() instanceof StringType) {
-                    $sorted[StringType::class] = $node;
-                }
-            }
-
-            if (isset($sorted[IntegerType::class])) {
-                return $sorted[IntegerType::class];
-            } elseif (isset($sorted[FloatType::class])) {
-                return $sorted[FloatType::class];
-            } elseif (isset($sorted[StringType::class])) {
-                return $sorted[StringType::class];
-            }
-
-            // @infection-ignore-all / We know this is a boolean, so we don't need to mutate the index
             return $scalars[0];
         }
 

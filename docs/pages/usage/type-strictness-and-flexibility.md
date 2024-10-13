@@ -42,7 +42,7 @@ $flexibleMapper->map('int', '42');
 // List type will accept non-incremental keys.
 
 $flexibleMapper->map('list<int>', ['foo' => 42, 'bar' => 1337]);
-// => [0 => 42, 1 => 1338]
+// => [0 => 42, 1 => 1337]
 
 // ---
 // If a value is missing in a source for a node that accepts `null`, the

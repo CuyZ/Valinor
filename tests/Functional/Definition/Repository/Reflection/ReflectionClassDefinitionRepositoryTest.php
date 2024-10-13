@@ -25,7 +25,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         parent::setUp();
 
         $this->repository = new ReflectionClassDefinitionRepository(
-            new LexingTypeParserFactory()
+            new LexingTypeParserFactory(),
+            [],
         );
     }
 

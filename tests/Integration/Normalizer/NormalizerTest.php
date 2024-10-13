@@ -31,6 +31,7 @@ use Traversable;
 
 use function array_merge;
 
+use const JSON_FORCE_OBJECT;
 use const JSON_HEX_TAG;
 use const JSON_THROW_ON_ERROR;
 
@@ -195,6 +196,21 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
+        yield 'list' => [
+            'input' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
+        ];
+
+        yield 'list kept as object in json' => [
+            'input' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '{"0":"foo","1":"bar"}',
+            [],
+            [],
+            JSON_FORCE_OBJECT
+        ];
+
         yield 'ArrayObject' => [
             'input' => new ArrayObject(['foo' => 'foo', 'bar' => 'bar']),
             'expected array' => [
@@ -202,6 +218,24 @@ final class NormalizerTest extends IntegrationTestCase
                 'bar' => 'bar',
             ],
             'expected json' => '{"foo":"foo","bar":"bar"}',
+        ];
+
+        yield 'Ds Map' => [
+            'input' => new \Ds\Map(['foo' => 'foo', 'bar' => 'bar']),
+            'expected array' => [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ],
+            'expected json' => '{"foo":"foo","bar":"bar"}',
+        ];
+
+        yield 'Ds Set' => [
+            'input' => new \Ds\Set(['foo', 'bar']),
+            'expected array' => [
+                0 => 'foo',
+                1 => 'bar',
+            ],
+            'expected json' => '["foo","bar"]',
         ];
 
         yield 'class inheriting ArrayObject' => [
@@ -241,6 +275,16 @@ final class NormalizerTest extends IntegrationTestCase
             'input' => BackedIntegerEnum::FOO,
             'expected array' => 42,
             'expected json' => '42',
+        ];
+
+        yield 'enum with transformer attribute' => [
+            'input' => SomeEnumWithTransformerAttribute::FOO,
+            'expected array' => 'normalizedValue-foo',
+            'expected json' => '"normalizedValue-foo"',
+            'transformers' => [],
+            'transformerAttributes' => [
+                TransformEnumToString::class,
+            ],
         ];
 
         yield 'class with public properties' => [
@@ -312,10 +356,9 @@ final class NormalizerTest extends IntegrationTestCase
                 }
             },
             'expected array' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
+                'baz' => 'baz',
             ],
-            'expected json' => '{"foo":"foo","bar":"bar"}',
+            'expected json' => '{"baz":"baz"}',
         ];
 
         yield 'date with default transformer' => [
@@ -385,7 +428,7 @@ final class NormalizerTest extends IntegrationTestCase
             'expected array' => 'value',
             'expected json' => '"value"',
             'transformers' => [
-                [fn (object $object) => 'value'],
+                [fn (IteratorAggregate $object) => 'value'],
             ],
         ];
 
@@ -695,6 +738,32 @@ final class NormalizerTest extends IntegrationTestCase
             'transformers' => [],
             'transformerAttributes' => [],
             'jsonEncodingOptions' => JSON_HEX_AMP,
+        ];
+
+        yield 'stdClass with no property' => [
+            'input' => new stdClass(),
+            'expected array' => [],
+            'expected_json' => '{}',
+        ];
+
+        yield 'ArrayObject with no property' => [
+            'input' => new ArrayObject(),
+            'expected array' => [],
+            'expected_json' => '{}',
+        ];
+
+        yield 'iterable class with no property' => [
+            'input' => new class () implements IteratorAggregate {
+                public function getIterator(): Traversable
+                {
+                    // @phpstan-ignore-next-line / Empty array is here on purpose
+                    foreach ([] as $value) {
+                        yield $value;
+                    }
+                }
+            },
+            'expected array' => [],
+            'expected_json' => '{}',
         ];
     }
 
@@ -1033,6 +1102,23 @@ final class NormalizerTest extends IntegrationTestCase
             ->normalize(new stdClass());
     }
 
+    public function test_second_param_in_transformer_is_callable_with_phpdoc_spec_does_not_throw(): void
+    {
+        $class = new class () {
+            /** @param callable():mixed $next */
+            public function __invoke(stdClass $object, callable $next): int
+            {
+                return 42;
+            }
+        };
+        $this->mapperBuilder()
+            ->registerTransformer($class)
+            ->normalizer(Format::array())
+            ->normalize(new stdClass());
+
+        self::addToAssertionCount(1);
+    }
+
     public function test_no_param_in_transformer_attribute_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);
@@ -1159,16 +1245,13 @@ final class NormalizerTest extends IntegrationTestCase
 
     public function test_json_transformer_only_accepts_acceptable_json_options(): void
     {
-        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT);
-        self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
-
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR);
         self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PRETTY_PRINT);
         self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
-        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_FORCE_OBJECT | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_PRETTY_PRINT);
+        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_PRETTY_PRINT);
         self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
     }
 }
@@ -1389,6 +1472,22 @@ final class SomeClassWithAttributeOnPropertyAndOnClass
 
 #[TransformObjectToString]
 final class SomeClassWithAttributeToTransformObjectToString {}
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final class TransformEnumToString
+{
+    public function normalize(SomeEnumWithTransformerAttribute $enum): string
+    {
+        return 'normalizedValue-' . $enum->value;
+    }
+}
+
+#[TransformEnumToString]
+enum SomeEnumWithTransformerAttribute: string
+{
+    case FOO = 'foo';
+    case BAR = 'bar';
+}
 
 #[Attribute(Attribute::TARGET_CLASS)]
 final class AttributeWithObjectInConstructor

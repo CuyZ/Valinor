@@ -20,6 +20,7 @@ use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObjectWithGeneric;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 
 final class ConstructorRegistrationMappingTest extends IntegrationTestCase
@@ -288,26 +289,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         self::assertSame(1337, $result->bar);
     }
 
-    public function test_registered_constructor_is_used_when_not_the_first_nor_last_one(): void
-    {
-        $object = new stdClass();
-
-        try {
-            $result = $this->mapperBuilder()
-                ->registerConstructor(fn (): DateTime => new DateTime())
-                // This constructor is surrounded by other ones to ensure it is
-                // still used correctly.
-                ->registerConstructor(fn (): stdClass => $object)
-                ->registerConstructor(fn (): DateTimeImmutable => new DateTimeImmutable())
-                ->mapper()
-                ->map(stdClass::class, []);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame($object, $result);
-    }
-
     public function test_registered_constructor_with_one_argument_is_used(): void
     {
         try {
@@ -353,102 +334,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         self::assertSame(1337.404, $result->float);
     }
 
-    public function test_registered_constructors_for_same_class_are_filtered_correctly(): void
-    {
-        $mapper = $this->mapperBuilder()
-            // Basic constructor
-            ->registerConstructor(function (string $foo): stdClass {
-                $class = new stdClass();
-                $class->foo = $foo;
-
-                return $class;
-            })
-            // Constructor with two parameters
-            ->registerConstructor(function (string $foo, int $bar): stdClass {
-                $class = new stdClass();
-                $class->foo = $foo;
-                $class->bar = $bar;
-
-                return $class;
-            })
-            // Constructor with optional parameter
-            ->registerConstructor(function (string $foo, int $bar, float $baz, string $fiz = 'fiz'): stdClass {
-                $class = new stdClass();
-                $class->foo = $foo;
-                $class->bar = $bar;
-                $class->baz = $baz;
-                $class->fiz = $fiz;
-
-                return $class;
-            })
-            ->mapper();
-
-        try {
-            $resultA = $mapper->map(stdClass::class, 'foo');
-
-            $resultB = $mapper->map(stdClass::class, [
-                'foo' => 'foo',
-                'bar' => 42,
-            ]);
-
-            $resultC = $mapper->map(stdClass::class, [
-                'foo' => 'foo',
-                'bar' => 42,
-                'baz' => 1337.404,
-            ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $resultA->foo);
-
-        self::assertSame('foo', $resultB->foo);
-        self::assertSame(42, $resultB->bar);
-
-        self::assertSame('foo', $resultC->foo);
-        self::assertSame(42, $resultC->bar);
-        self::assertSame(1337.404, $resultC->baz);
-        self::assertSame('fiz', $resultC->fiz);
-    }
-
-    public function test_several_constructors_with_same_arguments_number_are_filtered_correctly(): void
-    {
-        $mapper = $this->mapperBuilder()
-            ->registerConstructor(function (string $foo, string $bar): stdClass {
-                $class = new stdClass();
-                $class->foo = $foo;
-                $class->bar = $bar;
-
-                return $class;
-            })
-            ->registerConstructor(function (string $foo, string $baz): stdClass {
-                $class = new stdClass();
-                $class->foo = $foo;
-                $class->baz = $baz;
-
-                return $class;
-            })->mapper();
-
-        try {
-            $resultA = $mapper->map(stdClass::class, [
-                'foo' => 'foo',
-                'bar' => 'bar',
-            ]);
-
-            $resultB = $mapper->map(stdClass::class, [
-                'foo' => 'foo',
-                'baz' => 'baz',
-            ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $resultA->foo);
-        self::assertSame('bar', $resultA->bar);
-        self::assertSame('foo', $resultB->foo);
-        self::assertSame('baz', $resultB->baz);
-    }
-
     public function test_inherited_static_constructor_is_used_to_map_child_class(): void
     {
         $class = (new class () {
@@ -475,11 +360,222 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         self::assertSame(1337, $result->someOtherChild->bar);
     }
 
+    /**
+     * @param list<callable> $constructors
+     * @param array<array{value: mixed, expected: mixed}> $data
+     */
+    #[DataProvider('constructors_are_sorted_and_filtered_correctly_data_provider')]
+    public function test_constructors_are_sorted_and_filtered_correctly(array $constructors, array $data): void
+    {
+        $mapperBuilder = $this->mapperBuilder()->registerConstructor(...$constructors);
+
+        try {
+            foreach ($data as $value) {
+                $result = $mapperBuilder->mapper()->map(stdClass::class, $value['value']);
+
+                self::assertSame($value['expected'], $result);
+
+                // Also testing with allowed superfluous keys to be sure that
+                // constructors with fewer arguments are taken into account but
+                //filtered correctly.
+                $result = $mapperBuilder->allowSuperfluousKeys()->mapper()->map(stdClass::class, $value['value']);
+
+                self::assertSame($value['expected'], $result);
+            }
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
+    public static function constructors_are_sorted_and_filtered_correctly_data_provider(): iterable
+    {
+        $resultA = new stdClass();
+        $resultB = new stdClass();
+        $resultC = new stdClass();
+
+        yield 'constructor is used when surrounded by other constructors' => [
+            'constructors' => [
+                fn (): DateTime => new DateTime(),
+                // This constructor is surrounded by other ones to ensure it is
+                // still used correctly.
+                fn (): stdClass => $resultA,
+                fn (): DateTimeImmutable => new DateTimeImmutable(),
+            ],
+            'data' => [
+                [
+                    'value' => [],
+                    'expected' => $resultA,
+                ],
+            ],
+        ];
+
+        yield 'constructors for same class are sorted properly' => [
+            'constructors' => [
+                // Basic constructor
+                fn (string $foo): stdClass => $resultA,
+                // Constructor with two parameters
+                fn (string $foo, int $bar): stdClass => $resultB,
+                // Constructor with optional parameter
+                fn (string $foo, int $bar, float $baz, string $fiz = 'fiz'): stdClass => $resultC,
+            ],
+            'data' => [
+                'string source' => [
+                    'value' => 'foo',
+                    'expected' => $resultA,
+                ],
+                'foo and bar values' => [
+                    'value' => [
+                        'foo' => 'foo',
+                        'bar' => 42,
+                    ],
+                    'expected' => $resultB,
+                ],
+                'foo and bar and baz values' => [
+                    'value' => [
+                        'foo' => 'foo',
+                        'bar' => 42,
+                        'baz' => 1337.0,
+                    ],
+                    'expected' => $resultC,
+                ],
+            ],
+        ];
+
+        yield 'constructors for same class with same arguments number but different types' => [
+            'constructors' => [
+                fn (string $foo, string $bar): stdClass => $resultA,
+                fn (string $foo, string $fiz): stdClass => $resultB,
+            ],
+            'data' => [
+                'foo and bar' => [
+                    'value' => [
+                        'foo' => 'foo',
+                        'bar' => 'bar',
+                    ],
+                    'expected' => $resultA,
+                ],
+                'foo and fiz' => [
+                    'value' => [
+                        'foo' => 'foo',
+                        'fiz' => 'fiz',
+                    ],
+                    'expected' => $resultB,
+                ],
+            ],
+        ];
+
+        yield 'constructors with same parameter name but different types' => [
+            'constructors' => [
+                fn (string $value): stdClass => $resultA,
+                fn (float $value): stdClass => $resultB,
+                fn (int $value): stdClass => $resultC,
+            ],
+            'data' => [
+                'string source' => [
+                    'value' => 'foo',
+                    'expected' => $resultA,
+                ],
+                'float source' => [
+                    'value' => 404.0,
+                    'expected' => $resultB,
+                ],
+                'integer source' => [
+                    'value' => 1337,
+                    'expected' => $resultC,
+                ],
+            ],
+        ];
+
+        yield 'constructors with same named parameter use integer over float' => [
+            'constructors' => [
+                fn (float $value): stdClass => $resultA,
+                fn (int $value): stdClass => $resultB,
+            ],
+            'data' => [
+                [
+                    'value' => 1337,
+                    'expected' => $resultB,
+                ],
+            ],
+        ];
+
+        yield 'constructors with same named parameters names use integer over float' => [
+            'constructors' => [
+                fn (float $valueA, float $valueB): stdClass => $resultA,
+                fn (int $valueA, int $valueB): stdClass => $resultB,
+            ],
+            'data' => [
+                [
+                    'value' => [
+                        'valueA' => 42,
+                        'valueB' => 1337,
+                    ],
+                    'expected' => $resultB,
+                ],
+            ],
+        ];
+
+        yield 'constructors with same parameter name but second one is either float or integer' => [
+            'constructors' => [
+                fn (int $valueA, float $valueB): stdClass => $resultA,
+                fn (int $valueA, int $valueB): stdClass => $resultB,
+            ],
+            'data' => [
+                'integer and float' => [
+                    'value' => [
+                        'valueA' => 42,
+                        'valueB' => 1337.0,
+                    ],
+                    'expected' => $resultA,
+                ],
+                'integer and integer' => [
+                    'value' => [
+                        'valueA' => 42,
+                        'valueB' => 1337,
+                    ],
+                    'expected' => $resultB,
+                ],
+            ],
+        ];
+
+        yield 'constructor with non scalar argument has priority over those with scalar (non scalar constructor is registered first)' => [
+            'constructors' => [
+                fn (int $valueA, SimpleObject $valueB): stdClass => $resultA,
+                fn (int $valueA, string $valueB): stdClass => $resultB,
+            ],
+            'data' => [
+                [
+                    'value' => [
+                        'valueA' => 42,
+                        'valueB' => 'foo',
+                    ],
+                    'expected' => $resultA,
+                ],
+            ],
+        ];
+
+        yield 'constructor with non scalar argument has priority over those with scalar (non scalar constructor is registered last)' => [
+            'constructors' => [
+                fn (int $valueA, string $valueB): stdClass => $resultA,
+                fn (int $valueA, SimpleObject $valueB): stdClass => $resultB,
+            ],
+            'data' => [
+                [
+                    'value' => [
+                        'valueA' => 42,
+                        'valueB' => 'foo',
+                    ],
+                    'expected' => $resultB,
+                ],
+            ],
+        ];
+    }
+
     public function test_identical_registered_constructors_with_no_argument_throws_exception(): void
     {
         $this->expectException(ObjectBuildersCollision::class);
         $this->expectExceptionCode(1654955787);
-        $this->expectExceptionMessageMatches('/A collision was detected between the following constructors of the class `stdClass`: `Closure .*`, `Closure .*`\./');
+        $this->expectExceptionMessageMatches('/A type collision was detected between the constructors `Closure .*` and `Closure .*`\./');
 
         $this->mapperBuilder()
             ->registerConstructor(
@@ -495,12 +591,27 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     {
         $this->expectException(ObjectBuildersCollision::class);
         $this->expectExceptionCode(1654955787);
-        $this->expectExceptionMessageMatches('/A collision was detected between the following constructors of the class `stdClass`: `Closure .*`, `Closure .*`\./');
+        $this->expectExceptionMessageMatches('/A type collision was detected between the constructors `Closure .*` and `Closure .*`\./');
 
         $this->mapperBuilder()
             ->registerConstructor(
                 fn (int $int): stdClass => new stdClass(),
-                fn (float $float): stdClass => new stdClass(),
+                fn (int $int): stdClass => new stdClass(),
+            )
+            ->mapper()
+            ->map(stdClass::class, []);
+    }
+
+    public function test_constructors_with_colliding_arguments_throws_exception(): void
+    {
+        $this->expectException(ObjectBuildersCollision::class);
+        $this->expectExceptionCode(1654955787);
+        $this->expectExceptionMessageMatches('/A type collision was detected between the constructors `Closure .*` and `Closure .*`\./');
+
+        $this->mapperBuilder()
+            ->registerConstructor(
+                fn (int $valueA, float $valueB): stdClass => new stdClass(),
+                fn (float $valueA, int $valueB): stdClass => new stdClass(),
             )
             ->mapper()
             ->map(stdClass::class, []);
@@ -510,7 +621,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     {
         $this->expectException(ObjectBuildersCollision::class);
         $this->expectExceptionCode(1654955787);
-        $this->expectExceptionMessage('A collision was detected between the following constructors of the class `stdClass`: `CuyZ\Valinor\Tests\Integration\Mapping\constructorA()`, `CuyZ\Valinor\Tests\Integration\Mapping\constructorB()`.');
+        $this->expectExceptionMessage('A type collision was detected between the constructors `CuyZ\Valinor\Tests\Integration\Mapping\constructorA()` and `CuyZ\Valinor\Tests\Integration\Mapping\constructorB()`.');
 
         $this->mapperBuilder()
             ->registerConstructor(
@@ -520,6 +631,33 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
             )
             ->mapper()
             ->map(stdClass::class, []);
+    }
+
+    public function test_non_intersecting_hashmap_type_constructors_do_not_lead_to_collisions(): void
+    {
+        $mapper = $this->mapperBuilder()
+            ->registerConstructor(
+                /** @param array{key: SimpleObject} $input */
+                static fn (array $input): stdClass => (object)['single-item' => $input],
+                /** @param array{key: list<SimpleObject>} $input */
+                static fn (array $input): stdClass => (object)['multiple-items' => $input],
+            )
+            ->mapper();
+
+        $hello = new SimpleObject();
+        $world = new SimpleObject();
+
+        $hello->value = 'hello';
+        $world->value = 'world';
+
+        try {
+            self::assertEquals(
+                (object) ['multiple-items' => ['key' => [$hello, $world]]],
+                $mapper->map(stdClass::class, ['key' => ['hello', 'world']])
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
     }
 
     public function test_source_not_matching_registered_constructors_throws_exception(): void

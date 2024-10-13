@@ -38,6 +38,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayInvalidUnsealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayUnexpectedTokenAfterSealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\SimpleArrayClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\MissingClosingQuoteChar;
 use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\RightUnionTypeMissing;
@@ -837,6 +840,12 @@ final class LexingParserTest extends TestCase
             'type' => InterfaceType::class,
         ];
 
+        yield 'Interface name with one template' => [
+            'raw' => SomeInterfaceWithOneTemplate::class . '<string>',
+            'transformed' => SomeInterfaceWithOneTemplate::class . '<string>',
+            'type' => InterfaceType::class,
+        ];
+
         yield 'Class name with generic with one template' => [
             'raw' => SomeClassWithOneTemplate::class . '<int>',
             'transformed' => SomeClassWithOneTemplate::class . '<int>',
@@ -1057,6 +1066,16 @@ final class LexingParserTest extends TestCase
             'raw' => PureEnum::class . '::*A*',
             'transformed' => PureEnum::class . '::*A*',
             'type' => EnumType::class,
+        ];
+        yield 'value-of<BackedStringEnum>' => [
+            'raw' => "value-of<" . BackedStringEnum::class . ">",
+            'transformed' => "'foo'|'bar'|'baz'",
+            'type' => UnionType::class,
+        ];
+        yield 'value-of<BackedIntegerEnum>' => [
+            'raw' => "value-of<" . BackedIntegerEnum::class . ">",
+            'transformed' => "42|404|1337",
+            'type' => UnionType::class,
         ];
     }
 
@@ -1597,6 +1616,46 @@ final class LexingParserTest extends TestCase
 
         $this->parser->parse("$className<int, string>");
     }
+
+    public function test_value_of_enum_missing_opening_bracket_throws_exception(): void
+    {
+        $this->expectException(ValueOfOpeningBracketMissing::class);
+        $this->expectExceptionCode(1717702268);
+        $this->expectExceptionMessage('The opening bracket is missing for `value-of<...>`.');
+
+        $this->parser->parse('value-of');
+    }
+
+    public function test_value_of_enum_missing_closing_bracket_throws_exception(): void
+    {
+        $enumName = BackedStringEnum::class;
+
+        $this->expectException(ValueOfClosingBracketMissing::class);
+        $this->expectExceptionCode(1717702289);
+        $this->expectExceptionMessage("The closing bracket is missing for `value-of<$enumName>`.");
+
+        $this->parser->parse("value-of<$enumName");
+    }
+
+    public function test_value_of_incorrect_type_throws_exception(): void
+    {
+        $this->expectException(ValueOfIncorrectSubType::class);
+        $this->expectExceptionCode(1717702683);
+        $this->expectExceptionMessage('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.');
+
+        $this->parser->parse('value-of<string>');
+    }
+
+    public function test_value_of_unit_enum_type_throws_exception(): void
+    {
+        $enumName = PureEnum::class;
+
+        $this->expectException(ValueOfIncorrectSubType::class);
+        $this->expectExceptionCode(1717702683);
+        $this->expectExceptionMessage("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.");
+
+        $this->parser->parse("value-of<$enumName>");
+    }
 }
 
 /**
@@ -1621,3 +1680,8 @@ final class SomeClassWithTemplateOfArrayKey {}
  * @template TemplateB of object
  */
 final class SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType {}
+
+/**
+ * @template TemplateA
+ */
+interface SomeInterfaceWithOneTemplate {}

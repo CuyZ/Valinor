@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Annotations;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use ReflectionParameter;
 
 /** @internal */
@@ -32,7 +33,7 @@ final class ParameterTypeResolver
 
         $type = $this->typeResolver->resolveType($reflection->getType(), $docBlockType);
 
-        if ($reflection->isVariadic()) {
+        if ($reflection->isVariadic() && ! $type instanceof UnresolvableType) {
             return new ArrayType(ArrayKeyType::default(), $type);
         }
 

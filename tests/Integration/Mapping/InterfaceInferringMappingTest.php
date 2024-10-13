@@ -393,7 +393,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
         } catch (MappingError $exception) {
             $error = $exception->node()->messages()[0];
 
-            self::assertSame('1655149208', $error->code());
+            self::assertSame('1655117782', $error->code());
             self::assertSame('Unexpected key(s) `superfluousValue`, expected `valueA`.', (string)$error);
         }
     }

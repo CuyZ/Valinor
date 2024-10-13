@@ -50,6 +50,9 @@ final class SomeClass
 
         /** @var class-string<SomeInterface> */
         private string $classStringOfAnInterface,
+        
+        /** @var value-of<SomeEnum> */
+        private string $valueOfEnum,
     ) {}
 }
 ```

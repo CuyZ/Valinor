@@ -79,6 +79,19 @@ final class DateTimeMappingTest extends IntegrationTestCase
         self::assertSame('1659688380', $result->format('U'));
     }
 
+    public function test_default_date_constructor_with_valid_timestamp_with_microseconds_format_source_returns_datetime(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(DateTimeInterface::class, 1659688380.654000);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('1659688380.654000', $result->format('U.u'));
+    }
+
     public function test_default_date_constructor_with_timestamp_at_0_source_returns_datetime(): void
     {
         try {
@@ -129,7 +142,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
             $error = $exception->node()->messages()[0];
 
             self::assertSame('1630686564', $error->code());
-            self::assertSame("Value 'invalid datetime' does not match any of the following formats: `Y-m-d\TH:i:sP`, `Y-m-d\TH:i:s.uP`, `U`.", (string)$error);
+            self::assertSame("Value 'invalid datetime' does not match any of the following formats: `Y-m-d\TH:i:sP`, `Y-m-d\TH:i:s.uP`, `U`, `U.u`.", (string)$error);
         }
     }
 

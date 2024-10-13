@@ -48,6 +48,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
             $builders[] = $this->internalDateTimeBuilder($class->type);
         }
 
+        /** @var non-empty-list<ObjectBuilder> */
         return $builders;
     }
 

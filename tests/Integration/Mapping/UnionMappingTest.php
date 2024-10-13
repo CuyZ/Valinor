@@ -58,6 +58,21 @@ final class UnionMappingTest extends IntegrationTestCase
 
     public static function union_mapping_works_properly_data_provider(): iterable
     {
+        yield 'nullable scalar' => [
+            'type' => 'string|null',
+            'source' => null,
+            'assertion' => fn (mixed $result) => self::assertNull($result),
+        ];
+
+        yield 'nullable float with integer value' => [
+            'type' => 'float|null',
+            'source' => 42,
+            'assertion' => function (mixed $result) {
+                self::assertIsFloat($result);
+                self::assertEquals(42.0, $result);
+            },
+        ];
+
         yield 'string or list of string, with string' => [
             'type' => 'string|list<string>',
             'source' => 'foo',

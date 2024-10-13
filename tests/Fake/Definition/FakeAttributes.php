@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -24,7 +23,7 @@ final class FakeAttributes
         return new Attributes(
             ...array_map(
                 static fn (ReflectionAttribute $reflection) => FakeAttributeDefinition::fromReflection($reflection),
-                Reflection::attributes($reflection),
+                $reflection->getAttributes(),
             ),
         );
     }
