@@ -26,7 +26,8 @@ final class MixedToArrayNode implements TypeTransformer
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
         foreach ($this->mixed->definitions as $definition) {
-            $class = $definition->manipulateTransformerClass($class);
+            // @todo
+//            $class = $definition->manipulateTransformerClass($class);
         }
 
         $methodName = 'transform_mixed';

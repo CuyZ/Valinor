@@ -80,6 +80,6 @@ final class IterableToArrayNode implements TypeTransformer
     {
         $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->iterable->subDefinition->type->toString()));
 
-        return "transform_iterable_{$slug}_" . sha1($this->iterable->subDefinition->type->toString());
+        return "transform_iterable_{$slug}_" . hash('xxh128', $this->iterable->subDefinition->type->toString());
     }
 }

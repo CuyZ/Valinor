@@ -75,6 +75,6 @@ final class ShapedArrayToArrayNode implements TypeTransformer
      */
     private function methodName(): string
     {
-        return 'transform_shaped_array_' . sha1($this->shapedArray->type->toString());
+        return 'transform_shaped_array_' . hash('xxh128', $this->shapedArray->type->toString());
     }
 }
