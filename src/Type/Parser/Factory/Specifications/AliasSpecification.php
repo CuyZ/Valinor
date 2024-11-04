@@ -88,11 +88,17 @@ final class AliasSpecification implements TypeParserSpecification
             }
         }
 
-        if (! $reflection->inNamespace()) {
+        if ($reflection->inNamespace()) {
+            $namespace = $reflection->getNamespaceName();
+        } elseif ($reflection instanceof ReflectionFunction) {
+            $namespace = PhpParser::parseNamespace($reflection);
+        }
+
+        if (! isset($namespace)) {
             return $symbol;
         }
 
-        $full = $reflection->getNamespaceName() . '\\' . $symbol;
+        $full = "$namespace\\$symbol";
 
         if (Reflection::classOrInterfaceExists($full)) {
             return $full;
