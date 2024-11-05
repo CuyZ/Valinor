@@ -22,12 +22,11 @@ final class TransformerCompiler
     {
         $definition = $this->definitionBuilder->for($type, $formatter->compiler());
 
-        $rootNode = new TransformerRootNode($definition, $formatter);
+        $rootNode = new TransformerRootNode($definition);
 
         $node = Node::shortClosure($rootNode)
             ->witParameters(
                 Node::parameterDeclaration('transformers', 'array'),
-                Node::parameterDeclaration('formatter', $formatter::class),
                 Node::parameterDeclaration('delegate', Transformer::class),
             );
 

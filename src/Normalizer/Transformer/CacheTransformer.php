@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\IterableType;
+use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
@@ -23,16 +24,11 @@ use CuyZ\Valinor\Type\Types\NullType;
 use Generator;
 use Iterator;
 use Psr\SimpleCache\CacheInterface;
-use ReflectionClass;
 use UnitEnum;
 
-use function get_debug_type;
 use function is_array;
 use function is_iterable;
 use function is_object;
-use function reset;
-use function sha1;
-use function str_contains;
 
 /** @internal */
 final class CacheTransformer implements Transformer
@@ -48,17 +44,18 @@ final class CacheTransformer implements Transformer
 
     public function transform(mixed $value, Formatter $formatter): mixed
     {
-        $key = "transformer-\0" . $this->rawType($value);
+        $type = $this->inferType($value);
+
+        $key = "transformer-\0" . $type->toString();
 
         $entry = $this->cache->get($key);
 
         if ($entry) {
-            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $formatter, $this);
+            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $this);
 
             return $transformer->transform($value, $formatter);
         }
 
-        $type = $this->inferType($value);
         $compilationCallback = fn () => $this->compiler->compileFor($type, $formatter);
 
         $transformer = new EvaluatedTransformer($this->delegate, $compilationCallback);
@@ -83,22 +80,6 @@ final class CacheTransformer implements Transformer
         };
     }
 
-    private function rawType(mixed $value): string
-    {
-        if (is_array($value)) {
-            return 'array<' . $this->rawType(reset($value)) . '>';
-        } elseif ($value instanceof Iterator) {
-            return 'Iterator<' . $this->rawType($value->current()) . '>';
-        } elseif (is_object($value) && str_contains($value::class, '@anonymous')) {
-            $reflection = new ReflectionClass($value);
-
-            // @todo fileName contains absolute path??
-            return $reflection->getFileName() . $reflection->getStartLine() . $reflection->getEndLine();
-        }
-
-        return get_debug_type($value);
-    }
-
     /**
      * This method contains a strongly opinionated rule: when normalizing an
      * iterable, we assume that the iterable has a high probability of
@@ -117,9 +98,15 @@ final class CacheTransformer implements Transformer
     private function inferIterableType(iterable $value): CompositeTraversableType
     {
         if (is_array($value)) {
-            return ArrayType::simple($this->inferType(reset($value)));
+            // @todo
+//            $firstValueType = $this->inferType(reset($value));
+//
+//            return ArrayType::simple(new UnionType($firstValueType, MixedType::get()));
+            return ArrayType::simple(MixedType::get());
         } elseif ($value instanceof Iterator) {
-            return new IterableType(ArrayKeyType::default(), $this->inferType($value->current()));
+            $firstValueType = $this->inferType($value->current());
+
+            return new IterableType(ArrayKeyType::default(), MixedType::get());
         }
 
         return IterableType::native();

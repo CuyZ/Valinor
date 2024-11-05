@@ -12,15 +12,18 @@ final class ForEachNode extends Node
 {
     public function __construct(
         private Node $value,
+        private string $key,
         private string $item,
-        private Node $body,
-        private ?string $key = null,
+        /** @var Node|list<Node> */
+        private Node|array $body,
     ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
+        $body = $this->body instanceof Node ? [$this->body] : $this->body;
+
         $value = $compiler->sub()->compile($this->value)->code();
-        $body = $compiler->sub()->indent()->compile($this->body)->code();
+        $body = $compiler->sub()->indent()->compile(...$body)->code();
 
         $item = '$' . $this->item;
 

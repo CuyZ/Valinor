@@ -7,8 +7,7 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
-/** @internal */
-final class AggregateNode extends Node
+final class ConcatNode extends Node
 {
     /** @var array<Node> */
     private array $nodes;
@@ -24,7 +23,7 @@ final class AggregateNode extends Node
             $compiler = $current->compile($compiler);
 
             if (count($this->nodes) > 0) {
-                $compiler = $compiler->write("\n");
+                $compiler = $compiler->write(' . ');
             }
         }
 

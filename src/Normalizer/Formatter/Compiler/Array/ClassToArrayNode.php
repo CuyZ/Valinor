@@ -15,9 +15,7 @@ use CuyZ\Valinor\Type\Types\EnumType;
 
 final class ClassToArrayNode implements TypeTransformer
 {
-    public function __construct(
-        private ClassDefinitionNode $class,
-    ) {}
+    public function __construct(private ClassDefinitionNode $class) {}
 
     public function valueTransformationNode(CompliantNode $valueNode): Node
     {
@@ -36,7 +34,7 @@ final class ClassToArrayNode implements TypeTransformer
             $className = $this->class->type->className();
 
             // Checking if the class is anonymous
-            if (str_contains($className, '@')) {
+            if (str_contains($className, '@anonymous')) {
                 $className = 'object';
             }
 
@@ -46,7 +44,7 @@ final class ClassToArrayNode implements TypeTransformer
                         Node::parameterDeclaration('value', $className),
                     )
                     ->withReturnType('array')
-                    ->withBody($this->arrayObjectTransformationNode()),
+                    ->withBody(...$this->arrayObjectTransformationNode()),
             );
         }
 
@@ -67,7 +65,10 @@ final class ClassToArrayNode implements TypeTransformer
         )->wrap()->callMethod('call', [$valueNode]);
     }
 
-    private function arrayObjectTransformationNode(): Node
+    /**
+     * @return list<Node>
+     */
+    private function arrayObjectTransformationNode(): array
     {
         $nodes = [];
 
@@ -103,7 +104,7 @@ final class ClassToArrayNode implements TypeTransformer
 
         $nodes[] = Node::return(Node::variable('transformed'));
 
-        return Node::aggregate(...$nodes);
+        return $nodes;
     }
 
     private function transformationIsAppliedOnAnyProperty(): bool

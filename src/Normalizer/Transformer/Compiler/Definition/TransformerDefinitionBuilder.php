@@ -21,7 +21,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\NullDefinitionN
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ScalarDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\StdClassDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\DelegateTypeTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnitEnumDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\RegisteredTransformersTypeTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\CompositeTraversableType;
@@ -36,10 +36,13 @@ use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 use Generator;
+use RuntimeException;
 use stdClass;
+use UnitEnum;
 
 /** @internal */
 final class TransformerDefinitionBuilder
@@ -96,9 +99,9 @@ final class TransformerDefinitionBuilder
         if ($transformerTypes !== [] || $transformerAttributes !== []) {
             $typeTransformer = new RegisteredTransformersTypeTransformer(
                 $type,
+                $typeTransformer,
                 $transformerTypes,
                 $transformerAttributes,
-                $typeTransformer,
             );
         }
 
@@ -121,19 +124,25 @@ final class TransformerDefinitionBuilder
                 $this->for(NativeFloatType::get(), $formatter),
                 $this->for(NativeIntegerType::get(), $formatter),
                 $this->for(NativeStringType::get(), $formatter),
+                $this->for(NullType::get(), $formatter),
+                $this->for(new NativeClassType(UnitEnum::class), $formatter),
+                $this->for(new NativeClassType(DateTime::class), $formatter),
+                $this->for(new NativeClassType(DateTimeZone::class), $formatter),
                 // @todo handle TraversableType
             ]),
             $type instanceof NativeClassType => $this->classDefinitionNode($type, $formatter),
             $type instanceof NullType => new NullDefinitionNode(),
             $type instanceof ScalarType => new ScalarDefinitionNode(),
             $type instanceof ShapedArrayType => $this->shapedArrayDefinitionNode($type, $formatter),
-            default => new DelegateTypeTransformer(),
+            default => throw new RuntimeException('@todo : ' . $type::class), // @todo
         };
     }
 
     private function classDefinitionNode(NativeClassType $type, FormatterCompiler $formatter): DefinitionNode
     {
-        if ($type->className() === stdClass::class) {
+        if ($type->className() === UnitEnum::class) {
+            return new UnitEnumDefinitionNode();
+        } elseif ($type->className() === stdClass::class) {
             return new StdClassDefinitionNode();
         } elseif (is_a($type->className(), ArrayObject::class, true)) {
             return new ArrayObjectDefinitionNode();

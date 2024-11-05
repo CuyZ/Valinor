@@ -102,7 +102,7 @@ final class Settings
      */
     public function hash(): string
     {
-        return hash('xxh128', serialize([
+        return serialize([
             implode('', array_map($this->callableSignature(...), $this->inferredMapping)),
             $this->nativeConstructors,
             implode('', array_map($this->callableSignature(...), $this->customConstructors)),
@@ -117,7 +117,7 @@ final class Settings
                 $this->transformers,
             ),
             $this->transformerAttributes,
-        ]));
+        ]);
     }
 
     private function callableSignature(callable $callable): string

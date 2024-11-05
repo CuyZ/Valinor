@@ -21,7 +21,7 @@ final class TransformerDefinition
         public readonly array $transformerAttributes,
         /** @var list<AttributeDefinition> */
         public readonly array $keyTransformerAttributes,
-        public TypeTransformer $typeTransformer,
+        public readonly TypeTransformer $typeTransformer,
     ) {}
 
     public function withNativeType(Type $nativeType): self

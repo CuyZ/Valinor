@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Compiler;
 
-use CuyZ\Valinor\Compiler\Native\AggregateNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousFunctionNode;
 use CuyZ\Valinor\Compiler\Native\ArrayNode;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ConcatNode;
 use CuyZ\Valinor\Compiler\Native\ExpressionNode;
 use CuyZ\Valinor\Compiler\Native\ForEachNode;
 use CuyZ\Valinor\Compiler\Native\FunctionCallNode;
 use CuyZ\Valinor\Compiler\Native\IfNode;
+use CuyZ\Valinor\Compiler\Native\InstanceOfNode;
 use CuyZ\Valinor\Compiler\Native\MatchNode;
 use CuyZ\Valinor\Compiler\Native\MethodNode;
 use CuyZ\Valinor\Compiler\Native\NegateNode;
@@ -21,7 +23,7 @@ use CuyZ\Valinor\Compiler\Native\PropertyDeclarationNode;
 use CuyZ\Valinor\Compiler\Native\PropertyNode;
 use CuyZ\Valinor\Compiler\Native\ReturnNode;
 use CuyZ\Valinor\Compiler\Native\ShortClosureNode;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\TernaryNode;
 use CuyZ\Valinor\Compiler\Native\ValueNode;
 use CuyZ\Valinor\Compiler\Native\VariableNode;
 use CuyZ\Valinor\Compiler\Native\WrapNode;
@@ -43,11 +45,6 @@ abstract class Node
         return new CompliantNode(new WrapNode($this));
     }
 
-    public static function aggregate(Node ...$nodes): AggregateNode
-    {
-        return new AggregateNode(...$nodes);
-    }
-
     public static function anonymousFunction(): AnonymousFunctionNode
     {
         return new AnonymousFunctionNode();
@@ -66,9 +63,17 @@ abstract class Node
         return new AnonymousClassNode();
     }
 
-    public static function forEach(Node $value, string $item, Node $body, ?string $key = null): ForEachNode
+    public static function concat(Node ...$nodes): ConcatNode
     {
-        return new ForEachNode($value, $item, $body, $key);
+        return new ConcatNode(...$nodes);
+    }
+
+    /**
+     * @param Node|list<Node> $body
+     */
+    public static function forEach(Node $value, string $key, string $item, Node|array $body): ForEachNode
+    {
+        return new ForEachNode($value, $key, $item, $body);
     }
 
     /**
@@ -82,6 +87,14 @@ abstract class Node
     public static function if(Node $condition, Node $body): IfNode
     {
         return new IfNode($condition, $body);
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public static function instanceOf(Node $node, string $className): InstanceOfNode
+    {
+        return new InstanceOfNode($node, $className);
     }
 
     public static function match(Node $value): MatchNode
@@ -138,6 +151,11 @@ abstract class Node
     public static function this(): CompliantNode
     {
         return self::variable('this');
+    }
+
+    public static function ternary(Node $condition, Node $ifTrue, Node $ifFalse): TernaryNode
+    {
+        return new TernaryNode($condition, $ifTrue, $ifFalse);
     }
 
     public static function value(bool|float|int|string|null $value): ValueNode

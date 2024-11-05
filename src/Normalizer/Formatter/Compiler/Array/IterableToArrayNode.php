@@ -57,8 +57,8 @@ final class IterableToArrayNode implements TypeTransformer
                             ->withBody(
                                 Node::forEach(
                                     value: Node::variable('value'),
-                                    item: 'item',
                                     key: 'key',
+                                    item: 'item',
                                     body: Node::yield(
                                         key: Node::variable('key'),
                                         value: $this->iterable->subDefinition->typeTransformer->valueTransformationNode(Node::variable('item')),

@@ -26,8 +26,7 @@ final class MixedToArrayNode implements TypeTransformer
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
         foreach ($this->mixed->definitions as $definition) {
-            // @todo
-//            $class = $definition->manipulateTransformerClass($class);
+            $class = $definition->typeTransformer->manipulateTransformerClass($class);
         }
 
         $methodName = 'transform_mixed';
@@ -42,22 +41,21 @@ final class MixedToArrayNode implements TypeTransformer
                     Node::parameterDeclaration('value', 'mixed'),
                 )
                 ->withReturnType('mixed')
-                ->withBody($this->scalarTransformationNodes()),
+                ->withBody(...$this->scalarTransformationNodes()),
         );
     }
 
-    public function scalarTransformationNodes(): Node
+    /**
+     * @return list<Node>
+     */
+    public function scalarTransformationNodes(): array
     {
         $nodes = [];
 
         foreach ($this->mixed->definitions as $definition) {
-            if (! $definition->hasTransformation()) {
-                continue;
-            }
-
             $nodes[] = Node::if(
                 condition: new TypeAcceptNode($definition->type),
-                body: Node::return($definition->valueTransformationNode(Node::variable('value'))),
+                body: Node::return($definition->typeTransformer->valueTransformationNode(Node::variable('value'))),
             );
         }
 
@@ -75,6 +73,6 @@ final class MixedToArrayNode implements TypeTransformer
                 ]),
         );
 
-        return new AggregateNode(...$nodes);
+        return $nodes;
     }
 }

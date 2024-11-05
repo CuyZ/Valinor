@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Normalizer\Formatter;
 
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
-use CuyZ\Valinor\Normalizer\Formatter\JsonStreamFormatter;
+use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use PHPUnit\Framework\TestCase;
 
 use function fopen;
@@ -23,6 +23,6 @@ final class JsonStreamFormatterTest extends TestCase
         /** @var resource $resource */
         $resource = fopen('php://memory', 'r+');
 
-        (new JsonStreamFormatter($resource, JSON_THROW_ON_ERROR))->format(fn () => 42);
+        (new JsonFormatter($resource, JSON_THROW_ON_ERROR))->format(fn () => 42);
     }
 }

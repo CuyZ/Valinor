@@ -16,11 +16,11 @@ final class RegisteredTransformersTypeTransformer implements TypeTransformer
 {
     public function __construct(
         private Type $type,
+        private TypeTransformer $delegate,
         /** @var array<int, Type> */
         private array $transformerTypes,
-        /** @var AttributeDefinition */
-        private array $transformerAttributes,
-        private TypeTransformer $delegate,
+        /** @var list<AttributeDefinition> */
+        private array $transformerAttributes = [],
     ) {}
 
     public function valueTransformationNode(CompliantNode $valueNode): Node

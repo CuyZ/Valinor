@@ -9,21 +9,20 @@ use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 
-final class ScalarToJsonNode implements TypeTransformer
+final class TodoToJsonNode implements TypeTransformer
 {
+    public function __construct(private TypeTransformer $delegate) {}
+
     public function valueTransformationNode(CompliantNode $valueNode): Node
     {
         return Node::functionCall('fwrite', [
             Node::variable('formatter')->access('resource'),
-            Node::functionCall('json_encode', [
-                'value' => $valueNode,
-                'flags' => Node::variable('formatter')->access('jsonEncodingOptions'),
-            ]),
+            $this->delegate->valueTransformationNode($valueNode),
         ])->asExpression();
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        return $class;
+        return $this->delegate->manipulateTransformerClass($class);
     }
 }

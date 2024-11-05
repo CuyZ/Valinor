@@ -15,6 +15,7 @@ use CuyZ\Valinor\Normalizer\Formatter\Compiler\Array\NullToArrayNode;
 use CuyZ\Valinor\Normalizer\Formatter\Compiler\Array\ScalarToArrayNode;
 use CuyZ\Valinor\Normalizer\Formatter\Compiler\Array\ShapedArrayToArrayNode;
 use CuyZ\Valinor\Normalizer\Formatter\Compiler\Array\StdClassToArrayNode;
+use CuyZ\Valinor\Normalizer\Formatter\Compiler\Array\UnitEnumToArrayNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ArrayObjectDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\DateTimeDefinitionNode;
@@ -27,6 +28,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\NullDefinitionN
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ScalarDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\StdClassDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnitEnumDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
 
 final class ArrayFormatterCompiler implements FormatterCompiler
@@ -45,6 +47,7 @@ final class ArrayFormatterCompiler implements FormatterCompiler
             ScalarDefinitionNode::class => new ScalarToArrayNode(),
             ShapedArrayDefinitionNode::class => new ShapedArrayToArrayNode($definitionNode),
             StdClassDefinitionNode::class => new StdClassToArrayNode(),
+            UnitEnumDefinitionNode::class => new UnitEnumToArrayNode(),
         };
     }
 }

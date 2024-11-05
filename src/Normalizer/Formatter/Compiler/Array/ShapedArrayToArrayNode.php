@@ -44,9 +44,10 @@ final class ShapedArrayToArrayNode implements TypeTransformer
                 ->withBody(
                     Node::variable('result')->assign(Node::array())->asExpression(),
                     Node::forEach(
-                        Node::variable('value'),
-                        'item',
-                        Node::variable('result')->key(Node::variable('key'))->assign(
+                        value: Node::variable('value'),
+                        key: 'key',
+                        item: 'item',
+                        body: Node::variable('result')->key(Node::variable('key'))->assign(
                             (function () {
                                 $match = Node::match(Node::variable('key'));
 
@@ -63,7 +64,6 @@ final class ShapedArrayToArrayNode implements TypeTransformer
                                 );
                             })(),
                         )->asExpression(),
-                        'key',
                     ),
                     Node::return(Node::variable('result')),
                 ),

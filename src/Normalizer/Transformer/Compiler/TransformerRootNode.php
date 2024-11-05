@@ -17,7 +17,6 @@ final class TransformerRootNode extends Node
 {
     public function __construct(
         private TransformerDefinition $definition,
-        private Formatter $formatter,
     ) {}
 
     public function compile(Compiler $compiler): Compiler
@@ -34,12 +33,10 @@ final class TransformerRootNode extends Node
             ->implements(Transformer::class)
             ->withArguments(
                 Node::variable('transformers'),
-                Node::variable('formatter'),
                 Node::variable('delegate'),
             )
             ->withProperties(
                 Node::propertyDeclaration('transformers', 'array'),
-                Node::propertyDeclaration('formatter', $this->formatter::class),
                 Node::propertyDeclaration('delegate', Transformer::class),
             )
             ->withMethods(
@@ -47,12 +44,10 @@ final class TransformerRootNode extends Node
                     ->withVisibility('public')
                     ->witParameters(
                         Node::parameterDeclaration('transformers', 'array'),
-                        Node::parameterDeclaration('formatter', $this->formatter::class),
                         Node::parameterDeclaration('delegate', Transformer::class),
                     )
                     ->withBody(
                         Node::property('transformers')->assign(Node::variable('transformers'))->asExpression(),
-                        Node::property('formatter')->assign(Node::variable('formatter'))->asExpression(),
                         Node::property('delegate')->assign(Node::variable('delegate'))->asExpression(),
                     ),
                 Node::method('transform')
