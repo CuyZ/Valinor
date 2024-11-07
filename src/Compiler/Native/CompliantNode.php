@@ -22,6 +22,11 @@ final class CompliantNode extends Node
         return new self(CastNode::toArray($this));
     }
 
+    public function clone(): self
+    {
+        return new self(new CloneNode($this));
+    }
+
     public function key(Node $key): self
     {
         return new self(new ArrayKeyAccessNode($this, $key));

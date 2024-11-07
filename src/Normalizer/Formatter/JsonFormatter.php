@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
-use CuyZ\Valinor\Normalizer\Formatter\Compiler\FormatterCompiler;
-use CuyZ\Valinor\Normalizer\Formatter\Compiler\JsonFormatterCompiler;
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Json\JsonFormatterCompiler;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use Generator;
 

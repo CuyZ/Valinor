@@ -11,6 +11,7 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
+use WeakMap;
 
 /** @internal */
 final class TransformerRootNode extends Node
@@ -21,10 +22,10 @@ final class TransformerRootNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        $transformerClassNode = $this->transformerClassNode($this->definition);
-        $transformerClassNode = $this->definition->typeTransformer->manipulateTransformerClass($transformerClassNode);
+        $classNode = $this->transformerClassNode($this->definition);
+        $classNode = $this->definition->typeFormatter->manipulateTransformerClass($classNode);
 
-        return $transformerClassNode->compile($compiler);
+        return $classNode->compile($compiler);
     }
 
     private function transformerClassNode(TransformerDefinition $definition): AnonymousClassNode
@@ -57,9 +58,14 @@ final class TransformerRootNode extends Node
                         Node::parameterDeclaration('formatter', Formatter::class),
                     )
                     ->withReturnType('mixed')
-                    ->withBody(Node::return(
-                        $definition->typeTransformer->valueTransformationNode(Node::variable('value')),
-                    )),
+                    ->withBody(
+                        Node::variable('references')->assign(Node::newClass(WeakMap::class))->asExpression(),
+                        Node::return(
+                            $definition->typeFormatter->formatValueNode(
+                                Node::variable('value'),
+                            ),
+                        ),
+                    ),
             );
     }
 

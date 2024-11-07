@@ -2,57 +2,91 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Array;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
+use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\EnumType;
+use WeakMap;
 
-final class ClassToArrayNode implements TypeTransformer
+final class ClassToArrayFormatter implements TypeFormatter
 {
     public function __construct(private ClassDefinitionNode $class) {}
 
-    public function valueTransformationNode(CompliantNode $valueNode): Node
+    public function formatValueNode(CompliantNode $valueNode): Node
     {
-        if ($this->transformationIsAppliedOnAnyProperty()) {
-            return Node::this()->callMethod($this->methodName(), [$valueNode]);
-        }
-
-        return $this->valuesNode($valueNode);
+        return Node::this()->callMethod(
+            method: $this->methodName(),
+            arguments: [
+                $valueNode,
+                Node::variable('formatter'),
+                Node::variable('references'),
+            ],
+        );
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
         $methodName = $this->methodName();
 
-        if ($this->transformationIsAppliedOnAnyProperty() && ! $class->hasMethod($methodName)) {
-            $className = $this->class->type->className();
-
-            // Checking if the class is anonymous
-            if (str_contains($className, '@anonymous')) {
-                $className = 'object';
-            }
-
-            $class = $class->withMethods(
-                Node::method($methodName)
-                    ->witParameters(
-                        Node::parameterDeclaration('value', $className),
-                    )
-                    ->withReturnType('array')
-                    ->withBody(...$this->arrayObjectTransformationNode()),
-            );
+        if ($class->hasMethod($methodName)) {
+            return $class;
         }
+
+        // This is a placeholder method to avoid circular references coming from
+        // the class properties.
+        $class = $class->withMethods(Node::method($methodName));
 
         foreach ($this->class->propertiesDefinitions as $propertyDefinition) {
-            $class = $propertyDefinition->typeTransformer->manipulateTransformerClass($class);
+            $class = $propertyDefinition->typeFormatter->manipulateTransformerClass($class);
         }
 
-        return $class;
+        $className = $this->class->type->className();
+
+        // Checking if the class is anonymous
+        if (str_contains($className, '@anonymous')) {
+            $className = 'object';
+        }
+
+        $nodes = $this->checkCircularObjectReference();
+
+        if ($this->transformationIsAppliedOnAnyProperty()) {
+            $nodes = [...$nodes, ...$this->arrayObjectTransformationNode()];
+        } else {
+            $nodes[] = Node::return($this->valuesNode(Node::variable('value')))->asExpression();
+        }
+
+        return $class->withMethods(
+            Node::method($methodName)
+                ->witParameters(
+                    Node::parameterDeclaration('value', $className),
+                    Node::parameterDeclaration('formatter', Formatter::class),
+                    Node::parameterDeclaration('references', WeakMap::class),
+                )
+                ->withReturnType('array')
+                ->withBody(...$nodes),
+        );
+    }
+
+    private function checkCircularObjectReference(): array
+    {
+        return [
+            Node::if(
+                condition: Node::functionCall('isset', [Node::variable('references')->key(Node::variable('value'))]),
+                body: Node::throw(
+                    Node::newClass(CircularReferenceFoundDuringNormalization::class, Node::variable('value')),
+                )->asExpression(),
+            ),
+            Node::variable('references')->assign(Node::variable('references')->clone())->asExpression(),
+            Node::variable('references')->key(Node::variable('value'))->assign(Node::value(true))->asExpression(),
+        ];
     }
 
     private function valuesNode(CompliantNode $valueNode): Node
@@ -97,7 +131,7 @@ final class ClassToArrayNode implements TypeTransformer
 
             $nodes[] = Node::variable('transformed')
                 ->key($key)
-                ->assign($property->typeTransformer->valueTransformationNode(
+                ->assign($property->typeFormatter->formatValueNode(
                     Node::variable('values')->key(Node::value($name)),
                 ))->asExpression();
         }

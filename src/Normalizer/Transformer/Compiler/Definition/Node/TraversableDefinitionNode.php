@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 
 /** @internal */
-final class IterableDefinitionNode implements DefinitionNode
+final class TraversableDefinitionNode implements DefinitionNode
 {
     public function __construct(
         public readonly TransformerDefinition $subDefinition,

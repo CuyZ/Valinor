@@ -18,12 +18,12 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
@@ -33,10 +33,10 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -52,7 +52,6 @@ use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\CacheTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerCompiler;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
@@ -68,13 +67,11 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
-use CuyZ\Valinor\Utility\Package;
 use Psr\SimpleCache\CacheInterface;
 
 use function array_keys;
 use function call_user_func;
 use function count;
-use function sha1;
 
 /** @internal */
 final class Container
@@ -101,7 +98,7 @@ final class Container
             ),
 
             RootNodeBuilder::class => fn () => new RootNodeBuilder(
-                $this->get(NodeBuilder::class)
+                $this->get(NodeBuilder::class),
             ),
 
             NodeBuilder::class => function () use ($settings) {
@@ -131,7 +128,7 @@ final class Container
                     $this->get(ClassDefinitionRepository::class),
                     new FunctionsContainer(
                         $this->get(FunctionDefinitionRepository::class),
-                        $settings->customConstructors
+                        $settings->customConstructors,
                     ),
                 );
 
@@ -143,8 +140,8 @@ final class Container
                         $builder,
                         new FunctionsContainer(
                             $this->get(FunctionDefinitionRepository::class),
-                            $settings->valueModifier
-                        )
+                            $settings->valueModifier,
+                        ),
                     );
                 }
 
@@ -156,7 +153,7 @@ final class Container
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
-                    $settings->inferredMapping
+                    $settings->inferredMapping,
                 ),
                 $this->get(TypeParser::class),
             ),
@@ -164,7 +161,7 @@ final class Container
             ObjectBuilderFactory::class => function () use ($settings) {
                 $constructors = new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
-                    $settings->customConstructors
+                    $settings->customConstructors,
                 );
 
                 $factory = new ReflectionObjectBuilderFactory();
@@ -193,7 +190,7 @@ final class Container
                 if (isset($settings->cache)) {
                     $transformer = new CacheTransformer(
                         $transformer,
-                        $this->get(TransformerCompiler::class),
+                        $this->get(TransformerDefinitionBuilder::class),
                         $this->get(CacheInterface::class),
                         $settings->transformersSortedByPriority(),
                     );
@@ -201,10 +198,6 @@ final class Container
 
                 return $transformer;
             },
-
-            TransformerCompiler::class => fn () => new TransformerCompiler(
-                $this->get(TransformerDefinitionBuilder::class),
-            ),
 
             TransformerContainer::class => fn () => new TransformerContainer(
                 $this->get(FunctionDefinitionRepository::class),
@@ -242,7 +235,7 @@ final class Container
                         $settings->allowedAttributes(),
                     ),
                 ),
-                $this->get(CacheInterface::class)
+                $this->get(CacheInterface::class),
             ),
 
             TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
@@ -254,7 +247,7 @@ final class Container
                 $this->get(CacheInterface::class),
                 $this->get(ObjectImplementations::class),
                 $this->get(ClassDefinitionRepository::class),
-                $this->get(ObjectBuilderFactory::class)
+                $this->get(ObjectBuilderFactory::class),
             ),
 
             CacheInterface::class => function () use ($settings) {

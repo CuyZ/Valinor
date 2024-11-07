@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
-use CuyZ\Valinor\Normalizer\Formatter\Compiler\ArrayFormatterCompiler;
-use CuyZ\Valinor\Normalizer\Formatter\Compiler\FormatterCompiler;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\ArrayFormatterCompiler;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
+
+use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 
 use function array_map;
 use function is_array;
@@ -22,6 +24,8 @@ final class ArrayFormatter implements Formatter
             }
 
             $value = array_map($this->format(...), $value);
+        } elseif ($value instanceof EmptyObject) {
+            return [];
         }
 
         return $value;

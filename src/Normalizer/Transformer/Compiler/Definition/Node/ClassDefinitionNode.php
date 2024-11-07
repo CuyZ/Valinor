@@ -12,7 +12,8 @@ final class ClassDefinitionNode implements DefinitionNode
 {
     public function __construct(
         public readonly ClassType $type,
+        // @todo find better way to handle this
         /** @var array<non-empty-string, TransformerDefinition> */
-        public readonly array $propertiesDefinitions,
+        public array $propertiesDefinitions,
     ) {}
 }

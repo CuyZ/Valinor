@@ -2,31 +2,40 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Array;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
+use WeakMap;
 
-final class ShapedArrayToArrayNode implements TypeTransformer
+final class ShapedArrayToArrayFormatter implements TypeFormatter
 {
     public function __construct(
         private ShapedArrayDefinitionNode $shapedArray,
     ) {}
 
-    public function valueTransformationNode(CompliantNode $valueNode): Node
+    public function formatValueNode(CompliantNode $valueNode): Node
     {
-        return Node::this()->callMethod($this->methodName(), [$valueNode]);
+        return Node::this()->callMethod(
+            method: $this->methodName(),
+            arguments: [
+                $valueNode,
+                Node::variable('formatter'),
+                Node::variable('references'),
+            ],
+        );
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->shapedArray->defaultTransformer->typeTransformer->manipulateTransformerClass($class);
+        $class = $this->shapedArray->defaultTransformer->typeFormatter->manipulateTransformerClass($class);
 
         foreach ($this->shapedArray->elementsDefinitions as $definition) {
-            $class = $definition->typeTransformer->manipulateTransformerClass($class);
+            $class = $definition->typeFormatter->manipulateTransformerClass($class);
         }
 
         $methodName = $this->methodName();
@@ -39,6 +48,8 @@ final class ShapedArrayToArrayNode implements TypeTransformer
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'array'),
+                    Node::parameterDeclaration('formatter', Formatter::class),
+                    Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('array')
                 ->withBody(
@@ -54,13 +65,13 @@ final class ShapedArrayToArrayNode implements TypeTransformer
                                 foreach ($this->shapedArray->elementsDefinitions as $name => $definition) {
                                     $match = $match->withCase(
                                         Node::value($name),
-                                        $definition->typeTransformer->valueTransformationNode(Node::variable('value')->key(Node::value($name))),
+                                        $definition->typeFormatter->formatValueNode(Node::variable('value')->key(Node::value($name))),
                                     );
                                 }
 
                                 // @todo handle unsealed array
                                 return $match->withDefaultCase(
-                                    $this->shapedArray->defaultTransformer->typeTransformer->valueTransformationNode(Node::variable('value')->key(Node::value($name))),
+                                    $this->shapedArray->defaultTransformer->typeFormatter->formatValueNode(Node::variable('value')->key(Node::value($name))),
                                 );
                             })(),
                         )->asExpression(),

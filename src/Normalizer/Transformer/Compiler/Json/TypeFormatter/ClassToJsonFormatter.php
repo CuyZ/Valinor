@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Json;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Json\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
-final class ClassToJsonNode implements TypeTransformer
+final class ClassToJsonFormatter implements TypeFormatter
 {
     public function __construct(private ClassDefinitionNode $class) {}
 
-    public function valueTransformationNode(CompliantNode $valueNode): Node
+    public function formatValueNode(CompliantNode $valueNode): Node
     {
         return Node::this()->callMethod(
             method: $this->methodName(),
@@ -32,7 +32,7 @@ final class ClassToJsonNode implements TypeTransformer
         }
 
         foreach ($this->class->propertiesDefinitions as $propertyDefinition) {
-            $class = $propertyDefinition->typeTransformer->manipulateTransformerClass($class);
+            $class = $propertyDefinition->typeFormatter->manipulateTransformerClass($class);
         }
 
         return $class->withMethods(
@@ -78,7 +78,7 @@ final class ClassToJsonNode implements TypeTransformer
                 ),
             ])->asExpression();
 
-            $nodes[] = $propertyDefinition->typeTransformer->valueTransformationNode(Node::variable('values')->key(Node::value($name)));
+            $nodes[] = $propertyDefinition->typeFormatter->formatValueNode(Node::variable('values')->key(Node::value($name)));
 
             if ($name !== array_key_last($this->class->propertiesDefinitions)) {
                 $nodes[] = Node::functionCall('fwrite', [

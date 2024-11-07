@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition;
 
 use CuyZ\Valinor\Definition\AttributeDefinition;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use CuyZ\Valinor\Type\Type;
 
 /** @internal */
@@ -21,7 +21,7 @@ final class TransformerDefinition
         public readonly array $transformerAttributes,
         /** @var list<AttributeDefinition> */
         public readonly array $keyTransformerAttributes,
-        public readonly TypeTransformer $typeTransformer,
+        public readonly TypeFormatter $typeFormatter,
     ) {}
 
     public function withNativeType(Type $nativeType): self

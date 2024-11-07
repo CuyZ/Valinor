@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Formatter\Compiler\Json;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Json\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\IterableDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer\TypeTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\TraversableDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
-final class IterableToJsonNode implements TypeTransformer
+final class TraversableToJsonFormatter implements TypeFormatter
 {
     public function __construct(
-        private IterableDefinitionNode $iterable,
+        private TraversableDefinitionNode $iterable,
     ) {}
 
-    public function valueTransformationNode(CompliantNode $valueNode): Node
+    public function formatValueNode(CompliantNode $valueNode): Node
     {
         return Node::this()->callMethod(
             method: $this->methodName(),
@@ -27,7 +27,7 @@ final class IterableToJsonNode implements TypeTransformer
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->iterable->subDefinition->typeTransformer->manipulateTransformerClass($class);
+        $class = $this->iterable->subDefinition->typeFormatter->manipulateTransformerClass($class);
 
         $methodName = $this->methodName();
 
@@ -57,7 +57,7 @@ final class IterableToJsonNode implements TypeTransformer
                                     Node::value(':'),
                                 ),
                             ])->asExpression(),
-                            $this->iterable->subDefinition->typeTransformer->valueTransformationNode(Node::variable('item')),
+                            $this->iterable->subDefinition->typeFormatter->formatValueNode(Node::variable('item')),
                         ],
                     ),
                 ),

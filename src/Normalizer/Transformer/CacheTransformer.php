@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer;
 
 use Closure;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Normalizer\Formatter\Formatter;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerCompiler;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerRootNode;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -35,8 +38,8 @@ final class CacheTransformer implements Transformer
 {
     public function __construct(
         private Transformer $delegate,
-        private TransformerCompiler $compiler,
-        /** @var CacheInterface<Transformer|callable(list<callable>, Transformer): Transformer> */
+        private TransformerDefinitionBuilder $definitionBuilder,
+        /** @var CacheInterface<Transformer|callable(list<callable>, Formatter): Formatter> */
         private CacheInterface $cache,
         /** @var list<callable> */
         private array $transformers,
@@ -56,13 +59,28 @@ final class CacheTransformer implements Transformer
             return $transformer->transform($value, $formatter);
         }
 
-        $compilationCallback = fn () => $this->compiler->compileFor($type, $formatter);
+        $compilationCallback = fn () => $this->compileFor($type, $formatter);
 
         $transformer = new EvaluatedTransformer($this->delegate, $compilationCallback);
 
         $this->cache->set($key, $transformer);
 
         return $this->delegate->transform($value, $formatter);
+    }
+
+    private function compileFor(Type $type, Formatter $formatter): string
+    {
+        $definition = $this->definitionBuilder->for($type, $formatter->compiler());
+
+        $rootNode = new TransformerRootNode($definition);
+
+        $node = Node::shortClosure($rootNode)
+            ->witParameters(
+                Node::parameterDeclaration('transformers', 'array'),
+                Node::parameterDeclaration('delegate', Transformer::class),
+            );
+
+        return (new Compiler())->compile($node)->code();
     }
 
     private function inferType(mixed $value): Type

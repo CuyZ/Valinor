@@ -24,6 +24,7 @@ use CuyZ\Valinor\Compiler\Native\PropertyNode;
 use CuyZ\Valinor\Compiler\Native\ReturnNode;
 use CuyZ\Valinor\Compiler\Native\ShortClosureNode;
 use CuyZ\Valinor\Compiler\Native\TernaryNode;
+use CuyZ\Valinor\Compiler\Native\ThrowNode;
 use CuyZ\Valinor\Compiler\Native\ValueNode;
 use CuyZ\Valinor\Compiler\Native\VariableNode;
 use CuyZ\Valinor\Compiler\Native\WrapNode;
@@ -148,14 +149,19 @@ abstract class Node
         return new ShortClosureNode($return);
     }
 
+    public static function ternary(Node $condition, Node $ifTrue, Node $ifFalse): TernaryNode
+    {
+        return new TernaryNode($condition, $ifTrue, $ifFalse);
+    }
+
     public static function this(): CompliantNode
     {
         return self::variable('this');
     }
 
-    public static function ternary(Node $condition, Node $ifTrue, Node $ifFalse): TernaryNode
+    public static function throw(Node $node): ThrowNode
     {
-        return new TernaryNode($condition, $ifTrue, $ifFalse);
+        return new ThrowNode($node);
     }
 
     public static function value(bool|float|int|string|null $value): ValueNode

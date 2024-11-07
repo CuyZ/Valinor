@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeTransformer;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
@@ -10,26 +10,37 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Type\Type;
+use WeakMap;
 
-final class RegisteredTransformersTypeTransformer implements TypeTransformer
+final class RegisteredTransformersFormatter implements TypeFormatter
 {
     public function __construct(
         private Type $type,
-        private TypeTransformer $delegate,
+        private TypeFormatter $delegate,
         /** @var array<int, Type> */
         private array $transformerTypes,
         /** @var list<AttributeDefinition> */
         private array $transformerAttributes = [],
     ) {}
 
-    public function valueTransformationNode(CompliantNode $valueNode): Node
+    public function formatValueNode(CompliantNode $valueNode): Node
     {
-        return Node::this()->callMethod($this->methodName(), [$valueNode]);
+        return Node::this()->callMethod(
+            method: $this->methodName(),
+            arguments: [
+                $valueNode,
+                Node::variable('formatter'),
+                Node::variable('references'),
+            ],
+        );
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
+        $class = $this->delegate->manipulateTransformerClass($class);
+
         $methodName = $this->methodName();
 
         if ($class->hasMethod($methodName)) {
@@ -39,7 +50,7 @@ final class RegisteredTransformersTypeTransformer implements TypeTransformer
         $nodes = [
             Node::variable('next')->assign(
                 Node::shortClosure(
-                    $this->delegate->valueTransformationNode(Node::variable('value')),
+                    $this->delegate->formatValueNode(Node::variable('value')),
                 ),
             )->asExpression(),
 
@@ -88,6 +99,8 @@ final class RegisteredTransformersTypeTransformer implements TypeTransformer
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
+                    Node::parameterDeclaration('formatter', Formatter::class),
+                    Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')
                 ->withBody(...$nodes),
