@@ -31,8 +31,11 @@ final class UppercaseFromAttributeTest extends IntegrationTestCase
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class Uppercase
 {
+    /**
+     * @param callable(): string $next
+     */
     public function normalize(string $value, callable $next): string
     {
-        return strtoupper((string)$next());
+        return strtoupper($next());
     }
 }

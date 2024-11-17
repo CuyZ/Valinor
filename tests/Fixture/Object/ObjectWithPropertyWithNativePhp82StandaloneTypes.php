@@ -9,7 +9,7 @@ final class ObjectWithPropertyWithNativePhp82StandaloneTypes
 {
     public null $nativeNull = null;
 
-    public true $nativeTrue;
+    public true $nativeTrue; // @phpstan-ignore class.notFound (PHP8.2 remove this line)
 
     public false $nativeFalse;
 }

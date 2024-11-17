@@ -8,8 +8,6 @@ use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;
-use PHPStan\Type\ClosureType;
-use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\DynamicMethodReturnTypeExtension;
@@ -40,19 +38,17 @@ final class ArgumentsMapperPHPStanExtension implements DynamicMethodReturnTypeEx
 
         $type = $scope->getType($arguments[0]->value);
 
-        if ($type instanceof ClosureType) {
-            $parameters = $type->getParameters();
-        } elseif ($type instanceof ConstantArrayType) {
-            $acceptors = $type->getCallableParametersAcceptors($scope);
-
-            if (count($acceptors) !== 1) {
-                return new MixedType();
-            }
-
-            $parameters = $acceptors[0]->getParameters();
-        } else {
+        if (! $type->isCallable()->yes()) {
             return new MixedType();
         }
+
+        $acceptors = $type->getCallableParametersAcceptors($scope);
+
+        if (count($acceptors) !== 1) {
+            return new MixedType();
+        }
+
+        $parameters = $acceptors[0]->getParameters();
 
         $builder = ConstantArrayTypeBuilder::createEmpty();
 

@@ -41,7 +41,6 @@ final class FakeMethodDefinition
 
     public static function fromReflection(ReflectionMethod $reflection): MethodDefinition
     {
-        /** @var non-empty-string $name */
         $name = $reflection->name;
         $returnType = new MixedType();
 

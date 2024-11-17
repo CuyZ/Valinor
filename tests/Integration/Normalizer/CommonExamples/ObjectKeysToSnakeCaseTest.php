@@ -14,6 +14,7 @@ final class ObjectKeysToSnakeCaseTest extends IntegrationTestCase
         $result = $this->mapperBuilder()
             ->registerTransformer(
                 function (object $object, callable $next) {
+                    /** @var callable(): array<mixed> $next */
                     $result = [];
 
                     foreach ($next() as $key => $value) {

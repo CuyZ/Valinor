@@ -31,7 +31,6 @@ final class ReflectionMethodDefinitionBuilder
 
     public function for(ReflectionMethod $reflection, ReflectionTypeResolver $typeResolver): MethodDefinition
     {
-        /** @var non-empty-string $name */
         $name = $reflection->name;
         $signature = $reflection->getDeclaringClass()->name . '::' . $reflection->name . '()';
 

@@ -436,7 +436,7 @@ final class NormalizerTest extends IntegrationTestCase
             'expected array' => 'foo!',
             'expected json' => '"foo!"',
             'transformers' => [
-                [fn (stdClass|BasicObject $object) => $object->value . '!'],
+                [fn (BasicObject|AnotherBasicObject $object) => $object->value . '!'],
             ],
         ];
 
@@ -451,6 +451,7 @@ final class NormalizerTest extends IntegrationTestCase
                 [
                     function (object $object, callable $next) {
                         $result = $next();
+                        /** @phpstan-ignore offsetAccess.nonOffsetAccessible (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                         $result['bar'] = 'bar';
 
                         return $result;
@@ -466,9 +467,12 @@ final class NormalizerTest extends IntegrationTestCase
             'transformers' => [
                 -20 => [fn (BasicObject $object, callable $next) => $object->value],
                 -15 => [fn (stdClass $object) => 'bar'], // Should be ignored by the normalizer
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 -10 => [fn (BasicObject $object, callable $next) => $next() . '*'],
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 0 => [fn (BasicObject $object, callable $next) => $next() . '!'],
                 10 => [fn (stdClass $object) => 'baz'], // Should be ignored by the normalizer
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 20 => [fn (BasicObject $object, callable $next) => $next() . '?'],
             ],
         ];
@@ -479,7 +483,9 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '"foo?!*"',
             'transformers' => [
                 10 => [
+                    /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                     fn (BasicObject $object, callable $next) => $next() . '*',
+                    /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                     fn (BasicObject $object, callable $next) => $next() . '!',
                     fn (BasicObject $object, callable $next) => $object->value . '?',
                 ],
@@ -498,6 +504,7 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"foo":"foo!","bar":"bar!"}',
             'transformers' => [
                 [
+                    /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                     fn (string $value, callable $next) => $next() . '!',
                 ],
             ],
@@ -576,7 +583,9 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"value":"prefix_foobazbar_suffix"}',
             'transformers' => [
                 [
+                    /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                     fn (string $value, callable $next) => $next() . 'bar',
+                    /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                     fn (string $value, callable $next) => $next() . 'baz',
                 ],
             ],
@@ -950,6 +959,7 @@ final class NormalizerTest extends IntegrationTestCase
     {
         $result = $this->mapperBuilder()
             ->registerTransformer(
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 fn (string $value, callable $next) => $next() . '!',
             )
             ->normalizer(Format::array())
@@ -966,13 +976,16 @@ final class NormalizerTest extends IntegrationTestCase
                 -2,
             )
             ->registerTransformer(
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 fn (object $object, callable $next) => $next() . '!',
                 -1,
             )
             ->registerTransformer(
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 fn (object $object, callable $next) => $next() . '?',
             )
             ->registerTransformer(
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 fn (object $object, callable $next) => $next() . '*',
                 1,
             )
@@ -1239,6 +1252,11 @@ final class BasicObject
     public function __construct(public string $value) {}
 }
 
+final class AnotherBasicObject
+{
+    public function __construct(public string $value) {}
+}
+
 class SomeGrandParentClass
 {
     public string $stringFromGrandParentClass = 'foo';
@@ -1299,12 +1317,16 @@ final class KeyTransformerAttributeParameterNotStringOrInteger
 
 interface SomePropertyAttributeInterface
 {
+    /**
+     * @param callable(): string $next
+     */
     public function normalize(string $value, callable $next): string;
 }
 
 interface SomeClassAttributeInterface
 {
     /**
+     * @param callable(): array<mixed> $next
      * @return array<mixed>
      */
     public function normalize(object $value, callable $next): array;

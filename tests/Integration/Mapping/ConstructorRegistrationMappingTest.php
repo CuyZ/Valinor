@@ -174,6 +174,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
                      * @param class-string<SomeAbstractClassWithStaticConstructor> $className
                      */
                     #[DynamicConstructor]
+                    // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
                     fn (string $className, string $foo, int $bar): SomeAbstractClassWithStaticConstructor => $className::from($foo, $bar)
                 )
                 ->mapper()
@@ -200,6 +201,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
                      * @param class-string<SomeInterfaceWithStaticConstructor> $className
                      */
                     #[DynamicConstructor]
+                    // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
                     fn (string $className, string $foo, int $bar): SomeInterfaceWithStaticConstructor => $className::from($foo, $bar)
                 )
                 ->mapper()

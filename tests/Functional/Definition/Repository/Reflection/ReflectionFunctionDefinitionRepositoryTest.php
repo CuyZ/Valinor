@@ -33,6 +33,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
     {
         /**
          * @param string $parameterWithDocBlockType
+         * @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
          */
         $callback = fn (string $foo, $parameterWithDocBlockType): string => $foo . $parameterWithDocBlockType;
 
@@ -66,6 +67,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
 
     public function test_function_signatures_are_correct(): void
     {
+        /** @var array<string, callable> $functions */
         $functions = require_once 'FakeFunctions.php';
 
         $classStaticMethod = $this->repository->for($functions['class_static_method'])->signature;
