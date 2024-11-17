@@ -36,9 +36,6 @@ final class MapperBuilder
      * using the given source. These arguments can then be used to decide which
      * implementation should be used.
      *
-     * The callback *must* be pure, its output must be deterministic.
-     * @see https://en.wikipedia.org/wiki/Pure_function
-     *
      * Example:
      *
      * ```php
@@ -57,7 +54,6 @@ final class MapperBuilder
      * ```
      *
      * @param interface-string|class-string $name
-     * @psalm-param pure-callable $callback
      */
     public function infer(string $name, callable $callback): self
     {
@@ -85,9 +81,6 @@ final class MapperBuilder
      * `__construct` method — of the targeted class. If for some reason it still
      * needs to be handled as well, the name of the class must be given to this
      * method.
-     *
-     * A constructor *must* be pure, its output must be deterministic.
-     * @see https://en.wikipedia.org/wiki/Pure_function
      *
      * ```php
      * final class SomeClass
@@ -200,7 +193,6 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @psalm-param pure-callable|class-string ...$constructors
      * @param callable|class-string ...$constructors
      */
     public function registerConstructor(callable|string ...$constructors): self
@@ -298,7 +290,6 @@ final class MapperBuilder
 
     /**
      * @template T
-     * @psalm-param pure-callable(T): T $callback
      * @param callable(T): T $callback
      */
     public function alter(callable $callback): self
@@ -418,9 +409,6 @@ final class MapperBuilder
      * part of a query should never be allowed. Therefore, only an exhaustive
      * list of carefully chosen exceptions should be filtered.
      *
-     * The filter callback *must* be pure, its output must be deterministic.
-     * @see https://en.wikipedia.org/wiki/Pure_function
-     *
      * ```php
      * final class SomeClass
      * {
@@ -446,7 +434,6 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @psalm-param pure-callable(Throwable): ErrorMessage $filter
      * @param callable(Throwable): ErrorMessage $filter
      */
     public function filterExceptions(callable $filter): self
@@ -514,7 +501,6 @@ final class MapperBuilder
      *     ->normalize('Hello world'); // HELLO WORLD?!
      * ```
      *
-     * @psalm-param pure-callable|class-string $transformer
      * @param callable|class-string $transformer
      */
     public function registerTransformer(callable|string $transformer, int $priority = 0): self

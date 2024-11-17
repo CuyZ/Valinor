@@ -8,8 +8,6 @@ namespace CuyZ\Valinor\Mapper;
 interface TreeMapper
 {
     /**
-     * @pure
-     *
      * @template T of object
      *
      * @param string|class-string<T> $signature
