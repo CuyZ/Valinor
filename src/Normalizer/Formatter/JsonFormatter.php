@@ -9,6 +9,7 @@ use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use Generator;
 
 use function array_is_list;
+use function assert;
 use function fwrite;
 use function is_array;
 use function is_bool;
@@ -83,6 +84,8 @@ final class JsonFormatter implements StreamFormatter
                 $isFirst = false;
 
                 if (! $isList) {
+                    assert(is_scalar($key));
+
                     $key = json_encode((string)$key, $this->jsonEncodingOptions);
 
                     $chunk .= $key . ':';

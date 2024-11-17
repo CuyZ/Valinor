@@ -76,9 +76,9 @@ final class ClassLocalTypeAliasResolver
                 next($tokens);
             }
 
-            /** @var int|null $key / Somehow PHPStan does not properly infer the key */
             $key = key($tokens);
 
+            // @phpstan-ignore notIdentical.alwaysTrue (Somehow PHPStan does not properly infer the key)
             if ($key !== null) {
                 $aliases[$name] = $annotation->allAfter($key);
             }

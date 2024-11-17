@@ -28,7 +28,7 @@ final class Node
 
     private bool $isValid = true;
 
-    /** @var array<NodeMessage> */
+    /** @var list<NodeMessage> */
     private array $messages = [];
 
     /** @var array<self> */
@@ -119,7 +119,7 @@ final class Node
     }
 
     /**
-     * @return array<NodeMessage>
+     * @return list<NodeMessage>
      */
     public function messages(): array
     {

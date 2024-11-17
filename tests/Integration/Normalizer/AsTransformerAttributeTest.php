@@ -74,6 +74,7 @@ final class TransformerAttributeForString
 final class TransformerAttributeForObject
 {
     /**
+     * @param callable(): array<mixed> $next
      * @return array<mixed>
      */
     public function normalize(object $object, callable $next): array

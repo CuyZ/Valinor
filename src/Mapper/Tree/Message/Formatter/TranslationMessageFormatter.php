@@ -69,6 +69,7 @@ final class TranslationMessageFormatter implements MessageFormatter
     public function withTranslations(array $translations): self
     {
         $clone = clone $this;
+        // @phpstan-ignore assign.propertyType (PHPStan does not properly infer the return type of the function)
         $clone->translations = array_replace_recursive($this->translations, $translations);
 
         return $clone;

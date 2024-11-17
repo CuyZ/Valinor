@@ -14,8 +14,8 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
     {
         $class = (new class () {
             /**
-             * @phpstan-ignore-next-line
              * @var string
+             * @phpstan-ignore property.phpDocType
              */
             public bool $propertyWithNotMatchingTypes;
         })::class;

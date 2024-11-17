@@ -33,6 +33,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
     {
         /**
          * @param string $parameterWithDocBlockType
+         * @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
          */
         $callback = fn (string $foo, $parameterWithDocBlockType): string => $foo . $parameterWithDocBlockType;
 
@@ -42,7 +43,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         if (PHP_VERSION_ID < 8_04_00) {
             self::assertSame(__NAMESPACE__ . '\{closure}', $function->name);
         } else {
-            self::assertSame('{closure:' . self::class . '::' . __FUNCTION__ . '():37}', $function->name);
+            self::assertSame('{closure:' . self::class . '::' . __FUNCTION__ . '():38}', $function->name);
         }
         self::assertInstanceOf(NativeStringType::class, $function->returnType);
 
@@ -66,6 +67,7 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
 
     public function test_function_signatures_are_correct(): void
     {
+        /** @var array<string, callable> $functions */
         $functions = require_once 'FakeFunctions.php';
 
         $classStaticMethod = $this->repository->for($functions['class_static_method'])->signature;

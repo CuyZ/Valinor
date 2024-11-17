@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Message\Formatter;
 
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 
-use function is_callable;
+use function is_string;
 
 /**
  * Can be used to customize the content of messages added during a mapping.
@@ -74,7 +74,7 @@ final class MessageMapFormatter implements MessageFormatter
         $target = $this->target($message);
 
         if ($target) {
-            return $message->withBody(is_callable($target) ? $target($message) : $target);
+            return $message->withBody(is_string($target) ? $target : $target($message));
         }
 
         return $message;

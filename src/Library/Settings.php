@@ -41,7 +41,7 @@ final class Settings
     /** @var CacheInterface<mixed> */
     public CacheInterface $cache;
 
-    /** @var non-empty-array<non-empty-string> */
+    /** @var non-empty-list<non-empty-string> */
     public array $supportedDateFormats = self::DEFAULT_SUPPORTED_DATETIME_FORMATS;
 
     public bool $enableFlexibleCasting = false;
