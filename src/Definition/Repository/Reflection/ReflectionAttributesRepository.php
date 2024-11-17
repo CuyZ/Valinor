@@ -46,7 +46,7 @@ final class ReflectionAttributesRepository implements AttributesRepository
         return array_values(array_map(
             fn (ReflectionAttribute $attribute) => new AttributeDefinition(
                 $this->classDefinitionRepository->for(new NativeClassType($attribute->getName())),
-                $attribute->getArguments(),
+                array_values($attribute->getArguments()),
             ),
             $attributes,
         ));

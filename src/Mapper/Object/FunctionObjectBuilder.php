@@ -60,6 +60,7 @@ final class FunctionObjectBuilder implements ObjectBuilder
         $arguments = new MethodArguments($parameters, $arguments);
 
         try {
+            /** @var object */
             return ($this->function->callback)(...$arguments);
         } catch (Exception $exception) {
             throw UserlandError::from($exception);

@@ -30,10 +30,11 @@ use DateTimeInterface;
  */
 final class DateTimeFormatConstructor
 {
-    /** @var non-empty-array<non-empty-string> */
+    /** @var non-empty-list<non-empty-string> */
     private array $formats;
 
     /**
+     * @no-named-arguments
      * @param non-empty-string $format
      * @param non-empty-string ...$formats
      */

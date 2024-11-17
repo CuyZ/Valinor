@@ -50,7 +50,6 @@ final class TokenStream
         return $type;
     }
 
-    /** @phpstan-impure */
     public function next(): Token
     {
         return $this->tokens[$this->peek + 1];

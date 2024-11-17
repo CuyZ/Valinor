@@ -10,14 +10,12 @@ use PHPStan\Analyser\Scope;
 use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\PhpDocParser\Parser\ParserException;
 use PHPStan\Reflection\MethodReflection;
-use PHPStan\Type\ClassStringType;
-use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\DynamicMethodReturnTypeExtension;
-use PHPStan\Type\Generic\GenericClassStringType;
 use PHPStan\Type\MixedType;
-use PHPStan\Type\ObjectWithoutClassType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
+
+use function implode;
 
 final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtension
 {
@@ -60,16 +58,14 @@ final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtensi
 
     private function type(Type $type): Type
     {
-        if ($type instanceof GenericClassStringType) {
-            return $type->getGenericType();
+        if ($type->isClassString()->yes()) {
+            return $type->getClassStringObjectType();
         }
 
-        if ($type instanceof ConstantStringType) {
-            return $this->resolver->resolve($type->getValue());
-        }
+        if ($type->isConstantValue()->yes()) {
+            $value = implode('', $type->getConstantScalarValues());
 
-        if ($type instanceof ClassStringType) {
-            return new ObjectWithoutClassType();
+            return $this->resolver->resolve($value);
         }
 
         return new MixedType();

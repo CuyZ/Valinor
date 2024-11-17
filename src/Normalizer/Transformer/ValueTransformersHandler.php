@@ -33,6 +33,7 @@ final class ValueTransformersHandler
      */
     public function transform(mixed $value, array $attributes, array $transformers, callable $defaultTransformer): mixed
     {
+        /** @var array<mixed>|scalar|null */
         return call_user_func(
             $this->next($transformers, $value, $attributes, $defaultTransformer),
         );

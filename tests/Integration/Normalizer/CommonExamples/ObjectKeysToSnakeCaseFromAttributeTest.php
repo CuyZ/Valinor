@@ -33,6 +33,7 @@ final class ObjectKeysToSnakeCaseFromAttributeTest extends IntegrationTestCase
 final class SnakeCaseProperties
 {
     /**
+     * @param callable(): array<mixed> $next
      * @return array<mixed>
      */
     public function normalize(object $object, callable $next): array

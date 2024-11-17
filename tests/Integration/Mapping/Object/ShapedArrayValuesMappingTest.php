@@ -206,14 +206,23 @@ class ShapedArrayValues
     /** @var array{enumatrootnamespace: string} */
     public array $shapedArrayWithLowercaseEnumNameAsKey;
 
-    /** @var array{foo: string, ...array<string>} */
-    public array $unsealedShapedArrayWithoutKeyWithStringType; // @phpstan-ignore-line / PHPStan does not (yet) understand the unsealed shaped array syntax
+    /**
+     * @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax
+     * @var array{foo: string, ...array<string>}
+     */
+    public array $unsealedShapedArrayWithoutKeyWithStringType; // @phpstan-ignore missingType.iterableValue
 
-    /** @var array{foo: string, ...array<int, string>} */
-    public array $unsealedShapedArrayWithIntegerKeyWithStringType; // @phpstan-ignore-line / PHPStan does not (yet) understand the unsealed shaped array syntax
+    /**
+     * @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax
+     * @var array{foo: string, ...array<int, string>}
+     */
+    public array $unsealedShapedArrayWithIntegerKeyWithStringType; // @phpstan-ignore missingType.iterableValue
 
-    /** @var array{foo: string, ...array<string, string>} */
-    public array $unsealedShapedArrayWithStringKeyWithStringType; // @phpstan-ignore-line / PHPStan does not (yet) understand the unsealed shaped array syntax
+    /**
+     * @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax
+     * @var array{foo: string, ...array<string, string>}
+     */
+    public array $unsealedShapedArrayWithStringKeyWithStringType; // @phpstan-ignore missingType.iterableValue
 }
 
 class ShapedArrayValuesWithConstructor extends ShapedArrayValues
@@ -238,8 +247,11 @@ class ShapedArrayValuesWithConstructor extends ShapedArrayValues
      * @param array{stdclass: string} $shapedArrayWithLowercaseClassNameAsKey
      * @param array{EnumAtRootNamespace: string} $shapedArrayWithEnumNameAsKey
      * @param array{enumatrootnamespace: string} $shapedArrayWithLowercaseEnumNameAsKey
+     * @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax
      * @param array{foo: string, ...array<string>} $unsealedShapedArrayWithoutKeyWithStringType
+     * @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax
      * @param array{foo: string, ...array<int, string>} $unsealedShapedArrayWithIntegerKeyWithStringType
+     * @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax
      * @param array{foo: string, ...array<string, string>} $unsealedShapedArrayWithStringKeyWithStringType
      */
     // @phpstan-ignore-next-line / PHPStan does not (yet) understand the unsealed shaped array syntax

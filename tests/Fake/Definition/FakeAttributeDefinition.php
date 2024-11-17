@@ -9,6 +9,8 @@ use ReflectionAttribute;
 use ReflectionClass;
 use stdClass;
 
+use function array_values;
+
 final class FakeAttributeDefinition
 {
     /**
@@ -31,7 +33,7 @@ final class FakeAttributeDefinition
 
         return new AttributeDefinition(
             FakeClassDefinition::fromReflection($classReflection),
-            $reflection->getArguments(),
+            array_values($reflection->getArguments()),
         );
     }
 }

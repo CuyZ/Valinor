@@ -9,9 +9,12 @@ use CuyZ\Valinor\Type\Type;
 
 final class FakeCompositeType implements CompositeType
 {
-    /** @var Type[] */
+    /** @var list<Type> */
     private array $types;
 
+    /**
+     * @no-named-arguments
+     */
     public function __construct(Type ...$types)
     {
         $this->types = $types;
