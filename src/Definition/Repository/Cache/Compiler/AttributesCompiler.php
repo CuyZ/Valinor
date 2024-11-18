@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\Attributes;
 
+use function array_map;
 use function count;
 use function implode;
 use function is_array;
@@ -36,7 +37,15 @@ final class AttributesCompiler
 
         foreach ($attributes as $attribute) {
             $class = $this->classDefinitionCompiler->compile($attribute->class);
-            $arguments = $this->compileAttributeArguments($attribute->arguments);
+
+            if ($attribute->arguments === []) {
+                $arguments = '';
+            } else {
+                $arguments = implode(', ', array_map(
+                    fn (mixed $argument) => $this->compileAttributeArguments($argument),
+                    $attribute->arguments,
+                ));
+            }
 
             $attributesListCode[] = <<<PHP
             new \CuyZ\Valinor\Definition\AttributeDefinition(
@@ -49,27 +58,22 @@ final class AttributesCompiler
         return implode(', ', $attributesListCode);
     }
 
-    /**
-     * @param array<mixed> $arguments
-     */
-    private function compileAttributeArguments(array $arguments): string
+    private function compileAttributeArguments(mixed $value): string
     {
-        if (count($arguments) === 0) {
-            return '';
+        if (is_object($value)) {
+            return 'unserialize(' . var_export(serialize($value), true) . ')';
         }
 
-        $argumentsCode = [];
+        if (is_array($value)) {
+            $parts = [];
 
-        foreach ($arguments as $argument) {
-            if (is_object($argument)) {
-                $argumentsCode[] = 'unserialize(' . var_export(serialize($argument), true) . ')';
-            } elseif (is_array($argument)) {
-                $argumentsCode[] = '[' . $this->compileAttributeArguments($argument) . ']';
-            } else {
-                $argumentsCode[] = var_export($argument, true);
+            foreach ($value as $key => $subValue) {
+                $parts[] = var_export($key, true) . ' => ' . $this->compileAttributeArguments($subValue);
             }
+
+            return '[' . implode(', ', $parts) . ']';
         }
 
-        return implode(', ', $argumentsCode);
+        return var_export($value, true);
     }
 }
