@@ -8,8 +8,6 @@ namespace CuyZ\Valinor\Mapper;
 interface ArgumentsMapper
 {
     /**
-     * @pure
-     *
      * @return array<string, mixed>
      *
      * @throws MappingError

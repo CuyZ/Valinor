@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -30,21 +31,23 @@ final class NumericStringTypeTest extends TestCase
         $this->numericStringType = new NumericStringType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['777.7'])]
+    #[TestWith(['0'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->numericStringType->accepts('777.7'));
-        self::assertTrue($this->numericStringType->accepts('0'));
+        self::assertTrue($this->numericStringType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith([''])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->numericStringType->accepts(null));
-        self::assertFalse($this->numericStringType->accepts(''));
-        self::assertFalse($this->numericStringType->accepts(42.1337));
-        self::assertFalse($this->numericStringType->accepts(404));
-        self::assertFalse($this->numericStringType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->numericStringType->accepts(false));
-        self::assertFalse($this->numericStringType->accepts(new stdClass()));
+        self::assertFalse($this->numericStringType->accepts($value));
     }
 
     public function test_can_cast_stringable_value(): void

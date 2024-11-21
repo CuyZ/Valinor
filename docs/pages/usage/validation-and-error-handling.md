@@ -163,7 +163,7 @@ It is possible to set up a list of exceptions that can be caught by the mapper,
 for instance when using lightweight validation tools like [Webmozart Assert].
 
 It is advised to use this feature with caution: userland exceptions may contain
-sensible information — for instance an SQL exception showing a part of a query
+sensitive information — for instance an SQL exception showing a part of a query
 should never be allowed. Therefore, only an exhaustive list of carefully chosen
 exceptions should be filtered.
 

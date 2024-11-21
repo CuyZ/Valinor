@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -27,21 +28,23 @@ final class NativeIntegerTypeTest extends TestCase
         $this->integerType = new NativeIntegerType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([404])]
+    #[TestWith([-404])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->integerType->accepts(404));
-        self::assertTrue($this->integerType->accepts(-404));
+        self::assertTrue($this->integerType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([-42.1337])]
+    #[TestWith([42.1337])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->integerType->accepts(null));
-        self::assertFalse($this->integerType->accepts('Schwifty!'));
-        self::assertFalse($this->integerType->accepts(-42.1337));
-        self::assertFalse($this->integerType->accepts(42.1337));
-        self::assertFalse($this->integerType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->integerType->accepts(false));
-        self::assertFalse($this->integerType->accepts(new stdClass()));
+        self::assertFalse($this->integerType->accepts($value));
     }
 
     public function test_can_cast_integer_value(): void

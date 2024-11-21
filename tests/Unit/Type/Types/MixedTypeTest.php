@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\MixedType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -28,15 +29,16 @@ final class MixedTypeTest extends TestCase
         self::assertSame('mixed', $this->mixedType->toString());
     }
 
-    public function test_accepts_every_value(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_accepts_every_value(mixed $value): void
     {
-        self::assertTrue($this->mixedType->accepts(null));
-        self::assertTrue($this->mixedType->accepts('Schwifty!'));
-        self::assertTrue($this->mixedType->accepts(42.1337));
-        self::assertTrue($this->mixedType->accepts(404));
-        self::assertTrue($this->mixedType->accepts(['foo' => 'bar']));
-        self::assertTrue($this->mixedType->accepts(false));
-        self::assertTrue($this->mixedType->accepts(new stdClass()));
+        self::assertTrue($this->mixedType->accepts($value));
     }
 
     public function test_matches_same_type(): void

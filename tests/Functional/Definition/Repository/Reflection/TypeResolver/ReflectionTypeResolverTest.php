@@ -98,7 +98,7 @@ final class ReflectionTypeResolverTest extends TestCase
     }
 
     // PHP8.2 move to data provider
-    #[RequiresPhp('8.2')]
+    #[RequiresPhp('>=8.2')]
     public function test_disjunctive_normal_form_type_is_resolved_properly(): void
     {
         $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativeDisjunctiveNormalFormType::class, 'someProperty'))->getType();
@@ -109,7 +109,7 @@ final class ReflectionTypeResolverTest extends TestCase
     }
 
     // PHP8.2 move to data provider
-    #[RequiresPhp('8.2')]
+    #[RequiresPhp('>=8.2')]
     public function test_native_null_type_is_resolved_properly(): void
     {
         $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativePhp82StandaloneTypes::class, 'nativeNull'))->getType();
@@ -120,7 +120,7 @@ final class ReflectionTypeResolverTest extends TestCase
     }
 
     // PHP8.2 move to data provider
-    #[RequiresPhp('8.2')]
+    #[RequiresPhp('>=8.2')]
     public function test_native_true_type_is_resolved_properly(): void
     {
         $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativePhp82StandaloneTypes::class, 'nativeTrue'))->getType();
@@ -131,7 +131,7 @@ final class ReflectionTypeResolverTest extends TestCase
     }
 
     // PHP8.2 move to data provider
-    #[RequiresPhp('8.2')]
+    #[RequiresPhp('>=8.2')]
     public function test_native_false_type_is_resolved_properly(): void
     {
         $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativePhp82StandaloneTypes::class, 'nativeFalse'))->getType();

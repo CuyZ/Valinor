@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Factory\Specification;
 
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\Token\FakeToken;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture as SimpleObject;
 use CuyZ\Valinor\Tests\Unit\Type\Parser\Factory\Specification as PathAlias;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use DateTimeInterface as SecondClassAlias;
@@ -67,6 +68,16 @@ final class AliasSpecificationTest extends TestCase
         self::assertSame(ObjectWithNameMatchingRootNamespace::class, $newToken->symbol());
     }
 
+    public function test_object_with_partial_namespace_alias_matching_class_name_are_checked_in_class(): void
+    {
+        $specification = new AliasSpecification(new ReflectionClass(ClassWithAlias::class));
+
+        $token = new FakeToken('SimpleObject\SimpleObject');
+        $newToken = $specification->manipulateToken($token);
+
+        self::assertSame(SimpleObject\SimpleObject::class, $newToken->symbol());
+    }
+
     public function test_resolve_unsupported_type_in_function_returns_same_type(): void
     {
         $function = fn () => 42;
@@ -125,6 +136,18 @@ final class AliasSpecificationTest extends TestCase
         $newToken = $specification->manipulateToken($token);
 
         self::assertSame(ObjectWithNameMatchingRootNamespace::class, $newToken->symbol());
+    }
+
+    public function test_object_with_partial_namespace_alias_matching_class_name_are_checked_in_function(): void
+    {
+        $function = fn () => 42;
+
+        $specification = new AliasSpecification(new ReflectionFunction($function));
+
+        $token = new FakeToken('SimpleObject\SimpleObject');
+        $newToken = $specification->manipulateToken($token);
+
+        self::assertSame(SimpleObject\SimpleObject::class, $newToken->symbol());
     }
 }
 

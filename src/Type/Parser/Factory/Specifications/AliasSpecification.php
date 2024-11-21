@@ -14,6 +14,7 @@ use Reflector;
 
 use function array_shift;
 use function explode;
+use function in_array;
 use function strtolower;
 
 /** @internal */
@@ -55,13 +56,11 @@ final class AliasSpecification implements TypeParserSpecification
     {
         $aliases = PhpParser::parseUseStatements($this->reflection);
 
-        $namespaceParts = explode('\\', $symbol);
-
-        $lastPart = strtolower(end($namespaceParts));
-
-        if (isset($aliases[$lastPart])) {
-            return $aliases[$lastPart];
+        if (in_array($symbol, $aliases, true)) {
+            return $symbol;
         }
+
+        $namespaceParts = explode('\\', $symbol);
 
         $alias = strtolower(array_shift($namespaceParts));
 
@@ -88,11 +87,17 @@ final class AliasSpecification implements TypeParserSpecification
             }
         }
 
-        if (! $reflection->inNamespace()) {
+        if ($reflection->inNamespace()) {
+            $namespace = $reflection->getNamespaceName();
+        } elseif ($reflection instanceof ReflectionFunction) {
+            $namespace = PhpParser::parseNamespace($reflection);
+        }
+
+        if (! isset($namespace)) {
             return $symbol;
         }
 
-        $full = $reflection->getNamespaceName() . '\\' . $symbol;
+        $full = "$namespace\\$symbol";
 
         if (Reflection::classOrInterfaceExists($full)) {
             return $full;

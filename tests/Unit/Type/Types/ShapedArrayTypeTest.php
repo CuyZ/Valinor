@@ -19,6 +19,7 @@ use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -70,33 +71,33 @@ final class ShapedArrayTypeTest extends TestCase
         self::assertSame("array{foo: string, 1337?: int, ...array<'unsealed-key', float>}", $this->type->toString());
     }
 
-    public function test_accepts_correct_values(): void
+    // Without additional values
+    #[TestWith([['foo' => 'foo', 1337 => 42]])]
+    #[TestWith([['foo' => 'foo']])]
+    // With additional values
+    #[TestWith([['foo' => 'foo', 1337 => 42, 'unsealed-key' => 42.1337]])]
+    #[TestWith([['foo' => 'foo', 'unsealed-key' => 42.1337]])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        // Without additional values
-        self::assertTrue($this->type->accepts(['foo' => 'foo', 1337 => 42]));
-        self::assertTrue($this->type->accepts(['foo' => 'foo']));
-
-        // With additional values
-        self::assertTrue($this->type->accepts(['foo' => 'foo', 1337 => 42, 'unsealed-key' => 42.1337]));
-        self::assertTrue($this->type->accepts(['foo' => 'foo', 'unsealed-key' => 42.1337]));
+        self::assertTrue($this->type->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    // Without additional values
+    #[TestWith([['foo' => 42]])]
+    #[TestWith([['foo' => new stdClass()]])]
+    #[TestWith([['bar' => 'foo']])]
+    // With invalid additional values
+    #[TestWith([['foo' => 'foo', 42 => '']])]
+    // Others
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        // Without additional values
-        self::assertFalse($this->type->accepts(['foo' => 42]));
-        self::assertFalse($this->type->accepts(['foo' => new stdClass()]));
-        self::assertFalse($this->type->accepts(['bar' => 'foo']));
-
-        // With invalid additional values
-        self::assertFalse($this->type->accepts(['foo' => 'foo', 42 => '']));
-
-        self::assertFalse($this->type->accepts(null));
-        self::assertFalse($this->type->accepts('Schwifty!'));
-        self::assertFalse($this->type->accepts(42.1337));
-        self::assertFalse($this->type->accepts(404));
-        self::assertFalse($this->type->accepts(false));
-        self::assertFalse($this->type->accepts(new stdClass()));
+        self::assertFalse($this->type->accepts($value));
     }
 
     public function test_matches_valid_array_shaped_type(): void

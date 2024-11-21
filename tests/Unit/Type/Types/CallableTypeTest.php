@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -30,15 +31,16 @@ final class CallableTypeTest extends TestCase
         self::assertTrue($this->callableType->accepts(fn () => null));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([true])]
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->callableType->accepts(true));
-        self::assertFalse($this->callableType->accepts(null));
-        self::assertFalse($this->callableType->accepts('Schwifty!'));
-        self::assertFalse($this->callableType->accepts(42.1337));
-        self::assertFalse($this->callableType->accepts(404));
-        self::assertFalse($this->callableType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->callableType->accepts(new stdClass()));
+        self::assertFalse($this->callableType->accepts($value));
     }
 
     public function test_string_value_is_correct(): void

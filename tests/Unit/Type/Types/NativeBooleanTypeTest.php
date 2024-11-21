@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -27,20 +28,22 @@ final class NativeBooleanTypeTest extends TestCase
         $this->booleanType = new NativeBooleanType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->booleanType->accepts(true));
-        self::assertTrue($this->booleanType->accepts(false));
+        self::assertTrue($this->booleanType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->booleanType->accepts(null));
-        self::assertFalse($this->booleanType->accepts('Schwifty!'));
-        self::assertFalse($this->booleanType->accepts(42.1337));
-        self::assertFalse($this->booleanType->accepts(404));
-        self::assertFalse($this->booleanType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->booleanType->accepts(new stdClass()));
+        self::assertFalse($this->booleanType->accepts($value));
     }
 
     public function test_can_cast_boolean_value(): void

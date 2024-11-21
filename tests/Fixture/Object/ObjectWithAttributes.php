@@ -9,7 +9,7 @@ use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use CuyZ\Valinor\Tests\Fixture\Attribute\PropertyTargetAttribute;
 
 #[BasicAttribute]
-#[AttributeWithArguments('foo', 'bar')]
+#[AttributeWithArguments('foo', 'bar', new StringableObject('bar'), ['baz' => 'fiz'])]
 final class ObjectWithAttributes
 {
     #[BasicAttribute]

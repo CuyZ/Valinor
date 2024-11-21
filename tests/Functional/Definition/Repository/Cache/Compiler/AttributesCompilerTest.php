@@ -53,6 +53,8 @@ final class AttributesCompilerTest extends TestCase
         /** @var AttributeWithArguments $attribute */
         self::assertSame('foo', $attribute->foo);
         self::assertSame('bar', $attribute->bar);
+        self::assertSame('bar', $attribute->object->__toString());
+        self::assertSame(['baz' => 'fiz'], $attribute->array);
     }
 
     public function test_compiles_attributes_for_class_without_attributes(): void
