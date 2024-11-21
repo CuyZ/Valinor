@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -30,26 +31,28 @@ final class StringValueTypeTest extends TestCase
         self::assertSame('Schwifty!', $this->type->value());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['Schwifty!'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
         $type = new StringValueType('Schwifty!');
         $typeSingleQuote = StringValueType::from("'Schwifty!'");
         $typeDoubleQuote = StringValueType::from('"Schwifty!"');
 
-        self::assertTrue($type->accepts('Schwifty!'));
-        self::assertTrue($typeSingleQuote->accepts('Schwifty!'));
-        self::assertTrue($typeDoubleQuote->accepts('Schwifty!'));
+        self::assertTrue($type->accepts($value));
+        self::assertTrue($typeSingleQuote->accepts($value));
+        self::assertTrue($typeDoubleQuote->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['other string'])]
+    #[TestWith([null])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->type->accepts('other string'));
-        self::assertFalse($this->type->accepts(null));
-        self::assertFalse($this->type->accepts(42.1337));
-        self::assertFalse($this->type->accepts(404));
-        self::assertFalse($this->type->accepts(['foo' => 'bar']));
-        self::assertFalse($this->type->accepts(false));
-        self::assertFalse($this->type->accepts(new stdClass()));
+        self::assertFalse($this->type->accepts($value));
     }
 
     public function test_can_cast_stringable_value(): void

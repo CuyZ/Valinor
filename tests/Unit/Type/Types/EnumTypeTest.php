@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -39,41 +40,42 @@ final class EnumTypeTest extends TestCase
         self::assertSame(BackedIntegerEnum::class, $this->backedIntegerEnumType->className());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['accepts' => true, 'value' => PureEnum::FOO])]
+    #[TestWith(['accepts' => false, 'value' => BackedStringEnum::FOO])]
+    #[TestWith(['accepts' => false, 'value' => BackedIntegerEnum::FOO])]
+    public function test_pure_enum_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertTrue($this->pureEnumType->accepts(PureEnum::FOO));
-        self::assertTrue($this->backedStringEnumType->accepts(BackedStringEnum::FOO));
-        self::assertTrue($this->backedIntegerEnumType->accepts(BackedIntegerEnum::FOO));
+        self::assertSame($accepts, $this->pureEnumType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['accepts' => true, 'value' => BackedStringEnum::FOO])]
+    #[TestWith(['accepts' => false, 'value' => PureEnum::FOO])]
+    #[TestWith(['accepts' => false, 'value' => BackedIntegerEnum::FOO])]
+    public function test_backed_string_enum_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertFalse($this->pureEnumType->accepts(null));
-        self::assertFalse($this->pureEnumType->accepts('Schwifty!'));
-        self::assertFalse($this->pureEnumType->accepts(42.1337));
-        self::assertFalse($this->pureEnumType->accepts(404));
-        self::assertFalse($this->pureEnumType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->pureEnumType->accepts(false));
-        self::assertFalse($this->pureEnumType->accepts(new stdClass()));
-        self::assertFalse($this->pureEnumType->accepts(BackedIntegerEnum::FOO));
+        self::assertSame($accepts, $this->backedStringEnumType->accepts($value));
+    }
 
-        self::assertFalse($this->backedStringEnumType->accepts(null));
-        self::assertFalse($this->backedStringEnumType->accepts('Schwifty!'));
-        self::assertFalse($this->backedStringEnumType->accepts(42.1337));
-        self::assertFalse($this->backedStringEnumType->accepts(404));
-        self::assertFalse($this->backedStringEnumType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->backedStringEnumType->accepts(false));
-        self::assertFalse($this->backedStringEnumType->accepts(new stdClass()));
-        self::assertFalse($this->backedStringEnumType->accepts(PureEnum::FOO));
+    #[TestWith(['accepts' => true, 'value' => BackedIntegerEnum::FOO])]
+    #[TestWith(['accepts' => false, 'value' => PureEnum::FOO])]
+    #[TestWith(['accepts' => false, 'value' => BackedStringEnum::FOO])]
+    public function test_backed_integer_enum_accepts_correct_values(bool $accepts, mixed $value): void
+    {
+        self::assertSame($accepts, $this->backedIntegerEnumType->accepts($value));
+    }
 
-        self::assertFalse($this->backedIntegerEnumType->accepts(null));
-        self::assertFalse($this->backedIntegerEnumType->accepts('Schwifty!'));
-        self::assertFalse($this->backedIntegerEnumType->accepts(42.1337));
-        self::assertFalse($this->backedIntegerEnumType->accepts(404));
-        self::assertFalse($this->backedIntegerEnumType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->backedIntegerEnumType->accepts(false));
-        self::assertFalse($this->backedIntegerEnumType->accepts(new stdClass()));
-        self::assertFalse($this->backedIntegerEnumType->accepts(BackedStringEnum::FOO));
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
+    {
+        self::assertFalse($this->pureEnumType->accepts($value));
+        self::assertFalse($this->backedStringEnumType->accepts($value));
+        self::assertFalse($this->backedIntegerEnumType->accepts($value));
     }
 
     public function test_string_value_is_correct(): void

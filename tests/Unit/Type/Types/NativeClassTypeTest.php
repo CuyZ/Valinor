@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeInterface;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -32,22 +33,26 @@ final class NativeClassTypeTest extends TestCase
         self::assertSame(stdClass::class . "<{$generic->toString()}>", $type->toString());
     }
 
-    public function test_accepts_correct_values(): void
-    {
-        self::assertTrue((new NativeClassType(stdClass::class))->accepts(new stdClass()));
-    }
-
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([new stdClass()])]
+    public function test_accepts_correct_values(mixed $value): void
     {
         $type = new NativeClassType(stdClass::class);
 
-        self::assertFalse($type->accepts(null));
-        self::assertFalse($type->accepts('Schwifty!'));
-        self::assertFalse($type->accepts(42.1337));
-        self::assertFalse($type->accepts(404));
-        self::assertFalse($type->accepts(['foo' => 'bar']));
-        self::assertFalse($type->accepts(false));
-        self::assertFalse($type->accepts(new DateTime()));
+        self::assertTrue($type->accepts($value));
+    }
+
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new DateTime()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
+    {
+        $type = new NativeClassType(stdClass::class);
+
+        self::assertFalse($type->accepts($value));
     }
 
     public function test_matches_other_identical_class(): void

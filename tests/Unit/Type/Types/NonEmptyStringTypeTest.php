@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -29,20 +30,22 @@ final class NonEmptyStringTypeTest extends TestCase
         $this->nonEmptyStringType = new NonEmptyStringType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['Schwifty!'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->nonEmptyStringType->accepts('Schwifty!'));
+        self::assertTrue($this->nonEmptyStringType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith([''])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->nonEmptyStringType->accepts(null));
-        self::assertFalse($this->nonEmptyStringType->accepts(''));
-        self::assertFalse($this->nonEmptyStringType->accepts(42.1337));
-        self::assertFalse($this->nonEmptyStringType->accepts(404));
-        self::assertFalse($this->nonEmptyStringType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->nonEmptyStringType->accepts(false));
-        self::assertFalse($this->nonEmptyStringType->accepts(new stdClass()));
+        self::assertFalse($this->nonEmptyStringType->accepts($value));
     }
 
     public function test_can_cast_stringable_value(): void

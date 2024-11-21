@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -59,35 +60,37 @@ final class NonEmptyListTypeTest extends TestCase
         self::assertSame($subType, (new NonEmptyListType($subType))->subType());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['accepts' => true, 'value' => ['Some value', 'Some value', 'Some value']])]
+    #[TestWith(['accepts' => true, 'value' => ['Some value', 'Schwifty!', 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [1 => 'Some value', 2 => 'Some value']])]
+    public function test_native_list_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = FakeType::accepting('Some value');
-
-        self::assertTrue((new NonEmptyListType($type))->accepts([
-            'Some value',
-            'Some value',
-            'Some value',
-        ]));
-
-        self::assertFalse((new NonEmptyListType($type))->accepts([
-            'Some value',
-            'Schwifty!',
-            'Some value',
-        ]));
+        self::assertSame($accepts, NonEmptyListType::native()->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['accepts' => true, 'value' => ['Some value', 'Some value', 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => ['Some value', 'Schwifty!', 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [1 => 'Some value', 2 => 'Some value']])]
+    public function test_list_of_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertFalse(NonEmptyListType::native()->accepts([]));
-        self::assertFalse(NonEmptyListType::native()->accepts([1 => 'foo']));
-        self::assertFalse(NonEmptyListType::native()->accepts(['foo' => 'foo']));
+        $type = new NonEmptyListType(FakeType::accepting('Some value'));
 
-        self::assertFalse(NonEmptyListType::native()->accepts(null));
-        self::assertFalse(NonEmptyListType::native()->accepts('Schwifty!'));
-        self::assertFalse(NonEmptyListType::native()->accepts(42.1337));
-        self::assertFalse(NonEmptyListType::native()->accepts(404));
-        self::assertFalse(NonEmptyListType::native()->accepts(false));
-        self::assertFalse(NonEmptyListType::native()->accepts(new stdClass()));
+        self::assertSame($accepts, $type->accepts($value));
+    }
+
+    #[TestWith([[]])]
+    #[TestWith([[1 => 'foo']])]
+    #[TestWith([['foo' => 'foo']])]
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
+    {
+        self::assertFalse(NonEmptyListType::native()->accepts($value));
+        self::assertFalse((new NonEmptyListType(FakeType::accepting('Some value')))->accepts($value));
     }
 
     public function test_matches_valid_list_type(): void

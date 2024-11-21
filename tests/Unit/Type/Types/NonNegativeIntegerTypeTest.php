@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -29,21 +30,23 @@ final class NonNegativeIntegerTypeTest extends TestCase
         $this->nonNegativeIntegerType = new NonNegativeIntegerType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([0])]
+    #[TestWith([404])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->nonNegativeIntegerType->accepts(0));
-        self::assertTrue($this->nonNegativeIntegerType->accepts(404));
+        self::assertTrue($this->nonNegativeIntegerType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([-404])]
+    #[TestWith([42.1337])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->nonNegativeIntegerType->accepts(null));
-        self::assertFalse($this->nonNegativeIntegerType->accepts('Schwifty!'));
-        self::assertFalse($this->nonNegativeIntegerType->accepts(-404));
-        self::assertFalse($this->nonNegativeIntegerType->accepts(42.1337));
-        self::assertFalse($this->nonNegativeIntegerType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->nonNegativeIntegerType->accepts(false));
-        self::assertFalse($this->nonNegativeIntegerType->accepts(new stdClass()));
+        self::assertFalse($this->nonNegativeIntegerType->accepts($value));
     }
 
     public function test_can_cast_integer_value(): void
