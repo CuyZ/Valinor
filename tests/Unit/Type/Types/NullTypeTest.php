@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -30,19 +31,21 @@ final class NullTypeTest extends TestCase
         self::assertSame('null', $this->nullType->toString());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([null])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->nullType->accepts(null));
+        self::assertTrue($this->nullType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->nullType->accepts('Schwifty!'));
-        self::assertFalse($this->nullType->accepts(42.1337));
-        self::assertFalse($this->nullType->accepts(404));
-        self::assertFalse($this->nullType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->nullType->accepts(false));
-        self::assertFalse($this->nullType->accepts(new stdClass()));
+        self::assertFalse($this->nullType->accepts($value));
     }
 
     public function test_matches_same_type(): void

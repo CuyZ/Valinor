@@ -10,6 +10,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -58,21 +59,18 @@ final class IntersectionTypeTest extends TestCase
         self::assertTrue($intersectionType->accepts($object));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        $typeA = new FakeObjectType();
-        $typeB = new FakeObjectType();
-        $typeC = new FakeObjectType();
+        $intersectionType = new IntersectionType(new FakeObjectType(), new FakeObjectType());
 
-        $intersectionType = new IntersectionType($typeA, $typeB, $typeC);
-
-        self::assertFalse($intersectionType->accepts(null));
-        self::assertFalse($intersectionType->accepts('Schwifty!'));
-        self::assertFalse($intersectionType->accepts(42.1337));
-        self::assertFalse($intersectionType->accepts(404));
-        self::assertFalse($intersectionType->accepts(['foo' => 'bar']));
-        self::assertFalse($intersectionType->accepts(false));
-        self::assertFalse($intersectionType->accepts(new stdClass()));
+        self::assertFalse($intersectionType->accepts($value));
     }
 
     public function test_matches_valid_type(): void

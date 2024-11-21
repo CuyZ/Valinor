@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -38,14 +39,15 @@ final class UndefinedObjectTypeTest extends TestCase
         self::assertTrue($this->undefinedObjectType->accepts(new class () {}));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->undefinedObjectType->accepts(null));
-        self::assertFalse($this->undefinedObjectType->accepts('Schwifty!'));
-        self::assertFalse($this->undefinedObjectType->accepts(42.1337));
-        self::assertFalse($this->undefinedObjectType->accepts(404));
-        self::assertFalse($this->undefinedObjectType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->undefinedObjectType->accepts(false));
+        self::assertFalse($this->undefinedObjectType->accepts($value));
     }
 
     public function test_matches_valid_types(): void

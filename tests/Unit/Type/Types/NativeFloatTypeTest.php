@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -27,19 +28,21 @@ final class NativeFloatTypeTest extends TestCase
         $this->floatType = new NativeFloatType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([42.1337])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->floatType->accepts(42.1337));
+        self::assertTrue($this->floatType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->floatType->accepts(null));
-        self::assertFalse($this->floatType->accepts('Schwifty!'));
-        self::assertFalse($this->floatType->accepts(404));
-        self::assertFalse($this->floatType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->floatType->accepts(false));
-        self::assertFalse($this->floatType->accepts(new stdClass()));
+        self::assertFalse($this->floatType->accepts($value));
     }
 
     public function test_can_cast_float_value(): void

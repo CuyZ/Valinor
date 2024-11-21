@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -32,21 +33,23 @@ final class IntegerValueTypeTest extends TestCase
         self::assertSame(1337, $this->type->value());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([1337])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->type->accepts(1337));
+        self::assertTrue($this->type->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([404])]
+    #[TestWith([-404])]
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->type->accepts(404));
-        self::assertFalse($this->type->accepts(-404));
-        self::assertFalse($this->type->accepts(null));
-        self::assertFalse($this->type->accepts('Schwifty!'));
-        self::assertFalse($this->type->accepts(42.1337));
-        self::assertFalse($this->type->accepts(['foo' => 'bar']));
-        self::assertFalse($this->type->accepts(false));
-        self::assertFalse($this->type->accepts(new stdClass()));
+        self::assertFalse($this->type->accepts($value));
     }
 
     public function test_can_cast_integer_value(): void

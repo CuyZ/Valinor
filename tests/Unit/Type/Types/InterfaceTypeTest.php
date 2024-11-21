@@ -15,6 +15,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Iterator;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -35,25 +36,27 @@ final class InterfaceTypeTest extends TestCase
         self::assertSame(stdClass::class . "<{$generic->toString()}>", $type->toString());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([new DateTime()])]
+    #[TestWith([new DateTimeImmutable()])]
+    public function test_accepts_correct_values(mixed $value): void
     {
         $type = new InterfaceType(DateTimeInterface::class);
 
-        self::assertTrue($type->accepts(new DateTime()));
-        self::assertTrue($type->accepts(new DateTimeImmutable()));
+        self::assertTrue($type->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         $type = new InterfaceType(DateTimeInterface::class);
 
-        self::assertFalse($type->accepts(null));
-        self::assertFalse($type->accepts('Schwifty!'));
-        self::assertFalse($type->accepts(42.1337));
-        self::assertFalse($type->accepts(404));
-        self::assertFalse($type->accepts(['foo' => 'bar']));
-        self::assertFalse($type->accepts(false));
-        self::assertFalse($type->accepts(new stdClass()));
+        self::assertFalse($type->accepts($value));
     }
 
     public function test_matches_other_identical_interface(): void

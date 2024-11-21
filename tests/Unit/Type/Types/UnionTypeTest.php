@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -62,34 +63,32 @@ final class UnionTypeTest extends TestCase
         self::assertSame("{$typeA->toString()}|{$typeB->toString()}|{$typeC->toString()}", $unionType->toString());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith(['foo'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
         $typeA = FakeType::accepting(42.1337);
-        $typeB = FakeType::accepting('foo');
-        $typeC = FakeType::accepting($object = new stdClass());
+        $typeB = FakeType::accepting(404);
+        $typeC = FakeType::accepting('foo');
 
         $unionType = new UnionType($typeA, $typeB, $typeC);
 
-        self::assertTrue($unionType->accepts(42.1337));
-        self::assertTrue($unionType->accepts('foo'));
-        self::assertTrue($unionType->accepts($object));
+        self::assertTrue($unionType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        $typeA = new FakeType();
-        $typeB = new FakeType();
-        $typeC = new FakeType();
+        $unionType = new UnionType(new FakeType(), new FakeType(), new FakeType());
 
-        $unionType = new UnionType($typeA, $typeB, $typeC);
-
-        self::assertFalse($unionType->accepts(null));
-        self::assertFalse($unionType->accepts('Schwifty!'));
-        self::assertFalse($unionType->accepts(42.1337));
-        self::assertFalse($unionType->accepts(404));
-        self::assertFalse($unionType->accepts(['foo' => 'bar']));
-        self::assertFalse($unionType->accepts(false));
-        self::assertFalse($unionType->accepts(new stdClass()));
+        self::assertFalse($unionType->accepts($value));
     }
 
     public function test_matches_valid_type(): void

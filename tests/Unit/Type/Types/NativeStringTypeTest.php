@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -28,19 +29,21 @@ final class NativeStringTypeTest extends TestCase
         $this->stringType = new NativeStringType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['Schwifty!'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->stringType->accepts('Schwifty!'));
+        self::assertTrue($this->stringType->accepts($value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->stringType->accepts(null));
-        self::assertFalse($this->stringType->accepts(42.1337));
-        self::assertFalse($this->stringType->accepts(404));
-        self::assertFalse($this->stringType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->stringType->accepts(false));
-        self::assertFalse($this->stringType->accepts(new stdClass()));
+        self::assertFalse($this->stringType->accepts($value));
     }
 
     public function test_can_cast_stringable_value(): void
