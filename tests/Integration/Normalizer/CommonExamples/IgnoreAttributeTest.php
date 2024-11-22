@@ -15,6 +15,7 @@ final class IgnoreAttributeTest extends IntegrationTestCase
         $result = $this->mapperBuilder()
             ->registerTransformer(
                 fn (object $value, callable $next) => array_filter(
+                    // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
                     $next(),
                     fn (mixed $value) => ! $value instanceof IgnoredValue,
                 ),

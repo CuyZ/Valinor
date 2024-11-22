@@ -66,8 +66,7 @@ final class AttributesTest extends TestCase
         $attributes = new Attributes($attributeA, $attributeB);
         $filteredAttributes = $attributes->filter(fn (AttributeDefinition $attribute) => $attribute->class->type->className() === DateTimeImmutable::class);
 
-        self::assertContainsEquals($attributeB, $filteredAttributes);
-        self::assertNotContains($attributeA, $filteredAttributes);
+        self::assertCount(1, $filteredAttributes);
         self::assertSame($attributeB, $filteredAttributes->toArray()[0]);
     }
 }

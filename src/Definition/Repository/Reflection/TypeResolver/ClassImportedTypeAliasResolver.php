@@ -94,9 +94,9 @@ final class ClassImportedTypeAliasResolver
 
             next($tokens);
 
-            /** @var int|null $key / Somehow PHPStan does not properly infer the key */
             $key = key($tokens);
 
+            // @phpstan-ignore identical.alwaysFalse (Somehow PHPStan does not properly infer the key)
             if ($key === null) {
                 continue;
             }

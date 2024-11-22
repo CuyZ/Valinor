@@ -46,10 +46,10 @@ final class MessageBuilder
      */
     public static function newError(string $body): self
     {
+        /** @var self<ErrorMessage> $instance */
         $instance = new self($body);
         $instance->isError = true;
 
-        /** @var self<ErrorMessage> */
         return $instance;
     }
 
@@ -170,11 +170,13 @@ final class MessageBuilder
 
             public function body(): string
             {
+                /** @var string */
                 return $this->message;
             }
 
             public function code(): string
             {
+                /** @var string */
                 return $this->code;
             }
 

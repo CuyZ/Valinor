@@ -12,6 +12,7 @@ use Iterator;
 use IteratorAggregate;
 
 use function array_filter;
+use function array_values;
 use function count;
 
 /**
@@ -89,7 +90,9 @@ final class Messages implements IteratorAggregate, Countable
     public function errors(): self
     {
         $clone = clone $this;
-        $clone->messages = array_filter($clone->messages, fn (NodeMessage $message) => $message->isError());
+        $clone->messages = array_values(
+            array_filter($clone->messages, fn (NodeMessage $message) => $message->isError())
+        );
 
         return $clone;
     }

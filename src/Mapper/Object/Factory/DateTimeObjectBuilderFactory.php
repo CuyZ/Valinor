@@ -24,7 +24,7 @@ final class DateTimeObjectBuilderFactory implements ObjectBuilderFactory
 {
     public function __construct(
         private ObjectBuilderFactory $delegate,
-        /** @var non-empty-array<non-empty-string> */
+        /** @var non-empty-list<non-empty-string> */
         private array $supportedDateFormats,
         private FunctionDefinitionRepository $functionDefinitionRepository
     ) {}

@@ -35,6 +35,7 @@ final class KeyTransformersHandler
             }
         }
 
+        /** @var array-key */
         return $key;
     }
 

@@ -145,6 +145,7 @@ final class AttributesCompilerTest extends TestCase
         $code = $this->attributesCompiler->compile($attributes);
 
         try {
+            /** @var Attributes */
             return eval('return ' . $code . ';');
         } catch (Error $exception) {
             self::fail($exception->getMessage());

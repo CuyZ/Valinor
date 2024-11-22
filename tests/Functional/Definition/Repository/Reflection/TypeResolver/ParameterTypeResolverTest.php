@@ -145,8 +145,6 @@ final class ParameterTypeResolverTest extends TestCase
                  * @param string $value Some comment
                  * @param string Still no Name
                  * @param &value Name of the parameter but without
-                 *
-                 * @phpstan-ignore-next-line / Invalid annotations are here on purpose to test them
                  */
                 static function ($value): void {},
                 'value',
