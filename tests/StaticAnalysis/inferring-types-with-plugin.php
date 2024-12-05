@@ -44,7 +44,7 @@ function mapping_union_of_types_will_infer_correct_type(TreeMapper $mapper): voi
 
 function mapping_function_arguments_will_infer_object_of_same_type(ArgumentsMapper $mapper): void
 {
-    $result = $mapper->mapArguments(fn (string $foo, int $bar = null): string => "$foo / $bar", []);
+    $result = $mapper->mapArguments(fn (string $foo, ?int $bar = null): string => "$foo / $bar", []);
 
     /** @psalm-check-type $result = array{foo: string, bar?: int|null} */
     assertType('array{foo: string, bar?: int|null}', $result);
@@ -68,12 +68,12 @@ function mapping_method_arguments_will_infer_object_of_same_type(ArgumentsMapper
 
 final class SomeClass
 {
-    public static function someStaticMethod(string $foo, int $bar = null): string
+    public static function someStaticMethod(string $foo, ?int $bar = null): string
     {
         return "$foo / $bar";
     }
 
-    public function someMethod(string $foo, int $bar = null): string
+    public function someMethod(string $foo, ?int $bar = null): string
     {
         return "$foo / $bar";
     }
