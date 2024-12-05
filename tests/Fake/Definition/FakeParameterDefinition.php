@@ -17,7 +17,7 @@ final class FakeParameterDefinition
     /**
      * @param non-empty-string $name
      */
-    public static function new(string $name = 'someParameter', Type $type = null): ParameterDefinition
+    public static function new(string $name = 'someParameter', ?Type $type = null): ParameterDefinition
     {
         return new ParameterDefinition(
             $name,

@@ -17,7 +17,7 @@ final class FakeNodeBuilder implements NodeBuilder
     /**
      * @param null|callable(Shell): TreeNode $callback
      */
-    public function __construct(callable $callback = null)
+    public function __construct(?callable $callback = null)
     {
         if ($callback) {
             $this->callback = $callback;
