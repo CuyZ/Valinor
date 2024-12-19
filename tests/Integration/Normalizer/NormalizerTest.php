@@ -29,6 +29,7 @@ use stdClass;
 use Traversable;
 
 use function array_merge;
+use function extension_loaded;
 
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_TAG;
@@ -219,23 +220,25 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
-        yield 'Ds Map' => [
-            'input' => new \Ds\Map(['foo' => 'foo', 'bar' => 'bar']),
-            'expected array' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
-            ],
-            'expected json' => '{"foo":"foo","bar":"bar"}',
-        ];
+        if (extension_loaded('ds')) {
+            yield 'Ds Map' => [
+                'input' => new \Ds\Map(['foo' => 'foo', 'bar' => 'bar']),
+                'expected array' => [
+                    'foo' => 'foo',
+                    'bar' => 'bar',
+                ],
+                'expected json' => '{"foo":"foo","bar":"bar"}',
+            ];
 
-        yield 'Ds Set' => [
-            'input' => new \Ds\Set(['foo', 'bar']),
-            'expected array' => [
-                0 => 'foo',
-                1 => 'bar',
-            ],
-            'expected json' => '["foo","bar"]',
-        ];
+            yield 'Ds Set' => [
+                'input' => new \Ds\Set(['foo', 'bar']),
+                'expected array' => [
+                    0 => 'foo',
+                    1 => 'bar',
+                ],
+                'expected json' => '["foo","bar"]',
+            ];
+        }
 
         yield 'class inheriting ArrayObject' => [
             'input' => new class (['foo' => 'foo', 'bar' => 'bar']) extends ArrayObject {},
