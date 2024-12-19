@@ -30,7 +30,7 @@ final class FakeTreeNode
     /**
      * @param array<array{name?: string, type?: Type, value?: mixed, attributes?: Attributes, message?: Message}> $children
      */
-    public static function branch(array $children, Type $type = null, mixed $value = null): TreeNode
+    public static function branch(array $children, ?Type $type = null, mixed $value = null): TreeNode
     {
         $shell = FakeShell::new($type ?? FakeType::permissive(), $value);
         $nodes = [];
@@ -58,7 +58,7 @@ final class FakeTreeNode
     /**
      * @param Throwable&Message $error
      */
-    public static function error(Throwable $error = null): TreeNode
+    public static function error(?Throwable $error = null): TreeNode
     {
         $shell = FakeShell::new(FakeType::permissive(), []);
 
