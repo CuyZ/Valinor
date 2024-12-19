@@ -80,6 +80,7 @@ final class ShellTest extends TestCase
         $shell = Shell::root(new Settings(), new FakeType(), []);
         $child = $shell->child('foo', $type, $attributes)->withValue($value);
 
+        self::assertFalse($child->isRoot());
         self::assertSame('foo', $child->name());
         self::assertSame('foo', $child->path());
         self::assertSame($type, $child->type());
