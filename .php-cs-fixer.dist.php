@@ -16,6 +16,7 @@ if (PHP_VERSION_ID < 8_02_00) {
 return (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setCacheFile('var/cache/.php_cs.cache')
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRules([
         '@PSR1' => true,
         '@PSR12' => true,
