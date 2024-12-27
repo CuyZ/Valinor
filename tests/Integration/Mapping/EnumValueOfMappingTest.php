@@ -68,8 +68,9 @@ final class EnumValueOfMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map('array<value-of<' . SomeStringEnumForValueOf::class . '>, string>', ['oof' => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['oof']->messages()[0];
-            self::assertSame("Key 'oof' does not match type `'FOO'|'FOZ'|'BAZ'`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'oof' => "[1630946163] Key 'oof' does not match type `'FOO'|'FOZ'|'BAZ'`.",
+            ]);
         }
     }
 }

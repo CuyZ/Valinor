@@ -69,27 +69,22 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
     public function test_empty_array_in_non_empty_array_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ArrayValues::class, [
-                'nonEmptyArraysOfStrings' => [],
-            ]);
+            $this->mapperBuilder()->mapper()->map('non-empty-array<string>', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
-
-            self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match type `non-empty-array<string>`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[1630678334] Value array (empty) does not match type `non-empty-array<string>`.',
+            ]);
         }
     }
 
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ArrayValues::class, [
-                'integers' => ['foo'],
-            ]);
+            $this->mapperBuilder()->mapper()->map('array<int>', ['foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '0' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
     }
 }

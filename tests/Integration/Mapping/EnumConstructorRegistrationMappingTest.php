@@ -122,10 +122,9 @@ class EnumConstructorRegistrationMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(BackedStringEnum::class, 'fiz');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Value 'fiz' does not match any of 'foo', 'bar', 'baz'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value 'fiz' does not match any of 'foo', 'bar', 'baz'.",
+            ]);
         }
     }
 
@@ -137,10 +136,9 @@ class EnumConstructorRegistrationMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(BackedStringEnum::class, 'fiz');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Value 'fiz' does not match any of 'foo', 'bar', 'baz'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value 'fiz' does not match any of 'foo', 'bar', 'baz'.",
+            ]);
         }
     }
 }

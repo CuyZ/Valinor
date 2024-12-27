@@ -107,16 +107,14 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ShapedArrayValues::class, [
-                'basicShapedArrayWithStringKeys' => [
-                    'foo' => new stdClass(),
-                    'bar' => 42,
-                ],
+            $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', [
+                'foo' => new stdClass(),
+                'bar' => 42,
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['basicShapedArrayWithStringKeys']->children()['foo']->messages()[0];
-
-            self::assertSame('Value object(stdClass) is not a valid string.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo' => '[unknown] Value object(stdClass) is not a valid string.',
+            ]);
         }
     }
 
@@ -126,14 +124,14 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(
                 'array{foo: string, ...array<int, string>}',
                 [
-                    'foo' => new stdClass(),
+                    'foo' => 'foo',
                     'bar' => 'bar',
                 ],
             );
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['bar']->messages()[0];
-
-            self::assertSame("Key 'bar' does not match type `int`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'bar' => "[1630946163] Key 'bar' does not match type `int`.",
+            ]);
         }
     }
 
@@ -143,14 +141,14 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(
                 'array{foo: string, ...array<int>}',
                 [
-                    'foo' => new stdClass(),
+                    'foo' => 'foo',
                     'bar' => 'bar',
                 ],
             );
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['bar']->messages()[0];
-
-            self::assertSame("Value 'bar' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'bar' => "[unknown] Value 'bar' is not a valid integer.",
+            ]);
         }
     }
 }
