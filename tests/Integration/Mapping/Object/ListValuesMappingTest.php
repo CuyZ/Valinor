@@ -49,14 +49,11 @@ final class ListValuesMappingTest extends IntegrationTestCase
     public function test_empty_list_in_non_empty_list_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ListValues::class, [
-                'nonEmptyListOfStrings' => [],
-            ]);
+            $this->mapperBuilder()->mapper()->map('non-empty-list<string>', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['nonEmptyListOfStrings']->messages()[0];
-
-            self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match type `non-empty-list<string>`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1630678334] Value array (empty) does not match type `non-empty-list<string>`.",
+            ]);
         }
     }
 
@@ -68,23 +65,20 @@ final class ListValuesMappingTest extends IntegrationTestCase
                 2 => 'bar',
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[2]->messages()[0];
-
-            self::assertSame('1654273010', $error->code());
-            self::assertSame('Invalid sequential key 2, expected 1.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '2' => '[1654273010] Invalid sequential key 2, expected 1.',
+            ]);
         }
     }
 
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ListValues::class, [
-                'integers' => ['foo'],
-            ]);
+            $this->mapperBuilder()->mapper()->map('list<int>', ['foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['integers']->children()['0']->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '0' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
     }
 }

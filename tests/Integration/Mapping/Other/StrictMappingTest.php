@@ -28,10 +28,9 @@ final class StrictMappingTest extends IntegrationTestCase
                 'foo' => 'foo',
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['bar']->messages()[0];
-
-            self::assertSame('1655449641', $error->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `string`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'bar' => '[1655449641] Cannot be empty and must be filled with a value matching type `string`.',
+            ]);
         }
     }
 
@@ -85,9 +84,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('int', null);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('Value null is not a valid integer.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[unknown] Value null is not a valid integer.',
+            ]);
         }
     }
 
@@ -96,9 +95,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('float', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid float.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[unknown] Value 'foo' is not a valid float.",
+            ]);
         }
     }
 
@@ -107,9 +106,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('42.404', 1337);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('Value 1337 does not match float value 42.404.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[unknown] Value 1337 does not match float value 42.404.",
+            ]);
         }
     }
 
@@ -118,9 +117,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('int', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
     }
 
@@ -129,9 +128,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('42', 1337);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('Value 1337 does not match integer value 42.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[unknown] Value 1337 does not match integer value 42.',
+            ]);
         }
     }
 
@@ -140,9 +139,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('int<42, 1337>', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer between 42 and 1337.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[unknown] Value 'foo' is not a valid integer between 42 and 1337.",
+            ]);
         }
     }
 
@@ -151,9 +150,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(PureEnum::class, 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value 'foo' does not match any of 'FOO', 'BAR', 'BAZ'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value 'foo' does not match any of 'FOO', 'BAR', 'BAZ'.",
+            ]);
         }
     }
 
@@ -162,9 +161,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(BackedStringEnum::class, new stdClass());
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value object(stdClass) does not match any of 'foo', 'bar', 'baz'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value object(stdClass) does not match any of 'foo', 'bar', 'baz'.",
+            ]);
         }
     }
 
@@ -173,9 +172,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, false);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value false does not match any of 42, 404, 1337.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value false does not match any of 42, 404, 1337.",
+            ]);
         }
     }
 
@@ -184,10 +183,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('bool|int|float', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Value 'foo' does not match any of `bool`, `int`, `float`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value 'foo' does not match any of `bool`, `int`, `float`.",
+            ]);
         }
     }
 
@@ -196,10 +194,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('bool|int|float', '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Value '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄…' does not match any of `bool`, `int`, `float`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄…' does not match any of `bool`, `int`, `float`.",
+            ]);
         }
     }
 
@@ -208,10 +205,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('bool|int|float', null);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Cannot be empty and must be filled with a value matching any of `bool`, `int`, `float`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Cannot be empty and must be filled with a value matching any of `bool`, `int`, `float`.",
+            ]);
         }
     }
 
@@ -220,10 +216,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<float>', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1618739163', $error->code());
-            self::assertSame("Value 'foo' does not match type `array<float>`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1618739163] Value 'foo' does not match type `array<float>`.",
+            ]);
         }
     }
 
@@ -232,10 +227,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('list<float>', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1618739163', $error->code());
-            self::assertSame("Value 'foo' does not match type `list<float>`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1618739163] Value 'foo' does not match type `list<float>`.",
+            ]);
         }
     }
 
@@ -244,10 +238,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array{foo: string}', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1618739163', $error->code());
-            self::assertSame("Value 'foo' does not match type `array{foo: string}`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1618739163] Value 'foo' does not match type `array{foo: string}`.",
+            ]);
         }
     }
 
@@ -256,10 +249,9 @@ final class StrictMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array{foo: stdClass}', 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1618739163', $error->code());
-            self::assertSame("Invalid value 'foo'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1618739163] Invalid value 'foo'.",
+            ]);
         }
     }
 }

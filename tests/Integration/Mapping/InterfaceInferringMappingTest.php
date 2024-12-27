@@ -351,10 +351,9 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(SomeInterface::class, 42);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1632903281', $error->code());
-            self::assertSame('Value 42 does not match type `array{type: string, key: int}`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1632903281] Value 42 does not match type `array{type: string, key: int}`.",
+            ]);
         }
     }
 
@@ -370,9 +369,9 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(SomeInterface::class, 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['key']->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'key' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
     }
 
@@ -391,10 +390,9 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                     'superfluousValue' => 'bar',
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1655117782', $error->code());
-            self::assertSame('Unexpected key(s) `superfluousValue`, expected `valueA`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1655117782] Unexpected key(s) `superfluousValue`, expected `valueA`.",
+            ]);
         }
     }
 }

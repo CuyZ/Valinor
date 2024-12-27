@@ -6,12 +6,14 @@ namespace CuyZ\Valinor\Tests\Integration;
 
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Message\Messages;
 use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
 
+use function array_keys;
 use function bin2hex;
 use function implode;
 use function iterator_to_array;
@@ -63,6 +65,37 @@ abstract class IntegrationTestCase extends TestCase
         }
 
         return $builder;
+    }
+
+    /**
+     * @param non-empty-array<non-empty-string> $expected
+     */
+    protected function assertMappingErrors(MappingError $error, array $expected): void
+    {
+        $errors = [];
+
+        foreach (Messages::flattenFromNode($error->node()) as $message) {
+            $errors[$message->node()->path()] = $message;
+        }
+
+        $remainingErrors = $errors;
+
+        foreach ($expected as $path => $message) {
+            self::assertArrayHasKey($path, $remainingErrors, "Error path `$path` not found in error messages, the following path(s) were found: `" . implode('`, `', array_keys($errors)) . '`.');
+
+            if (! preg_match('/^\[([^]]+)] (.*)/', $message, $matches)) {
+                self::fail('Incorrect error message format. Expected format: `[code] message`.');
+            }
+
+            self::assertSame($matches[1], $remainingErrors[$path]->code());
+            self::assertSame($matches[2], $remainingErrors[$path]->toString());
+
+            unset($remainingErrors[$path]);
+        }
+
+        if ($remainingErrors !== []) {
+            self::fail('Untested error messages at path(s): `' . implode('`, `', array_keys($remainingErrors)) . '`');
+        }
     }
 
     protected function mappingFail(MappingError $error): never

@@ -119,9 +119,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<int, string>', ['foo' => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['foo']->messages()[0];
-
-            self::assertSame("Key 'foo' does not match type `int`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo' => "[1630946163] Key 'foo' does not match type `int`.",
+            ]);
         }
     }
 
@@ -130,9 +130,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<positive-int, string>', [-42 => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[-42]->messages()[0];
-
-            self::assertSame("Key -42 does not match type `positive-int`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '-42' => "[1630946163] Key -42 does not match type `positive-int`.",
+            ]);
         }
     }
 
@@ -141,9 +141,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<negative-int, string>', [42 => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[42]->messages()[0];
-
-            self::assertSame("Key 42 does not match type `negative-int`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '42' => '[1630946163] Key 42 does not match type `negative-int`.',
+            ]);
         }
     }
 
@@ -152,9 +152,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<int<-42, 1337>, string>', [-404 => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[-404]->messages()[0];
-
-            self::assertSame("Key -404 does not match type `int<-42, 1337>`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '-404' => '[1630946163] Key -404 does not match type `int<-42, 1337>`.',
+            ]);
         }
     }
 
@@ -163,9 +163,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map("array<'foo'|'bar', string>", ['baz' => 'baz']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['baz']->messages()[0];
-
-            self::assertSame("Key 'baz' does not match type `'foo'|'bar'`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'baz' => "[1630946163] Key 'baz' does not match type `'foo'|'bar'`.",
+            ]);
         }
     }
 
@@ -174,9 +174,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<42|1337, string>', [404 => 'baz']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[404]->messages()[0];
-
-            self::assertSame("Key 404 does not match type `42|1337`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '404' => '[1630946163] Key 404 does not match type `42|1337`.',
+            ]);
         }
     }
 
@@ -185,9 +185,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<non-empty-string, string>', ['' => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['']->messages()[0];
-
-            self::assertSame("Key '' does not match type `non-empty-string`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '' => "[1630946163] Key '' does not match type `non-empty-string`.",
+            ]);
         }
     }
 
@@ -196,9 +196,9 @@ final class ArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array<class-string, string>', ['foo bar' => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['foo bar']->messages()[0];
-
-            self::assertSame("Key 'foo bar' does not match type `class-string`.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo bar' => "[1630946163] Key 'foo bar' does not match type `class-string`.",
+            ]);
         }
     }
 }

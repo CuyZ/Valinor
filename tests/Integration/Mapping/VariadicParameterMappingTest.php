@@ -42,9 +42,9 @@ final class VariadicParameterMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(SomeClassWithVariadicParametersInDocBlock::class, ['']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[0]->messages()[0];
-
-            self::assertSame("Value '' is not a valid non-empty string.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'values.0' => "[unknown] Value '' is not a valid non-empty string.",
+            ]);
         }
     }
 

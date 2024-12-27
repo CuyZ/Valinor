@@ -47,9 +47,9 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(BackedStringEnum::class, new StringableObject('fiz'));
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('Value object(' . StringableObject::class . ") does not match any of 'foo', 'bar', 'baz'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[1607027306] Value object(' . StringableObject::class . ") does not match any of 'foo', 'bar', 'baz'.",
+            ]);
         }
     }
 
@@ -58,9 +58,9 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, '512');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value '512' does not match any of 42, 404, 1337.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value '512' does not match any of 42, 404, 1337.",
+            ]);
         }
     }
 
@@ -69,9 +69,9 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(PureEnum::class . '::FOO', 'fiz');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value 'fiz' does not match string value 'FOO'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[unknown] Value 'fiz' does not match string value 'FOO'.",
+            ]);
         }
     }
 
@@ -80,9 +80,9 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class . '::FOO', '512');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value '512' does not match integer value 42.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[unknown] Value '512' does not match integer value 42.",
+            ]);
         }
     }
 
@@ -91,9 +91,9 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['foo']->messages()[0];
-
-            self::assertSame('Cannot be empty and must be filled with a value matching type `FOO`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo' => '[1655449641] Cannot be empty and must be filled with a value matching type `FOO`.',
+            ]);
         }
     }
 
@@ -102,9 +102,9 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['foo']->messages()[0];
-
-            self::assertSame('Cannot be empty and must be filled with a value matching type `42`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo' => '[1655449641] Cannot be empty and must be filled with a value matching type `42`.',
+            ]);
         }
     }
 }
