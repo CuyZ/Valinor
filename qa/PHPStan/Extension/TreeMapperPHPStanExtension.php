@@ -16,6 +16,7 @@ use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 
 use function implode;
+use function method_exists;
 
 final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtension
 {
@@ -58,14 +59,20 @@ final class TreeMapperPHPStanExtension implements DynamicMethodReturnTypeExtensi
 
     private function type(Type $type): Type
     {
-        if ($type->isClassString()->yes()) {
-            return $type->getClassStringObjectType();
-        }
-
         if ($type->isConstantValue()->yes()) {
             $value = implode('', $type->getConstantScalarValues());
 
             return $this->resolver->resolve($value);
+        }
+
+        // @phpstan-ignore function.alreadyNarrowedType (support for PHPStan v1)
+        if (method_exists($type, 'isClassString') && $type->isClassString()->yes()) {
+            return $type->getClassStringObjectType();
+        }
+
+        // @phpstan-ignore method.nonObject (support for PHPStan v1)
+        if (method_exists($type, 'isClassStringType') && $type->isClassStringType()->yes()) {
+            return $type->getClassStringObjectType();
         }
 
         return new MixedType();
