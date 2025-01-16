@@ -29,7 +29,6 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ErrorCatcherNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
@@ -115,6 +114,7 @@ final class Container
                     ObjectType::class => new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
+                        $settings->exceptionFilter,
                     ),
                 ]);
 
@@ -128,6 +128,7 @@ final class Container
                         $this->get(FunctionDefinitionRepository::class),
                         $settings->customConstructors
                     ),
+                    $settings->exceptionFilter,
                 );
 
                 $builder = new CasterProxyNodeBuilder($builder);
@@ -143,9 +144,7 @@ final class Container
                     );
                 }
 
-                $builder = new StrictNodeBuilder($builder);
-
-                return new ErrorCatcherNodeBuilder($builder, $settings->exceptionFilter);
+                return new StrictNodeBuilder($builder);
             },
 
             ObjectImplementations::class => fn () => new ObjectImplementations(

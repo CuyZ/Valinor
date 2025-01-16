@@ -28,7 +28,7 @@ final class StrictNodeBuilder implements NodeBuilder
                 return $this->delegate->build($shell->withValue(null), $rootBuilder);
             }
 
-            throw new MissingNodeValue($type);
+            return TreeNode::error($shell, new MissingNodeValue($type));
         }
 
         return $this->delegate->build($shell, $rootBuilder);
