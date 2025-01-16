@@ -48,6 +48,17 @@ final class PermissiveTypesMappingTest extends IntegrationTestCase
         self::assertSame($source, $result);
     }
 
+    public function test_map_to_undefined_object_type_with_invalid_value_throws_exception(): void
+    {
+        try {
+            $this->mapper->map('object', 'foo');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1630678334] Value 'foo' does not match type `object`.",
+            ]);
+        }
+    }
+
     public function test_can_map_to_unsealed_shaped_array_without_type(): void
     {
         $source = ['foo' => 'foo', 'bar' => 'bar', 42 => 42];

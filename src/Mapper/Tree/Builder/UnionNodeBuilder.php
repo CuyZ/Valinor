@@ -23,29 +23,21 @@ use function usort;
 /** @internal */
 final class UnionNodeBuilder implements NodeBuilder
 {
-    public function __construct(private NodeBuilder $delegate) {}
-
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
     {
         $type = $shell->type();
 
-        if (! $type instanceof UnionType) {
-            return $this->delegate->build($shell, $rootBuilder);
-        }
+        assert($type instanceof UnionType);
 
         $structs = [];
         $scalars = [];
         $all = [];
 
         foreach ($type->types() as $subType) {
-            // Performance optimisation: a `NullType` only accepts a `null`
-            // value, in which case the `CasterProxyNodeBuilder` would have
-            // handled it already. We can safely skip it here.
-            //
             // @infection-ignore-all / This is a performance optimisation, so we
             // cannot easily test this behavior.
-            if ($subType instanceof NullType) {
-                continue;
+            if ($subType instanceof NullType && $shell->value() === null) {
+                return TreeNode::leaf($shell, null);
             }
 
             $node = $rootBuilder->build($shell->withType($subType));
@@ -69,6 +61,11 @@ final class UnionNodeBuilder implements NodeBuilder
 
         if (count($all) === 1) {
             return $all[0];
+        }
+
+        // If there is only one scalar and one struct, the scalar has priority.
+        if (count($scalars) === 1 && count($structs) === 1) {
+            return $scalars[0];
         }
 
         if ($structs !== []) {

@@ -27,8 +27,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\CasterNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\CasterProxyNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\TypeNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
@@ -39,7 +38,8 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\StrictNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\UndefinedObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -52,18 +52,9 @@ use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\KeyTransformersHandler;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\ValueTransformersHandler;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
-use CuyZ\Valinor\Type\ScalarType;
-use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\IterableType;
-use CuyZ\Valinor\Type\Types\ListType;
-use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
-use CuyZ\Valinor\Type\Types\NonEmptyListType;
-use CuyZ\Valinor\Type\Types\NullType;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use Psr\SimpleCache\CacheInterface;
 
 use function array_keys;
@@ -99,26 +90,21 @@ final class Container
             ),
 
             NodeBuilder::class => function () use ($settings) {
-                $listNodeBuilder = new ListNodeBuilder();
-                $arrayNodeBuilder = new ArrayNodeBuilder();
-
-                $builder = new CasterNodeBuilder([
-                    ListType::class => $listNodeBuilder,
-                    NonEmptyListType::class => $listNodeBuilder,
-                    ArrayType::class => $arrayNodeBuilder,
-                    NonEmptyArrayType::class => $arrayNodeBuilder,
-                    IterableType::class => $arrayNodeBuilder,
-                    ShapedArrayType::class => new ShapedArrayNodeBuilder(),
-                    ScalarType::class => new ScalarNodeBuilder(),
-                    NullType::class => new NullNodeBuilder(),
-                    ObjectType::class => new ObjectNodeBuilder(
+                $builder = new TypeNodeBuilder(
+                    new ArrayNodeBuilder(),
+                    new ListNodeBuilder(),
+                    new ShapedArrayNodeBuilder(),
+                    new ScalarNodeBuilder(),
+                    new UnionNodeBuilder(),
+                    new NullNodeBuilder(),
+                    new MixedNodeBuilder(),
+                    new UndefinedObjectNodeBuilder(),
+                    new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
                         $settings->exceptionFilter,
                     ),
-                ]);
-
-                $builder = new UnionNodeBuilder($builder);
+                );
 
                 $builder = new InterfaceNodeBuilder(
                     $builder,
@@ -131,7 +117,6 @@ final class Container
                     $settings->exceptionFilter,
                 );
 
-                $builder = new CasterProxyNodeBuilder($builder);
                 $builder = new IterableNodeBuilder($builder);
 
                 if (count($settings->valueModifier) > 0) {
@@ -144,7 +129,7 @@ final class Container
                     );
                 }
 
-                return new StrictNodeBuilder($builder);
+                return $builder;
             },
 
             ObjectImplementations::class => fn () => new ObjectImplementations(

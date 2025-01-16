@@ -37,6 +37,10 @@ final class ObjectNodeBuilder implements NodeBuilder
         // @infection-ignore-all
         assert($type instanceof ObjectType);
 
+        if ($type->accepts($shell->value())) {
+            return TreeNode::leaf($shell, $shell->value());
+        }
+
         if ($shell->enableFlexibleCasting() && $shell->value() === null) {
             $shell = $shell->withValue([]);
         }
