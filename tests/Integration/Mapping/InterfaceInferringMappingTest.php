@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
-use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\A\ClassThatInheritsInterfaceA;
@@ -264,9 +263,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     {
         $exception = new DomainException('some error message', 1653990051);
 
-        $this->expectException(ObjectImplementationCallbackError::class);
-        $this->expectExceptionCode(1653983061);
-        $this->expectExceptionMessage('Error thrown when trying to get implementation of `DateTimeInterface`: some error message');
+        $this->expectExceptionObject($exception);
 
         $this->mapperBuilder()
             ->infer(

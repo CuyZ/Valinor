@@ -64,7 +64,7 @@ final class UnionNodeBuilder implements NodeBuilder
         }
 
         if ($all === []) {
-            throw new CannotResolveTypeFromUnion($shell->value(), $type);
+            return TreeNode::error($shell, new CannotResolveTypeFromUnion($shell->value(), $type));
         }
 
         if (count($all) === 1) {
@@ -98,6 +98,6 @@ final class UnionNodeBuilder implements NodeBuilder
             return $scalars[0];
         }
 
-        throw new TooManyResolvedTypesFromUnion($type);
+        return TreeNode::error($shell, new TooManyResolvedTypesFromUnion($type));
     }
 }

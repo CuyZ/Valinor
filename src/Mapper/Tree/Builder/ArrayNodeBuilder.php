@@ -30,7 +30,7 @@ final class ArrayNodeBuilder implements NodeBuilder
         }
 
         if (! is_array($value)) {
-            throw new SourceMustBeIterable($value, $type);
+            return TreeNode::error($shell, new SourceMustBeIterable($value, $type));
         }
 
         $children = $this->children($type, $shell, $rootBuilder);
