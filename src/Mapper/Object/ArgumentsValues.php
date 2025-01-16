@@ -13,6 +13,8 @@ use Traversable;
 use function array_key_exists;
 use function count;
 use function is_array;
+use function is_iterable;
+use function iterator_to_array;
 
 /**
  * @internal
@@ -79,7 +81,13 @@ final class ArgumentsValues implements IteratorAggregate
 
     private function transform(Shell $shell): void
     {
-        $transformedValue = $this->transformValueForSingleArgument($shell);
+        $value = $shell->value();
+
+        if (is_iterable($value) && ! is_array($value)) {
+            $value = iterator_to_array($value);
+        }
+
+        $transformedValue = $this->transformValueForSingleArgument($value, $shell->allowSuperfluousKeys());
 
         if (! is_array($transformedValue)) {
             $this->hasInvalidValue = true;
@@ -87,7 +95,7 @@ final class ArgumentsValues implements IteratorAggregate
             return;
         }
 
-        if ($transformedValue !== $shell->value()) {
+        if ($transformedValue !== $value) {
             $this->hadSingleArgument = true;
         }
 
@@ -102,10 +110,8 @@ final class ArgumentsValues implements IteratorAggregate
         $this->value = $transformedValue;
     }
 
-    private function transformValueForSingleArgument(Shell $shell): mixed
+    private function transformValueForSingleArgument(mixed $value, bool $allowSuperfluousKeys): mixed
     {
-        $value = $shell->value();
-
         if (count($this->arguments) !== 1) {
             return $value;
         }
@@ -117,7 +123,7 @@ final class ArgumentsValues implements IteratorAggregate
             && $type->keyType() !== ArrayKeyType::integer();
 
         if (is_array($value) && array_key_exists($name, $value)) {
-            if ($this->forInterface || ! $isTraversableAndAllowsStringKeys || $shell->allowSuperfluousKeys() || count($value) === 1) {
+            if ($this->forInterface || ! $isTraversableAndAllowsStringKeys || $allowSuperfluousKeys || count($value) === 1) {
                 return $value;
             }
         }
