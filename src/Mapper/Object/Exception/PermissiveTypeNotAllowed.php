@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
-use CuyZ\Valinor\Mapper\Object\Argument;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Utility\PermissiveTypeFound;
+use CuyZ\Valinor\Type\Type;
 use LogicException;
 
 /** @internal */
 final class PermissiveTypeNotAllowed extends LogicException
 {
-    public function __construct(ObjectBuilder $builder, Argument $argument, PermissiveTypeFound $original)
+    public function __construct(string $argumentSignature, Type $permissiveType)
     {
         parent::__construct(
-            "Error for `{$argument->name()}` in `{$builder->signature()}`: {$original->getMessage()}",
+            "The type of `$argumentSignature` contains `{$permissiveType->toString()}`, which is not " .
+            "allowed in strict mode. If really needed, the `allowPermissiveTypes` setting can be used.",
             1655389255,
-            $original
         );
     }
 }

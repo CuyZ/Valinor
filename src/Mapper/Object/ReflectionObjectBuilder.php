@@ -39,4 +39,9 @@ final class ReflectionObjectBuilder implements ObjectBuilder
     {
         return $this->class->name . ' (properties)';
     }
+
+    public function signatureForArgument(string $argumentName): string
+    {
+        return $this->class->properties->get($argumentName)->signature;
+    }
 }

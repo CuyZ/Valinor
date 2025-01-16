@@ -71,4 +71,9 @@ final class FunctionObjectBuilder implements ObjectBuilder
     {
         return $this->function->definition->signature;
     }
+
+    public function signatureForArgument(string $argumentName): string
+    {
+        return $this->function->definition->parameters->get($argumentName)->signature;
+    }
 }

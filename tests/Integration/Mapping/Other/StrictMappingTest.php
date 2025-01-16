@@ -6,11 +6,11 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Object\Exception\PermissiveTypeNotAllowed;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapToPermissiveType;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
-use CuyZ\Valinor\Utility\PermissiveTypeFound;
 use stdClass;
 
 final class StrictMappingTest extends IntegrationTestCase
@@ -36,9 +36,9 @@ final class StrictMappingTest extends IntegrationTestCase
 
     public function test_map_to_undefined_object_type_throws_exception(): void
     {
-        $this->expectException(PermissiveTypeFound::class);
-        $this->expectExceptionCode(1655231817);
-        $this->expectExceptionMessage('Type `object` is too permissive.');
+        $this->expectException(CannotMapToPermissiveType::class);
+        $this->expectExceptionCode(1736935538);
+        $this->expectExceptionMessage('Type `object` at path `*root*` is not allowed in strict mode. In case `object` is really needed, the `allowPermissiveTypes` setting can be used.');
 
         $this->mapperBuilder()->mapper()->map('object', new stdClass());
     }
@@ -47,25 +47,25 @@ final class StrictMappingTest extends IntegrationTestCase
     {
         $this->expectException(PermissiveTypeNotAllowed::class);
         $this->expectExceptionCode(1655389255);
-        $this->expectExceptionMessage('Error for `value` in `' . ObjectContainingUndefinedObjectType::class . ' (properties)`: Type `object` is too permissive.');
+        $this->expectExceptionMessage('The type of `' . ObjectContainingUndefinedObjectType::class . '::$value` contains `object`, which is not allowed in strict mode. If really needed, the `allowPermissiveTypes` setting can be used.');
 
         $this->mapperBuilder()->mapper()->map(ObjectContainingUndefinedObjectType::class, ['value' => new stdClass()]);
     }
 
     public function test_map_to_shaped_array_containing_mixed_type_throws_exception(): void
     {
-        $this->expectException(PermissiveTypeFound::class);
-        $this->expectExceptionCode(1655231817);
-        $this->expectExceptionMessage('Type `mixed` in `array{foo: string, bar: mixed}` is too permissive.');
+        $this->expectException(CannotMapToPermissiveType::class);
+        $this->expectExceptionCode(1736935538);
+        $this->expectExceptionMessage('Type `mixed` at path `bar` is not allowed in strict mode. In case `mixed` is really needed, the `allowPermissiveTypes` setting can be used.');
 
         $this->mapperBuilder()->mapper()->map('array{foo: string, bar: mixed}', ['foo' => 'foo', 'bar' => 42]);
     }
 
     public function test_map_to_unsealed_shaped_array_without_type_throws_exception(): void
     {
-        $this->expectException(PermissiveTypeFound::class);
-        $this->expectExceptionCode(1655231817);
-        $this->expectExceptionMessage('Type `mixed` in `array{foo: string, ...}` is too permissive.');
+        $this->expectException(CannotMapToPermissiveType::class);
+        $this->expectExceptionCode(1736935538);
+        $this->expectExceptionMessage('Type `mixed` at path `bar` is not allowed in strict mode. In case `mixed` is really needed, the `allowPermissiveTypes` setting can be used.');
 
         $this->mapperBuilder()->mapper()->map('array{foo: string, ...}', ['foo' => 'foo', 'bar' => 42]);
     }
@@ -74,7 +74,7 @@ final class StrictMappingTest extends IntegrationTestCase
     {
         $this->expectException(PermissiveTypeNotAllowed::class);
         $this->expectExceptionCode(1655389255);
-        $this->expectExceptionMessage('Error for `value` in `' . ObjectContainingMixedType::class . ' (properties)`: Type `mixed` in `array{foo: string, bar: mixed}` is too permissive.');
+        $this->expectExceptionMessage('The type of `' . ObjectContainingMixedType::class . '::$value` contains `mixed`, which is not allowed in strict mode. If really needed, the `allowPermissiveTypes` setting can be used.');
 
         $this->mapperBuilder()->mapper()->map(ObjectContainingMixedType::class, ['value' => 'foo']);
     }

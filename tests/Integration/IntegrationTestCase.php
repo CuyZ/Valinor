@@ -87,8 +87,8 @@ abstract class IntegrationTestCase extends TestCase
                 self::fail('Incorrect error message format. Expected format: `[code] message`.');
             }
 
-            self::assertSame($matches[1], $remainingErrors[$path]->code());
             self::assertSame($matches[2], $remainingErrors[$path]->toString());
+            self::assertSame($matches[1], $remainingErrors[$path]->code());
 
             unset($remainingErrors[$path]);
         }

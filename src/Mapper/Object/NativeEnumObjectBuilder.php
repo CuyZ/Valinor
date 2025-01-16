@@ -48,4 +48,9 @@ class NativeEnumObjectBuilder implements ObjectBuilder
     {
         return $this->enum->readableSignature();
     }
+
+    public function signatureForArgument(string $argumentName): string
+    {
+        return $this->enum->className() . '::$value';
+    }
 }
