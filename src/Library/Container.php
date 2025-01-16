@@ -29,7 +29,6 @@ use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\TypeNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\IterableNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
@@ -116,8 +115,6 @@ final class Container
                     ),
                     $settings->exceptionFilter,
                 );
-
-                $builder = new IterableNodeBuilder($builder);
 
                 if (count($settings->valueModifier) > 0) {
                     $builder = new ValueAlteringNodeBuilder(
