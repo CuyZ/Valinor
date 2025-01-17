@@ -6,16 +6,16 @@ namespace CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\TreeNode;
+use CuyZ\Valinor\Mapper\Tree\Builder\Node;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 final class FakeNodeBuilder implements NodeBuilder
 {
-    /** @var null|callable(Shell): TreeNode */
+    /** @var null|callable(Shell): Node */
     private $callback;
 
     /**
-     * @param null|callable(Shell): TreeNode $callback
+     * @param null|callable(Shell): Node $callback
      */
     public function __construct(?callable $callback = null)
     {
@@ -24,12 +24,12 @@ final class FakeNodeBuilder implements NodeBuilder
         }
     }
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         if (isset($this->callback)) {
             return ($this->callback)($shell);
         }
 
-        return TreeNode::leaf($shell, $shell->value());
+        return Node::leaf('some value from fake node builder');
     }
 }

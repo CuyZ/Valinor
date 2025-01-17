@@ -18,11 +18,11 @@ final class RootNodeBuilder
 
     public function __construct(private NodeBuilder $root) {}
 
-    public function build(Shell $shell): TreeNode
+    public function build(Shell $shell): Node
     {
         if (! $shell->hasValue()) {
             if (! $shell->enableFlexibleCasting()) {
-                return TreeNode::error($shell, new MissingNodeValue($shell->type()));
+                return Node::leafWithError($shell, new MissingNodeValue($shell->type()));
             }
 
             $shell = $shell->withValue(null);

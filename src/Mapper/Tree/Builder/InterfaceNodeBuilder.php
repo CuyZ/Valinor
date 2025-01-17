@@ -32,7 +32,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private mixed $exceptionFilter,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
 
@@ -41,7 +41,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         }
 
         if ($type->accepts($shell->value())) {
-            return TreeNode::leaf($shell, $shell->value());
+            return Node::new($shell->value());
         }
 
         if ($this->constructorRegisteredFor($type)) {
@@ -78,7 +78,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
 
         if ($argumentsValues->hasInvalidValue()) {
-            return TreeNode::error($shell, new InvalidSource($shell->value(), $arguments));
+            return Node::leafWithError($shell, new InvalidSource($shell->value(), $arguments));
         }
 
         $children = $this->children($shell, $argumentsValues, $rootBuilder);
@@ -87,7 +87,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         foreach ($children as $child) {
             if (! $child->isValid()) {
-                return TreeNode::branch($shell, null, $children);
+                return Node::branchWithErrors($children);
             }
 
             $values[] = $child->value();
@@ -98,7 +98,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         } catch (ObjectImplementationCallbackError $exception) {
             $exception = ($this->exceptionFilter)($exception->original());
 
-            return TreeNode::error($shell, $exception);
+            return Node::leafWithError($shell, $exception);
         }
 
         $shell = $shell->withType($classType);
@@ -119,7 +119,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @return array<TreeNode>
+     * @return list<Node>
      */
     private function children(Shell $shell, ArgumentsValues $arguments, RootNodeBuilder $rootBuilder): array
     {

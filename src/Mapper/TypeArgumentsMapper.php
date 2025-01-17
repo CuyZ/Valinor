@@ -47,7 +47,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
         }
 
         if (! $node->isValid()) {
-            throw new ArgumentsMapperError($function, $node->node());
+            throw new ArgumentsMapperError($shell->value(), $function, $node->messages());
         }
 
         /** @var array<string, mixed> */

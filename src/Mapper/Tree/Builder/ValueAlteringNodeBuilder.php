@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 /** @internal */
@@ -15,7 +16,7 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         private FunctionsContainer $functions
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $node = $this->delegate->build($shell, $rootBuilder);
 
@@ -39,9 +40,14 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
             }
 
             $value = ($function->callback)($value);
-            $node = $node->withValue($value);
         }
 
-        return $node;
+        $type = $shell->type();
+
+        if (! $type->accepts($value)) {
+            return Node::leafWithError($shell, new InvalidNodeValue($type));
+        }
+
+        return Node::leaf($value);
     }
 }
