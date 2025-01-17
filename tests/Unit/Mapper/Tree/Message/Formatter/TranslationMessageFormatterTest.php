@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Message\Formatter;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Formatter\TranslationMessageFormatter;
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +18,7 @@ final class TranslationMessageFormatterTest extends TestCase
             ],
         ]);
 
-        $message = FakeNodeMessage::withMessage(new FakeMessage('some key'));
+        $message = FakeNodeMessage::new(body: 'some key');
         $message = $formatter->format($message);
 
         self::assertSame('some message', (string)$message);
@@ -37,7 +36,7 @@ final class TranslationMessageFormatterTest extends TestCase
             'some other message'
         );
 
-        $message = FakeNodeMessage::withMessage(new FakeMessage('some key'));
+        $message = FakeNodeMessage::new(body: 'some key');
         $message = $formatter->format($message);
 
         self::assertSame('some other message', (string)$message);
@@ -56,7 +55,7 @@ final class TranslationMessageFormatterTest extends TestCase
                 ],
             ]);
 
-        $message = FakeNodeMessage::withMessage(new FakeMessage('some key'));
+        $message = FakeNodeMessage::new(body: 'some key');
         $message = $formatter->format($message);
 
         self::assertSame('some other message', (string)$message);
@@ -78,7 +77,7 @@ final class TranslationMessageFormatterTest extends TestCase
                 ],
             ]);
 
-        $message = FakeNodeMessage::withMessage(new FakeMessage('some other key'));
+        $message = FakeNodeMessage::new(body: 'some other key');
         $message = $formatter->format($message);
 
         self::assertSame('some other message', (string)$message);
@@ -92,8 +91,7 @@ final class TranslationMessageFormatterTest extends TestCase
             'Value {value} is not accepted!'
         );
 
-        $originalMessage = (new FakeMessage('Value {value} is not accepted.'))->withParameters(['value' => 'foo']);
-        $message = FakeNodeMessage::withMessage($originalMessage);
+        $message = FakeNodeMessage::new(body: 'Value {value} is not accepted.')->withParameter('value', 'foo');
         $message = $formatter->format($message);
 
         self::assertSame('Value foo is not accepted!', (string)$message);
@@ -101,7 +99,7 @@ final class TranslationMessageFormatterTest extends TestCase
 
     public function test_format_message_with_unknown_translation_returns_same_instance(): void
     {
-        $messageA = FakeNodeMessage::any();
+        $messageA = FakeNodeMessage::new();
         $messageB = (new TranslationMessageFormatter())->format($messageA);
 
         self::assertSame($messageA, $messageB);
