@@ -13,7 +13,7 @@ use function assert;
 /** @internal */
 final class NullNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
         $value = $shell->value();
@@ -21,9 +21,9 @@ final class NullNodeBuilder implements NodeBuilder
         assert($type instanceof NullType);
 
         if ($value !== null) {
-            return TreeNode::error($shell, new SourceIsNotNull());
+            return Node::leafWithError($shell, new SourceIsNotNull());
         }
 
-        return TreeNode::leaf($shell, null);
+        return Node::leaf(null);
     }
 }

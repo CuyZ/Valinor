@@ -25,10 +25,8 @@ try {
         ->mapper()
         ->map(SomeClass::class, [/* … */ ]);
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    // Get flatten list of all messages through the whole nodes tree
-    $messages = \CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode(
-        $error->node()
-    );
+    // Get a flattened list of all messages detected during mapping
+    $messages = $error->messages();
 
     // Formatters can be added and will be applied on all messages
     $messages = $messages->formatWith(
@@ -41,10 +39,7 @@ try {
             ])
     );
 
-    // If only errors are wanted, they can be filtered
-    $errorMessages = $messages->errors();
-
-    foreach ($errorMessages as $message) {
+    foreach ($messages as $message) {
         echo $message;
     }
 }
@@ -121,7 +116,7 @@ try {
 } catch (\CuyZ\Valinor\Mapper\MappingError $exception) {
     // Should print:
     // Some custom message / some custom parameter / 'foo'
-    echo $exception->node()->messages()[0];
+    echo $exception->messages()->toArray()[0];
 }
 ```
 
@@ -153,7 +148,7 @@ try {
 } catch (\CuyZ\Valinor\Mapper\MappingError $exception) {
     // Should print:
     // > Some custom error message: foo_bar.
-    echo $exception->node()->messages()[0];
+    echo $exception->messages()->toArray()[0];
 }
 ```
 
@@ -192,7 +187,7 @@ try {
 } catch (\CuyZ\Valinor\Mapper\MappingError $exception) {
     // Should print something similar to:
     // > Expected a value to start with "foo_". Got: "bar_baz"
-    echo $exception->node()->messages()[0];
+    echo $exception->messages()->toArray()[0];
 }
 ```
 
