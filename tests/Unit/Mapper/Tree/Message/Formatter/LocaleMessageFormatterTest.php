@@ -12,7 +12,7 @@ final class LocaleMessageFormatterTest extends TestCase
 {
     public function test_locale_is_updated_for_message(): void
     {
-        $message = FakeNodeMessage::any();
+        $message = FakeNodeMessage::new();
         $message = (new LocaleMessageFormatter('fr'))->format($message);
 
         self::assertSame('fr', $message->locale());

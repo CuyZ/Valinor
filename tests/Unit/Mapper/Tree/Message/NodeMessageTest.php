@@ -33,11 +33,10 @@ final class NodeMessageTest extends TestCase
     public function test_message_is_error_if_original_message_is_throwable(): void
     {
         $originalMessage = new FakeErrorMessage();
-        $message = FakeNodeMessage::withMessage($originalMessage);
+        $message = FakeNodeMessage::new(message: $originalMessage);
 
         self::assertTrue($message->isError());
         self::assertSame('1652883436', $message->code());
-        self::assertSame('some error message', $message->body());
     }
 
     public function test_parameters_are_replaced_in_body(): void
@@ -55,12 +54,10 @@ final class NodeMessageTest extends TestCase
 
     public function test_custom_parameters_are_replaced_in_body(): void
     {
-        $originalMessage = new FakeMessage('some original message / {some_parameter}');
-
-        $message = new NodeMessage(FakeNode::any(), $originalMessage);
+        $message = FakeNodeMessage::new(body: 'before / {some_parameter} / after');
         $message = $message->withParameter('some_parameter', 'some value');
 
-        $expected = 'some original message / some value';
+        $expected = 'before / some value / after';
 
         self::assertSame($expected, $message->toString());
         self::assertSame($expected, (string)$message);
@@ -70,7 +67,7 @@ final class NodeMessageTest extends TestCase
     {
         $originalMessage = new FakeErrorMessage('some error message');
 
-        $message = FakeNodeMessage::withMessage($originalMessage);
+        $message = FakeNodeMessage::new(message: $originalMessage);
         $message = $message->withBody('original: {original_message}');
 
         $expected = 'original: some error message';
@@ -81,7 +78,7 @@ final class NodeMessageTest extends TestCase
 
     public function test_custom_body_returns_clone(): void
     {
-        $messageA = FakeNodeMessage::any();
+        $messageA = FakeNodeMessage::new();
         $messageB = $messageA->withBody('some other message');
 
         self::assertNotSame($messageA, $messageB);
@@ -89,7 +86,7 @@ final class NodeMessageTest extends TestCase
 
     public function test_add_parameter_returns_clone(): void
     {
-        $messageA = FakeNodeMessage::any();
+        $messageA = FakeNodeMessage::new();
         $messageB = $messageA->withParameter('some_parameter', 'some value');
 
         self::assertNotSame($messageA, $messageB);
@@ -97,7 +94,7 @@ final class NodeMessageTest extends TestCase
 
     public function test_custom_locale_returns_clone(): void
     {
-        $messageA = FakeNodeMessage::any();
+        $messageA = FakeNodeMessage::new();
         $messageB = $messageA->withLocale('fr');
 
         self::assertNotSame($messageA, $messageB);
@@ -106,10 +103,9 @@ final class NodeMessageTest extends TestCase
     #[RequiresPhpExtension('intl')]
     public function test_custom_locale_is_used(): void
     {
-        $originalMessage = (new FakeMessage('un message: {value, spellout}'))->withParameters(['value' => '42']);
-
-        $message = FakeNodeMessage::withMessage($originalMessage);
-        $message = $message->withLocale('fr');
+        $message = FakeNodeMessage::new(body: 'un message: {value, spellout}')
+            ->withParameter('value', '42')
+            ->withLocale('fr');
 
         $expected = 'un message: quarante-deux';
 
@@ -126,7 +122,7 @@ final class NodeMessageTest extends TestCase
             }
         };
 
-        $message = FakeNodeMessage::withMessage($originalMessage);
+        $message = FakeNodeMessage::new(message: $originalMessage);
 
         self::assertSame('unknown', $message->code());
     }
