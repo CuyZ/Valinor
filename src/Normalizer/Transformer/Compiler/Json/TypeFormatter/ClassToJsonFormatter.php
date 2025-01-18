@@ -11,6 +11,7 @@ use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
+/** @internal */
 final class ClassToJsonFormatter implements TypeFormatter
 {
     public function __construct(private ClassDefinitionNode $class) {}
@@ -32,7 +33,7 @@ final class ClassToJsonFormatter implements TypeFormatter
         }
 
         foreach ($this->class->propertiesDefinitions as $propertyDefinition) {
-            $class = $propertyDefinition->typeFormatter->manipulateTransformerClass($class);
+            $class = $propertyDefinition->typeFormatter()->manipulateTransformerClass($class);
         }
 
         return $class->withMethods(
@@ -78,7 +79,7 @@ final class ClassToJsonFormatter implements TypeFormatter
                 ),
             ])->asExpression();
 
-            $nodes[] = $propertyDefinition->typeFormatter->formatValueNode(Node::variable('values')->key(Node::value($name)));
+            $nodes[] = $propertyDefinition->typeFormatter()->formatValueNode(Node::variable('values')->key(Node::value($name)));
 
             if ($name !== array_key_last($this->class->propertiesDefinitions)) {
                 $nodes[] = Node::functionCall('fwrite', [

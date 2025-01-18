@@ -5,66 +5,20 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Compiler\Library;
 
 use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Type\CompositeTraversableType;
-use CuyZ\Valinor\Type\FixedType;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\MixedType;
-use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\NativeFloatType;
-use CuyZ\Valinor\Type\Types\NativeIntegerType;
-use CuyZ\Valinor\Type\Types\NativeStringType;
-use CuyZ\Valinor\Type\Types\NegativeIntegerType;
-use CuyZ\Valinor\Type\Types\NullType;
-use CuyZ\Valinor\Type\Types\PositiveIntegerType;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
-use CuyZ\Valinor\Type\Types\UndefinedObjectType;
-use CuyZ\Valinor\Type\Types\UnionType;
-use LogicException;
-
-use function array_map;
-use function implode;
-use function var_export;
 
 /** @internal */
 final class TypeAcceptNode extends Node
 {
-    public function __construct(private Type $type) {}
+    public function __construct(
+        private CompliantNode $node,
+        private Type $type,
+    ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
-        return $this->compileType($compiler, $this->type);
-    }
-
-    private function compileType(Compiler $compiler, Type $type): Compiler
-    {
-        return match (true) {
-            $type instanceof CompositeTraversableType => $compiler->write('\is_iterable($value)'),
-            $type instanceof FixedType => $compiler->write('$value === ' . var_export($type->value(), true)),
-            $type instanceof MixedType => $compiler->write('true'),
-            $type instanceof NativeBooleanType => $compiler->write('\is_bool($value)'),
-            $type instanceof NativeFloatType => $compiler->write('\is_float($value)'),
-            $type instanceof NativeIntegerType => $compiler->write('\is_int($value)'),
-            $type instanceof NativeStringType => $compiler->write('\is_string($value)'),
-            $type instanceof NegativeIntegerType => $compiler->write('\is_string($value) && $value < 0'),
-            $type instanceof NullType => $compiler->write('\is_null($value)'),
-            $type instanceof PositiveIntegerType => $compiler->write('\is_int($value) && $value > 0'),
-            $type instanceof ObjectType => $compiler->write("\$value instanceof {$type->className()}"),
-            $type instanceof ShapedArrayType => $compiler->write('\is_array($value)'),
-            $type instanceof UnionType => $this->compileUnionType($compiler, $type),
-            $type instanceof UndefinedObjectType => $compiler->write('\is_object($value)'),
-            default => throw new LogicException("Type `{$type->toString()}` cannot be compiled."),
-        };
-    }
-
-    private function compileUnionType(Compiler $compiler, UnionType $type): Compiler
-    {
-        $code = implode(' || ', array_map(
-            fn (Type $type) => $this->compileType($compiler->sub(), $type)->code(),
-            $type->types(),
-        ));
-
-        return $compiler->write($code);
+        return $compiler->compile($this->type->compiledAccept($this->node));
     }
 }

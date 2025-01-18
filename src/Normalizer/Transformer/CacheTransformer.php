@@ -8,6 +8,7 @@ use Closure;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
+use CuyZ\Valinor\Normalizer\Formatter\ArrayFormatter;
 use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerRootNode;
@@ -39,7 +40,7 @@ final class CacheTransformer implements Transformer
     public function __construct(
         private Transformer $delegate,
         private TransformerDefinitionBuilder $definitionBuilder,
-        /** @var CacheInterface<Transformer|callable(list<callable>, Formatter): Formatter> */
+        /** @var CacheInterface<Transformer|callable(list<callable>, Transformer): Transformer> */
         private CacheInterface $cache,
         /** @var list<callable> */
         private array $transformers,
@@ -47,6 +48,10 @@ final class CacheTransformer implements Transformer
 
     public function transform(mixed $value, Formatter $formatter): mixed
     {
+        if (! $formatter instanceof ArrayFormatter) {
+            return $this->delegate->transform($value, $formatter);
+        }
+
         $type = $this->inferType($value);
 
         $key = "transformer-\0" . $type->toString();
@@ -68,9 +73,13 @@ final class CacheTransformer implements Transformer
         return $this->delegate->transform($value, $formatter);
     }
 
+    /**
+     * @param Formatter<mixed> $formatter
+     */
     private function compileFor(Type $type, Formatter $formatter): string
     {
         $definition = $this->definitionBuilder->for($type, $formatter->compiler());
+        $definition = $definition->markAsSure();
 
         $rootNode = new TransformerRootNode($definition);
 
@@ -117,9 +126,9 @@ final class CacheTransformer implements Transformer
     {
         if (is_array($value)) {
             // @todo
-//            $firstValueType = $this->inferType(reset($value));
-//
-//            return ArrayType::simple(new UnionType($firstValueType, MixedType::get()));
+            //            $firstValueType = $this->inferType(reset($value));
+            //
+            //            return ArrayType::simple(new UnionType($firstValueType, MixedType::get()));
             return ArrayType::simple(MixedType::get());
         } elseif ($value instanceof Iterator) {
             $firstValueType = $this->inferType($value->current());

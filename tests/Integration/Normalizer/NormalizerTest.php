@@ -820,6 +820,19 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [],
             'jsonEncodingOptions' => JSON_PRETTY_PRINT,
         ];
+
+        yield 'object with shaped array property' => [
+//            'input' => new ObjectWithShapedArrayProperty(['stringValue' => 'foo', 'intValue' => 42]),
+            'input' => new class () {
+                /** @var array{stringValue: string, intValue: int} */
+                public $value = ['stringValue' => 'foo', 'intValue' => 42];
+            },
+            'expected array' => ['value' => ['stringValue' => 'foo!', 'intValue' => 42]],
+            'expected json' => '{"value":{"stringValue":"foo!","intValue":42}}',
+            'transformers' => [
+                [fn (string $value) => $value . '!'],
+            ],
+        ];
     }
 
     public function test_class_with_property_of_type_generator_yields_expected_array(): void

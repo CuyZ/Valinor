@@ -26,6 +26,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Json\TypeFormatter\TodoToJsonFo
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Json\TypeFormatter\TraversableToJsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
+/** @internal */
 final class JsonFormatterCompiler implements FormatterCompiler
 {
     public function typeTransformer(DefinitionNode $definitionNode): TypeFormatter

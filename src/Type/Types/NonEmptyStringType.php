@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\StringType;
@@ -23,6 +25,11 @@ final class NonEmptyStringType implements StringType
     public function accepts(mixed $value): bool
     {
         return is_string($value) && $value !== '';
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return Node::functionCall('is_string', [$node])->and($node->different(Node::value('')));
     }
 
     public function matches(Type $other): bool

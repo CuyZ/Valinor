@@ -7,9 +7,10 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+/** @internal */
 final class MatchNode extends Node
 {
-    /** @var non-empty-list<array{condition: Node, body: Node}> */
+    /** @var list<array{condition: Node, body: Node}> */
     private array $cases = [];
 
     private Node $defaultCase;

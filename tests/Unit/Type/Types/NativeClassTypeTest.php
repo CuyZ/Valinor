@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -39,6 +42,7 @@ final class NativeClassTypeTest extends TestCase
         $type = new NativeClassType(stdClass::class);
 
         self::assertTrue($type->accepts($value));
+        self::assertTrue($this->compiledAccept($type, $value));
     }
 
     #[TestWith([null])]
@@ -53,6 +57,7 @@ final class NativeClassTypeTest extends TestCase
         $type = new NativeClassType(stdClass::class);
 
         self::assertFalse($type->accepts($value));
+        self::assertFalse($this->compiledAccept($type, $value));
     }
 
     public function test_matches_other_identical_class(): void
@@ -138,5 +143,10 @@ final class NativeClassTypeTest extends TestCase
         self::assertCount(2, $type->traverse());
         self::assertContains($subType, $type->traverse());
         self::assertContains($compositeType, $type->traverse());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -34,6 +37,7 @@ final class NonEmptyStringTypeTest extends TestCase
     public function test_accepts_correct_values(mixed $value): void
     {
         self::assertTrue($this->nonEmptyStringType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->nonEmptyStringType, $value));
     }
 
     #[TestWith([null])]
@@ -46,6 +50,7 @@ final class NonEmptyStringTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse($this->nonEmptyStringType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->nonEmptyStringType, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -151,5 +156,10 @@ final class NonEmptyStringTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->nonEmptyStringType->matches($unionType));
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -25,11 +25,7 @@ final class ForEachNode extends Node
         $value = $compiler->sub()->compile($this->value)->code();
         $body = $compiler->sub()->indent()->compile(...$body)->code();
 
-        $item = '$' . $this->item;
-
-        if ($this->key !== null) {
-            $item = '$' . $this->key . ' => ' . $item;
-        }
+        $item = "\${$this->key} => \${$this->item}";
 
         return $compiler->write(
             <<<PHP

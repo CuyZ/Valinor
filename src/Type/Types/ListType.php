@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
@@ -56,6 +57,8 @@ final class ListType implements CompositeTraversableType
 
         return true;
     }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode {}
 
     public function matches(Type $other): bool
     {

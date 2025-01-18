@@ -16,12 +16,10 @@ final class StreamNormalizer implements Normalizer
 {
     public function __construct(
         private Transformer $transformer,
+        /** @var Formatter<resource> */
         private Formatter $formatter,
     ) {}
 
-    /**
-     * @return resource
-     */
     public function normalize(mixed $value): mixed
     {
         return $this->transformer->transform($value, $this->formatter);

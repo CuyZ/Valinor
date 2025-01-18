@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Compiler;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\AnonymousFunctionNode;
+use CuyZ\Valinor\Compiler\Native\ClosureNode;
 use CuyZ\Valinor\Compiler\Native\ArrayNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Native\ConcatNode;
@@ -13,7 +13,8 @@ use CuyZ\Valinor\Compiler\Native\ExpressionNode;
 use CuyZ\Valinor\Compiler\Native\ForEachNode;
 use CuyZ\Valinor\Compiler\Native\FunctionCallNode;
 use CuyZ\Valinor\Compiler\Native\IfNode;
-use CuyZ\Valinor\Compiler\Native\InstanceOfNode;
+use CuyZ\Valinor\Compiler\Native\LogicalAndNode;
+use CuyZ\Valinor\Compiler\Native\LogicalOrNode;
 use CuyZ\Valinor\Compiler\Native\MatchNode;
 use CuyZ\Valinor\Compiler\Native\MethodNode;
 use CuyZ\Valinor\Compiler\Native\NegateNode;
@@ -46,11 +47,6 @@ abstract class Node
         return new CompliantNode(new WrapNode($this));
     }
 
-    public static function anonymousFunction(): AnonymousFunctionNode
-    {
-        return new AnonymousFunctionNode();
-    }
-
     /**
      * @param array<Node> $assignments
      */
@@ -62,6 +58,11 @@ abstract class Node
     public static function anonymousClass(): AnonymousClassNode
     {
         return new AnonymousClassNode();
+    }
+
+    public static function closure(): ClosureNode
+    {
+        return new ClosureNode();
     }
 
     public static function concat(Node ...$nodes): ConcatNode
@@ -80,9 +81,9 @@ abstract class Node
     /**
      * @param array<Node> $arguments
      */
-    public static function functionCall(string $name, array $arguments = []): FunctionCallNode
+    public static function functionCall(string $name, array $arguments = []): CompliantNode
     {
-        return new FunctionCallNode($name, $arguments);
+        return new CompliantNode(new FunctionCallNode($name, $arguments));
     }
 
     public static function if(Node $condition, Node $body): IfNode
@@ -90,12 +91,14 @@ abstract class Node
         return new IfNode($condition, $body);
     }
 
-    /**
-     * @param class-string $className
-     */
-    public static function instanceOf(Node $node, string $className): InstanceOfNode
+    public static function logicalAnd(Node ...$nodes): CompliantNode
     {
-        return new InstanceOfNode($node, $className);
+        return new CompliantNode(new LogicalAndNode(...$nodes));
+    }
+
+    public static function logicalOr(Node ...$nodes): CompliantNode
+    {
+        return new CompliantNode(new LogicalOrNode(...$nodes));
     }
 
     public static function match(Node $value): MatchNode
@@ -164,9 +167,12 @@ abstract class Node
         return new ThrowNode($node);
     }
 
-    public static function value(bool|float|int|string|null $value): ValueNode
+    /**
+     * @param array<mixed>|bool|float|int|string|null $value
+     */
+    public static function value(array|bool|float|int|string|null $value): CompliantNode
     {
-        return new ValueNode($value);
+        return new CompliantNode(new ValueNode($value));
     }
 
     public static function variable(string $name): CompliantNode

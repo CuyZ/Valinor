@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\Type;
 
+use CuyZ\Valinor\Utility\Polyfill;
+
+use function array_diff_key;
 use function array_key_exists;
 use function array_map;
 use function assert;
@@ -78,7 +83,7 @@ final class ShapedArrayType implements CompositeType
         return $this->unsealedType ?? ArrayType::native();
     }
 
-    public function accepts(mixed $value): bool
+    public function accepts_TODO_old(mixed $value): bool
     {
         if (! is_array($value)) {
             return false;
@@ -105,6 +110,72 @@ final class ShapedArrayType implements CompositeType
         }
 
         return count($value) === 0;
+    }
+
+    public function accepts(mixed $value): bool
+    {
+        if (! is_array($value)) {
+            return false;
+        }
+
+        $elements = [];
+
+        foreach ($this->elements as $element) {
+            $key = $element->key()->value();
+
+            $elements[$key] = true;
+
+            if (array_key_exists($key, $value) ? ! $element->type()->accepts($value[$key]) : ! $element->isOptional()) {
+                return false;
+            }
+        }
+
+        if ($this->isUnsealed) {
+            return $this->unsealedType()->accepts(array_diff_key($value, $elements));
+        }
+
+        return count($value) <= count($elements);
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        $conditions = [
+            Node::functionCall('is_array', [$node]),
+            ...array_map(function (ShapedArrayElement $element) use ($node) {
+                $key = Node::value($element->key()->value());
+
+                return Node::ternary(
+                    condition: Node::functionCall('array_key_exists', [$key, $node]),
+                    ifTrue: $element->type()->compiledAccept($node->key($key)),
+                    ifFalse: Node::value($element->isOptional())
+                )->wrap();
+            }, $this->elements)
+        ];
+
+        if ($this->isUnsealed) {
+            $unsealedType = $this->unsealedType();
+
+            $elementsKeys = array_flip(
+                array_map(fn (ShapedArrayElement $element) => $element->key()->value(), $this->elements)
+            );
+
+            $conditions[] = Node::negate(
+                Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
+                    Node::functionCall('array_diff_key', [$node, Node::value($elementsKeys)]),
+                    Node::shortClosure(
+                        Node::logicalOr(
+                            Node::negate($unsealedType->keyType()->compiledAccept(Node::variable('key'))->wrap()),
+                            Node::negate($unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap()),
+                        ),
+                    )->witParameters(
+                        Node::parameterDeclaration('item', 'mixed'),
+                        Node::parameterDeclaration('key', 'mixed'),
+                    ),
+                ]),
+            );
+        }
+
+        return Node::logicalAnd(...$conditions);
     }
 
     public function matches(Type $other): bool

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -43,6 +46,7 @@ final class InterfaceTypeTest extends TestCase
         $type = new InterfaceType(DateTimeInterface::class);
 
         self::assertTrue($type->accepts($value));
+        self::assertTrue($this->compiledAccept($type, $value));
     }
 
     #[TestWith([null])]
@@ -57,6 +61,7 @@ final class InterfaceTypeTest extends TestCase
         $type = new InterfaceType(DateTimeInterface::class);
 
         self::assertFalse($type->accepts($value));
+        self::assertFalse($this->compiledAccept($type, $value));
     }
 
     public function test_matches_other_identical_interface(): void
@@ -135,6 +140,11 @@ final class InterfaceTypeTest extends TestCase
         );
 
         self::assertFalse((new InterfaceType(DateTime::class))->matches($intersectionType));
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }
 

@@ -14,6 +14,7 @@ use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
+/** @internal */
 final class RegisteredTransformersFormatter implements TypeFormatter
 {
     public function __construct(
@@ -56,7 +57,7 @@ final class RegisteredTransformersFormatter implements TypeFormatter
 
             ...array_map(
                 fn (int $key, Type $transformerType) => Node::if(
-                    condition: new TypeAcceptNode($transformerType),
+                    condition: new TypeAcceptNode(Node::variable('value'), $transformerType),
                     body: Node::variable('next')->assign(
                         Node::shortClosure(
                             return: Node::this()

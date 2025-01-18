@@ -6,12 +6,13 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition;
 
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\UnsureTypeFormatter;
 use CuyZ\Valinor\Type\Type;
 
 /** @internal */
 final class TransformerDefinition
 {
-    public readonly Type $nativeType;
+    private bool $isSure = false;
 
     public function __construct(
         public readonly Type $type,
@@ -21,15 +22,29 @@ final class TransformerDefinition
         public readonly array $transformerAttributes,
         /** @var list<AttributeDefinition> */
         public readonly array $keyTransformerAttributes,
-        public readonly TypeFormatter $typeFormatter,
+        private readonly TypeFormatter $typeFormatter,
     ) {}
 
-    public function withNativeType(Type $nativeType): self
+    public function typeFormatter(): TypeFormatter
+    {
+        if (! $this->isSure) {
+            return new UnsureTypeFormatter($this->typeFormatter, $this->type);
+        }
+
+        return $this->typeFormatter;
+    }
+
+    public function markAsSure(): self
     {
         $self = clone $this;
-        $self->nativeType = $nativeType;
+        $self->isSure = true;
 
         return $self;
+    }
+
+    public function isSure(): bool
+    {
+        return $this->isSure;
     }
 
     public function hasTransformation(): bool

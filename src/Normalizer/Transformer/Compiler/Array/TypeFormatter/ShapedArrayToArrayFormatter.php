@@ -12,6 +12,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefi
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use WeakMap;
 
+/** @internal */
 final class ShapedArrayToArrayFormatter implements TypeFormatter
 {
     public function __construct(
@@ -32,10 +33,10 @@ final class ShapedArrayToArrayFormatter implements TypeFormatter
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->shapedArray->defaultTransformer->typeFormatter->manipulateTransformerClass($class);
+        $class = $this->shapedArray->defaultTransformer->typeFormatter()->manipulateTransformerClass($class);
 
         foreach ($this->shapedArray->elementsDefinitions as $definition) {
-            $class = $definition->typeFormatter->manipulateTransformerClass($class);
+            $class = $definition->typeFormatter()->manipulateTransformerClass($class);
         }
 
         $methodName = $this->methodName();
@@ -62,16 +63,21 @@ final class ShapedArrayToArrayFormatter implements TypeFormatter
                             (function () {
                                 $match = Node::match(Node::variable('key'));
 
+                                // @todo TypeAcceptNode
                                 foreach ($this->shapedArray->elementsDefinitions as $name => $definition) {
+                                    if (! $definition->hasTransformation()) {
+                                        continue;
+                                    }
+
                                     $match = $match->withCase(
-                                        Node::value($name),
-                                        $definition->typeFormatter->formatValueNode(Node::variable('value')->key(Node::value($name))),
+                                        condition: Node::value($name),
+                                        body: $definition->typeFormatter()->formatValueNode(Node::variable('item')),
                                     );
                                 }
 
                                 // @todo handle unsealed array
                                 return $match->withDefaultCase(
-                                    $this->shapedArray->defaultTransformer->typeFormatter->formatValueNode(Node::variable('value')->key(Node::value($name))),
+                                    $this->shapedArray->defaultTransformer->typeFormatter()->formatValueNode(Node::variable('item')),
                                 );
                             })(),
                         )->asExpression(),

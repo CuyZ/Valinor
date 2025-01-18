@@ -12,6 +12,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\TraversableDefi
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use WeakMap;
 
+/** @internal */
 final class TraversableToArrayFormatter implements TypeFormatter
 {
     public function __construct(
@@ -32,7 +33,7 @@ final class TraversableToArrayFormatter implements TypeFormatter
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->iterable->subDefinition->typeFormatter->manipulateTransformerClass($class);
+        $class = $this->iterable->subDefinition->typeFormatter()->manipulateTransformerClass($class);
 
         $methodName = $this->methodName();
 
@@ -55,7 +56,7 @@ final class TraversableToArrayFormatter implements TypeFormatter
                         key: 'key',
                         item: 'item',
                         body: Node::variable('values')->key(Node::variable('key'))->assign(
-                            $this->iterable->subDefinition->typeFormatter->formatValueNode(Node::variable('item')),
+                            $this->iterable->subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
                         )->asExpression(),
                     ),
                     Node::return(Node::variable('values')),

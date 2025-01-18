@@ -9,6 +9,7 @@ use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
+/** @internal */
 final class DateTimeZoneToArrayFormatter implements TypeFormatter
 {
     public function formatValueNode(CompliantNode $valueNode): Node

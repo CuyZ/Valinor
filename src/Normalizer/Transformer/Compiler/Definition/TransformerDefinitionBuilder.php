@@ -20,6 +20,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ScalarDefinitio
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\StdClassDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\TraversableDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnionDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnitEnumDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\RegisteredTransformersFormatter;
@@ -38,6 +39,7 @@ use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
@@ -45,6 +47,8 @@ use RuntimeException;
 use stdClass;
 use Traversable;
 use UnitEnum;
+
+use function array_map;
 
 /** @internal */
 final class TransformerDefinitionBuilder
@@ -108,13 +112,19 @@ final class TransformerDefinitionBuilder
             );
         }
 
-        return new TransformerDefinition(
+        $definition = new TransformerDefinition(
             $type,
             $transformerTypes,
             $transformerAttributes,
             $keyTransformerAttributes,
             $typeTransformer,
         );
+
+        if ($type instanceof MixedType) {
+            $definition = $definition->markAsSure();
+        }
+
+        return $definition;
     }
 
     public function definitionNode(Type $type, FormatterCompiler $formatter, ArrayObject $classesReferences): DefinitionNode
@@ -126,20 +136,21 @@ final class TransformerDefinitionBuilder
             $type instanceof EnumType => new EnumDefinitionNode($type),
             $type instanceof InterfaceType => new InterfaceDefinitionNode($type),
             $type instanceof MixedType => new MixedDefinitionNode([
-                $this->for(NativeBooleanType::get(), $formatter, $classesReferences),
-                $this->for(NativeFloatType::get(), $formatter, $classesReferences),
-                $this->for(NativeIntegerType::get(), $formatter, $classesReferences),
-                $this->for(NativeStringType::get(), $formatter, $classesReferences),
-                $this->for(NullType::get(), $formatter, $classesReferences),
-                $this->for(new NativeClassType(UnitEnum::class), $formatter, $classesReferences),
-                $this->for(new NativeClassType(DateTime::class), $formatter, $classesReferences),
-                $this->for(new NativeClassType(DateTimeZone::class), $formatter, $classesReferences),
+                $this->for(NativeBooleanType::get(), $formatter, $classesReferences)->markAsSure(),
+                $this->for(NativeFloatType::get(), $formatter, $classesReferences)->markAsSure(),
+                $this->for(NativeIntegerType::get(), $formatter, $classesReferences)->markAsSure(),
+                $this->for(NativeStringType::get(), $formatter, $classesReferences)->markAsSure(),
+                $this->for(NullType::get(), $formatter, $classesReferences)->markAsSure(),
+                $this->for(new NativeClassType(UnitEnum::class), $formatter, $classesReferences)->markAsSure(),
+                $this->for(new NativeClassType(DateTime::class), $formatter, $classesReferences)->markAsSure(),
+                $this->for(new NativeClassType(DateTimeZone::class), $formatter, $classesReferences)->markAsSure(),
                 // @todo handle TraversableType
             ]),
             $type instanceof NativeClassType => $this->classDefinitionNode($type, $formatter, $classesReferences),
             $type instanceof NullType => new NullDefinitionNode(),
             $type instanceof ScalarType => new ScalarDefinitionNode(),
             $type instanceof ShapedArrayType => $this->shapedArrayDefinitionNode($type, $formatter, $classesReferences),
+            $type instanceof UnionType => $this->unionDefinitionNode($type, $formatter, $classesReferences),
             default => throw new RuntimeException('@todo : ' . $type::class), // @todo
         };
     }
@@ -149,7 +160,7 @@ final class TransformerDefinitionBuilder
         if ($type->className() === UnitEnum::class) {
             return new UnitEnumDefinitionNode();
         } elseif ($type->className() === stdClass::class) {
-            return new StdClassDefinitionNode();
+            return new StdClassDefinitionNode($this->for(MixedType::get(), $formatter, $classesReferences));
         } elseif (is_a($type->className(), DateTimeInterface::class, true)) {
             return new DateTimeDefinitionNode();
         } elseif (is_a($type->className(), DateTimeZone::class, true)) {
@@ -183,7 +194,10 @@ final class TransformerDefinitionBuilder
                 )->toArray();
 
             $definition = $this->for($property->type, $formatter, $classesReferences, $transformerAttributes, $keyTransformerAttributes);
-            $definition = $definition->withNativeType($property->nativeType);
+
+            if (! $property->nativeType instanceof MixedType) {
+                $definition = $definition->markAsSure();
+            }
 
             $definitions[$property->name] = $definition;
         }
@@ -204,5 +218,17 @@ final class TransformerDefinitionBuilder
         $defaultDefinition = $this->for(MixedType::get(), $formatter, $classesReferences);
 
         return new ShapedArrayDefinitionNode($type, $defaultDefinition, $definitions);
+    }
+
+    private function unionDefinitionNode(UnionType $type, FormatterCompiler $formatter, ArrayObject $classesReferences): DefinitionNode
+    {
+        $definitions = array_map(
+            fn (Type $type) => $this->for($type, $formatter, $classesReferences)->markAsSure(),
+            $type->types(),
+        );
+
+        $defaultDefinition = $this->for(MixedType::get(), $formatter, $classesReferences);
+
+        return new UnionDefinitionNode($type, $defaultDefinition, $definitions);
     }
 }

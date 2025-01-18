@@ -43,6 +43,7 @@ final class NewAttributeNode extends Node
             }
 
             if (is_array($argument)) {
+                // @todo handle array keys
                 return Node::array($this->argumentNode($argument));
             }
 

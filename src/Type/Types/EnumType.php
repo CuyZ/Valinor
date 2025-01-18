@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use BackedEnum;
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
@@ -21,7 +22,7 @@ final class EnumType implements ClassType
     /** @var class-string<UnitEnum> */
     private string $enumName;
 
-    private ?string $pattern;
+    private string $pattern;
 
     /** @var array<UnitEnum> */
     private array $cases;
@@ -30,7 +31,7 @@ final class EnumType implements ClassType
      * @param class-string<UnitEnum> $enumName
      * @param array<UnitEnum> $cases
      */
-    public function __construct(string $enumName, ?string $pattern, array $cases)
+    public function __construct(string $enumName, string $pattern, array $cases)
     {
         $this->enumName = $enumName;
         $this->pattern = $pattern;
@@ -49,7 +50,7 @@ final class EnumType implements ClassType
      */
     public static function native(string $enumName): self
     {
-        return new self($enumName, null, $enumName::cases());
+        return new self($enumName, '', $enumName::cases());
     }
 
     /**
@@ -85,7 +86,7 @@ final class EnumType implements ClassType
         return $this->cases;
     }
 
-    public function pattern(): ?string
+    public function pattern(): string
     {
         return $this->pattern;
     }
@@ -93,6 +94,11 @@ final class EnumType implements ClassType
     public function accepts(mixed $value): bool
     {
         return $value instanceof $this->enumName;
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return $node->instanceOf($this->enumName);
     }
 
     public function matches(Type $other): bool
@@ -126,7 +132,7 @@ final class EnumType implements ClassType
 
     public function toString(): string
     {
-        return $this->pattern === null
+        return $this->pattern === ''
             ? $this->enumName
             : "$this->enumName::$this->pattern";
     }

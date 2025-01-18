@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+/** @internal */
 final class ThrowNode extends Node
 {
     public function __construct(

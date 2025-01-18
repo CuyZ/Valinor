@@ -11,6 +11,7 @@ use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\TraversableDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
+/** @internal */
 final class TraversableToJsonFormatter implements TypeFormatter
 {
     public function __construct(
@@ -27,7 +28,7 @@ final class TraversableToJsonFormatter implements TypeFormatter
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
-        $class = $this->iterable->subDefinition->typeFormatter->manipulateTransformerClass($class);
+        $class = $this->iterable->subDefinition->typeFormatter()->manipulateTransformerClass($class);
 
         $methodName = $this->methodName();
 
@@ -57,7 +58,7 @@ final class TraversableToJsonFormatter implements TypeFormatter
                                     Node::value(':'),
                                 ),
                             ])->asExpression(),
-                            $this->iterable->subDefinition->typeFormatter->formatValueNode(Node::variable('item')),
+                            $this->iterable->subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
                         ],
                     ),
                 ),

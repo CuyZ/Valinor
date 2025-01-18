@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use WeakMap;
 
+/** @internal */
 final class ClassToArrayFormatter implements TypeFormatter
 {
     public function __construct(private ClassDefinitionNode $class) {}
@@ -45,7 +46,7 @@ final class ClassToArrayFormatter implements TypeFormatter
         $class = $class->withMethods(Node::method($methodName));
 
         foreach ($this->class->propertiesDefinitions as $propertyDefinition) {
-            $class = $propertyDefinition->typeFormatter->manipulateTransformerClass($class);
+            $class = $propertyDefinition->typeFormatter()->manipulateTransformerClass($class);
         }
 
         $className = $this->class->type->className();
@@ -57,10 +58,11 @@ final class ClassToArrayFormatter implements TypeFormatter
 
         $nodes = $this->checkCircularObjectReference();
 
+        // @todo: wrong because properties can have a different value than the excepted type
         if ($this->transformationIsAppliedOnAnyProperty()) {
             $nodes = [...$nodes, ...$this->arrayObjectTransformationNode()];
         } else {
-            $nodes[] = Node::return($this->valuesNode(Node::variable('value')))->asExpression();
+            $nodes[] = Node::return($this->valuesNode(Node::variable('value')));
         }
 
         return $class->withMethods(
@@ -75,6 +77,9 @@ final class ClassToArrayFormatter implements TypeFormatter
         );
     }
 
+    /**
+     * @return list<Node>
+     */
     private function checkCircularObjectReference(): array
     {
         return [
@@ -131,7 +136,7 @@ final class ClassToArrayFormatter implements TypeFormatter
 
             $nodes[] = Node::variable('transformed')
                 ->key($key)
-                ->assign($property->typeFormatter->formatValueNode(
+                ->assign($property->typeFormatter()->formatValueNode(
                     Node::variable('values')->key(Node::value($name)),
                 ))->asExpression();
         }

@@ -20,7 +20,6 @@ final class ArrayNormalizer implements Normalizer
 
     public function normalize(mixed $value): mixed
     {
-        /** @var array<mixed>|scalar|null */
         return $this->transformer->transform($value, new ArrayFormatter());
     }
 }

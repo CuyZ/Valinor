@@ -17,6 +17,11 @@ final class CompliantNode extends Node
         return new self(new VariableAccessNode($this, $value));
     }
 
+    public function and(Node ...$nodes): self
+    {
+        return new self(new LogicalAndNode($this, ...$nodes));
+    }
+
     public function castToArray(): self
     {
         return new self(CastNode::toArray($this));
@@ -51,6 +56,49 @@ final class CompliantNode extends Node
     public function callMethod(string $method, array $arguments = []): self
     {
         return new self(new MethodCallNode($this, $method, $arguments));
+    }
+
+    public function different(Node $right): self
+    {
+        return new self(new DifferentNode($this, $right));
+    }
+
+    public function equals(Node $right): self
+    {
+        return new self(new EqualsNode($this, $right));
+    }
+
+    public function or(Node ...$nodes): self
+    {
+        return new self(new LogicalOrNode($this, ...$nodes));
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public function instanceOf(string $className): self
+    {
+        return new self(new InstanceOfNode($this, $className));
+    }
+
+    public function isLessThan(Node $right): self
+    {
+        return new self(new LessThanNode($this, $right));
+    }
+
+    public function isLessOrEqualsTo(Node $right): self
+    {
+        return new self(new LessOrEqualsToNode($this, $right));
+    }
+
+    public function isGreaterThan(Node $right): self
+    {
+        return new self(new GreaterThanNode($this, $right));
+    }
+
+    public function isGreaterOrEqualsTo(Node $right): self
+    {
+        return new self(new GreaterOrEqualsToNode($this, $right));
     }
 
     public function compile(Compiler $compiler): Compiler

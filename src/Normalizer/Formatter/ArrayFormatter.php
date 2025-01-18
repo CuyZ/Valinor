@@ -14,6 +14,11 @@ use function is_array;
 use function is_iterable;
 use function iterator_to_array;
 
+/**
+ * @internal
+ *
+ * @implements Formatter<array<mixed>|scalar|null>
+ */
 final class ArrayFormatter implements Formatter
 {
     public function format(mixed $value): mixed

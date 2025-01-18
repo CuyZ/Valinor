@@ -21,7 +21,11 @@ use function json_encode;
 
 use const JSON_FORCE_OBJECT;
 
-/** @internal */
+/**
+ * @internal
+ *
+ * @implements Formatter<resource>
+ */
 final class JsonFormatter implements Formatter
 {
     public function __construct(
@@ -30,9 +34,6 @@ final class JsonFormatter implements Formatter
         public readonly int $jsonEncodingOptions,
     ) {}
 
-    /**
-     * @return resource
-     */
     public function format(mixed $value): mixed
     {
         $this->formatRecursively($value, 1);

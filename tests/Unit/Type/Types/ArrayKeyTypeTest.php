@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
@@ -37,21 +40,30 @@ final class ArrayKeyTypeTest extends TestCase
     #[TestWith(['accepts' => true, 'value' => 'foo'])]
     public function test_default_array_key_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertSame($accepts, ArrayKeyType::default()->accepts($value));
+        $type = ArrayKeyType::default();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => 42])]
     #[TestWith(['accepts' => false, 'value' => 'foo'])]
     public function test_integer_array_key_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertSame($accepts, ArrayKeyType::integer()->accepts($value));
+        $type = ArrayKeyType::integer();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => 'foo'])]
     #[TestWith(['accepts' => true, 'value' => 42])]
     public function test_string_array_key_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertSame($accepts, ArrayKeyType::string()->accepts($value));
+        $type = ArrayKeyType::string();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith([null])]
@@ -61,9 +73,17 @@ final class ArrayKeyTypeTest extends TestCase
     #[TestWith([new stdClass()])]
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse(ArrayKeyType::default()->accepts($value));
-        self::assertFalse(ArrayKeyType::integer()->accepts($value));
-        self::assertFalse(ArrayKeyType::string()->accepts($value));
+        $defaultArrayKeyType = ArrayKeyType::default();
+        $integerArrayKeyType = ArrayKeyType::integer();
+        $stringArrayKeyType = ArrayKeyType::string();
+
+        self::assertFalse($defaultArrayKeyType->accepts($value));
+        self::assertFalse($integerArrayKeyType->accepts($value));
+        self::assertFalse($stringArrayKeyType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($defaultArrayKeyType, $value));
+        self::assertFalse($this->compiledAccept($integerArrayKeyType, $value));
+        self::assertFalse($this->compiledAccept($stringArrayKeyType, $value));
     }
 
     public function test_default_array_key_can_cast_numeric_and_string_value(): void
@@ -162,5 +182,10 @@ final class ArrayKeyTypeTest extends TestCase
     public function test_matches_mixed_type(): void
     {
         self::assertTrue(ArrayKeyType::default()->matches(new MixedType()));
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

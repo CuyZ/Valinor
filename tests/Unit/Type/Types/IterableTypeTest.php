@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -59,7 +60,7 @@ final class IterableTypeTest extends TestCase
 
     public function test_accepts_generators_with_correct_values(): void
     {
-        $type = FakeType::accepting('Some value');
+        $type = new StringValueType('Some value');
 
         $iterableNative = IterableType::native();
         $iterableWithDefaultKey = new IterableType(ArrayKeyType::default(), $type);
@@ -102,7 +103,7 @@ final class IterableTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
     public function test_default_array_key_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new IterableType(ArrayKeyType::default(), FakeType::accepting('Some value'));
+        $type = new IterableType(ArrayKeyType::default(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
     }
@@ -113,7 +114,7 @@ final class IterableTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
     public function test_integer_array_key_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new IterableType(ArrayKeyType::integer(), FakeType::accepting('Some value'));
+        $type = new IterableType(ArrayKeyType::integer(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
     }
@@ -124,7 +125,7 @@ final class IterableTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
     public function test_string_array_key_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new IterableType(ArrayKeyType::string(), FakeType::accepting('Some value'));
+        $type = new IterableType(ArrayKeyType::string(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
     }
@@ -138,9 +139,9 @@ final class IterableTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse(IterableType::native()->accepts($value));
-        self::assertFalse((new IterableType(ArrayKeyType::default(), FakeType::accepting('Some value')))->accepts($value));
-        self::assertFalse((new IterableType(ArrayKeyType::integer(), FakeType::accepting('Some value')))->accepts($value));
-        self::assertFalse((new IterableType(ArrayKeyType::string(), FakeType::accepting('Some value')))->accepts($value));
+        self::assertFalse((new IterableType(ArrayKeyType::default(), new StringValueType('Some value')))->accepts($value));
+        self::assertFalse((new IterableType(ArrayKeyType::integer(), new StringValueType('Some value')))->accepts($value));
+        self::assertFalse((new IterableType(ArrayKeyType::string(), new StringValueType('Some value')))->accepts($value));
     }
 
     public function test_matches_valid_iterable_type(): void

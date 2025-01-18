@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FloatType;
@@ -22,6 +24,11 @@ final class NativeFloatType implements FloatType
     public function accepts(mixed $value): bool
     {
         return is_float($value);
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return Node::functionCall('is_float', [$node]);
     }
 
     public function matches(Type $other): bool

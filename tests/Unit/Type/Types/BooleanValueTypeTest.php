@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
@@ -32,14 +35,20 @@ final class BooleanValueTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => false])]
     public function test_true_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertSame($accepts, BooleanValueType::true()->accepts($value));
+        $type = BooleanValueType::true();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => false])]
     #[TestWith(['accepts' => false, 'value' => true])]
     public function test_false_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertSame($accepts, BooleanValueType::false()->accepts($value));
+        $type = BooleanValueType::false();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['Schwifty!'])]
@@ -50,8 +59,14 @@ final class BooleanValueTypeTest extends TestCase
     #[TestWith([new stdClass()])]
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse(BooleanValueType::true()->accepts($value));
-        self::assertFalse(BooleanValueType::false()->accepts($value));
+        $trueType = BooleanValueType::true();
+        $falseType = BooleanValueType::false();
+
+        self::assertFalse($trueType->accepts($value));
+        self::assertFalse($falseType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($trueType, $value));
+        self::assertFalse($this->compiledAccept($falseType, $value));
     }
 
     public function test_can_cast_boolean_value(): void
@@ -180,5 +195,10 @@ final class BooleanValueTypeTest extends TestCase
 
         self::assertFalse(BooleanValueType::true()->matches($unionType));
         self::assertFalse(BooleanValueType::false()->matches($unionType));
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

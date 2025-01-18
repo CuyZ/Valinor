@@ -6,10 +6,15 @@ namespace CuyZ\Valinor\Normalizer\Formatter;
 
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
 
+/**
+ * @internal
+ *
+ * @template-covariant T
+ */
 interface Formatter
 {
     /**
-     * @return array<mixed>|scalar|null
+     * @return T
      */
     public function format(mixed $value): mixed;
 

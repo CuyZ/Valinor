@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Compiler;
 
-use function count;
 use function str_repeat;
 use function str_replace;
 
@@ -23,7 +22,7 @@ final class Compiler
         while ($current = array_shift($nodes)) {
             $compiler = $current->compile($compiler);
 
-            if (count($nodes) > 0) {
+            if ($nodes !== []) {
                 $compiler = $compiler->write("\n");
             }
         }

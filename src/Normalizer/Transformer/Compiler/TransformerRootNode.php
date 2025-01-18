@@ -22,13 +22,13 @@ final class TransformerRootNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        $classNode = $this->transformerClassNode($this->definition);
-        $classNode = $this->definition->typeFormatter->manipulateTransformerClass($classNode);
+        $classNode = $this->transformerClassNode();
+        $classNode = $this->definition->typeFormatter()->manipulateTransformerClass($classNode);
 
         return $classNode->compile($compiler);
     }
 
-    private function transformerClassNode(TransformerDefinition $definition): AnonymousClassNode
+    private function transformerClassNode(): AnonymousClassNode
     {
         return Node::anonymousClass()
             ->implements(Transformer::class)
@@ -61,7 +61,7 @@ final class TransformerRootNode extends Node
                     ->withBody(
                         Node::variable('references')->assign(Node::newClass(WeakMap::class))->asExpression(),
                         Node::return(
-                            $definition->typeFormatter->formatValueNode(
+                            $this->definition->typeFormatter()->formatValueNode(
                                 Node::variable('value'),
                             ),
                         ),

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
@@ -89,6 +91,23 @@ final class ArrayKeyType implements ScalarType
         }
 
         return false;
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        $conditions = [];
+
+        foreach ($this->types as $type) {
+            $condition = $type->compiledAccept($node);
+
+            if ($type instanceof NativeStringType) {
+                $condition = $condition->or(Node::functionCall('is_int', [$node]));
+            }
+
+            $conditions[] = $condition;
+        }
+
+        return Node::logicalOr(...$conditions);
     }
 
     public function matches(Type $other): bool

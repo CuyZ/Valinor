@@ -18,9 +18,15 @@ final class InstanceOfNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
+        $className = $this->className;
+
+        if (str_contains($className, '@anonymous')) {
+            $className = "('" . $className . "')";
+        }
+
         return $compiler
             ->compile($this->node)
             ->write(' instanceof ')
-            ->write($this->className);
+            ->write($className);
     }
 }

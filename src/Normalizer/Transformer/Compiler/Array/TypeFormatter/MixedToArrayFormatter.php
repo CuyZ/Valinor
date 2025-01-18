@@ -13,6 +13,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\MixedDefinition
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use WeakMap;
 
+/** @internal */
 final class MixedToArrayFormatter implements TypeFormatter
 {
     public function __construct(
@@ -34,45 +35,38 @@ final class MixedToArrayFormatter implements TypeFormatter
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
     {
         foreach ($this->mixed->definitions as $definition) {
-            $class = $definition->typeFormatter->manipulateTransformerClass($class);
+            $class = $definition->typeFormatter()->manipulateTransformerClass($class);
         }
 
-        $methodName = 'transform_mixed';
-
-        if ($class->hasMethod($methodName)) {
+        if ($class->hasMethod('transform_mixed')) {
             return $class;
         }
 
         return $class->withMethods(
-            Node::method($methodName)
+            Node::method('transform_mixed')
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
                     Node::parameterDeclaration('formatter', Formatter::class),
                     Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')
-                ->withBody(...$this->scalarTransformationNodes()),
+                ->withBody(...$this->transformationNodes()),
         );
     }
 
     /**
      * @return list<Node>
      */
-    public function scalarTransformationNodes(): array
+    private function transformationNodes(): array
     {
         $nodes = [];
 
         foreach ($this->mixed->definitions as $definition) {
             $nodes[] = Node::if(
-                condition: new TypeAcceptNode($definition->type),
-                body: Node::return($definition->typeFormatter->formatValueNode(Node::variable('value'))),
+                condition: new TypeAcceptNode(Node::variable('value'), $definition->type),
+                body: Node::return($definition->typeFormatter()->formatValueNode(Node::variable('value'))),
             );
         }
-
-        $nodes[] = Node::if(
-            condition: Node::functionCall('is_scalar', [Node::variable('value')]),
-            body: Node::return(Node::variable('value')),
-        );
 
         $nodes[] = Node::return(
             Node::this()

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -35,6 +38,7 @@ final class NullTypeTest extends TestCase
     public function test_accepts_correct_values(mixed $value): void
     {
         self::assertTrue($this->nullType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->nullType, $value));
     }
 
     #[TestWith(['Schwifty!'])]
@@ -46,6 +50,7 @@ final class NullTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse($this->nullType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->nullType, $value));
     }
 
     public function test_matches_same_type(): void
@@ -79,5 +84,10 @@ final class NullTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->nullType->matches($unionType));
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

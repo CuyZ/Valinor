@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -91,6 +93,11 @@ final class FakeType implements Type
     {
         return $this->permissive
             || (isset($this->accepting) && in_array($value, $this->accepting, true));
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return Node::value(false);
     }
 
     public function matches(Type $other): bool

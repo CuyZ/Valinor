@@ -10,7 +10,7 @@ use CuyZ\Valinor\Compiler\Node;
 use function implode;
 
 /** @internal */
-final class AnonymousFunctionNode extends Node
+final class ClosureNode extends Node
 {
     /** @var list<string> */
     private array $use = [];

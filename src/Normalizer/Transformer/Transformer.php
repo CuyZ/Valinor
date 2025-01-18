@@ -10,7 +10,10 @@ use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 interface Transformer
 {
     /**
-     * @return array<mixed>|scalar|null
+     * @template T
+     *
+     * @param Formatter<T> $formatter
+     * @return T
      */
     public function transform(mixed $value, Formatter $formatter): mixed;
 }

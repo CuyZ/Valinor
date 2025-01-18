@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FixedType;
@@ -25,6 +27,11 @@ final class IntegerValueType implements IntegerType, FixedType
     public function accepts(mixed $value): bool
     {
         return $value === $this->value;
+    }
+
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return $node->equals(Node::value($this->value));
     }
 
     public function matches(Type $other): bool

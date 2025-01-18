@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -73,7 +74,7 @@ final class NonEmptyListTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => [1 => 'Some value', 2 => 'Some value']])]
     public function test_list_of_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new NonEmptyListType(FakeType::accepting('Some value'));
+        $type = new NonEmptyListType(new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
     }
@@ -90,7 +91,7 @@ final class NonEmptyListTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse(NonEmptyListType::native()->accepts($value));
-        self::assertFalse((new NonEmptyListType(FakeType::accepting('Some value')))->accepts($value));
+        self::assertFalse((new NonEmptyListType(new StringValueType('Some value')))->accepts($value));
     }
 
     public function test_matches_valid_list_type(): void
