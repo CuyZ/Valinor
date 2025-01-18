@@ -2,3 +2,4 @@
 var
 vendor
 phpstan.neon
+.phpbench

@@ -103,4 +103,6 @@ nav:
       - Alternatives: project/alternatives.md
       - Changelog: project/changelog.md
       - Credits: project/credits.md
+  - Internals:
+      - Benchmarks : internals/benchmarks.md
 not_in_nav: project/changelog/version-*.md
