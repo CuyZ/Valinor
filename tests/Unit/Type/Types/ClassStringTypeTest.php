@@ -281,6 +281,7 @@ final class ClassStringTypeTest extends TestCase
 
     private function compiledAccept(Type $type, mixed $value): bool
     {
+        /** @var bool */
         return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }
