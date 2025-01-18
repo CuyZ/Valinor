@@ -12,19 +12,19 @@ use PhpBench\Attributes\Subject;
 final class MapperBench
 {
     #[Subject]
-    public function initialisationBuilder()
+    public function initialisationBuilder(): void
     {
         $builder = new MapperBuilder();
     }
 
     #[Subject]
-    public function initialisationMapper()
+    public function initialisationMapper(): void
     {
         $builder = (new MapperBuilder())->mapper();
     }
 
     #[Subject]
-    public function string()
+    public function string(): void
     {
         $mapper = (new MapperBuilder())->mapper();
 
@@ -35,7 +35,7 @@ final class MapperBench
     }
 
     #[Subject]
-    public function stringArray()
+    public function stringArray(): void
     {
         $mapper = (new MapperBuilder())->mapper();
 
@@ -151,7 +151,7 @@ final class MapperBench
     }
 
     #[Subject]
-    public function readme()
+    public function readme(): void
     {
         $mapper = (new MapperBuilder())->mapper();
         $json = <<<JSON
