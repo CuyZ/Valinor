@@ -13,11 +13,12 @@ use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InterfaceHasBothConstructorAndInfer;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
-use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
+use Throwable;
 
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
@@ -27,6 +28,8 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private FunctionsContainer $constructors,
+        /** @var callable(Throwable): ErrorMessage */
+        private mixed $exceptionFilter,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -69,7 +72,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
 
         if ($argumentsValues->hasInvalidValue()) {
-            throw new InvalidSource($shell->value(), $arguments);
+            return TreeNode::error($shell, new InvalidSource($shell->value(), $arguments));
         }
 
         $children = $this->children($shell, $argumentsValues, $rootBuilder);
@@ -87,7 +90,9 @@ final class InterfaceNodeBuilder implements NodeBuilder
         try {
             $classType = $this->implementations->implementation($className, $values);
         } catch (ObjectImplementationCallbackError $exception) {
-            throw UserlandError::from($exception);
+            $exception = ($this->exceptionFilter)($exception->original());
+
+            return TreeNode::error($shell, $exception);
         }
 
         $shell = $shell->withType($classType);

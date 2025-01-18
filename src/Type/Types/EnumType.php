@@ -24,7 +24,7 @@ final class EnumType implements ClassType
 
     private string $pattern;
 
-    /** @var array<UnitEnum> */
+    /** @var non-empty-array<UnitEnum> */
     private array $cases;
 
     /**
@@ -93,7 +93,7 @@ final class EnumType implements ClassType
 
     public function accepts(mixed $value): bool
     {
-        return $value instanceof $this->enumName;
+        return in_array($value, $this->cases, true);
     }
 
     public function compiledAccept(CompliantNode $node): CompliantNode
@@ -125,6 +125,9 @@ final class EnumType implements ClassType
             || $other instanceof MixedType;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function readableSignature(): string
     {
         return implode('|', array_keys($this->cases));

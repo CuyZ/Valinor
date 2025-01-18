@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
-use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
 use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithDifferentNamespaces\A\ClassThatInheritsInterfaceA;
@@ -264,9 +263,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     {
         $exception = new DomainException('some error message', 1653990051);
 
-        $this->expectException(ObjectImplementationCallbackError::class);
-        $this->expectExceptionCode(1653983061);
-        $this->expectExceptionMessage('Error thrown when trying to get implementation of `DateTimeInterface`: some error message');
+        $this->expectExceptionObject($exception);
 
         $this->mapperBuilder()
             ->infer(
@@ -351,10 +348,9 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(SomeInterface::class, 42);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1632903281', $error->code());
-            self::assertSame('Value 42 does not match type `array{type: string, key: int}`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1632903281] Value 42 does not match type `array{type: string, key: int}`.",
+            ]);
         }
     }
 
@@ -370,9 +366,9 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(SomeInterface::class, 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['key']->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                'key' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
     }
 
@@ -391,10 +387,9 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                     'superfluousValue' => 'bar',
                 ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1655117782', $error->code());
-            self::assertSame('Unexpected key(s) `superfluousValue`, expected `valueA`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1655117782] Unexpected key(s) `superfluousValue`, expected `valueA`.",
+            ]);
         }
     }
 }

@@ -15,6 +15,7 @@ use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
 use function array_unique;
+use function array_values;
 use function is_callable;
 
 /** @api */
@@ -230,7 +231,7 @@ final class MapperBuilder
     public function supportDateFormats(string $format, string ...$formats): self
     {
         $clone = clone $this;
-        $clone->settings->supportedDateFormats = array_unique([$format, ...$formats]);
+        $clone->settings->supportedDateFormats = array_values(array_unique([$format, ...$formats]));
 
         return $clone;
     }

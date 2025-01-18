@@ -140,7 +140,7 @@ abstract class ParentClassWithPsalmGenericTypes
  * @psalm-template FirstTemplate
  * @psalm-extends ParentClassWithPsalmGenericTypes<FirstTemplate, int> Some comment
  *
- * @phpstan-ignore-next-line / It seems PHPStan doesn't support the `@psalm-extends` tag
+ * @phpstan-ignore missingType.generics (It seems PHPStan doesn't support the `@psalm-extends` tag)
  */
 abstract class SecondParentClassWithPsalmAnnotations extends ParentClassWithPsalmGenericTypes
 {
@@ -151,6 +151,6 @@ abstract class SecondParentClassWithPsalmAnnotations extends ParentClassWithPsal
 /**
  * @psalm-extends SecondParentClassWithPsalmAnnotations<string> Some comment
  *
- * @phpstan-ignore-next-line / It seems PHPStan doesn't support the `@psalm-extends` tag
+ * @phpstan-ignore missingType.generics (It seems PHPStan doesn't support the `@psalm-extends` tag)
  */
 final class ChildClassWithPsalmAnnotations extends SecondParentClassWithPsalmAnnotations {}

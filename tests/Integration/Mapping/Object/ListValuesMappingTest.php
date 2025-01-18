@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
+use stdClass;
 
 final class ListValuesMappingTest extends IntegrationTestCase
 {
@@ -49,14 +51,11 @@ final class ListValuesMappingTest extends IntegrationTestCase
     public function test_empty_list_in_non_empty_list_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ListValues::class, [
-                'nonEmptyListOfStrings' => [],
-            ]);
+            $this->mapperBuilder()->mapper()->map('non-empty-list<string>', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['nonEmptyListOfStrings']->messages()[0];
-
-            self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match type `non-empty-list<string>`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1630678334] Value array (empty) does not match type `non-empty-list<string>`.",
+            ]);
         }
     }
 
@@ -68,24 +67,35 @@ final class ListValuesMappingTest extends IntegrationTestCase
                 2 => 'bar',
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[2]->messages()[0];
-
-            self::assertSame('1654273010', $error->code());
-            self::assertSame('Invalid sequential key 2, expected 1.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '2' => '[1654273010] Invalid sequential key 2, expected 1.',
+            ]);
         }
     }
 
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ListValues::class, [
-                'integers' => ['foo'],
-            ]);
+            $this->mapperBuilder()->mapper()->map('list<int>', ['foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['integers']->children()['0']->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '0' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
+    }
+
+    public function test_invalid_list_key_type_throws_exception(): void
+    {
+        $this->expectException(InvalidIterableKeyType::class);
+        $this->expectExceptionCode(1737104770);
+        $this->expectExceptionMessage('Invalid key of type `stdClass` at path `*root*`, only integers and strings are allowed.');
+
+        $this->mapperBuilder()->mapper()->map(
+            'list<string>',
+            (function () {
+                yield new stdClass() => 'foo';
+            })(),
+        );
     }
 }
 

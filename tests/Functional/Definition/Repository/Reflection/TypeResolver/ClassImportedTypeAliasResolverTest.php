@@ -170,41 +170,29 @@ final class SomeClassWithGenericLocalAlias {}
  * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias
  * @phpstan-import-type IntegerRangeAlias from AnotherClassWithLocalAlias
  * @phpstan-import-type MultilineShapedArrayAlias from SomeClassWithLocalAlias
- * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string>
- *
- * @phpstan-ignore-next-line / PHPStan cannot infer an import type from class with generic
+ * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string> (@phpstan-ignore-line)
  */
 final class SomeClassImportingAlias {}
 
 /**
  * Some comment
  *
- * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias Here is some comment
+ * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias Here is some comment (@phpstan-ignore-line)
  * @phpstan-import-type IntegerRangeAlias from AnotherClassWithLocalAlias Another comment
  * @phpstan-import-type MultilineShapedArrayAlias from SomeClassWithLocalAlias Yet another comment
  * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string> And another comment
  *
  * Another comment
- *
- * @phpstan-ignore-next-line / PHPStan cannot infer an import type from class with generic
  */
 final class SomeClassImportingAliasWithComments {}
 
 /**
- * Empty imported type:
+ * Empty imported type (@phpstan-ignore-next-line)
  * @phpstan-import-type
  *
- * Imported type with missing class:
+ * Imported type with missing class (@phpstan-ignore-next-line)
  * @phpstan-import-type SomeType from
  *
  * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias
- *
- * Empty imported type:
- * @phpstan-import-type
- *
- * Imported type with missing class:
- * @phpstan-import-type SomeType from
- *
- * @phpstan-ignore-next-line / Invalid annotations are here on purpose to test them
  */
 final class SomeClassImportingAliasWithEmptyImports {}

@@ -89,10 +89,9 @@ final class UnionValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('string|int', 42.404);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame('Value 42.404 does not match any of `string`, `int`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[1607027306] Value 42.404 does not match any of `string`, `int`.',
+            ]);
         }
     }
 }

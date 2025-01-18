@@ -52,10 +52,9 @@ final class ShapedArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', ['foo' => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['bar']->messages()[0];
-
-            self::assertSame('1655449641', $error->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `int`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'bar' => "[1655449641] Cannot be empty and must be filled with a value matching type `int`.",
+            ]);
         }
     }
 
@@ -70,12 +69,10 @@ final class ShapedArrayMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', $source);
         } catch (MappingError $exception) {
-            $rootError = $exception->node()->messages()[0];
-            $nestedError = $exception->node()->children()['foo']->messages()[0];
-
-            self::assertSame('1655117782', $rootError->code());
-            self::assertSame('Unexpected key(s) `fiz`, expected `foo`, `bar`.', (string)$rootError);
-            self::assertSame('Value 404 is not a valid string.', (string)$nestedError);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[1655117782] Unexpected key(s) `fiz`, expected `foo`, `bar`.',
+                'foo' => '[unknown] Value 404 is not a valid string.',
+            ]);
         }
     }
 }

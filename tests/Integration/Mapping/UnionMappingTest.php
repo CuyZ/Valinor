@@ -306,10 +306,9 @@ final class UnionMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value 'foo', it matches two or more types from union: cannot take a decision.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1710262975] Invalid value 'foo', it matches two or more types from union: cannot take a decision.",
+            ]);
         }
     }
 
@@ -326,10 +325,9 @@ final class UnionMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1710262975] Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.",
+            ]);
         }
     }
 
@@ -345,10 +343,9 @@ final class UnionMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value array{0: 'foo', 1: 'bar'}, it matches two or more types from `array<string>`, `array<'foo'|'bar'>`: cannot take a decision.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1710262975] Invalid value array{0: 'foo', 1: 'bar'}, it matches two or more types from `array<string>`, `array<'foo'|'bar'>`: cannot take a decision.",
+            ]);
         }
     }
 
@@ -364,10 +361,9 @@ final class UnionMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1710262975', $error->code());
-            self::assertSame("Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1710262975] Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.",
+            ]);
         }
     }
 }

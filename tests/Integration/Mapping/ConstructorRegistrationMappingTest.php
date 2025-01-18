@@ -174,6 +174,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
                      * @param class-string<SomeAbstractClassWithStaticConstructor> $className
                      */
                     #[DynamicConstructor]
+                    // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
                     fn (string $className, string $foo, int $bar): SomeAbstractClassWithStaticConstructor => $className::from($foo, $bar)
                 )
                 ->mapper()
@@ -200,6 +201,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
                      * @param class-string<SomeInterfaceWithStaticConstructor> $className
                      */
                     #[DynamicConstructor]
+                    // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
                     fn (string $className, string $foo, int $bar): SomeInterfaceWithStaticConstructor => $className::from($foo, $bar)
                 )
                 ->mapper()
@@ -671,10 +673,9 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(stdClass::class, []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1642183169', $error->code());
-            self::assertSame('Value array (empty) does not match any of `string`, `array{bar: int, baz?: float}`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1642183169] Value array (empty) does not match any of `string`, `array{bar: int, baz?: float}`.",
+            ]);
         }
     }
 
@@ -811,10 +812,9 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1656076090', $error->code());
-            self::assertSame('some error message', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1656076090] some error message",
+            ]);
         }
     }
 

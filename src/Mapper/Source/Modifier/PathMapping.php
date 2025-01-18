@@ -17,7 +17,7 @@ use function is_array;
  */
 final class PathMapping implements IteratorAggregate
 {
-    /** @var array<string, mixed> */
+    /** @var array<mixed> */
     private array $source;
 
     /**

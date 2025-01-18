@@ -13,7 +13,7 @@ final class CallbackMessageFormatterTest extends TestCase
 {
     public function test_callbacks_is_called_and_modifies_message(): void
     {
-        $message = (FakeNodeMessage::withBody('some message with {some_parameter}'))
+        $message = (FakeNodeMessage::new(body: 'some message with {some_parameter}'))
             ->withParameter('some_parameter', 'some_value');
 
         $formatter = new CallbackMessageFormatter(

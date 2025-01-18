@@ -47,7 +47,7 @@ final class ApiAndInternalAnnotationCheck implements Rule
             return [
                 RuleErrorBuilder::message(
                     'Missing annotation `@api` or `@internal`.'
-                )->build(),
+                )->identifier('valinor.apiOrInternalAnnotation')->build(),
             ];
         }
 

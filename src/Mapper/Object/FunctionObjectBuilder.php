@@ -60,6 +60,7 @@ final class FunctionObjectBuilder implements ObjectBuilder
         $arguments = new MethodArguments($parameters, $arguments);
 
         try {
+            /** @var object */
             return ($this->function->callback)(...$arguments);
         } catch (Exception $exception) {
             throw UserlandError::from($exception);
@@ -69,5 +70,10 @@ final class FunctionObjectBuilder implements ObjectBuilder
     public function signature(): string
     {
         return $this->function->definition->signature;
+    }
+
+    public function signatureForArgument(string $argumentName): string
+    {
+        return $this->function->definition->parameters->get($argumentName)->signature;
     }
 }

@@ -39,10 +39,9 @@ final class NullableMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1710263908', $error->code());
-            self::assertSame("Value 'foo' is not null.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1710263908] Value 'foo' is not null.",
+            ]);
         }
     }
 }

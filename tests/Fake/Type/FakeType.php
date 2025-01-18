@@ -31,7 +31,7 @@ final class FakeType implements Type
 
     private bool $permissive = false;
 
-    public function __construct(string $name = null)
+    public function __construct(?string $name = null)
     {
         $this->name = $name ?? 'FakeType' . self::$counter++;
     }

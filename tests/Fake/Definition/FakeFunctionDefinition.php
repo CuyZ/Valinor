@@ -16,7 +16,7 @@ final class FakeFunctionDefinition
     /**
      * @param non-empty-string|null $fileName
      */
-    public static function new(string $fileName = null): FunctionDefinition
+    public static function new(?string $fileName = null): FunctionDefinition
     {
         return new FunctionDefinition(
             'foo',

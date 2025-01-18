@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
+use stdClass;
 
 final class ArrayValuesMappingTest extends IntegrationTestCase
 {
@@ -69,28 +71,37 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
     public function test_empty_array_in_non_empty_array_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ArrayValues::class, [
-                'nonEmptyArraysOfStrings' => [],
-            ]);
+            $this->mapperBuilder()->mapper()->map('non-empty-array<string>', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
-
-            self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match type `non-empty-array<string>`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[1630678334] Value array (empty) does not match type `non-empty-array<string>`.',
+            ]);
         }
     }
 
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            $this->mapperBuilder()->mapper()->map(ArrayValues::class, [
-                'integers' => ['foo'],
-            ]);
+            $this->mapperBuilder()->mapper()->map('array<int>', ['foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '0' => "[unknown] Value 'foo' is not a valid integer.",
+            ]);
         }
+    }
+
+    public function test_invalid_array_key_type_throws_exception(): void
+    {
+        $this->expectException(InvalidIterableKeyType::class);
+        $this->expectExceptionCode(1737104770);
+        $this->expectExceptionMessage('Invalid key of type `stdClass` at path `*root*`, only integers and strings are allowed.');
+
+        $this->mapperBuilder()->mapper()->map(
+            'array<string>',
+            (function () {
+                yield new stdClass() => 'foo';
+            })(),
+        );
     }
 }
 

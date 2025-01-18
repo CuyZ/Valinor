@@ -70,10 +70,9 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(ObjectWithConstants::class . '::CONST_WITH_STRING_*', 'some private string value');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Value 'some private string value' does not match any of 'some string value', 'another string value'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value 'some private string value' does not match any of 'some string value', 'another string value'.",
+            ]);
         }
     }
 
@@ -84,10 +83,9 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
                 ->mapper()
                 ->map(ObjectWithConstants::class . '::CONST_WITH_STRING_*', 'some prefixed string value');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1607027306', $error->code());
-            self::assertSame("Value 'some prefixed string value' does not match any of 'some string value', 'another string value'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1607027306] Value 'some prefixed string value' does not match any of 'some string value', 'another string value'.",
+            ]);
         }
     }
 }

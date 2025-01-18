@@ -36,10 +36,9 @@ final class ExceptionFilteringTest extends IntegrationTestCase
                 ->mapper()
                 ->map(ClassThatThrowsExceptionIfInvalidValue::class, 'bar');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1657197780', $error->code());
-            self::assertSame('some error message', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1657197780] some error message",
+            ]);
         }
     }
 }

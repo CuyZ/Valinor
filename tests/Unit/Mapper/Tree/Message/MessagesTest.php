@@ -19,8 +19,8 @@ final class MessagesTest extends TestCase
 {
     public function test_iterator_yield_correct_messages(): void
     {
-        $messageA = FakeNodeMessage::any();
-        $messageB = FakeNodeMessage::any();
+        $messageA = FakeNodeMessage::new();
+        $messageB = FakeNodeMessage::new();
 
         $messages = new Messages($messageA, $messageB);
 
@@ -29,8 +29,8 @@ final class MessagesTest extends TestCase
 
     public function test_to_array_yield_correct_messages(): void
     {
-        $messageA = FakeNodeMessage::any();
-        $messageB = FakeNodeMessage::any();
+        $messageA = FakeNodeMessage::new();
+        $messageB = FakeNodeMessage::new();
 
         $messages = new Messages($messageA, $messageB);
 
@@ -39,7 +39,7 @@ final class MessagesTest extends TestCase
 
     public function test_count_messages_return_correct_number(): void
     {
-        $messages = new Messages(FakeNodeMessage::any(), FakeNodeMessage::any());
+        $messages = new Messages(FakeNodeMessage::new(), FakeNodeMessage::new());
 
         self::assertSame(2, count($messages));
     }
@@ -47,9 +47,9 @@ final class MessagesTest extends TestCase
     public function test_filter_errors_returns_only_errors(): void
     {
         $messages = new Messages(
-            FakeNodeMessage::withMessage(new FakeMessage()),
-            $errorMessage = FakeNodeMessage::withMessage(new FakeErrorMessage()),
-            FakeNodeMessage::withMessage(new FakeMessage()),
+            FakeNodeMessage::new(),
+            $errorMessage = FakeNodeMessage::new(message: new FakeErrorMessage()),
+            FakeNodeMessage::new(),
         );
 
         $errors = $messages->errors();
@@ -60,7 +60,7 @@ final class MessagesTest extends TestCase
 
     public function test_formatter_are_used_on_messages(): void
     {
-        $messages = new Messages(FakeNodeMessage::withBody('some message'));
+        $messages = new Messages(FakeNodeMessage::new(body: 'some message'));
 
         $formatterA = FakeMessageFormatter::withPrefix('prefixA /');
         $formatterB = FakeMessageFormatter::withPrefix('prefixB /');

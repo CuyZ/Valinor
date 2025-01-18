@@ -179,9 +179,9 @@ final class SomeClassWithConstructorAttributeWithInvalidReturnClassName
 final class SomeClassWithConstructorAttributeWithUnresolvableReturnClassName
 {
     /**
-     * @phpstan-ignore-next-line
      * @return Unresolvable-Type
      */
+    // @phpstan-ignore return.unresolvableType, missingType.return
     #[Constructor]
     public static function someConstructor() {}
 }

@@ -90,8 +90,8 @@ final class Annotations
     }
 
     /**
-     * @param array<string> $array
-     * @return array<string>
+     * @param list<string> $array
+     * @return list<string>
      */
     private function trimArrayTips(array $array): array
     {

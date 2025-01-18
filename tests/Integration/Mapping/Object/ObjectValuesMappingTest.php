@@ -37,10 +37,9 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             try {
                 $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $exception) {
-                $error = $exception->node()->messages()[0];
-
-                self::assertSame('1632903281', $error->code());
-                self::assertSame("Value 'foo' does not match type `array{object: ?, string: string}`.", (string)$error);
+                self::assertMappingErrors($exception, [
+                    '*root*' => "[1632903281] Value 'foo' does not match type `array{object: ?, string: string}`.",
+                ]);
             }
         }
     }
@@ -56,12 +55,10 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
                 42 => 'baz',
             ]);
         } catch (MappingError $exception) {
-            $rootError = $exception->node()->messages()[0];
-            $nestedError = $exception->node()->children()['stringA']->messages()[0];
-
-            self::assertSame('1655117782', $rootError->code());
-            self::assertSame('Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.', (string)$rootError);
-            self::assertSame('Value 42 is not a valid string.', (string)$nestedError);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1655117782] Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.",
+                'stringA' => '[unknown] Value 42 is not a valid string.'
+            ]);
         }
     }
 
@@ -70,10 +67,9 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
         try {
             $this->mapperBuilder()->mapper()->map(stdClass::class, 'foo');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1632903281', $error->code());
-            self::assertSame("Value 'foo' does not match type array.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1632903281] Value 'foo' does not match type array.",
+            ]);
         }
     }
 }
