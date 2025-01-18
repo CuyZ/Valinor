@@ -15,8 +15,6 @@ use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
-use CuyZ\Valinor\Type\Types\MixedType;
-use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 
 /** @internal */
 final class TypeHelper
@@ -86,31 +84,5 @@ final class TypeHelper
         }
 
         return $type instanceof ObjectType;
-    }
-
-    public static function checkPermissiveType(Type $type): void
-    {
-        if ($permissiveType = self::findPermissiveType($type)) {
-            throw new PermissiveTypeFound($type, $permissiveType);
-        }
-    }
-
-    private static function findPermissiveType(Type $type): ?Type
-    {
-        if ($type instanceof CompositeType) {
-            foreach ($type->traverse() as $subType) {
-                $permissiveType = self::findPermissiveType($subType);
-
-                if ($permissiveType) {
-                    return $permissiveType;
-                }
-            }
-        }
-
-        if ($type instanceof MixedType || $type instanceof UndefinedObjectType) {
-            return $type;
-        }
-
-        return null;
     }
 }

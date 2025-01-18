@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Utility;
 use BackedEnum;
 use CuyZ\Valinor\Utility\String\StringCutter;
 use DateTimeInterface;
+use Generator;
 use UnitEnum;
 
 use function implode;
@@ -14,6 +15,7 @@ use function is_array;
 use function is_bool;
 use function is_float;
 use function is_int;
+use function is_iterable;
 use function is_object;
 use function is_string;
 use function str_contains;
@@ -74,37 +76,55 @@ final class ValueDumper
             return $value->format(self::DATE_FORMAT);
         }
 
-        if (is_object($value)) {
-            return 'object(' . $value::class . ')';
-        }
+        if (is_iterable($value) && ! $value instanceof Generator) {
+            /** @var iterable<string|int, mixed> $value */
+            if (is_array($value)) {
+                $type = 'array';
+            } else {
+                $type = 'iterable';
+            }
 
-        if (is_array($value)) {
-            if (empty($value)) {
-                return 'array (empty)';
+            $values = self::listValues($value);
+
+            if (empty($values)) {
+                return "$type (empty)";
             }
 
             if (! $goDeeper) {
-                return 'array{…}';
+                return "$type{…}";
             }
 
-            $index = 0;
-            $values = [];
+            return "$type{" . implode(', ', $values) . '}';
+        }
 
-            foreach ($value as $key => $val) {
-                $values[] = "$key: " . self::doDump($val, false);
-
-                if ($index++ >= self::MAX_ARRAY_ENTRIES) {
-                    $values[] = '…';
-                    break;
-                }
-            }
-
-            return 'array{' . implode(', ', $values) . '}';
+        if (is_object($value)) {
+            return 'object(' . $value::class . ')';
         }
 
         // @codeCoverageIgnoreStart
         return 'unknown';
         // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * @param iterable<string|int, mixed> $iterable
+     * @return array<mixed>
+     */
+    private static function listValues(iterable $iterable): array
+    {
+        $values = [];
+        $index = 0;
+
+        foreach ($iterable as $key => $value) {
+            $values[] = "$key: " . self::doDump($value, false);
+
+            if ($index++ >= self::MAX_ARRAY_ENTRIES) {
+                $values[] = '…';
+                break;
+            }
+        }
+
+        return $values;
     }
 
     private static function crop(string $string): string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility;
 
+use ArrayObject;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -45,6 +46,11 @@ final class ValueDumperTest extends TestCase
             'array' => [['foo' => 'bar', 'baz'], "array{foo: 'bar', 0: 'baz'}"],
             'array with in-depth entries' => [['foo' => ['bar' => 'baz']], "array{foo: array{…}}"],
             'array with too much entries' => [[0, 1, 2, 3, 4, 5, 6, 7], "array{0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, …}"],
+            'array object' => [new ArrayObject(['foo', 'bar']), "iterable{0: 'foo', 1: 'bar'}"],
+            'generator' => [(function () {
+                yield 'foo';
+                yield 'bar';
+            })(), "object(Generator)"],
         ];
     }
 }

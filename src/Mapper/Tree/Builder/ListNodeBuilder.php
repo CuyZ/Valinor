@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidListKey;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -12,7 +13,9 @@ use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 
 use function assert;
-use function is_array;
+use function is_int;
+use function is_iterable;
+use function is_string;
 
 /** @internal */
 final class ListNodeBuilder implements NodeBuilder
@@ -28,8 +31,8 @@ final class ListNodeBuilder implements NodeBuilder
             return TreeNode::branch($shell, [], []);
         }
 
-        if (! is_array($value)) {
-            throw new SourceMustBeIterable($value, $type);
+        if (! is_iterable($value)) {
+            return TreeNode::error($shell, new SourceMustBeIterable($value, $type));
         }
 
         $children = $this->children($type, $shell, $rootBuilder);
@@ -43,7 +46,7 @@ final class ListNodeBuilder implements NodeBuilder
      */
     private function children(CompositeTraversableType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
     {
-        /** @var array<mixed> $values */
+        /** @var iterable<mixed> $values */
         $values = $shell->value();
         $subType = $type->subType();
 
@@ -51,6 +54,10 @@ final class ListNodeBuilder implements NodeBuilder
         $children = [];
 
         foreach ($values as $key => $value) {
+            if (! is_string($key) && ! is_int($key)) {
+                throw new InvalidIterableKeyType($key, $shell->path());
+            }
+
             if ($shell->enableFlexibleCasting() || $key === $expected) {
                 $child = $shell->child((string)$expected, $subType);
                 $children[$expected] = $rootBuilder->build($child->withValue($value));

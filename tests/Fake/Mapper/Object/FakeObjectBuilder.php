@@ -24,4 +24,9 @@ final class FakeObjectBuilder implements ObjectBuilder
     {
         return 'FakeObjectBuilder';
     }
+
+    public function signatureForArgument(string $argumentName): string
+    {
+        return 'FakeSignatureForArgument';
+    }
 }

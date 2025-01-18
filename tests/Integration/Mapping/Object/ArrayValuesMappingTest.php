@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
+use stdClass;
 
 final class ArrayValuesMappingTest extends IntegrationTestCase
 {
@@ -86,6 +88,20 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
                 '0' => "[unknown] Value 'foo' is not a valid integer.",
             ]);
         }
+    }
+
+    public function test_invalid_array_key_type_throws_exception(): void
+    {
+        $this->expectException(InvalidIterableKeyType::class);
+        $this->expectExceptionCode(1737104770);
+        $this->expectExceptionMessage('Invalid key of type `stdClass` at path `*root*`, only integers and strings are allowed.');
+
+        $this->mapperBuilder()->mapper()->map(
+            'array<string>',
+            (function () {
+                yield new stdClass() => 'foo';
+            })(),
+        );
     }
 }
 

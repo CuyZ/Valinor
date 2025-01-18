@@ -14,5 +14,13 @@ interface ObjectBuilder
      */
     public function build(array $arguments): object;
 
+    /**
+     * @return non-empty-string
+     */
     public function signature(): string;
+
+    /**
+     * @return non-empty-string
+     */
+    public function signatureForArgument(string $argumentName): string;
 }

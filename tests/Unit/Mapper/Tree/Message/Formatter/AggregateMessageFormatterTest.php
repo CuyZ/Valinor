@@ -18,7 +18,7 @@ final class AggregateMessageFormatterTest extends TestCase
             FakeMessageFormatter::withPrefix('prefix B:'),
         );
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('prefix B: prefix A: some message', (string)$message);
     }

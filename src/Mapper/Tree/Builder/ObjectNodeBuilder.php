@@ -10,8 +10,12 @@ use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
+use Throwable;
 
 use function assert;
 use function count;
@@ -22,6 +26,8 @@ final class ObjectNodeBuilder implements NodeBuilder
     public function __construct(
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory,
+        /** @var callable(Throwable): ErrorMessage */
+        private mixed $exceptionFilter,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
@@ -30,6 +36,10 @@ final class ObjectNodeBuilder implements NodeBuilder
 
         // @infection-ignore-all
         assert($type instanceof ObjectType);
+
+        if ($type->accepts($shell->value())) {
+            return TreeNode::leaf($shell, $shell->value());
+        }
 
         if ($shell->enableFlexibleCasting() && $shell->value() === null) {
             $shell = $shell->withValue([]);
@@ -51,7 +61,15 @@ final class ObjectNodeBuilder implements NodeBuilder
 
             $children = $this->children($shell, $argumentsValues, $rootBuilder);
 
-            $object = $this->buildObject($builder, $children);
+            try {
+                $object = $this->buildObject($builder, $children);
+            } catch (Message $exception) {
+                if ($exception instanceof UserlandError) {
+                    $exception = ($this->exceptionFilter)($exception->previous());
+                }
+
+                return TreeNode::error($shell, $exception);
+            }
 
             if ($argumentsValues->hadSingleArgument()) {
                 $node = TreeNode::flattenedBranch($shell, $object, $children[0]);
@@ -65,7 +83,7 @@ final class ObjectNodeBuilder implements NodeBuilder
             }
         }
 
-        throw new CannotFindObjectBuilder($builders);
+        return TreeNode::error($shell, new CannotFindObjectBuilder($builders));
     }
 
     /**
