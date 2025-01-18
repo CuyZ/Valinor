@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\QA\Benchmark;
 
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Mapper\Source\Source;
-use CuyZ\Valinor\Fixtures\Country;
+use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\QA\Benchmark\Fixtures\Country;
 use PhpBench\Attributes\Subject;
 
 use function array_fill;

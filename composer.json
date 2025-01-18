@@ -40,8 +40,7 @@
     "autoload-dev": {
         "psr-4": {
             "CuyZ\\Valinor\\Tests\\": "tests",
-            "CuyZ\\Valinor\\QA\\": "qa",
-            "CuyZ\\Valinor\\Fixtures\\": "fixtures"
+            "CuyZ\\Valinor\\QA\\": "qa"
         }
     },
     "scripts": {

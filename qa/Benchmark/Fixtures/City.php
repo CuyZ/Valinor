@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace CuyZ\Valinor\Fixtures;
+namespace CuyZ\Valinor\QA\Benchmark\Fixtures;
 
 use DateTimeZone;
 
