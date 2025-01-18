@@ -27,6 +27,8 @@ jobs:
 
       - name: Checkout PR code
         uses: actions/checkout@v3
+        with:
+          clean: false
 
       - uses: "ramsey/composer-install@v2"
 
