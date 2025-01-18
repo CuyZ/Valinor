@@ -10,7 +10,6 @@ use CuyZ\Valinor\QA\Benchmark\Fixtures\Country;
 use PhpBench\Attributes\Subject;
 
 use function array_fill;
-use function json_encode;
 
 final class MapperBench
 {
@@ -42,11 +41,11 @@ final class MapperBench
     {
         $mapper = (new MapperBuilder())->mapper();
 
-        $json = json_encode(array_fill(0, 100, 'foo'));
+        $value = array_fill(0, 100, 'foo');
 
-        $country = $mapper->map(
+        $mapper->map(
             'list<string>',
-            Source::json($json),
+            $value,
         );
     }
 
@@ -64,7 +63,7 @@ final class MapperBench
             }
         JSON;
 
-        $country = $mapper->map(
+        $mapper->map(
             Country::class,
             Source::json($json),
         );
