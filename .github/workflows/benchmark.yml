@@ -7,10 +7,10 @@ jobs:
     env:
       php-version: '8.3'
     steps:
-      - name: Checkout master
+      - name: Checkout target branch
         uses: actions/checkout@v3
         with:
-          ref: 'master'
+          ref: ${{ github.base_ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
