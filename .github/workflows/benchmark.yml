@@ -22,7 +22,7 @@ jobs:
 
       - uses: "ramsey/composer-install@v2"
 
-      - name: Creating a baseline benchmark from master
+      - name: Creating a baseline benchmark from target branch
         run: composer run-script benchmark-baseline
 
       - name: Checkout PR code
