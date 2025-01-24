@@ -52,6 +52,7 @@ final class ArrayNodeBuilder implements NodeBuilder
             if (! is_string($key) && ! is_int($key)) {
                 throw new InvalidIterableKeyType($key, $shell->path());
             }
+
             $child = $shell->child((string)$key, $subType);
 
             if (! $keyType->accepts($key)) {
