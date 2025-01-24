@@ -39,7 +39,7 @@ final class ObjectNodeBuilder implements NodeBuilder
         assert($type instanceof ObjectType);
 
         if ($type->accepts($shell->value())) {
-            return Node::leaf($shell->value());
+            return Node::new($shell->value());
         }
 
         if ($shell->enableFlexibleCasting() && $shell->value() === null) {
@@ -54,7 +54,7 @@ final class ObjectNodeBuilder implements NodeBuilder
 
             if ($argumentsValues->hasInvalidValue()) {
                 if (count($builders) === 1) {
-                    return Node::leafWithError($shell, new InvalidSource($shell->value(), $builder->describeArguments()));
+                    return Node::error($shell, new InvalidSource($shell->value(), $builder->describeArguments()));
                 }
 
                 continue;
@@ -69,7 +69,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                     $exception = ($this->exceptionFilter)($exception->previous());
                 }
 
-                return Node::leafWithError($shell, $exception);
+                return Node::error($shell, $exception);
             }
 
             if ($object === null) {
@@ -83,7 +83,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                     $node = $node->flatten();
                 }
             } else {
-                $node = Node::branch(value: $object, childrenCount: count($children));
+                $node = Node::new(value: $object, childrenCount: count($children));
             }
 
             if (! $argumentsValues->hadSingleArgument()) {
@@ -95,7 +95,7 @@ final class ObjectNodeBuilder implements NodeBuilder
             }
         }
 
-        return Node::leafWithError($shell, new CannotFindObjectBuilder($builders));
+        return Node::error($shell, new CannotFindObjectBuilder($builders));
     }
 
     /**

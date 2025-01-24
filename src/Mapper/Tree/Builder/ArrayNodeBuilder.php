@@ -31,15 +31,15 @@ final class ArrayNodeBuilder implements NodeBuilder
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
         if ($shell->enableFlexibleCasting() && $value === null) {
-            return Node::branch([]);
+            return Node::new([]);
         }
 
         if (! is_iterable($value)) {
-            return Node::leafWithError($shell, new SourceMustBeIterable($value, $type));
+            return Node::error($shell, new SourceMustBeIterable($value, $type));
         }
 
         if ($value === [] && $type instanceof NonEmptyArrayType) {
-            return Node::leafWithError($shell, new SourceIsEmptyArray($type));
+            return Node::error($shell, new SourceIsEmptyArray($type));
         }
 
         $keyType = $type->keyType();
@@ -56,7 +56,7 @@ final class ArrayNodeBuilder implements NodeBuilder
             $child = $shell->child((string)$key, $subType);
 
             if (! $keyType->accepts($key)) {
-                $children[$key] = Node::leafWithError($child, new InvalidTraversableKey($key, $keyType));
+                $children[$key] = Node::error($child, new InvalidTraversableKey($key, $keyType));
             } else {
                 $children[$key] = $rootBuilder->build($child->withValue($val));
             }
@@ -70,7 +70,7 @@ final class ArrayNodeBuilder implements NodeBuilder
             return Node::branchWithErrors($errors);
         }
 
-        return Node::branch(
+        return Node::new(
             value: array_map(
                 static fn (Node $child) => $child->value(),
                 $children,

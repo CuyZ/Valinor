@@ -28,15 +28,15 @@ final class ListNodeBuilder implements NodeBuilder
         assert($type instanceof ListType || $type instanceof NonEmptyListType);
 
         if ($shell->enableFlexibleCasting() && $value === null) {
-            return Node::branch(value: []);
+            return Node::new(value: []);
         }
 
         if (! is_iterable($value)) {
-            return Node::leafWithError($shell, new SourceMustBeIterable($value, $type));
+            return Node::error($shell, new SourceMustBeIterable($value, $type));
         }
 
         if ($value === [] && $type instanceof NonEmptyListType) {
-            return Node::leafWithError($shell, new SourceIsEmptyList($type));
+            return Node::error($shell, new SourceIsEmptyList($type));
         }
 
         $subType = $type->subType();
@@ -55,7 +55,7 @@ final class ListNodeBuilder implements NodeBuilder
                 $childNode = $children[$expected] = $rootBuilder->build($child->withValue($val));
             } else {
                 $child = $shell->child((string)$key, $subType);
-                $childNode = $children[$key] = Node::leafWithError($child, new InvalidListKey($key, $expected));
+                $childNode = $children[$key] = Node::error($child, new InvalidListKey($key, $expected));
             }
 
             if (! $childNode->isValid()) {
@@ -69,7 +69,7 @@ final class ListNodeBuilder implements NodeBuilder
             return Node::branchWithErrors($errors);
         }
 
-        return Node::branch(
+        return Node::new(
             value: array_map(
                 static fn (Node $child) => $child->value(),
                 $children,

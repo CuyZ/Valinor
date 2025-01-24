@@ -26,9 +26,9 @@ final class UndefinedObjectNodeBuilder implements NodeBuilder
         $value = $shell->value();
 
         if (! is_object($value)) {
-            return Node::leafWithError($shell, new InvalidNodeValue($shell->type()));
+            return Node::error($shell, new InvalidNodeValue($shell->type()));
         }
 
-        return Node::leaf($value);
+        return Node::new($value);
     }
 }

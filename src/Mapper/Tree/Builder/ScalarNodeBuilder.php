@@ -20,13 +20,13 @@ final class ScalarNodeBuilder implements NodeBuilder
         assert($type instanceof ScalarType);
 
         if ($type->accepts($value)) {
-            return Node::leaf($value);
+            return Node::new($value);
         }
 
         if (! $shell->enableFlexibleCasting() || ! $type->canCast($value)) {
-            return Node::leafWithError($shell, $type->errorMessage());
+            return Node::error($shell, $type->errorMessage());
         }
 
-        return Node::leaf($type->cast($value));
+        return Node::new($type->cast($value));
     }
 }

@@ -16,7 +16,7 @@ final class RootNodeBuilder
     {
         if (! $shell->hasValue()) {
             if (! $shell->enableFlexibleCasting()) {
-                return Node::leafWithError($shell, new MissingNodeValue($shell->type()));
+                return Node::error($shell, new MissingNodeValue($shell->type()));
             }
 
             $shell = $shell->withValue(null);
