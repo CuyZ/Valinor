@@ -38,7 +38,7 @@ final class UnionNodeBuilder implements NodeBuilder
             // @infection-ignore-all / This is a performance optimisation, so we
             // cannot easily test this behavior.
             if ($subType instanceof NullType && $shell->value() === null) {
-                return Node::leaf(null);
+                return Node::new(null);
             }
 
             try {
@@ -67,7 +67,7 @@ final class UnionNodeBuilder implements NodeBuilder
         }
 
         if ($all === []) {
-            return Node::leafWithError($shell, new CannotResolveTypeFromUnion($shell->value(), $type));
+            return Node::error($shell, new CannotResolveTypeFromUnion($shell->value(), $type));
         }
 
         if (count($all) === 1) {
@@ -106,6 +106,6 @@ final class UnionNodeBuilder implements NodeBuilder
             return $scalars[0]['node'];
         }
 
-        return Node::leafWithError($shell, new TooManyResolvedTypesFromUnion($type));
+        return Node::error($shell, new TooManyResolvedTypesFromUnion($type));
     }
 }

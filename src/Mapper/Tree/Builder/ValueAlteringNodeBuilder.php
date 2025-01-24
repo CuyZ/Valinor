@@ -45,9 +45,9 @@ final class ValueAlteringNodeBuilder implements NodeBuilder
         $type = $shell->type();
 
         if (! $type->accepts($value)) {
-            return Node::leafWithError($shell, new InvalidNodeValue($type));
+            return Node::error($shell, new InvalidNodeValue($type));
         }
 
-        return Node::leaf($value);
+        return Node::new($value);
     }
 }

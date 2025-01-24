@@ -24,7 +24,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         assert($type instanceof ShapedArrayType);
 
         if (! is_iterable($value)) {
-            return Node::leafWithError($shell, new SourceMustBeIterable($value, $type));
+            return Node::error($shell, new SourceMustBeIterable($value, $type));
         }
 
         $children = [];
@@ -73,7 +73,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         }
 
         if ($errors === []) {
-            $node = Node::branch(value: $children, childrenCount: count($children));
+            $node = Node::new(value: $children, childrenCount: count($children));
         } else {
             $node = Node::branchWithErrors($errors);
         }

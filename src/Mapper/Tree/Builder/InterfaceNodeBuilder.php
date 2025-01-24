@@ -78,7 +78,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
 
         if ($argumentsValues->hasInvalidValue()) {
-            return Node::leafWithError($shell, new InvalidSource($shell->value(), $arguments));
+            return Node::error($shell, new InvalidSource($shell->value(), $arguments));
         }
 
         $children = $this->children($shell, $argumentsValues, $rootBuilder);
@@ -98,7 +98,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         } catch (ObjectImplementationCallbackError $exception) {
             $exception = ($this->exceptionFilter)($exception->original());
 
-            return Node::leafWithError($shell, $exception);
+            return Node::error($shell, $exception);
         }
 
         $shell = $shell->withType($classType);

@@ -19,6 +19,6 @@ final class MixedNodeBuilder implements NodeBuilder
             throw new CannotMapToPermissiveType($shell);
         }
 
-        return Node::leaf($shell->value());
+        return Node::new($shell->value());
     }
 }

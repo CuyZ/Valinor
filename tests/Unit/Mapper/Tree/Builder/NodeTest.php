@@ -9,29 +9,26 @@ use PHPUnit\Framework\TestCase;
 
 final class NodeTest extends TestCase
 {
-    public function test_leaf_node_has_correct_values(): void
+    public function test_new_node_has_correct_values(): void
     {
-        $node = Node::leaf('foo');
+        $node = Node::new('foo', 2);
 
         self::assertTrue($node->isValid());
         self::assertSame('foo', $node->value());
         self::assertSame([], $node->messages());
-        self::assertSame(0, $node->childrenCount());
-    }
-
-    public function test_branch_node_has_correct_values(): void
-    {
-        $node = Node::branch(['foo', 'bar'], 2);
-
-        self::assertTrue($node->isValid());
-        self::assertSame(['foo', 'bar'], $node->value());
-        self::assertSame([], $node->messages());
         self::assertSame(2, $node->childrenCount());
     }
 
-    public function test_branch_node_with_no_children_count_has_0_child(): void
+    public function test_new_node_with_no_children_count_has_0_children_count(): void
     {
-        $node = Node::branch([]);
+        $node = Node::new('foo');
+
+        self::assertSame(0, $node->childrenCount());
+    }
+
+    public function test_branch_error_node_has_0_child(): void
+    {
+        $node = Node::branchWithErrors(['foo' => Node::new('foo')]);
 
         self::assertSame(0, $node->childrenCount());
     }

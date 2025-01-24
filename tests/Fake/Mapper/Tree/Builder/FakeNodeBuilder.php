@@ -30,6 +30,6 @@ final class FakeNodeBuilder implements NodeBuilder
             return ($this->callback)($shell);
         }
 
-        return Node::leaf('some value from fake node builder');
+        return Node::new('some value from fake node builder');
     }
 }

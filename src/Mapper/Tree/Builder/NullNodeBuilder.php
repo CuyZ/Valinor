@@ -21,9 +21,9 @@ final class NullNodeBuilder implements NodeBuilder
         assert($type instanceof NullType);
 
         if ($value !== null) {
-            return Node::leafWithError($shell, new SourceIsNotNull());
+            return Node::error($shell, new SourceIsNotNull());
         }
 
-        return Node::leaf(null);
+        return Node::new(null);
     }
 }

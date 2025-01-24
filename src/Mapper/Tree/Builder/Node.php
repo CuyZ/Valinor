@@ -23,26 +23,20 @@ final class Node
     private function __construct(
         private mixed $value,
         /** @var list<NodeMessage> */
-        private array $messages,
+        private array $messages = [],
         /** @var non-negative-int */
         private int $childrenCount = 0,
     ) {}
 
-    public static function leaf(mixed $value): self
-    {
-        return new self(value: $value, messages: []);
-    }
-
     /**
-     * @param iterable<mixed>|object $value
      * @param non-negative-int $childrenCount
      */
-    public static function branch(iterable|object $value, int $childrenCount = 0): self
+    public static function new(mixed $value, int $childrenCount = 0): self
     {
-        return new self(value: $value, messages: [], childrenCount: $childrenCount);
+        return new self(value: $value, childrenCount: $childrenCount);
     }
 
-    public static function leafWithError(Shell $shell, Throwable&Message $error): self
+    public static function error(Shell $shell, Throwable&Message $error): self
     {
         $nodeMessage = new NodeMessage(
             $error,
