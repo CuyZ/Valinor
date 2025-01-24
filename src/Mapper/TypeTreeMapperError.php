@@ -16,7 +16,7 @@ final class TypeTreeMapperError extends RuntimeException implements MappingError
     private Messages $errors;
 
     /**
-     * @param list<NodeMessage> $errors
+     * @param non-empty-list<NodeMessage> $errors
      */
     public function __construct(mixed $source, Type $type, array $errors)
     {

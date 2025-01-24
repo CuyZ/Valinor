@@ -16,7 +16,7 @@ final class ArgumentsMapperError extends RuntimeException implements MappingErro
     private Messages $errors;
 
     /**
-     * @param list<NodeMessage> $errors
+     * @param non-empty-list<NodeMessage> $errors
      */
     public function __construct(mixed $source, FunctionDefinition $function, array $errors)
     {

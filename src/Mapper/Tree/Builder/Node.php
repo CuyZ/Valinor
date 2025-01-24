@@ -70,6 +70,9 @@ final class Node
         return new self(value: null, messages: $messages);
     }
 
+    /**
+     * @phpstan-assert-if-true ! non-empty-list<NodeMessage> $this->messages()
+     */
     public function isValid(): bool
     {
         return $this->messages === [];
