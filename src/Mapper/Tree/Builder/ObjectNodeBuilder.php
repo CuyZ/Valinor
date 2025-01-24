@@ -17,6 +17,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
 use Throwable;
 
+use function array_keys;
 use function assert;
 use function count;
 
@@ -30,7 +31,7 @@ final class ObjectNodeBuilder implements NodeBuilder
         private mixed $exceptionFilter,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
 
@@ -38,7 +39,7 @@ final class ObjectNodeBuilder implements NodeBuilder
         assert($type instanceof ObjectType);
 
         if ($type->accepts($shell->value())) {
-            return TreeNode::leaf($shell, $shell->value());
+            return Node::new($shell->value());
         }
 
         if ($shell->enableFlexibleCasting() && $shell->value() === null) {
@@ -53,7 +54,7 @@ final class ObjectNodeBuilder implements NodeBuilder
 
             if ($argumentsValues->hasInvalidValue()) {
                 if (count($builders) === 1) {
-                    return TreeNode::error($shell, new InvalidSource($shell->value(), $builder->describeArguments()));
+                    return Node::error($shell, new InvalidSource($shell->value(), $builder->describeArguments()));
                 }
 
                 continue;
@@ -68,14 +69,25 @@ final class ObjectNodeBuilder implements NodeBuilder
                     $exception = ($this->exceptionFilter)($exception->previous());
                 }
 
-                return TreeNode::error($shell, $exception);
+                return Node::error($shell, $exception);
             }
 
-            if ($argumentsValues->hadSingleArgument()) {
-                $node = TreeNode::flattenedBranch($shell, $object, $children[0]);
+            if ($object === null) {
+                if (count($builders) > 1) {
+                    continue;
+                }
+
+                $node = Node::branchWithErrors($children);
+
+                if ($argumentsValues->hadSingleArgument()) {
+                    $node = $node->flatten();
+                }
             } else {
-                $node = TreeNode::branch($shell, $object, $children);
-                $node = $node->checkUnexpectedKeys();
+                $node = Node::new(value: $object, childrenCount: count($children));
+            }
+
+            if (! $argumentsValues->hadSingleArgument()) {
+                $node = $node->checkUnexpectedKeys($shell, array_keys($children));
             }
 
             if ($node->isValid() || count($builders) === 1) {
@@ -83,11 +95,11 @@ final class ObjectNodeBuilder implements NodeBuilder
             }
         }
 
-        return TreeNode::error($shell, new CannotFindObjectBuilder($builders));
+        return Node::error($shell, new CannotFindObjectBuilder($builders));
     }
 
     /**
-     * @return list<TreeNode>
+     * @return array<non-empty-string, Node>
      */
     private function children(Shell $shell, ArgumentsValues $arguments, RootNodeBuilder $rootBuilder): array
     {
@@ -104,25 +116,25 @@ final class ObjectNodeBuilder implements NodeBuilder
                 $child = $child->withValue($arguments->getValue($name));
             }
 
-            $children[] = $rootBuilder->build($child);
+            $children[$name] = $rootBuilder->build($child);
         }
 
         return $children;
     }
 
     /**
-     * @param list<TreeNode> $children
+     * @param array<non-empty-string, Node> $children
      */
     private function buildObject(ObjectBuilder $builder, array $children): ?object
     {
         $arguments = [];
 
-        foreach ($children as $child) {
+        foreach ($children as $name => $child) {
             if (! $child->isValid()) {
                 return null;
             }
 
-            $arguments[$child->name()] = $child->value();
+            $arguments[$name] = $child->value();
         }
 
         return $builder->build($arguments);

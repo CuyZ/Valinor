@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 /** @internal */
 final class Argument
 {
+    /** @var non-empty-string */
     private string $name;
 
     private Type $type;
@@ -22,6 +23,9 @@ final class Argument
 
     private Attributes $attributes;
 
+    /**
+     * @param non-empty-string $name
+     */
     public function __construct(string $name, Type $type)
     {
         $this->type = $type;
@@ -54,6 +58,9 @@ final class Argument
         return $instance;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function name(): string
     {
         return $this->name;

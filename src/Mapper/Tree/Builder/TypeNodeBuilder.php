@@ -34,7 +34,7 @@ final class TypeNodeBuilder implements NodeBuilder
         private ObjectNodeBuilder $objectNodeBuilder,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $builder = match ($shell->type()::class) {
             // List

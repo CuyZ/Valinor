@@ -95,6 +95,12 @@ interface DefaultMessage
         'Key {key} does not match type {expected_type}.' => [
             'en' => 'Key {key} does not match type {expected_type}.',
         ],
+        'Array cannot be empty and must contain values of type {expected_subtype}.' => [
+            'en' => 'Array cannot be empty and must contain values of type {expected_subtype}.',
+        ],
+        'List cannot be empty and must contain values of type {expected_subtype}.' => [
+            'en' => 'List cannot be empty and must contain values of type {expected_subtype}.',
+        ],
         'Value {source_value} does not match a valid date format.' => [
             'en' => 'Value {source_value} does not match a valid date format.',
         ],

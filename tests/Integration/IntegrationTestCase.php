@@ -6,17 +6,17 @@ namespace CuyZ\Valinor\Tests\Integration;
 
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Message\Messages;
-use CuyZ\Valinor\Mapper\Tree\Node;
+use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
 
 use function array_keys;
+use function array_map;
 use function bin2hex;
 use function implode;
-use function iterator_to_array;
+use function preg_match;
 use function random_bytes;
 use function sys_get_temp_dir;
 
@@ -70,12 +70,12 @@ abstract class IntegrationTestCase extends TestCase
     /**
      * @param non-empty-array<non-empty-string> $expected
      */
-    protected function assertMappingErrors(MappingError $error, array $expected): void
+    protected function assertMappingErrors(MappingError $exception, array $expected): void
     {
         $errors = [];
 
-        foreach (Messages::flattenFromNode($error->node()) as $message) {
-            $errors[$message->node()->path()] = $message;
+        foreach ($exception->messages() as $message) {
+            $errors[$message->path()] = $message;
         }
 
         $remainingErrors = $errors;
@@ -100,30 +100,11 @@ abstract class IntegrationTestCase extends TestCase
 
     protected function mappingFail(MappingError $error): never
     {
-        $errorFinder = static function (Node $node, callable $errorFinder) {
-            if ($node->isValid()) {
-                return;
-            }
+        $errors = array_map(
+            fn (NodeMessage $message) => "{$message->path()}: {$message->toString()} ({$message->code()})",
+            $error->messages()->toArray()
+        );
 
-            $errors = [];
-
-            foreach ($node->messages() as $message) {
-                if ($message->isError()) {
-                    $errors[] = (string)$message;
-                }
-            }
-
-            if (count($errors) > 0) {
-                yield $node->path() => "{$node->path()}: " . implode(' / ', $errors);
-            }
-
-            foreach ($node->children() as $child) {
-                yield from $errorFinder($child, $errorFinder);
-            }
-        };
-
-        $list = iterator_to_array($errorFinder($error->node(), $errorFinder));
-
-        self::fail(implode(' — ', $list));
+        self::fail(implode(' — ', $errors));
     }
 }
