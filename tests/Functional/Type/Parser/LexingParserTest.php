@@ -738,6 +738,18 @@ final class LexingParserTest extends TestCase
             'type' => ShapedArrayType::class,
         ];
 
+        yield 'Unsealed shaped array' => [
+            'raw' => 'array{foo: string, ...}',
+            'transformed' => 'array{foo: string, ...}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Unsealed shaped array with trailing comma' => [
+            'raw' => 'array{foo: string, ...,}',
+            'transformed' => 'array{foo: string, ...}',
+            'type' => ShapedArrayType::class,
+        ];
+
         yield 'Iterable type' => [
             'raw' => 'iterable',
             'transformed' => 'iterable',
