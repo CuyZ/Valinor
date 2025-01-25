@@ -18,6 +18,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         $source = [
             'pureEnumWithFirstValue' => 'FOO',
             'pureEnumWithSecondValue' => 'BAR',
+            'pureEnumWithFullNamespace' => 'FOO',
             'pureEnumWithPattern' => 'BAZ',
             'backedStringEnum' => 'foo',
             'backedStringEnumWithPattern' => 'baz',
@@ -34,6 +35,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
 
             self::assertSame(PureEnum::FOO, $result->pureEnumWithFirstValue);
             self::assertSame(PureEnum::BAR, $result->pureEnumWithSecondValue);
+            self::assertSame(PureEnum::FOO, $result->pureEnumWithFullNamespace);
             self::assertSame(PureEnum::BAZ, $result->pureEnumWithPattern);
             self::assertSame(BackedStringEnum::FOO, $result->backedStringEnum);
             self::assertSame(BackedStringEnum::BAZ, $result->backedStringEnumWithPattern);
@@ -115,6 +117,9 @@ class EnumValues
 
     public PureEnum $pureEnumWithSecondValue;
 
+    /** @var \CuyZ\Valinor\Tests\Fixture\Enum\PureEnum */
+    public mixed $pureEnumWithFullNamespace;
+
     /** @var PureEnum::BA* */
     public PureEnum $pureEnumWithPattern;
 
@@ -132,6 +137,7 @@ class EnumValues
 class EnumValuesWithConstructor extends EnumValues
 {
     /**
+     * @param \CuyZ\Valinor\Tests\Fixture\Enum\PureEnum $pureEnumWithFullNamespace
      * @param PureEnum::BA* $pureEnumWithPattern
      * @param BackedStringEnum::BA* $backedStringEnumWithPattern
      * @param BackedIntegerEnum::BA* $backedIntegerEnumWithPattern
@@ -139,6 +145,7 @@ class EnumValuesWithConstructor extends EnumValues
     public function __construct(
         PureEnum $pureEnumWithFirstValue,
         PureEnum $pureEnumWithSecondValue,
+        mixed $pureEnumWithFullNamespace,
         PureEnum $pureEnumWithPattern,
         BackedStringEnum $backedStringEnum,
         BackedStringEnum $backedStringEnumWithPattern,
@@ -147,6 +154,7 @@ class EnumValuesWithConstructor extends EnumValues
     ) {
         $this->pureEnumWithFirstValue = $pureEnumWithFirstValue;
         $this->pureEnumWithSecondValue = $pureEnumWithSecondValue;
+        $this->pureEnumWithFullNamespace = $pureEnumWithFullNamespace;
         $this->pureEnumWithPattern = $pureEnumWithPattern;
         $this->backedStringEnum = $backedStringEnum;
         $this->backedIntegerEnum = $backedIntegerEnum;
