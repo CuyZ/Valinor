@@ -32,7 +32,8 @@ final class EnumType implements ClassType
      */
     public function __construct(string $enumName, string $pattern, array $cases)
     {
-        $this->enumName = $enumName;
+        // @phpstan-ignore assign.propertyType (it is still an enum class-string)
+        $this->enumName = ltrim($enumName, '\\');
         $this->pattern = $pattern;
 
         if (empty($cases)) {
