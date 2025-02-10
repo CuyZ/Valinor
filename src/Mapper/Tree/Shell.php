@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -175,5 +176,20 @@ final class Shell
         }
 
         return $value;
+    }
+
+    public function allowDynamicProperties(): bool
+    {
+        if (!$this->type instanceof ClassType) {
+            return false;
+        }
+        $dependencies = class_implements($this->type->className());
+        $dependencies[] = $this->type->className();
+        foreach ($this->settings->allowDynamicPropertiesFor as $dynamicPropertyClass) {
+            if (in_array($dynamicPropertyClass, $dependencies, true)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

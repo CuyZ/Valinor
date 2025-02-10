@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Mapper\Object;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use IteratorAggregate;
 use Traversable;
 
@@ -54,6 +55,7 @@ final class ArgumentsValues implements IteratorAggregate
     public static function forClass(Arguments $arguments, Shell $shell): self
     {
         $self = new self($arguments);
+        $self->addArgumentsFromDynamicProperties($shell);
         $self->transform($shell);
 
         return $self;
@@ -133,6 +135,26 @@ final class ArgumentsValues implements IteratorAggregate
         }
 
         return [$name => $value];
+    }
+
+    private function addArgumentsFromDynamicProperties(Shell $shell): void
+    {
+        if (!$shell->allowDynamicProperties()) {
+            return;
+        }
+        $values = $shell->value();
+        if (!is_array($values)) {
+            return;
+        }
+
+        $arguments = $this->arguments->toArray();
+        foreach ($values as $propertyName => $value) {
+            if (isset($arguments[$propertyName])) {
+                continue;
+            }
+            $arguments[] = new Argument($propertyName, ValueTypeFactory::from($value));
+        }
+        $this->arguments = new Arguments(...array_values($arguments));
     }
 
     public function getIterator(): Traversable

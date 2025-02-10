@@ -102,3 +102,40 @@ mapping.
         ]
     );
 ```
+
+## Allowing dynamic Properties
+
+In some cases it could be required to map dynamic properties if the class implements the magic `__get` and `__set` Methods.
+To archive this you should mark the classes with an Interface and all not explicit allowed values would be allowed.
+
+```php
+interface MagicGetterSetter {
+    public function __get(string $name): string|null;
+    public function __set(string $name, string $value): void;
+}
+
+class DynamicClass implements MagicGetterSetter {
+    /** @var array<string, string> */
+    public array $dynamicProperties = [];
+    public function __get(string $name): string|null { 
+        return $this->dynamicProperties[$name] ?? null; 
+    }
+    public function __set(string $name, string $value): void {
+        $this->dynamicProperties[$name] = $value;
+    }
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->allowDynamicPropertiesFor(MagicGetterSetter::class)
+    ->mapper()
+    ->map(
+        DynamicClass::class,
+        [
+            'foo' => 'foo',
+            'bar' => 'baz',
+        ]
+    );
+
+// Result
+// DynamicClass::$dynamicProperties' = ['foo' => 'foo','bar' => 'baz']
+```
