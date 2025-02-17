@@ -109,17 +109,11 @@ final class RecursiveTransformer
                 );
             }
 
-            $result = (function () use ($value, $references) {
+            return (function () use ($value, $references) {
                 foreach ($value as $key => $item) {
                     yield $key => $this->doTransform($item, $references);
                 }
             })();
-
-            if (! $result->valid()) {
-                return EmptyObject::get();
-            }
-
-            return $result;
         }
 
         if (is_object($value) && ! $value instanceof Closure) {
