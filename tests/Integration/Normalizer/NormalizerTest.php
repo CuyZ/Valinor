@@ -743,7 +743,7 @@ final class NormalizerTest extends IntegrationTestCase
         yield 'ArrayObject with no property' => [
             'input' => new ArrayObject(),
             'expected array' => [],
-            'expected_json' => '{}',
+            'expected_json' => '[]',
         ];
 
         yield 'iterable class with no property' => [
@@ -757,7 +757,7 @@ final class NormalizerTest extends IntegrationTestCase
                 }
             },
             'expected array' => [],
-            'expected_json' => '{}',
+            'expected_json' => '[]',
         ];
 
         yield 'nested array with JSON_PRETTY_PRINT option' => [
