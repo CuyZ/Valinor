@@ -30,7 +30,7 @@ class NativeEnumObjectBuilder implements ObjectBuilder
 
         $this->enum = $type;
         $this->arguments = new Arguments(
-            new Argument('value', $argumentType)
+            new Argument('value', $type->className() . '::$value', $argumentType)
         );
     }
 
@@ -47,10 +47,5 @@ class NativeEnumObjectBuilder implements ObjectBuilder
     public function signature(): string
     {
         return $this->enum->readableSignature();
-    }
-
-    public function signatureForArgument(string $argumentName): string
-    {
-        return $this->enum->className() . '::$value';
     }
 }

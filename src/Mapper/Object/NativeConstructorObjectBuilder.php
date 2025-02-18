@@ -36,9 +36,4 @@ final class NativeConstructorObjectBuilder implements ObjectBuilder
     {
         return $this->class->methods->constructor()->signature;
     }
-
-    public function signatureForArgument(string $argumentName): string
-    {
-        return $this->class->methods->constructor()->parameters->get($argumentName)->signature;
-    }
 }

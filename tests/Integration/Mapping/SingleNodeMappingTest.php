@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\CircularDependencyDetected;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -78,6 +79,15 @@ final class SingleNodeMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_single_argument_with_self_type_throws_exception(): void
+    {
+        $this->expectException(CircularDependencyDetected::class);
+        $this->expectExceptionCode(1739903374);
+        $this->expectExceptionMessage('Circular dependency detected for `' . SinglePropertyWithSelfType::class . '::$value`.');
+
+        $this->mapperBuilder()->mapper()->map(SinglePropertyWithSelfType::class, 'foo');
+    }
+
     public static function single_property_and_constructor_parameter_data_provider(): iterable
     {
         yield 'Single scalar property' => [
@@ -109,6 +119,12 @@ final class SingleNodeMappingTest extends IntegrationTestCase
         ];
         yield 'Single constructor array parameter with array containing entry with same key as parameter name' => [
             SingleConstructorArrayParameter::class, ['value' => 'foo', 'otherValue' => 'bar'],
+        ];
+        yield 'Single union property with self type' => [
+            SingleUnionPropertyWithSelfType::class, 'foo',
+        ];
+        yield 'Single constructor with union parameter with self type' => [
+            SingleConstructorUnionParameterWithSelfType::class, 'foo',
         ];
     }
 
@@ -173,4 +189,22 @@ class SingleConstructorParameterWithDefaultValue extends SingleScalarPropertyWit
     {
         $this->value = $value;
     }
+}
+
+class SingleUnionPropertyWithSelfType
+{
+    public self|string $value;
+}
+
+class SingleConstructorUnionParameterWithSelfType extends SingleUnionPropertyWithSelfType
+{
+    public function __construct(self|string $value)
+    {
+        $this->value = $value;
+    }
+}
+
+class SinglePropertyWithSelfType
+{
+    public self $value;
 }

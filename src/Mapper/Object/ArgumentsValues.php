@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
+use Countable;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -19,7 +20,7 @@ use function is_array;
  *
  * @implements IteratorAggregate<Argument>
  */
-final class ArgumentsValues implements IteratorAggregate
+final class ArgumentsValues implements IteratorAggregate, Countable
 {
     /** @var array<mixed> */
     private array $value = [];
@@ -127,6 +128,11 @@ final class ArgumentsValues implements IteratorAggregate
         }
 
         return [$name => $value];
+    }
+
+    public function count(): int
+    {
+        return count($this->arguments);
     }
 
     public function getIterator(): Traversable

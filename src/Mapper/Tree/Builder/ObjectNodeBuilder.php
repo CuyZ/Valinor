@@ -10,6 +10,8 @@ use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Mapper\Tree\Exception\CircularDependencyDetected;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
@@ -106,7 +108,28 @@ final class ObjectNodeBuilder implements NodeBuilder
                 $child = $child->withValue($arguments->getValue($name));
             }
 
-            $children[] = $rootBuilder->build($child);
+            // This whole block is needed to detect object circular dependencies
+            // and prevent infinite loops.
+            if ($rootBuilder->typeWasSeen($type)) {
+                // An exception is thrown only when the type of the property is
+                // literally the same as the type of the object being built.
+                // Otherwise, the property type might be a union, for instance,
+                // so we do not want to stop the script execution right away
+                // because the value might be valid.
+                if (count($arguments) === 1 && $type instanceof ObjectType) {
+                    throw new CircularDependencyDetected($argument);
+                }
+
+                $children[] = TreeNode::error($shell, new InvalidNodeValue($type));
+            } else {
+                $childBuilder = $rootBuilder;
+
+                if ($type->matches($shell->type())) {
+                    $childBuilder = $rootBuilder->withTypeAsCurrentRoot($type);
+                }
+
+                $children[] = $childBuilder->build($child);
+            }
         }
 
         return $children;
