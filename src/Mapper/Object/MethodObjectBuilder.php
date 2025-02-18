@@ -40,9 +40,4 @@ final class MethodObjectBuilder implements ObjectBuilder
     {
         return "$this->className::$this->methodName()";
     }
-
-    public function signatureForArgument(string $argumentName): string
-    {
-        return $this->parameters->get($argumentName)->signature;
-    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object\Factory;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
+use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Exception\PermissiveTypeNotAllowed;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
@@ -24,25 +25,23 @@ final class StrictTypesObjectBuilderFactory implements ObjectBuilderFactory
             $arguments = $builder->describeArguments();
 
             foreach ($arguments as $argument) {
-                $argumentSignature = $builder->signatureForArgument($argument->name());
-
-                $this->checkPresenceOfPermissiveType($argumentSignature, $argument->type());
+                $this->checkPresenceOfPermissiveType($argument, $argument->type());
             }
         }
 
         return $builders;
     }
 
-    private function checkPresenceOfPermissiveType(string $signature, Type $type): void
+    private function checkPresenceOfPermissiveType(Argument $argument, Type $type): void
     {
         if ($type instanceof CompositeType) {
             foreach ($type->traverse() as $subType) {
-                self::checkPresenceOfPermissiveType($signature, $subType);
+                self::checkPresenceOfPermissiveType($argument, $subType);
             }
         }
 
         if ($type instanceof MixedType || $type instanceof UndefinedObjectType) {
-            throw new PermissiveTypeNotAllowed($signature, $type);
+            throw new PermissiveTypeNotAllowed($argument->signature(), $type);
         }
     }
 }

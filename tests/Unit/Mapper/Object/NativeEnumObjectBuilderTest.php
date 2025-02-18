@@ -15,6 +15,6 @@ final class NativeEnumObjectBuilderTest extends TestCase
     {
         $builder = new NativeEnumObjectBuilder(EnumType::native(PureEnum::class));
 
-        self::assertSame(PureEnum::class . '::$value', $builder->signatureForArgument('value'));
+        self::assertSame(PureEnum::class . '::$value', $builder->describeArguments()->at(0)->signature());
     }
 }

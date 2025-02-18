@@ -18,9 +18,4 @@ interface ObjectBuilder
      * @return non-empty-string
      */
     public function signature(): string;
-
-    /**
-     * @return non-empty-string
-     */
-    public function signatureForArgument(string $argumentName): string;
 }
