@@ -8,7 +8,7 @@ jobs:
       php-version: '8.3'
     steps:
       - name: Checkout target branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.base_ref }}
 
@@ -26,7 +26,7 @@ jobs:
         run: composer run-script benchmark-baseline
 
       - name: Checkout PR code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           clean: false
 
