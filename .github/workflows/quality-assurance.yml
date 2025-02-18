@@ -24,7 +24,7 @@ jobs:
         run: mkdir -p var/cache
 
       - name: Cache QA results
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v4
         with:
           path: var/cache
           key: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/quality-assurance.yml') }}
