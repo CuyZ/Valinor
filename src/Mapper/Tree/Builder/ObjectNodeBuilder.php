@@ -49,7 +49,7 @@ final class ObjectNodeBuilder implements NodeBuilder
         $builders = $this->objectBuilderFactory->for($class);
 
         foreach ($builders as $builder) {
-            $argumentsValues = ArgumentsValues::forClass($builder->describeArguments(), $shell);
+            $argumentsValues = ArgumentsValues::forClass($builder, $shell);
 
             if ($argumentsValues->hasInvalidValue()) {
                 if (count($builders) === 1) {
