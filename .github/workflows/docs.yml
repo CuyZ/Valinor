@@ -56,7 +56,7 @@ jobs:
 
       - name: Find latest release
         id: latest
-        uses: pozetroninc/github-action-get-latest-release@v0.6.0
+        uses: pozetroninc/github-action-get-latest-release@v0.8.0
         with:
           repository: ${{ github.repository }}
           excludes: draft
