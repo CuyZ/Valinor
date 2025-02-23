@@ -13,6 +13,8 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use function assert;
 use function implode;
+use function is_array;
+use function is_iterable;
 
 /** @internal */
 final class Shell
@@ -153,6 +155,18 @@ final class Shell
     public function allowedSuperfluousKeys(): array
     {
         return $this->allowedSuperfluousKeys;
+    }
+
+    public function transformIteratorToArray(): self
+    {
+        if (is_iterable($this->value) && ! is_array($this->value)) {
+            $self = clone $this;
+            $self->value = iterator_to_array($this->value);
+
+            return $self;
+        }
+
+        return $this;
     }
 
     public function path(): string

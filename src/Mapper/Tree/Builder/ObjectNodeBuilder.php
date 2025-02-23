@@ -43,6 +43,8 @@ final class ObjectNodeBuilder implements NodeBuilder
 
         if ($shell->enableFlexibleCasting() && $shell->value() === null) {
             $shell = $shell->withValue([]);
+        } else {
+            $shell = $shell->transformIteratorToArray();
         }
 
         $class = $this->classDefinitionRepository->for($type);

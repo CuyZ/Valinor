@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Source\Source;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
@@ -63,6 +64,27 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
         self::assertSame('fooA', $resultA->valueA);
         self::assertInstanceOf(SomeClassThatInheritsInterfaceB::class, $resultB);
         self::assertSame('fooB', $resultB->valueB);
+    }
+
+    public function test_infer_interface_with_iterable_but_not_array_source(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(
+                    SomeInterface::class,
+                    /** @return class-string<SomeClassThatInheritsInterfaceA> */
+                    fn (string $foo): string => SomeClassThatInheritsInterfaceA::class
+                )
+                ->mapper()
+                ->map(SomeInterface::class, Source::iterable([
+                    'foo' => 'bar',
+                    'valueA' => 'value',
+                ]));
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassThatInheritsInterfaceA::class, $result);
     }
 
     public function test_infer_interface_with_union_of_class_string_works_properly(): void
