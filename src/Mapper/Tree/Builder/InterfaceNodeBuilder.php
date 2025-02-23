@@ -50,6 +50,8 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
         if ($shell->enableFlexibleCasting() && $shell->value() === null) {
             $shell = $shell->withValue([]);
+        } else {
+            $shell = $shell->transformIteratorToArray();
         }
 
         $className = $type->className();

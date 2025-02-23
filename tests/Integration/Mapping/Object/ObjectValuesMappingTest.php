@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Source\Source;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use stdClass;
@@ -58,6 +59,22 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             self::assertMappingErrors($exception, [
                 '*root*' => "[1655117782] Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.",
                 'stringA' => '[unknown] Value 42 is not a valid string.'
+            ]);
+        }
+    }
+
+    public function test_superfluous_values_throws_exception_when_source_is_iterable_but_not_array(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map(ObjectWithTwoProperties::class, Source::iterable([
+                'stringA' => 'fooA',
+                'stringB' => 'fooB',
+                'unexpectedValue' => 'foo',
+                42 => 'baz',
+            ]));
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1655117782] Unexpected key(s) `unexpectedValue`, `42`, expected `stringA`, `stringB`.",
             ]);
         }
     }
