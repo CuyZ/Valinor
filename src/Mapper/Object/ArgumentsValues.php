@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorWithSelfType;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use IteratorAggregate;
 use Traversable;
 
+use function array_filter;
 use function array_key_exists;
 use function count;
 use function is_array;
@@ -49,9 +53,10 @@ final class ArgumentsValues implements IteratorAggregate
         return $self;
     }
 
-    public static function forClass(Arguments $arguments, Shell $shell): self
+    public static function forClass(ObjectBuilder $objectBuilder, Shell $shell): self
     {
-        $self = new self($arguments);
+        $self = new self($objectBuilder->describeArguments());
+        $self->removeSelfFromArgumentType($objectBuilder, $shell->type());
         $self->transform($shell);
 
         return $self;
@@ -75,6 +80,33 @@ final class ArgumentsValues implements IteratorAggregate
     public function hadSingleArgument(): bool
     {
         return $this->hadSingleArgument;
+    }
+
+    /**
+     * This method takes care of checking if the argument type is/contains a
+     * reference to the object type to prevent possible circular references.
+     */
+    private function removeSelfFromArgumentType(ObjectBuilder $objectBuilder, Type $objectType): void
+    {
+        if (count($this->arguments) !== 1) {
+            return;
+        }
+
+        $argument = $this->arguments->at(0);
+        $type = $argument->type();
+
+        $filteredTypes = array_filter(
+            $type instanceof UnionType ? $type->types() : [$type],
+            fn ($subType) => ! $objectType->matches($subType),
+        );
+
+        if ($filteredTypes === []) {
+            throw new InvalidConstructorWithSelfType($objectBuilder->signatureForArgument($argument->name()));
+        }
+
+        $newType = count($filteredTypes) === 1 ? reset($filteredTypes) : new UnionType(...$filteredTypes);
+
+        $this->arguments = new Arguments($argument->withType($newType));
     }
 
     private function transform(Shell $shell): void

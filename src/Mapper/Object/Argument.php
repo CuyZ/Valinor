@@ -64,6 +64,14 @@ final class Argument
         return $this->type;
     }
 
+    public function withType(Type $type): self
+    {
+        $self = clone $this;
+        $self->type = $type;
+
+        return $self;
+    }
+
     public function defaultValue(): mixed
     {
         return $this->defaultValue;
