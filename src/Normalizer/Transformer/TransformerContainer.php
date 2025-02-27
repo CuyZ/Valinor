@@ -38,11 +38,6 @@ final class TransformerContainer
         return $this->transformers !== [];
     }
 
-    public function hasTransformerAttributes(): bool
-    {
-        return $this->transformerAttributes !== [];
-    }
-
     /**
      * @return list<callable>
      */

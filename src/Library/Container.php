@@ -50,6 +50,7 @@ use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\CacheTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
@@ -162,22 +163,19 @@ final class Container
             },
 
             Transformer::class => function () use ($settings) {
-                $transformer = new RecursiveTransformer(
-                    $this->get(ClassDefinitionRepository::class),
-                    $this->get(FunctionDefinitionRepository::class),
-                    $this->get(TransformerContainer::class),
-                );
-
                 if (isset($settings->cache)) {
-                    $transformer = new CacheTransformer(
-                        $transformer,
+                    return new CacheTransformer(
                         $this->get(TransformerDefinitionBuilder::class),
                         $this->get(CacheInterface::class),
                         $settings->transformersSortedByPriority(),
                     );
                 }
 
-                return $transformer;
+                return new RecursiveTransformer(
+                    $this->get(ClassDefinitionRepository::class),
+                    $this->get(FunctionDefinitionRepository::class),
+                    $this->get(TransformerContainer::class),
+                );
             },
 
             TransformerContainer::class => fn () => new TransformerContainer(
@@ -198,6 +196,7 @@ final class Container
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(FunctionDefinitionRepository::class),
                 $this->get(TransformerContainer::class),
+                new FormatterCompiler(),
             ),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(

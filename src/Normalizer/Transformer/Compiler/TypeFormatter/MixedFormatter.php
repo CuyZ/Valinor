@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\MixedDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use WeakMap;
 
 /** @internal */
-final class MixedToArrayFormatter implements TypeFormatter
+final class MixedFormatter implements TypeFormatter
 {
     public function __construct(
         private MixedDefinitionNode $mixed,
@@ -26,7 +24,6 @@ final class MixedToArrayFormatter implements TypeFormatter
             method: 'transform_mixed',
             arguments: [
                 $valueNode,
-                Node::variable('formatter'),
                 Node::variable('references'),
             ],
         );
@@ -46,7 +43,6 @@ final class MixedToArrayFormatter implements TypeFormatter
             Node::method('transform_mixed')
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('formatter', Formatter::class),
                     Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')
@@ -73,7 +69,6 @@ final class MixedToArrayFormatter implements TypeFormatter
                 ->access('delegate')
                 ->callMethod('transform', [
                     Node::variable('value'),
-                    Node::variable('formatter'),
                 ]),
         );
 

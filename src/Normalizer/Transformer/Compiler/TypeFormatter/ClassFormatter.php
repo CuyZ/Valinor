@@ -2,22 +2,20 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use WeakMap;
 
 /** @internal */
-final class ClassToArrayFormatter implements TypeFormatter
+final class ClassFormatter implements TypeFormatter
 {
     public function __construct(private ClassDefinitionNode $class) {}
 
@@ -27,7 +25,6 @@ final class ClassToArrayFormatter implements TypeFormatter
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('formatter'),
                 Node::variable('references'),
             ],
         );
@@ -69,7 +66,6 @@ final class ClassToArrayFormatter implements TypeFormatter
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', $className),
-                    Node::parameterDeclaration('formatter', Formatter::class),
                     Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('array')

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer;
 
-use CuyZ\Valinor\Normalizer\Formatter\ArrayFormatter;
+use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 
 /**
@@ -20,6 +20,23 @@ final class ArrayNormalizer implements Normalizer
 
     public function normalize(mixed $value): mixed
     {
-        return $this->transformer->transform($value, new ArrayFormatter());
+        return $this->format(
+            $this->transformer->transform($value),
+        );
+    }
+
+    private function format(mixed $value): mixed
+    {
+        if (is_iterable($value)) {
+            if (! is_array($value)) {
+                $value = iterator_to_array($value);
+            }
+
+            $value = array_map($this->format(...), $value);
+        } elseif ($value instanceof EmptyObject) {
+            return [];
+        }
+
+        return $value;
     }
 }

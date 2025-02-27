@@ -13,7 +13,7 @@ final class ShapedArrayDefinitionNode implements DefinitionNode
     public function __construct(
         public readonly ShapedArrayType $type,
         public readonly TransformerDefinition $defaultTransformer,
-        /** @var array<non-empty-string, TransformerDefinition> */
+        /** @var array<int|string, TransformerDefinition> */
         public readonly array $elementsDefinitions,
     ) {}
 }

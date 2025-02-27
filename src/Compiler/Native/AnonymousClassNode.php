@@ -71,36 +71,39 @@ final class AnonymousClassNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        $arguments = $this->arguments !== [] ?
-            implode(', ', array_map(
-                fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
-                $this->arguments,
-            )) : '';
-
-        $implements = $this->interfaces !== [] ?
-            ' implements ' . implode(', ', array_map(
-                fn (string $interface) => '\\' . $interface,
-                $this->interfaces,
-            )) : '';
-
-        $properties = implode(PHP_EOL . PHP_EOL, array_map(
-            fn (PropertyDeclarationNode $property) => $compiler->sub()->indent()->compile($property)->code(),
-            $this->properties,
+        $arguments = implode(', ', array_map(
+            fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
+            $this->arguments,
         ));
 
-        $methods = implode(PHP_EOL . PHP_EOL, array_map(
-            fn (MethodNode $method) => $compiler->sub()->indent()->compile($method)->code(),
-            $this->methods,
-        ));
+        $compiler = $compiler->write("new class ($arguments)");
 
-        return $compiler->write(
-            <<<PHP
-            new class ($arguments)$implements {
-            $properties
-                
-            $methods
-            }
-            PHP,
-        );
+        if ($this->interfaces !== []) {
+            $compiler = $compiler->write(
+                ' implements ' . implode(', ', array_map(
+                    fn (string $interface) => '\\' . $interface,
+                    $this->interfaces,
+                )),
+            );
+        }
+
+        $body = [
+            ...array_map(
+                fn (PropertyDeclarationNode $property) => $compiler->sub()->indent()->compile($property)->code(),
+                $this->properties,
+            ),
+            ...array_map(
+                fn (MethodNode $method) => $compiler->sub()->indent()->compile($method)->code(),
+                $this->methods,
+            ),
+        ];
+
+        $compiler = $compiler->write(' {');
+
+        if ($body !== []) {
+            $compiler = $compiler->write(PHP_EOL . implode(PHP_EOL . PHP_EOL, $body) . PHP_EOL);
+        }
+
+        return $compiler->write('}');
     }
 }

@@ -194,7 +194,7 @@ final class FileSystemCache implements WarmupCache
         $code = match (true) {
             $value instanceof ClassDefinition => $this->classDefinitionCompiler->compile($value),
             $value instanceof FunctionDefinition => $this->functionDefinitionCompiler->compile($value),
-            $value instanceof EvaluatedTransformer => $value->code(),
+            $value instanceof EvaluatedTransformer => $value->code,
             default => var_export($value, true),
         };
 

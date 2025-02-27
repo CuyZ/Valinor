@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
 
+use function function_exists;
 use function is_array;
 
 /** @internal */
@@ -51,24 +54,37 @@ final class NonEmptyArrayType implements CompositeTraversableType
             return false;
         }
 
-        if (count($value) === 0) {
+        if ($value === []) {
             return false;
         }
 
-        foreach ($value as $key => $item) {
-            if (! $this->keyType->accepts($key)) {
-                return false;
-            }
-
-            if (! $this->subType->accepts($item)) {
-                return false;
-            }
-        }
-
-        return true;
+        return ! Polyfill::array_any(
+            $value,
+            fn (mixed $item, mixed $key) => ! $this->keyType->accepts($key) || ! $this->subType->accepts($item),
+        );
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode {}
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return Node::logicalAnd(
+            $node->different(Node::value([])),
+            Node::functionCall('is_array', [$node]),
+            Node::negate(
+                Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
+                    $node,
+                    Node::shortClosure(
+                        Node::logicalOr(
+                            Node::negate($this->keyType->compiledAccept(Node::variable('key'))->wrap()),
+                            Node::negate($this->subType->compiledAccept(Node::variable('item'))->wrap()),
+                        ),
+                    )->witParameters(
+                        Node::parameterDeclaration('item', 'mixed'),
+                        Node::parameterDeclaration('key', 'mixed'),
+                    ),
+                ]),
+            ),
+        );
+    }
 
     public function matches(Type $other): bool
     {
@@ -85,7 +101,7 @@ final class NonEmptyArrayType implements CompositeTraversableType
         }
 
         return $this->keyType->matches($other->keyType())
-                && $this->subType->matches($other->subType());
+            && $this->subType->matches($other->subType());
     }
 
     public function keyType(): ArrayKeyType

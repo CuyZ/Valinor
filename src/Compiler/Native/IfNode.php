@@ -15,11 +15,6 @@ final class IfNode extends Node
         private Node $body,
     ) {}
 
-    public function else(Node $body): Node
-    {
-        return new ElseNode($this, $body);
-    }
-
     public function compile(Compiler $compiler): Compiler
     {
         $condition = $compiler->sub()->compile($this->condition)->code();

@@ -8,7 +8,6 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\MethodNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use WeakMap;
@@ -55,7 +54,6 @@ final class TransformerRootNode extends Node
                     ->withVisibility('public')
                     ->witParameters(
                         Node::parameterDeclaration('value', 'mixed'),
-                        Node::parameterDeclaration('formatter', Formatter::class),
                     )
                     ->withReturnType('mixed')
                     ->withBody(

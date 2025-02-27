@@ -12,7 +12,6 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTimeInterface;
@@ -36,11 +35,9 @@ final class RecursiveTransformer implements Transformer
         private TransformerContainer $transformerContainer,
     ) {}
 
-    public function transform(mixed $value, Formatter $formatter): mixed
+    public function transform(mixed $value): mixed
     {
-        $value = $this->doTransform($value, new WeakMap()); // @phpstan-ignore-line
-
-        return $formatter->format($value);
+        return $this->doTransform($value, new WeakMap()); // @phpstan-ignore-line
     }
 
     /**
@@ -66,7 +63,7 @@ final class RecursiveTransformer implements Transformer
                 ? EnumType::native($value::class)
                 : new NativeClassType($value::class);
 
-            $classAttributes = $this->classDefinitionRepository->for($type)->attributes;
+            $classAttributes = $this->classDefinitionRepository->for($type)->attributes->toArray();
 
             $attributes = [...$attributes, ...$classAttributes];
         }
@@ -139,17 +136,11 @@ final class RecursiveTransformer implements Transformer
                 );
             }
 
-            $result = (function () use ($value, $references) {
+            return (function () use ($value, $references) {
                 foreach ($value as $key => $item) {
                     yield $key => $this->doTransform($item, $references);
                 }
             })();
-
-            if (! $result->valid()) {
-                return EmptyObject::get();
-            }
-
-            return $result;
         }
 
         if (is_object($value) && ! $value instanceof Closure) {
@@ -174,7 +165,7 @@ final class RecursiveTransformer implements Transformer
 
                 return array_map(
                     fn (mixed $value) => $this->doTransform($value, $references),
-                    $result
+                    $result,
                 );
             }
 

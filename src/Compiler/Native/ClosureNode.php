@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+use function array_map;
 use function implode;
 
 /** @internal */
@@ -19,15 +20,21 @@ final class ClosureNode extends Node
     private array $parameters = [];
 
     /** @var array<Node> */
-    private array $nodes = [];
+    private array $nodes;
+
+    public function __construct(Node ...$nodes)
+    {
+        $this->nodes = $nodes;
+    }
 
     /**
-     * @param non-empty-string $name
+     * @no-named-arguments
+     * @param non-empty-string ...$names
      */
-    public function uses(string $name): self
+    public function uses(string ...$names): self
     {
         $self = clone $this;
-        $self->use[] = '$' . $name;
+        $self->use = array_map(fn (string $name) => '$' . $name, $names);
 
         return $self;
     }
@@ -36,14 +43,6 @@ final class ClosureNode extends Node
     {
         $self = clone $this;
         $self->parameters = array_merge($self->parameters, $parameters);
-
-        return $self;
-    }
-
-    public function withBody(Node ...$nodes): self
-    {
-        $self = clone $this;
-        $self->nodes = [...$self->nodes, ...$nodes];
 
         return $self;
     }

@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use WeakMap;
 
 /** @internal */
-final class ShapedArrayToArrayFormatter implements TypeFormatter
+final class ShapedArrayFormatter implements TypeFormatter
 {
     public function __construct(
         private ShapedArrayDefinitionNode $shapedArray,
@@ -25,7 +23,6 @@ final class ShapedArrayToArrayFormatter implements TypeFormatter
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('formatter'),
                 Node::variable('references'),
             ],
         );
@@ -49,7 +46,6 @@ final class ShapedArrayToArrayFormatter implements TypeFormatter
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'array'),
-                    Node::parameterDeclaration('formatter', Formatter::class),
                     Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('array')
@@ -63,7 +59,6 @@ final class ShapedArrayToArrayFormatter implements TypeFormatter
                             (function () {
                                 $match = Node::match(Node::variable('key'));
 
-                                // @todo TypeAcceptNode
                                 foreach ($this->shapedArray->elementsDefinitions as $name => $definition) {
                                     if (! $definition->hasTransformation()) {
                                         continue;
@@ -75,7 +70,6 @@ final class ShapedArrayToArrayFormatter implements TypeFormatter
                                     );
                                 }
 
-                                // @todo handle unsealed array
                                 return $match->withDefaultCase(
                                     $this->shapedArray->defaultTransformer->typeFormatter()->formatValueNode(Node::variable('item')),
                                 );

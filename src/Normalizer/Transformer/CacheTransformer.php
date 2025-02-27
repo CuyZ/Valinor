@@ -8,8 +8,6 @@ use Closure;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
-use CuyZ\Valinor\Normalizer\Formatter\ArrayFormatter;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerRootNode;
 use CuyZ\Valinor\Type\CompositeTraversableType;
@@ -17,68 +15,66 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\IterableType;
-use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
+use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NullType;
 use Generator;
 use Iterator;
 use Psr\SimpleCache\CacheInterface;
 use UnitEnum;
 
+use function array_is_list;
 use function is_array;
 use function is_iterable;
 use function is_object;
+use function is_scalar;
 
 /** @internal */
 final class CacheTransformer implements Transformer
 {
     public function __construct(
-        private Transformer $delegate,
         private TransformerDefinitionBuilder $definitionBuilder,
-        /** @var CacheInterface<Transformer|callable(list<callable>, Transformer): Transformer> */
+        /** @var CacheInterface<callable(list<callable>, Transformer): Transformer> */
         private CacheInterface $cache,
         /** @var list<callable> */
         private array $transformers,
     ) {}
 
-    public function transform(mixed $value, Formatter $formatter): mixed
+    public function transform(mixed $value): mixed
     {
-        if (! $formatter instanceof ArrayFormatter) {
-            return $this->delegate->transform($value, $formatter);
-        }
-
-        $type = $this->inferType($value);
+        $type = $this->inferType($value, isSure: true);
 
         $key = "transformer-\0" . $type->toString();
 
         $entry = $this->cache->get($key);
 
         if ($entry) {
-            $transformer = $entry instanceof Transformer ? $entry : $entry($this->transformers, $this);
+            $transformer = $entry($this->transformers, $this);
 
-            return $transformer->transform($value, $formatter);
+            return $transformer->transform($value);
         }
 
-        $compilationCallback = fn () => $this->compileFor($type, $formatter);
-
-        $transformer = new EvaluatedTransformer($this->delegate, $compilationCallback);
+        $transformer = new EvaluatedTransformer($this->compileFor($type));
 
         $this->cache->set($key, $transformer);
 
-        return $this->delegate->transform($value, $formatter);
+        $entry = $this->cache->get($key);
+
+        $transformer = $entry($this->transformers, $this);
+
+        return $transformer->transform($value);
     }
 
-    /**
-     * @param Formatter<mixed> $formatter
-     */
-    private function compileFor(Type $type, Formatter $formatter): string
+    private function compileFor(Type $type): string
     {
-        $definition = $this->definitionBuilder->for($type, $formatter->compiler());
+        $definition = $this->definitionBuilder->for($type);
         $definition = $definition->markAsSure();
 
         $rootNode = new TransformerRootNode($definition);
@@ -92,12 +88,13 @@ final class CacheTransformer implements Transformer
         return (new Compiler())->compile($node)->code();
     }
 
-    private function inferType(mixed $value): Type
+    private function inferType(mixed $value, bool $isSure = false): Type
     {
         return match (true) {
             $value instanceof UnitEnum => EnumType::native($value::class),
             is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator => new NativeClassType($value::class),
             is_iterable($value) => $this->inferIterableType($value),
+            is_scalar($value) && $isSure => ValueTypeFactory::from($value),
             is_string($value) => NativeStringType::get(),
             is_int($value) => NativeIntegerType::get(),
             is_float($value) => NativeFloatType::get(),
@@ -125,15 +122,21 @@ final class CacheTransformer implements Transformer
     private function inferIterableType(iterable $value): CompositeTraversableType
     {
         if (is_array($value)) {
-            // @todo
-            //            $firstValueType = $this->inferType(reset($value));
-            //
-            //            return ArrayType::simple(new UnionType($firstValueType, MixedType::get()));
-            return ArrayType::simple(MixedType::get());
-        } elseif ($value instanceof Iterator) {
+            if ($value === []) {
+                return ArrayType::native();
+            }
+
+            $firstValueType = $this->inferType(reset($value));
+
+            if (array_is_list($value)) {
+                return new NonEmptyListType($firstValueType);
+            }
+
+            return new NonEmptyArrayType(ArrayKeyType::default(), $firstValueType);
+        } elseif ($value instanceof Iterator && $value->valid()) {
             $firstValueType = $this->inferType($value->current());
 
-            return new IterableType(ArrayKeyType::default(), MixedType::get());
+            return new IterableType(ArrayKeyType::default(), $firstValueType);
         }
 
         return IterableType::native();

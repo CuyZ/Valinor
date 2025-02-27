@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
 /** @internal */
-final class NullToArrayFormatter implements TypeFormatter
+final class DateTimeFormatter implements TypeFormatter
 {
     public function formatValueNode(CompliantNode $valueNode): Node
     {
-        return Node::value(null);
+        return $valueNode->callMethod('format', [
+            Node::value('Y-m-d\\TH:i:s.uP'), // RFC 3339
+        ]);
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode

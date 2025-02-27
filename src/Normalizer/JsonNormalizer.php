@@ -102,12 +102,13 @@ final class JsonNormalizer implements Normalizer
 
     public function normalize(mixed $value): string
     {
+        $result = $this->transformer->transform($value);
+
         /** @var resource $resource */
         $resource = fopen('php://memory', 'w');
 
         $formatter = new JsonFormatter($resource, $this->jsonEncodingOptions);
-
-        $this->transformer->transform($value, $formatter);
+        $formatter->format($result);
 
         rewind($resource);
 

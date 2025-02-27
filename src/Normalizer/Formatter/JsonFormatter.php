@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Formatter;
 
 use CuyZ\Valinor\Normalizer\Formatter\Exception\CannotFormatInvalidTypeToJson;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Json\JsonFormatterCompiler;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use Generator;
 
 use function array_is_list;
 use function assert;
 use function fwrite;
-use function is_array;
 use function is_bool;
 use function is_iterable;
 use function is_null;
@@ -22,29 +19,30 @@ use function json_encode;
 
 use const JSON_FORCE_OBJECT;
 
-/**
- * @internal
- *
- * @implements Formatter<resource>
- */
-final class JsonFormatter implements Formatter
+/** @internal */
+final class JsonFormatter
 {
+    private bool $prettyPrint;
+
+    private bool $forceObject;
+
     public function __construct(
         /** @var resource */
-        public readonly mixed $resource,
-        public readonly int $jsonEncodingOptions,
-    ) {}
+        private readonly mixed $resource,
+        private readonly int $jsonEncodingOptions,
+    ) {
+        $this->prettyPrint = (bool)($this->jsonEncodingOptions & JSON_PRETTY_PRINT);
+        $this->forceObject = (bool)($this->jsonEncodingOptions & JSON_FORCE_OBJECT);
+    }
 
+    /**
+     * @return resource
+     */
     public function format(mixed $value): mixed
     {
         $this->formatRecursively($value, 1);
 
         return $this->resource;
-    }
-
-    public function compiler(): FormatterCompiler
-    {
-        return new JsonFormatterCompiler();
     }
 
     private function formatRecursively(mixed $value, int $depth): void
@@ -71,11 +69,19 @@ final class JsonFormatter implements Formatter
             // afterward, this leads to a JSON array being written, while it
             // should have been an object. This is a trade-off we accept,
             // considering most generators starting at 0 are actually lists.
-            $isList = ! ($this->jsonEncodingOptions & JSON_FORCE_OBJECT)
-                && (
-                    ($value instanceof Generator && $value->key() === 0)
-                    || (is_array($value) && array_is_list($value))
-                );
+            if ($this->forceObject) {
+                $isList = false;
+            } elseif ($value instanceof Generator) {
+                if (! $value->valid()) {
+                    $this->write('[]');
+                    return;
+                }
+
+                $isList = $value->key() === 0;
+            } else {
+                /** @var array<mixed> $value At this point we know this is an array */
+                $isList = array_is_list($value);
+            }
 
             $isFirst = true;
 
@@ -88,7 +94,7 @@ final class JsonFormatter implements Formatter
                     $chunk = ',';
                 }
 
-                if ($this->jsonEncodingOptions & JSON_PRETTY_PRINT) {
+                if ($this->prettyPrint) {
                     $chunk .= PHP_EOL . str_repeat('    ', $depth);
                 }
 
@@ -101,7 +107,7 @@ final class JsonFormatter implements Formatter
 
                     $chunk .= $key . ':';
 
-                    if ($this->jsonEncodingOptions & JSON_PRETTY_PRINT) {
+                    if ($this->prettyPrint) {
                         $chunk .= ' ';
                     }
                 }
@@ -113,7 +119,7 @@ final class JsonFormatter implements Formatter
 
             $chunk = '';
 
-            if ($this->jsonEncodingOptions & JSON_PRETTY_PRINT) {
+            if ($this->prettyPrint) {
                 $chunk = PHP_EOL . str_repeat('    ', $depth - 1);
             }
 

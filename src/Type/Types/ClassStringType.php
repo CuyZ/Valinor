@@ -89,6 +89,7 @@ final class ClassStringType implements StringType, CompositeType
         }
 
         $conditions = array_map(
+            // @phpstan-ignore argument.type (We know it's an ObjectType)
             static fn (ObjectType $type) => Node::functionCall('is_a', [
                 $node,
                 Node::value($type->className()),
@@ -122,7 +123,7 @@ final class ClassStringType implements StringType, CompositeType
         }
 
         if (! $other->subType) {
-            return false;
+            return true;
         }
 
         return $this->subType->matches($other->subType);

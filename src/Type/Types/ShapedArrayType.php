@@ -25,21 +25,24 @@ use function is_array;
 /** @internal */
 final class ShapedArrayType implements CompositeType
 {
-    /** @var ShapedArrayElement[] */
+    /** @var list<ShapedArrayElement> */
     private array $elements;
 
     private bool $isUnsealed = false;
 
     private ?ArrayType $unsealedType = null;
 
+    /**
+     * @no-named-arguments
+     */
     public function __construct(ShapedArrayElement ...$elements)
     {
         $this->elements = $elements;
 
         $keys = [];
 
-        foreach ($elements as $element) {
-            $key = $element->key()->value();
+        foreach ($this->elements as $elem) {
+            $key = $elem->key()->value();
 
             if (in_array($key, $keys, true)) {
                 throw new ShapedArrayElementDuplicatedKey((string)$key, $this->toString());
@@ -49,6 +52,9 @@ final class ShapedArrayType implements CompositeType
         }
     }
 
+    /**
+     * @no-named-arguments
+     */
     public static function unsealed(ArrayType $unsealedType, ShapedArrayElement ...$elements): self
     {
         $self = new self(...$elements);
@@ -58,6 +64,9 @@ final class ShapedArrayType implements CompositeType
         return $self;
     }
 
+    /**
+     * @no-named-arguments
+     */
     public static function unsealedWithoutType(ShapedArrayElement ...$elements): self
     {
         $self = new self(...$elements);
@@ -81,35 +90,6 @@ final class ShapedArrayType implements CompositeType
         assert($this->isUnsealed);
 
         return $this->unsealedType ?? ArrayType::native();
-    }
-
-    public function accepts_TODO_old(mixed $value): bool
-    {
-        if (! is_array($value)) {
-            return false;
-        }
-
-        foreach ($this->elements as $shape) {
-            $type = $shape->type();
-            $key = $shape->key()->value();
-            $valueExists = array_key_exists($key, $value);
-
-            if (! $valueExists && ! $shape->isOptional()) {
-                return false;
-            }
-
-            if ($valueExists && ! $type->accepts($value[$key])) {
-                return false;
-            }
-
-            unset($value[$key]);
-        }
-
-        if ($this->isUnsealed) {
-            return $this->unsealedType()->accepts($value);
-        }
-
-        return count($value) === 0;
     }
 
     public function accepts(mixed $value): bool

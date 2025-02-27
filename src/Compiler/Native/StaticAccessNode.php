@@ -8,19 +8,17 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
 /** @internal */
-final class YieldNode extends Node
+final class StaticAccessNode extends Node
 {
     public function __construct(
-        private Node $key,
-        private Node $value,
+        private Node $left,
+        private string $name,
     ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
         return $compiler
-            ->write('yield ')
-            ->compile($this->key)
-            ->write(' => ')
-            ->compile($this->value);
+            ->compile($this->left)
+            ->write("::$this->name");
     }
 }

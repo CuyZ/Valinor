@@ -4,6 +4,14 @@
             "src"
         ]
     },
+    "mutators": {
+        "@default": true,
+        "CloneRemoval": {
+            "ignore": [
+                "CuyZ\\Valinor\\Compiler\\*"
+            ]
+        }
+    },
     "tmpDir": "var/cache/infection",
     "logs": {
         "text": "var/infection/infection.log",

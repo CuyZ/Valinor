@@ -209,7 +209,7 @@ final class ClassStringTypeTest extends TestCase
 
     public function test_does_not_match_same_type_with_no_object_type(): void
     {
-        self::assertFalse((new ClassStringType(new FakeObjectType()))->matches(new ClassStringType()));
+        self::assertTrue((new ClassStringType(new FakeObjectType()))->matches(new ClassStringType()));
     }
 
     public function test_does_not_match_same_type_with_invalid_object_type(): void

@@ -42,11 +42,6 @@ final class TransformerDefinition
         return $self;
     }
 
-    public function isSure(): bool
-    {
-        return $this->isSure;
-    }
-
     public function hasTransformation(): bool
     {
         return $this->transformerTypes !== [] || $this->transformerAttributes !== [];

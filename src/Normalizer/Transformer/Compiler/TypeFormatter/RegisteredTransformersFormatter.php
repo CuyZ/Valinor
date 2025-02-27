@@ -10,7 +10,6 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
@@ -32,7 +31,6 @@ final class RegisteredTransformersFormatter implements TypeFormatter
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('formatter'),
                 Node::variable('references'),
             ],
         );
@@ -100,7 +98,6 @@ final class RegisteredTransformersFormatter implements TypeFormatter
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('formatter', Formatter::class),
                     Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')

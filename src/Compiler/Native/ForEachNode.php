@@ -14,7 +14,7 @@ final class ForEachNode extends Node
         private Node $value,
         private string $key,
         private string $item,
-        /** @var Node|list<Node> */
+        /** @var Node|non-empty-list<Node> */
         private Node|array $body,
     ) {}
 

@@ -87,29 +87,23 @@ final class MethodNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        $visibility = $this->visibility;
-        $name = $this->name;
-
         $parameters = implode(', ', array_map(
             fn (ParameterDeclarationNode $parameter) => $compiler->sub()->compile($parameter)->code(),
             $this->parameters,
         ));
 
-        if ($this->name === '__construct') {
-            $returnType = '';
-        } else {
-            $returnType = isset($this->returnType) ? ': ' . $this->returnType : ': void';
+        $compiler = $compiler->write("$this->visibility function $this->name($parameters)");
+
+        if ($this->name !== '__construct') {
+            $compiler = $compiler->write(': ' . ($this->returnType ?? 'void'));
+        }
+
+        if ($this->nodes === []) {
+            return $compiler->write(' {}');
         }
 
         $body = $compiler->sub()->indent()->compile(...$this->nodes)->code();
 
-        return $compiler->write(
-            <<<PHP
-            $visibility function $name($parameters)$returnType
-            {
-            $body
-            }
-            PHP,
-        );
+        return $compiler->write(PHP_EOL . '{' . PHP_EOL . $body . PHP_EOL . '}');
     }
 }

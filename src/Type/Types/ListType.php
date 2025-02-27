@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
 
+use function array_is_list;
+use function function_exists;
 use function is_array;
 
 /** @internal */
@@ -43,22 +47,35 @@ final class ListType implements CompositeTraversableType
             return false;
         }
 
-        $i = 0;
-
-        foreach ($value as $key => $item) {
-            if ($key !== $i++) {
-                return false;
-            }
-
-            if (! $this->subType->accepts($item)) {
-                return false;
-            }
+        if (! array_is_list($value)) {
+            return false;
         }
 
-        return true;
+        return ! Polyfill::array_any(
+            $value,
+            fn (mixed $item, mixed $key) => ! $this->subType->accepts($item),
+        );
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode {}
+    public function compiledAccept(CompliantNode $node): CompliantNode
+    {
+        return Node::logicalAnd(
+            Node::functionCall('is_array', [$node]),
+            Node::functionCall('array_is_list', [$node]),
+            Node::negate(
+                Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
+                    $node,
+                    Node::shortClosure(
+                        Node::logicalOr(
+                            Node::negate($this->subType->compiledAccept(Node::variable('item'))->wrap()),
+                        ),
+                    )->witParameters(
+                        Node::parameterDeclaration('item', 'mixed'),
+                    ),
+                ]),
+            ),
+        );
+    }
 
     public function matches(Type $other): bool
     {

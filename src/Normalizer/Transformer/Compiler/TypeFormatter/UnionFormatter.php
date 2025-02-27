@@ -2,21 +2,19 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnionDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
 use function array_map;
 
 /** @internal */
-final class UnionToArrayFormatter implements TypeFormatter
+final class UnionFormatter implements TypeFormatter
 {
     public function __construct(
         private UnionDefinitionNode $union,
@@ -28,7 +26,6 @@ final class UnionToArrayFormatter implements TypeFormatter
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('formatter'),
                 Node::variable('references'),
             ],
         );
@@ -66,7 +63,6 @@ final class UnionToArrayFormatter implements TypeFormatter
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('formatter', Formatter::class),
                     Node::parameterDeclaration('references', \WeakMap::class),
                 )
                 ->withReturnType('mixed')

@@ -16,6 +16,7 @@ use ReflectionFunction;
 use Throwable;
 
 use function array_keys;
+use function hash;
 
 /** @internal */
 final class Settings
@@ -61,6 +62,8 @@ final class Settings
     /** @var array<class-string, null> */
     public array $transformerAttributes = [];
 
+    private string $hash;
+
     public function __construct()
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
@@ -102,7 +105,7 @@ final class Settings
      */
     public function hash(): string
     {
-        return serialize([
+        return $this->hash ??= hash('xxh128', serialize([
             implode('', array_map($this->callableSignature(...), $this->inferredMapping)),
             $this->nativeConstructors,
             implode('', array_map($this->callableSignature(...), $this->customConstructors)),
@@ -117,7 +120,7 @@ final class Settings
                 $this->transformers,
             ),
             $this->transformerAttributes,
-        ]);
+        ]));
     }
 
     private function callableSignature(callable $callable): string

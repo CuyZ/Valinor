@@ -17,6 +17,9 @@ final class CompliantNode extends Node
         return new self(new VariableAccessNode($this, $value));
     }
 
+    /**
+     * @no-named-arguments
+     */
     public function and(Node ...$nodes): self
     {
         return new self(new LogicalAndNode($this, ...$nodes));
@@ -68,6 +71,9 @@ final class CompliantNode extends Node
         return new self(new EqualsNode($this, $right));
     }
 
+    /**
+     * @no-named-arguments
+     */
     public function or(Node ...$nodes): self
     {
         return new self(new LogicalOrNode($this, ...$nodes));

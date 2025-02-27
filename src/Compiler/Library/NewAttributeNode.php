@@ -30,7 +30,7 @@ final class NewAttributeNode extends Node
 
     /**
      * @param array<mixed> $arguments
-     * @return list<Node>
+     * @return array<Node>
      */
     private function argumentNode(array $arguments): array
     {
@@ -43,7 +43,6 @@ final class NewAttributeNode extends Node
             }
 
             if (is_array($argument)) {
-                // @todo handle array keys
                 return Node::array($this->argumentNode($argument));
             }
 

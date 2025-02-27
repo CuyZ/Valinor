@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Normalizer;
 
-use CuyZ\Valinor\Normalizer\Formatter\Formatter;
+use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 
 /**
@@ -16,12 +16,13 @@ final class StreamNormalizer implements Normalizer
 {
     public function __construct(
         private Transformer $transformer,
-        /** @var Formatter<resource> */
-        private Formatter $formatter,
+        private JsonFormatter $formatter,
     ) {}
 
     public function normalize(mixed $value): mixed
     {
-        return $this->transformer->transform($value, $this->formatter);
+        $result = $this->transformer->transform($value);
+
+        return $this->formatter->format($result);
     }
 }

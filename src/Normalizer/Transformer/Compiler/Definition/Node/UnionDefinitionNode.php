@@ -13,7 +13,7 @@ final class UnionDefinitionNode implements DefinitionNode
     public function __construct(
         public readonly UnionType $type,
         public readonly TransformerDefinition $defaultDefinition,
-        /** @var array<non-empty-string, TransformerDefinition> */
+        /** @var non-empty-list<TransformerDefinition> */
         public readonly array $definitions,
     ) {}
 }

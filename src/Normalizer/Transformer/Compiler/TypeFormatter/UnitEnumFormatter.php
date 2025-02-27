@@ -2,19 +2,23 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
+use BackedEnum;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
 /** @internal */
-final class ScalarToArrayFormatter implements TypeFormatter
+final class UnitEnumFormatter implements TypeFormatter
 {
     public function formatValueNode(CompliantNode $valueNode): Node
     {
-        return $valueNode;
+        return Node::ternary(
+            condition: $valueNode->instanceOf(BackedEnum::class),
+            ifTrue: $valueNode->access('value'),
+            ifFalse: $valueNode->access('name'),
+        );
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode

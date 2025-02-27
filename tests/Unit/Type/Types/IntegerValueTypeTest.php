@@ -9,10 +9,13 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -155,6 +158,48 @@ final class IntegerValueTypeTest extends TestCase
     public function test_does_not_match_negative_integer_when_value_is_zero(): void
     {
         self::assertFalse((new IntegerValueType(0))->matches(new NegativeIntegerType()));
+    }
+
+    public function test_matches_non_positive_integer_when_value_is_negative(): void
+    {
+        self::assertTrue((new IntegerValueType(-1337))->matches(new NonPositiveIntegerType()));
+    }
+
+    public function test_matches_non_positive_integer_when_value_is_zero(): void
+    {
+        self::assertTrue((new IntegerValueType(0))->matches(new NonPositiveIntegerType()));
+    }
+
+    public function test_does_not_match_non_positive_integer_when_value_is_positive(): void
+    {
+        self::assertFalse((new IntegerValueType(1337))->matches(new NonPositiveIntegerType()));
+    }
+
+    public function test_matches_non_negative_integer_when_value_is_positive(): void
+    {
+        self::assertTrue((new IntegerValueType(1337))->matches(new NonNegativeIntegerType()));
+    }
+
+    public function test_matches_non_negative_integer_when_value_is_zero(): void
+    {
+        self::assertTrue((new IntegerValueType(0))->matches(new NonNegativeIntegerType()));
+    }
+
+    public function test_does_not_match_non_negative_integer_when_value_is_negative(): void
+    {
+        self::assertFalse((new IntegerValueType(-1337))->matches(new NonNegativeIntegerType()));
+    }
+
+    public function test_matches_integer_range_when_value_is_in_range(): void
+    {
+        self::assertTrue((new IntegerValueType(10))->matches(new IntegerRangeType(10, 20)));
+        self::assertTrue((new IntegerValueType(15))->matches(new IntegerRangeType(10, 20)));
+        self::assertTrue((new IntegerValueType(20))->matches(new IntegerRangeType(10, 20)));
+    }
+
+    public function test_does_not_match_integer_range_when_value_is_not_in_range(): void
+    {
+        self::assertFalse((new IntegerValueType(50))->matches(new IntegerRangeType(10, 20)));
     }
 
     public function test_does_not_match_other_type(): void

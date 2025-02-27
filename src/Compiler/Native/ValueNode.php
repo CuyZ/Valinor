@@ -7,6 +7,9 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+use function current;
+use function is_array;
+use function key;
 use function var_export;
 
 /** @internal */
@@ -19,9 +22,29 @@ final class ValueNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        // @todo for array do not use var_export as it adds line breaks
-        $value = var_export($this->value, true);
+        return $this->compileValue($this->value, $compiler);
+    }
 
-        return $compiler->write($value);
+    private function compileValue(mixed $value, Compiler $compiler): Compiler
+    {
+        if (is_array($value)) {
+            $compiler = $compiler->write('[');
+
+            while (($val = current($value)) !== false) {
+                $compiler = $compiler->write(var_export(key($value), true) . ' => ');
+                $compiler = $this->compileValue($val, $compiler);
+                next($value);
+
+                if (current($value)) {
+                    $compiler = $compiler->write(', ');
+                }
+            }
+
+            $compiler = $compiler->write(']');
+        } else {
+            $compiler = $compiler->write(var_export($value, true));
+        }
+
+        return $compiler;
     }
 }

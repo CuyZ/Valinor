@@ -8,21 +8,19 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
 /** @internal */
-final class InstanceOfNode extends Node
+final class StaticMethodCallNode extends Node
 {
     public function __construct(
         private Node $node,
-        /** @var class-string */
-        private string $className,
+        private string $method,
+        /** @var array<Node> */
+        private array $arguments = [],
     ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
-        $className = $this->className;
-
-        return $compiler
-            ->compile($this->node)
-            ->write(' instanceof ')
-            ->write($className);
+        return $compiler->compile(
+            new CallNode(new StaticAccessNode($this->node, $this->method), $this->arguments)
+        );
     }
 }

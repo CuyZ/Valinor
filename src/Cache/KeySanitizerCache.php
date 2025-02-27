@@ -22,8 +22,6 @@ final class KeySanitizerCache implements WarmupCache
 {
     private static string $version;
 
-    private string $settingsHash;
-
     public function __construct(
         /** @var CacheInterface<EntryType> */
         private CacheInterface $delegate,
@@ -44,11 +42,9 @@ final class KeySanitizerCache implements WarmupCache
     {
         self::$version ??= PHP_VERSION . '/' . Package::version();
 
-        $this->settingsHash ??= $this->settings->hash();
-
         $firstPart = strstr($key, "\0", before_needle: true);
 
-        return $firstPart . hash('xxh128', $key . $this->settingsHash . self::$version);
+        return $firstPart . hash('xxh128', $key . $this->settings->hash() . self::$version);
     }
 
     public function warmup(): void

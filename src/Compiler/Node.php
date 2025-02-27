@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Compiler;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ClosureNode;
 use CuyZ\Valinor\Compiler\Native\ArrayNode;
+use CuyZ\Valinor\Compiler\Native\ClassNode;
+use CuyZ\Valinor\Compiler\Native\ClosureNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
-use CuyZ\Valinor\Compiler\Native\ConcatNode;
 use CuyZ\Valinor\Compiler\Native\ExpressionNode;
 use CuyZ\Valinor\Compiler\Native\ForEachNode;
 use CuyZ\Valinor\Compiler\Native\FunctionCallNode;
@@ -36,7 +36,6 @@ abstract class Node
 {
     abstract public function compile(Compiler $compiler): Compiler;
 
-    // @todo rename to Statement?
     public function asExpression(): ExpressionNode
     {
         return new ExpressionNode($this);
@@ -60,18 +59,21 @@ abstract class Node
         return new AnonymousClassNode();
     }
 
-    public static function closure(): ClosureNode
+    /**
+     * @param class-string $name
+     */
+    public static function class(string $name): ClassNode
     {
-        return new ClosureNode();
+        return new ClassNode($name);
     }
 
-    public static function concat(Node ...$nodes): ConcatNode
+    public static function closure(Node ...$nodes): ClosureNode
     {
-        return new ConcatNode(...$nodes);
+        return new ClosureNode(...$nodes);
     }
 
     /**
-     * @param Node|list<Node> $body
+     * @param Node|non-empty-list<Node> $body
      */
     public static function forEach(Node $value, string $key, string $item, Node|array $body): ForEachNode
     {
@@ -91,11 +93,17 @@ abstract class Node
         return new IfNode($condition, $body);
     }
 
+    /**
+     * @no-named-arguments
+     */
     public static function logicalAnd(Node ...$nodes): CompliantNode
     {
         return new CompliantNode(new LogicalAndNode(...$nodes));
     }
 
+    /**
+     * @no-named-arguments
+     */
     public static function logicalOr(Node ...$nodes): CompliantNode
     {
         return new CompliantNode(new LogicalOrNode(...$nodes));
@@ -180,8 +188,8 @@ abstract class Node
         return new CompliantNode(new VariableNode($name));
     }
 
-    public static function yield(Node $value, ?Node $key = null): YieldNode
+    public static function yield(Node $key, Node $value): YieldNode
     {
-        return new YieldNode($value, $key);
+        return new YieldNode($key, $value);
     }
 }

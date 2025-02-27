@@ -60,6 +60,18 @@ final class IntegerValueType implements IntegerType, FixedType
             return true;
         }
 
+        if ($other instanceof NonNegativeIntegerType && $this->value >= 0) {
+            return true;
+        }
+
+        if ($other instanceof NonPositiveIntegerType && $this->value <= 0) {
+            return true;
+        }
+
+        if ($other instanceof IntegerRangeType) {
+            return $other->accepts($this->value);
+        }
+
         return false;
     }
 

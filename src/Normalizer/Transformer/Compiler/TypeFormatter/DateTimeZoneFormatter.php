@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Array\TypeFormatter;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\CompliantNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 
 /** @internal */
-final class DateTimeZoneToArrayFormatter implements TypeFormatter
+final class DateTimeZoneFormatter implements TypeFormatter
 {
     public function formatValueNode(CompliantNode $valueNode): Node
     {
