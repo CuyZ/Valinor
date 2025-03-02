@@ -87,4 +87,18 @@ final class ShellTest extends TestCase
         self::assertSame($value, $child->value());
         self::assertSame($attributes, $child->attributes());
     }
+
+    public function test_can_transform_iterator_to_array(): void
+    {
+        $value = (function () {
+            yield 'foo' => 'foo';
+            yield 'bar' => 'bar';
+        })();
+
+        $shellA = Shell::root(new Settings(), new FakeType(), $value);
+        $shellB = $shellA->transformIteratorToArray();
+
+        self::assertNotSame($shellA, $shellB);
+        self::assertSame(['foo' => 'foo', 'bar' => 'bar'], $shellB->value());
+    }
 }

@@ -137,7 +137,7 @@ final class ArrayToken implements TraversingToken
 
             if ($stream->next() instanceof VacantToken) {
                 $type = new StringValueType($stream->forward()->symbol());
-            } elseif ($isUnsealed && $stream->next() instanceof ClosingCurlyBracketToken) {
+            } elseif ($isUnsealed && ($stream->next() instanceof ClosingCurlyBracketToken || $stream->next() instanceof CommaToken)) {
                 $stream->forward();
                 break;
             } else {

@@ -13,8 +13,6 @@ use Traversable;
 use function array_key_exists;
 use function count;
 use function is_array;
-use function is_iterable;
-use function iterator_to_array;
 
 /**
  * @internal
@@ -82,10 +80,6 @@ final class ArgumentsValues implements IteratorAggregate
     private function transform(Shell $shell): void
     {
         $value = $shell->value();
-
-        if (is_iterable($value) && ! is_array($value)) {
-            $value = iterator_to_array($value);
-        }
 
         $transformedValue = $this->transformValueForSingleArgument($value, $shell->allowSuperfluousKeys());
 
