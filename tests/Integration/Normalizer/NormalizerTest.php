@@ -301,6 +301,18 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'zero value with non-negative-int transformer' => [
+            'input' => 0,
+            'expected array' => 1,
+            'expected json' => '1',
+            'transformers' => [
+                [
+                    /** @param non-negative-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
         yield 'positive integer with non-positive-int transformer' => [
             'input' => 42,
             'expected array' => 42,
@@ -317,6 +329,18 @@ final class NormalizerTest extends IntegrationTestCase
             'input' => -42,
             'expected array' => -41,
             'expected json' => '-41',
+            'transformers' => [
+                [
+                    /** @param non-positive-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'zero value with non-positive-int transformer' => [
+            'input' => 0,
+            'expected array' => 1,
+            'expected json' => '1',
             'transformers' => [
                 [
                     /** @param non-positive-int $value */
