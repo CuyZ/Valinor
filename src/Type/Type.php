@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 
 /** @internal */
 interface Type
 {
     public function accepts(mixed $value): bool;
 
-    public function compiledAccept(CompliantNode $node): CompliantNode;
+    public function compiledAccept(ComplianceNode $node): ComplianceNode;
 
     public function matches(self $other): bool;
 

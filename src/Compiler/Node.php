@@ -8,7 +8,7 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ArrayNode;
 use CuyZ\Valinor\Compiler\Native\ClassNode;
 use CuyZ\Valinor\Compiler\Native\ClosureNode;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Native\ExpressionNode;
 use CuyZ\Valinor\Compiler\Native\ForEachNode;
 use CuyZ\Valinor\Compiler\Native\FunctionCallNode;
@@ -41,9 +41,9 @@ abstract class Node
         return new ExpressionNode($this);
     }
 
-    public function wrap(): CompliantNode
+    public function wrap(): ComplianceNode
     {
-        return new CompliantNode(new WrapNode($this));
+        return new ComplianceNode(new WrapNode($this));
     }
 
     /**
@@ -86,9 +86,9 @@ abstract class Node
      * @param non-empty-string $name
      * @param array<Node> $arguments
      */
-    public static function functionCall(string $name, array $arguments = []): CompliantNode
+    public static function functionCall(string $name, array $arguments = []): ComplianceNode
     {
-        return new CompliantNode(new FunctionCallNode($name, $arguments));
+        return new ComplianceNode(new FunctionCallNode($name, $arguments));
     }
 
     public static function if(Node $condition, Node $body): IfNode
@@ -99,17 +99,17 @@ abstract class Node
     /**
      * @no-named-arguments
      */
-    public static function logicalAnd(Node ...$nodes): CompliantNode
+    public static function logicalAnd(Node ...$nodes): ComplianceNode
     {
-        return new CompliantNode(new LogicalAndNode(...$nodes));
+        return new ComplianceNode(new LogicalAndNode(...$nodes));
     }
 
     /**
      * @no-named-arguments
      */
-    public static function logicalOr(Node ...$nodes): CompliantNode
+    public static function logicalOr(Node ...$nodes): ComplianceNode
     {
-        return new CompliantNode(new LogicalOrNode(...$nodes));
+        return new ComplianceNode(new LogicalOrNode(...$nodes));
     }
 
     public static function match(Node $value): MatchNode
@@ -146,9 +146,9 @@ abstract class Node
         return new ParameterDeclarationNode($name, $type);
     }
 
-    public static function property(string $name): CompliantNode
+    public static function property(string $name): ComplianceNode
     {
-        return new CompliantNode(new PropertyNode($name));
+        return new ComplianceNode(new PropertyNode($name));
     }
 
     /**
@@ -174,7 +174,7 @@ abstract class Node
         return new TernaryNode($condition, $ifTrue, $ifFalse);
     }
 
-    public static function this(): CompliantNode
+    public static function this(): ComplianceNode
     {
         return self::variable('this');
     }
@@ -187,14 +187,14 @@ abstract class Node
     /**
      * @param array<mixed>|bool|float|int|string|null $value
      */
-    public static function value(array|bool|float|int|string|null $value): CompliantNode
+    public static function value(array|bool|float|int|string|null $value): ComplianceNode
     {
-        return new CompliantNode(new ValueNode($value));
+        return new ComplianceNode(new ValueNode($value));
     }
 
-    public static function variable(string $name): CompliantNode
+    public static function variable(string $name): ComplianceNode
     {
-        return new CompliantNode(new VariableNode($name));
+        return new ComplianceNode(new VariableNode($name));
     }
 
     public static function yield(Node $key, Node $value): YieldNode

@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
@@ -19,7 +19,7 @@ final class ClassFormatter implements TypeFormatter
 {
     public function __construct(private ClassDefinitionNode $class) {}
 
-    public function formatValueNode(CompliantNode $valueNode): Node
+    public function formatValueNode(ComplianceNode $valueNode): Node
     {
         return Node::this()->callMethod(
             method: $this->methodName(),
@@ -90,7 +90,7 @@ final class ClassFormatter implements TypeFormatter
         ];
     }
 
-    private function valuesNode(CompliantNode $valueNode): Node
+    private function valuesNode(ComplianceNode $valueNode): Node
     {
         return Node::shortClosure(
             return: Node::functionCall(

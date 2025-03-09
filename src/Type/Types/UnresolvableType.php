@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
@@ -126,7 +126,7 @@ final class UnresolvableType implements Type
         throw new LogicException();
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         throw new LogicException();
     }

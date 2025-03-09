@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -25,7 +25,7 @@ final class NonNegativeIntegerType implements IntegerType
         return is_int($value) && $value >= 0;
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         return Node::functionCall('is_int', [$node])->and($node->isGreaterOrEqualsTo(Node::value(0)));
     }

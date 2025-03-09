@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -70,7 +70,7 @@ final class ClassStringType implements StringType, CompositeType
         return false;
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         $condition = Node::functionCall('is_string', [$node]);
 

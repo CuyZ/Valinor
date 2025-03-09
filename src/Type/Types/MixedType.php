@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
@@ -19,7 +19,7 @@ final class MixedType implements Type
         return true;
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         return Node::value(true);
     }

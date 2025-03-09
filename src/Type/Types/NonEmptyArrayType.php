@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
@@ -64,7 +64,7 @@ final class NonEmptyArrayType implements CompositeTraversableType
         );
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         return Node::logicalAnd(
             $node->different(Node::value([])),

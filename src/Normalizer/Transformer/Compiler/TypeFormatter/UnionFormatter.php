@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnionDefinitionNode;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
@@ -20,7 +20,7 @@ final class UnionFormatter implements TypeFormatter
         private UnionDefinitionNode $union,
     ) {}
 
-    public function formatValueNode(CompliantNode $valueNode): Node
+    public function formatValueNode(ComplianceNode $valueNode): Node
     {
         return Node::this()->callMethod(
             method: $this->methodName(),

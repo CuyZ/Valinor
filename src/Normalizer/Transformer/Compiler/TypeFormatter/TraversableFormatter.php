@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\TraversableDefinitionNode;
 use WeakMap;
@@ -17,7 +17,7 @@ final class TraversableFormatter implements TypeFormatter
         private TraversableDefinitionNode $iterable,
     ) {}
 
-    public function formatValueNode(CompliantNode $valueNode): Node
+    public function formatValueNode(ComplianceNode $valueNode): Node
     {
         return Node::this()->callMethod(
             method: $this->methodName(),

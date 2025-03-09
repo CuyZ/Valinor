@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\CompositeType;
@@ -39,7 +39,7 @@ final class IntersectionType implements CombiningType
         return true;
     }
 
-    public function compiledAccept(CompliantNode $node): CompliantNode
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         return Node::logicalAnd(...array_map(
             fn (ObjectType $type) => $type->compiledAccept($node),

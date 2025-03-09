@@ -6,7 +6,7 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use BackedEnum;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\EnumDefinitionNode;
 
@@ -17,7 +17,7 @@ final class EnumFormatter implements TypeFormatter
         private EnumDefinitionNode $enum,
     ) {}
 
-    public function formatValueNode(CompliantNode $valueNode): Node
+    public function formatValueNode(ComplianceNode $valueNode): Node
     {
         return is_a($this->enum->type->className(), BackedEnum::class, true)
             ? $valueNode->access('value')

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Compiler\Library;
 
 use CuyZ\Valinor\Compiler\Compiler;
-use CuyZ\Valinor\Compiler\Native\CompliantNode;
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Type;
 
@@ -13,7 +13,7 @@ use CuyZ\Valinor\Type\Type;
 final class TypeAcceptNode extends Node
 {
     public function __construct(
-        private CompliantNode $node,
+        private ComplianceNode $node,
         private Type $type,
     ) {}
 
