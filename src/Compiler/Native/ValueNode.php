@@ -30,12 +30,13 @@ final class ValueNode extends Node
         if (is_array($value)) {
             $compiler = $compiler->write('[');
 
-            while (($val = current($value)) !== false) {
+            while (key($value) !== null) {
                 $compiler = $compiler->write(var_export(key($value), true) . ' => ');
-                $compiler = $this->compileValue($val, $compiler);
+                $compiler = $this->compileValue(current($value), $compiler);
+
                 next($value);
 
-                if (current($value)) {
+                if (key($value) !== null) {
                     $compiler = $compiler->write(', ');
                 }
             }
