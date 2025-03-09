@@ -66,9 +66,7 @@ final class ListType implements CompositeTraversableType
                 Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
                     $node,
                     Node::shortClosure(
-                        Node::logicalOr(
-                            Node::negate($this->subType->compiledAccept(Node::variable('item'))->wrap()),
-                        ),
+                        Node::negate($this->subType->compiledAccept(Node::variable('item'))->wrap()),
                     )->witParameters(
                         Node::parameterDeclaration('item', 'mixed'),
                     ),
