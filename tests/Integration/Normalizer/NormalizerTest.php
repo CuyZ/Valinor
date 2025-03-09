@@ -21,6 +21,7 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use Generator;
 use IteratorAggregate;
 use JsonException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -29,7 +30,6 @@ use stdClass;
 use Traversable;
 
 use function array_merge;
-use function extension_loaded;
 
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_TAG;
@@ -96,7 +96,121 @@ final class NormalizerTest extends IntegrationTestCase
             'expected array' => 'foo!',
             'expected json' => '"foo!"',
             'transformers' => [
-                [fn (string $value) => $value . '!'],
+                [fn (string $value, callable $next) => $next() . '!'], // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+            ],
+        ];
+
+        yield 'class string' => [
+            'input' => 'Some\Namespace\To\Class',
+            'expected array' => 'Some\Namespace\To\Class',
+            'expected json' => '"Some\\\\Namespace\\\\To\\\\Class"',
+        ];
+
+        yield 'class-string with transformer' => [
+            'input' => stdClass::class,
+            'expected array' => 'stdClass!',
+            'expected json' => '"stdClass!"',
+            'transformers' => [
+                [
+                    /** @param class-string $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'class-string of stdClass with transformer' => [
+            'input' => stdClass::class,
+            'expected array' => 'stdClass!',
+            'expected json' => '"stdClass!"',
+            'transformers' => [
+                [
+                    /** @param class-string<stdClass> $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'class-string of stdClass with transformer not matching input type' => [
+            'input' => stdClass::class,
+            'expected array' => 'stdClass',
+            'expected json' => '"stdClass"',
+            'transformers' => [
+                [
+                    /** @param class-string<DateTimeInterface> $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'non-empty-string with transformer' => [
+            'input' => 'foo',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
+            'transformers' => [
+                [
+                    /** @param non-empty-string $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'non-empty-string with transformer with empty input' => [
+            'input' => '',
+            'expected array' => '',
+            'expected json' => '""',
+            'transformers' => [
+                [
+                    /** @param non-empty-string $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'numeric-string with transformer' => [
+            'input' => '404',
+            'expected array' => 405,
+            'expected json' => '405',
+            'transformers' => [
+                [
+                    /** @param numeric-string $value */
+                    fn (string $value, callable $next) => $next() + 1, // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'numeric-string with transformer with not matching input type' => [
+            'input' => 404,
+            'expected array' => 404,
+            'expected json' => '404',
+            'transformers' => [
+                [
+                    /** @param numeric-string $value */
+                    fn (string $value, callable $next) => $next() + 1, // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'string value with transformer' => [
+            'input' => 'foo',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
+            'transformers' => [
+                [
+                    /** @param 'foo' $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'string value with transformer with not matching input type' => [
+            'input' => 'bar',
+            'expected array' => 'bar',
+            'expected json' => '"bar"',
+            'transformers' => [
+                [
+                    /** @param 'foo' $value */
+                    fn (string $value, callable $next) => $next() . '!', // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
             ],
         ];
 
@@ -115,13 +229,145 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
-        yield 'integer with negative-int transformer' => [
+        yield 'positive integer with negative-int transformer' => [
             'input' => 42,
             'expected array' => 42,
             'expected json' => '42',
             'transformers' => [
                 [
                     /** @param negative-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'negative integer with negative-int transformer' => [
+            'input' => -42,
+            'expected array' => -41,
+            'expected json' => '-41',
+            'transformers' => [
+                [
+                    /** @param negative-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'positive integer with positive-int transformer' => [
+            'input' => 42,
+            'expected array' => 43,
+            'expected json' => '43',
+            'transformers' => [
+                [
+                    /** @param positive-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'negative integer with positive-int transformer' => [
+            'input' => -42,
+            'expected array' => -42,
+            'expected json' => '-42',
+            'transformers' => [
+                [
+                    /** @param positive-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'positive integer with non-negative-int transformer' => [
+            'input' => 42,
+            'expected array' => 43,
+            'expected json' => '43',
+            'transformers' => [
+                [
+                    /** @param non-negative-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'negative integer with non-negative-int transformer' => [
+            'input' => -42,
+            'expected array' => -42,
+            'expected json' => '-42',
+            'transformers' => [
+                [
+                    /** @param non-negative-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'zero value with non-negative-int transformer' => [
+            'input' => 0,
+            'expected array' => 1,
+            'expected json' => '1',
+            'transformers' => [
+                [
+                    /** @param non-negative-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'positive integer with non-positive-int transformer' => [
+            'input' => 42,
+            'expected array' => 42,
+            'expected json' => '42',
+            'transformers' => [
+                [
+                    /** @param non-positive-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'negative integer with non-positive-int transformer' => [
+            'input' => -42,
+            'expected array' => -41,
+            'expected json' => '-41',
+            'transformers' => [
+                [
+                    /** @param non-positive-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'zero value with non-positive-int transformer' => [
+            'input' => 0,
+            'expected array' => 1,
+            'expected json' => '1',
+            'transformers' => [
+                [
+                    /** @param non-positive-int $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'integer with transformer in range' => [
+            'input' => 15,
+            'expected array' => 16,
+            'expected json' => '16',
+            'transformers' => [
+                [
+                    /** @param int<10, 20> $value */
+                    fn (int $value) => $value + 1,
+                ],
+            ],
+        ];
+
+        yield 'integer with transformer not in range' => [
+            'input' => 25,
+            'expected array' => 25,
+            'expected json' => '25',
+            'transformers' => [
+                [
+                    /** @param int<10, 20> $value */
                     fn (int $value) => $value + 1,
                 ],
             ],
@@ -142,16 +388,58 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'float value with transformer' => [
+            'input' => 1337.404,
+            'expected array' => 1337.405,
+            'expected json' => '1337.405',
+            'transformers' => [
+                [
+                    /** @param 1337.404 $value */
+                    fn (float $value) => $value + 0.001,
+                ],
+            ],
+        ];
+
+        yield 'float value with transformer with not matching input type' => [
+            'input' => 1337.404,
+            'expected array' => 1337.404,
+            'expected json' => '1337.404',
+            'transformers' => [
+                [
+                    /** @param 42.404 $value */
+                    fn (float $value) => $value + 0.001,
+                ],
+            ],
+        ];
+
         yield 'boolean' => [
             'input' => true,
             'expected array' => true,
             'expected json' => 'true',
         ];
 
-        yield 'class string' => [
-            'input' => 'Some\Namespace\To\Class',
-            'expected array' => 'Some\Namespace\To\Class',
-            'expected json' => '"Some\\\\Namespace\\\\To\\\\Class"',
+        yield 'boolean with transformer' => [
+            'input' => true,
+            'expected array' => false,
+            'expected json' => 'false',
+            'transformers' => [
+                [
+                    /** @param true $value */
+                    fn (bool $value) => ! $value,
+                ],
+            ],
+        ];
+
+        yield 'boolean with transformer with not matching input type' => [
+            'input' => true,
+            'expected array' => true,
+            'expected json' => 'true',
+            'transformers' => [
+                [
+                    /** @param false $value */
+                    fn (bool $value) => ! $value,
+                ],
+            ],
         ];
 
         yield 'array of scalar' => [
@@ -177,7 +465,109 @@ final class NormalizerTest extends IntegrationTestCase
             'expected array' => ['foo', 'bar'],
             'expected json' => '["foo","bar"]',
             'transformers' => [
-                [fn (array $value) => array_merge($value, ['bar'])],
+                [
+                    /** @param array<string> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'array with transformer with not matching input type' => [
+            'input' => ['foo'],
+            'expected array' => ['foo'],
+            'expected json' => '["foo"]',
+            'transformers' => [
+                [
+                    /** @param array<int> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'non-empty-array with transformer' => [
+            'input' => ['foo'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
+            'transformers' => [
+                [
+                    /** @param non-empty-array<string> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'non-empty-array with transformer with not matching input type' => [
+            'input' => [],
+            'expected array' => [],
+            'expected json' => '[]',
+            'transformers' => [
+                [
+                    /** @param non-empty-array<string> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'list' => [
+            'input' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
+        ];
+
+        yield 'list kept as object in json' => [
+            'input' => ['foo', 'bar'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '{"0":"foo","1":"bar"}',
+            [],
+            [],
+            JSON_FORCE_OBJECT,
+        ];
+
+        yield 'list with transformer' => [
+            'input' => ['foo'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
+            'transformers' => [
+                [
+                    /** @param list<string> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'list with transformer with not matching input type' => [
+            'input' => ['foo'],
+            'expected array' => ['foo'],
+            'expected json' => '["foo"]',
+            'transformers' => [
+                [
+                    /** @param list<int> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'non-empty-list with transformer' => [
+            'input' => ['foo'],
+            'expected array' => ['foo', 'bar'],
+            'expected json' => '["foo","bar"]',
+            'transformers' => [
+                [
+                    /** @param non-empty-list<string> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
+            ],
+        ];
+
+        yield 'non-empty-list with transformer with not matching input type' => [
+            'input' => [],
+            'expected array' => [],
+            'expected json' => '[]',
+            'transformers' => [
+                [
+                    /** @param non-empty-list<string> $value */
+                    fn (array $value) => array_merge($value, ['bar']),
+                ],
             ],
         ];
 
@@ -196,21 +586,6 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
 
-        yield 'list' => [
-            'input' => ['foo', 'bar'],
-            'expected array' => ['foo', 'bar'],
-            'expected json' => '["foo","bar"]',
-        ];
-
-        yield 'list kept as object in json' => [
-            'input' => ['foo', 'bar'],
-            'expected array' => ['foo', 'bar'],
-            'expected json' => '{"0":"foo","1":"bar"}',
-            [],
-            [],
-            JSON_FORCE_OBJECT
-        ];
-
         yield 'ArrayObject' => [
             'input' => new ArrayObject(['foo' => 'foo', 'bar' => 'bar']),
             'expected array' => [
@@ -219,16 +594,6 @@ final class NormalizerTest extends IntegrationTestCase
             ],
             'expected json' => '{"foo":"foo","bar":"bar"}',
         ];
-
-        if (extension_loaded('ds')) {
-            yield 'Ds Map' => [
-                'input' => new \Ds\Map(['foo' => 'foo', 'bar' => 'bar']),
-                'expected array' => [
-                    'foo' => 'foo',
-                    'bar' => 'bar',
-                ],
-                'expected json' => '{"foo":"foo","bar":"bar"}',
-            ];
 
             yield 'Ds Set' => [
                 'input' => new \Ds\Set(['foo', 'bar']),
@@ -392,10 +757,12 @@ final class NormalizerTest extends IntegrationTestCase
             ],
             'expected json' => '{"name":"Europe\/Paris","country_code":"FR"}',
             'transformers' => [
-                [fn (DateTimeZone $object) => [
-                    'name' => $object->getName(),
-                    'country_code' => $object->getLocation()['country_code'] ?? 'Unknown',
-                ]],
+                [
+                    fn (DateTimeZone $object) => [
+                        'name' => $object->getName(),
+                        'country_code' => $object->getLocation()['country_code'] ?? 'Unknown',
+                    ],
+                ],
             ],
         ];
 
@@ -434,12 +801,42 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'object with union type and matching string transformer' => [
+            'input' => new ObjectWithUnionType('foo'),
+            'expected array' => ['value' => 'foo!'],
+            'expected json' => '{"value":"foo!"}',
+            'transformers' => [
+                [fn (string $value) => $value . '!'],
+            ],
+        ];
+
+        yield 'object with union type and matching int transformer' => [
+            'input' => new ObjectWithUnionType(42),
+            'expected array' => ['value' => 43],
+            'expected json' => '{"value":43}',
+            'transformers' => [
+                [fn (int $value) => $value + 1],
+            ],
+        ];
+
         yield 'object with union object transformer' => [
             'input' => new BasicObject('foo'),
             'expected array' => 'foo!',
             'expected json' => '"foo!"',
             'transformers' => [
                 [fn (BasicObject|AnotherBasicObject $object) => $object->value . '!'],
+            ],
+        ];
+
+        yield 'object with union object transformer with not matching input type' => [
+            'input' => new BasicObject('foo'),
+            'expected array' => ['value' => 'foo'],
+            'expected json' => '{"value":"foo"}',
+            'transformers' => [
+                [
+                    /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
+                    fn (stdClass|AnotherBasicObject $object) => $object->value . '!',
+                ],
             ],
         ];
 
@@ -528,6 +925,7 @@ final class NormalizerTest extends IntegrationTestCase
             'transformers' => [],
             'transformerAttributes' => [
                 AddPrefixToPropertyAttribute::class,
+                DoubleIntegerAttribute::class,
                 AddSuffixToPropertyAttribute::class,
             ],
         ];
@@ -578,6 +976,22 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '"foo"',
             'transformers' => [],
             'transformerAttributes' => [TransformObjectToString::class],
+        ];
+
+        yield 'object with attribute on class with object in constructor' => [
+            'input' => new SomeClassWithAttributeWithObjectInConstructor(),
+            'expected array' => 'bar',
+            'expected json' => '"bar"',
+            'transformers' => [],
+            'transformerAttributes' => [AttributeWithObjectInConstructor::class],
+        ];
+
+        yield 'object with attribute on class with array in constructor' => [
+            'input' => new SomeClassWithAttributeWithArrayInConstructor(),
+            'expected array' => 'baz',
+            'expected json' => '"baz"',
+            'transformers' => [],
+            'transformerAttributes' => [AttributeWithArrayInConstructor::class],
         ];
 
         yield 'object with attributes and custom transformers' => [
@@ -766,7 +1180,7 @@ final class NormalizerTest extends IntegrationTestCase
                 'list' => [
                     'foo',
                     42,
-                    ['sub']
+                    ['sub'],
                 ],
                 'associative' => [
                     'value' => 'foo',
@@ -781,7 +1195,7 @@ final class NormalizerTest extends IntegrationTestCase
                 'list' => [
                     'foo',
                     42,
-                    ['sub']
+                    ['sub'],
                 ],
                 'associative' => [
                     'value' => 'foo',
@@ -814,6 +1228,112 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [],
             'jsonEncodingOptions' => JSON_PRETTY_PRINT,
         ];
+
+        yield 'object with shaped array property' => [
+            'input' => new class () {
+                /** @var array{stringValue: string, intValue: int} */
+                public $value = ['stringValue' => 'foo', 'intValue' => 42];
+            },
+            'expected array' => ['value' => ['stringValue' => 'foo', 'intValue' => 42]],
+            'expected json' => '{"value":{"stringValue":"foo","intValue":42}}',
+        ];
+
+        yield 'object with shaped array property with transformer for an element of the array' => [
+            'input' => new class () {
+                /** @var array{stringValue: string, intValue: int} */
+                public $value = ['stringValue' => 'foo', 'intValue' => 42];
+            },
+            'expected array' => ['value' => ['stringValue' => 'foo!', 'intValue' => 42]],
+            'expected json' => '{"value":{"stringValue":"foo!","intValue":42}}',
+            'transformers' => [
+                [fn (string $value) => $value . '!'],
+            ],
+        ];
+
+        yield 'object with shaped array property with transformer for the shaped array' => [
+            'input' => new class () {
+                /** @var array{stringValue: string, intValue: int} */
+                public $value = ['stringValue' => 'foo', 'intValue' => 42];
+            },
+            'expected array' => ['value' => ['stringValue' => 'foo', 'intValue' => 42, 'addedValue' => 'foo']],
+            'expected json' => '{"value":{"stringValue":"foo","intValue":42,"addedValue":"foo"}}',
+            'transformers' => [
+                [
+                    /** @param array{stringValue: string, intValue: int} $value */
+                    fn (array $value, callable $next) => array_merge($next(), ['addedValue' => 'foo']), // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'object with array of string parameter but string given' => [
+            // @phpstan-ignore argument.type (the invalid argument is here on purpose)
+            'input' => new class ('foo') {
+                public function __construct(
+                    /** @var array<string> */
+                    public $value,
+                ) {}
+            },
+            'expected array' => ['value' => 'foo!'],
+            'expected json' => '{"value":"foo!"}',
+            'transformers' => [
+                [
+                    fn (string $value, callable $next) => $value . '!',
+                ],
+            ],
+        ];
+    }
+
+    public function test_class_with_property_of_type_generator_yields_expected_array(): void
+    {
+        $input = new class () {
+            public string $string;
+
+            public Generator $generator;
+
+            public function __construct()
+            {
+                $this->string = 'foo';
+                $this->generator = (function () {
+                    yield 'foo' => 'bar';
+                })();
+            }
+        };
+
+        $arrayResult = $this->mapperBuilder()
+            ->normalizer(Format::array())
+            ->normalize($input);
+
+        $expected = [
+            'string' => 'foo',
+            'generator' => ['foo' => 'bar'],
+        ];
+
+        self::assertSame($expected, $arrayResult);
+    }
+
+    public function test_class_with_property_of_type_generator_yields_expected_json(): void
+    {
+        $input = new class () {
+            public string $string;
+
+            public Generator $generator;
+
+            public function __construct()
+            {
+                $this->string = 'foo';
+                $this->generator = (function () {
+                    yield 'foo' => 'bar';
+                })();
+            }
+        };
+
+        $arrayResult = $this->mapperBuilder()
+            ->normalizer(Format::json())
+            ->normalize($input);
+
+        $expected = '{"string":"foo","generator":{"foo":"bar"}}';
+
+        self::assertSame($expected, $arrayResult);
     }
 
     public function test_generator_of_scalar_yields_expected_array(): void
@@ -1062,7 +1582,7 @@ final class NormalizerTest extends IntegrationTestCase
         self::assertSame([
             'object1' => ['foo' => 'foo'],
             'object2' => ['bar' => 'bar'],
-            'object3' => ['foo' => 'foo']
+            'object3' => ['foo' => 'foo'],
         ], $result);
     }
 
@@ -1285,6 +1805,11 @@ final class ObjectWithCircularReferenceB
     public ObjectWithCircularReferenceA $a;
 }
 
+final class ObjectWithUnionType
+{
+    public function __construct(public string|int $value) {}
+}
+
 #[Attribute]
 final class NonTransformerAttribute {}
 
@@ -1357,6 +1882,15 @@ final class AddSuffixToPropertyAttribute implements SomePropertyAttributeInterfa
     }
 }
 
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
+final class DoubleIntegerAttribute
+{
+    public function normalize(int $value): int
+    {
+        return $value * 2;
+    }
+}
+
 interface SomeKeyTransformerInterface
 {
     public function normalizeKey(): string;
@@ -1407,6 +1941,7 @@ final class SomeClassWithTwoAttributesOnProperty
 {
     public function __construct(
         #[AddPrefixToPropertyAttribute('prefix_')]
+        #[DoubleIntegerAttribute] // This attribute should be ignored
         #[AddSuffixToPropertyAttribute('_suffix')]
         public string $value = 'value',
     ) {}
@@ -1481,3 +2016,41 @@ enum SomeEnumWithTransformerAttribute: string
     case FOO = 'foo';
     case BAR = 'bar';
 }
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final class AttributeWithObjectInConstructor
+{
+    /**
+     * This attribute is there mostly to test that the compiled normalizer can
+     * handle attributes with objects in their constructor.
+     */
+    public function __construct(private BasicObject $object) {}
+
+    public function normalize(object $object): string
+    {
+        return $this->object->value;
+    }
+}
+
+#[AttributeWithObjectInConstructor(new BasicObject('bar'))]
+final class SomeClassWithAttributeWithObjectInConstructor {}
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final class AttributeWithArrayInConstructor
+{
+    /**
+     * This attribute is there mostly to test that the compiled normalizer can
+     * handler attributes with an array in their constructor.
+     *
+     * @param array{value: string} $data
+     */
+    public function __construct(private array $data) {}
+
+    public function normalize(object $object): string
+    {
+        return $this->data['value'];
+    }
+}
+
+#[AttributeWithArrayInConstructor(['value' => 'baz'])]
+final class SomeClassWithAttributeWithArrayInConstructor {}

@@ -5,6 +5,7 @@ $finder = PhpCsFixer\Finder::create()->in([
     './tests',
     './qa',
 ])
+    ->notPath('Integration/Normalizer/ExpectedCache/')
     ->notPath('Fixtures/FunctionWithGroupedImportStatements.php')
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
     ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php');

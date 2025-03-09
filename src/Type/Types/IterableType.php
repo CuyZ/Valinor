@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
@@ -57,6 +58,10 @@ final class IterableType implements CompositeTraversableType
         }
 
         return true;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode {
+
     }
 
     public function matches(Type $other): bool

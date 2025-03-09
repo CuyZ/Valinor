@@ -130,10 +130,9 @@ final class TreeNodeTest extends TestCase
 
     public function test_node_with_invalid_value_for_object_type_returns_invalid_node(): void
     {
-        $object = new stdClass();
-        $type = FakeObjectType::accepting($object);
+        $type = FakeObjectType::accepting(stdClass::class);
 
-        $node = FakeTreeNode::leaf($type, $object)->withValue(1337);
+        $node = FakeTreeNode::leaf($type, new stdClass())->withValue(1337);
 
         self::assertFalse($node->isValid());
     }
