@@ -43,8 +43,8 @@ final class TraversableFormatter implements TypeFormatter
      *     );
      * }
      *
-     * return (function () {
-     *     foreach($value as $key => $item) {
+     * return (function () use ($value) {
+     *     foreach ($value as $key => $item) {
      *         yield $key => $this->some_function($item);
      *     }
      * })();
