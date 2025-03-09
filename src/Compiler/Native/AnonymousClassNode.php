@@ -80,10 +80,7 @@ final class AnonymousClassNode extends Node
 
         if ($this->interfaces !== []) {
             $compiler = $compiler->write(
-                ' implements ' . implode(', ', array_map(
-                    fn (string $interface) => '\\' . $interface,
-                    $this->interfaces,
-                )),
+                ' implements ' . implode(', ', $this->interfaces),
             );
         }
 
