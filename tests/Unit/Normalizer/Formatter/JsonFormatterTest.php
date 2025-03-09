@@ -12,7 +12,7 @@ use function fopen;
 
 use const JSON_THROW_ON_ERROR;
 
-final class JsonStreamFormatterTest extends TestCase
+final class JsonFormatterTest extends TestCase
 {
     public function test_invalid_closure_type_given_to_formatter_throws_exception(): void
     {
