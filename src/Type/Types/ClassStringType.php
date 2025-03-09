@@ -93,7 +93,7 @@ final class ClassStringType implements StringType, CompositeType
         }
 
         if (! $other->subType) {
-            return false;
+            return true;
         }
 
         return $this->subType->matches($other->subType);
