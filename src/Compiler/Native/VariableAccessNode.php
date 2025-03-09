@@ -12,6 +12,7 @@ final class VariableAccessNode extends Node
 {
     public function __construct(
         private Node $node,
+        /** @var non-empty-string */
         private string $value
     ) {}
 

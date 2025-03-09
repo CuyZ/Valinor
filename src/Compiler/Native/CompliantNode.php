@@ -12,6 +12,9 @@ final class CompliantNode extends Node
 {
     public function __construct(private Node $node) {}
 
+    /**
+     * @param non-empty-string $value
+     */
     public function access(string $value): self
     {
         return new self(new VariableAccessNode($this, $value));
@@ -54,6 +57,7 @@ final class CompliantNode extends Node
     }
 
     /**
+     * @param non-empty-string $method
      * @param array<Node> $arguments
      */
     public function callMethod(string $method, array $arguments = []): self

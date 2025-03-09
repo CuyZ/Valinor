@@ -12,6 +12,7 @@ final class MethodCallNode extends Node
 {
     public function __construct(
         private Node $node,
+        /** @var non-empty-string */
         private string $method,
         /** @var array<Node> */
         private array $arguments = [],
