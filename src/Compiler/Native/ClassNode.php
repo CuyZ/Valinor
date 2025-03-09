@@ -16,6 +16,7 @@ final class ClassNode extends Node
     ) {}
 
     /**
+     * @param non-empty-string $method
      * @param array<Node> $arguments
      */
     public function callStaticMethod(

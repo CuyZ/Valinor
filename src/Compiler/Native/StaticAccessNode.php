@@ -12,6 +12,7 @@ final class StaticAccessNode extends Node
 {
     public function __construct(
         private Node $left,
+        /** @var non-empty-string */
         private string $name,
     ) {}
 

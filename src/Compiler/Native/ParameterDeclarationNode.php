@@ -11,6 +11,7 @@ use CuyZ\Valinor\Compiler\Node;
 final class ParameterDeclarationNode extends Node
 {
     public function __construct(
+        /** @var non-empty-string */
         private string $name,
         private string $type,
     ) {}

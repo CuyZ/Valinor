@@ -73,6 +73,8 @@ abstract class Node
     }
 
     /**
+     * @param non-empty-string $key
+     * @param non-empty-string $item
      * @param Node|non-empty-list<Node> $body
      */
     public static function forEach(Node $value, string $key, string $item, Node|array $body): ForEachNode
@@ -81,6 +83,7 @@ abstract class Node
     }
 
     /**
+     * @param non-empty-string $name
      * @param array<Node> $arguments
      */
     public static function functionCall(string $name, array $arguments = []): CompliantNode
@@ -135,6 +138,9 @@ abstract class Node
         return new NewClassNode($className, ...$arguments);
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public static function parameterDeclaration(string $name, string $type): ParameterDeclarationNode
     {
         return new ParameterDeclarationNode($name, $type);
@@ -145,6 +151,9 @@ abstract class Node
         return new CompliantNode(new PropertyNode($name));
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public static function propertyDeclaration(string $name, string $type): PropertyDeclarationNode
     {
         return new PropertyDeclarationNode($name, $type);

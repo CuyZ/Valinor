@@ -12,7 +12,9 @@ final class ForEachNode extends Node
 {
     public function __construct(
         private Node $value,
+        /** @var non-empty-string */
         private string $key,
+        /** @var non-empty-string */
         private string $item,
         /** @var Node|non-empty-list<Node> */
         private Node|array $body,
@@ -25,11 +27,9 @@ final class ForEachNode extends Node
         $value = $compiler->sub()->compile($this->value)->code();
         $body = $compiler->sub()->indent()->compile(...$body)->code();
 
-        $item = "\${$this->key} => \${$this->item}";
-
         return $compiler->write(
             <<<PHP
-            foreach ($value as $item) {
+            foreach ($value as $$this->key => $$this->item) {
             $body
             }
             PHP

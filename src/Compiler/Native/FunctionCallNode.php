@@ -11,6 +11,7 @@ use CuyZ\Valinor\Compiler\Node;
 final class FunctionCallNode extends Node
 {
     public function __construct(
+        /** @var non-empty-string */
         private string $name,
         /** @var array<Node> */
         private array $arguments = [],

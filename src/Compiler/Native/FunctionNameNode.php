@@ -16,7 +16,10 @@ final class FunctionNameNode extends Node
         'isset',
     ];
 
-    public function __construct(private string $name) {}
+    public function __construct(
+        /** @var non-empty-string */
+        private string $name
+    ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
