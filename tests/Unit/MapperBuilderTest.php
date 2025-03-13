@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit;
 
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
@@ -36,6 +37,7 @@ final class MapperBuilderTest extends TestCase
         $builderI = $builderA->withCache(new FakeCache());
         $builderJ = $builderA->supportDateFormats('Y-m-d');
         $builderK = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
+        $builderL = $builderA->allowDynamicPropertiesFor();
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -47,6 +49,7 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderI);
         self::assertNotSame($builderA, $builderJ);
         self::assertNotSame($builderA, $builderK);
+        self::assertNotSame($builderA, $builderL);
     }
 
     public function test_mapper_instance_is_the_same(): void
@@ -80,5 +83,20 @@ final class MapperBuilderTest extends TestCase
         $mapperBuilder = $this->mapperBuilder->supportDateFormats('Y-m-d', 'd/m/Y', 'Y-m-d');
 
         self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_allow_dynamic_properties(): void
+    {
+        $mapperBuilder = $this->mapperBuilder->allowDynamicPropertiesFor(
+            keyA: \ArrayAccess::class,
+            keyB: \ArrayAccess::class,
+        );
+        $settingsReceiver = \Closure::bind(
+            fn (): Settings => $this->settings,
+            $mapperBuilder,
+            $mapperBuilder,
+        );
+
+        self::assertSame([\ArrayAccess::class], $settingsReceiver()->allowDynamicPropertiesFor);
     }
 }

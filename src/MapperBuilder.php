@@ -378,6 +378,15 @@ final class MapperBuilder
         return $clone;
     }
 
+    /** @param class-string $classNames */
+    public function allowDynamicPropertiesFor(string ...$classNames): self
+    {
+        $clone = clone $this;
+        $clone->settings->allowDynamicPropertiesFor = array_values(array_unique($classNames));
+
+        return $clone;
+    }
+
     /**
      * Allows permissive types `mixed` and `object` to be used during mapping.
      *
