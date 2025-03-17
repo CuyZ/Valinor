@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
+use DateTime;
+use DateTimeInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -15,9 +17,10 @@ use function glob;
 final class NormalizerCompiledCodeTest extends TestCase
 {
     /**
-     * This test is here to ensure that the normalizer-compiled code is correct.
-     * The goal is to help detect regression that would be challenging to catch
-     * otherwise.
+     * This test is here to help detect regression in the generated PHP code.
+     * Even if the generated code works, some performance/other things may not
+     * be as expected. This test helps to detect such issues by comparing the
+     * generated code with a file that contains the expected code.
      *
      * @param list<callable> $transformers
      */
@@ -69,5 +72,17 @@ final class NormalizerCompiledCodeTest extends TestCase
                 static fn (bool $value) => ! $value,
             ],
         ];
+
+        yield 'class with `DateTimeInterface`' => [
+            'input' => new ClassWithDateTimeInterface(new DateTime()),
+            'expectedFile' => __DIR__ . '/ExpectedCache/class-with-datetime-interface.php',
+        ];
     }
+}
+
+final class ClassWithDateTimeInterface
+{
+    public function __construct(
+        public DateTimeInterface $date,
+    ) {}
 }

@@ -25,9 +25,7 @@ final class InterfaceFormatter implements TypeFormatter
 
         return Node::this()
             ->access('delegate')
-            ->callMethod('transform', [
-                Node::variable('value'),
-            ]);
+            ->callMethod('transform', [$valueNode]);
     }
 
     public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode

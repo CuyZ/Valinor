@@ -90,6 +90,7 @@ final class CacheTransformer implements Transformer
 
     private function inferType(mixed $value, bool $isSure = false): Type
     {
+        // @infection-ignore-all (mutation from `true` to `false` is useless)
         return match (true) {
             $value instanceof UnitEnum => EnumType::native($value::class),
             is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator => new NativeClassType($value::class),

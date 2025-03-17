@@ -44,7 +44,6 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
-use LogicException;
 use stdClass;
 use Traversable;
 use UnitEnum;
@@ -134,6 +133,7 @@ final class TransformerDefinitionBuilder
      */
     public function definitionNode(Type $type, ArrayObject $classesReferences): DefinitionNode
     {
+        // @infection-ignore-all (mutation from `true` to `false` is useless)
         return match (true) {
             $type instanceof CompositeTraversableType => new TraversableDefinitionNode(
                 $type,
@@ -142,7 +142,12 @@ final class TransformerDefinitionBuilder
             ),
             $type instanceof EnumType => new EnumDefinitionNode($type),
             $type instanceof InterfaceType => new InterfaceDefinitionNode($type),
-            $type instanceof MixedType => new MixedDefinitionNode([
+            $type instanceof NativeClassType => $this->classDefinitionNode($type, $classesReferences),
+            $type instanceof NullType => new NullDefinitionNode(),
+            $type instanceof ScalarType => new ScalarDefinitionNode(),
+            $type instanceof ShapedArrayType => $this->shapedArrayDefinitionNode($type, $classesReferences),
+            $type instanceof UnionType => $this->unionDefinitionNode($type, $classesReferences),
+            default => new MixedDefinitionNode([
                 $this->for(NativeBooleanType::get(), $classesReferences)->markAsSure(),
                 $this->for(NativeFloatType::get(), $classesReferences)->markAsSure(),
                 $this->for(NativeIntegerType::get(), $classesReferences)->markAsSure(),
@@ -153,12 +158,6 @@ final class TransformerDefinitionBuilder
                 $this->for(new NativeClassType(DateTimeZone::class), $classesReferences)->markAsSure(),
                 // @todo handle TraversableType
             ]),
-            $type instanceof NativeClassType => $this->classDefinitionNode($type, $classesReferences),
-            $type instanceof NullType => new NullDefinitionNode(),
-            $type instanceof ScalarType => new ScalarDefinitionNode(),
-            $type instanceof ShapedArrayType => $this->shapedArrayDefinitionNode($type, $classesReferences),
-            $type instanceof UnionType => $this->unionDefinitionNode($type, $classesReferences),
-            default => throw new LogicException('Unhandled type ' . $type::class),
         };
     }
 
@@ -176,7 +175,6 @@ final class TransformerDefinitionBuilder
         } elseif (is_a($type->className(), DateTimeZone::class, true)) {
             return new DateTimeZoneDefinitionNode();
         } elseif (is_a($type->className(), Traversable::class, true)) {
-            // @todo handle Generator generic types
             return new TraversableDefinitionNode(
                 IterableType::native(),
                 $this->for(MixedType::get(), $classesReferences),

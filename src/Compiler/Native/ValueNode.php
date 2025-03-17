@@ -36,6 +36,7 @@ final class ValueNode extends Node
 
                 next($value);
 
+                // @phpstan-ignore notIdentical.alwaysTrue (calling `next($value)` is not detected properly by PHPStan)
                 if (key($value) !== null) {
                     $compiler = $compiler->write(', ');
                 }

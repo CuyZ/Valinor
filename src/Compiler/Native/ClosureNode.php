@@ -16,9 +16,6 @@ final class ClosureNode extends Node
     /** @var list<string> */
     private array $use = [];
 
-    /** @var array<ParameterDeclarationNode> */
-    private array $parameters = [];
-
     /** @var array<Node> */
     private array $nodes;
 
@@ -39,27 +36,14 @@ final class ClosureNode extends Node
         return $self;
     }
 
-    public function witParameters(ParameterDeclarationNode ...$parameters): self
-    {
-        $self = clone $this;
-        $self->parameters = array_merge($self->parameters, $parameters);
-
-        return $self;
-    }
-
     public function compile(Compiler $compiler): Compiler
     {
         $use = $this->use !== [] ? ' use (' . implode(', ', $this->use) . ')' : '';
 
-        $parameters = implode(', ', array_map(
-            fn (ParameterDeclarationNode $parameter) => $compiler->sub()->compile($parameter)->code(),
-            $this->parameters,
-        ));
-
         $body = $compiler->sub()->indent()->compile(...$this->nodes)->code();
 
         $code = <<<PHP
-        function ($parameters)$use {
+        function ()$use {
         $body
         }
         PHP;

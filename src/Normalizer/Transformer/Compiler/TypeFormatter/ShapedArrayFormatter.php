@@ -60,10 +60,6 @@ final class ShapedArrayFormatter implements TypeFormatter
                                 $match = Node::match(Node::variable('key'));
 
                                 foreach ($this->shapedArray->elementsDefinitions as $name => $definition) {
-                                    if (! $definition->hasTransformation()) {
-                                        continue;
-                                    }
-
                                     $match = $match->withCase(
                                         condition: Node::value($name),
                                         body: $definition->typeFormatter()->formatValueNode(Node::variable('item')),
