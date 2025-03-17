@@ -127,6 +127,6 @@ final class Settings
     {
         $reflection = new ReflectionFunction(Closure::fromCallable($callable));
 
-        return $reflection->getFileName() . $reflection->getStartLine() . $reflection->getEndLine();
+        return ($reflection->getClosureCalledClass()?->name ?? $reflection->getFileName()) . $reflection->getStartLine() . $reflection->getEndLine();
     }
 }
