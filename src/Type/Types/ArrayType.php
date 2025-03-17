@@ -62,9 +62,9 @@ final class ArrayType implements CompositeTraversableType
             return false;
         }
 
-        return ! Polyfill::array_any(
+        return Polyfill::array_all(
             $value,
-            fn (mixed $item, mixed $key) => ! $this->keyType->accepts($key) || ! $this->subType->accepts($item),
+            fn (mixed $item, mixed $key) => $this->keyType->accepts($key) && $this->subType->accepts($item),
         );
     }
 
@@ -72,20 +72,18 @@ final class ArrayType implements CompositeTraversableType
     {
         return Node::logicalAnd(
             Node::functionCall('is_array', [$node]),
-            Node::negate(
-                Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
-                    $node,
-                    Node::shortClosure(
-                        Node::logicalOr(
-                            Node::negate($this->keyType->compiledAccept(Node::variable('key'))->wrap()),
-                            Node::negate($this->subType->compiledAccept(Node::variable('item'))->wrap()),
-                        ),
-                    )->witParameters(
-                        Node::parameterDeclaration('item', 'mixed'),
-                        Node::parameterDeclaration('key', 'mixed'),
+            Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+                $node,
+                Node::shortClosure(
+                    Node::logicalAnd(
+                        $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
+                        $this->subType->compiledAccept(Node::variable('item'))->wrap(),
                     ),
-                ]),
-            )
+                )->witParameters(
+                    Node::parameterDeclaration('item', 'mixed'),
+                    Node::parameterDeclaration('key', 'mixed'),
+                ),
+            ]),
         );
     }
 

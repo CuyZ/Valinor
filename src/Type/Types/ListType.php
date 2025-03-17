@@ -51,9 +51,9 @@ final class ListType implements CompositeTraversableType
             return false;
         }
 
-        return ! Polyfill::array_any(
+        return Polyfill::array_all(
             $value,
-            fn (mixed $item, mixed $key) => ! $this->subType->accepts($item),
+            fn (mixed $item) => $this->subType->accepts($item),
         );
     }
 
@@ -62,16 +62,14 @@ final class ListType implements CompositeTraversableType
         return Node::logicalAnd(
             Node::functionCall('is_array', [$node]),
             Node::functionCall('array_is_list', [$node]),
-            Node::negate(
-                Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
-                    $node,
-                    Node::shortClosure(
-                        Node::negate($this->subType->compiledAccept(Node::variable('item'))->wrap()),
-                    )->witParameters(
-                        Node::parameterDeclaration('item', 'mixed'),
-                    ),
-                ]),
-            ),
+            Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+                $node,
+                Node::shortClosure(
+                    $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+                )->witParameters(
+                    Node::parameterDeclaration('item', 'mixed'),
+                ),
+            ]),
         );
     }
 

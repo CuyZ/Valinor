@@ -8,18 +8,18 @@ namespace CuyZ\Valinor\Utility;
 final class Polyfill
 {
     /**
-     * PHP8.4 use native function `array_any` instead.
+     * PHP8.4 use native function `array_all` instead.
      *
      * @param array<mixed> $array
      */
-    public static function array_any(array $array, callable $callback): bool
+    public static function array_all(array $array, callable $callback): bool
     {
         foreach ($array as $key => $value) {
-            if ($callback($value, $key)) {
-                return true;
+            if (! $callback($value, $key)) {
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 }

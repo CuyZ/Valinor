@@ -139,20 +139,18 @@ final class ShapedArrayType implements CompositeType
                 array_map(fn (ShapedArrayElement $element) => $element->key()->value(), $this->elements)
             );
 
-            $conditions[] = Node::negate(
-                Node::functionCall(function_exists('array_any') ? 'array_any' : Polyfill::class . '::array_any', [
-                    Node::functionCall('array_diff_key', [$node, Node::value($elementsKeys)]),
-                    Node::shortClosure(
-                        Node::logicalOr(
-                            Node::negate($unsealedType->keyType()->compiledAccept(Node::variable('key'))->wrap()),
-                            Node::negate($unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap()),
-                        ),
-                    )->witParameters(
-                        Node::parameterDeclaration('item', 'mixed'),
-                        Node::parameterDeclaration('key', 'mixed'),
+            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+                Node::functionCall('array_diff_key', [$node, Node::value($elementsKeys)]),
+                Node::shortClosure(
+                    Node::logicalAnd(
+                        $unsealedType->keyType()->compiledAccept(Node::variable('key'))->wrap(),
+                        $unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
                     ),
-                ]),
-            );
+                )->witParameters(
+                    Node::parameterDeclaration('item', 'mixed'),
+                    Node::parameterDeclaration('key', 'mixed'),
+                ),
+            ]);
         }
 
         return Node::logicalAnd(...$conditions);
