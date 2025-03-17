@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer;
 
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
-use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
-
-use function array_map;
-use function is_array;
-use function is_iterable;
-use function iterator_to_array;
+use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 
 /**
  * @api
@@ -20,25 +15,25 @@ use function iterator_to_array;
 final class ArrayNormalizer implements Normalizer
 {
     public function __construct(
-        private RecursiveTransformer $transformer,
+        private Transformer $transformer,
     ) {}
 
     public function normalize(mixed $value): mixed
     {
-        $value = $this->transformer->transform($value);
-
         /** @var array<mixed>|scalar|null */
-        return $this->normalizeIterator($value);
+        return $this->format(
+            $this->transformer->transform($value),
+        );
     }
 
-    private function normalizeIterator(mixed $value): mixed
+    private function format(mixed $value): mixed
     {
         if (is_iterable($value)) {
             if (! is_array($value)) {
                 $value = iterator_to_array($value);
             }
 
-            $value = array_map($this->normalizeIterator(...), $value);
+            $value = array_map($this->format(...), $value);
         } elseif ($value instanceof EmptyObject) {
             return [];
         }

@@ -11,6 +11,7 @@ use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
+use CuyZ\Valinor\Normalizer\Transformer\EvaluatedTransformer;
 use Error;
 use FilesystemIterator;
 use Traversable;
@@ -193,6 +194,7 @@ final class FileSystemCache implements WarmupCache
         $code = match (true) {
             $value instanceof ClassDefinition => $this->classDefinitionCompiler->compile($value),
             $value instanceof FunctionDefinition => $this->functionDefinitionCompiler->compile($value),
+            $value instanceof EvaluatedTransformer => $value->code,
             default => var_export($value, true),
         };
 

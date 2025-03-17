@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FixedType;
@@ -25,6 +27,11 @@ final class IntegerValueType implements IntegerType, FixedType
     public function accepts(mixed $value): bool
     {
         return $value === $this->value;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return $node->equals(Node::value($this->value));
     }
 
     public function matches(Type $other): bool
@@ -51,6 +58,18 @@ final class IntegerValueType implements IntegerType, FixedType
 
         if ($other instanceof PositiveIntegerType && $this->value > 0) {
             return true;
+        }
+
+        if ($other instanceof NonNegativeIntegerType && $this->value >= 0) {
+            return true;
+        }
+
+        if ($other instanceof NonPositiveIntegerType && $this->value <= 0) {
+            return true;
+        }
+
+        if ($other instanceof IntegerRangeType) {
+            return $other->accepts($this->value);
         }
 
         return false;
@@ -88,6 +107,9 @@ final class IntegerValueType implements IntegerType, FixedType
         return $this->value;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return (string)$this->value;
