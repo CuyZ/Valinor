@@ -928,6 +928,17 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [AddPrefixToPropertyAttribute::class],
         ];
 
+        yield 'object with attribute on property with non registered transformer' => [
+            'input' => new SomeClassWithAttributeOnProperty('foo'),
+            'expected array' => ['value' => 'foo'],
+            'expected json' => '{"value":"foo"}',
+            'transformers' => [],
+            'transformerAttributes' => [
+                // A different transformer attribute from the one on the class
+                DoubleIntegerAttribute::class
+            ],
+        ];
+
         yield 'object with two attributes on property with matching transformers' => [
             'input' => new SomeClassWithTwoAttributesOnProperty('foo'),
             'expected array' => ['value' => 'prefix_foo_suffix'],
@@ -954,6 +965,17 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '{"prefix_from_class_value":"foo"}',
             'transformers' => [],
             'transformerAttributes' => [AddPrefixToClassPropertiesAttribute::class],
+        ];
+
+        yield 'object with transformer attribute on class which is not registered is not applied' => [
+            'input' => new SomeClassWithAttributeOnClass('foo'),
+            'expected array' => ['value' => 'foo'],
+            'expected json' => '{"value":"foo"}',
+            'transformers' => [],
+            'transformerAttributes' => [
+                // A different transformer attribute from the one on the class
+                TransformObjectToString::class
+            ],
         ];
 
         yield 'object with two attributes on class with matching transformers' => [

@@ -58,31 +58,14 @@ final class TransformerContainer
 
     public function filterTransformerAttributes(AttributeDefinition $attribute): bool
     {
-        return $this->isAttributeRegistered($attribute)
-            && $attribute->class->methods->has('normalize')
+        return $attribute->class->methods->has('normalize')
             && $this->checkTransformer($attribute->class->methods->get('normalize'));
     }
 
     public function filterKeyTransformerAttributes(AttributeDefinition $attribute): bool
     {
-        return $this->isAttributeRegistered($attribute)
-            && $attribute->class->methods->has('normalizeKey')
+        return $attribute->class->methods->has('normalizeKey')
             && $this->checkKeyTransformer($attribute->class->methods->get('normalizeKey'));
-    }
-
-    private function isAttributeRegistered(AttributeDefinition $attribute): bool
-    {
-        if ($attribute->class->attributes->has(AsTransformer::class)) {
-            return true;
-        }
-
-        foreach ($this->transformerAttributes as $transformerAttribute) {
-            if (is_a($attribute->class->type->className(), $transformerAttribute, true)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function checkTransformer(MethodDefinition|FunctionDefinition $method): bool
