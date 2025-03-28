@@ -69,6 +69,11 @@ final class InterfaceType implements ObjectType, GenericType
         return $types;
     }
 
+    public function nativeType(): InterfaceType
+    {
+        return new self($this->interfaceName);
+    }
+
     public function toString(): string
     {
         return empty($this->generics)

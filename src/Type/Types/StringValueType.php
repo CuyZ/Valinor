@@ -84,6 +84,11 @@ final class StringValueType implements StringType, FixedType
             ->build();
     }
 
+    public function nativeType(): NativeStringType
+    {
+        return NativeStringType::get();
+    }
+
     public function toString(): string
     {
         if (isset($this->quoteChar)) {

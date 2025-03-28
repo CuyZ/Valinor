@@ -98,6 +98,11 @@ final class ListType implements CompositeTraversableType
         return [$this->subType];
     }
 
+    public function nativeType(): ArrayType
+    {
+        return ArrayType::native();
+    }
+
     public function toString(): string
     {
         return $this->signature;

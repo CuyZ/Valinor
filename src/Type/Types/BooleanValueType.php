@@ -82,6 +82,11 @@ final class BooleanValueType implements BooleanType, FixedType
         return $this->value;
     }
 
+    public function nativeType(): NativeBooleanType
+    {
+        return NativeBooleanType::get();
+    }
+
     public function toString(): string
     {
         return $this->value ? 'true' : 'false';

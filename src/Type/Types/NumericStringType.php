@@ -58,6 +58,11 @@ final class NumericStringType implements StringType
         return MessageBuilder::newError('Value {source_value} is not a valid numeric string.')->build();
     }
 
+    public function nativeType(): NativeStringType
+    {
+        return NativeStringType::get();
+    }
+
     public function toString(): string
     {
         return 'numeric-string';

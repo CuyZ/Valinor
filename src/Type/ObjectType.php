@@ -11,4 +11,7 @@ interface ObjectType extends Type
      * @return class-string
      */
     public function className(): string;
+
+    public function nativeType(): ObjectType;
+
 }

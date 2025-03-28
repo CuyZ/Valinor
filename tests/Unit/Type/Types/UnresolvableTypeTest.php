@@ -29,6 +29,15 @@ final class UnresolvableTypeTest extends TestCase
         $type->matches(new FakeType());
     }
 
+    public function test_call_unresolvable_type_native_type_throws_exception(): void
+    {
+        $type = new UnresolvableType('some-type', 'some message');
+
+        $this->expectException(LogicException::class);
+
+        $type->nativeType();
+    }
+
     public function test_cast_string_unresolvable_type_returns_type(): void
     {
         $type = new UnresolvableType('some-type', 'some message');

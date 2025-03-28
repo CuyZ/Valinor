@@ -223,4 +223,10 @@ final class IterableTypeTest extends TestCase
         self::assertContains($subType, $type->traverse());
         self::assertContains($compositeType, $type->traverse());
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('iterable', IterableType::native()->nativeType()->toString());
+        self::assertSame('iterable', (new IterableType(ArrayKeyType::default(), new FakeType()))->nativeType()->toString());
+    }
 }

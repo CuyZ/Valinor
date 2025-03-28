@@ -72,6 +72,11 @@ final class NativeClassType implements ClassType, GenericType
         return $types;
     }
 
+    public function nativeType(): NativeClassType
+    {
+        return new self($this->className);
+    }
+
     public function toString(): string
     {
         return empty($this->generics)

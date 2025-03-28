@@ -148,4 +148,9 @@ final class NonNegativeIntegerTypeTest extends TestCase
 
         self::assertFalse($this->nonNegativeIntegerType->matches($unionType));
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int', (new NonNegativeIntegerType())->nativeType()->toString());
+    }
 }
