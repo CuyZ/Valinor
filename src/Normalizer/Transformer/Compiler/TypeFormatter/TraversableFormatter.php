@@ -7,14 +7,15 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\TraversableDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
 /** @internal */
 final class TraversableFormatter implements TypeFormatter
 {
     public function __construct(
-        private TraversableDefinitionNode $iterable,
+        private Type $subType,
     ) {}
 
     public function formatValueNode(ComplianceNode $valueNode): Node
@@ -50,16 +51,17 @@ final class TraversableFormatter implements TypeFormatter
      * })();
      * ```
      */
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
-        $class = $this->iterable->defaultTransformer->typeFormatter()->manipulateTransformerClass($class);
-        $class = $this->iterable->subDefinition->typeFormatter()->manipulateTransformerClass($class);
-
         $methodName = $this->methodName();
 
         if ($class->hasMethod($methodName)) {
             return $class;
         }
+
+        $subDefinition = $definitionBuilder->for($this->subType);
+
+        $class = $subDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
         return $class->withMethods(
             Node::method($methodName)
@@ -76,7 +78,7 @@ final class TraversableFormatter implements TypeFormatter
                                 name: 'array_map',
                                 arguments: [
                                     Node::shortClosure(
-                                        return: $this->iterable->subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
+                                        return: $subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
                                     )->witParameters(Node::parameterDeclaration('item', 'mixed')),
                                     Node::variable('value')
                                 ],
@@ -91,7 +93,7 @@ final class TraversableFormatter implements TypeFormatter
                                 item: 'item',
                                 body: Node::yield(
                                     key: Node::variable('key'),
-                                    value: $this->iterable->subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
+                                    value: $subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
                                 )->asExpression(),
                             )
                         )->uses('value', 'references')->wrap()->call(),
@@ -105,8 +107,8 @@ final class TraversableFormatter implements TypeFormatter
      */
     private function methodName(): string
     {
-        $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->iterable->subDefinition->type->toString()));
+        $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->subType->toString()));
 
-        return "transform_iterable_{$slug}_" . hash('xxh128', $this->iterable->subDefinition->type->toString());
+        return "transform_iterable_{$slug}_" . hash('xxh128', $this->subType->toString());
     }
 }

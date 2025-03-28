@@ -8,26 +8,30 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\MethodNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
+use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
 /** @internal */
 final class TransformerRootNode extends Node
 {
     public function __construct(
-        private TransformerDefinition $definition,
+        private TransformerDefinitionBuilder $definitionBuilder,
+        private Type $type,
     ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
-        $classNode = $this->transformerClassNode();
-        $classNode = $this->definition->typeFormatter()->manipulateTransformerClass($classNode);
+        $definition = $this->definitionBuilder->for($this->type);
+        $definition = $definition->markAsSure();
+
+        $classNode = $this->transformerClassNode($definition);
+        $classNode = $definition->typeFormatter()->manipulateTransformerClass($classNode, $this->definitionBuilder);
 
         return $classNode->compile($compiler);
     }
 
-    private function transformerClassNode(): AnonymousClassNode
+    private function transformerClassNode(TransformerDefinition $definition): AnonymousClassNode
     {
         return Node::anonymousClass()
             ->implements(Transformer::class)
@@ -59,12 +63,11 @@ final class TransformerRootNode extends Node
                     ->withBody(
                         Node::variable('references')->assign(Node::newClass(WeakMap::class))->asExpression(),
                         Node::return(
-                            $this->definition->typeFormatter()->formatValueNode(
+                            $definition->typeFormatter()->formatValueNode(
                                 Node::variable('value'),
                             ),
                         ),
                     ),
             );
     }
-
 }

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
+use Generator;
 
 use function is_iterable;
 
@@ -60,8 +63,29 @@ final class IterableType implements CompositeTraversableType
         return true;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode {
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        $conditions = [
+            Node::functionCall('is_iterable', [$node]),
+            Node::negate($node->instanceOf(Generator::class)),
+        ];
 
+        if ($this !== self::native()) {
+            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+                Node::functionCall('iterator_to_array', [$node]),
+                Node::shortClosure(
+                    Node::logicalAnd(
+                        $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
+                        $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+                    ),
+                )->witParameters(
+                    Node::parameterDeclaration('item', 'mixed'),
+                    Node::parameterDeclaration('key', 'mixed'),
+                ),
+            ]);
+        }
+
+        return Node::logicalAnd(...$conditions);
     }
 
     public function matches(Type $other): bool

@@ -8,7 +8,6 @@ use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
-use CuyZ\Valinor\Normalizer\AsTransformer;
 use CuyZ\Valinor\Normalizer\Exception\KeyTransformerHasTooManyParameters;
 use CuyZ\Valinor\Normalizer\Exception\KeyTransformerParameterInvalidType;
 use CuyZ\Valinor\Normalizer\Exception\TransformerHasInvalidCallableParameter;
@@ -22,15 +21,10 @@ final class TransformerContainer
 {
     private bool $transformersCallablesWereChecked = false;
 
-    /** @var array<string, true> */
-    private array $transformerCheck = [];
-
     public function __construct(
         private FunctionDefinitionRepository $functionDefinitionRepository,
         /** @var list<callable> */
         private array $transformers,
-        /** @var list<class-string> */
-        private array $transformerAttributes,
     ) {}
 
     public function hasTransformers(): bool
@@ -49,34 +43,27 @@ final class TransformerContainer
             foreach ($this->transformers as $transformer) {
                 $function = $this->functionDefinitionRepository->for($transformer);
 
-                $this->checkTransformer($function);
+                self::checkTransformer($function);
             }
         }
 
         return $this->transformers;
     }
 
-    public function filterTransformerAttributes(AttributeDefinition $attribute): bool
+    public static function filterTransformerAttributes(AttributeDefinition $attribute): bool
     {
         return $attribute->class->methods->has('normalize')
-            && $this->checkTransformer($attribute->class->methods->get('normalize'));
+            && self::checkTransformer($attribute->class->methods->get('normalize'));
     }
 
-    public function filterKeyTransformerAttributes(AttributeDefinition $attribute): bool
+    public static function filterKeyTransformerAttributes(AttributeDefinition $attribute): bool
     {
         return $attribute->class->methods->has('normalizeKey')
-            && $this->checkKeyTransformer($attribute->class->methods->get('normalizeKey'));
+            && self::checkKeyTransformer($attribute->class->methods->get('normalizeKey'));
     }
 
-    private function checkTransformer(MethodDefinition|FunctionDefinition $method): bool
+    private static function checkTransformer(MethodDefinition|FunctionDefinition $method): bool
     {
-        if (isset($this->transformerCheck[$method->signature])) {
-            return true;
-        }
-
-        // @infection-ignore-all
-        $this->transformerCheck[$method->signature] = true;
-
         $parameters = $method->parameters;
 
         if ($parameters->count() === 0) {
@@ -94,15 +81,8 @@ final class TransformerContainer
         return true;
     }
 
-    private function checkKeyTransformer(MethodDefinition $method): bool
+    private static function checkKeyTransformer(MethodDefinition $method): bool
     {
-        if (isset($this->transformerCheck[$method->signature])) {
-            return true;
-        }
-
-        // @infection-ignore-all
-        $this->transformerCheck[$method->signature] = true;
-
         $parameters = $method->parameters;
 
         if ($parameters->count() > 1) {

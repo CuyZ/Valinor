@@ -7,14 +7,16 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ShapedArrayDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use WeakMap;
 
 /** @internal */
 final class ShapedArrayFormatter implements TypeFormatter
 {
     public function __construct(
-        private ShapedArrayDefinitionNode $shapedArray,
+        private ShapedArrayType $type,
     ) {}
 
     public function formatValueNode(ComplianceNode $valueNode): Node
@@ -28,18 +30,30 @@ final class ShapedArrayFormatter implements TypeFormatter
         );
     }
 
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
-        $class = $this->shapedArray->defaultTransformer->typeFormatter()->manipulateTransformerClass($class);
-
-        foreach ($this->shapedArray->elementsDefinitions as $definition) {
-            $class = $definition->typeFormatter()->manipulateTransformerClass($class);
-        }
-
         $methodName = $this->methodName();
 
         if ($class->hasMethod($methodName)) {
             return $class;
+        }
+
+        if ($this->type->isUnsealed() && $this->type->hasUnsealedType()) {
+            $defaultDefinition = $definitionBuilder->for($this->type->unsealedType()->subType());
+        } else {
+            $defaultDefinition = $definitionBuilder->for(MixedType::get());
+        }
+
+        $class = $defaultDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
+
+        $elementsDefinitions = [];
+
+        foreach ($this->type->elements() as $element) {
+            $elementDefinition = $definitionBuilder->for($element->type());
+
+            $class = $elementDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
+
+            $elementsDefinitions[$element->key()->value()] = $elementDefinition;
         }
 
         return $class->withMethods(
@@ -56,10 +70,10 @@ final class ShapedArrayFormatter implements TypeFormatter
                         key: 'key',
                         item: 'item',
                         body: Node::variable('result')->key(Node::variable('key'))->assign(
-                            (function () {
+                            (function () use ($defaultDefinition, $elementsDefinitions) {
                                 $match = Node::match(Node::variable('key'));
 
-                                foreach ($this->shapedArray->elementsDefinitions as $name => $definition) {
+                                foreach ($elementsDefinitions as $name => $definition) {
                                     $match = $match->withCase(
                                         condition: Node::value($name),
                                         body: $definition->typeFormatter()->formatValueNode(Node::variable('item')),
@@ -67,7 +81,7 @@ final class ShapedArrayFormatter implements TypeFormatter
                                 }
 
                                 return $match->withDefaultCase(
-                                    $this->shapedArray->defaultTransformer->typeFormatter()->formatValueNode(Node::variable('item')),
+                                    $defaultDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
                                 );
                             })(),
                         )->asExpression(),
@@ -82,6 +96,6 @@ final class ShapedArrayFormatter implements TypeFormatter
      */
     private function methodName(): string
     {
-        return 'transform_shaped_array_' . hash('xxh128', $this->shapedArray->type->toString());
+        return 'transform_shaped_array_' . hash('xxh128', $this->type->toString());
     }
 }

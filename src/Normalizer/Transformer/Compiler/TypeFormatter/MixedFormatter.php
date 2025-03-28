@@ -8,16 +8,22 @@ use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\MixedDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Type\Types\IterableType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NullType;
+use DateTime;
+use DateTimeZone;
+use UnitEnum;
 use WeakMap;
 
 /** @internal */
 final class MixedFormatter implements TypeFormatter
 {
-    public function __construct(
-        private MixedDefinitionNode $mixed,
-    ) {}
-
     public function formatValueNode(ComplianceNode $valueNode): Node
     {
         return Node::this()->callMethod(
@@ -29,35 +35,34 @@ final class MixedFormatter implements TypeFormatter
         );
     }
 
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
-        foreach ($this->mixed->definitions as $definition) {
-            $class = $definition->typeFormatter()->manipulateTransformerClass($class);
-        }
-
         if ($class->hasMethod('transform_mixed')) {
             return $class;
         }
 
-        return $class->withMethods(
-            Node::method('transform_mixed')
-                ->witParameters(
-                    Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('mixed')
-                ->withBody(...$this->transformationNodes()),
-        );
-    }
+        // This is a placeholder method to avoid infinite loops.
+        $class = $class->withMethods(Node::method('transform_mixed'));
 
-    /**
-     * @return list<Node>
-     */
-    private function transformationNodes(): array
-    {
         $nodes = [];
 
-        foreach ($this->mixed->definitions as $definition) {
+        $types = [
+            NativeBooleanType::get(),
+            NativeFloatType::get(),
+            NativeIntegerType::get(),
+            NativeStringType::get(),
+            NullType::get(),
+            new NativeClassType(UnitEnum::class),
+            new NativeClassType(DateTime::class),
+            new NativeClassType(DateTimeZone::class),
+            IterableType::native(),
+        ];
+
+        foreach ($types as $type) {
+            $definition = $definitionBuilder->for($type)->markAsSure();
+
+            $class = $definition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
+
             $nodes[] = Node::if(
                 condition: new TypeAcceptNode(Node::variable('value'), $definition->type),
                 body: Node::return($definition->typeFormatter()->formatValueNode(Node::variable('value'))),
@@ -72,6 +77,14 @@ final class MixedFormatter implements TypeFormatter
                 ]),
         );
 
-        return $nodes;
+        return $class->withMethods(
+            Node::method('transform_mixed')
+                ->witParameters(
+                    Node::parameterDeclaration('value', 'mixed'),
+                    Node::parameterDeclaration('references', WeakMap::class),
+                )
+                ->withReturnType('mixed')
+                ->withBody(...$nodes),
+        );
     }
 }

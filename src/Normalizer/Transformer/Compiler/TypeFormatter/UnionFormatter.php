@@ -8,16 +8,16 @@ use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\UnionDefinitionNode;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinition;
-
-use function array_map;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\UnionType;
+use WeakMap;
 
 /** @internal */
 final class UnionFormatter implements TypeFormatter
 {
     public function __construct(
-        private UnionDefinitionNode $union,
+        private UnionType $type,
     ) {}
 
     public function formatValueNode(ComplianceNode $valueNode): Node
@@ -31,39 +31,42 @@ final class UnionFormatter implements TypeFormatter
         );
     }
 
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
-        $class = $this->union->defaultDefinition->typeFormatter()->manipulateTransformerClass($class);
-
-        foreach ($this->union->definitions as $definition) {
-            $class = $definition->typeFormatter()->manipulateTransformerClass($class);
-        }
-
         $methodName = $this->methodName();
 
         if ($class->hasMethod($methodName)) {
             return $class;
         }
 
-        $nodes = array_map(
-            fn (TransformerDefinition $definition) => Node::if(
+        $defaultDefinition = $definitionBuilder->for(MixedType::get());
+
+        $class = $defaultDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
+
+        $nodes = [];
+
+        foreach ($this->type->types() as $subType) {
+            $definition = $definitionBuilder->for($subType)->markAsSure();
+
+            $class = $definition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
+
+            $nodes[] = Node::if(
                 condition: new TypeAcceptNode(Node::variable('value'), $definition->type),
                 body: Node::return(
                     $definition->typeFormatter()->formatValueNode(Node::variable('value')),
                 ),
-            ),
-            $this->union->definitions,
-        );
+            );
+        }
 
         $nodes[] = Node::return(
-            $this->union->defaultDefinition->typeFormatter()->formatValueNode(Node::variable('value'))
+            $defaultDefinition->typeFormatter()->formatValueNode(Node::variable('value')),
         );
 
         return $class->withMethods(
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('references', \WeakMap::class),
+                    Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')
                 ->withBody(...$nodes),
@@ -75,6 +78,6 @@ final class UnionFormatter implements TypeFormatter
      */
     private function methodName(): string
     {
-        return 'transform_union_' . hash('xxh128', $this->union->type->toString());
+        return 'transform_union_' . hash('xxh128', $this->type->toString());
     }
 }

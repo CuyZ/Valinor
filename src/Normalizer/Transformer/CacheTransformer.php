@@ -8,7 +8,7 @@ use Closure;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerRootNode;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Type;
@@ -63,10 +63,12 @@ final class CacheTransformer implements Transformer
 
         $transformer = new EvaluatedTransformer($this->compileFor($type));
 
+        // @phpstan-ignore argument.type (this is a temporary workaround, while waiting for the cache API to be refined)
         $this->cache->set($key, $transformer);
 
         $entry = $this->cache->get($key);
 
+        // @phpstan-ignore callable.nonCallable (this is a temporary workaround, while waiting for the cache API to be refined)
         $transformer = $entry($this->transformers, $this);
 
         return $transformer->transform($value);
@@ -74,10 +76,7 @@ final class CacheTransformer implements Transformer
 
     private function compileFor(Type $type): string
     {
-        $definition = $this->definitionBuilder->for($type);
-        $definition = $definition->markAsSure();
-
-        $rootNode = new TransformerRootNode($definition);
+        $rootNode = new TransformerRootNode($this->definitionBuilder, $type);
 
         $node = Node::shortClosure($rootNode)
             ->witParameters(

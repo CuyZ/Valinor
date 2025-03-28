@@ -7,24 +7,23 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\StdClassDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
+use CuyZ\Valinor\Type\Types\MixedType;
 use stdClass;
 
 /** @internal */
 final class StdClassFormatter implements TypeFormatter
 {
-    public function __construct(
-        private StdClassDefinitionNode $stdClass,
-    ) {}
-
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
-        $class = $this->stdClass->mixedDefinition->typeFormatter()->manipulateTransformerClass($class);
-
         if ($class->hasMethod('transform_stdclass')) {
             return $class;
         }
+
+        $defaultDefinition = $definitionBuilder->for(MixedType::get());
+
+        $class = $defaultDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
         return $class->withMethods(
             Node::method('transform_stdclass')
@@ -46,7 +45,7 @@ final class StdClassFormatter implements TypeFormatter
                             name: 'array_map',
                             arguments: [
                                 Node::shortClosure(
-                                    return: $this->stdClass->mixedDefinition->typeFormatter()->formatValueNode(Node::variable('value')),
+                                    return: $defaultDefinition->typeFormatter()->formatValueNode(Node::variable('value')),
                                 )->witParameters(Node::parameterDeclaration('value', 'mixed')),
                                 Node::variable('value')->castToArray(),
                             ],

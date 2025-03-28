@@ -23,6 +23,7 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionMethod;
+use ReflectionProperty;
 
 use function array_filter;
 use function array_keys;
@@ -89,11 +90,15 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $sortedProperties = [];
 
         while ($reflection) {
-            foreach ($reflection->getProperties() as $property) {
-                if (isset($properties[$property->name])) {
-                    $sortedProperties[] = $properties[$property->name];
-                }
-            }
+            $currentProperties = array_map(
+                fn (ReflectionProperty $property) => $properties[$property->name],
+                array_filter(
+                    $reflection->getProperties(),
+                    fn (ReflectionProperty $property) => isset($properties[$property->name]),
+                ),
+            );
+
+            $sortedProperties = [...$currentProperties, ...$sortedProperties];
 
             $reflection = $reflection->getParentClass();
         }

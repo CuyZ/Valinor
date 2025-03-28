@@ -69,7 +69,7 @@ final class RecursiveTransformer implements Transformer
 
         if ($attributes !== []) {
             $attributes = (new Attributes(...$attributes))
-                ->filter($this->transformerContainer->filterTransformerAttributes(...))
+                ->filter(TransformerContainer::filterTransformerAttributes(...))
                 ->toArray();
         }
 
@@ -173,7 +173,7 @@ final class RecursiveTransformer implements Transformer
             foreach ($values as $key => $subValue) {
                 $property = $class->properties->get($key);
 
-                $keyTransformersAttributes = $property->attributes->filter($this->transformerContainer->filterKeyTransformerAttributes(...));
+                $keyTransformersAttributes = $property->attributes->filter(TransformerContainer::filterKeyTransformerAttributes(...));
 
                 foreach ($keyTransformersAttributes as $attribute) {
                     $method = $attribute->class->methods->get('normalizeKey');

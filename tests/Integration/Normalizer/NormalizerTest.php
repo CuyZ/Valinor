@@ -1313,6 +1313,29 @@ final class NormalizerTest extends IntegrationTestCase
                 ],
             ],
         ];
+
+        yield 'object with property of type interface' => [
+            'input' => new SomeClassWithPropertyWithInterface(new SomeClassImplementingInterface('foo')),
+            'expected array' => ['value' => ['subValue' => 'foo!']],
+            'expected json' => '{"value":{"subValue":"foo!"}}',
+            'transformers' => [
+                [
+                    fn (string $value, callable $next) => $value . '!',
+                ],
+            ],
+        ];
+
+        yield 'object with property that should be string but a DateTime is given' => [
+            // @phpstan-ignore argument.type (We put a wrong type on purpose)
+            'input' => new SomeClassWithPropertyWithDocBlockButCanContainAnything(new DateTimeImmutable('1971-11-08')),
+            'expected array' => ['value' => '1971-11-08T00:00:00.000000+00:00'],
+            'expected json' => '{"value":"1971-11-08T00:00:00.000000+00:00"}',
+            'transformers' => [
+                [
+                    fn (string $value, callable $next) => $value . '!',
+                ],
+            ],
+        ];
     }
 
     public function test_class_with_property_of_type_generator_yields_expected_array(): void
@@ -2086,3 +2109,27 @@ final class AttributeWithArrayInConstructor
 
 #[AttributeWithArrayInConstructor(['value' => 'baz'])]
 final class SomeClassWithAttributeWithArrayInConstructor {}
+
+interface SomeInterface {}
+
+final class SomeClassImplementingInterface implements SomeInterface
+{
+    public function __construct(
+        public string $subValue,
+    ) {}
+}
+
+final class SomeClassWithPropertyWithInterface
+{
+    public function __construct(
+        public SomeInterface $value,
+    ) {}
+}
+
+final class SomeClassWithPropertyWithDocBlockButCanContainAnything
+{
+    public function __construct(
+        /** @var string */
+        public $value,
+    ) {}
+}

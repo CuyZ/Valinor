@@ -70,9 +70,12 @@ final class ArrayType implements CompositeTraversableType
 
     public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
-        return Node::logicalAnd(
+        $conditions = [
             Node::functionCall('is_array', [$node]),
-            Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+        ];
+
+        if ($this !== self::native()) {
+            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
                 $node,
                 Node::shortClosure(
                     Node::logicalAnd(
@@ -83,8 +86,10 @@ final class ArrayType implements CompositeTraversableType
                     Node::parameterDeclaration('item', 'mixed'),
                     Node::parameterDeclaration('key', 'mixed'),
                 ),
-            ]),
-        );
+            ]);
+        }
+
+        return Node::logicalAnd(...$conditions);
     }
 
     public function matches(Type $other): bool

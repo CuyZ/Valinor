@@ -8,16 +8,21 @@ use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
+use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\ClassDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\ScalarType;
-use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\MixedType;
 use WeakMap;
 
 /** @internal */
 final class ClassFormatter implements TypeFormatter
 {
-    public function __construct(private ClassDefinitionNode $class) {}
+    public function __construct(
+        private ClassDefinition $class,
+    ) {}
 
     public function formatValueNode(ComplianceNode $valueNode): Node
     {
@@ -30,7 +35,7 @@ final class ClassFormatter implements TypeFormatter
         );
     }
 
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
         $methodName = $this->methodName();
 
@@ -42,30 +47,86 @@ final class ClassFormatter implements TypeFormatter
         // the class properties.
         $class = $class->withMethods(Node::method($methodName));
 
-        foreach ($this->class->propertiesDefinitions as $propertyDefinition) {
-            $class = $propertyDefinition->typeFormatter()->manipulateTransformerClass($class);
+        $valuesNode = $this->valuesNode(Node::variable('value'));
+
+        $nodes = [
+            ...$this->checkCircularObjectReference(),
+            Node::variable('values')->assign($valuesNode)->asExpression(),
+        ];
+
+        $transformedNodes = [
+            Node::variable('transformed')->assign(Node::array())->asExpression(),
+        ];
+
+        $shouldUseTransformedNodes = false;
+
+        foreach ($this->class->properties as $property) {
+            $propertyDefinition = $definitionBuilder->for($property->type);
+
+            if (! $property->nativeType instanceof MixedType) {
+                $propertyDefinition = $propertyDefinition->markAsSure();
+            }
+
+            $propertyDefinition = $propertyDefinition->withTransformerAttributes(
+                $property->attributes
+                    ->filter(TransformerContainer::filterTransformerAttributes(...))
+                    ->filter(
+                        static fn (AttributeDefinition $attribute): bool => $property->type->matches(
+                            $attribute->class->methods->get('normalize')->parameters->at(0)->type,
+                        ),
+                    )->toArray(),
+            );
+
+            $typeFormatter = $propertyDefinition->typeFormatter();
+
+            $keyTransformerAttributes = $property->attributes
+                ->filter(TransformerContainer::filterKeyTransformerAttributes(...))
+                ->toArray();
+
+            if ($keyTransformerAttributes === []) {
+                $key = Node::value($property->name);
+            } else {
+                $transformedNodes[] = Node::variable('key')->assign(Node::value($property->name))->asExpression();
+
+                foreach ($keyTransformerAttributes as $attribute) {
+                    $transformedNodes[] = Node::variable('key')->assign(
+                        (new NewAttributeNode($attribute))->wrap()->callMethod(
+                            method: 'normalizeKey',
+                            arguments: [Node::variable('key')],
+                        ),
+                    )->asExpression();
+                }
+
+                $key = Node::variable('key');
+            }
+
+            $transformedNodes[] = Node::variable('transformed')
+                ->key($key)
+                ->assign($typeFormatter->formatValueNode(
+                    Node::variable('values')->key(Node::value($property->name)),
+                ))->asExpression();
+
+            $class = $typeFormatter->manipulateTransformerClass($class, $definitionBuilder);
+
+            $shouldUseTransformedNodes |= $propertyDefinition->hasTransformers()
+                || $keyTransformerAttributes !== []
+                || ! $property->nativeType instanceof ScalarType;
         }
 
-        $className = $this->class->type->className();
-
-        // Checking if the class is anonymous
-        if (str_contains($className, '@anonymous')) {
-            $className = 'object';
-        }
-
-        $nodes = $this->checkCircularObjectReference();
-
-        // @todo: wrong because properties can have a different value than the excepted type
-        if ($this->transformationIsAppliedOnAnyProperty()) {
-            $nodes = [...$nodes, ...$this->arrayObjectTransformationNode()];
+        if ($shouldUseTransformedNodes) {
+            $nodes = [
+                ...$nodes,
+                ...$transformedNodes,
+                Node::return(Node::variable('transformed'))
+            ];
         } else {
-            $nodes[] = Node::return($this->valuesNode(Node::variable('value')));
+            $nodes[] = Node::return(Node::variable('values'));
         }
 
         return $class->withMethods(
             Node::method($methodName)
                 ->witParameters(
-                    Node::parameterDeclaration('value', $className),
+                    Node::parameterDeclaration('value', str_contains($this->class->name, '@anonymous') ? 'object' : $this->class->name),
                     Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('array')
@@ -90,71 +151,48 @@ final class ClassFormatter implements TypeFormatter
         ];
     }
 
+    /**
+     * This method returns a node responsible for getting the properties' values
+     * of an object.
+     *
+     * First scenario: if all properties are public, we can extract them easily
+     * by accessing the properties directly, resulting in a code like this:
+     *
+     * ```
+     * [
+     *     'someProperty' => $value->someProperty,
+     *     'anotherProperty' => $value->anotherProperty,
+     * ]
+     * ```
+     *
+     * Second scenario: at least one property is protected/private. In this
+     * case, we need to "extract" the properties using `get_object_vars`:
+     *
+     * ```
+     * (fn () => get_object_vars($this))->call($value)
+     * ```
+     */
     private function valuesNode(ComplianceNode $valueNode): Node
     {
+        $allPropertiesArePublic = true;
+        $assignments = [];
+
+        foreach ($this->class->properties as $property) {
+            $assignments[$property->name] = $valueNode->access($property->name);
+
+            $allPropertiesArePublic = $allPropertiesArePublic && $property->isPublic;
+        }
+
+        if ($allPropertiesArePublic) {
+            return Node::array($assignments);
+        }
+
         return Node::shortClosure(
             return: Node::functionCall(
                 name: 'get_object_vars',
                 arguments: [Node::this()],
             ),
         )->wrap()->callMethod('call', [$valueNode]);
-    }
-
-    /**
-     * @return list<Node>
-     */
-    private function arrayObjectTransformationNode(): array
-    {
-        $nodes = [];
-
-        $valuesNode = $this->valuesNode(Node::variable('value'));
-
-        $nodes[] = Node::variable('values')->assign($valuesNode)->asExpression();
-        $nodes[] = Node::variable('transformed')->assign(Node::array())->asExpression();
-
-        foreach ($this->class->propertiesDefinitions as $name => $property) {
-            if ($property->hasKeyTransformation()) {
-                $nodes[] = Node::variable('key')->assign(Node::value($name))->asExpression();
-
-                foreach ($property->keyTransformerAttributes as $attribute) {
-                    $nodes[] = Node::variable('key')->assign(
-                        (new NewAttributeNode($attribute))->wrap()->callMethod(
-                            method: 'normalizeKey',
-                            arguments: [Node::variable('key')],
-                        ),
-                    )->asExpression();
-                }
-
-                $key = Node::variable('key');
-            } else {
-                $key = Node::value($name);
-            }
-
-            $nodes[] = Node::variable('transformed')
-                ->key($key)
-                ->assign($property->typeFormatter()->formatValueNode(
-                    Node::variable('values')->key(Node::value($name)),
-                ))->asExpression();
-        }
-
-        $nodes[] = Node::return(Node::variable('transformed'));
-
-        return $nodes;
-    }
-
-    private function transformationIsAppliedOnAnyProperty(): bool
-    {
-        foreach ($this->class->propertiesDefinitions as $definition) {
-            if (! $definition->type instanceof ScalarType && ! $definition->type instanceof EnumType) {
-                return true;
-            }
-
-            if ($definition->hasTransformation() || $definition->hasKeyTransformation()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

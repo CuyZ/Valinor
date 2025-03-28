@@ -23,7 +23,9 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         }
         $references = clone $references;
         $references[$value] = true;
-        $values = (fn () => \get_object_vars($this))->call($value);
+        $values = [
+            'date' => $value->date,
+        ];
         $transformed = [];
         $transformed['date'] = $values['date']->format('Y-m-d\\TH:i:s.uP');
         return $transformed;

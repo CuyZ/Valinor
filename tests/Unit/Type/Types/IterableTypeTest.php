@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -95,6 +98,7 @@ final class IterableTypeTest extends TestCase
         $type = IterableType::native();
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
@@ -106,6 +110,7 @@ final class IterableTypeTest extends TestCase
         $type = new IterableType(ArrayKeyType::default(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
@@ -117,6 +122,7 @@ final class IterableTypeTest extends TestCase
         $type = new IterableType(ArrayKeyType::integer(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
@@ -128,6 +134,7 @@ final class IterableTypeTest extends TestCase
         $type = new IterableType(ArrayKeyType::string(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith([null])]
@@ -142,6 +149,11 @@ final class IterableTypeTest extends TestCase
         self::assertFalse((new IterableType(ArrayKeyType::default(), new StringValueType('Some value')))->accepts($value));
         self::assertFalse((new IterableType(ArrayKeyType::integer(), new StringValueType('Some value')))->accepts($value));
         self::assertFalse((new IterableType(ArrayKeyType::string(), new StringValueType('Some value')))->accepts($value));
+
+        self::assertFalse($this->compiledAccept(IterableType::native(), $value));
+        self::assertFalse($this->compiledAccept(new IterableType(ArrayKeyType::default(), new StringValueType('Some value')), $value));
+        self::assertFalse($this->compiledAccept(new IterableType(ArrayKeyType::integer(), new StringValueType('Some value')), $value));
+        self::assertFalse($this->compiledAccept(new IterableType(ArrayKeyType::string(), new StringValueType('Some value')), $value));
     }
 
     public function test_matches_valid_iterable_type(): void
@@ -223,5 +235,11 @@ final class IterableTypeTest extends TestCase
         self::assertCount(2, $type->traverse());
         self::assertContains($subType, $type->traverse());
         self::assertContains($compositeType, $type->traverse());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -7,19 +7,20 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\Node\InterfaceDefinitionNode;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Type\Types\InterfaceType;
 use DateTimeInterface;
 
 /** @internal */
 final class InterfaceFormatter implements TypeFormatter
 {
     public function __construct(
-        private InterfaceDefinitionNode $interface,
+        private InterfaceType $type,
     ) {}
 
     public function formatValueNode(ComplianceNode $valueNode): Node
     {
-        if ($this->interface->type->className() === DateTimeInterface::class) {
+        if ($this->type->className() === DateTimeInterface::class) {
             return (new DateTimeFormatter())->formatValueNode($valueNode);
         }
 
@@ -28,7 +29,7 @@ final class InterfaceFormatter implements TypeFormatter
             ->callMethod('transform', [$valueNode]);
     }
 
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
         return $class;
     }

@@ -27,9 +27,9 @@ use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\TypeNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
@@ -37,7 +37,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\TypeNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UndefinedObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
@@ -49,8 +49,7 @@ use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\CacheTransformer;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition\TransformerDefinitionBuilder;
-use CuyZ\Valinor\Normalizer\Transformer\Compiler\FormatterCompiler;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
@@ -59,7 +58,6 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use Psr\SimpleCache\CacheInterface;
 
-use function array_keys;
 use function call_user_func;
 use function count;
 
@@ -181,7 +179,6 @@ final class Container
             TransformerContainer::class => fn () => new TransformerContainer(
                 $this->get(FunctionDefinitionRepository::class),
                 $settings->transformersSortedByPriority(),
-                array_keys($settings->transformerAttributes),
             ),
 
             ArrayNormalizer::class => fn () => new ArrayNormalizer(
@@ -196,7 +193,6 @@ final class Container
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(FunctionDefinitionRepository::class),
                 $this->get(TransformerContainer::class),
-                new FormatterCompiler(),
             ),
 
             ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(

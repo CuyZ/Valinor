@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\Definition;
+namespace CuyZ\Valinor\Normalizer\Transformer\Compiler;
 
 use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\RegisteredTransformersFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\UnsureTypeFormatter;
 use CuyZ\Valinor\Type\Type;
+
+use function array_reverse;
 
 /** @internal */
 final class TransformerDefinition
@@ -40,24 +43,50 @@ final class TransformerDefinition
      */
     private bool $isSure = false;
 
+    /** @var list<AttributeDefinition> */
+    private array $transformerAttributes = [];
+
     public function __construct(
         public readonly Type $type,
         /** @var array<int, Type> */
-        public readonly array $transformerTypes,
-        /** @var list<AttributeDefinition> */
-        public readonly array $transformerAttributes,
-        /** @var list<AttributeDefinition> */
-        public readonly array $keyTransformerAttributes,
-        private readonly TypeFormatter $typeFormatter,
+        private array $transformerTypes,
+        private TypeFormatter $typeFormatter
     ) {}
 
     public function typeFormatter(): TypeFormatter
     {
-        if (! $this->isSure) {
-            return new UnsureTypeFormatter($this->typeFormatter, $this->type);
+        $typeFormatter = $this->typeFormatter;
+
+        if ($this->transformerTypes !== [] || $this->transformerAttributes !== []) {
+            $typeFormatter = new RegisteredTransformersFormatter(
+                $this->type,
+                $typeFormatter,
+                $this->transformerTypes,
+                $this->transformerAttributes,
+            );
         }
 
-        return $this->typeFormatter;
+        if (! $this->isSure) {
+            return new UnsureTypeFormatter($typeFormatter, $this->type);
+        }
+
+        return $typeFormatter;
+    }
+
+    /**
+     * @param list<AttributeDefinition> $transformerAttributes
+     */
+    public function withTransformerAttributes(array $transformerAttributes): self
+    {
+        $self = clone $this;
+        $self->transformerAttributes = [...$self->transformerAttributes, ...array_reverse($transformerAttributes)];
+
+        return $self;
+    }
+
+    public function hasTransformers(): bool
+    {
+        return $this->transformerTypes !== [] || $this->transformerAttributes !== [];
     }
 
     public function markAsSure(): self
@@ -66,15 +95,5 @@ final class TransformerDefinition
         $self->isSure = true;
 
         return $self;
-    }
-
-    public function hasTransformation(): bool
-    {
-        return $this->transformerTypes !== [] || $this->transformerAttributes !== [];
-    }
-
-    public function hasKeyTransformation(): bool
-    {
-        return $this->keyTransformerAttributes !== [];
     }
 }

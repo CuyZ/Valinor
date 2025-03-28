@@ -16,33 +16,6 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return $this->transform_iterable_string_3be84d23fb1096447c64fce6e12d003c($value, $references);
     }
 
-    private function transform_bool_3494e1ad6e91e19ca64e1721b4704117a79a89b4(mixed $value, WeakMap $references): mixed
-    {
-        $next = fn () => $value;
-        if (\is_bool($value)) {
-            $next = fn () => $this->transformers[3]($value, $next);
-        }
-        return $next();
-    }
-
-    private function transform_float_f955a18c8f02bd0e5051c1b81dca3f2e79c2e742(mixed $value, WeakMap $references): mixed
-    {
-        $next = fn () => $value;
-        if (\is_float($value)) {
-            $next = fn () => $this->transformers[2]($value, $next);
-        }
-        return $next();
-    }
-
-    private function transform_int_7d969c7b7ba92fad2e4f0f0020f349a7577c7f13(mixed $value, WeakMap $references): mixed
-    {
-        $next = fn () => $value;
-        if (\is_int($value)) {
-            $next = fn () => $this->transformers[1]($value, $next);
-        }
-        return $next();
-    }
-
     private function transform_string_a745897c0704318aa48e8aa8d29ba050aa7eda39(mixed $value, WeakMap $references): mixed
     {
         $next = fn () => $value;
@@ -78,10 +51,52 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         if ($value instanceof DateTimeZone) {
             return $value->getName();
         }
+        if (\is_iterable($value) && ! $value instanceof Generator) {
+            return $this->transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6($value, $references);
+        }
         return $this->delegate->transform($value);
     }
 
-    private function transform_unsure_3be84d23fb1096447c64fce6e12d003c(mixed $value, WeakMap $references): mixed
+    private function transform_bool_3494e1ad6e91e19ca64e1721b4704117a79a89b4(mixed $value, WeakMap $references): mixed
+    {
+        $next = fn () => $value;
+        if (\is_bool($value)) {
+            $next = fn () => $this->transformers[3]($value, $next);
+        }
+        return $next();
+    }
+
+    private function transform_float_f955a18c8f02bd0e5051c1b81dca3f2e79c2e742(mixed $value, WeakMap $references): mixed
+    {
+        $next = fn () => $value;
+        if (\is_float($value)) {
+            $next = fn () => $this->transformers[2]($value, $next);
+        }
+        return $next();
+    }
+
+    private function transform_int_7d969c7b7ba92fad2e4f0f0020f349a7577c7f13(mixed $value, WeakMap $references): mixed
+    {
+        $next = fn () => $value;
+        if (\is_int($value)) {
+            $next = fn () => $this->transformers[1]($value, $next);
+        }
+        return $next();
+    }
+
+    private function transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6(iterable $value, WeakMap $references): iterable
+    {
+        if (\is_array($value)) {
+            return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);
+        }
+        return (function () use ($value, $references) {
+            foreach ($value as $key => $item) {
+                yield $key => $this->transform_mixed($item, $references);
+            }
+        })();
+    }
+
+    private function transform_unsure_string_3be84d23fb1096447c64fce6e12d003c(mixed $value, WeakMap $references): mixed
     {
         if (! (\is_string($value))) {
             return $this->transform_mixed($value, $references);
@@ -92,11 +107,11 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     private function transform_iterable_string_3be84d23fb1096447c64fce6e12d003c(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
-            return \array_map(fn (mixed $item) => $this->transform_unsure_3be84d23fb1096447c64fce6e12d003c($item, $references), $value);
+            return \array_map(fn (mixed $item) => $this->transform_unsure_string_3be84d23fb1096447c64fce6e12d003c($item, $references), $value);
         }
         return (function () use ($value, $references) {
             foreach ($value as $key => $item) {
-                yield $key => $this->transform_unsure_3be84d23fb1096447c64fce6e12d003c($item, $references);
+                yield $key => $this->transform_unsure_string_3be84d23fb1096447c64fce6e12d003c($item, $references);
             }
         })();
     }

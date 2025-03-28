@@ -10,6 +10,7 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
@@ -36,15 +37,15 @@ final class RegisteredTransformersFormatter implements TypeFormatter
         );
     }
 
-    public function manipulateTransformerClass(AnonymousClassNode $class): AnonymousClassNode
+    public function manipulateTransformerClass(AnonymousClassNode $class, TransformerDefinitionBuilder $definitionBuilder): AnonymousClassNode
     {
-        $class = $this->delegate->manipulateTransformerClass($class);
-
         $methodName = $this->methodName();
 
         if ($class->hasMethod($methodName)) {
             return $class;
         }
+
+        $class = $this->delegate->manipulateTransformerClass($class, $definitionBuilder);
 
         $nodes = [
             Node::variable('next')->assign(
