@@ -8,6 +8,9 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -163,5 +166,15 @@ final class UnionTypeTest extends TestCase
         self::assertContains($subTypeB, $type->traverse());
         self::assertContains($compositeTypeA, $type->traverse());
         self::assertContains($compositeTypeB, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string|int|float', (new UnionType(
+            new NativeStringType(),
+            new NativeIntegerType(),
+            new NativeStringType(),
+            new NativeFloatType()
+        ))->nativeType()->toString());
     }
 }

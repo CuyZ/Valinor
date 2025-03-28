@@ -88,6 +88,11 @@ final class IntegerValueType implements IntegerType, FixedType
         return $this->value;
     }
 
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
+    }
+
     public function toString(): string
     {
         return (string)$this->value;

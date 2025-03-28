@@ -11,5 +11,7 @@ interface Type
 
     public function matches(self $other): bool;
 
+    public function nativeType(): Type;
+
     public function toString(): string;
 }

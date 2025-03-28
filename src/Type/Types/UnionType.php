@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
 use function array_map;
+use function array_values;
 use function implode;
 
 /** @internal */
@@ -106,6 +107,21 @@ final class UnionType implements CombiningType
     public function types(): array
     {
         return $this->types;
+    }
+
+    public function nativeType(): UnionType
+    {
+        $subNativeTypes = [];
+
+        foreach ($this->types as $type) {
+            if (isset($subNativeTypes[$type->toString()])) {
+                continue;
+            }
+
+            $subNativeTypes[$type->toString()] = $type->nativeType();
+        }
+
+        return new self(...array_values($subNativeTypes));
     }
 
     public function toString(): string

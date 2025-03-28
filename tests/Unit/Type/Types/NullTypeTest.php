@@ -80,4 +80,9 @@ final class NullTypeTest extends TestCase
 
         self::assertFalse($this->nullType->matches($unionType));
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('null', (new NullType())->nativeType()->toString());
+    }
 }

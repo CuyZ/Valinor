@@ -29,6 +29,11 @@ final class CallableType implements Type
             || $other instanceof MixedType;
     }
 
+    public function nativeType(): Type
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'callable';

@@ -135,4 +135,11 @@ final class EnumTypeTest extends TestCase
         self::assertFalse($this->backedStringEnumType->matches($unionType));
         self::assertFalse($this->backedIntegerEnumType->matches($unionType));
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame(PureEnum::class, $this->pureEnumType->nativeType()->toString());
+        self::assertSame(BackedStringEnum::class, $this->backedStringEnumType->nativeType()->toString());
+        self::assertSame(BackedIntegerEnum::class, $this->backedIntegerEnumType->nativeType()->toString());
+    }
 }

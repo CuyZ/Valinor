@@ -151,4 +151,9 @@ final class NativeBooleanTypeTest extends TestCase
 
         self::assertFalse($this->booleanType->matches($unionType));
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('bool', (new NativeBooleanType())->nativeType()->toString());
+    }
 }

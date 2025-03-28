@@ -149,4 +149,9 @@ final class PositiveIntegerTypeTest extends TestCase
 
         self::assertFalse($this->positiveIntegerType->matches($unionType));
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int', (new PositiveIntegerType())->nativeType()->toString());
+    }
 }

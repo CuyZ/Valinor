@@ -132,4 +132,9 @@ final class NativeFloatTypeTest extends TestCase
 
         self::assertFalse($this->floatType->matches($unionType));
     }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('float', (new NativeFloatType())->nativeType()->toString());
+    }
 }
