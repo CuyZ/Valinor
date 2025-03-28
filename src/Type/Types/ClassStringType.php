@@ -171,6 +171,11 @@ final class ClassStringType implements StringType, CompositeType
         return [$this->subType];
     }
 
+    public function nativeType(): NativeStringType
+    {
+        return NativeStringType::get();
+    }
+
     public function toString(): string
     {
         return $this->signature;

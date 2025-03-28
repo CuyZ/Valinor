@@ -64,6 +64,11 @@ final class NonNegativeIntegerType implements IntegerType
         return MessageBuilder::newError('Value {source_value} is not a valid non-negative integer.')->build();
     }
 
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
+    }
+
     public function toString(): string
     {
         return 'non-negative-int';

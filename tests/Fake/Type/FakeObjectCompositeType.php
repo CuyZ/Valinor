@@ -47,6 +47,11 @@ final class FakeObjectCompositeType implements ObjectType, CompositeType
         return array_values($this->generics);
     }
 
+    public function nativeType(): ObjectType
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return $this->className;

@@ -65,6 +65,11 @@ final class NativeIntegerType implements IntegerType
         return MessageBuilder::newError('Value {source_value} is not a valid integer.')->build();
     }
 
+    public function nativeType(): NativeIntegerType
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'int';

@@ -158,6 +158,11 @@ final class NonEmptyStringTypeTest extends TestCase
         self::assertFalse($this->nonEmptyStringType->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string', (new NonEmptyStringType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

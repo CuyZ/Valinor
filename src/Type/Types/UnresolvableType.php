@@ -131,6 +131,11 @@ final class UnresolvableType implements Type
         throw new LogicException();
     }
 
+    public function nativeType(): Type
+    {
+        throw new LogicException();
+    }
+
     public function toString(): string
     {
         return $this->rawType;

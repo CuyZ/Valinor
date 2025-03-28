@@ -39,6 +39,11 @@ final class UndefinedObjectType implements Type
             || $other instanceof MixedType;
     }
 
+    public function nativeType(): UndefinedObjectType
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'object';

@@ -128,6 +128,11 @@ final class IntegerRangeType implements IntegerType
         return $this->max;
     }
 
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
+    }
+
     public function toString(): string
     {
         return $this->signature;

@@ -130,6 +130,11 @@ final class IterableType implements CompositeTraversableType
         return [$this->subType];
     }
 
+    public function nativeType(): IterableType
+    {
+        return self::native();
+    }
+
     public function toString(): string
     {
         return $this->signature;

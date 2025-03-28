@@ -100,6 +100,16 @@ final class IntersectionType implements CombiningType
         return $this->types;
     }
 
+    public function nativeType(): IntersectionType
+    {
+        return new self(
+            ...array_map(
+                static fn (ObjectType $type) => $type->nativeType(),
+                $this->types,
+            ),
+        );
+    }
+
     public function toString(): string
     {
         return $this->signature;

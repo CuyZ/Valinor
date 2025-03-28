@@ -276,6 +276,12 @@ final class NonEmptyListTypeTest extends TestCase
         self::assertContains($compositeType, $type->traverse());
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('array', NonEmptyListType::native()->nativeType()->toString());
+        self::assertSame('array', (new NonEmptyListType(new FakeType()))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

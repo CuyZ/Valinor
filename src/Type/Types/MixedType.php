@@ -29,6 +29,11 @@ final class MixedType implements Type
         return $other instanceof self;
     }
 
+    public function nativeType(): Type
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'mixed';

@@ -142,6 +142,12 @@ final class InterfaceTypeTest extends TestCase
         self::assertFalse((new InterfaceType(DateTime::class))->matches($intersectionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame(stdClass::class, (new InterfaceType(stdClass::class))->nativeType()->toString());
+        self::assertSame(stdClass::class, (new InterfaceType(stdClass::class, ['Template' => new FakeType()]))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

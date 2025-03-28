@@ -86,6 +86,11 @@ final class CallableTypeTest extends TestCase
         self::assertFalse($this->callableType->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('callable', (new CallableType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

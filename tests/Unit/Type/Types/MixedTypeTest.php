@@ -55,6 +55,11 @@ final class MixedTypeTest extends TestCase
         self::assertFalse($this->mixedType->matches(new FakeType()));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('mixed', (new MixedType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

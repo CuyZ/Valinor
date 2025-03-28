@@ -145,6 +145,12 @@ final class NativeClassTypeTest extends TestCase
         self::assertContains($compositeType, $type->traverse());
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame(stdClass::class, (new NativeClassType(stdClass::class))->nativeType()->toString());
+        self::assertSame(stdClass::class, (new NativeClassType(stdClass::class, ['Template' => new FakeType()]))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

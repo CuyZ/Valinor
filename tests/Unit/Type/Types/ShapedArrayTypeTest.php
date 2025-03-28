@@ -80,8 +80,9 @@ final class ShapedArrayTypeTest extends TestCase
     // With additional values
     #[TestWith([['foo' => 'foo', 1337 => 42, 'unsealed-key' => 42.1337]])]
     #[TestWith([['foo' => 'foo', 'unsealed-key' => 42.1337]])]
-    public function test_accepts_correct_values(mixed $value): void
-    {
+    public function test_accepts_correct_values(
+        mixed $value,
+    ): void {
         self::assertTrue($this->type->accepts($value));
         self::assertTrue($this->compiledAccept($this->type, $value));
     }
@@ -99,8 +100,9 @@ final class ShapedArrayTypeTest extends TestCase
     #[TestWith([404])]
     #[TestWith([false])]
     #[TestWith([new stdClass()])]
-    public function test_does_not_accept_incorrect_values(mixed $value): void
-    {
+    public function test_does_not_accept_incorrect_values(
+        mixed $value,
+    ): void {
         self::assertFalse($this->type->accepts($value));
         self::assertFalse($this->compiledAccept($this->type, $value));
     }
@@ -290,6 +292,26 @@ final class ShapedArrayTypeTest extends TestCase
         self::assertContains($subTypeB, $type->traverse());
         self::assertContains($compositeTypeA, $type->traverse());
         self::assertContains($compositeTypeB, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame(
+            'array',
+            (new ShapedArrayType(
+                new ShapedArrayElement(new IntegerValueType(42), new NativeIntegerType()),
+                new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
+            ))->nativeType()->toString(),
+        );
+
+        self::assertSame(
+            'array',
+            ShapedArrayType::unsealed(
+                ArrayType::native(),
+                new ShapedArrayElement(new IntegerValueType(42), new NativeIntegerType()),
+                new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
+            )->nativeType()->toString(),
+        );
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

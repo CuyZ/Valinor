@@ -155,6 +155,11 @@ final class NegativeIntegerTypeTest extends TestCase
         self::assertFalse($this->negativeIntegerType->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int', (new NegativeIntegerType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

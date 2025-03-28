@@ -66,6 +66,11 @@ final class FloatValueType implements FloatType, FixedType
         return $this->value;
     }
 
+    public function nativeType(): NativeFloatType
+    {
+        return NativeFloatType::get();
+    }
+
     public function toString(): string
     {
         return (string)$this->value;

@@ -107,6 +107,11 @@ final class IntegerValueType implements IntegerType, FixedType
         return $this->value;
     }
 
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
+    }
+
     /**
      * @return non-empty-string
      */

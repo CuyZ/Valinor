@@ -61,6 +61,11 @@ final class NonEmptyStringType implements StringType
         return MessageBuilder::newError('Value {source_value} is not a valid non-empty string.')->build();
     }
 
+    public function nativeType(): NativeStringType
+    {
+        return NativeStringType::get();
+    }
+
     public function toString(): string
     {
         return 'non-empty-string';

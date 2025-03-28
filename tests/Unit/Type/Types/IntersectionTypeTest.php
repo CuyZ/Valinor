@@ -12,7 +12,9 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -159,6 +161,14 @@ final class IntersectionTypeTest extends TestCase
         self::assertContains($subTypeB, $type->traverse());
         self::assertContains($objectTypeA, $type->traverse());
         self::assertContains($objectTypeB, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame(stdClass::class . '&' . DateTimeImmutable::class, (new IntersectionType(
+            new NativeClassType(stdClass::class, ['Template' => new FakeType()]),
+            new FakeObjectType(DateTimeImmutable::class),
+        ))->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

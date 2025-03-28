@@ -96,6 +96,11 @@ final class UndefinedObjectTypeTest extends TestCase
         self::assertTrue($this->undefinedObjectType->matches(new MixedType()));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('object', (new UndefinedObjectType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

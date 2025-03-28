@@ -160,6 +160,11 @@ final class NumericStringTypeTest extends TestCase
         self::assertFalse($this->numericStringType->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string', (new NumericStringType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

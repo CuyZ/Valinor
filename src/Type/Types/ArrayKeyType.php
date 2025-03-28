@@ -175,6 +175,21 @@ final class ArrayKeyType implements ScalarType
         return MessageBuilder::newError('Value {source_value} is not a valid array key.')->build();
     }
 
+    public function nativeType(): Type
+    {
+        $types = [];
+
+        foreach ($this->types as $type) {
+            $types[$type->nativeType()->toString()] = $type->nativeType();
+        }
+
+        if (count($types) === 1) {
+            return array_values($types)[0];
+        }
+
+        return new UnionType(...array_values($types));
+    }
+
     public function toString(): string
     {
         return $this->signature;

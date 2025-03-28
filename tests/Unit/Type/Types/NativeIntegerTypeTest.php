@@ -150,6 +150,11 @@ final class NativeIntegerTypeTest extends TestCase
         self::assertFalse($this->integerType->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int', (new NativeIntegerType())->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

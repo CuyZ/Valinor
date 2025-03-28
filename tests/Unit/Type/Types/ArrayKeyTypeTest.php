@@ -10,9 +10,13 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use LogicException;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -182,6 +186,20 @@ final class ArrayKeyTypeTest extends TestCase
     public function test_matches_mixed_type(): void
     {
         self::assertTrue(ArrayKeyType::default()->matches(new MixedType()));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int|string', ArrayKeyType::default()->nativeType()->toString());
+        self::assertSame('int', ArrayKeyType::integer()->nativeType()->toString());
+        self::assertSame('string', ArrayKeyType::string()->nativeType()->toString());
+        self::assertSame('string|int', ArrayKeyType::from(
+            new UnionType(
+                new StringValueType('foo'),
+                new IntegerValueType(42),
+                new PositiveIntegerType(),
+            )
+        )->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

@@ -61,6 +61,11 @@ final class NativeStringType implements StringType
         return MessageBuilder::newError('Value {source_value} is not a valid string.')->build();
     }
 
+    public function nativeType(): NativeStringType
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'string';

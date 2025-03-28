@@ -67,6 +67,11 @@ final class NativeBooleanType implements BooleanType
         return MessageBuilder::newError('Value {source_value} is not a valid boolean.')->build();
     }
 
+    public function nativeType(): NativeBooleanType
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'bool';

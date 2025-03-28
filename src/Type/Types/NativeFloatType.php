@@ -58,6 +58,11 @@ final class NativeFloatType implements FloatType
         return MessageBuilder::newError('Value {source_value} is not a valid float.')->build();
     }
 
+    public function nativeType(): NativeFloatType
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'float';

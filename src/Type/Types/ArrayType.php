@@ -129,6 +129,11 @@ final class ArrayType implements CompositeTraversableType
         return [$this->subType];
     }
 
+    public function nativeType(): ArrayType
+    {
+        return self::native();
+    }
+
     public function toString(): string
     {
         return $this->signature;

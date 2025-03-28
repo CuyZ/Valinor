@@ -240,6 +240,11 @@ final class ShapedArrayType implements CompositeType
         return $this->elements;
     }
 
+    public function nativeType(): ArrayType
+    {
+        return ArrayType::native();
+    }
+
     public function toString(): string
     {
         $signature = 'array{';

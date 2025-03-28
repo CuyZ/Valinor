@@ -223,6 +223,11 @@ final class IntegerRangeTypeTest extends TestCase
         self::assertFalse($this->type->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int', (new IntegerRangeType(-42, 42))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

@@ -179,6 +179,11 @@ final class StringValueTypeTest extends TestCase
         self::assertFalse($this->type->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string', (new StringValueType('foo'))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

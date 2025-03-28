@@ -107,6 +107,11 @@ final class FakeType implements Type
             || $other === ($this->matching ?? null);
     }
 
+    public function nativeType(): Type
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return $this->name;

@@ -197,6 +197,12 @@ final class BooleanValueTypeTest extends TestCase
         self::assertFalse(BooleanValueType::false()->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('bool', BooleanValueType::true()->nativeType()->toString());
+        self::assertSame('bool', BooleanValueType::false()->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

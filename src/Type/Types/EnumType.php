@@ -134,6 +134,11 @@ final class EnumType implements ClassType
         return implode('|', array_keys($this->cases));
     }
 
+    public function nativeType(): EnumType
+    {
+        return self::native($this->enumName);
+    }
+
     public function toString(): string
     {
         return $this->pattern === ''

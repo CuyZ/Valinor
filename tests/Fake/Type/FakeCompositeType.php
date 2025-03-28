@@ -42,6 +42,11 @@ final class FakeCompositeType implements CompositeType
         return true;
     }
 
+    public function nativeType(): Type
+    {
+        return $this;
+    }
+
     public function toString(): string
     {
         return 'FakeCompositeType';

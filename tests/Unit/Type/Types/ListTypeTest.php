@@ -231,6 +231,12 @@ final class ListTypeTest extends TestCase
         self::assertContains($compositeType, $type->traverse());
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('array', ListType::native()->nativeType()->toString());
+        self::assertSame('array', (new ListType(new FakeType()))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

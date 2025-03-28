@@ -145,6 +145,11 @@ final class FloatValueTypeTest extends TestCase
         self::assertFalse($this->floatValueType->matches($unionType));
     }
 
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('float', (new FloatValueType(1337.42))->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */
