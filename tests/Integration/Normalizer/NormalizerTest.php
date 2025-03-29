@@ -812,20 +812,26 @@ final class NormalizerTest extends IntegrationTestCase
         ];
 
         yield 'object with union type and matching string transformer' => [
-            'input' => new ObjectWithUnionType('foo'),
+            'input' => new class ('foo') {
+                public function __construct(public string|int $value) {}
+            },
             'expected array' => ['value' => 'foo!'],
             'expected json' => '{"value":"foo!"}',
             'transformers' => [
-                [fn (string $value) => $value . '!'],
+                // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                [fn (string $value, callable $next) => $next() . '!'],
             ],
         ];
 
         yield 'object with union type and matching int transformer' => [
-            'input' => new ObjectWithUnionType(42),
+            'input' => new class (42) {
+                public function __construct(public string|int $value) {}
+            },
             'expected array' => ['value' => 43],
             'expected json' => '{"value":43}',
             'transformers' => [
-                [fn (int $value) => $value + 1],
+                // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                [fn (int $value, callable $next) => $next() + 1],
             ],
         ];
 
@@ -847,6 +853,20 @@ final class NormalizerTest extends IntegrationTestCase
                     /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                     fn (stdClass|AnotherBasicObject $object) => $object->value . '!',
                 ],
+            ],
+        ];
+
+        yield 'object with union type with union transformer' => [
+            'input' => new class ('foo') {
+                public function __construct(
+                    public string|int $value,
+                ) {}
+            },
+            'expected array' => ['value' => 'foo!'],
+            'expected json' => '{"value":"foo!"}',
+            'transformers' => [
+                /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
+                [fn (string|int $value, callable $next) => $next() . '!'],
             ],
         ];
 
@@ -935,7 +955,7 @@ final class NormalizerTest extends IntegrationTestCase
             'transformers' => [],
             'transformerAttributes' => [
                 // A different transformer attribute from the one on the class
-                DoubleIntegerAttribute::class
+                DoubleIntegerAttribute::class,
             ],
         ];
 
@@ -974,7 +994,7 @@ final class NormalizerTest extends IntegrationTestCase
             'transformers' => [],
             'transformerAttributes' => [
                 // A different transformer attribute from the one on the class
-                TransformObjectToString::class
+                TransformObjectToString::class,
             ],
         ];
 
@@ -1273,12 +1293,28 @@ final class NormalizerTest extends IntegrationTestCase
         yield 'object with shaped array property with transformer for an element of the array' => [
             'input' => new class () {
                 /** @var array{stringValue: string, intValue: int} */
-                public $value = ['stringValue' => 'foo', 'intValue' => 42];
+                public array $value = ['stringValue' => 'foo', 'intValue' => 42];
             },
             'expected array' => ['value' => ['stringValue' => 'foo!', 'intValue' => 42]],
             'expected json' => '{"value":{"stringValue":"foo!","intValue":42}}',
             'transformers' => [
-                [fn (string $value) => $value . '!'],
+                // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                [fn (string $value, callable $next) => $next() . '!'],
+            ],
+        ];
+
+        yield 'object with unsealed shaped array property with transformer for an element of the array' => [
+            'input' => new class () {
+                // @phpstan-ignore-next-line (PHPStan does not (yet) understand the unsealed shaped array syntax)
+                /** @var array{stringValue: string, intValue: int, ...array<float>} */
+                // @phpstan-ignore-next-line (PHPStan does not (yet) understand the unsealed shaped array syntax)
+                public array $value = ['stringValue' => 'foo', 'intValue' => 42, 'someFloat' => 1337.404];
+            },
+            'expected array' => ['value' => ['stringValue' => 'foo', 'intValue' => 42, 'someFloat' => 2674.808]],
+            'expected json' => '{"value":{"stringValue":"foo","intValue":42,"someFloat":2674.808}}',
+            'transformers' => [
+                // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                [fn (float $value, callable $next) => $next() * 2],
             ],
         ];
 
@@ -1293,6 +1329,57 @@ final class NormalizerTest extends IntegrationTestCase
                 [
                     /** @param array{stringValue: string, intValue: int} $value */
                     fn (array $value, callable $next) => array_merge($next(), ['addedValue' => 'foo']), // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                ],
+            ],
+        ];
+
+        yield 'object with property of type interface' => [
+            'input' => new class (
+                new class () implements SomeInterface {
+                    public string $subValue = 'foo';
+                }
+            ) {
+                public function __construct(
+                    public SomeInterface $value,
+                ) {}
+            },
+            'expected array' => ['value' => ['subValue' => 'foo!']],
+            'expected json' => '{"value":{"subValue":"foo!"}}',
+            'transformers' => [
+                [
+                    fn (string $value, callable $next) => $value . '!',
+                ],
+            ],
+        ];
+
+        yield 'object with property of type iterable of string' => [
+            'input' => new class (['foo', 'bar']) {
+                public function __construct(
+                    /** @var iterable<string> */
+                    public iterable $value,
+                ) {}
+            },
+            'expected array' => ['value' => ['foo!', 'bar!']],
+            'expected json' => '{"value":["foo!","bar!"]}',
+            'transformers' => [
+                [
+                    fn (string $value, callable $next) => $value . '!',
+                ],
+            ],
+        ];
+
+        yield 'object with property of type array of string' => [
+            'input' => new class (['foo', 'bar']) {
+                public function __construct(
+                    /** @var array<string> */
+                    public array $value,
+                ) {}
+            },
+            'expected array' => ['value' => ['foo!', 'bar!']],
+            'expected json' => '{"value":["foo!","bar!"]}',
+            'transformers' => [
+                [
+                    fn (string $value, callable $next) => $value . '!',
                 ],
             ],
         ];
@@ -1314,20 +1401,14 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
-        yield 'object with property of type interface' => [
-            'input' => new SomeClassWithPropertyWithInterface(new SomeClassImplementingInterface('foo')),
-            'expected array' => ['value' => ['subValue' => 'foo!']],
-            'expected json' => '{"value":{"subValue":"foo!"}}',
-            'transformers' => [
-                [
-                    fn (string $value, callable $next) => $value . '!',
-                ],
-            ],
-        ];
-
         yield 'object with property that should be string but a DateTime is given' => [
-            // @phpstan-ignore argument.type (We put a wrong type on purpose)
-            'input' => new SomeClassWithPropertyWithDocBlockButCanContainAnything(new DateTimeImmutable('1971-11-08')),
+            // @phpstan-ignore argument.type (the invalid argument is here on purpose)
+            'input' => new class (new DateTimeImmutable('1971-11-08')) {
+                public function __construct(
+                    /** @var string */
+                    public $value,
+                ) {}
+            },
             'expected array' => ['value' => '1971-11-08T00:00:00.000000+00:00'],
             'expected json' => '{"value":"1971-11-08T00:00:00.000000+00:00"}',
             'transformers' => [
@@ -1860,14 +1941,6 @@ final class ObjectWithCircularReferenceB
     public ObjectWithCircularReferenceA $a;
 }
 
-final class ObjectWithUnionType
-{
-    public function __construct(public string|int $value) {}
-}
-
-#[Attribute]
-final class NonTransformerAttribute {}
-
 #[Attribute]
 final class TransformerAttributeWithNoParameter
 {
@@ -2111,25 +2184,3 @@ final class AttributeWithArrayInConstructor
 final class SomeClassWithAttributeWithArrayInConstructor {}
 
 interface SomeInterface {}
-
-final class SomeClassImplementingInterface implements SomeInterface
-{
-    public function __construct(
-        public string $subValue,
-    ) {}
-}
-
-final class SomeClassWithPropertyWithInterface
-{
-    public function __construct(
-        public SomeInterface $value,
-    ) {}
-}
-
-final class SomeClassWithPropertyWithDocBlockButCanContainAnything
-{
-    public function __construct(
-        /** @var string */
-        public $value,
-    ) {}
-}

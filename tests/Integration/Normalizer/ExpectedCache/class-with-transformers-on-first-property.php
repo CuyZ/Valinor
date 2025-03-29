@@ -13,10 +13,10 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithdatetimeinterface_697272ac658921dbf7da725eb7ffc5c3($value, $references);
+        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithtwoproperties_c92577fbc267308639f49ed4ff6c9630($value, $references);
     }
 
-    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithdatetimeinterface_697272ac658921dbf7da725eb7ffc5c3(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithDateTimeInterface $value, WeakMap $references): array
+    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithtwoproperties_c92577fbc267308639f49ed4ff6c9630(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithTwoProperties $value, WeakMap $references): array
     {
         if (isset($references[$value])) {
             throw new CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization($value);
@@ -24,17 +24,19 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         $references = clone $references;
         $references[$value] = $value;
         $values = [
-            'date' => $value->date,
+            'valueA' => $value->valueA,
+            'valueB' => $value->valueB,
         ];
         $transformed = [];
-        $transformed['date'] = $this->transform_datetimeinterface_a4abe018d9ab64b110de5c69af50f66fb895f352($values['date'], $references);
+        $transformed['valueA'] = $this->transform_string_a745897c0704318aa48e8aa8d29ba050aa7eda39($values['valueA'], $references);
+        $transformed['valueB'] = $values['valueB'];
         return $transformed;
     }
 
-    private function transform_datetimeinterface_a4abe018d9ab64b110de5c69af50f66fb895f352(mixed $value, WeakMap $references): mixed
+    private function transform_string_a745897c0704318aa48e8aa8d29ba050aa7eda39(mixed $value, WeakMap $references): mixed
     {
-        $next = fn () => $value->format('Y-m-d\\TH:i:s.uP');
-        if ($value instanceof DateTimeInterface) {
+        $next = fn () => $value;
+        if (\is_string($value)) {
             $next = fn () => $this->transformers[0]($value, $next);
         }
         return $next();

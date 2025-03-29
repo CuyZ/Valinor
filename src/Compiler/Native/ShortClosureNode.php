@@ -23,7 +23,7 @@ final class ShortClosureNode extends Node
     public function witParameters(ParameterDeclarationNode ...$parameters): self
     {
         $self = clone $this;
-        $self->parameters = array_merge($self->parameters, $parameters);
+        $self->parameters = $parameters;
 
         return $self;
     }

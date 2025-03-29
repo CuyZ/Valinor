@@ -38,7 +38,7 @@ final class ShapedArrayFormatter implements TypeFormatter
             return $class;
         }
 
-        if ($this->type->isUnsealed() && $this->type->hasUnsealedType()) {
+        if ($this->type->isUnsealed()) {
             $defaultDefinition = $definitionBuilder->for($this->type->unsealedType()->subType());
         } else {
             $defaultDefinition = $definitionBuilder->for(MixedType::get());

@@ -90,6 +90,28 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertFalse($this->compiledAccept($stringArrayKeyType, $value));
     }
 
+    public function test_string_value_key_accepts_correct_value(): void
+    {
+        $type = ArrayKeyType::from(new StringValueType('foo'));
+
+        self::assertTrue($type->accepts('foo'));
+        self::assertTrue($this->compiledAccept($type, 'foo'));
+    }
+
+    #[TestWith([null])]
+    #[TestWith([404])]
+    #[TestWith([42.1337])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_string_value_key_does_not_accept_incorrect_value(mixed $value): void
+    {
+        $type = ArrayKeyType::from(new StringValueType('foo'));
+
+        self::assertFalse($type->accepts($value));
+        self::assertFalse($this->compiledAccept($type, $value));
+    }
+
     public function test_default_array_key_can_cast_numeric_and_string_value(): void
     {
         self::assertTrue(ArrayKeyType::default()->canCast(42.1337));

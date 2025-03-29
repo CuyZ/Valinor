@@ -75,9 +75,8 @@ abstract class Node
     /**
      * @param non-empty-string $key
      * @param non-empty-string $item
-     * @param Node|non-empty-list<Node> $body
      */
-    public static function forEach(Node $value, string $key, string $item, Node|array $body): ForEachNode
+    public static function forEach(Node $value, string $key, string $item, Node $body): ForEachNode
     {
         return new ForEachNode($value, $key, $item, $body);
     }

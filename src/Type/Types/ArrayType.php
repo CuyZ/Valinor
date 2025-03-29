@@ -70,26 +70,24 @@ final class ArrayType implements CompositeTraversableType
 
     public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
-        $conditions = [
-            Node::functionCall('is_array', [$node]),
-        ];
+        $condition = Node::functionCall('is_array', [$node]);
 
-        if ($this !== self::native()) {
-            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-                $node,
-                Node::shortClosure(
-                    Node::logicalAnd(
-                        $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
-                        $this->subType->compiledAccept(Node::variable('item'))->wrap(),
-                    ),
-                )->witParameters(
-                    Node::parameterDeclaration('item', 'mixed'),
-                    Node::parameterDeclaration('key', 'mixed'),
-                ),
-            ]);
+        if ($this === self::native()) {
+            return $condition;
         }
 
-        return Node::logicalAnd(...$conditions);
+        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+            $node,
+            Node::shortClosure(
+                Node::logicalAnd(
+                    $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
+                    $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+                ),
+            )->witParameters(
+                Node::parameterDeclaration('item', 'mixed'),
+                Node::parameterDeclaration('key', 'mixed'),
+            ),
+        ]));
     }
 
     public function matches(Type $other): bool

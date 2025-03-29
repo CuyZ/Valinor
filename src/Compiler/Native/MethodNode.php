@@ -50,7 +50,7 @@ final class MethodNode extends Node
     public function witParameters(ParameterDeclarationNode ...$parameters): self
     {
         $self = clone $this;
-        $self->parameters = array_merge($self->parameters, $parameters);
+        $self->parameters = $parameters;
 
         return $self;
     }
@@ -80,7 +80,7 @@ final class MethodNode extends Node
     public function withBody(Node ...$nodes): self
     {
         $self = clone $this;
-        $self->nodes = [...$self->nodes, ...$nodes];
+        $self->nodes = $nodes;
 
         return $self;
     }

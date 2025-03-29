@@ -38,9 +38,6 @@ use stdClass;
 use Traversable;
 use UnitEnum;
 
-use function array_filter;
-use function array_map;
-
 /** @internal */
 final class TransformerDefinitionBuilder
 {
@@ -54,16 +51,7 @@ final class TransformerDefinitionBuilder
     {
         $definition = new TransformerDefinition(
             type: $type,
-            transformerTypes: array_filter(
-                array_reverse(
-                    array_map(
-                        fn (callable $transformer) => $this->functionDefinitionRepository->for($transformer)->parameters->at(0)->type,
-                        $this->transformerContainer->transformers(),
-                    ),
-                    preserve_keys: true
-                ),
-                static fn (Type $transformerType): bool => $type->matches($transformerType),
-            ),
+            transformerTypes: $this->transformerTypes($type),
             typeFormatter: $this->typeFormatter($type),
         );
 
@@ -86,7 +74,35 @@ final class TransformerDefinitionBuilder
         return $definition;
     }
 
-    public function typeFormatter(Type $type): TypeFormatter
+    /**
+     * @return array<int, Type>
+     */
+    private function transformerTypes(Type $type): array
+    {
+        // If the type is a union type, we don't need to add the transformer
+        // because it will be added for each subtype anyway. This condition also
+        // prevents the transformers from being applied twice in these cases.
+        if ($type instanceof UnionType) {
+            return [];
+        }
+
+        $types = [];
+
+        foreach ($this->transformerContainer->transformers() as $key => $transformer) {
+            $function = $this->functionDefinitionRepository->for($transformer);
+            $transformerType = $function->parameters->at(0)->type;
+
+            if (! $type->matches($transformerType)) {
+                continue;
+            }
+
+            $types[$key] = $transformerType;
+        }
+
+        return array_reverse($types, preserve_keys: true);
+    }
+
+    private function typeFormatter(Type $type): TypeFormatter
     {
         // @infection-ignore-all (mutation from `true` to `false` is useless)
         return match (true) {
@@ -98,7 +114,7 @@ final class TransformerDefinitionBuilder
                 $type->className() === stdClass::class => new StdClassFormatter(),
                 is_a($type->className(), DateTimeInterface::class, true) => new DateTimeFormatter(),
                 is_a($type->className(), DateTimeZone::class, true) => new DateTimeZoneFormatter(),
-                is_a($type->className(), Traversable::class, true) => new TraversableFormatter(MixedType::get()),
+                is_a($type->className(), Traversable::class, true) => new TraversableFormatter($type->generics()['SubType'] ?? MixedType::get()),
                 default => new ClassFormatter($this->classDefinitionRepository->for($type)),
             },
             $type instanceof NullType => new NullFormatter(),

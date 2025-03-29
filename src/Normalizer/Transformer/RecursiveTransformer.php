@@ -41,7 +41,7 @@ final class RecursiveTransformer implements Transformer
     }
 
     /**
-     * @param WeakMap<object, true> $references
+     * @param WeakMap<object, object> $references
      * @param list<AttributeDefinition> $attributes
      */
     private function doTransform(mixed $value, WeakMap $references, array $attributes = []): mixed
@@ -52,7 +52,7 @@ final class RecursiveTransformer implements Transformer
             }
 
             $references = clone $references;
-            $references[$value] = true; // @infection-ignore-all
+            $references[$value] = $value;
 
             $type = $value instanceof UnitEnum
                 ? EnumType::native($value::class)
@@ -110,7 +110,7 @@ final class RecursiveTransformer implements Transformer
     }
 
     /**
-     * @param WeakMap<object, true> $references
+     * @param WeakMap<object, object> $references
      * @return iterable<mixed>|scalar|null
      */
     private function defaultTransformer(mixed $value, WeakMap $references): mixed

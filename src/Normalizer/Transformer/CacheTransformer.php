@@ -27,6 +27,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NullType;
 use Generator;
 use Iterator;
+use IteratorAggregate;
 use Psr\SimpleCache\CacheInterface;
 use UnitEnum;
 
@@ -92,7 +93,7 @@ final class CacheTransformer implements Transformer
         // @infection-ignore-all (mutation from `true` to `false` is useless)
         return match (true) {
             $value instanceof UnitEnum => EnumType::native($value::class),
-            is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator => new NativeClassType($value::class),
+            is_object($value) && ! $value instanceof Closure && ! $value instanceof Generator => $this->inferObjectType($value),
             is_iterable($value) => $this->inferIterableType($value),
             is_scalar($value) && $isSure => ValueTypeFactory::from($value),
             is_string($value) => NativeStringType::get(),
@@ -102,6 +103,17 @@ final class CacheTransformer implements Transformer
             is_null($value) => NullType::get(),
             default => throw new TypeUnhandledByNormalizer($value),
         };
+    }
+
+    private function inferObjectType(object $value): NativeClassType
+    {
+        if (is_iterable($value)) {
+            $iterableType = $this->inferIterableType($value);
+
+            return new NativeClassType($value::class, ['SubType' => $iterableType->subType()]);
+        }
+
+        return new NativeClassType($value::class);
     }
 
     /**
@@ -133,7 +145,13 @@ final class CacheTransformer implements Transformer
             }
 
             return new NonEmptyArrayType(ArrayKeyType::default(), $firstValueType);
-        } elseif ($value instanceof Iterator && $value->valid()) {
+        }
+
+        if ($value instanceof IteratorAggregate) {
+            $value = $value->getIterator();
+        }
+
+        if ($value instanceof Iterator && $value->valid()) {
             $firstValueType = $this->inferType($value->current());
 
             return new IterableType(ArrayKeyType::default(), $firstValueType);

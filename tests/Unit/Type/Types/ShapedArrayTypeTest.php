@@ -89,6 +89,7 @@ final class ShapedArrayTypeTest extends TestCase
 
     // Without additional values
     #[TestWith([['foo' => 42]])]
+    #[TestWith([['foo' => 'foo', 1337 => 'foo']])]
     #[TestWith([['foo' => new stdClass()]])]
     #[TestWith([['bar' => 'foo']])]
     // With invalid additional values

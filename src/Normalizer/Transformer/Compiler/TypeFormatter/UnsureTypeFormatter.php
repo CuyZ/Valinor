@@ -55,7 +55,7 @@ final class UnsureTypeFormatter implements TypeFormatter
                 ->withBody(
                     Node::if(
                         condition: Node::negate(
-                            (new TypeAcceptNode(Node::variable('value'), $this->unsureType))->wrap(),
+                            (new TypeAcceptNode(Node::variable('value'), $this->unsureType->nativeType()))->wrap(),
                         ),
                         body: Node::return($defaultDefinition->typeFormatter()->formatValueNode(Node::variable('value'))),
                     ),

@@ -65,24 +65,24 @@ final class NonEmptyListType implements CompositeTraversableType
 
     public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
-        $conditions = [
+        $condition = Node::logicalAnd(
             $node->different(Node::value([])),
             Node::functionCall('is_array', [$node]),
             Node::functionCall('array_is_list', [$node]),
-        ];
+        );
 
-        if ($this !== self::native()) {
-            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-                $node,
-                Node::shortClosure(
-                    $this->subType->compiledAccept(Node::variable('item'))->wrap()
-                )->witParameters(
-                    Node::parameterDeclaration('item', 'mixed'),
-                ),
-            ]);
+        if ($this === self::native()) {
+            return $condition;
         }
 
-        return Node::logicalAnd(...$conditions);
+        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+            $node,
+            Node::shortClosure(
+                $this->subType->compiledAccept(Node::variable('item'))->wrap()
+            )->witParameters(
+                Node::parameterDeclaration('item', 'mixed'),
+            ),
+        ]));
     }
 
     public function matches(Type $other): bool

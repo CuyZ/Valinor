@@ -15,6 +15,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use WeakMap;
 
 /** @internal */
@@ -67,15 +68,17 @@ final class ClassFormatter implements TypeFormatter
                 $propertyDefinition = $propertyDefinition->markAsSure();
             }
 
-            $propertyDefinition = $propertyDefinition->withTransformerAttributes(
-                $property->attributes
-                    ->filter(TransformerContainer::filterTransformerAttributes(...))
-                    ->filter(
-                        static fn (AttributeDefinition $attribute): bool => $property->type->matches(
-                            $attribute->class->methods->get('normalize')->parameters->at(0)->type,
-                        ),
-                    )->toArray(),
-            );
+            if (! $property->type instanceof UnresolvableType) {
+                $propertyDefinition = $propertyDefinition->withTransformerAttributes(
+                    $property->attributes
+                        ->filter(TransformerContainer::filterTransformerAttributes(...))
+                        ->filter(
+                            static fn (AttributeDefinition $attribute): bool => $property->type->matches(
+                                $attribute->class->methods->get('normalize')->parameters->at(0)->type,
+                            ),
+                        )->toArray(),
+                );
+            }
 
             $typeFormatter = $propertyDefinition->typeFormatter();
 
@@ -108,8 +111,10 @@ final class ClassFormatter implements TypeFormatter
 
             $class = $typeFormatter->manipulateTransformerClass($class, $definitionBuilder);
 
-            $shouldUseTransformedNodes |= $propertyDefinition->hasTransformers()
+            $shouldUseTransformedNodes = $shouldUseTransformedNodes
+                || $propertyDefinition->hasTransformers()
                 || $keyTransformerAttributes !== []
+                || $property->type instanceof UnresolvableType
                 || ! $property->nativeType instanceof ScalarType;
         }
 
@@ -147,7 +152,7 @@ final class ClassFormatter implements TypeFormatter
                 )->asExpression(),
             ),
             Node::variable('references')->assign(Node::variable('references')->clone())->asExpression(),
-            Node::variable('references')->key(Node::variable('value'))->assign(Node::value(true))->asExpression(),
+            Node::variable('references')->key(Node::variable('value'))->assign(Node::variable('value'))->asExpression(),
         ];
     }
 

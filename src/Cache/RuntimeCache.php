@@ -33,7 +33,7 @@ final class RuntimeCache implements CacheInterface
     public function set($key, $value, $ttl = null): bool
     {
         if ($value instanceof EvaluatedTransformer) {
-            return true;
+            return false;
         }
 
         $this->entries[$key] = $value;

@@ -8,7 +8,6 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
 use function array_map;
-use function array_merge;
 use function implode;
 
 /** @internal */
@@ -29,7 +28,7 @@ final class AnonymousClassNode extends Node
     public function withArguments(Node ...$arguments): self
     {
         $self = clone $this;
-        $self->arguments = array_merge($self->arguments, $arguments);
+        $self->arguments = $arguments;
 
         return $self;
     }
@@ -40,7 +39,7 @@ final class AnonymousClassNode extends Node
     public function implements(string ...$interfaces): self
     {
         $self = clone $this;
-        $self->interfaces = array_merge($self->interfaces, $interfaces);
+        $self->interfaces = $interfaces;
 
         return $self;
     }
@@ -48,7 +47,7 @@ final class AnonymousClassNode extends Node
     public function withProperties(PropertyDeclarationNode ...$properties): self
     {
         $self = clone $this;
-        $self->properties = array_merge($self->properties, $properties);
+        $self->properties = $properties;
 
         return $self;
     }

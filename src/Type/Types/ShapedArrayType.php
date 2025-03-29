@@ -103,7 +103,7 @@ final class ShapedArrayType implements CompositeType
         foreach ($this->elements as $element) {
             $key = $element->key()->value();
 
-            $elements[$key] = true;
+            $elements[$key] = null;
 
             if (array_key_exists($key, $value) ? ! $element->type()->accepts($value[$key]) : ! $element->isOptional()) {
                 return false;

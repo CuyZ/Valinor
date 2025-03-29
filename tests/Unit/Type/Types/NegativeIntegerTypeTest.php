@@ -33,6 +33,7 @@ final class NegativeIntegerTypeTest extends TestCase
         $this->negativeIntegerType = new NegativeIntegerType();
     }
 
+    #[TestWith([-1])]
     #[TestWith([-404])]
     public function test_accepts_correct_values(mixed $value): void
     {

@@ -9,6 +9,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\RegisteredTransfo
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\UnsureTypeFormatter;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use function array_reverse;
 
@@ -50,7 +51,7 @@ final class TransformerDefinition
         public readonly Type $type,
         /** @var array<int, Type> */
         private array $transformerTypes,
-        private TypeFormatter $typeFormatter
+        private TypeFormatter $typeFormatter,
     ) {}
 
     public function typeFormatter(): TypeFormatter
@@ -66,7 +67,7 @@ final class TransformerDefinition
             );
         }
 
-        if (! $this->isSure) {
+        if (! $this->isSure && ! $this->type instanceof UnresolvableType) {
             return new UnsureTypeFormatter($typeFormatter, $this->type);
         }
 

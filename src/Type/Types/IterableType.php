@@ -65,35 +65,36 @@ final class IterableType implements CompositeTraversableType
 
     public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
-        $conditions = [
+        $condition = Node::logicalAnd(
             Node::functionCall('is_iterable', [$node]),
             Node::negate($node->instanceOf(Generator::class)),
-        ];
+        );
 
-        if ($this !== self::native()) {
-            $iteratorToArray = PHP_VERSION_ID >= 8_02_00
-                ? Node::functionCall('iterator_to_array', [$node])
-                : Node::ternary(
-                    condition: Node::functionCall('is_array', [$node]),
-                    ifTrue: $node,
-                    ifFalse: Node::functionCall('iterator_to_array', [$node]),
-                );
-
-            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-                $iteratorToArray,
-                Node::shortClosure(
-                    Node::logicalAnd(
-                        $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
-                        $this->subType->compiledAccept(Node::variable('item'))->wrap(),
-                    ),
-                )->witParameters(
-                    Node::parameterDeclaration('item', 'mixed'),
-                    Node::parameterDeclaration('key', 'mixed'),
-                ),
-            ]);
+        if ($this === self::native()) {
+            return $condition;
         }
 
-        return Node::logicalAnd(...$conditions);
+        // @infection-ignore-all
+        $iteratorToArray = PHP_VERSION_ID >= 8_02_00
+            ? Node::functionCall('iterator_to_array', [$node])
+            : Node::ternary(
+                condition: Node::functionCall('is_array', [$node]),
+                ifTrue: $node,
+                ifFalse: Node::functionCall('iterator_to_array', [$node]),
+            );
+
+        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+            $iteratorToArray,
+            Node::shortClosure(
+                Node::logicalAnd(
+                    $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
+                    $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+                ),
+            )->witParameters(
+                Node::parameterDeclaration('item', 'mixed'),
+                Node::parameterDeclaration('key', 'mixed'),
+            ),
+        ]));
     }
 
     public function matches(Type $other): bool

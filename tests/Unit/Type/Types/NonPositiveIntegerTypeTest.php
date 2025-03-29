@@ -43,6 +43,7 @@ final class NonPositiveIntegerTypeTest extends TestCase
 
     #[TestWith([null])]
     #[TestWith(['Schwifty!'])]
+    #[TestWith([1])]
     #[TestWith([404])]
     #[TestWith([42.1337])]
     #[TestWith([['foo' => 'bar']])]

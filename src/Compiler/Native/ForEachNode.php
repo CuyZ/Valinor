@@ -16,16 +16,13 @@ final class ForEachNode extends Node
         private string $key,
         /** @var non-empty-string */
         private string $item,
-        /** @var Node|non-empty-list<Node> */
-        private Node|array $body,
+        private Node $body,
     ) {}
 
     public function compile(Compiler $compiler): Compiler
     {
-        $body = $this->body instanceof Node ? [$this->body] : $this->body;
-
         $value = $compiler->sub()->compile($this->value)->code();
-        $body = $compiler->sub()->indent()->compile(...$body)->code();
+        $body = $compiler->sub()->indent()->compile($this->body)->code();
 
         return $compiler->write(
             <<<PHP

@@ -33,6 +33,7 @@ final class PositiveIntegerTypeTest extends TestCase
         $this->positiveIntegerType = new PositiveIntegerType();
     }
 
+    #[TestWith([1])]
     #[TestWith([404])]
     public function test_accepts_correct_values(mixed $value): void
     {
