@@ -30,6 +30,15 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_interface_with_no_infer_is_mapped_when_an_object_implementing_this_interface_is_given(): void
+    {
+        $source = new SomeClassImplementingSomeInterface();
+
+        $result = $this->mapperBuilder()->mapper()->map(SomeInterfaceWithOneImplementation::class, $source);
+
+        self::assertSame($source, $result);
+    }
+
     public function test_invalid_iterable_source_throws_exception(): void
     {
         $source = 'foo';
@@ -113,3 +122,7 @@ final class ObjectWithTwoProperties
 
     public string $stringB;
 }
+
+interface SomeInterfaceWithOneImplementation {}
+
+final class SomeClassImplementingSomeInterface implements SomeInterfaceWithOneImplementation {}
