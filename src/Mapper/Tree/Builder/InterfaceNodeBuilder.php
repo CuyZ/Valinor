@@ -40,6 +40,10 @@ final class InterfaceNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
+        if ($type->accepts($shell->value())) {
+            return TreeNode::leaf($shell, $shell->value());
+        }
+
         if ($this->constructorRegisteredFor($type)) {
             if ($this->implementations->has($type->className())) {
                 throw new InterfaceHasBothConstructorAndInfer($type->className());
