@@ -6,5 +6,10 @@
         "psr-4": {
             "CuyZ\\Valinor\\": "../../../../src"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CuyZ\\Valinor\\QA\\": "../../../../qa"
+        }
     }
 }
