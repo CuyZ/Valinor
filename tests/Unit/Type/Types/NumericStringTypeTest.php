@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -36,6 +39,7 @@ final class NumericStringTypeTest extends TestCase
     public function test_accepts_correct_values(mixed $value): void
     {
         self::assertTrue($this->numericStringType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->numericStringType, $value));
     }
 
     #[TestWith([null])]
@@ -48,6 +52,7 @@ final class NumericStringTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse($this->numericStringType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->numericStringType, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -158,5 +163,11 @@ final class NumericStringTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame('string', (new NumericStringType())->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

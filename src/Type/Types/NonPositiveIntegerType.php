@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
@@ -18,6 +20,11 @@ final class NonPositiveIntegerType implements IntegerType
     public function accepts(mixed $value): bool
     {
         return is_int($value) && $value <= 0;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::functionCall('is_int', [$node])->and($node->isLessOrEqualsTo(Node::value(0)));
     }
 
     public function matches(Type $other): bool

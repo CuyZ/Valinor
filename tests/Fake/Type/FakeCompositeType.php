@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
@@ -28,6 +30,11 @@ final class FakeCompositeType implements CompositeType
     public function accepts(mixed $value): bool
     {
         return true;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::value(true);
     }
 
     public function matches(Type $other): bool

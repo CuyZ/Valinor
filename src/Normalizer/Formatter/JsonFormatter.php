@@ -20,19 +20,29 @@ use function json_encode;
 use const JSON_FORCE_OBJECT;
 
 /** @internal */
-final class JsonFormatter implements StreamFormatter
+final class JsonFormatter
 {
-    /**
-     * @param resource $resource
-     */
-    public function __construct(
-        private mixed $resource,
-        private int $jsonEncodingOptions,
-    ) {}
+    private bool $prettyPrint;
 
-    public function format(mixed $value): void
+    private bool $forceObject;
+
+    public function __construct(
+        /** @var resource */
+        private readonly mixed $resource,
+        private readonly int $jsonEncodingOptions,
+    ) {
+        $this->prettyPrint = (bool)($this->jsonEncodingOptions & JSON_PRETTY_PRINT);
+        $this->forceObject = (bool)($this->jsonEncodingOptions & JSON_FORCE_OBJECT);
+    }
+
+    /**
+     * @return resource
+     */
+    public function format(mixed $value): mixed
     {
         $this->formatRecursively($value, 1);
+
+        return $this->resource;
     }
 
     private function formatRecursively(mixed $value, int $depth): void
@@ -59,7 +69,7 @@ final class JsonFormatter implements StreamFormatter
             // afterward, this leads to a JSON array being written, while it
             // should have been an object. This is a trade-off we accept,
             // considering most generators starting at 0 are actually lists.
-            if ($this->jsonEncodingOptions & JSON_FORCE_OBJECT) {
+            if ($this->forceObject) {
                 $isList = false;
             } elseif ($value instanceof Generator) {
                 if (! $value->valid()) {
@@ -84,7 +94,7 @@ final class JsonFormatter implements StreamFormatter
                     $chunk = ',';
                 }
 
-                if ($this->jsonEncodingOptions & JSON_PRETTY_PRINT) {
+                if ($this->prettyPrint) {
                     $chunk .= PHP_EOL . str_repeat('    ', $depth);
                 }
 
@@ -97,7 +107,7 @@ final class JsonFormatter implements StreamFormatter
 
                     $chunk .= $key . ':';
 
-                    if ($this->jsonEncodingOptions & JSON_PRETTY_PRINT) {
+                    if ($this->prettyPrint) {
                         $chunk .= ' ';
                     }
                 }
@@ -109,7 +119,7 @@ final class JsonFormatter implements StreamFormatter
 
             $chunk = '';
 
-            if ($this->jsonEncodingOptions & JSON_PRETTY_PRINT) {
+            if ($this->prettyPrint) {
                 $chunk = PHP_EOL . str_repeat('    ', $depth - 1);
             }
 
@@ -119,11 +129,6 @@ final class JsonFormatter implements StreamFormatter
         } else {
             throw new CannotFormatInvalidTypeToJson($value);
         }
-    }
-
-    public function resource(): mixed
-    {
-        return $this->resource;
     }
 
     private function write(string $content): void

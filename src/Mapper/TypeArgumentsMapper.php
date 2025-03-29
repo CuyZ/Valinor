@@ -34,7 +34,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
                 $parameter->type,
                 $parameter->isOptional
             ),
-            iterator_to_array($function->parameters)
+            $function->parameters->toList()
         );
 
         $type = new ShapedArrayType(...$elements);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Cache;
 
 use CuyZ\Valinor\Cache\RuntimeCache;
+use CuyZ\Valinor\Normalizer\Transformer\EvaluatedTransformer;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -83,5 +84,12 @@ final class RuntimeCacheTest extends TestCase
 
         self::assertFalse($this->cache->has('foo'));
         self::assertFalse($this->cache->has('bar'));
+    }
+
+    public function test_cannot_set_instance_of_evaluated_transformer(): void
+    {
+        $result = $this->cache->set('foo', new EvaluatedTransformer('null'));
+
+        self::assertFalse($result);
     }
 }

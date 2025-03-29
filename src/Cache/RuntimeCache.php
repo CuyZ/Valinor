@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Cache;
 
+use CuyZ\Valinor\Normalizer\Transformer\EvaluatedTransformer;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -31,6 +32,10 @@ final class RuntimeCache implements CacheInterface
 
     public function set($key, $value, $ttl = null): bool
     {
+        if ($value instanceof EvaluatedTransformer) {
+            return false;
+        }
+
         $this->entries[$key] = $value;
 
         return true;

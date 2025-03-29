@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
+use CuyZ\Valinor\Type\Types\FloatValueType;
+use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -71,13 +77,14 @@ final class UnionTypeTest extends TestCase
     #[TestWith(['foo'])]
     public function test_accepts_correct_values(mixed $value): void
     {
-        $typeA = FakeType::accepting(42.1337);
-        $typeB = FakeType::accepting(404);
-        $typeC = FakeType::accepting('foo');
+        $typeA = new FloatValueType(42.1337);
+        $typeB = new IntegerValueType(404);
+        $typeC = new StringValueType('foo');
 
         $unionType = new UnionType($typeA, $typeB, $typeC);
 
         self::assertTrue($unionType->accepts($value));
+        self::assertTrue($this->compiledAccept($unionType, $value));
     }
 
     #[TestWith([null])]
@@ -89,9 +96,14 @@ final class UnionTypeTest extends TestCase
     #[TestWith([new stdClass()])]
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        $unionType = new UnionType(new FakeType(), new FakeType(), new FakeType());
+        $typeA = new FloatValueType(10.50);
+        $typeB = new IntegerValueType(20);
+        $typeC = new StringValueType('Some value');
+
+        $unionType = new UnionType($typeA, $typeB, $typeC);
 
         self::assertFalse($unionType->accepts($value));
+        self::assertFalse($this->compiledAccept($unionType, $value));
     }
 
     public function test_matches_valid_type(): void
@@ -176,5 +188,11 @@ final class UnionTypeTest extends TestCase
             new NativeStringType(),
             new NativeFloatType()
         ))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

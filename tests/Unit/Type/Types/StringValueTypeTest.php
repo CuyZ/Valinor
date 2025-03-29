@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -41,6 +44,10 @@ final class StringValueTypeTest extends TestCase
         self::assertTrue($type->accepts($value));
         self::assertTrue($typeSingleQuote->accepts($value));
         self::assertTrue($typeDoubleQuote->accepts($value));
+
+        self::assertTrue($this->compiledAccept($type, $value));
+        self::assertTrue($this->compiledAccept($typeSingleQuote, $value));
+        self::assertTrue($this->compiledAccept($typeDoubleQuote, $value));
     }
 
     #[TestWith(['other string'])]
@@ -53,6 +60,7 @@ final class StringValueTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse($this->type->accepts($value));
+        self::assertFalse($this->compiledAccept($this->type, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -174,5 +182,11 @@ final class StringValueTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame('string', (new StringValueType('foo'))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

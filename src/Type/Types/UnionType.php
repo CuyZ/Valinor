@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
@@ -55,6 +57,16 @@ final class UnionType implements CombiningType
         }
 
         return false;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::logicalOr(
+            ...array_map(
+                fn (Type $type) => $type->compiledAccept($node),
+                $this->types,
+            )
+        );
     }
 
     public function matches(Type $other): bool
