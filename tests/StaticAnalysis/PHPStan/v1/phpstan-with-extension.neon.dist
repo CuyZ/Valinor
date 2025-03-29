@@ -1,0 +1,10 @@
+includes:
+    - ../../../../qa/PHPStan/valinor-phpstan-configuration.php
+
+parameters:
+    level: max
+    paths:
+        - inferring-normalizer-types.php
+        - inferring-types-from-annotations.php
+        - inferring-types-with-plugin.php
+    tmpDir: ../../var/cache/phpstan

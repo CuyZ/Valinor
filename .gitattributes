@@ -3,6 +3,7 @@
 /.github/ export-ignore
 /docs/ export-ignore
 /qa/Benchmark/ export-ignore
+/qa/StaticAnalysis/ export-ignore
 /stubs/ export-ignore
 /tests/ export-ignore
 
