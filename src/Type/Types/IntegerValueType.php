@@ -36,22 +36,6 @@ final class IntegerValueType implements IntegerType, FixedType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof UnionType) {
-            return $other->isMatchedBy($this);
-        }
-
-        if ($other instanceof self) {
-            return $this->value === $other->value;
-        }
-
-        if ($other instanceof ArrayKeyType) {
-            return $other->isMatchedBy($this);
-        }
-
-        if ($other instanceof NativeIntegerType || $other instanceof MixedType) {
-            return true;
-        }
-
         return $other->accepts($this->value);
     }
 
