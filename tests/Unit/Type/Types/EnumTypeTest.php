@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -46,6 +49,7 @@ final class EnumTypeTest extends TestCase
     public function test_pure_enum_accepts_correct_values(bool $accepts, mixed $value): void
     {
         self::assertSame($accepts, $this->pureEnumType->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($this->pureEnumType, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => BackedStringEnum::FOO])]
@@ -54,6 +58,7 @@ final class EnumTypeTest extends TestCase
     public function test_backed_string_enum_accepts_correct_values(bool $accepts, mixed $value): void
     {
         self::assertSame($accepts, $this->backedStringEnumType->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($this->backedStringEnumType, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => BackedIntegerEnum::FOO])]
@@ -62,6 +67,7 @@ final class EnumTypeTest extends TestCase
     public function test_backed_integer_enum_accepts_correct_values(bool $accepts, mixed $value): void
     {
         self::assertSame($accepts, $this->backedIntegerEnumType->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($this->backedIntegerEnumType, $value));
     }
 
     #[TestWith([null])]
@@ -76,6 +82,10 @@ final class EnumTypeTest extends TestCase
         self::assertFalse($this->pureEnumType->accepts($value));
         self::assertFalse($this->backedStringEnumType->accepts($value));
         self::assertFalse($this->backedIntegerEnumType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($this->pureEnumType, $value));
+        self::assertFalse($this->compiledAccept($this->backedStringEnumType, $value));
+        self::assertFalse($this->compiledAccept($this->backedIntegerEnumType, $value));
     }
 
     public function test_string_value_is_correct(): void
@@ -141,5 +151,11 @@ final class EnumTypeTest extends TestCase
         self::assertSame(PureEnum::class, $this->pureEnumType->nativeType()->toString());
         self::assertSame(BackedStringEnum::class, $this->backedStringEnumType->nativeType()->toString());
         self::assertSame(BackedIntegerEnum::class, $this->backedIntegerEnumType->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

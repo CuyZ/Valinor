@@ -45,6 +45,14 @@ final class Parameters implements IteratorAggregate, Countable
         return array_values($this->parameters)[$index];
     }
 
+    /**
+     * @return list<ParameterDefinition>
+     */
+    public function toList(): array
+    {
+        return array_values($this->parameters);
+    }
+
     public function count(): int
     {
         return count($this->parameters);

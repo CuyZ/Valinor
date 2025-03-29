@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Cache;
 
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Utility\Package;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
@@ -23,7 +24,8 @@ final class KeySanitizerCache implements WarmupCache
 
     public function __construct(
         /** @var CacheInterface<EntryType> */
-        private CacheInterface $delegate
+        private CacheInterface $delegate,
+        private Settings $settings,
     ) {}
 
     /**
@@ -42,7 +44,7 @@ final class KeySanitizerCache implements WarmupCache
 
         $firstPart = strstr($key, "\0", before_needle: true);
 
-        return $firstPart . hash('xxh128', $key . self::$version);
+        return $firstPart . hash('xxh128', $key . $this->settings->hash() . self::$version);
     }
 
     public function warmup(): void

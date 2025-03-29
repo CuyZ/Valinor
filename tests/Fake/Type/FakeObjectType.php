@@ -4,28 +4,31 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use stdClass;
-
-use function in_array;
 
 final class FakeObjectType implements ObjectType
 {
     private Type $matching;
 
-    /** @var object[] */
-    private array $accepting;
+    /** @var class-string */
+    private string $accepted;
 
     /**
      * @param class-string $className
      */
     public function __construct(private string $className = stdClass::class) {}
 
-    public static function accepting(object ...$objects): self
+    /**
+     * @param class-string $className
+     */
+    public static function accepting(string $className): self
     {
         $instance = new self();
-        $instance->accepting = $objects;
+        $instance->accepted = $className;
 
         return $instance;
     }
@@ -45,7 +48,16 @@ final class FakeObjectType implements ObjectType
 
     public function accepts(mixed $value): bool
     {
-        return isset($this->accepting) && in_array($value, $this->accepting, true);
+        return isset($this->accepted) && $value instanceof $this->accepted;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        if (! isset($this->accepted)) {
+            return Node::value(false);
+        }
+
+        return $node->instanceOf($this->accepted);
     }
 
     public function matches(Type $other): bool

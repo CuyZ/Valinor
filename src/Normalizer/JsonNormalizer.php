@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer;
 
 use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
-use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use RuntimeException;
 
-use function fclose;
-use function fopen;
 use function get_debug_type;
 use function is_resource;
-use function stream_get_contents;
 
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_AMP;
@@ -50,7 +47,7 @@ final class JsonNormalizer implements Normalizer
         | JSON_UNESCAPED_UNICODE
         | JSON_THROW_ON_ERROR;
 
-    private RecursiveTransformer $transformer;
+    private Transformer $transformer;
 
     private int $jsonEncodingOptions;
 
@@ -68,7 +65,7 @@ final class JsonNormalizer implements Normalizer
      *   running PHPStan analysis, therefore it is preferable to avoid it.
      */
     public function __construct(
-        RecursiveTransformer $transformer,
+        Transformer $transformer,
         int $jsonEncodingOptions = JSON_THROW_ON_ERROR,
     ) {
         $this->transformer = $transformer;
@@ -105,12 +102,13 @@ final class JsonNormalizer implements Normalizer
 
     public function normalize(mixed $value): string
     {
-        $value = $this->transformer->transform($value);
+        $result = $this->transformer->transform($value);
 
         /** @var resource $resource */
         $resource = fopen('php://memory', 'w');
 
-        (new JsonFormatter($resource, $this->jsonEncodingOptions))->format($value);
+        $formatter = new JsonFormatter($resource, $this->jsonEncodingOptions);
+        $formatter->format($result);
 
         rewind($resource);
 

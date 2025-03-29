@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Cache;
 
 use CuyZ\Valinor\Cache\KeySanitizerCache;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ final class KeySanitizerCacheTest extends TestCase
         parent::setUp();
 
         $this->delegate = new FakeCache();
-        $this->cache = new KeySanitizerCache($this->delegate);
+        $this->cache = new KeySanitizerCache($this->delegate, new Settings());
     }
 
     public function test_set_value_sets_value_in_delegate_with_changed_key(): void

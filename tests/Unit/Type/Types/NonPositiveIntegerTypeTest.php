@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
@@ -35,10 +38,12 @@ final class NonPositiveIntegerTypeTest extends TestCase
     public function test_accepts_correct_values(mixed $value): void
     {
         self::assertTrue($this->nonPositiveIntegerType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->nonPositiveIntegerType, $value));
     }
 
     #[TestWith([null])]
     #[TestWith(['Schwifty!'])]
+    #[TestWith([1])]
     #[TestWith([404])]
     #[TestWith([42.1337])]
     #[TestWith([['foo' => 'bar']])]
@@ -47,6 +52,7 @@ final class NonPositiveIntegerTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse($this->nonPositiveIntegerType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->nonPositiveIntegerType, $value));
     }
 
     public function test_can_cast_integer_value(): void
@@ -152,5 +158,11 @@ final class NonPositiveIntegerTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame('int', (new NonPositiveIntegerType())->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

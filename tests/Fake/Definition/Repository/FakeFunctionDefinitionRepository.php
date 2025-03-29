@@ -10,8 +10,12 @@ use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 
 final class FakeFunctionDefinitionRepository implements FunctionDefinitionRepository
 {
+    public int $callCount = 0;
+
     public function for(callable $function): FunctionDefinition
     {
+        $this->callCount++;
+
         return FakeFunctionDefinition::new();
     }
 }

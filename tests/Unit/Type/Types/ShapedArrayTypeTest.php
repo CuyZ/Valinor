@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -81,10 +84,12 @@ final class ShapedArrayTypeTest extends TestCase
         mixed $value,
     ): void {
         self::assertTrue($this->type->accepts($value));
+        self::assertTrue($this->compiledAccept($this->type, $value));
     }
 
     // Without additional values
     #[TestWith([['foo' => 42]])]
+    #[TestWith([['foo' => 'foo', 1337 => 'foo']])]
     #[TestWith([['foo' => new stdClass()]])]
     #[TestWith([['bar' => 'foo']])]
     // With invalid additional values
@@ -100,6 +105,7 @@ final class ShapedArrayTypeTest extends TestCase
         mixed $value,
     ): void {
         self::assertFalse($this->type->accepts($value));
+        self::assertFalse($this->compiledAccept($this->type, $value));
     }
 
     public function test_matches_valid_array_shaped_type(): void
@@ -307,5 +313,11 @@ final class ShapedArrayTypeTest extends TestCase
                 new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
             )->nativeType()->toString(),
         );
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

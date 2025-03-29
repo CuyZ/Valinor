@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
+use Closure;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
@@ -11,9 +12,11 @@ use CuyZ\Valinor\Normalizer\AsTransformer;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
+use ReflectionFunction;
 use Throwable;
 
 use function array_keys;
+use function hash;
 
 /** @internal */
 final class Settings
@@ -59,6 +62,8 @@ final class Settings
     /** @var array<class-string, null> */
     public array $transformerAttributes = [];
 
+    private string $hash;
+
     public function __construct()
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
@@ -92,5 +97,36 @@ final class Settings
         }
 
         return $callables;
+    }
+
+    /**
+     * Returns a unique hash, based on all the settings values that were set in
+     * this instance.
+     */
+    public function hash(): string
+    {
+        return $this->hash ??= hash('xxh128', serialize([
+            implode('', array_map($this->callableSignature(...), $this->inferredMapping)),
+            $this->nativeConstructors,
+            implode('', array_map($this->callableSignature(...), $this->customConstructors)),
+            implode('', array_map($this->callableSignature(...), $this->valueModifier)),
+            $this->supportedDateFormats,
+            $this->enableFlexibleCasting,
+            $this->allowSuperfluousKeys,
+            $this->allowPermissiveTypes,
+            $this->callableSignature($this->exceptionFilter),
+            array_map(
+                fn (array $transformers) => implode('', array_map($this->callableSignature(...), $transformers)),
+                $this->transformers,
+            ),
+            $this->transformerAttributes,
+        ]));
+    }
+
+    private function callableSignature(callable $callable): string
+    {
+        $reflection = new ReflectionFunction(Closure::fromCallable($callable));
+
+        return ($reflection->getClosureCalledClass()->name ?? $reflection->getFileName()) . $reflection->getStartLine() . $reflection->getEndLine();
     }
 }

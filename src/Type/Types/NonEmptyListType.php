@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
 
-use function count;
+use function function_exists;
 use function is_array;
 
 /** @internal */
@@ -42,27 +45,44 @@ final class NonEmptyListType implements CompositeTraversableType
 
     public function accepts(mixed $value): bool
     {
+        if ($value === []) {
+            return false;
+        }
+
         if (! is_array($value)) {
             return false;
         }
 
-        if (count($value) === 0) {
+        if (! array_is_list($value)) {
             return false;
         }
 
-        $i = 0;
+        return Polyfill::array_all(
+            $value,
+            fn (mixed $item) => $this->subType->accepts($item),
+        );
+    }
 
-        foreach ($value as $key => $item) {
-            if ($key !== $i++) {
-                return false;
-            }
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        $condition = Node::logicalAnd(
+            $node->different(Node::value([])),
+            Node::functionCall('is_array', [$node]),
+            Node::functionCall('array_is_list', [$node]),
+        );
 
-            if (! $this->subType->accepts($item)) {
-                return false;
-            }
+        if ($this === self::native()) {
+            return $condition;
         }
 
-        return true;
+        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+            $node,
+            Node::shortClosure(
+                $this->subType->compiledAccept(Node::variable('item'))->wrap()
+            )->witParameters(
+                Node::parameterDeclaration('item', 'mixed'),
+            ),
+        ]));
     }
 
     public function matches(Type $other): bool

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -56,7 +59,10 @@ final class ClassStringTypeTest extends TestCase
     #[TestWith([DateTimeInterface::class])]
     public function test_basic_class_string_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue((new ClassStringType())->accepts($value));
+        $type = new ClassStringType();
+
+        self::assertTrue($type->accepts($value));
+        self::assertTrue($this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => DateTime::class])]
@@ -68,6 +74,7 @@ final class ClassStringTypeTest extends TestCase
         $type = new ClassStringType(new FakeObjectType(DateTimeInterface::class));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => DateTime::class])]
@@ -78,6 +85,7 @@ final class ClassStringTypeTest extends TestCase
         $type = new ClassStringType(new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class)));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith([null])]
@@ -89,9 +97,17 @@ final class ClassStringTypeTest extends TestCase
     #[TestWith([new stdClass()])]
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse((new ClassStringType())->accepts($value));
-        self::assertFalse((new ClassStringType(new FakeObjectType()))->accepts($value));
-        self::assertFalse((new ClassStringType(new UnionType(new FakeObjectType(), new FakeObjectType())))->accepts($value));
+        $basicClassStringType = new ClassStringType();
+        $objectClassStringType = new ClassStringType(new FakeObjectType());
+        $unionClassStringType = new ClassStringType(new UnionType(new FakeObjectType(), new FakeObjectType()));
+
+        self::assertFalse($basicClassStringType->accepts($value));
+        self::assertFalse($objectClassStringType->accepts($value));
+        self::assertFalse($unionClassStringType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($basicClassStringType, $value));
+        self::assertFalse($this->compiledAccept($objectClassStringType, $value));
+        self::assertFalse($this->compiledAccept($unionClassStringType, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -267,5 +283,11 @@ final class ClassStringTypeTest extends TestCase
     {
         self::assertSame('string', (new ClassStringType())->nativeType()->toString());
         self::assertSame('string', (new ClassStringType(new FakeObjectType()))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -66,6 +70,7 @@ final class NonEmptyArrayTypeTest extends TestCase
         $type = NonEmptyArrayType::native();
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
@@ -74,9 +79,10 @@ final class NonEmptyArrayTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
     public function test_default_array_key_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new NonEmptyArrayType(ArrayKeyType::default(), FakeType::accepting('Some value'));
+        $type = new NonEmptyArrayType(ArrayKeyType::default(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
@@ -85,9 +91,10 @@ final class NonEmptyArrayTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
     public function test_integer_array_key_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new NonEmptyArrayType(ArrayKeyType::integer(), FakeType::accepting('Some value'));
+        $type = new NonEmptyArrayType(ArrayKeyType::integer(), new StringValueType('Some value'));
 
         self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
@@ -96,8 +103,9 @@ final class NonEmptyArrayTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
     public function test_string_array_key_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new NonEmptyArrayType(ArrayKeyType::string(), FakeType::accepting('Some value'));
+        $type = new NonEmptyArrayType(ArrayKeyType::string(), new StringValueType('Some value'));
 
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
         self::assertSame($accepts, $type->accepts($value));
     }
 
@@ -110,10 +118,20 @@ final class NonEmptyArrayTypeTest extends TestCase
     #[TestWith([new stdClass()])]
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse(NonEmptyArrayType::native()->accepts($value));
-        self::assertFalse((new NonEmptyArrayType(ArrayKeyType::default(), FakeType::accepting('Some value')))->accepts($value));
-        self::assertFalse((new NonEmptyArrayType(ArrayKeyType::integer(), FakeType::accepting('Some value')))->accepts($value));
-        self::assertFalse((new NonEmptyArrayType(ArrayKeyType::string(), FakeType::accepting('Some value')))->accepts($value));
+        $nativeType = NonEmptyArrayType::native();
+        $defaultKeyType = new NonEmptyArrayType(ArrayKeyType::default(), new StringValueType('Some value'));
+        $integerKeyType = new NonEmptyArrayType(ArrayKeyType::integer(), new StringValueType('Some value'));
+        $stringKeyType = new NonEmptyArrayType(ArrayKeyType::string(), new StringValueType('Some value'));
+
+        self::assertFalse($nativeType->accepts($value));
+        self::assertFalse($defaultKeyType->accepts($value));
+        self::assertFalse($integerKeyType->accepts($value));
+        self::assertFalse($stringKeyType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($nativeType, $value));
+        self::assertFalse($this->compiledAccept($defaultKeyType, $value));
+        self::assertFalse($this->compiledAccept($integerKeyType, $value));
+        self::assertFalse($this->compiledAccept($stringKeyType, $value));
     }
 
     public function test_matches_valid_array_type(): void
@@ -202,5 +220,11 @@ final class NonEmptyArrayTypeTest extends TestCase
     {
         self::assertSame('array', NonEmptyArrayType::native()->nativeType()->toString());
         self::assertSame('array', (new NonEmptyArrayType(ArrayKeyType::default(), new FakeType()))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

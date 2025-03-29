@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\BooleanType;
@@ -37,6 +39,11 @@ final class BooleanValueType implements BooleanType, FixedType
     public function accepts(mixed $value): bool
     {
         return $value === $this->value;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return $node->equals(Node::value($this->value));
     }
 
     public function matches(Type $other): bool

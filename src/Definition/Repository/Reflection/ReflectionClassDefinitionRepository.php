@@ -76,14 +76,34 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
      */
     private function properties(ObjectType $type): array
     {
-        return array_map(
-            function (ReflectionProperty $property) use ($type) {
-                $typeResolver = $this->typeResolver($type, $property->getDeclaringClass());
+        $reflection = Reflection::class($type->className());
 
-                return $this->propertyBuilder->for($property, $typeResolver);
-            },
-            Reflection::class($type->className())->getProperties(),
-        );
+        $properties = [];
+
+        foreach ($reflection->getProperties() as $property) {
+            $typeResolver = $this->typeResolver($type, $property->getDeclaringClass());
+
+            $properties[$property->name] = $this->propertyBuilder->for($property, $typeResolver);
+        }
+
+        // Properties will be sorted by inheritance order, from parent to child.
+        $sortedProperties = [];
+
+        while ($reflection) {
+            $currentProperties = array_map(
+                fn (ReflectionProperty $property) => $properties[$property->name],
+                array_filter(
+                    $reflection->getProperties(),
+                    fn (ReflectionProperty $property) => isset($properties[$property->name]),
+                ),
+            );
+
+            $sortedProperties = [...$currentProperties, ...$sortedProperties];
+
+            $reflection = $reflection->getParentClass();
+        }
+
+        return $sortedProperties;
     }
 
     /**

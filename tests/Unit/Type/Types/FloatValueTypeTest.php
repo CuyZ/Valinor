@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
@@ -34,6 +37,7 @@ final class FloatValueTypeTest extends TestCase
     public function test_accepts_correct_values(mixed $value): void
     {
         self::assertTrue($this->floatValueType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->floatValueType, $value));
     }
 
     #[TestWith([null])]
@@ -46,6 +50,7 @@ final class FloatValueTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         self::assertFalse($this->floatValueType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->floatValueType, $value));
     }
 
     public function test_can_cast_float_value(): void
@@ -143,5 +148,11 @@ final class FloatValueTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame('float', (new FloatValueType(1337.42))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }
