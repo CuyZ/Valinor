@@ -77,11 +77,11 @@ interface DefaultMessage
         'Invalid value {source_value}.' => [
             'en' => 'Invalid value {source_value}.',
         ],
-        'Invalid value {source_value}, it matches at least two types from union.' => [
-            'en' => 'Invalid value {source_value}, it matches at least two types from union.',
+        'Invalid value {source_value}, it matches two or more types from union: cannot take a decision.' => [
+            'en' => 'Invalid value {source_value}, it matches two or more types from union: cannot take a decision.',
         ],
-        'Invalid value {source_value}, it matches at least two types from {allowed_types}.' => [
-            'en' => 'Invalid value {source_value}, it matches at least two types from {allowed_types}.',
+        'Invalid value {source_value}, it matches two or more types from {allowed_types}: cannot take a decision.' => [
+            'en' => 'Invalid value {source_value}, it matches two or more types from {allowed_types}: cannot take a decision.',
         ],
         'Invalid sequential key {key}, expected {expected}.' => [
             'en' => 'Invalid sequential key {key}, expected {expected}.',
