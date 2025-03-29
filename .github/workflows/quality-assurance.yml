@@ -38,18 +38,6 @@ jobs:
       - name: Checking for forgotten TODO
         run: composer check-todo
 
-      - name: Running Psalm (without plugin installed)
-        run: php vendor/bin/psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml
-
-      - name: Running Psalm (with plugin installed)
-        run: php vendor/bin/psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml
-
-      - name: Running PHPStan (without extension installed)
-        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist
-
-      - name: Running PHPStan (with extension installed)
-        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist
-
       - name: Running PHPStan (global)
         run: php vendor/bin/phpstan
 

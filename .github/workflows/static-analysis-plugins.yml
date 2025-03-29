@@ -1,0 +1,65 @@
+name: Coding Standards & Static Analysis
+on: [push, pull_request]
+jobs:
+  qa:
+    name: Quality Assurance
+    runs-on: ubuntu-latest
+    env:
+      php-version: '8.3'
+      php-extensions: yaml
+      PHP_CS_FIXER_IGNORE_ENV: 1 # PHP8.3 remove when PHP-CS-Fixer fully supports PHP 8.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php-version }}
+          extensions: ${{ env.php-extensions }}
+          ini-values: zend.assertions=1
+          coverage: none # Xdebug is installed by default, so we remove it manually
+
+      - name: Creating var directory
+        run: mkdir -p var/cache
+
+      - name: Cache QA results
+        uses: actions/cache@v4
+        with:
+          path: var/cache
+          key: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/static-analysis-plugins.yml') }}
+          restore-keys: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/static-analysis-plugins.yml') }}
+
+      - uses: "ramsey/composer-install@v2"
+
+      - uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "qa/StaticAnalysis/psalm/v6"
+
+      - uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "qa/StaticAnalysis/psalm/v5"
+
+      - name: Running Psalm v6 (without plugin installed)
+        run: cd qa/StaticAnalysis/psalm/v6 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-without-plugin.xml --no-cache
+
+      - name: Running Psalm v6 (with plugin installed)
+        run: cd qa/StaticAnalysis/psalm/v6 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-with-plugin.xml --no-cache
+
+      - name: Running Psalm v5 (without plugin installed)
+        run: cd qa/StaticAnalysis/psalm/v5 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-without-plugin.xml --no-cache
+
+      - name: Running Psalm v5 (with plugin installed)
+        run: cd qa/StaticAnalysis/psalm/v5 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-with-plugin.xml --no-cache
+
+      - name: Running PHPStan v2 (without extension installed)
+        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist
+
+      - name: Running PHPStan v2 (with extension installed)
+        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist
+
+      - name: Running PHPStan v1 (without extension installed)
+        run: php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-without-extension.neon.dist
+
+      - name: Running PHPStan v1 (with extension installed)
+        run: php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-with-extension.neon.dist
