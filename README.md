@@ -127,5 +127,3 @@ gains when using this library.
 [blackfire-logo]: docs/pages/img/blackfire-logo.svg "Blackfire logo"
 
 [valinor.cuyz.io]: https://valinor.cuyz.io
-
-.
