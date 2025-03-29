@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveTypeFromUnion;
 use CuyZ\Valinor\Mapper\Tree\Exception\TooManyResolvedTypesFromUnion;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -40,7 +41,14 @@ final class UnionNodeBuilder implements NodeBuilder
                 return TreeNode::leaf($shell, null);
             }
 
-            $node = $rootBuilder->build($shell->withType($subType));
+            try {
+                $node = $rootBuilder->build($shell->withType($subType));
+            } catch (CannotResolveObjectType) {
+                // We catch a special case where an interface type from the
+                // union has no implementation. In this case, we just ignore the
+                // exception and let the other types handle the value.
+                continue;
+            }
 
             if (! $node->isValid()) {
                 continue;

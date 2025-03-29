@@ -49,6 +49,19 @@ final class UnionOfObjectsMappingTest extends IntegrationTestCase
         self::assertSame('fiz', $result->fiz);
     }
 
+    public function test_mapping_to_union_of_interface_and_scalar_when_interface_has_no_implementation_uses_string(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(SomeInterfaceWithNoImplementation::class . '|string', 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result);
+    }
+
     public static function mapping_error_when_cannot_resolve_union_data_provider(): iterable
     {
         yield [
@@ -134,3 +147,5 @@ final class SomeObjectWithBazAndFiz
 
     public string $fiz;
 }
+
+interface SomeInterfaceWithNoImplementation {}
