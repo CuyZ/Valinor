@@ -53,6 +53,9 @@ final class Settings
 
     public bool $allowPermissiveTypes = false;
 
+    /** @var list<class-string> */
+    public array $allowDynamicPropertiesFor = [];
+
     /** @var callable(Throwable): ErrorMessage */
     public $exceptionFilter;
 
