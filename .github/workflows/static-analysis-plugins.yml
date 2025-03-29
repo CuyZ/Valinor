@@ -39,6 +39,14 @@ jobs:
         with:
           working-directory: "qa/StaticAnalysis/psalm/v5"
 
+      - uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "qa/StaticAnalysis/phpstan/v1"
+
+      - uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "qa/StaticAnalysis/phpstan/v2"
+
       - name: Running Psalm v6 (without plugin installed)
         run: cd qa/StaticAnalysis/psalm/v6 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-without-plugin.xml --no-cache
 
@@ -52,13 +60,13 @@ jobs:
         run: cd qa/StaticAnalysis/psalm/v5 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-with-plugin.xml --no-cache
 
       - name: Running PHPStan v2 (without extension installed)
-        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist
+        run: cd qa/StaticAnalysis/phpstan/v2 && php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist
 
       - name: Running PHPStan v2 (with extension installed)
-        run: php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist
+        run: cd qa/StaticAnalysis/phpstan/v2 && php vendor/bin/phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist
 
       - name: Running PHPStan v1 (without extension installed)
-        run: php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-without-extension.neon.dist
+        run: cd qa/StaticAnalysis/phpstan/v1 && php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-without-extension.neon.dist
 
       - name: Running PHPStan v1 (with extension installed)
-        run: php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-with-extension.neon.dist
+        run: cd qa/StaticAnalysis/phpstan/v1 && php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-with-extension.neon.dist
