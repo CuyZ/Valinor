@@ -4,6 +4,7 @@
 /docs/ export-ignore
 /qa/Benchmark/ export-ignore
 /qa/StaticAnalysis/ export-ignore
+/qa/PHPStan/Stubs/ export-ignore
 /stubs/ export-ignore
 /tests/ export-ignore
 
@@ -15,7 +16,9 @@
 /infection.json.dist export-ignore
 /phpstan.neon.dist export-ignore
 /psalm.xml export-ignore
+/phpbench.json export-ignore
 /phpunit.xml.dist export-ignore
 /rector.php export-ignore
+/renovate.json5 export-ignore
 
 *.stub linguist-language=PHP
