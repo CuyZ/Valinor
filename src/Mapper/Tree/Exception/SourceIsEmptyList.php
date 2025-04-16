@@ -15,7 +15,7 @@ final class SourceIsEmptyList implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'List cannot be empty and must contain values of type {expected_subtype}.';
 
-    private string $code = '1736015714';
+    private string $code = 'value_is_empty_list';
 
     /** @var array<string, string> */
     private array $parameters;

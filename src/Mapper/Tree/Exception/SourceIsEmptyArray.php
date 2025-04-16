@@ -15,7 +15,7 @@ final class SourceIsEmptyArray implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Array cannot be empty and must contain values of type {expected_subtype}.';
 
-    private string $code = '1736015505';
+    private string $code = 'value_is_empty_array';
 
     /** @var array<string, string> */
     private array $parameters;

@@ -54,7 +54,7 @@ final class PermissiveTypesMappingTest extends IntegrationTestCase
             $this->mapper->map('object', 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1630678334] Value 'foo' does not match type `object`.",
+                '*root*' => "[invalid_value] Value 'foo' does not match type `object`.",
             ]);
         }
     }
