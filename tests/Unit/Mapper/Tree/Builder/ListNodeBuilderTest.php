@@ -24,8 +24,8 @@ final class ListNodeBuilderTest extends TestCase
 
         $node = (new RootNodeBuilder(new ListNodeBuilder()))->build($shell);
 
+        self::assertTrue($node->isValid());
         self::assertSame([], $node->value());
-        self::assertEmpty($node->node()->children());
     }
 
     public function test_invalid_type_fails_assertion(): void

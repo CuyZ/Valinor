@@ -23,6 +23,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             'objects' => ['foo', 'bar', 'baz'],
             'objectsWithAlias' => ['foo', 'bar', 'baz'],
             'listOfStrings' => ['foo', 'bar', 'baz',],
+            'listOfStringWithEmptyValue' => [],
             'nonEmptyListOfStrings' => ['foo', 'bar', 'baz'],
         ];
 
@@ -44,6 +45,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             self::assertSame('bar', $result->objectsWithAlias[1]->value);
             self::assertSame('baz', $result->objectsWithAlias[2]->value);
             self::assertSame($source['listOfStrings'], $result->listOfStrings);
+            self::assertSame($source['listOfStringWithEmptyValue'], $result->listOfStringWithEmptyValue);
             self::assertSame($source['nonEmptyListOfStrings'], $result->nonEmptyListOfStrings);
         }
     }
@@ -54,7 +56,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('non-empty-list<string>', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1630678334] Value array (empty) does not match type `non-empty-list<string>`.",
+                '*root*' => "[1736015714] List cannot be empty and must contain values of type `string`.",
             ]);
         }
     }
@@ -122,6 +124,9 @@ class ListValues
     /** @var list<string> */
     public array $listOfStrings;
 
+    /** @var list<string> */
+    public array $listOfStringWithEmptyValue;
+
     /** @var non-empty-list<string> */
     public array $nonEmptyListOfStrings = ['foo'];
 }
@@ -136,6 +141,7 @@ class ListValuesWithConstructor extends ListValues
      * @param list<SimpleObject> $objects
      * @param list<SimpleObjectAlias> $objectsWithAlias
      * @param list<string> $listOfStrings
+     * @param list<string> $listOfStringWithEmptyValue
      * @param non-empty-list<string> $nonEmptyListOfStrings
      */
     public function __construct(
@@ -146,6 +152,7 @@ class ListValuesWithConstructor extends ListValues
         array $objects,
         array $objectsWithAlias,
         array $listOfStrings,
+        array $listOfStringWithEmptyValue,
         array $nonEmptyListOfStrings
     ) {
         $this->booleans = $booleans;
@@ -155,6 +162,7 @@ class ListValuesWithConstructor extends ListValues
         $this->objects = $objects;
         $this->objectsWithAlias = $objectsWithAlias;
         $this->listOfStrings = $listOfStrings;
+        $this->listOfStringWithEmptyValue = $listOfStringWithEmptyValue;
         $this->nonEmptyListOfStrings = $nonEmptyListOfStrings;
     }
 }
