@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
-use CuyZ\Valinor\Utility\String\StringFormatter;
-use RuntimeException;
 
 use function array_filter;
 use function array_keys;
@@ -15,9 +14,11 @@ use function implode;
 use function in_array;
 
 /** @internal */
-final class UnexpectedKeysInSource extends RuntimeException implements ErrorMessage, HasParameters
+final class UnexpectedKeysInSource implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Unexpected key(s) {keys}, expected {expected_keys}.';
+
+    private string $code = '1655117782';
 
     /** @var array<string, string> */
     private array $parameters;
@@ -30,20 +31,23 @@ final class UnexpectedKeysInSource extends RuntimeException implements ErrorMess
     {
         $superfluous = array_filter(
             array_keys($value),
-            fn (string $key) => ! in_array($key, $children, true)
+            fn (string $key) => ! in_array($key, $children, true),
         );
 
         $this->parameters = [
             'keys' => '`' . implode('`, `', $superfluous) . '`',
             'expected_keys' => '`' . implode('`, `', $children) . '`',
         ];
-
-        parent::__construct(StringFormatter::for($this), 1655117782);
     }
 
     public function body(): string
     {
         return $this->body;
+    }
+
+    public function code(): string
+    {
+        return $this->code;
     }
 
     public function parameters(): array

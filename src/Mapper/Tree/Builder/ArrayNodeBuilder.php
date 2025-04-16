@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTraversableKey;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidArrayKey;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceIsEmptyArray;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -56,7 +56,7 @@ final class ArrayNodeBuilder implements NodeBuilder
             $child = $shell->child((string)$key, $subType);
 
             if (! $keyType->accepts($key)) {
-                $children[$key] = Node::error($child, new InvalidTraversableKey($key, $keyType));
+                $children[$key] = Node::error($child, new InvalidArrayKey($key, $keyType));
             } else {
                 $children[$key] = $rootBuilder->build($child->withValue($val));
             }

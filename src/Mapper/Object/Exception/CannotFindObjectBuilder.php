@@ -6,19 +6,20 @@ namespace CuyZ\Valinor\Mapper\Object\Exception;
 
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
-use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
-use RuntimeException;
 
 use function array_keys;
 use function count;
 use function ksort;
 
 /** @internal */
-final class CannotFindObjectBuilder extends RuntimeException implements ErrorMessage, HasParameters
+final class CannotFindObjectBuilder implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Value {source_value} does not match any of {allowed_types}.';
+
+    private string $code = '1642183169';
 
     /** @var array<string, string> */
     private array $parameters;
@@ -52,13 +53,16 @@ final class CannotFindObjectBuilder extends RuntimeException implements ErrorMes
                 return implode(', ', $sortedSignatures);
             })(),
         ];
-
-        parent::__construct(StringFormatter::for($this), 1642183169);
     }
 
     public function body(): string
     {
         return $this->body;
+    }
+
+    public function code(): string
+    {
+        return $this->code;
     }
 
     public function parameters(): array

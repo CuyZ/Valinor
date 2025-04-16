@@ -112,7 +112,7 @@ final class NodeMessage implements Message, HasCode, Stringable
 
     public function isError(): bool
     {
-        return $this->message instanceof Throwable;
+        return $this->message instanceof ErrorMessage;
     }
 
     public function code(): string

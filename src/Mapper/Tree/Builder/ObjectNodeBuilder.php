@@ -68,9 +68,10 @@ final class ObjectNodeBuilder implements NodeBuilder
 
             try {
                 $object = $this->buildObject($builder, $children);
-            } catch (Message $exception) {
+            } catch (UserlandError|Message $exception) {
                 if ($exception instanceof UserlandError) {
-                    $exception = ($this->exceptionFilter)($exception->previous());
+                    // @phpstan-ignore argument.type (we know there always is a previous exception)
+                    $exception = ($this->exceptionFilter)($exception->getPrevious());
                 }
 
                 return Node::error($shell, $exception);

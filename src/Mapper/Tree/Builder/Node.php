@@ -9,7 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Utility\ValueDumper;
-use Throwable;
 
 use function array_diff;
 use function array_keys;
@@ -36,7 +35,7 @@ final class Node
         return new self(value: $value, childrenCount: $childrenCount);
     }
 
-    public static function error(Shell $shell, Throwable&Message $error): self
+    public static function error(Shell $shell, Message $error): self
     {
         $nodeMessage = new NodeMessage(
             $error,
