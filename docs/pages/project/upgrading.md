@@ -62,6 +62,14 @@ replacements:
 Note that a lot of error messages related to invalid scalar values mapping now
 have a specific code, where it used to be `unknown`.
 
+### Removed classes and interfaces
+
+The following classes/interfaces were part of the initial release but were
+unused by the library. Although no one should have used them, they were part of
+the public API so removing them is a breaking change.
+
+- `\CuyZ\Valinor\Mapper\Source\IdentifiableSource`
+
 ### Full list of breaking changes
 
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
@@ -76,3 +84,4 @@ have a specific code, where it used to be `unknown`.
         - `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::type()`
         - `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::sourceValue()`
 - Changed `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::__construct()` signature
+- Removed `\CuyZ\Valinor\Mapper\Source\IdentifiableSource`

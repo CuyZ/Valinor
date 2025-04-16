@@ -18,7 +18,7 @@ use function strtolower;
  *
  * @implements IteratorAggregate<mixed>
  */
-final class FileSource implements IteratorAggregate, IdentifiableSource
+final class FileSource implements IteratorAggregate
 {
     private string $filePath;
 
@@ -41,11 +41,6 @@ final class FileSource implements IteratorAggregate, IdentifiableSource
             'yaml', 'yml' => new YamlSource($content),
             default => throw new FileExtensionNotHandled($file->getExtension()),
         };
-    }
-
-    public function sourceName(): string
-    {
-        return $this->filePath;
     }
 
     /**
