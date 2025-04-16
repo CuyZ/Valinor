@@ -88,6 +88,7 @@ final class StringValueType implements StringType, FixedType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} does not match string value {expected_value}.')
+            ->withCode('invalid_string_value')
             ->withParameter('expected_value', ValueDumper::dump($this->value))
             ->build();
     }

@@ -180,8 +180,8 @@ final class ArgumentsMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[1655117782] Unexpected key(s) `foo`, `bar`, expected `value`.',
-                'value' => '[1655449641] Cannot be empty and must be filled with a value matching type `array{foo: string, bar: int}`.',
+                '*root*' => '[unexpected_keys] Unexpected key(s) `foo`, `bar`, expected `value`.',
+                'value' => '[missing_value] Cannot be empty and must be filled with a value matching type `array{foo: string, bar: int}`.',
             ]);
         }
     }
@@ -199,8 +199,8 @@ final class ArgumentsMappingTest extends IntegrationTestCase
             self::assertMatchesRegularExpression('/Could not map arguments of `[^`]+` with value array{foo: false, bar: false}. A total of 2 errors were encountered./', $exception->getMessage());
 
             self::assertMappingErrors($exception, [
-                'foo' => '[unknown] Value false is not a valid string.',
-                'bar' => '[unknown] Value false is not a valid integer.',
+                'foo' => '[invalid_string] Value false is not a valid string.',
+                'bar' => '[invalid_integer] Value false is not a valid integer.',
             ]);
         }
     }
@@ -218,7 +218,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
             self::assertMatchesRegularExpression('/Could not map arguments of `[^`]+`. An error occurred at path foo: Value false is not a valid string./', $exception->getMessage());
 
             self::assertMappingErrors($exception, [
-                'foo' => '[unknown] Value false is not a valid string.',
+                'foo' => '[invalid_string] Value false is not a valid string.',
             ]);
         }
     }

@@ -16,7 +16,7 @@ final class InvalidArrayKey implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Key {key} does not match type {expected_type}.';
 
-    private string $code = '1630946163';
+    private string $code = 'invalid_array_key';
 
     /** @var array<string, string> */
     private array $parameters;
