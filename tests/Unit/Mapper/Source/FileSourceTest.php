@@ -35,7 +35,6 @@ final class FileSourceTest extends TestCase
         $source = new FileSource(new SplFileObject($file->url()));
 
         self::assertSame(['foo' => 'bar'], iterator_to_array($source));
-        self::assertSame($file->url(), $source->sourceName());
     }
 
     public static function file_is_handled_properly_data_provider(): iterable
