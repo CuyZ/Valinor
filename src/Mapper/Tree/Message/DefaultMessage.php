@@ -8,9 +8,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 interface DefaultMessage
 {
     public const TRANSLATIONS = [
-        'Value {source_value} does not match any of {allowed_values}.' => [
-            'en' => 'Value {source_value} does not match any of {allowed_values}.',
-        ],
         'Value {source_value} does not match any of {allowed_types}.' => [
             'en' => 'Value {source_value} does not match any of {allowed_types}.',
         ],
@@ -19,9 +16,6 @@ interface DefaultMessage
         ],
         'Value {source_value} does not match type {expected_type}.' => [
             'en' => 'Value {source_value} does not match type {expected_type}.',
-        ],
-        'Value {source_value} does not match {expected_value}.' => [
-            'en' => 'Value {source_value} does not match {expected_value}.',
         ],
         'Value {source_value} does not match boolean value {expected_value}.' => [
             'en' => 'Value {source_value} does not match boolean value {expected_value}.',
@@ -74,6 +68,9 @@ interface DefaultMessage
         'Value {source_value} is not a valid class string of `{expected_class_type}`.' => [
             'en' => 'Value {source_value} is not a valid class string of `{expected_class_type}`.',
         ],
+        'Value {source_value} is not a valid array key.' => [
+            'en' => 'Value {source_value} is not a valid array key.',
+        ],
         'Invalid value {source_value}.' => [
             'en' => 'Invalid value {source_value}.',
         ],
@@ -106,6 +103,9 @@ interface DefaultMessage
         ],
         'Value {source_value} does not match any of the following formats: {formats}.' => [
             'en' => 'Value {source_value} does not match any of the following formats: {formats}.',
+        ],
+        'Unexpected key(s) {keys}, expected {expected_keys}.' => [
+            'en' => 'Unexpected key(s) {keys}, expected {expected_keys}.',
         ],
     ];
 }
