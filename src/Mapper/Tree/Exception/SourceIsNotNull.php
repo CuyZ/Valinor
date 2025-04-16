@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
-use RuntimeException;
+use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 
 /** @internal */
-final class SourceIsNotNull extends RuntimeException implements ErrorMessage
+final class SourceIsNotNull implements ErrorMessage, HasCode
 {
-    private string $body;
+    private string $body = 'Value {source_value} is not null.';
 
-    public function __construct()
-    {
-        $this->body = 'Value {source_value} is not null.';
-
-        parent::__construct($this->body, 1710263908);
-    }
+    private string $code = '1710263908';
 
     public function body(): string
     {
         return $this->body;
+    }
+
+    public function code(): string
+    {
+        return $this->code;
     }
 }

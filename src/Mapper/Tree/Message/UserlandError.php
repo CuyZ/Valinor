@@ -8,23 +8,14 @@ use RuntimeException;
 use Throwable;
 
 /** @internal */
-final class UserlandError extends RuntimeException implements ErrorMessage
+final class UserlandError extends RuntimeException
 {
-    public static function from(Throwable $message): Message&Throwable
+    public static function from(Throwable $message): Throwable
     {
-        // @infection-ignore-all
-        return $message instanceof Message
-            ? $message
-            : new self('Invalid value.', 1657215570, $message);
-    }
+        if ($message instanceof ErrorMessage) {
+            return $message;
+        }
 
-    public function body(): string
-    {
-        return 'Invalid value.';
-    }
-
-    public function previous(): Throwable
-    {
-        return $this->getPrevious(); // @phpstan-ignore-line
+        return new self(previous: $message);
     }
 }
