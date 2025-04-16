@@ -42,6 +42,10 @@ abstract class IntegrationTestCase extends TestCase
         $cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
         $this->cacheToInject = new FileSystemCache($cacheDir);
 
+        if (! $this->status()->isSuccess()) {
+            return;
+        }
+
         // First rerun of the test: the cache entries will be injected.
         parent::runTest();
 
