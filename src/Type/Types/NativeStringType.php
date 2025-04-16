@@ -59,7 +59,9 @@ final class NativeStringType implements StringType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid string.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid string.')
+            ->withCode('invalid_string')
+            ->build();
     }
 
     public function nativeType(): NativeStringType

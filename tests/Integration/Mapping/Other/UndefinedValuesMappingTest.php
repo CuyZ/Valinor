@@ -110,7 +110,7 @@ final class UndefinedValuesMappingTest extends IntegrationTestCase
                 ->map('array<string>', null);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[1618739163] Cannot be empty and must be filled with a value matching type `array<string>`.',
+                '*root*' => '[value_is_not_iterable] Cannot be empty and must be filled with a value matching type `array<string>`.',
             ]);
         }
     }
@@ -124,7 +124,7 @@ final class UndefinedValuesMappingTest extends IntegrationTestCase
                 ->map('list<string>', null);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[1618739163] Cannot be empty and must be filled with a value matching type `list<string>`.',
+                '*root*' => '[value_is_not_iterable] Cannot be empty and must be filled with a value matching type `list<string>`.',
             ]);
         }
     }

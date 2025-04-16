@@ -120,7 +120,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<int, string>', ['foo' => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo' => "[1630946163] Key 'foo' does not match type `int`.",
+                'foo' => "[invalid_array_key] Key 'foo' does not match type `int`.",
             ]);
         }
     }
@@ -131,7 +131,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<positive-int, string>', [-42 => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '-42' => "[1630946163] Key -42 does not match type `positive-int`.",
+                '-42' => "[invalid_array_key] Key -42 does not match type `positive-int`.",
             ]);
         }
     }
@@ -142,7 +142,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<negative-int, string>', [42 => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '42' => '[1630946163] Key 42 does not match type `negative-int`.',
+                '42' => '[invalid_array_key] Key 42 does not match type `negative-int`.',
             ]);
         }
     }
@@ -153,7 +153,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<int<-42, 1337>, string>', [-404 => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '-404' => '[1630946163] Key -404 does not match type `int<-42, 1337>`.',
+                '-404' => '[invalid_array_key] Key -404 does not match type `int<-42, 1337>`.',
             ]);
         }
     }
@@ -164,7 +164,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map("array<'foo'|'bar', string>", ['baz' => 'baz']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'baz' => "[1630946163] Key 'baz' does not match type `'foo'|'bar'`.",
+                'baz' => "[invalid_array_key] Key 'baz' does not match type `'foo'|'bar'`.",
             ]);
         }
     }
@@ -175,7 +175,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<42|1337, string>', [404 => 'baz']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '404' => '[1630946163] Key 404 does not match type `42|1337`.',
+                '404' => '[invalid_array_key] Key 404 does not match type `42|1337`.',
             ]);
         }
     }
@@ -186,7 +186,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<non-empty-string, string>', ['' => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '' => "[1630946163] Key '' does not match type `non-empty-string`.",
+                '' => "[invalid_array_key] Key '' does not match type `non-empty-string`.",
             ]);
         }
     }
@@ -197,7 +197,7 @@ final class ArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<class-string, string>', ['foo bar' => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo bar' => "[1630946163] Key 'foo bar' does not match type `class-string`.",
+                'foo bar' => "[invalid_array_key] Key 'foo bar' does not match type `class-string`.",
             ]);
         }
     }

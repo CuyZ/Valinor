@@ -15,7 +15,7 @@ final class MissingNodeValue implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Cannot be empty and must be filled with a value matching type {expected_type}.';
 
-    private string $code = '1655449641';
+    private string $code = 'missing_value';
 
     /** @var array<string, string> */
     private array $parameters;

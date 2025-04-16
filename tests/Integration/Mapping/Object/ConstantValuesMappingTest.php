@@ -71,7 +71,7 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
                 ->map(ObjectWithConstants::class . '::CONST_WITH_STRING_*', 'some private string value');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1607027306] Value 'some private string value' does not match any of 'some string value', 'another string value'.",
+                '*root*' => "[cannot_resolve_type_from_union] Value 'some private string value' does not match any of 'some string value', 'another string value'.",
             ]);
         }
     }
@@ -84,7 +84,7 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
                 ->map(ObjectWithConstants::class . '::CONST_WITH_STRING_*', 'some prefixed string value');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1607027306] Value 'some prefixed string value' does not match any of 'some string value', 'another string value'.",
+                '*root*' => "[cannot_resolve_type_from_union] Value 'some prefixed string value' does not match any of 'some string value', 'another string value'.",
             ]);
         }
     }

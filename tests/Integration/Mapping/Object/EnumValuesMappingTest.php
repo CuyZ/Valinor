@@ -50,7 +50,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(BackedStringEnum::class, new StringableObject('fiz'));
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[1607027306] Value object(' . StringableObject::class . ") does not match any of 'foo', 'bar', 'baz'.",
+                '*root*' => '[cannot_resolve_type_from_union] Value object(' . StringableObject::class . ") does not match any of 'foo', 'bar', 'baz'.",
             ]);
         }
     }
@@ -61,7 +61,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, '512');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1607027306] Value '512' does not match any of 42, 404, 1337.",
+                '*root*' => "[cannot_resolve_type_from_union] Value '512' does not match any of 42, 404, 1337.",
             ]);
         }
     }
@@ -72,7 +72,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(PureEnum::class . '::FOO', 'fiz');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[unknown] Value 'fiz' does not match string value 'FOO'.",
+                '*root*' => "[invalid_string_value] Value 'fiz' does not match string value 'FOO'.",
             ]);
         }
     }
@@ -83,7 +83,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class . '::FOO', '512');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[unknown] Value '512' does not match integer value 42.",
+                '*root*' => "[invalid_integer_value] Value '512' does not match integer value 42.",
             ]);
         }
     }
@@ -94,7 +94,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo' => '[1655449641] Cannot be empty and must be filled with a value matching type `FOO`.',
+                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching type `FOO`.',
             ]);
         }
     }
@@ -105,7 +105,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo' => '[1655449641] Cannot be empty and must be filled with a value matching type `42`.',
+                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching type `42`.',
             ]);
         }
     }

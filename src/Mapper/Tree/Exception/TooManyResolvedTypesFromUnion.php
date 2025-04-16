@@ -18,7 +18,7 @@ final class TooManyResolvedTypesFromUnion implements ErrorMessage, HasCode, HasP
 {
     private string $body;
 
-    private string $code = '1710262975';
+    private string $code = 'too_many_resolved_types_from_union';
 
     /** @var array<string, string> */
     private array $parameters;
