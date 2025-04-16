@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 /** @internal */
 final class MixedNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         assert($shell->type() instanceof MixedType);
 
@@ -19,6 +19,6 @@ final class MixedNodeBuilder implements NodeBuilder
             throw new CannotMapToPermissiveType($shell);
         }
 
-        return TreeNode::leaf($shell, $shell->value());
+        return Node::new($shell->value());
     }
 }
