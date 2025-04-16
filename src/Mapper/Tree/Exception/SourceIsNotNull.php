@@ -12,7 +12,7 @@ final class SourceIsNotNull implements ErrorMessage, HasCode
 {
     private string $body = 'Value {source_value} is not null.';
 
-    private string $code = '1710263908';
+    private string $code = 'value_is_not_null';
 
     public function body(): string
     {

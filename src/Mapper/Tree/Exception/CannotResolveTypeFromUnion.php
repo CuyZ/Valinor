@@ -18,7 +18,7 @@ final class CannotResolveTypeFromUnion implements ErrorMessage, HasCode, HasPara
 {
     private string $body;
 
-    private string $code = '1607027306';
+    private string $code = 'cannot_resolve_type_from_union';
 
     /** @var array<string, string> */
     private array $parameters;

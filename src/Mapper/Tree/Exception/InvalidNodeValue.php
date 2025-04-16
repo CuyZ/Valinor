@@ -15,7 +15,7 @@ final class InvalidNodeValue implements ErrorMessage, HasCode, HasParameters
 {
     private string $body;
 
-    private string $code = '1630678334';
+    private string $code = 'invalid_value';
 
     /** @var array<string, string> */
     private array $parameters;

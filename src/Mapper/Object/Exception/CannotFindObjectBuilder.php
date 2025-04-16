@@ -19,7 +19,7 @@ final class CannotFindObjectBuilder implements ErrorMessage, HasCode, HasParamet
 {
     private string $body = 'Value {source_value} does not match any of {allowed_types}.';
 
-    private string $code = '1642183169';
+    private string $code = 'cannot_find_object_builder';
 
     /** @var array<string, string> */
     private array $parameters;
