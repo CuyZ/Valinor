@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
-use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\TypeHelper;
-use RuntimeException;
 
 /** @internal */
-final class SourceIsEmptyList extends RuntimeException implements ErrorMessage, HasParameters
+final class SourceIsEmptyList implements ErrorMessage, HasCode, HasParameters
 {
-    private string $body;
+    private string $body = 'List cannot be empty and must contain values of type {expected_subtype}.';
+
+    private string $code = '1736015714';
 
     /** @var array<string, string> */
     private array $parameters;
@@ -24,15 +25,16 @@ final class SourceIsEmptyList extends RuntimeException implements ErrorMessage, 
         $this->parameters = [
             'expected_subtype' => TypeHelper::dump($type->subType()),
         ];
-
-        $this->body = 'List cannot be empty and must contain values of type {expected_subtype}.';
-
-        parent::__construct(StringFormatter::for($this), 1736015714);
     }
 
     public function body(): string
     {
         return $this->body;
+    }
+
+    public function code(): string
+    {
+        return $this->code;
     }
 
     public function parameters(): array
