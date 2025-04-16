@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Integration;
 
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Message\DefaultMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
@@ -70,8 +71,12 @@ abstract class IntegrationTestCase extends TestCase
     /**
      * @param non-empty-array<non-empty-string> $expected
      */
-    protected function assertMappingErrors(MappingError $exception, array $expected): void
+    protected function assertMappingErrors(MappingError $exception, array $expected, bool $assertErrorsBodiesAreRegistered = true): void
     {
+        if ($assertErrorsBodiesAreRegistered) {
+            $this->assertErrorsBodiesAreRegistered($exception);
+        }
+
         $errors = [];
 
         foreach ($exception->messages() as $message) {
@@ -100,11 +105,24 @@ abstract class IntegrationTestCase extends TestCase
 
     protected function mappingFail(MappingError $error): never
     {
+        $this->assertErrorsBodiesAreRegistered($error);
+
         $errors = array_map(
             fn (NodeMessage $message) => "{$message->path()}: {$message->toString()} ({$message->code()})",
             $error->messages()->toArray()
         );
 
         self::fail(implode(' — ', $errors));
+    }
+
+    private function assertErrorsBodiesAreRegistered(MappingError $error): void
+    {
+        foreach ($error->messages() as $message) {
+            self::assertArrayHasKey(
+                $message->body(),
+                DefaultMessage::TRANSLATIONS,
+                'The error message is not registered in `' . DefaultMessage::class . '::TRANSLATIONS`.',
+            );
+        }
     }
 }

@@ -812,9 +812,13 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
 
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
-            self::assertMappingErrors($exception, [
-                '*root*' => "[1656076090] some error message",
-            ]);
+            self::assertMappingErrors(
+                $exception,
+                [
+                    '*root*' => "[1656076090] some error message",
+                ],
+                assertErrorsBodiesAreRegistered: false,
+            );
         }
     }
 
