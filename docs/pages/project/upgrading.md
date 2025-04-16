@@ -69,6 +69,8 @@ unused by the library. Although no one should have used them, they were part of
 the public API so removing them is a breaking change.
 
 - `\CuyZ\Valinor\Mapper\Source\IdentifiableSource`
+- `\CuyZ\Valinor\Utility\Priority\HasPriority`
+- `\CuyZ\Valinor\Utility\Priority\PrioritizedList`
 
 ### Full list of breaking changes
 
@@ -85,3 +87,5 @@ the public API so removing them is a breaking change.
         - `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::sourceValue()`
 - Changed `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::__construct()` signature
 - Removed `\CuyZ\Valinor\Mapper\Source\IdentifiableSource`
+- Removed `\CuyZ\Valinor\Utility\Priority\HasPriority`
+- Removed `\CuyZ\Valinor\Utility\Priority\PrioritizedList`
