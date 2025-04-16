@@ -98,6 +98,25 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             ]);
         }
     }
+
+    public function test_nested_error_path_is_correcly_flattened_when_using_single_argument(): void
+    {
+        $class = (new class () {
+            /** @var array{first: array{second: float}} */
+            public array $value;
+        })::class;
+
+        try {
+            $this->mapperBuilder()->mapper()->map(
+                $class,
+                ['first' => ['second' => 'foo']],
+            );
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'first.second' => "[unknown] Value 'foo' is not a valid float.",
+            ]);
+        }
+    }
 }
 
 class ObjectValues
