@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Message;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Messages;
-use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\FakeNode;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
-use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\Formatter\FakeMessageFormatter;
 use PHPUnit\Framework\TestCase;
@@ -72,33 +69,5 @@ final class MessagesTest extends TestCase
 
         self::assertNotSame($messages, $formattedMessages);
         self::assertSame('prefixC / prefixB / prefixA / some message', $formattedMessages->toArray()[0]->body());
-    }
-
-    public function test_flatten_from_node_recursively_fetches_all_messages(): void
-    {
-        $node = new Node(
-            true,
-            'nodeName',
-            'some.node.path',
-            'string',
-            true,
-            'some source value',
-            'some value',
-            [
-                new FakeMessage('message A'),
-                new FakeErrorMessage('message B'),
-            ],
-            [
-                'foo' => FakeNode::withMessage(new FakeMessage('message C')),
-                'bar' => FakeNode::withMessage(new FakeErrorMessage('message D')),
-            ]
-        );
-
-        $messages = Messages::flattenFromNode($node)->toArray();
-
-        self::assertSame('message A', $messages[0]->toString());
-        self::assertSame('message B', $messages[1]->toString());
-        self::assertSame('message C', $messages[2]->toString());
-        self::assertSame('message D', $messages[3]->toString());
     }
 }
