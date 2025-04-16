@@ -48,7 +48,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
                 $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $exception) {
                 self::assertMappingErrors($exception, [
-                    '*root*' => "[1632903281] Value 'foo' does not match type `array{object: ?, string: string}`.",
+                    '*root*' => "[invalid_source] Value 'foo' does not match type `array{object: ?, string: string}`.",
                 ]);
             }
         }
@@ -66,8 +66,8 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1655117782] Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.",
-                'stringA' => '[unknown] Value 42 is not a valid string.'
+                '*root*' => "[unexpected_keys] Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.",
+                'stringA' => '[invalid_string] Value 42 is not a valid string.'
             ]);
         }
     }
@@ -83,7 +83,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             ]));
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1655117782] Unexpected key(s) `unexpectedValue`, `42`, expected `stringA`, `stringB`.",
+                '*root*' => "[unexpected_keys] Unexpected key(s) `unexpectedValue`, `42`, expected `stringA`, `stringB`.",
             ]);
         }
     }
@@ -94,7 +94,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(stdClass::class, 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1632903281] Value 'foo' does not match type array.",
+                '*root*' => "[invalid_source] Value 'foo' does not match type array.",
             ]);
         }
     }
@@ -113,7 +113,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             );
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'first.second' => "[unknown] Value 'foo' is not a valid float.",
+                'first.second' => "[invalid_float] Value 'foo' is not a valid float.",
             ]);
         }
     }

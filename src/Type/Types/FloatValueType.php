@@ -59,6 +59,7 @@ final class FloatValueType implements FloatType, FixedType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} does not match float value {expected_value}.')
+            ->withCode('invalid_float_value')
             ->withParameter('expected_value', (string)$this->value)
             ->build();
     }

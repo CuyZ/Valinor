@@ -14,7 +14,7 @@ final class InvalidListKey implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Invalid sequential key {key}, expected {expected}.';
 
-    private string $code = '1654273010';
+    private string $code = 'invalid_list_key';
 
     /** @var array<string, string> */
     private array $parameters;

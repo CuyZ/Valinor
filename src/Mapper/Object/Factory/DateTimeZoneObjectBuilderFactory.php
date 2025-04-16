@@ -67,7 +67,9 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
             try {
                 return new DateTimeZone($timezone);
             } catch (Exception) {
-                throw MessageBuilder::newError('Value {source_value} is not a valid timezone.')->build();
+                throw MessageBuilder::newError('Value {source_value} is not a valid timezone.')
+                    ->withCode('invalid_timezone')
+                    ->build();
             }
         };
 
