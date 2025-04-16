@@ -15,7 +15,7 @@ final class SourceMustBeIterable implements ErrorMessage, HasCode, HasParameters
 {
     private string $body;
 
-    private string $code = '1618739163';
+    private string $code = 'value_is_not_iterable';
 
     /** @var array<string, string> */
     private array $parameters;

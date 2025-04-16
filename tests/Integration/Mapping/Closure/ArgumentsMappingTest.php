@@ -81,8 +81,8 @@ final class ArgumentsMappingTest extends IntegrationTestCase
             self::assertMatchesRegularExpression('/Could not map arguments of `[^`]+` with value array{foo: false, bar: false}. A total of 2 errors were encountered./', $exception->getMessage());
 
             self::assertMappingErrors($exception, [
-                'foo' => '[unknown] Value false is not a valid string.',
-                'bar' => '[unknown] Value false is not a valid integer.',
+                'foo' => '[invalid_string] Value false is not a valid string.',
+                'bar' => '[invalid_integer] Value false is not a valid integer.',
             ]);
         }
     }
@@ -100,7 +100,7 @@ final class ArgumentsMappingTest extends IntegrationTestCase
             self::assertMatchesRegularExpression('/Could not map arguments of `[^`]+`. An error occurred at path foo: Value false is not a valid string./', $exception->getMessage());
 
             self::assertMappingErrors($exception, [
-                'foo' => '[unknown] Value false is not a valid string.',
+                'foo' => '[invalid_string] Value false is not a valid string.',
             ]);
         }
     }

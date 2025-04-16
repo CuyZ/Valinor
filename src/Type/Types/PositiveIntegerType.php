@@ -65,7 +65,9 @@ final class PositiveIntegerType implements IntegerType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid positive integer.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid positive integer.')
+            ->withCode('invalid_positive_integer')
+            ->build();
     }
 
     public function nativeType(): NativeIntegerType

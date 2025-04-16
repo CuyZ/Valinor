@@ -56,7 +56,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('non-empty-list<string>', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1736015714] List cannot be empty and must contain values of type `string`.",
+                '*root*' => "[value_is_empty_list] List cannot be empty and must contain values of type `string`.",
             ]);
         }
     }
@@ -70,7 +70,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '2' => '[1654273010] Invalid sequential key 2, expected 1.',
+                '2' => '[invalid_list_key] Invalid sequential key 2, expected 1.',
             ]);
         }
     }
@@ -81,7 +81,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('list<int>', ['foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '0' => "[unknown] Value 'foo' is not a valid integer.",
+                '0' => "[invalid_integer] Value 'foo' is not a valid integer.",
             ]);
         }
     }

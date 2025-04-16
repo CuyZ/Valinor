@@ -90,7 +90,7 @@ final class UnionValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('string|int', 42.404);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[1607027306] Value 42.404 does not match any of `string`, `int`.',
+                '*root*' => '[cannot_resolve_type_from_union] Value 42.404 does not match any of `string`, `int`.',
             ]);
         }
     }

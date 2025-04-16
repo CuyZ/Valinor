@@ -18,7 +18,7 @@ final class UnexpectedKeysInSource implements ErrorMessage, HasCode, HasParamete
 {
     private string $body = 'Unexpected key(s) {keys}, expected {expected_keys}.';
 
-    private string $code = '1655117782';
+    private string $code = 'unexpected_keys';
 
     /** @var array<string, string> */
     private array $parameters;

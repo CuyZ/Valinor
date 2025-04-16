@@ -172,7 +172,9 @@ final class ArrayKeyType implements ScalarType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid array key.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid array key.')
+            ->withCode('invalid_array_key')
+            ->build();
     }
 
     public function nativeType(): Type
