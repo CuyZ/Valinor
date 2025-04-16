@@ -100,6 +100,7 @@ nav:
       - App & framework integration: other/app-and-framework-integration.md
       - Static analysis — PHPStan/Psalm: other/static-analysis.md
   - Project:
+      - Upgrading: project/upgrading.md
       - Alternatives: project/alternatives.md
       - Changelog: project/changelog.md
       - Credits: project/credits.md

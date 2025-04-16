@@ -30,7 +30,7 @@ final class MessageFormatterTest extends IntegrationTestCase
                 ),
             );
 
-            $message = $formatter->format($error->node()->messages()[0]);
+            $message = $formatter->format($error->messages()->toArray()[0]);
 
             self::assertSame("Nouveau message : 'foo' / `int`", (string)$message);
         }

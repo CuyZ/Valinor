@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
-use CuyZ\Valinor\Mapper\Tree\Node;
 use CuyZ\Valinor\Utility\String\StringFormatter;
-use CuyZ\Valinor\Utility\ValueDumper;
 use Stringable;
 use Throwable;
 
@@ -15,28 +13,19 @@ use function array_merge;
 /** @api */
 final class NodeMessage implements Message, HasCode, Stringable
 {
-    private Node $node;
-
-    private Message $message;
-
-    private string $body;
-
     /** @var array<string, string> */
     private array $parameters = [];
 
     private string $locale = StringFormatter::DEFAULT_LOCALE;
 
-    public function __construct(Node $node, Message $message)
-    {
-        $this->node = $node;
-        $this->message = $message;
-        $this->body = $message->body();
-    }
-
-    public function node(): Node
-    {
-        return $this->node;
-    }
+    public function __construct(
+        private Message $message,
+        private string $body,
+        private string $name,
+        private string $path,
+        private string $type,
+        private string $sourceValue,
+    ) {}
 
     public function withLocale(string $locale): self
     {
@@ -81,6 +70,26 @@ final class NodeMessage implements Message, HasCode, Stringable
     public function body(): string
     {
         return $this->body;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function path(): string
+    {
+        return $this->path;
+    }
+
+    public function type(): string
+    {
+        return $this->type;
+    }
+
+    public function sourceValue(): string
+    {
+        return $this->sourceValue;
     }
 
     /**
@@ -144,10 +153,10 @@ final class NodeMessage implements Message, HasCode, Stringable
     {
         $parameters = [
             'message_code' => $this->code(),
-            'node_name' => $this->node->name(),
-            'node_path' => $this->node->path(),
-            'node_type' => "`{$this->node->type()}`",
-            'source_value' => $this->node->sourceFilled() ? ValueDumper::dump($this->node->sourceValue()) : '*missing*',
+            'node_name' => $this->name,
+            'node_path' => $this->path,
+            'node_type' => $this->type,
+            'source_value' => $this->sourceValue,
         ];
 
         if ($this->message instanceof HasParameters) {

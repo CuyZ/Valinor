@@ -66,6 +66,6 @@ final class TypeArgumentsMapper implements ArgumentsMapper
             }
         }
 
-        throw new ArgumentsMapperError($function, $node->node());
+        throw new ArgumentsMapperError($shell->value(), $function, $node->messages());
     }
 }

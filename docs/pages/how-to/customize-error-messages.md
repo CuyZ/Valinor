@@ -23,11 +23,7 @@ try {
         ->mapper()
         ->map(SomeClass::class, [/* … */]);
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    $messages = \CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode(
-        $error->node()
-    );
-
-    foreach ($messages as $message) {
+    foreach ($error->messages() as $message) {
         if ($message->code() === 'some_code') {
             $message = $message
                 ->withParameter('some_parameter', 'some custom value')
@@ -48,9 +44,9 @@ support.
 try {
     (new \CuyZ\Valinor\MapperBuilder())->mapper()->map('int<0, 100>', 1337);
 } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
-    $message = $error->node()->messages()[0];
+    $message = $error->messages()->toArray()[0];
 
-    if (is_numeric($message->node()->mappedValue())) {
+    if (is_numeric($message->sourceValue())) {
         $message = $message->withBody(
             'Invalid amount {source_value, number, currency}'
         );    
