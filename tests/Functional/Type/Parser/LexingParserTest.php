@@ -83,6 +83,7 @@ use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ScalarType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -1088,6 +1089,11 @@ final class LexingParserTest extends TestCase
             'raw' => "value-of<" . BackedIntegerEnum::class . ">",
             'transformed' => "42|404|1337",
             'type' => UnionType::class,
+        ];
+        yield 'scalar' => [
+            'raw' => 'scalar',
+            'transformed' => 'scalar',
+            'type' => ScalarType::class,
         ];
     }
 
