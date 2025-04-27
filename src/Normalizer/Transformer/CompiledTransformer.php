@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer;
 
 use Closure;
+use CuyZ\Valinor\Cache\Cache;
+use CuyZ\Valinor\Cache\CacheEntry;
+use CuyZ\Valinor\Cache\TypeFilesWatcher;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
@@ -28,7 +31,6 @@ use CuyZ\Valinor\Type\Types\NullType;
 use Generator;
 use Iterator;
 use IteratorAggregate;
-use Psr\SimpleCache\CacheInterface;
 use UnitEnum;
 
 use function array_is_list;
@@ -38,12 +40,13 @@ use function is_object;
 use function is_scalar;
 
 /** @internal */
-final class CacheTransformer implements Transformer
+final class CompiledTransformer implements Transformer
 {
     public function __construct(
         private TransformerDefinitionBuilder $definitionBuilder,
-        /** @var CacheInterface<callable(list<callable>, Transformer): Transformer> */
-        private CacheInterface $cache,
+        private TypeFilesWatcher $typeFilesWatcher,
+        /** @var Cache<Transformer> */
+        private Cache $cache,
         /** @var list<callable> */
         private array $transformers,
     ) {}
@@ -54,23 +57,20 @@ final class CacheTransformer implements Transformer
 
         $key = "transformer-\0" . $type->toString();
 
-        $entry = $this->cache->get($key);
+        $transformer = $this->cache->get($key, $this->transformers, $this);
 
-        if ($entry) {
-            $transformer = $entry($this->transformers, $this);
-
+        if ($transformer) {
             return $transformer->transform($value);
         }
 
-        $transformer = new EvaluatedTransformer($this->compileFor($type));
+        $code = $this->compileFor($type);
+        $filesToWatch = $this->typeFilesWatcher->for($type);
 
-        // @phpstan-ignore argument.type (this is a temporary workaround, while waiting for the cache API to be refined)
-        $this->cache->set($key, $transformer);
+        $this->cache->set($key, new CacheEntry($code, $filesToWatch));
 
-        $entry = $this->cache->get($key);
+        $transformer = $this->cache->get($key, $this->transformers, $this);
 
-        // @phpstan-ignore callable.nonCallable (this is a temporary workaround, while waiting for the cache API to be refined)
-        $transformer = $entry($this->transformers, $this);
+        assert($transformer instanceof Transformer);
 
         return $transformer->transform($value);
     }

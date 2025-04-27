@@ -50,8 +50,7 @@ The application really should provide a cache implementation to the mapper
 builder.
 
 As stated in the [performance chapter], the library provides a cache
-implementation out of the box which can be used in any application. Custom cache
-can be used as well, as long as it is PSR-16 compliant.
+implementation out of the box which can be used in any application.
 
 ```php
 $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');

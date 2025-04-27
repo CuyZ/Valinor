@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Integration\Cache;
 use CuyZ\Valinor\Cache\Exception\InvalidSignatureToWarmup;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use CuyZ\Valinor\Tests\Fake\Cache\FakeCacheWithWarmup;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeInterface;
 
@@ -23,17 +22,6 @@ final class CacheWarmupTest extends IntegrationTestCase
 
         $this->cache = new FakeCache();
         $this->mapper = $this->mapperBuilder()->withCache($this->cache);
-    }
-
-    public function test_cache_warmup_is_called_only_once(): void
-    {
-        $cache = new FakeCacheWithWarmup();
-        $mapper = $this->mapperBuilder()->withCache($cache);
-
-        $mapper->warmup();
-        $mapper->warmup();
-
-        self::assertSame(1, $cache->timesWarmupWasCalled());
     }
 
     /**

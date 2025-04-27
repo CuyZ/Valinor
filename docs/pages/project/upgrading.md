@@ -62,6 +62,38 @@ replacements:
 Note that a lot of error messages related to invalid scalar values mapping now
 have a specific code, where it used to be `unknown`.
 
+### Removed Simple Cache (PSR-16) handling
+
+The Simple Cache PSR requirement has been removed from the library. This means
+that external PSR implementations can no longer be used with this library.
+
+This decision was taken because entries that were cached were always generated
+PHP code, which is not what PSR is meant for. This led to confusion and
+incorrect behavior when using the library with a custom implementation.
+
+The library now uses its own cache interface, but the provided implementations
+did not change, thus the upgrade should be pretty straightforward.
+
+As a reminder, this is how cache should be injected in your applications:
+
+```php
+$cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');
+
+if ($isApplicationInDevelopmentEnvironment) {
+    $cache = new \CuyZ\Valinor\Cache\FileWatchingCache($cache);
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->withCache($cache)
+    ->mapper()
+    ->map(SomeClass::class, [/* … */]);
+```
+
+Also note that this change led to a refactor that should improve confidence for
+the file watching feature: before, the cache entries were sometimes not
+invalidated properly when files changed during development. This should now be
+better.
+
 ### Removed classes and interfaces
 
 The following classes/interfaces were part of the initial release but were
@@ -90,6 +122,7 @@ List of affected constructors:
 
 ### Full list of breaking changes
 
+- Removed `\Psr\SimpleCache\CacheInterface` dependency
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
     * Use `\CuyZ\Valinor\Mapper\MappingError::messages()` instead
 - Removed `\CuyZ\Valinor\Mapper\Tree\Node`

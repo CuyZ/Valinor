@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Cache\Warmup;
 
 use CuyZ\Valinor\Cache\Exception\InvalidSignatureToWarmup;
-use CuyZ\Valinor\Cache\WarmupCache;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
@@ -15,7 +14,6 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
-use Psr\SimpleCache\CacheInterface;
 
 use function in_array;
 
@@ -29,8 +27,6 @@ final class RecursiveCacheWarmupService
 
     public function __construct(
         private TypeParser $parser,
-        /** @var CacheInterface<mixed> */
-        private CacheInterface $cache,
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory
@@ -40,10 +36,6 @@ final class RecursiveCacheWarmupService
     {
         if (! $this->warmupWasDone) {
             $this->warmupWasDone = true;
-
-            if ($this->cache instanceof WarmupCache) {
-                $this->cache->warmup();
-            }
         }
 
         foreach ($signatures as $signature) {

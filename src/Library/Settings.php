@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Library;
 
 use Closure;
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Normalizer\AsTransformer;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Psr\SimpleCache\CacheInterface;
 use ReflectionFunction;
 use Throwable;
 
 use function array_keys;
+use function array_values;
 use function hash;
 
 /** @internal */
@@ -41,8 +42,7 @@ final class Settings
     /** @var list<callable> */
     public array $valueModifier = [];
 
-    /** @var CacheInterface<mixed> */
-    public CacheInterface $cache;
+    public Cache $cache;
 
     /** @var non-empty-list<non-empty-string> */
     public array $supportedDateFormats = self::DEFAULT_SUPPORTED_DATETIME_FORMATS;
@@ -106,27 +106,31 @@ final class Settings
     public function hash(): string
     {
         return $this->hash ??= hash('xxh128', serialize([
-            implode('', array_map($this->callableSignature(...), $this->inferredMapping)),
             $this->nativeConstructors,
-            implode('', array_map($this->callableSignature(...), $this->customConstructors)),
-            implode('', array_map($this->callableSignature(...), $this->valueModifier)),
             $this->supportedDateFormats,
             $this->enableFlexibleCasting,
             $this->allowSuperfluousKeys,
             $this->allowPermissiveTypes,
-            $this->callableSignature($this->exceptionFilter),
-            array_map(
-                fn (array $transformers) => implode('', array_map($this->callableSignature(...), $transformers)),
-                $this->transformers,
-            ),
             $this->transformerAttributes,
+            implode('', array_map(function (callable $callable) {
+                $reflection = new ReflectionFunction(Closure::fromCallable($callable));
+
+                return ($reflection->getClosureCalledClass()->name ?? $reflection->getFileName()) . $reflection->getStartLine() . $reflection->getEndLine();
+            }, $this->callables())),
         ]));
     }
 
-    private function callableSignature(callable $callable): string
+    /**
+     * @return non-empty-list<callable>
+     */
+    public function callables(): array
     {
-        $reflection = new ReflectionFunction(Closure::fromCallable($callable));
-
-        return ($reflection->getClosureCalledClass()->name ?? $reflection->getFileName()) . $reflection->getStartLine() . $reflection->getEndLine();
+        return array_values([
+            $this->exceptionFilter,
+            ...$this->inferredMapping,
+            ...$this->customConstructors,
+            ...$this->valueModifier,
+            ...array_merge(...$this->transformers),
+        ]);
     }
 }
