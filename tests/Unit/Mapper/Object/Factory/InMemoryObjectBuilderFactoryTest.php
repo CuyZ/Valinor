@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Object\Factory;
 
-use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
-use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
+use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fake\Mapper\Object\Factory\FakeObjectBuilderFactory;
 use PHPUnit\Framework\TestCase;
 
-final class CacheObjectBuilderFactoryTest extends TestCase
+final class InMemoryObjectBuilderFactoryTest extends TestCase
 {
-    public function test_delegate_result_is_in_cache(): void
+    public function test_delegate_result_is_cached_in_memory(): void
     {
-        $factory = new CacheObjectBuilderFactory(new FakeObjectBuilderFactory(), new FakeCache());
+        $factory = new InMemoryObjectBuilderFactory(new FakeObjectBuilderFactory());
         $class = FakeClassDefinition::new();
 
         self::assertSame($factory->for($class), $factory->for($class));

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Cache;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -12,7 +13,6 @@ use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
-use Psr\SimpleCache\CacheInterface;
 use stdClass;
 
 use function file_get_contents;
@@ -47,10 +47,7 @@ final class CacheInjectionTest extends IntegrationTestCase
         }
     }
 
-    /**
-     * @param CacheInterface<mixed> $cache
-     */
-    private function createMapper(CacheInterface $cache): TreeMapper
+    private function createMapper(Cache $cache): TreeMapper
     {
         return $this->mapperBuilder()
             ->withCache($cache)

@@ -14,6 +14,7 @@ use IteratorAggregate;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Symfony\Component\Filesystem\Filesystem;
 use Traversable;
 
 use function glob;
@@ -61,7 +62,7 @@ final class NormalizerCompiledCodeTest extends TestCase
 
         self::assertFileEquals($expectedFile, $cacheFiles[0]);
 
-        $cache->clear();
+        (new Filesystem())->remove($directory);
     }
 
     public static function compiled_code_is_correct_data_provider(): iterable
