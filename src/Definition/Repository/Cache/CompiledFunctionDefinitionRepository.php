@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Cache;
 
+use CuyZ\Valinor\Cache\Cache;
+use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Definition\FunctionDefinition;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use Psr\SimpleCache\CacheInterface;
 
 /** @internal */
-final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepository
+final class CompiledFunctionDefinitionRepository implements FunctionDefinitionRepository
 {
     public function __construct(
         private FunctionDefinitionRepository $delegate,
-        /** @var CacheInterface<FunctionDefinition> */
-        private CacheInterface $cache
+        /** @var Cache<FunctionDefinition> */
+        private Cache $cache,
+        private FunctionDefinitionCompiler $compiler,
     ) {}
 
     public function for(callable $function): FunctionDefinition
@@ -33,8 +36,12 @@ final class CacheFunctionDefinitionRepository implements FunctionDefinitionRepos
 
         $definition = $this->delegate->for($function);
 
-        $this->cache->set($key, $definition);
+        $code = 'fn () => ' . $this->compiler->compile($definition);
+        $filesToWatch = $definition->fileName ? [$definition->fileName] : [];
 
-        return $definition;
+        $this->cache->set($key, new CacheEntry($code, $filesToWatch));
+
+        /** @var FunctionDefinition */
+        return $this->cache->get($key);
     }
 }

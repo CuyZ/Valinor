@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Message\DefaultMessage;
@@ -11,7 +12,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function array_keys;
 use function array_map;
@@ -23,8 +24,7 @@ use function sys_get_temp_dir;
 
 abstract class IntegrationTestCase extends TestCase
 {
-    /** @var CacheInterface<mixed> */
-    private CacheInterface $cacheToInject;
+    private Cache $cacheToInject;
 
     /**
      * After the test has run, it is run again with the cache injected. This
@@ -57,7 +57,7 @@ abstract class IntegrationTestCase extends TestCase
         // Second rerun of the test: the cache entries will be used and tested.
         parent::runBare();
 
-        $this->cacheToInject->clear();
+        (new Filesystem())->remove($cacheDir);
     }
 
     /**
