@@ -72,6 +72,22 @@ the public API so removing them is a breaking change.
 - `\CuyZ\Valinor\Utility\Priority\HasPriority`
 - `\CuyZ\Valinor\Utility\Priority\PrioritizedList`
 
+### Class constructors marked as `@internal`
+
+Some constructors have been marked as `@internal`, to ease future maintenance by
+allowing changes to these methods without breaking the public API.
+
+This change should not affect users as they should not be directly using these
+anyway.
+
+List of affected constructors:
+
+- `\CuyZ\Valinor\Mapper\Tree\Message\Messages::__construct`
+- `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::__construct`
+- `\CuyZ\Valinor\Normalizer\ArrayNormalizer::__construct`
+- `\CuyZ\Valinor\Normalizer\JsonNormalizer::__construct`
+- `\CuyZ\Valinor\Normalizer\StreamNormalizer::__construct`
+
 ### Full list of breaking changes
 
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
@@ -89,3 +105,8 @@ the public API so removing them is a breaking change.
 - Removed `\CuyZ\Valinor\Mapper\Source\IdentifiableSource`
 - Removed `\CuyZ\Valinor\Utility\Priority\HasPriority`
 - Removed `\CuyZ\Valinor\Utility\Priority\PrioritizedList`
+- Mark `\CuyZ\Valinor\Mapper\Tree\Message\Messages::__construct` as `@internal`
+- Mark `\CuyZ\Valinor\Mapper\Tree\Message\NodeMessage::__construct` as `@internal`
+- Mark `\CuyZ\Valinor\Normalizer\ArrayNormalizer::__construct` as `@internal`
+- Mark `\CuyZ\Valinor\Normalizer\JsonNormalizer::__construct` as `@internal`
+- Mark `\CuyZ\Valinor\Normalizer\StreamNormalizer::__construct` as `@internal`
