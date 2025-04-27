@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Library;
 
-use CuyZ\Valinor\Cache\ChainCache;
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\KeySanitizerCache;
 use CuyZ\Valinor\Cache\RuntimeCache;
+use CuyZ\Valinor\Cache\TypeFilesWatcher;
 use CuyZ\Valinor\Cache\Warmup\RecursiveCacheWarmupService;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Definition\Repository\Cache\CacheClassDefinitionRepository;
-use CuyZ\Valinor\Definition\Repository\Cache\CacheFunctionDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Cache\CompiledClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Cache\CompiledFunctionDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
+use CuyZ\Valinor\Definition\Repository\Cache\InMemoryClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\Cache\InMemoryFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
-use CuyZ\Valinor\Mapper\Object\Factory\CacheObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
@@ -25,7 +30,6 @@ use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
@@ -48,7 +52,7 @@ use CuyZ\Valinor\Normalizer\ArrayNormalizer;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\JsonNormalizer;
 use CuyZ\Valinor\Normalizer\Normalizer;
-use CuyZ\Valinor\Normalizer\Transformer\CacheTransformer;
+use CuyZ\Valinor\Normalizer\Transformer\CompiledTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
@@ -56,7 +60,6 @@ use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
-use Psr\SimpleCache\CacheInterface;
 
 use function call_user_func;
 use function count;
@@ -154,17 +157,15 @@ final class Container
                     $factory = new StrictTypesObjectBuilderFactory($factory);
                 }
 
-                /** @var RuntimeCache<list<ObjectBuilder>> $cache */
-                $cache = new RuntimeCache();
-
-                return new CacheObjectBuilderFactory($factory, $cache);
+                return new InMemoryObjectBuilderFactory($factory);
             },
 
             Transformer::class => function () use ($settings) {
                 if (isset($settings->cache)) {
-                    return new CacheTransformer(
+                    return new CompiledTransformer(
                         $this->get(TransformerDefinitionBuilder::class),
-                        $this->get(CacheInterface::class),
+                        $this->get(TypeFilesWatcher::class),
+                        new RuntimeCache($this->get(Cache::class)), // @phpstan-ignore argument.type
                         $settings->transformersSortedByPriority(),
                     );
                 }
@@ -195,24 +196,42 @@ final class Container
                 $this->get(TransformerContainer::class),
             ),
 
-            ClassDefinitionRepository::class => fn () => new CacheClassDefinitionRepository(
-                new ReflectionClassDefinitionRepository(
+            ClassDefinitionRepository::class => function () use ($settings) {
+                $repository = new ReflectionClassDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     $settings->allowedAttributes(),
-                ),
-                $this->get(CacheInterface::class),
-            ),
+                );
 
-            FunctionDefinitionRepository::class => fn () => new CacheFunctionDefinitionRepository(
-                new ReflectionFunctionDefinitionRepository(
+                if (isset($settings->cache)) {
+                    $repository = new CompiledClassDefinitionRepository(
+                        $repository,
+                        $this->get(Cache::class),
+                        new ClassDefinitionCompiler(),
+                    );
+                }
+
+                return new InMemoryClassDefinitionRepository($repository);
+            },
+
+            FunctionDefinitionRepository::class => function () use ($settings) {
+                $repository = new ReflectionFunctionDefinitionRepository(
                     $this->get(TypeParserFactory::class),
                     new ReflectionAttributesRepository(
                         $this->get(ClassDefinitionRepository::class),
                         $settings->allowedAttributes(),
                     ),
-                ),
-                $this->get(CacheInterface::class),
-            ),
+                );
+
+                if (isset($settings->cache)) {
+                    $repository = new CompiledFunctionDefinitionRepository(
+                        $repository,
+                        $this->get(Cache::class),
+                        new FunctionDefinitionCompiler(),
+                    );
+                }
+
+                return new InMemoryFunctionDefinitionRepository($repository);
+            },
 
             TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
 
@@ -220,21 +239,17 @@ final class Container
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),
-                $this->get(CacheInterface::class),
                 $this->get(ObjectImplementations::class),
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(ObjectBuilderFactory::class),
             ),
 
-            CacheInterface::class => function () use ($settings) {
-                $cache = new RuntimeCache();
+            Cache::class => fn () => new KeySanitizerCache($settings->cache, $settings),
 
-                if (isset($settings->cache)) {
-                    $cache = new ChainCache($cache, new KeySanitizerCache($settings->cache, $settings));
-                }
-
-                return $cache;
-            },
+            TypeFilesWatcher::class => fn () => new TypeFilesWatcher(
+                $settings,
+                $this->get(ClassDefinitionRepository::class),
+            ),
         ];
     }
 
