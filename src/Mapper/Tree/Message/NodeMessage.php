@@ -18,6 +18,9 @@ final class NodeMessage implements Message, HasCode, Stringable
 
     private string $locale = StringFormatter::DEFAULT_LOCALE;
 
+    /**
+     * @internal
+     */
     public function __construct(
         private Message $message,
         private string $body,
