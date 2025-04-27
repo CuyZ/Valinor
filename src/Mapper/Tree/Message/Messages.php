@@ -57,6 +57,7 @@ final class Messages implements IteratorAggregate, Countable
     private array $formatters = [];
 
     /**
+     * @internal
      * @no-named-arguments
      */
     public function __construct(NodeMessage ...$messages)
