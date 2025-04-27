@@ -5,7 +5,6 @@
 /qa/Benchmark/ export-ignore
 /qa/StaticAnalysis/ export-ignore
 /qa/PHPStan/Stubs/ export-ignore
-/stubs/ export-ignore
 /tests/ export-ignore
 
 /.changelog export-ignore

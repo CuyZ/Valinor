@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
@@ -11,7 +12,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
-use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
 use function array_unique;
@@ -251,20 +251,17 @@ final class MapperBuilder
 
     /**
      * Inject a cache implementation that will be in charge of caching heavy
-     * data used by the mapper.
+     * data used by the mapper. It is *strongly* recommended to use it when the
+     * application runs in a production environment.
      *
-     * An implementation is provided by the library, which writes cache entries
-     * in the file system; it is strongly recommended to use it when the
-     * application runs in production environment.
-     *
-     * It is also possible to use any PSR-16 compliant implementation, as long
-     * as it is capable of caching the entries handled by the library.
+     * An implementation is provided out of the box, which writes cache entries
+     * in the file system.
      *
      * When the application runs in a development environment, the cache
-     * implementation should be decorated with `FileWatchingCache`, which will
-     * watch the files of the application and invalidate cache entries when a
-     * PHP file is modified by a developer — preventing the library not behaving
-     * as expected when the signature of a property or a method changes.
+     * implementation should be decorated with `FileWatchingCache`. This service
+     * will watch the files of the application and invalidate cache entries when
+     * a PHP file is modified by a developer — preventing the library not
+     * behaving as expected when the signature of a property or a method changes.
      *
      * ```php
      * $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
@@ -281,7 +278,7 @@ final class MapperBuilder
      *     ]);
      * ```
      */
-    public function withCache(CacheInterface $cache): self
+    public function withCache(Cache $cache): self
     {
         $clone = clone $this;
         $clone->settings->cache = $cache;
@@ -525,6 +522,10 @@ final class MapperBuilder
      */
     public function warmup(string ...$signatures): void
     {
+        if (! isset($this->settings->cache)) {
+            return;
+        }
+
         $this->container()->cacheWarmupService()->warmup(...$signatures);
     }
 

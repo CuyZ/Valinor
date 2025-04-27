@@ -26,10 +26,8 @@ final class FunctionDefinitionCompiler
         $this->parameterCompiler = new ParameterDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
     }
 
-    public function compile(mixed $value): string
+    public function compile(FunctionDefinition $value): string
     {
-        assert($value instanceof FunctionDefinition);
-
         $parameters = array_map(
             fn (ParameterDefinition $parameter) => $this->parameterCompiler->compile($parameter),
             iterator_to_array($value->parameters)
