@@ -18,6 +18,10 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
     public function test_values_are_mapped_properly(): void
     {
         $source = [
+            'scalarWithInteger' => 1337,
+            'scalarWithFloat' => 42.404,
+            'scalarWithString' => 'foo',
+            'scalarWithBoolean' => true,
             'boolean' => true,
             'float' => 42.404,
             'floatWithInteger' => 42,
@@ -56,6 +60,10 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
                 $this->mappingFail($error);
             }
 
+            self::assertSame(1337, $result->scalarWithInteger);
+            self::assertSame(42.404, $result->scalarWithFloat);
+            self::assertSame('foo', $result->scalarWithString);
+            self::assertSame(true, $result->scalarWithBoolean);
             self::assertSame(true, $result->boolean);
             self::assertSame(42.404, $result->float);
             self::assertSame(42.0, $result->floatWithInteger);
@@ -113,6 +121,18 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
 
 class ScalarValues
 {
+    /** @var scalar */
+    public mixed $scalarWithInteger = -1;
+
+    /** @var scalar */
+    public mixed $scalarWithFloat = -1;
+
+    /** @var scalar */
+    public mixed $scalarWithString = -1;
+
+    /** @var scalar */
+    public mixed $scalarWithBoolean = -1;
+
     public bool $boolean = false;
 
     public float $float = -1.0;
@@ -199,6 +219,10 @@ class ScalarValues
 class ScalarValuesWithConstructor extends ScalarValues
 {
     /**
+     * @param scalar $scalarWithInteger
+     * @param scalar $scalarWithFloat
+     * @param scalar $scalarWithString
+     * @param scalar $scalarWithBoolean
      * @param 42.404 $positiveFloatValue
      * @param -42.404 $negativeFloatValue
      * @param positive-int $positiveInteger
@@ -225,6 +249,10 @@ class ScalarValuesWithConstructor extends ScalarValues
      * @param array-key $arrayKeyWithInteger
      */
     public function __construct(
+        mixed $scalarWithInteger,
+        mixed $scalarWithFloat,
+        mixed $scalarWithString,
+        mixed $scalarWithBoolean,
         bool $boolean,
         float $float,
         float $floatWithInteger,
@@ -255,6 +283,10 @@ class ScalarValuesWithConstructor extends ScalarValues
         int|string $arrayKeyWithString,
         int|string $arrayKeyWithInteger,
     ) {
+        $this->scalarWithInteger = $scalarWithInteger;
+        $this->scalarWithFloat = $scalarWithFloat;
+        $this->scalarWithString = $scalarWithString;
+        $this->scalarWithBoolean = $scalarWithBoolean;
         $this->boolean = $boolean;
         $this->float = $float;
         $this->floatWithInteger = $floatWithInteger;
