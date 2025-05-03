@@ -11,7 +11,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\BooleanType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\IntegerType;
-use CuyZ\Valinor\Type\ScalarType as ScalarTypeInterface;
+use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
@@ -21,7 +21,7 @@ use function assert;
 use function is_scalar;
 
 /** @internal */
-final class ScalarConcreteType implements ScalarTypeInterface
+final class ScalarConcreteType implements ScalarType
 {
     use IsSingleton;
 
