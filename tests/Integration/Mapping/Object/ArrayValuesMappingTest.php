@@ -16,6 +16,7 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
     public function test_values_are_mapped_properly(): void
     {
         $source = [
+            'scalars' => [1337, 42.0, 'foo', true],
             'booleans' => [true, false, true],
             'floats' => [42.404, 404.42],
             'integers' => [42, 404, 1337],
@@ -47,6 +48,7 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
                 $this->mappingFail($error);
             }
 
+            self::assertSame($source['scalars'], $result->scalars);
             self::assertSame($source['booleans'], $result->booleans);
             self::assertSame($source['floats'], $result->floats);
             self::assertSame($source['integers'], $result->integers);
@@ -107,6 +109,9 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
 
 class ArrayValues
 {
+    /** @var array<scalar> */
+    public array $scalars;
+
     /** @var array<bool> */
     public array $booleans;
 
@@ -153,6 +158,7 @@ class ArrayValues
 class ArrayValuesWithConstructor extends ArrayValues
 {
     /**
+     * @param array<scalar> $scalars
      * @param array<bool> $booleans
      * @param array<float> $floats
      * @param array<int> $integers
@@ -169,6 +175,7 @@ class ArrayValuesWithConstructor extends ArrayValues
      * @param non-empty-array<string, string> $nonEmptyArrayWithStringKeyType
      */
     public function __construct(
+        array $scalars,
         array $booleans,
         array $floats,
         array $integers,
@@ -184,6 +191,7 @@ class ArrayValuesWithConstructor extends ArrayValues
         array $nonEmptyArrayWithIntegerKeyType,
         array $nonEmptyArrayWithStringKeyType
     ) {
+        $this->scalars = $scalars;
         $this->booleans = $booleans;
         $this->floats = $floats;
         $this->integers = $integers;
