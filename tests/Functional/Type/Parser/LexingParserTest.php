@@ -83,7 +83,7 @@ use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
-use CuyZ\Valinor\Type\Types\ScalarType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
@@ -1093,7 +1093,7 @@ final class LexingParserTest extends TestCase
         yield 'scalar' => [
             'raw' => 'scalar',
             'transformed' => 'scalar',
-            'type' => ScalarType::class,
+            'type' => ScalarConcreteType::class,
         ];
     }
 

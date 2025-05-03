@@ -34,7 +34,7 @@ use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
-use CuyZ\Valinor\Type\Types\ScalarType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -70,7 +70,7 @@ final class TypeCompiler
             case $type instanceof UndefinedObjectType:
             case $type instanceof CallableType:
             case $type instanceof MixedType:
-            case $type instanceof ScalarType:
+            case $type instanceof ScalarConcreteType:
                 return "$class::get()";
             case $type instanceof BooleanValueType:
                 return $type->value() === true

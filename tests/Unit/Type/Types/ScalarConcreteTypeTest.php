@@ -16,24 +16,24 @@ use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
-use CuyZ\Valinor\Type\Types\ScalarType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class ScalarTypeTest extends TestCase
+final class ScalarConcreteTypeTest extends TestCase
 {
     use TestIsSingleton;
 
-    private ScalarType $scalarType;
+    private ScalarConcreteType $scalarType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->scalarType = new ScalarType();
+        $this->scalarType = new ScalarConcreteType();
     }
 
     #[TestWith([42, 12.3, 'Schwifty!', true, false])]
@@ -113,8 +113,8 @@ final class ScalarTypeTest extends TestCase
 
     public function test_matches_same_type(): void
     {
-        $scalarTypeA = new ScalarType();
-        $scalarTypeB = new ScalarType();
+        $scalarTypeA = new ScalarConcreteType();
+        $scalarTypeB = new ScalarConcreteType();
 
         self::assertTrue($scalarTypeA->matches($scalarTypeB));
     }
@@ -153,7 +153,7 @@ final class ScalarTypeTest extends TestCase
     {
         $unionType = new UnionType(
             new FakeType(),
-            new ScalarType(),
+            new ScalarConcreteType(),
             new FakeType(),
         );
 
@@ -169,7 +169,7 @@ final class ScalarTypeTest extends TestCase
 
     public function test_native_type_is_correct(): void
     {
-        self::assertSame('int|float|string|bool', (new ScalarType())->nativeType()->toString());
+        self::assertSame('int|float|string|bool', (new ScalarConcreteType())->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

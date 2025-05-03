@@ -21,7 +21,7 @@ use function assert;
 use function is_scalar;
 
 /** @internal */
-final class ScalarType implements ScalarTypeInterface
+final class ScalarConcreteType implements ScalarTypeInterface
 {
     use IsSingleton;
 

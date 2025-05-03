@@ -42,7 +42,7 @@ use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
-use CuyZ\Valinor\Type\Types\ScalarType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 
 use function filter_var;
@@ -97,7 +97,7 @@ final class NativeLexer implements TypeLexer
             'bool', 'boolean' => new TypeToken(NativeBooleanType::get()),
             'array-key' => new TypeToken(ArrayKeyType::default()),
             'object' => new TypeToken(UndefinedObjectType::get()),
-            'scalar' => new TypeToken(ScalarType::get()),
+            'scalar' => new TypeToken(ScalarConcreteType::get()),
 
             default => match (true) {
                 str_starts_with($symbol, "'") || str_starts_with($symbol, '"') => new StringValueToken($symbol),
