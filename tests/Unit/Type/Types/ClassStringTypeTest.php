@@ -18,6 +18,7 @@ use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeImmutable;
@@ -223,6 +224,11 @@ final class ClassStringTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse((new ClassStringType())->matches(new FakeType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue((new ClassStringType())->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void

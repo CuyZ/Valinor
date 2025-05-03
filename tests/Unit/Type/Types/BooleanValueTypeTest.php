@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -163,6 +164,12 @@ final class BooleanValueTypeTest extends TestCase
     {
         self::assertTrue(BooleanValueType::true()->matches(new NativeBooleanType()));
         self::assertTrue(BooleanValueType::false()->matches(new NativeBooleanType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue(BooleanValueType::true()->matches(new ScalarConcreteType()));
+        self::assertTrue(BooleanValueType::false()->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void

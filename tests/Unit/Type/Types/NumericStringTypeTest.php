@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -135,6 +136,11 @@ final class NumericStringTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse($this->numericStringType->matches(new FakeType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue($this->numericStringType->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void

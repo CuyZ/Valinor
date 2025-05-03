@@ -39,6 +39,7 @@ final class NativeStringType implements StringType
         }
 
         return $other instanceof self
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 

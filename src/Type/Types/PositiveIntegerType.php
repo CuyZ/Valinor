@@ -42,6 +42,7 @@ final class PositiveIntegerType implements IntegerType
 
         return $other instanceof self
             || $other instanceof NativeIntegerType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 

@@ -37,6 +37,7 @@ final class NativeBooleanType implements BooleanType
         }
 
         return $other instanceof self
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 

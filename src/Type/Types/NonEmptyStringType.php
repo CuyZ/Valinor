@@ -40,6 +40,7 @@ final class NonEmptyStringType implements StringType
 
         return $other instanceof self
             || $other instanceof NativeStringType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 

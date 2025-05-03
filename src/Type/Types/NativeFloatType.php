@@ -38,6 +38,7 @@ final class NativeFloatType implements FloatType
         }
 
         return $other instanceof self
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 

@@ -53,8 +53,9 @@ final class BooleanValueType implements BooleanType, FixedType
         }
 
         return $other === $this
-            || $other instanceof MixedType
-            || $other instanceof NativeBooleanType;
+            || $other instanceof NativeBooleanType
+            || $other instanceof ScalarConcreteType
+            || $other instanceof MixedType;
     }
 
     public function canCast(mixed $value): bool

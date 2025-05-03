@@ -105,6 +105,7 @@ final class ClassStringType implements StringType, CompositeType
     {
         if ($other instanceof NativeStringType
             || $other instanceof NonEmptyStringType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType
         ) {
             return true;

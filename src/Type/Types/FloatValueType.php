@@ -39,7 +39,9 @@ final class FloatValueType implements FloatType, FixedType
             return $this->value === $other->value;
         }
 
-        return $other instanceof NativeFloatType || $other instanceof MixedType;
+        return $other instanceof NativeFloatType
+            || $other instanceof ScalarConcreteType
+            || $other instanceof MixedType;
     }
 
     public function canCast(mixed $value): bool
