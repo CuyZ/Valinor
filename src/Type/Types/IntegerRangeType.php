@@ -66,7 +66,7 @@ final class IntegerRangeType implements IntegerType
             return $other->isMatchedBy($this);
         }
 
-        if ($other instanceof NativeIntegerType || $other instanceof MixedType) {
+        if ($other instanceof NativeIntegerType || $other instanceof ScalarConcreteType || $other instanceof MixedType) {
             return true;
         }
 

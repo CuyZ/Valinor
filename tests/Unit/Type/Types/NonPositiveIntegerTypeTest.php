@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -132,6 +133,11 @@ final class NonPositiveIntegerTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse($this->nonPositiveIntegerType->matches(new FakeType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue($this->nonPositiveIntegerType->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void

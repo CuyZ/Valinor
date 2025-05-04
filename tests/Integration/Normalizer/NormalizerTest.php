@@ -100,6 +100,18 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'string with scalar transformer' => [
+            'input' => 'foo',
+            'expected array' => 'foo!',
+            'expected json' => '"foo!"',
+            'transformers' => [
+                [
+                    /** @param scalar $value */
+                    fn (string|int|float|bool $value) => $value . '!',
+                ],
+            ],
+        ];
+
         yield 'class string' => [
             'input' => 'Some\Namespace\To\Class',
             'expected array' => 'Some\Namespace\To\Class',
@@ -226,6 +238,18 @@ final class NormalizerTest extends IntegrationTestCase
             'expected json' => '43',
             'transformers' => [
                 [fn (int $value) => $value + 1],
+            ],
+        ];
+
+        yield 'integer with scalar transformer' => [
+            'input' => 42,
+            'expected array' => 43,
+            'expected json' => '43',
+            'transformers' => [
+                [
+                    /** @param scalar $value */
+                    fn (string|int|float|bool $value) => (int)$value + 1,
+                ],
             ],
         ];
 
@@ -388,6 +412,18 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'float with scalar transformer' => [
+            'input' => 1337.404,
+            'expected array' => 1337.405,
+            'expected json' => '1337.405',
+            'transformers' => [
+                [
+                    /** @param scalar $value */
+                    fn (string|int|float|bool $value) => (float)$value + 0.001,
+                ],
+            ],
+        ];
+
         yield 'float value with transformer' => [
             'input' => 1337.404,
             'expected array' => 1337.405,
@@ -426,6 +462,18 @@ final class NormalizerTest extends IntegrationTestCase
                 [
                     /** @param true $value */
                     fn (bool $value) => ! $value,
+                ],
+            ],
+        ];
+
+        yield 'boolean with scalar transformer' => [
+            'input' => true,
+            'expected array' => false,
+            'expected json' => 'false',
+            'transformers' => [
+                [
+                    /** @param scalar $value */
+                    fn (string|int|float|bool $value) => ! $value,
                 ],
             ],
         ];

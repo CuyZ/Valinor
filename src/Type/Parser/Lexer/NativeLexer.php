@@ -20,7 +20,6 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\IntersectionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IterableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\ValueOfToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
@@ -29,6 +28,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TripleDotsToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TypeToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\ValueOfToken;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -42,6 +42,7 @@ use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 
 use function filter_var;
@@ -96,6 +97,7 @@ final class NativeLexer implements TypeLexer
             'bool', 'boolean' => new TypeToken(NativeBooleanType::get()),
             'array-key' => new TypeToken(ArrayKeyType::default()),
             'object' => new TypeToken(UndefinedObjectType::get()),
+            'scalar' => new TypeToken(ScalarConcreteType::get()),
 
             default => match (true) {
                 str_starts_with($symbol, "'") || str_starts_with($symbol, '"') => new StringValueToken($symbol),

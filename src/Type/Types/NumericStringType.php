@@ -41,6 +41,7 @@ final class NumericStringType implements StringType
         return $other instanceof self
             || $other instanceof NativeStringType
             || $other instanceof NonEmptyStringType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 

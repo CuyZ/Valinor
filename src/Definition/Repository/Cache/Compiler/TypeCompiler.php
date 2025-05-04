@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -21,7 +21,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -34,6 +34,7 @@ use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -69,6 +70,7 @@ final class TypeCompiler
             case $type instanceof UndefinedObjectType:
             case $type instanceof CallableType:
             case $type instanceof MixedType:
+            case $type instanceof ScalarConcreteType:
                 return "$class::get()";
             case $type instanceof BooleanValueType:
                 return $type->value() === true

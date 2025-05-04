@@ -53,6 +53,9 @@ final class SomeClass
         
         /** @var value-of<SomeEnum> */
         private string $valueOfEnum,
+        
+        /** @var scalar */
+        private bool|string|int|float $scalar,
     ) {}
 }
 ```

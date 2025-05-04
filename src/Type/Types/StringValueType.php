@@ -63,6 +63,7 @@ final class StringValueType implements StringType, FixedType
         }
 
         return $other instanceof StringType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 
