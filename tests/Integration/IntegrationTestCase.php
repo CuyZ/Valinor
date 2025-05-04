@@ -38,14 +38,19 @@ abstract class IntegrationTestCase extends TestCase
             return;
         }
 
+        // If we are already running with a cache, avoid an endless loop by bailing out now.
+        if (isset($this->cacheToInject)) {
+            return;
+        }
+
         $cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
         $this->cacheToInject = new FileSystemCache($cacheDir);
 
         // First rerun of the test: the cache entries will be injected.
-        parent::runTest();
+        parent::runBare();
 
         // Second rerun of the test: the cache entries will be used and tested.
-        parent::runTest();
+        parent::runBare();
 
         $this->cacheToInject->clear();
     }
