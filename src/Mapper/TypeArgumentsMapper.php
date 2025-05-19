@@ -15,9 +15,6 @@ use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
-use CuyZ\Valinor\Type\Types\UnionType;
-
-use function is_object;
 
 /** @internal */
 final class TypeArgumentsMapper implements ArgumentsMapper
@@ -43,10 +40,6 @@ final class TypeArgumentsMapper implements ArgumentsMapper
 
         $type = new ShapedArrayType(...$elements);
 
-        if (count($elements) === 1 && $elements[0]->type() instanceof ObjectType) {
-            $type = new UnionType($type, $elements[0]->type());
-        }
-
         $shell = Shell::root($this->settings, $type, $source);
 
         try {
@@ -55,17 +48,24 @@ final class TypeArgumentsMapper implements ArgumentsMapper
             throw new TypeErrorDuringArgumentsMapping($function, $exception);
         }
 
-        if (! $node->isValid()) {
-            throw new ArgumentsMapperError($function, $node->node());
+        if ($node->isValid()) {
+            /** @var array<string, mixed> */
+            return $node->value();
         }
 
-        $value = $node->value();
+        // Transforms the source value if there is only one object argument, to
+        // ensure the source can contain flattened values.
+        if (count($elements) === 1 && $elements[0]->type() instanceof ObjectType) {
+            $shell = $shell->withType($elements[0]->type());
 
-        if (is_object($value)) {
-            $value = [$elements[0]->key()->value() => $value];
+            $node = $this->nodeBuilder->build($shell);
+
+            if ($node->isValid()) {
+                /** @var array<string, mixed> */
+                return [$elements[0]->key()->value() => $node->value()];
+            }
         }
 
-        /** @var array<string, mixed> */
-        return $value;
+        throw new ArgumentsMapperError($function, $node->node());
     }
 }

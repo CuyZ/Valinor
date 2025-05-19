@@ -83,6 +83,21 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         self::assertSame('foofoo', $function(...$arguments));
     }
 
+    public function test_can_map_to_single_argument_of_type_object_with_one_property_with_array_source_sharing_names(): void
+    {
+        $function = fn (SomeClassWithOneProperty $foo): string => $foo->foo . $foo->foo;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foofoo', $function(...$arguments));
+    }
+
     public function test_can_map_to_single_argument_of_type_object_with_one_property_with_scalar_source(): void
     {
         $function = fn (SomeClassWithOneProperty $value): string => $value->foo . $value->foo;
