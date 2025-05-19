@@ -24,23 +24,28 @@ The documentation of this bundle can be found
 If the application does not have a dedicated framework integration, it is still
 possible to integrate this library manually.
 
-### Mapper registration
+### Mapper and normalizer registration
 
 The most important task of the integration is to correctly register the
-mapper(s) used in the application. Mapper instance(s) should be shared between
-services whenever possible; this is important because heavy operations are
-cached internally to improve performance during runtime.
+mapper(s) and normalizer(s) used in the application. Mapper instance(s) should
+be shared between services whenever possible; this is important because heavy
+operations are cached internally to improve performance during runtime.
 
 If the framework uses a service container, it should be configured in a way
-where the mapper(s) are registered as shared services. In other cases, direct
-instantiation of the mapper(s) should be avoided.
+where the mapper(s) and normalizer(s) are registered as shared services. In
+other cases, direct instantiation of these services should be avoided.
 
 ```php
 $mapperBuilder = new \CuyZ\Valinor\MapperBuilder();
+$normalizerBuilder = new \CuyZ\Valinor\NormalizerBuilder();
 
-// …customization of the mapper builder…
+// …customization of the mapper builder and normalization builder…
 
-$container->addSharedService('mapper', $mapperBuilder->mapper());
+$mapper = $mapperBuilder->mapper();
+$jsonNormalizer = $normalizerBuilder->normalizer(\CuyZ\Valinor\Normalizer\Format::json());
+
+$container->addSharedService('mapper', $mapper);
+$container->addSharedService('normalizer_json', $jsonNormalizer);
 ```
 
 ### Registering a cache
@@ -63,6 +68,7 @@ if ($isApplicationInDevelopmentEnvironment) {
 }
 
 $mapperBuilder = $mapperBuilder->withCache($cache);
+$normalizerBuilder = $normalizerBuilder->withCache($cache);
 ```
 
 ### Warming up the cache
@@ -75,8 +81,9 @@ should be given to the `warmup` method, as stated in the [cache warmup chapter].
 
 Concerning other configurations, such as [flexible modes], [configuring
 supported date formats] or [registering custom constructors], an integration 
-should be provided to configure the mapper builder in a convenient way — how it
-is done will mostly depend on the framework features and its main philosophy.
+should be provided to configure the mapper/normalizer builder in a convenient
+way — how it is done will mostly depend on the framework features and its main
+philosophy.
 
 [performance chapter]: performance-and-caching.md
 [cache warmup chapter]: performance-and-caching.md#warming-up-cache

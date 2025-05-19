@@ -32,13 +32,11 @@ final class MapperBuilderTest extends TestCase
         $builderE = $builderA->enableFlexibleCasting();
         $builderF = $builderA->allowScalarValueCasting();
         $builderG = $builderA->allowNonSequentialList();
-        $builderH = $builderA->allowUndefinedValues();
-        $builderI = $builderA->allowSuperfluousKeys();
-        $builderJ = $builderA->allowPermissiveTypes();
-        $builderK = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderL = $builderA->withCache(new FakeCache());
-        $builderM = $builderA->supportDateFormats('Y-m-d');
-        $builderN = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
+        $builderH = $builderA->allowSuperfluousKeys();
+        $builderI = $builderA->allowPermissiveTypes();
+        $builderJ = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderK = $builderA->withCache(new FakeCache());
+        $builderL = $builderA->supportDateFormats('Y-m-d');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -51,8 +49,6 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderJ);
         self::assertNotSame($builderA, $builderK);
         self::assertNotSame($builderA, $builderL);
-        self::assertNotSame($builderA, $builderM);
-        self::assertNotSame($builderA, $builderN);
     }
 
     public function test_mapper_instance_is_the_same(): void
@@ -86,5 +82,21 @@ final class MapperBuilderTest extends TestCase
         $mapperBuilder = $this->mapperBuilder->supportDateFormats('Y-m-d', 'd/m/Y', 'Y-m-d');
 
         self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_settings_are_cloned_when_configuring_mapper_builder(): void
+    {
+        $resultA = $this->mapperBuilder
+            ->alter(fn (string $value): string => strtoupper($value))
+            ->mapper()
+            ->map('string', 'foo');
+
+        $resultB = $this->mapperBuilder
+            ->alter(fn (string $value): string => $value . '!')
+            ->mapper()
+            ->map('string', 'foo');
+
+        self::assertSame('FOO', $resultA);
+        self::assertSame('foo!', $resultB);
     }
 }

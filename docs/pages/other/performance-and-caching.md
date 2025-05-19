@@ -14,6 +14,9 @@ application and invalidate cache entries when a PHP file is modified by a
 developer — preventing the library not behaving as expected when the signature
 of a property or a method changes.
 
+The same cache instance can be used by both the mapper builder and the
+normalizer builder.
+
 ```php
 $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');
 
@@ -25,6 +28,11 @@ if ($isApplicationInDevelopmentEnvironment) {
     ->withCache($cache)
     ->mapper()
     ->map(SomeClass::class, [/* … */]);
+    
+(new \CuyZ\Valinor\NormalizerBuilder())
+    ->withCache($cache)
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
+    ->normalize($someData);
 ```
 
 ## Warming up cache

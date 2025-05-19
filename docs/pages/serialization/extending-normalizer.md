@@ -2,7 +2,7 @@
 
 This library provides a normalizer out-of-the-box that can be used as-is, or
 extended to add custom logic. To do so, transformers must be registered within
-the `MapperBuilder`.
+the `NormalizerBuilder`.
 
 A transformer can be a callable (function, closure or a class implementing the
 `__invoke()` method), or an attribute that can target a class or a property.
@@ -18,7 +18,7 @@ will determine when it is used during normalization. In the example below, a
 global transformer is used to format any date found by the normalizer.
 
 ```php
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->registerTransformer(
         fn (\DateTimeInterface $date) => $date->format('Y/m/d')
     )
@@ -41,7 +41,7 @@ must be declared in a transformer. This parameter — named `$next` by conventio
 — can be used whenever needed in the transformer logic.
 
 ```php
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
 
     // The type of the first parameter of the transformer will determine when it
     // is used during normalization.
@@ -113,7 +113,7 @@ final readonly class City
     ) {}
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\City(
@@ -160,7 +160,7 @@ final readonly class Address
     ) {}
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\Address(
@@ -183,7 +183,7 @@ When there is no control over the transformer attribute class, it is possible to
 register it using the `registerTransformer` method.
 
 ```php
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->registerTransformer(\Some\External\TransformerAttribute::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(…);
@@ -203,7 +203,7 @@ final class SomeAttribute implements \My\App\SomeAttributeInterface {}
 #[\Attribute]
 final class SomeOtherAttribute implements \My\App\SomeAttributeInterface {}
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     // Registers both `SomeAttribute` and `SomeOtherAttribute` attributes
     ->registerTransformer(\My\App\SomeAttributeInterface::class)
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
