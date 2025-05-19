@@ -50,7 +50,7 @@ final class NormalizerTest extends IntegrationTestCase
         array $transformerAttributes = [],
         int $jsonEncodingOptions = JSON_THROW_ON_ERROR,
     ): void {
-        $builder = $this->mapperBuilder();
+        $builder = $this->normalizerBuilder();
 
         foreach ($transformers as $priority => $transformersList) {
             foreach ($transformersList as $transformer) {
@@ -1483,7 +1483,7 @@ final class NormalizerTest extends IntegrationTestCase
             }
         };
 
-        $arrayResult = $this->mapperBuilder()
+        $arrayResult = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($input);
 
@@ -1511,7 +1511,7 @@ final class NormalizerTest extends IntegrationTestCase
             }
         };
 
-        $arrayResult = $this->mapperBuilder()
+        $arrayResult = $this->normalizerBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -1536,7 +1536,7 @@ final class NormalizerTest extends IntegrationTestCase
             'boolean' => true,
         ];
 
-        $arrayResult = $this->mapperBuilder()
+        $arrayResult = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($input);
 
@@ -1554,7 +1554,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $expected = '{"string":"foo","integer":42,"float":1337.404,"boolean":true}';
 
-        $jsonResult = $this->mapperBuilder()
+        $jsonResult = $this->normalizerBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -1572,7 +1572,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $expected = '["foo",42,1337.404,true]';
 
-        $jsonResult = $this->mapperBuilder()
+        $jsonResult = $this->normalizerBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -1590,7 +1590,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $expected = '["foo",42,1337.404,true]';
 
-        $jsonResult = $this->mapperBuilder()
+        $jsonResult = $this->normalizerBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -1625,7 +1625,7 @@ final class NormalizerTest extends IntegrationTestCase
             'booleans' => [true, false],
         ];
 
-        $arrayResult = $this->mapperBuilder()
+        $arrayResult = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($input);
 
@@ -1655,7 +1655,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $expected = '{"strings":["foo","bar"],"integers":[42,1337],"floats":[42.5,1337.404],"booleans":[true,false]}';
 
-        $jsonResult = $this->mapperBuilder()
+        $jsonResult = $this->normalizerBuilder()
             ->normalizer(Format::json())
             ->normalize($input);
 
@@ -1664,7 +1664,7 @@ final class NormalizerTest extends IntegrationTestCase
 
     public function test_transformer_is_called_only_once_on_object_property_when_using_default_transformer(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(
                 /** @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770) */
                 fn (string $value, callable $next) => $next() . '!',
@@ -1677,7 +1677,7 @@ final class NormalizerTest extends IntegrationTestCase
 
     public function test_no_priority_given_is_set_to_0(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(
                 fn (object $object) => 'foo',
                 -2,
@@ -1710,7 +1710,7 @@ final class NormalizerTest extends IntegrationTestCase
         $objectB = new stdClass();
         $objectB->bar = 'bar';
 
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize([$objectA, $objectB, $objectA]);
 
@@ -1731,7 +1731,7 @@ final class NormalizerTest extends IntegrationTestCase
             yield $objectA;
         })();
 
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($iterable);
 
@@ -1759,7 +1759,7 @@ final class NormalizerTest extends IntegrationTestCase
             }
         };
 
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($object);
 
@@ -1776,7 +1776,7 @@ final class NormalizerTest extends IntegrationTestCase
         $this->expectExceptionCode(1695064946);
         $this->expectExceptionMessageMatches('/Transformer must have at least one parameter, none given for `.*`\./');
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(fn () => 42)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -1788,7 +1788,7 @@ final class NormalizerTest extends IntegrationTestCase
         $this->expectExceptionCode(1695065433);
         $this->expectExceptionMessageMatches('/Transformer must have at most 2 parameters, 3 given for `.*`\./');
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(fn (stdClass $object, callable $next, int $unexpectedParameter) => 42)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -1800,7 +1800,7 @@ final class NormalizerTest extends IntegrationTestCase
         $this->expectExceptionCode(1695065710);
         $this->expectExceptionMessageMatches('/Transformer\'s second parameter must be a callable, `int` given for `.*`\./');
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(fn (stdClass $object, int $unexpectedParameterType) => 42)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -1815,7 +1815,7 @@ final class NormalizerTest extends IntegrationTestCase
                 return 42;
             }
         };
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer($class)
             ->normalizer(Format::array())
             ->normalize(new stdClass());
@@ -1831,7 +1831,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $class = new #[TransformerAttributeWithNoParameter] class () {};
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(TransformerAttributeWithNoParameter::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -1845,7 +1845,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $class = new #[TransformerAttributeWithTooManyParameters] class () {};
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(TransformerAttributeWithTooManyParameters::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -1859,7 +1859,7 @@ final class NormalizerTest extends IntegrationTestCase
 
         $class = new #[TransformerAttributeWithSecondParameterNotCallable] class () {};
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(TransformerAttributeWithSecondParameterNotCallable::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -1878,7 +1878,7 @@ final class NormalizerTest extends IntegrationTestCase
             ) {}
         };
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(KeyTransformerAttributeWithTooManyParameters::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -1897,7 +1897,7 @@ final class NormalizerTest extends IntegrationTestCase
             ) {}
         };
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->registerTransformer(KeyTransformerAttributeParameterNotStringOrInteger::class)
             ->normalizer(Format::array())
             ->normalize($class);
@@ -1914,7 +1914,7 @@ final class NormalizerTest extends IntegrationTestCase
         $a->b = $b;
         $b->a = $a;
 
-        $this->mapperBuilder()->normalizer(Format::array())->normalize($a);
+        $this->normalizerBuilder()->normalizer(Format::array())->normalize($a);
     }
 
     public function test_unhandled_type_throws_exception(): void
@@ -1923,7 +1923,7 @@ final class NormalizerTest extends IntegrationTestCase
         $this->expectExceptionCode(1695062925);
         $this->expectExceptionMessage('Value of type `Closure` cannot be normalized.');
 
-        $this->mapperBuilder()->normalizer(Format::array())->normalize(fn () => 42);
+        $this->normalizerBuilder()->normalizer(Format::array())->normalize(fn () => 42);
     }
 
     public function test_giving_invalid_resource_to_json_normalizer_throws_exception(): void
@@ -1932,12 +1932,12 @@ final class NormalizerTest extends IntegrationTestCase
         $this->expectExceptionMessage('Expected a valid resource, got string');
 
         // @phpstan-ignore-next-line
-        $this->mapperBuilder()->normalizer(Format::json())->streamTo('foo');
+        $this->normalizerBuilder()->normalizer(Format::json())->streamTo('foo');
     }
 
     public function test_json_transformer_will_always_throw_on_error(): void
     {
-        $normalizer = $this->mapperBuilder()->normalizer(Format::json());
+        $normalizer = $this->normalizerBuilder()->normalizer(Format::json());
         self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
 
         $normalizer = $normalizer->withOptions(JSON_HEX_TAG);
@@ -1949,7 +1949,7 @@ final class NormalizerTest extends IntegrationTestCase
 
     public function test_json_transformer_only_accepts_acceptable_json_options(): void
     {
-        $normalizer = $this->mapperBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $normalizer = $this->normalizerBuilder()->normalizer(Format::json())->withOptions(JSON_PARTIAL_OUTPUT_ON_ERROR);
         self::assertSame(JSON_THROW_ON_ERROR, (fn () => $this->jsonEncodingOptions)->call($normalizer));
     }
 }
