@@ -22,7 +22,7 @@ final class AsTransformerAttributeTest extends IntegrationTestCase
             ) {}
         };
 
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($class);
 
@@ -37,7 +37,7 @@ final class AsTransformerAttributeTest extends IntegrationTestCase
             ) {}
         };
 
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($class);
 
@@ -53,7 +53,7 @@ final class AsTransformerAttributeTest extends IntegrationTestCase
             ) {}
         };
 
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->normalizer(Format::array())
             ->normalize($class);
 

@@ -19,11 +19,13 @@ final class NormalizeEnumDoesNotBreakMapperTest extends IntegrationTestCase
      */
     public function test_normalizing_enum_and_then_map_value_on_same_enum_class_does_not_break(): void
     {
-        $mapperBuilder = $this->mapperBuilder();
+        $this->normalizerBuilder()
+            ->normalizer(Format::array())
+            ->normalize(BackedStringEnum::FOO);
 
-        $mapperBuilder->normalizer(Format::array())->normalize(BackedStringEnum::FOO);
-
-        $result = $mapperBuilder->mapper()->map(BackedStringEnum::class, 'foo');
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map(BackedStringEnum::class, 'foo');
 
         self::assertSame(BackedStringEnum::FOO, $result);
     }

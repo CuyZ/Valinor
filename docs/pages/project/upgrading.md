@@ -62,6 +62,27 @@ replacements:
 Note that a lot of error messages related to invalid scalar values mapping now
 have a specific code, where it used to be `unknown`.
 
+### Introduced `NormalizerBuilder` as the main entry for normalizers
+
+The `NormalizerBuilder` class has been introduced and will now be the main entry
+to instantiate normalizers. Therefore, the methods in `MapperBuilder` that used
+to configure and return normalizers have been removed.
+
+This decision aims to make a clear distinction between the mapper and the
+normalizer configuration API, where confusion could arise when using both
+services.
+
+The `NormalizerBuilder` can be used like this:
+
+```php
+$normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
+    ->registerTransformer(
+        fn (\DateTimeInterface $date) => $date->format('Y/m/d')
+    )
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize($someData);
+```
+
 ### Removed Simple Cache (PSR-16) handling
 
 The Simple Cache PSR requirement has been removed from the library. This means
@@ -123,6 +144,8 @@ List of affected constructors:
 ### Full list of breaking changes
 
 - Removed `\Psr\SimpleCache\CacheInterface` dependency
+- Removed `\CuyZ\Valinor\MapperBuilder::registerTransformer()`
+- Removed `\CuyZ\Valinor\MapperBuilder::normalizer()`
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
     * Use `\CuyZ\Valinor\Mapper\MappingError::messages()` instead
 - Removed `\CuyZ\Valinor\Mapper\Tree\Node`

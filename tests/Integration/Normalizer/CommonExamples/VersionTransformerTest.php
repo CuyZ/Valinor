@@ -11,7 +11,7 @@ final class VersionTransformerTest extends IntegrationTestCase
 {
     public function test_version_transformer_works_properly(): void
     {
-        $normalizeWithVersion = fn (string $version) => $this->mapperBuilder()
+        $normalizeWithVersion = fn (string $version) => $this->normalizerBuilder()
             ->registerTransformer(
                 fn (HasVersionedNormalization $object, callable $next) => $object->normalizeWithVersion($version, $next),
             )

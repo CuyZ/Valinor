@@ -12,7 +12,7 @@ final class IgnoreAttributeTest extends IntegrationTestCase
 {
     public function test_ignore_attribute_works_properly(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(
                 fn (object $value, callable $next) => array_filter(
                     // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
