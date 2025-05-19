@@ -10,6 +10,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Message\DefaultMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\NormalizerBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -62,13 +63,30 @@ abstract class IntegrationTestCase extends TestCase
 
     /**
      * This method *must* be used by every integration test in replacement of a
-     * direct creation of a MapperBuilder instance. The goal is to ensure that
+     * direct creation of a `MapperBuilder` instance. The goal is to ensure that
      * a test is run twice: once without a cache and once with the internal
      * filesystem cache injected.
      */
     protected function mapperBuilder(): MapperBuilder
     {
         $builder = new MapperBuilder();
+
+        if (isset($this->cacheToInject)) {
+            $builder = $builder->withCache($this->cacheToInject);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * This method *must* be used by every integration test in replacement of a
+     * direct creation of a `NormalizerBuilder` instance. The goal is to ensure
+     * that a test is run twice: once without a cache and once with the internal
+     * filesystem cache injected.
+     */
+    protected function normalizerBuilder(): NormalizerBuilder
+    {
+        $builder = new NormalizerBuilder();
 
         if (isset($this->cacheToInject)) {
             $builder = $builder->withCache($this->cacheToInject);
