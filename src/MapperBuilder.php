@@ -10,8 +10,6 @@ use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Normalizer\Format;
-use CuyZ\Valinor\Normalizer\Normalizer;
 use Throwable;
 
 use function array_unique;
@@ -443,78 +441,6 @@ final class MapperBuilder
     }
 
     /**
-     * A transformer is responsible for transforming specific values during a
-     * normalization process.
-     *
-     * Transformers can be chained, the last registered one will take precedence
-     * over the previous ones.
-     *
-     * By specifying the type of its first parameter, the given callable will
-     * determine when the transformer is used. Advanced type annotations like
-     * `non-empty-string` can be used to target a more specific type.
-     *
-     * A second `callable` parameter may be declared, allowing to call the next
-     * transformer in the chain and get the modified value from it, before
-     * applying its own transformations.
-     *
-     * A priority can be given to a transformer, to make sure it is called
-     * before or after another one. The higher the priority, the sooner the
-     * transformer will be called. Default priority is 0.
-     *
-     * An attribute on a property or a class can act as a transformer if:
-     *  1. It defines a `normalize` or `normalizeKey` method.
-     *  2. It is registered using either the `registerTransformer()` method or
-     *     the following attribute: @see \CuyZ\Valinor\Normalizer\AsTransformer
-     *
-     * Example:
-     *
-     * ```php
-     * (new \CuyZ\Valinor\MapperBuilder())
-     *
-     *     // The type of the first parameter of the transformer will determine
-     *     // when it will be used by the normalizer.
-     *     ->registerTransformer(
-     *         fn (string $value, callable $next) => strtoupper($next())
-     *     )
-     *
-     *     // Transformers can be chained, the last registered one will take
-     *     // precedence over the previous ones, which can be called using the
-     *     // `$next` parameter.
-     *     ->registerTransformer(
-     *         fn (string $value, callable $next) => $next() . '!'
-     *     )
-     *
-     *     // A priority can be given to a transformer, to make sure it is
-     *     // called before or after another one.
-     *     ->registerTransformer(
-     *         fn (string $value, callable $next) => $next() . '?',
-     *         priority: -100 // Negative priority: transformer is called early
-     *     )
-     *
-     *     // External transformer attributes must be registered before they are
-     *     // used by the normalizer.
-     *     ->registerTransformer(\Some\External\TransformerAttribute::class)
-     *
-     *     ->normalizer()
-     *     ->normalize('Hello world'); // HELLO WORLD?!
-     * ```
-     *
-     * @param callable|class-string $transformer
-     */
-    public function registerTransformer(callable|string $transformer, int $priority = 0): self
-    {
-        $clone = clone $this;
-
-        if (is_callable($transformer)) {
-            $clone->settings->transformers[$priority][] = $transformer;
-        } else {
-            $clone->settings->transformerAttributes[$transformer] = null;
-        }
-
-        return $clone;
-    }
-
-    /**
      * Warms up the injected cache implementation with the provided class names.
      *
      * By passing a class which contains recursive objects, every nested object
@@ -537,17 +463,6 @@ final class MapperBuilder
     public function argumentsMapper(): ArgumentsMapper
     {
         return $this->container()->argumentsMapper();
-    }
-
-    /**
-     * @template T of Normalizer
-     *
-     * @param Format<T> $format
-     * @return T
-     */
-    public function normalizer(Format $format): Normalizer
-    {
-        return $this->container()->normalizer($format);
     }
 
     public function __clone()

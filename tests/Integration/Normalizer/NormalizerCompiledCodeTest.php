@@ -6,8 +6,8 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
 use Attribute;
 use CuyZ\Valinor\Cache\FileSystemCache;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\NormalizerBuilder;
 use DateTime;
 use DateTimeInterface;
 use IteratorAggregate;
@@ -40,7 +40,7 @@ final class NormalizerCompiledCodeTest extends TestCase
 
         $cache = new FileSystemCache($directory);
 
-        $builder = (new MapperBuilder())->withCache($cache);
+        $builder = (new NormalizerBuilder())->withCache($cache);
         $builder = $builder->registerTransformer(PrependToStringAttribute::class);
 
         foreach ($transformers as $transformer) {
