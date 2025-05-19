@@ -68,6 +68,109 @@ final class ArgumentsMappingTest extends IntegrationTestCase
         self::assertSame('foo', $function(...$arguments));
     }
 
+    public function test_can_map_to_single_argument_of_type_object_with_one_property_with_array_source(): void
+    {
+        $function = fn (SomeClassWithOneProperty $value): string => $value->foo . $value->foo;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foofoo', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_one_property_with_scalar_source(): void
+    {
+        $function = fn (SomeClassWithOneProperty $value): string => $value->foo . $value->foo;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foofoo', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_several_properties(): void
+    {
+        $function = fn (SomeClassWithTwoProperties $value): string => $value->foo . $value->bar;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo42', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_several_properties_when_single_argument_shares_name_with_one_of_object_property_name(): void
+    {
+        $function = fn (SomeClassWithTwoProperties $foo): string => $foo->foo . $foo->bar;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo42', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_shaped_array(): void
+    {
+        $function =
+            /**
+             * @param array{foo: string, bar: int} $value
+             */
+            fn (array $value): string => $value['foo'] . $value['bar']; // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'value' => [
+                    'foo' => 'foo',
+                    'bar' => 42,
+                ],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo42', $function(...$arguments));
+    }
+
+    public function test_map_to_single_argument_of_type_shaped_array_does_not_accept_flattened_values(): void
+    {
+        $function =
+            /**
+             * @param array{foo: string, bar: int} $value
+             */
+            fn (array $value): string => $value['foo'] . $value['bar']; // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+
+        try {
+            $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => '[1655117782] Unexpected key(s) `foo`, `bar`, expected `value`.',
+                'value' => '[1655449641] Cannot be empty and must be filled with a value matching type `array{foo: string, bar: int}`.',
+            ]);
+        }
+    }
+
     public function test_invalid_source_with_one_error_throws_mapping_error(): void
     {
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
@@ -117,4 +220,15 @@ final class SomeClassWithMethods
     {
         return "$foo / $bar";
     }
+}
+
+final class SomeClassWithOneProperty
+{
+    public string $foo;
+}
+
+final class SomeClassWithTwoProperties
+{
+    public string $foo;
+    public int $bar;
 }
