@@ -11,7 +11,7 @@ final class ObjectKeysToSnakeCaseTest extends IntegrationTestCase
 {
     public function test_object_keys_are_converted_to_snake_case(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(
                 function (object $object, callable $next) {
                     /** @var callable(): array<mixed> $next */
