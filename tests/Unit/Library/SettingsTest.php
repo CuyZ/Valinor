@@ -21,7 +21,7 @@ final class SettingsTest extends TestCase
     {
         $settings = new Settings();
 
-        self::assertSame('8f80a356e617c1920fc611ec22ba3709', $settings->hash());
+        self::assertSame('86148547ec3a81faa7e56572ca634432', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -38,10 +38,11 @@ final class SettingsTest extends TestCase
         $settings->allowUndefinedValues = true;
         $settings->allowSuperfluousKeys = true;
         $settings->allowPermissiveTypes = true;
+        $settings->mapperConverters[] = [fn (mixed $value): mixed => $value];
         $settings->exceptionFilter = fn (Throwable $e) => throw $e;
-        $settings->transformers[] = [fn (mixed $value): mixed => $value];
-        $settings->transformerAttributes[stdClass::class] = null;
+        $settings->normalizerTransformers[] = [fn (mixed $value): mixed => $value];
+        $settings->normalizerTransformerAttributes[stdClass::class] = null;
 
-        self::assertSame('077b2176cc9543073e21608f575e2146', $settings->hash());
+        self::assertSame('42cccfc0469efd06308d0aa87f31786c', $settings->hash());
     }
 }

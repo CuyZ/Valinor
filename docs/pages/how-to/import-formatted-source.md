@@ -1,54 +1,53 @@
-# Transforming input
+# Import formatted source (JSON, YAML, …)
 
-Any source can be given to the mapper, be it an array, some JSON, YAML or even a
-file:
+Importing data from formatted source can be done using the `Source` helper,
+which will convert the data into a plain PHP structure before the mapping
+occurs.
+
+This library provides native conversion support for JSON, YAML and files:
 
 ```php
-$mapper = (new \CuyZ\Valinor\MapperBuilder())->mapper();
+$source = \CuyZ\Valinor\Mapper\Source\Source::json($jsonString);
 
-$mapper->map(
-    SomeClass::class,
-    \CuyZ\Valinor\Mapper\Source\Source::array($someData)
+// or…
+
+$source = \CuyZ\Valinor\Mapper\Source\Source::yaml($yamlString);
+
+// or…
+
+// File containing valid Json or Yaml content and with valid extension
+$source = \CuyZ\Valinor\Mapper\Source\Source::file(
+    new SplFileObject('path/to/my/file.json')
 );
 
-$mapper->map(
-    SomeClass::class,
-    \CuyZ\Valinor\Mapper\Source\Source::json($jsonString)
-);
-
-$mapper->map(
-    SomeClass::class,
-    \CuyZ\Valinor\Mapper\Source\Source::yaml($yamlString)
-);
-
-$mapper->map(
-    SomeClass::class,
-    // File containing valid Json or Yaml content and with valid extension
-    \CuyZ\Valinor\Mapper\Source\Source::file(
-        new SplFileObject('path/to/my/file.json')
-    )
-);
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(SomeClass::class, $source);
 ```
 
-!!! info
+JSON or YAML given to a source may be invalid, in which case an exception can be
+caught and manipulated.
 
-    JSON or YAML given to a source may be invalid, in which case an exception 
-    can be caught and manipulated.
-
-    ```php
-    try {
-        $source = \CuyZ\Valinor\Mapper\Source\Source::json('invalid JSON');
-    } catch (\CuyZ\Valinor\Mapper\Source\Exception\InvalidSource $exception) {
-        // Let the application handle the exception in the desired way.
-        // It is possible to get the original source with `$exception->source()`
-    }
-    ```
+```php
+try {
+    $source = \CuyZ\Valinor\Mapper\Source\Source::json('invalid JSON');
+} catch (\CuyZ\Valinor\Mapper\Source\Exception\InvalidSource $exception) {
+    // Let the application handle the exception in the desired way.
+    // It is possible to get the original source with `$exception->source()`
+}
+```
 
 ## Modifiers
 
 Sometimes the source is not in the same format and/or organised in the same
 way as a value object. Modifiers can be used to change a source before the
 mapping occurs.
+
+!!! warning
+
+    The following modifiers may be removed in the future in favor of [mapper
+    converters](../how-to/convert-input.md), which should be used instead
+    whenever possible. Modifiers are still available for backward compatibility.
 
 ### Camel case keys
 

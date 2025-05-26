@@ -86,8 +86,9 @@ nav:
   - How-to:
       - Use custom object constructors: how-to/use-custom-object-constructors.md
       - Deal with dates: how-to/deal-with-dates.md
+      - Convert input during mapping: how-to/convert-input.md
+      - Import formatted source: how-to/import-formatted-source.md
       - Infer interfaces: how-to/infer-interfaces.md
-      - Transform input: how-to/transform-input.md
       - Map arguments of a callable: how-to/map-arguments-of-a-callable.md
       - Customize error messages: how-to/customize-error-messages.md
   - Serialization:
