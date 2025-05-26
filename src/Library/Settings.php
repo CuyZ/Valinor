@@ -57,14 +57,17 @@ final class Settings
 
     public bool $allowPermissiveTypes = false;
 
+    /** @var array<int, list<callable>> */
+    public array $mapperConverters = [];
+
     /** @var callable(Throwable): ErrorMessage */
-    public $exceptionFilter;
+    public mixed $exceptionFilter;
 
     /** @var array<int, list<callable>> */
-    public array $transformers = [];
+    public array $normalizerTransformers = [];
 
     /** @var array<class-string, null> */
-    public array $transformerAttributes = [];
+    public array $normalizerTransformerAttributes = [];
 
     private string $hash;
 
@@ -83,8 +86,24 @@ final class Settings
             AsTransformer::class,
             Constructor::class,
             DynamicConstructor::class,
-            ...array_keys($this->transformerAttributes),
+            ...array_keys($this->normalizerTransformerAttributes),
         ];
+    }
+
+    /**
+     * @return list<callable>
+     */
+    public function convertersSortedByPriority(): array
+    {
+        krsort($this->mapperConverters);
+
+        $callables = [];
+
+        foreach ($this->mapperConverters as $list) {
+            $callables = [...$callables, ...$list];
+        }
+
+        return $callables;
     }
 
     /**
@@ -92,11 +111,11 @@ final class Settings
      */
     public function transformersSortedByPriority(): array
     {
-        krsort($this->transformers);
+        krsort($this->normalizerTransformers);
 
         $callables = [];
 
-        foreach ($this->transformers as $list) {
+        foreach ($this->normalizerTransformers as $list) {
             $callables = [...$callables, ...$list];
         }
 
@@ -117,7 +136,7 @@ final class Settings
             $this->allowUndefinedValues,
             $this->allowSuperfluousKeys,
             $this->allowPermissiveTypes,
-            $this->transformerAttributes,
+            $this->normalizerTransformerAttributes,
             implode('', array_map(function (callable $callable) {
                 $reflection = new ReflectionFunction(Closure::fromCallable($callable));
 
@@ -136,7 +155,8 @@ final class Settings
             ...$this->inferredMapping,
             ...$this->customConstructors,
             ...$this->valueModifier,
-            ...array_merge(...$this->transformers),
+            ...array_merge(...$this->mapperConverters),
+            ...array_merge(...$this->normalizerTransformers),
         ]);
     }
 }

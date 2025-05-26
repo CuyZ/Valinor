@@ -23,7 +23,7 @@ final class TypeFilesWatcherTest extends TestCase
             some_function_to_test_type_files_watcher(...),
             some_other_function_to_test_type_files_watcher(...),
         ];
-        $settings->transformers = [
+        $settings->normalizerTransformers = [
             [strtoupper(...)]
         ];
 
