@@ -121,9 +121,9 @@ final class NormalizerBuilder
         $clone = clone $this;
 
         if (is_callable($transformer)) {
-            $clone->settings->transformers[$priority][] = $transformer;
+            $clone->settings->normalizerTransformers[$priority][] = $transformer;
         } else {
-            $clone->settings->transformerAttributes[$transformer] = null;
+            $clone->settings->normalizerTransformerAttributes[$transformer] = null;
         }
 
         return $clone;
