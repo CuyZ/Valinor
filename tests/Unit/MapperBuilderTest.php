@@ -32,9 +32,10 @@ final class MapperBuilderTest extends TestCase
         $builderE = $builderA->enableFlexibleCasting();
         $builderF = $builderA->allowSuperfluousKeys();
         $builderG = $builderA->allowPermissiveTypes();
-        $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderI = $builderA->withCache(new FakeCache());
-        $builderJ = $builderA->supportDateFormats('Y-m-d');
+        $builderH = $builderA->registerConverter(fn (string $value) => $value);
+        $builderI = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderJ = $builderA->withCache(new FakeCache());
+        $builderK = $builderA->supportDateFormats('Y-m-d');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -45,6 +46,7 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
         self::assertNotSame($builderA, $builderJ);
+        self::assertNotSame($builderA, $builderK);
     }
 
     public function test_mapper_instance_is_the_same(): void

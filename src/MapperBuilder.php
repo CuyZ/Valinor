@@ -398,6 +398,67 @@ final class MapperBuilder
     }
 
     /**
+     * A mapper converter allows users to hook into the mapping process and
+     * apply custom logic to the input, by defining a callable signature that
+     * properly describes when it should be called:
+     *
+     * - A first argument with a type matching the expected input being mapped
+     * - A return type representing the targeted mapped type
+     *
+     * These two types are enough for the library to know when to call the
+     * converter and can contain advanced type annotations for more specific
+     * use cases.
+     *
+     * Below is a basic example of a converter that converts string inputs to
+     * uppercase:
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConverter(fn (string $value): string => strtoupper($value))
+     *     ->mapper()
+     *     ->map('string', 'hello world'); // 'HELLO WORLD'
+     * ```
+     *
+     * Converters can be chained, allowing multiple transformations to be
+     * applied to a value. A second `callable` parameter can be declared,
+     * allowing the current converter to call the next one in the chain.
+     *
+     * A priority can be given to a converter to control the order in which
+     * converters are applied. The higher the priority, the earlier the
+     * converter will be executed. The default priority is 0.
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConverter(
+     *         function(string $value, callable $next): string {
+     *             return $next(strtoupper($value));
+     *         }
+     *     )
+     *     ->registerConverter(
+     *         function(string $value, callable $next): string {
+     *             return $next($value . '!');
+     *         },
+     *         priority: -10,
+     *     )
+     *     ->registerConverter(
+     *         function(string $value, callable $next): string {
+     *             return $next($value . '?');
+     *         },
+     *         priority: 10,
+     *     )
+     *     ->mapper()
+     *     ->map('string', 'hello world'); // 'HELLO WORLD?!'
+     * ```
+     */
+    public function registerConverter(callable $converter, int $priority = 0): self
+    {
+        $clone = clone $this;
+        $clone->settings->mapperConverters[$priority][] = $converter;
+
+        return $clone;
+    }
+
+    /**
      * Filters which userland exceptions are allowed during the mapping.
      *
      * It is advised to use this feature with caution: userland exceptions may
