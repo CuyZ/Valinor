@@ -43,7 +43,7 @@ final class ObjectNodeBuilder implements NodeBuilder
             return TreeNode::leaf($shell, $shell->value());
         }
 
-        if ($shell->enableFlexibleCasting() && $shell->value() === null) {
+        if ($shell->allowUndefinedValues() && $shell->value() === null) {
             $shell = $shell->withValue([]);
         } else {
             $shell = $shell->transformIteratorToArray();

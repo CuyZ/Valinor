@@ -21,7 +21,7 @@ final class RootNodeBuilder
     public function build(Shell $shell): TreeNode
     {
         if (! $shell->hasValue()) {
-            if (! $shell->enableFlexibleCasting()) {
+            if (! $shell->allowUndefinedValues()) {
                 return TreeNode::error($shell, new MissingNodeValue($shell->type()));
             }
 

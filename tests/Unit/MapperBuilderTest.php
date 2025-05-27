@@ -30,12 +30,15 @@ final class MapperBuilderTest extends TestCase
         $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
         $builderD = $builderA->alter(static fn (string $value): string => 'foo');
         $builderE = $builderA->enableFlexibleCasting();
-        $builderF = $builderA->allowSuperfluousKeys();
-        $builderG = $builderA->allowPermissiveTypes();
-        $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderI = $builderA->withCache(new FakeCache());
-        $builderJ = $builderA->supportDateFormats('Y-m-d');
-        $builderK = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
+        $builderF = $builderA->allowScalarValueCasting();
+        $builderG = $builderA->allowNonSequentialList();
+        $builderH = $builderA->allowUndefinedValues();
+        $builderI = $builderA->allowSuperfluousKeys();
+        $builderJ = $builderA->allowPermissiveTypes();
+        $builderK = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderL = $builderA->withCache(new FakeCache());
+        $builderM = $builderA->supportDateFormats('Y-m-d');
+        $builderN = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -47,6 +50,9 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderI);
         self::assertNotSame($builderA, $builderJ);
         self::assertNotSame($builderA, $builderK);
+        self::assertNotSame($builderA, $builderL);
+        self::assertNotSame($builderA, $builderM);
+        self::assertNotSame($builderA, $builderN);
     }
 
     public function test_mapper_instance_is_the_same(): void

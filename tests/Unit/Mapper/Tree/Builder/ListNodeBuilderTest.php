@@ -15,10 +15,10 @@ use PHPUnit\Framework\TestCase;
 
 final class ListNodeBuilderTest extends TestCase
 {
-    public function test_build_with_null_value_in_flexible_mode_returns_empty_branch_node(): void
+    public function test_build_with_null_value_and_undefined_values_allowed_returns_empty_branch_node(): void
     {
         $setting = new Settings();
-        $setting->enableFlexibleCasting = true;
+        $setting->allowUndefinedValues = true;
 
         $shell = FakeShell::new(ListType::native(), settings: $setting);
 

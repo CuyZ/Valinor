@@ -28,7 +28,7 @@ final class ArrayNodeBuilder implements NodeBuilder
 
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
-        if ($shell->enableFlexibleCasting() && $value === null) {
+        if ($shell->allowUndefinedValues() && $value === null) {
             return TreeNode::branch($shell, [], []);
         }
 

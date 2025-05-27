@@ -74,14 +74,13 @@ should be given to the `warmup` method, as stated in the [cache warmup chapter].
 
 ### Other configurations
 
-Concerning other configurations, such as [enabling flexible casting],
-[configuring supported date formats] or [registering custom constructors],
-an integration should be provided to configure the mapper builder in a
-convenient way — how it is done will mostly depend on the framework features and
-its main philosophy.
+Concerning other configurations, such as [flexible modes], [configuring
+supported date formats] or [registering custom constructors], an integration 
+should be provided to configure the mapper builder in a convenient way — how it
+is done will mostly depend on the framework features and its main philosophy.
 
 [performance chapter]: performance-and-caching.md
 [cache warmup chapter]: performance-and-caching.md#warming-up-cache
-[enabling flexible casting]: ../usage/type-strictness-and-flexibility.md#enabling-flexible-casting
+[flexible modes]: ../usage/type-strictness-and-flexibility.md
 [configuring supported date formats]: ../how-to/deal-with-dates.md
 [registering custom constructors]: ../how-to/use-custom-object-constructors.md

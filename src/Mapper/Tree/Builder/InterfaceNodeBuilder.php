@@ -52,7 +52,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell, $rootBuilder);
         }
 
-        if ($shell->enableFlexibleCasting() && $shell->value() === null) {
+        if ($shell->allowUndefinedValues() && $shell->value() === null) {
             $shell = $shell->withValue([]);
         } else {
             $shell = $shell->transformIteratorToArray();

@@ -28,4 +28,4 @@ might be missing:
 
 [reported error messages]: ../usage/validation-and-error-handling.md
 [advanced types]: ../usage/type-reference.md
-[type casting]: ../usage/type-strictness-and-flexibility.md#enabling-flexible-casting
+[type casting]: ../usage/type-strictness-and-flexibility.md#allowing-scalar-value-casting

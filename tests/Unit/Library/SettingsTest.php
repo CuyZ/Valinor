@@ -21,7 +21,7 @@ final class SettingsTest extends TestCase
     {
         $settings = new Settings();
 
-        self::assertSame('828a4469bd360f998e58d350c99df248', $settings->hash());
+        self::assertSame('2a24fb52f61377b93f562e764ed4dbec', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -33,13 +33,15 @@ final class SettingsTest extends TestCase
         $settings->valueModifier[] = fn (string $value): string => $value;
         $settings->cache = $this->createMock(CacheInterface::class);
         $settings->supportedDateFormats = ['Y-m-d\\TH:i:sP'];
-        $settings->enableFlexibleCasting = true;
+        $settings->allowScalarValueCasting = true;
+        $settings->allowNonSequentialList = true;
+        $settings->allowUndefinedValues = true;
         $settings->allowSuperfluousKeys = true;
         $settings->allowPermissiveTypes = true;
         $settings->exceptionFilter = fn (Throwable $e) => throw $e;
         $settings->transformers[] = [fn (mixed $value): mixed => $value];
         $settings->transformerAttributes[stdClass::class] = null;
 
-        self::assertSame('01b19d2cccc8cf73ac7c5e7e3b14a688', $settings->hash());
+        self::assertSame('0beb5be3f63aae0ba6e8c9b0f1040301', $settings->hash());
     }
 }
