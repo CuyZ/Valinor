@@ -23,7 +23,7 @@ final class ScalarNodeBuilder implements NodeBuilder
             return TreeNode::leaf($shell, $value);
         }
 
-        if (! $shell->enableFlexibleCasting() || ! $type->canCast($value)) {
+        if (! $shell->allowScalarValueCasting() || ! $type->canCast($value)) {
             return TreeNode::error($shell, $type->errorMessage());
         }
 

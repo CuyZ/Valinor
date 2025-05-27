@@ -41,12 +41,12 @@ final class UnionMappingTest extends IntegrationTestCase
         }
     }
 
-    #[DataProvider('union_mapping_works_properly_with_flexible_casting_enabled_data_provider')]
-    public function test_union_mapping_works_properly_with_flexible_casting_enabled(string $type, mixed $source, callable $assertion): void
+    #[DataProvider('union_mapping_works_properly_with_scalar_value_casting_enabled_data_provider')]
+    public function test_union_mapping_works_properly_with_scalar_value_casting_enabled(string $type, mixed $source, callable $assertion): void
     {
         try {
             $result = $this->mapperBuilder()
-                ->enableFlexibleCasting()
+                ->allowScalarValueCasting()
                 ->mapper()
                 ->map($type, $source);
 
@@ -223,7 +223,7 @@ final class UnionMappingTest extends IntegrationTestCase
         ];
     }
 
-    public static function union_mapping_works_properly_with_flexible_casting_enabled_data_provider(): iterable
+    public static function union_mapping_works_properly_with_scalar_value_casting_enabled_data_provider(): iterable
     {
         yield 'float or integer, with string containing float' => [
             'type' => 'float|integer',

@@ -47,7 +47,11 @@ final class Settings
     /** @var non-empty-list<non-empty-string> */
     public array $supportedDateFormats = self::DEFAULT_SUPPORTED_DATETIME_FORMATS;
 
-    public bool $enableFlexibleCasting = false;
+    public bool $allowScalarValueCasting = false;
+
+    public bool $allowNonSequentialList = false;
+
+    public bool $allowUndefinedValues = false;
 
     public bool $allowSuperfluousKeys = false;
 
@@ -111,7 +115,9 @@ final class Settings
             implode('', array_map($this->callableSignature(...), $this->customConstructors)),
             implode('', array_map($this->callableSignature(...), $this->valueModifier)),
             $this->supportedDateFormats,
-            $this->enableFlexibleCasting,
+            $this->allowScalarValueCasting,
+            $this->allowNonSequentialList,
+            $this->allowUndefinedValues,
             $this->allowSuperfluousKeys,
             $this->allowPermissiveTypes,
             $this->callableSignature($this->exceptionFilter),

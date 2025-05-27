@@ -118,9 +118,17 @@ final class Shell
         return $this->value;
     }
 
-    public function enableFlexibleCasting(): bool
+    public function allowScalarValueCasting(): bool
     {
-        return $this->settings->enableFlexibleCasting;
+        return $this->settings->allowScalarValueCasting;
+    }
+    public function allowNonSequentialList(): bool
+    {
+        return $this->settings->allowNonSequentialList;
+    }
+    public function allowUndefinedValues(): bool
+    {
+        return $this->settings->allowUndefinedValues;
     }
 
     public function allowSuperfluousKeys(): bool

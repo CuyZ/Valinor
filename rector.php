@@ -34,7 +34,7 @@ return static function (RectorConfig $config): void {
         NullToStrictStringFuncCallArgRector::class,
         ReadOnlyPropertyRector::class,
         RestoreDefaultNullToNullableTypePropertyRector::class => [
-            __DIR__ . '/tests/Integration/Mapping/Other/FlexibleCastingMappingTest.php',
+            __DIR__ . '/tests/Integration/Mapping/Other/UndefinedValuesMappingTest.php',
             __DIR__ . '/tests/Integration/Mapping/SingleNodeMappingTest',
         ],
     ]);

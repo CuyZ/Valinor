@@ -1,23 +1,14 @@
 # Validation and error handling
 
-The source given to a mapper can never be trusted, this is actually the very
-goal of this library: transforming an unstructured input to a well-defined
-object structure. If a value has an invalid type, or if the mapper cannot cast
-it properly (in flexible mode), it means that it is not able to guarantee the
-validity of the desired object thus it will fail.
+Validation and error handling are important aspects of the mapping process:
+transforming an unstructured input to a strictly typed data structure must be
+trusted. If an invalid value is found, the validity of the desired structure
+cannot be guaranteed, thus the mapping will fail.
 
-Any issue encountered during the mapping will add an error to an upstream
-exception of type `\CuyZ\Valinor\Mapper\MappingError`. It is therefore always
-recommended wrapping the mapping function call with a try/catch statement and
-handle the error properly.
-
-When the mapping fails, the exception gives access to the root node. This
-recursive object allows retrieving all needed information through the whole
-mapping tree: path, values, types and messages, including the issues that caused
-the exception.
-
-Node messages can be customized and iterated through with the usage of the class 
-`\CuyZ\Valinor\Mapper\Tree\Message\Messages`.
+When the mapping fails, an exception of type `\CuyZ\Valinor\Mapper\MappingError`
+is thrown, containing information about all errors encountered during the 
+mapping. It is therefore always recommended wrapping the mapping function call
+with a try/catch statement and handle the error properly.
 
 ```php
 try {

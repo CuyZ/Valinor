@@ -27,7 +27,7 @@ final class ListNodeBuilder implements NodeBuilder
 
         assert($type instanceof ListType || $type instanceof NonEmptyListType);
 
-        if ($shell->enableFlexibleCasting() && $value === null) {
+        if ($shell->allowUndefinedValues() && $value === null) {
             return TreeNode::branch($shell, [], []);
         }
 
@@ -58,7 +58,7 @@ final class ListNodeBuilder implements NodeBuilder
                 throw new InvalidIterableKeyType($key, $shell->path());
             }
 
-            if ($shell->enableFlexibleCasting() || $key === $expected) {
+            if ($shell->allowNonSequentialList() || $key === $expected) {
                 $child = $shell->child((string)$expected, $subType);
                 $children[$expected] = $rootBuilder->build($child->withValue($value));
             } else {
