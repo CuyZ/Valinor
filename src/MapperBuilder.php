@@ -335,7 +335,7 @@ final class MapperBuilder
      *
      * ```php
      * (new \CuyZ\Valinor\MapperBuilder())
-     *     ->allowNonSequentialList()
+     *     ->allowScalarValueCasting()
      *     ->mapper()
      *     ->map('array{id: string, price: float, active: bool}', [
      *         'id' => 549465210, // Will be cast to string
