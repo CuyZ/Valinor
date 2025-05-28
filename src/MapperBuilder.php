@@ -285,18 +285,6 @@ final class MapperBuilder
     }
 
     /**
-     * @template T
-     * @param callable(T): T $callback
-     */
-    public function alter(callable $callback): self
-    {
-        $clone = clone $this;
-        $clone->settings->valueModifier[] = $callback;
-
-        return $clone;
-    }
-
-    /**
      * This setting will be removed in a future major version, as a replacement
      * the following methods should be used:
      *
