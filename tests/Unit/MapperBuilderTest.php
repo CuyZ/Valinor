@@ -28,16 +28,15 @@ final class MapperBuilderTest extends TestCase
         $builderA = $this->mapperBuilder;
         $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
         $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
-        $builderD = $builderA->alter(static fn (string $value): string => 'foo');
-        $builderE = $builderA->enableFlexibleCasting();
-        $builderF = $builderA->allowScalarValueCasting();
-        $builderG = $builderA->allowNonSequentialList();
-        $builderH = $builderA->allowSuperfluousKeys();
-        $builderI = $builderA->allowPermissiveTypes();
-        $builderJ = $builderA->registerConverter(fn (string $value) => $value);
-        $builderK = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderL = $builderA->withCache(new FakeCache());
-        $builderM = $builderA->supportDateFormats('Y-m-d');
+        $builderD = $builderA->enableFlexibleCasting();
+        $builderE = $builderA->allowScalarValueCasting();
+        $builderF = $builderA->allowNonSequentialList();
+        $builderG = $builderA->allowSuperfluousKeys();
+        $builderH = $builderA->allowPermissiveTypes();
+        $builderI = $builderA->registerConverter(fn (string $value) => $value);
+        $builderJ = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderK = $builderA->withCache(new FakeCache());
+        $builderL = $builderA->supportDateFormats('Y-m-d');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -50,7 +49,6 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderJ);
         self::assertNotSame($builderA, $builderK);
         self::assertNotSame($builderA, $builderL);
-        self::assertNotSame($builderA, $builderM);
     }
 
     public function test_mapper_instance_is_the_same(): void
@@ -89,12 +87,12 @@ final class MapperBuilderTest extends TestCase
     public function test_settings_are_cloned_when_configuring_mapper_builder(): void
     {
         $resultA = $this->mapperBuilder
-            ->alter(fn (string $value): string => strtoupper($value))
+            ->registerConverter(fn (string $value): string => strtoupper($value))
             ->mapper()
             ->map('string', 'foo');
 
         $resultB = $this->mapperBuilder
-            ->alter(fn (string $value): string => $value . '!')
+            ->registerConverter(fn (string $value): string => $value . '!')
             ->mapper()
             ->map('string', 'foo');
 
