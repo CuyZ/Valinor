@@ -44,7 +44,6 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\TypeNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UndefinedObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ValueAlteringNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueConverterNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
@@ -120,16 +119,6 @@ final class Container
                     ),
                     $settings->exceptionFilter,
                 );
-
-                if (count($settings->valueModifier) > 0) {
-                    $builder = new ValueAlteringNodeBuilder(
-                        $builder,
-                        new FunctionsContainer(
-                            $this->get(FunctionDefinitionRepository::class),
-                            $settings->valueModifier,
-                        ),
-                    );
-                }
 
                 if (count($settings->mapperConverters) > 0) {
                     $builder = new ValueConverterNodeBuilder(
