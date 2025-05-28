@@ -39,9 +39,6 @@ final class Settings
     /** @var list<callable> */
     public array $customConstructors = [];
 
-    /** @var list<callable> */
-    public array $valueModifier = [];
-
     public Cache $cache;
 
     /** @var non-empty-list<non-empty-string> */
@@ -148,7 +145,6 @@ final class Settings
             $this->exceptionFilter,
             ...$this->inferredMapping,
             ...$this->customConstructors,
-            ...$this->valueModifier,
             ...array_merge(...$this->mapperConverters),
             ...array_merge(...$this->normalizerTransformers),
         ]);

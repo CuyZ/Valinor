@@ -115,6 +115,16 @@ the file watching feature: before, the cache entries were sometimes not
 invalidated properly when files changed during development. This should now be
 better.
 
+### Removed `MapperBuilder::alter()`
+
+This feature has been removed in favor of [mapper converters] which are more
+flexible and powerful.
+
+Note that the `MapperBuilder::alter()` was never really documented, so there are
+good chances that only a few users were using it.
+
+[mapper converters]: ../how-to/convert-input.md
+
 ### Removed classes and interfaces
 
 The following classes/interfaces were part of the initial release but were
@@ -144,6 +154,7 @@ List of affected constructors:
 ### Full list of breaking changes
 
 - Removed `\Psr\SimpleCache\CacheInterface` dependency
+- Removed `\CuyZ\Valinor\MapperBuilder::alter()`
 - Removed `\CuyZ\Valinor\MapperBuilder::registerTransformer()`
 - Removed `\CuyZ\Valinor\MapperBuilder::normalizer()`
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`

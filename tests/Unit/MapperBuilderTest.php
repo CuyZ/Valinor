@@ -28,14 +28,13 @@ final class MapperBuilderTest extends TestCase
         $builderA = $this->mapperBuilder;
         $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
         $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
-        $builderD = $builderA->alter(static fn (string $value): string => 'foo');
-        $builderE = $builderA->enableFlexibleCasting();
-        $builderF = $builderA->allowSuperfluousKeys();
-        $builderG = $builderA->allowPermissiveTypes();
-        $builderH = $builderA->registerConverter(fn (string $value) => $value);
-        $builderI = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderJ = $builderA->withCache(new FakeCache());
-        $builderK = $builderA->supportDateFormats('Y-m-d');
+        $builderD = $builderA->enableFlexibleCasting();
+        $builderE = $builderA->allowSuperfluousKeys();
+        $builderF = $builderA->allowPermissiveTypes();
+        $builderG = $builderA->registerConverter(fn (string $value) => $value);
+        $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
+        $builderI = $builderA->withCache(new FakeCache());
+        $builderJ = $builderA->supportDateFormats('Y-m-d');
 
         self::assertNotSame($builderA, $builderB);
         self::assertNotSame($builderA, $builderC);
@@ -46,7 +45,6 @@ final class MapperBuilderTest extends TestCase
         self::assertNotSame($builderA, $builderH);
         self::assertNotSame($builderA, $builderI);
         self::assertNotSame($builderA, $builderJ);
-        self::assertNotSame($builderA, $builderK);
     }
 
     public function test_mapper_instance_is_the_same(): void
@@ -85,12 +83,12 @@ final class MapperBuilderTest extends TestCase
     public function test_settings_are_cloned_when_configuring_mapper_builder(): void
     {
         $resultA = $this->mapperBuilder
-            ->alter(fn (string $value): string => strtoupper($value))
+            ->registerConverter(fn (string $value): string => strtoupper($value))
             ->mapper()
             ->map('string', 'foo');
 
         $resultB = $this->mapperBuilder
-            ->alter(fn (string $value): string => $value . '!')
+            ->registerConverter(fn (string $value): string => $value . '!')
             ->mapper()
             ->map('string', 'foo');
 

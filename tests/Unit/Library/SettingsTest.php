@@ -21,7 +21,7 @@ final class SettingsTest extends TestCase
     {
         $settings = new Settings();
 
-        self::assertSame('63967be2023dcf5b93fdef40e4265875', $settings->hash());
+        self::assertSame('0e872477364acb126c2c4951d1460c1c', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -30,7 +30,6 @@ final class SettingsTest extends TestCase
         $settings->inferredMapping[stdClass::class] = fn () => stdClass::class;
         $settings->nativeConstructors[stdClass::class] = null;
         $settings->customConstructors[] = fn (): stdClass => new stdClass();
-        $settings->valueModifier[] = fn (string $value): string => $value;
         $settings->cache = new FakeCache();
         $settings->supportedDateFormats = ['Y-m-d\\TH:i:sP'];
         $settings->enableFlexibleCasting = true;
@@ -41,6 +40,6 @@ final class SettingsTest extends TestCase
         $settings->normalizerTransformers[] = [fn (mixed $value): mixed => $value];
         $settings->normalizerTransformerAttributes[stdClass::class] = null;
 
-        self::assertSame('732220467cc428e74f1b22d1d4e294e3', $settings->hash());
+        self::assertSame('ee77e2a8ea06069d6d72e7315111759d', $settings->hash());
     }
 }
