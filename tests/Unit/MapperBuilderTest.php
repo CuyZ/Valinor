@@ -25,30 +25,22 @@ final class MapperBuilderTest extends TestCase
 
     public function test_builder_methods_return_clone_of_builder_instance(): void
     {
-        $builderA = $this->mapperBuilder;
-        $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
-        $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
-        $builderD = $builderA->enableFlexibleCasting();
-        $builderE = $builderA->allowScalarValueCasting();
-        $builderF = $builderA->allowNonSequentialList();
-        $builderG = $builderA->allowSuperfluousKeys();
-        $builderH = $builderA->allowPermissiveTypes();
-        $builderI = $builderA->registerConverter(fn (string $value) => $value);
-        $builderJ = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderK = $builderA->withCache(new FakeCache());
-        $builderL = $builderA->supportDateFormats('Y-m-d');
+        $builders = [
+            $this->mapperBuilder->infer(DateTimeInterface::class, static fn () => DateTime::class),
+            $this->mapperBuilder->registerConstructor(static fn (): stdClass => new stdClass()),
+            $this->mapperBuilder->allowScalarValueCasting(),
+            $this->mapperBuilder->allowNonSequentialList(),
+            $this->mapperBuilder->allowSuperfluousKeys(),
+            $this->mapperBuilder->allowPermissiveTypes(),
+            $this->mapperBuilder->registerConverter(fn (string $value) => $value),
+            $this->mapperBuilder->filterExceptions(fn () => new FakeErrorMessage()),
+            $this->mapperBuilder->withCache(new FakeCache()),
+            $this->mapperBuilder->supportDateFormats('Y-m-d'),
+        ];
 
-        self::assertNotSame($builderA, $builderB);
-        self::assertNotSame($builderA, $builderC);
-        self::assertNotSame($builderA, $builderD);
-        self::assertNotSame($builderA, $builderE);
-        self::assertNotSame($builderA, $builderF);
-        self::assertNotSame($builderA, $builderG);
-        self::assertNotSame($builderA, $builderH);
-        self::assertNotSame($builderA, $builderI);
-        self::assertNotSame($builderA, $builderJ);
-        self::assertNotSame($builderA, $builderK);
-        self::assertNotSame($builderA, $builderL);
+        foreach ($builders as $builder) {
+            self::assertNotSame($this->mapperBuilder, $builder);
+        }
     }
 
     public function test_mapper_instance_is_the_same(): void
