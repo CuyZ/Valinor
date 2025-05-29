@@ -285,22 +285,6 @@ final class MapperBuilder
     }
 
     /**
-     * This setting will be removed in a future major version, as a replacement
-     * the following methods should be used:
-     *
-     * - @see allowScalarValueCasting()
-     * - @see allowNonSequentialList()
-     * - @see allowUndefinedValues()
-     */
-    public function enableFlexibleCasting(): self
-    {
-        return $this
-            ->allowScalarValueCasting()
-            ->allowNonSequentialList()
-            ->allowUndefinedValues();
-    }
-
-    /**
      * With this setting enabled, scalar types will accept castable values:
      *
      * - Integer types will accept any valid numeric value, for instance the

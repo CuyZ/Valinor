@@ -115,6 +115,16 @@ the file watching feature: before, the cache entries were sometimes not
 invalidated properly when files changed during development. This should now be
 better.
 
+### Removed `MapperBuilder::enableFlexibleCasting()`
+
+This method is removed in favor of three distinct modes:
+
+- [`MapperBuilder::allowScalarValueCasting()`](../usage/type-strictness-and-flexibility.md#allowing-scalar-value-casting)
+- [`MapperBuilder::allowNonSequentialList()`](../usage/type-strictness-and-flexibility.md#allowing-non-sequential-lists)
+- [`MapperBuilder::allowUndefinedValues()`](../usage/type-strictness-and-flexibility.md#allowing-undefined-values)
+
+The methods above should be used to fit more specific use cases.
+
 ### Removed `MapperBuilder::alter()`
 
 This feature has been removed in favor of [mapper converters] which are more
@@ -155,6 +165,7 @@ List of affected constructors:
 
 - Removed `\Psr\SimpleCache\CacheInterface` dependency
 - Removed `\CuyZ\Valinor\MapperBuilder::alter()`
+- Removed `\CuyZ\Valinor\MapperBuilder::enableFlexibleCasting()`
 - Removed `\CuyZ\Valinor\MapperBuilder::registerTransformer()`
 - Removed `\CuyZ\Valinor\MapperBuilder::normalizer()`
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
