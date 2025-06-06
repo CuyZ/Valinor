@@ -99,6 +99,7 @@ nav:
       - Performance & caching: other/performance-and-caching.md
       - App & framework integration: other/app-and-framework-integration.md
       - Static analysis — PHPStan/Psalm: other/static-analysis.md
+      - PHPUnit extension: other/phpunit-extension.md
   - Project:
       - Alternatives: project/alternatives.md
       - Changelog: project/changelog.md
