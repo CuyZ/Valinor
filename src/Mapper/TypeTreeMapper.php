@@ -39,7 +39,7 @@ final class TypeTreeMapper implements TreeMapper
         }
 
         if (! $node->isValid()) {
-            throw new TypeTreeMapperError($source, $type, $node->messages());
+            throw new TypeTreeMapperError($source, $type->toString(), $node->messages());
         }
 
         return $node->value();

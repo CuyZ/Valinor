@@ -170,6 +170,8 @@ List of affected constructors:
 - Removed `\CuyZ\Valinor\MapperBuilder::normalizer()`
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
     * Use `\CuyZ\Valinor\Mapper\MappingError::messages()` instead
+- Added `\CuyZ\Valinor\Mapper\MappingError::type()`
+- Added `\CuyZ\Valinor\Mapper\MappingError::source()`
 - Removed `\CuyZ\Valinor\Mapper\Tree\Node`
 - Removed `\CuyZ\Valinor\Mapper\Tree\NodeTraverser`
 - Removed `\CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode()`
