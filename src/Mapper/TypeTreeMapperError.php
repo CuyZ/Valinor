@@ -6,32 +6,37 @@ namespace CuyZ\Valinor\Mapper;
 
 use CuyZ\Valinor\Mapper\Tree\Message\Messages;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
-use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
 /** @internal */
 final class TypeTreeMapperError extends RuntimeException implements MappingError
 {
-    private Messages $errors;
+    private Messages $messages;
+
+    private string $type;
+
+    private mixed $source;
 
     /**
-     * @param non-empty-list<NodeMessage> $errors
+     * @param non-empty-list<NodeMessage> $messages
      */
-    public function __construct(mixed $source, Type $type, array $errors)
+    public function __construct(mixed $source, string $type, array $messages)
     {
-        $this->errors = new Messages(...$errors);
+        $this->messages = new Messages(...$messages);
+        $this->type = $type;
+        $this->source = $source;
 
-        $errorsCount = count($errors);
+        $errorsCount = count($messages);
 
         if ($errorsCount === 1) {
-            $body = $errors[0]
-                ->withParameter('root_type', $type->toString())
+            $body = $messages[0]
+                ->withParameter('root_type', $type)
                 ->withBody("Could not map type `{root_type}`. An error occurred at path {node_path}: {original_message}")
                 ->toString();
         } else {
             $source = ValueDumper::dump($source);
-            $body = "Could not map type `{$type->toString()}` with value $source. A total of $errorsCount errors were encountered.";
+            $body = "Could not map type `$type` with value $source. A total of $errorsCount errors were encountered.";
         }
 
         parent::__construct($body, 1617193185);
@@ -39,6 +44,16 @@ final class TypeTreeMapperError extends RuntimeException implements MappingError
 
     public function messages(): Messages
     {
-        return $this->errors;
+        return $this->messages;
+    }
+
+    public function type(): string
+    {
+        return $this->type;
+    }
+
+    public function source(): mixed
+    {
+        return $this->source;
     }
 }
