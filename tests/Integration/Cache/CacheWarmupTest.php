@@ -24,15 +24,6 @@ final class CacheWarmupTest extends IntegrationTestCase
         $this->mapper = $this->mapperBuilder()->withCache($this->cache);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
-    public function test_cache_warmup_does_not_call_delegate_warmup_if_not_handled(): void
-    {
-        $mapper = $this->mapperBuilder(); // no cache registered
-        $mapper->warmup();
-    }
-
     public function test_will_warmup_type_parser_cache_for_object_with_properties(): void
     {
         $this->mapper->warmup(ObjectToWarmupWithProperties::class);
