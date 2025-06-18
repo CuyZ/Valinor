@@ -23,8 +23,6 @@ final class RecursiveCacheWarmupService
     /** @var list<class-string> */
     private array $classesWarmedUp = [];
 
-    private bool $warmupWasDone = false;
-
     public function __construct(
         private TypeParser $parser,
         private ObjectImplementations $implementations,
@@ -34,10 +32,6 @@ final class RecursiveCacheWarmupService
 
     public function warmup(string ...$signatures): void
     {
-        if (! $this->warmupWasDone) {
-            $this->warmupWasDone = true;
-        }
-
         foreach ($signatures as $signature) {
             try {
                 $this->warmupType($this->parser->parse($signature));
