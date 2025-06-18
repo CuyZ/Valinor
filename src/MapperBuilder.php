@@ -64,7 +64,13 @@ final class MapperBuilder
 
     /**
      * Registers a constructor that can be used by the mapper to create an
-     * instance of an object. A constructor is a callable that can be either:
+     * instance of an object.
+     *
+     * Note that depending on your needs, a more straightforward way to register
+     * a constructor is to use the following attribute on a static method:
+     * @see \CuyZ\Valinor\Mapper\Object\Constructor
+     *
+     * A constructor is a callable that can be either:
      *
      * 1. A named constructor, also known as a static factory method
      * 2. The method of a service — for instance a repository
