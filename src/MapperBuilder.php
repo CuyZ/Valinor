@@ -535,6 +535,19 @@ final class MapperBuilder
         $this->container()->cacheWarmupService()->warmup(...$signatures);
     }
 
+    /**
+     * Clears all persisted cache entries from the registered cache
+     * implementation.
+     */
+    public function clearCache(): void
+    {
+        if (! isset($this->settings->cache)) {
+            return;
+        }
+
+        $this->settings->cache->clear();
+    }
+
     public function mapper(): TreeMapper
     {
         return $this->container()->treeMapper();

@@ -71,11 +71,14 @@ $mapperBuilder = $mapperBuilder->withCache($cache);
 $normalizerBuilder = $normalizerBuilder->withCache($cache);
 ```
 
-### Warming up the cache
+### Warming up and clearing the cache
 
 The cache can be warmed up to ease the application cold start. If the framework
 has a way to automatically detect which classes will be used by the mapper, they
 should be given to the `warmup` method, as stated in the [cache warmup chapter].
+
+The cache can also be cleared when needed, this can be done by calling
+`MapperBuilder::clearCache()` or `NormalizerBuilder::clearCache()`.
 
 ### Other configurations
 

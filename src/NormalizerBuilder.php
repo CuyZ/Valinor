@@ -130,6 +130,19 @@ final class NormalizerBuilder
     }
 
     /**
+     * Clears all persisted cache entries from the registered cache
+     * implementation.
+     */
+    public function clearCache(): void
+    {
+        if (! isset($this->settings->cache)) {
+            return;
+        }
+
+        $this->settings->cache->clear();
+    }
+
+    /**
      * @template T of Normalizer
      *
      * @param Format<T> $format
