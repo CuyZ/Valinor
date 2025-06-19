@@ -7,9 +7,7 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
-use function current;
 use function is_array;
-use function key;
 use function var_export;
 
 /** @internal */
@@ -30,14 +28,13 @@ final class ValueNode extends Node
         if (is_array($value)) {
             $compiler = $compiler->write('[');
 
-            while (key($value) !== null) {
-                $compiler = $compiler->write(var_export(key($value), true) . ' => ');
-                $compiler = $this->compileValue(current($value), $compiler);
+            $i = 0;
+            $numItems = count($value);
+            foreach ($value as $key => $item) {
+                $compiler = $compiler->write(var_export($key, true) . ' => ');
+                $compiler = $this->compileValue($item, $compiler);
 
-                next($value);
-
-                // @phpstan-ignore notIdentical.alwaysTrue (calling `next($value)` is not detected properly by PHPStan)
-                if (key($value) !== null) {
+                if (++$i !== $numItems) {
                     $compiler = $compiler->write(', ');
                 }
             }
