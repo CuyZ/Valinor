@@ -51,8 +51,8 @@ $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
 $mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())->withCache($cache);
 
 // During the build:
-$mapperBuilder->warmup(SomeClass::class, SomeOtherClass::class);
+$mapperBuilder->warmupCacheFor(SomeClass::class, SomeOtherClass::class);
 
 // In the application:
-$mapper->mapper()->map(SomeClass::class, [/* … */]);
+$mapperBuilder->mapper()->map(SomeClass::class, [/* … */]);
 ```

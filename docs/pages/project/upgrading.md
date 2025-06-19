@@ -165,9 +165,18 @@ List of affected constructors:
 
 - Removed `\Psr\SimpleCache\CacheInterface` dependency
 - Removed `\CuyZ\Valinor\MapperBuilder::alter()`
+    * Use `\CuyZ\Valinor\MapperBuilder::registerConverter` instead 
 - Removed `\CuyZ\Valinor\MapperBuilder::enableFlexibleCasting()`
+    * Use the following methods instead:
+        - `\CuyZ\Valinor\MapperBuilder::allowScalarValueCasting()`
+        - `\CuyZ\Valinor\MapperBuilder::allowNonSequentialList()`
+        - `\CuyZ\Valinor\MapperBuilder::allowUndefinedValues()`
 - Removed `\CuyZ\Valinor\MapperBuilder::registerTransformer()`
+    * Use `\CuyZ\Valinor\NormalizerBuilder` instead
 - Removed `\CuyZ\Valinor\MapperBuilder::normalizer()`
+    * Use `\CuyZ\Valinor\NormalizerBuilder` instead
+- Renamed `\CuyZ\Valinor\MapperBuilder::warmup()` to
+  `\CuyZ\Valinor\MapperBuilder::warmupCacheFor()`
 - Removed `\CuyZ\Valinor\Mapper\MappingError::node()`
     * Use `\CuyZ\Valinor\Mapper\MappingError::messages()` instead
 - Added `\CuyZ\Valinor\Mapper\MappingError::type()`
