@@ -527,12 +527,30 @@ final class MapperBuilder
     }
 
     /**
-     * Warms up the injected cache implementation with the provided class names.
+     * Warms up the injected cache implementation with the provided type
+     * signatures. This will improve the performance when the first call to the
+     * mapper is done for each of these types.
      *
-     * By passing a class which contains recursive objects, every nested object
-     * will be cached as well.
+     * ```php
+     * $mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())
+     *    ->withCache(new \CuyZ\Valinor\Cache\FileSystemCache('path/to/dir'));
+     *
+     * // During the build:
+     * $mapperBuilder->warmupCacheFor(
+     *        // This will also recursively warm up the cache for the types of
+     *        // the class properties.
+     *        SomeClass::class,
+     *
+     *        // Any valid type signature can be used.
+     *        'non-empty-list<string, SomeClass>',
+     *        'array{name: string, age: int}',
+     *    );
+     *
+     * // In the application:
+     * $mapperBuilder->mapper()->map(SomeClass::class, […]);
+     * ```
      */
-    public function warmup(string ...$signatures): void
+    public function warmupCacheFor(string ...$signatures): void
     {
         if (! isset($this->settings->cache)) {
             return;
