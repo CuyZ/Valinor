@@ -16,7 +16,7 @@ final class CacheClearTest extends IntegrationTestCase
 
         $mapperBuilder = $this->mapperBuilder()->withCache($cache);
 
-        $mapperBuilder->warmup('array<stdClass>');
+        $mapperBuilder->warmupCacheFor('array<stdClass>');
 
         self::assertGreaterThan(0, $cache->countEntries());
 

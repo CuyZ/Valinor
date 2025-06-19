@@ -26,8 +26,8 @@ final class CacheWarmupTest extends IntegrationTestCase
 
     public function test_will_warmup_type_parser_cache_for_object_with_properties(): void
     {
-        $this->mapper->warmup(ObjectToWarmupWithProperties::class);
-        $this->mapper->warmup(ObjectToWarmupWithProperties::class, SomeObjectJ::class);
+        $this->mapper->warmupCacheFor(ObjectToWarmupWithProperties::class);
+        $this->mapper->warmupCacheFor(ObjectToWarmupWithProperties::class, SomeObjectJ::class);
 
         self::assertSame(10, $this->cache->countEntries());
         self::assertSame(10, $this->cache->timeSetWasCalled());
@@ -40,8 +40,8 @@ final class CacheWarmupTest extends IntegrationTestCase
             ObjectToWarmupWithConstructors::constructorB(...),
         );
 
-        $mapper->warmup(ObjectToWarmupWithConstructors::class);
-        $mapper->warmup(ObjectToWarmupWithConstructors::class, SomeObjectC::class);
+        $mapper->warmupCacheFor(ObjectToWarmupWithConstructors::class);
+        $mapper->warmupCacheFor(ObjectToWarmupWithConstructors::class, SomeObjectC::class);
 
         self::assertSame(6, $this->cache->countEntries());
         self::assertSame(6, $this->cache->timeSetWasCalled());
@@ -56,8 +56,8 @@ final class CacheWarmupTest extends IntegrationTestCase
                 fn (string $foo, SomeObjectI $objectI) => $foo === 'foo' ? ObjectToWarmupWithProperties::class : ObjectToWarmupWithConstructors::class
             );
 
-        $mapper->warmup(SomeInterface::class);
-        $mapper->warmup(SomeInterface::class, SomeObjectJ::class);
+        $mapper->warmupCacheFor(SomeInterface::class);
+        $mapper->warmupCacheFor(SomeInterface::class, SomeObjectJ::class);
 
         self::assertSame(13, $this->cache->countEntries());
         self::assertSame(13, $this->cache->timeSetWasCalled());
@@ -69,7 +69,7 @@ final class CacheWarmupTest extends IntegrationTestCase
         $this->expectExceptionCode(1653330261);
         $this->expectExceptionMessage('Cannot warm up invalid signature `SomeInvalidClass`: Cannot parse unknown symbol `SomeInvalidClass`.');
 
-        $this->mapper->warmup('SomeInvalidClass');
+        $this->mapper->warmupCacheFor('SomeInvalidClass');
     }
 }
 
