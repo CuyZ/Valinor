@@ -32,6 +32,9 @@
         "rector/rector": "^2.0",
         "phpbench/phpbench": "^1.3"
     },
+    "suggest": {
+        "symfony/console": "To use the PHPUnit extension for formatting mapping errors"
+    },
     "autoload": {
         "psr-4": {
             "CuyZ\\Valinor\\": "src"
