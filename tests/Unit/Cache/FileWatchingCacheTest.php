@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Cache;
 
+use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use CuyZ\Valinor\Tests\Fake\Cache\FakeCacheWithWarmup;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamContent;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
-use stdClass;
 
 final class FileWatchingCacheTest extends TestCase
 {
@@ -35,178 +30,120 @@ final class FileWatchingCacheTest extends TestCase
         $this->cache = new FileWatchingCache($this->delegateCache);
     }
 
-    public function test_cache_warmup_calls_delegate_warmup(): void
+    public function test_deleting_watched_file_invalidates_cache(): void
     {
-        $delegate = new FakeCacheWithWarmup();
-        $cache = new FileWatchingCache($delegate);
+        $fileA = (vfsStream::newFile('ObjectA.php'))->at($this->files);
+        $fileB = (vfsStream::newFile('ObjectB.php'))->at($this->files);
+        $fileC = (vfsStream::newFile('ObjectC.php'))->at($this->files);
 
-        $cache->warmup();
+        $cacheEntry = new CacheEntry(
+            code: 'fn () => "foo"',
+            filesToWatch: [
+                $fileA->url(),
+                $fileB->url(),
+                $fileC->url(),
+            ],
+        );
 
-        self::assertSame(1, $delegate->timesWarmupWasCalled());
+        $this->cache->set('foo', $cacheEntry);
+
+        // First cache fetch: the watched file exists and is not modified
+        self::assertSame('foo', $this->cache->get('foo'));
+
+        // The file is deleted, so the cache should be invalidated
+        unlink($fileB->url());
+
+        self::assertSame(null, $this->cache->get('foo'));
+
+        // We set a new cache entry
+        $this->cache->set('foo', $cacheEntry);
+
+        self::assertSame('foo', $this->cache->get('foo'));
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
-    public function test_cache_warmup_does_not_call_delegate_warmup_if_not_handled(): void
+    public function test_modifying_watched_file_invalidates_cache(): void
     {
-        $delegate = new FakeCache();
-        $cache = new FileWatchingCache($delegate);
+        $fileA = (vfsStream::newFile('ObjectA.php'))->at($this->files);
+        $fileB = (vfsStream::newFile('ObjectB.php'))->at($this->files);
+        $fileC = (vfsStream::newFile('ObjectC.php'))->at($this->files);
 
-        $cache->warmup();
+        $cacheEntry = new CacheEntry(
+            code: 'fn () => "foo"',
+            filesToWatch: [
+                $fileA->url(),
+                $fileB->url(),
+                $fileC->url(),
+            ],
+        );
+
+        $this->cache->set('foo', $cacheEntry);
+
+        // First cache fetch: the watched file exists and is not modified
+        self::assertSame('foo', $this->cache->get('foo'));
+
+        // The file is modified, so the cache should be invalidated
+        $fileB->lastModified(time() + 10)->at($this->files);
+
+        self::assertSame(null, $this->cache->get('foo'));
+
+        // We set a new cache entry
+        $this->cache->set('foo', $cacheEntry);
+
+        self::assertSame('foo', $this->cache->get('foo'));
     }
 
-    public function test_value_can_be_fetched_and_deleted(): void
+    public function test_invalid_file_path_is_ignored_by_watcher(): void
     {
-        $key = 'foo';
-        $value = new stdClass();
+        $file = (vfsStream::newFile('ObjectA.php'))->at($this->files);
 
-        self::assertFalse($this->cache->has($key));
-        self::assertTrue($this->cache->set($key, $value));
-        self::assertTrue($this->cache->has($key));
-        self::assertSame($value, $this->cache->get($key));
-        self::assertTrue($this->cache->delete($key));
-        self::assertFalse($this->cache->has($key));
+        $cacheEntry = new CacheEntry(
+            code: 'fn () => "foo"',
+            filesToWatch: [
+                'not/existing/file',
+                $file->url(),
+            ],
+        );
+
+        $this->cache->set('foo', $cacheEntry);
+
+        self::assertSame('foo', $this->cache->get('foo'));
     }
 
-    public function test_get_non_existing_entry_returns_default_value(): void
+    public function test_get_entry_gets_timestamps_on_delegate_only_once(): void
     {
-        $defaultValue = new stdClass();
+        $cacheEntry = new CacheEntry(
+            code: 'fn () => "foo"',
+            filesToWatch: [],
+        );
 
-        self::assertSame($defaultValue, $this->cache->get('Schwifty', $defaultValue));
+        $this->cache->set('foo', $cacheEntry);
+
+        // A little hack to reset the memoized timestamps values in the cache,
+        //  to simulate that the cache was not yet set in the current request.
+        (fn () => $this->timestamps = [])->call($this->cache);
+
+        $this->cache->get('foo');
+        $this->cache->get('foo');
+
+        self::assertSame(1, $this->delegateCache->timesEntryWasFetched('foo.timestamps'));
     }
 
-    public function test_get_existing_entry_does_not_return_default_value(): void
+    public function test_get_entry_that_was_not_set_returns_null(): void
     {
-        $this->cache->set('foo', 'foo');
-
-        self::assertSame('foo', $this->cache->get('foo', 'bar'));
+        self::assertSame(null, $this->cache->get('foo'));
     }
 
     public function test_clear_entries_clears_everything(): void
     {
-        $keyA = 'foo';
-        $keyB = 'bar';
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+        $this->cache->set('bar', new CacheEntry('fn () => "bar"'));
 
-        $this->cache->set($keyA, new stdClass());
-        $this->cache->set($keyB, new stdClass());
+        self::assertSame(4, $this->delegateCache->countEntries());
 
-        self::assertTrue($this->cache->has($keyA));
-        self::assertTrue($this->cache->has($keyB));
-        self::assertTrue($this->cache->clear());
-        self::assertFalse($this->cache->has($keyA));
-        self::assertFalse($this->cache->has($keyB));
-    }
+        $this->cache->clear();
 
-    public function test_multiple_values_set_can_be_fetched_and_deleted(): void
-    {
-        $values = [
-            'foo' => new stdClass(),
-            'bar' => new stdClass(),
-        ];
-
-        self::assertFalse($this->cache->has('foo'));
-        self::assertFalse($this->cache->has('bar'));
-
-        self::assertTrue($this->cache->setMultiple($values));
-
-        self::assertTrue($this->cache->has('foo'));
-        self::assertTrue($this->cache->has('bar'));
-
-        self::assertEquals($values, [...$this->cache->getMultiple(['foo', 'bar'])]);
-
-        self::assertTrue($this->cache->deleteMultiple(['foo', 'bar']));
-
-        self::assertFalse($this->cache->has('foo'));
-        self::assertFalse($this->cache->has('bar'));
-    }
-
-    public function test_set_php_internal_class_definition_saves_cache_entry(): void
-    {
-        $this->cache->set('some-class-definition', FakeClassDefinition::new(stdClass::class));
-
-        self::assertTrue($this->cache->has('some-class-definition'));
-    }
-
-    public function test_modifying_class_definition_file_invalids_cache(): void
-    {
-        $fileA = (vfsStream::newFile('ObjectA.php'))
-            ->withContent('<?php class ObjectA {}')
-            ->at($this->files);
-
-        $fileB = (vfsStream::newFile('ObjectB.php'))
-            ->withContent('<?php class ObjectB extends ObjectA {}')
-            ->at($this->files);
-
-        include $fileA->url();
-        include $fileB->url();
-
-        $class = FakeClassDefinition::fromReflection(new ReflectionClass('ObjectB')); // @phpstan-ignore-line
-
-        self::assertTrue($this->cache->set('some-class-definition', $class));
-        self::assertTrue($this->cache->has('some-class-definition'));
-
-        unlink($fileA->url());
-        $fileA->lastModified(time() + 5)->at($this->files);
-
-        self::assertFalse($this->cache->has('some-class-definition'));
-        self::assertTrue($this->cache->setMultiple(['some-class-definition' => $class]));
-        self::assertTrue($this->cache->has('some-class-definition'));
-
-        unlink($fileB->url());
-
-        self::assertFalse($this->cache->has('some-class-definition'));
-    }
-
-    public function test_modifying_function_definition_file_invalids_cache(): void
-    {
-        $file = $this->functionDefinitionFile();
-
-        /** @var non-empty-string */
-        $url = $file->url();
-
-        $function = FakeFunctionDefinition::new($url);
-
-        self::assertTrue($this->cache->set('some-function-definition', $function));
-        self::assertTrue($this->cache->has('some-function-definition'));
-
-        unlink($url);
-        $file->lastModified(time() + 5)->at($this->files);
-
-        self::assertFalse($this->cache->has('some-function-definition'));
-        self::assertTrue($this->cache->setMultiple(['some-function-definition' => $function]));
-        self::assertTrue($this->cache->has('some-function-definition'));
-
-        unlink($url);
-        $file->lastModified(time() + 10)->at($this->files);
-
-        self::assertFalse($this->cache->has('some-function-definition'));
-    }
-
-    public function test_file_timestamps_are_fetched_once_per_request(): void
-    {
-        $cacheA = new FileWatchingCache($this->delegateCache);
-        $cacheB = new FileWatchingCache($this->delegateCache);
-
-        self::assertFalse($cacheA->has('some-function-definition'));
-        self::assertFalse($cacheA->has('some-function-definition'));
-        self::assertFalse($cacheB->has('some-function-definition'));
-        self::assertFalse($cacheB->has('some-function-definition'));
-
-        /** @var non-empty-string $file */
-        $file = $this->functionDefinitionFile()->url();
-
-        $cacheA->set('some-function-definition', FakeFunctionDefinition::new($file));
-        $cacheB->set('some-function-definition', FakeFunctionDefinition::new($file));
-
-        self::assertSame(2, $this->delegateCache->timesEntryWasSet('some-function-definition.timestamps'));
-        self::assertSame(2, $this->delegateCache->timesEntryWasFetched('some-function-definition.timestamps'));
-    }
-
-    private function functionDefinitionFile(): vfsStreamContent
-    {
-        return (vfsStream::newFile('_function_definition_file.php'))
-            ->withContent('<?php function _valinor_test_function() {}')
-            ->at($this->files);
+        self::assertNull($this->cache->get('foo'));
+        self::assertNull($this->cache->get('bar'));
+        self::assertSame(0, $this->delegateCache->countEntries());
     }
 }

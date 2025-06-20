@@ -6,14 +6,15 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer;
 
 use Attribute;
 use CuyZ\Valinor\Cache\FileSystemCache;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\NormalizerBuilder;
 use DateTime;
 use DateTimeInterface;
 use IteratorAggregate;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Symfony\Component\Filesystem\Filesystem;
 use Traversable;
 
 use function glob;
@@ -39,7 +40,7 @@ final class NormalizerCompiledCodeTest extends TestCase
 
         $cache = new FileSystemCache($directory);
 
-        $builder = (new MapperBuilder())->withCache($cache);
+        $builder = (new NormalizerBuilder())->withCache($cache);
         $builder = $builder->registerTransformer(PrependToStringAttribute::class);
 
         foreach ($transformers as $transformer) {
@@ -61,7 +62,7 @@ final class NormalizerCompiledCodeTest extends TestCase
 
         self::assertFileEquals($expectedFile, $cacheFiles[0]);
 
-        $cache->clear();
+        (new Filesystem())->remove($directory);
     }
 
     public static function compiled_code_is_correct_data_provider(): iterable

@@ -69,7 +69,7 @@ final class DateTimeZoneMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(DateTimeZone::class, 'Jupiter/Europa');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[unknown] Value 'Jupiter/Europa' is not a valid timezone.",
+                '*root*' => "[invalid_timezone] Value 'Jupiter/Europa' is not a valid timezone.",
             ]);
         }
     }

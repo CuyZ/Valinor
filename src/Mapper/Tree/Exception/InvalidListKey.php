@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
-use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\ValueDumper;
-use RuntimeException;
 
 /** @internal */
-final class InvalidListKey extends RuntimeException implements ErrorMessage, HasParameters
+final class InvalidListKey implements ErrorMessage, HasCode, HasParameters
 {
     private string $body = 'Invalid sequential key {key}, expected {expected}.';
+
+    private string $code = 'invalid_list_key';
 
     /** @var array<string, string> */
     private array $parameters;
@@ -24,13 +25,16 @@ final class InvalidListKey extends RuntimeException implements ErrorMessage, Has
             'key' => ValueDumper::dump($key),
             'expected' => (string)$expected,
         ];
-
-        parent::__construct(StringFormatter::for($this), 1654273010);
     }
 
     public function body(): string
     {
         return $this->body;
+    }
+
+    public function code(): string
+    {
+        return $this->code;
     }
 
     public function parameters(): array

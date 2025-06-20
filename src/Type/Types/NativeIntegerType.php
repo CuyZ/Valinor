@@ -63,7 +63,9 @@ final class NativeIntegerType implements IntegerType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid integer.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid integer.')
+            ->withCode('invalid_integer')
+            ->build();
     }
 
     public function nativeType(): NativeIntegerType

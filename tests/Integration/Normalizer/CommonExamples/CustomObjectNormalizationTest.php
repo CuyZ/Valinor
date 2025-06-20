@@ -13,7 +13,7 @@ final class CustomObjectNormalizationTest extends IntegrationTestCase
 {
     public function test_custom_object_normalization_works_properly(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(
                 fn (HasCustomNormalization $object) => $object->normalize(),
             )

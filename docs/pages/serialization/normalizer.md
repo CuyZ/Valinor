@@ -12,7 +12,7 @@ Basic usage:
 ```php
 namespace My\App;
 
-$normalizer = (new \CuyZ\Valinor\MapperBuilder())
+$normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array());
 
 $userAsArray = $normalizer->normalize(

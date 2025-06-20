@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility\String;
 
-use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use IntlException;
 use MessageFormatter;
 
@@ -26,11 +25,6 @@ final class StringFormatter
         return class_exists(MessageFormatter::class)
             ? self::formatWithIntl($locale, $body, $parameters)
             : self::formatWithRegex($body, $parameters);
-    }
-
-    public static function for(HasParameters $message): string
-    {
-        return self::formatWithRegex($message->body(), $message->parameters());
     }
 
     /**

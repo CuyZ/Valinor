@@ -18,7 +18,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
                 ->map(DateTimeInterface::class, ['datetime' => '2022/08/05', 'timezone' => 'Europe/Paris']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1607027306] Value array{datetime: '2022/08/05', timezone: 'Europe/Paris'} does not match any of `non-empty-string`, `int`, `float`.",
+                '*root*' => "[cannot_resolve_type_from_union] Value array{datetime: '2022/08/05', timezone: 'Europe/Paris'} does not match any of `non-empty-string`, `int`, `float`.",
             ]);
         }
     }
@@ -140,7 +140,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
                 ->map(DateTimeInterface::class, 'invalid datetime');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1630686564] Value 'invalid datetime' does not match any of the following formats: `Y-m-d\TH:i:sP`, `Y-m-d\TH:i:s.uP`, `U`, `U.u`.",
+                '*root*' => "[cannot_parse_datetime_format] Value 'invalid datetime' does not match any of the following formats: `Y-m-d\TH:i:sP`, `Y-m-d\TH:i:s.uP`, `U`, `U.u`.",
             ]);
         }
     }
@@ -154,7 +154,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
                 ->map(DateTimeInterface::class, 'invalid datetime');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1630686564] Value 'invalid datetime' does not match any of the following formats: `Y/m/d`.",
+                '*root*' => "[cannot_parse_datetime_format] Value 'invalid datetime' does not match any of the following formats: `Y/m/d`.",
             ]);
         }
     }
@@ -169,7 +169,7 @@ final class DateTimeMappingTest extends IntegrationTestCase
                 ->map(DateTimeInterface::class, '1971-11-08');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1630686564] Value '1971-11-08' does not match any of the following formats: `d/m/Y`.",
+                '*root*' => "[cannot_parse_datetime_format] Value '1971-11-08' does not match any of the following formats: `d/m/Y`.",
             ]);
         }
     }

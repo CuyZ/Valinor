@@ -123,7 +123,7 @@ class EnumConstructorRegistrationMappingTest extends IntegrationTestCase
                 ->map(BackedStringEnum::class, 'fiz');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1607027306] Value 'fiz' does not match any of 'foo', 'bar', 'baz'.",
+                '*root*' => "[cannot_resolve_type_from_union] Value 'fiz' does not match any of 'foo', 'bar', 'baz'.",
             ]);
         }
     }
@@ -137,7 +137,7 @@ class EnumConstructorRegistrationMappingTest extends IntegrationTestCase
                 ->map(BackedStringEnum::class, 'fiz');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[1607027306] Value 'fiz' does not match any of 'foo', 'bar', 'baz'.",
+                '*root*' => "[cannot_resolve_type_from_union] Value 'fiz' does not match any of 'foo', 'bar', 'baz'.",
             ]);
         }
     }

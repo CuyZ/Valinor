@@ -50,6 +50,10 @@ final class IterableType implements CompositeTraversableType
             return false;
         }
 
+        if ($this === self::native()) {
+            return true;
+        }
+
         foreach ($value as $key => $item) {
             if (! $this->keyType->accepts($key)) {
                 return false;

@@ -13,7 +13,7 @@ final class DateFormatFromGlobalTransformerTest extends IntegrationTestCase
 {
     public function test_date_format_from_global_transformer_works_properly(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(
                 fn (DateTimeInterface $date) => $date->format('Y/m/d'),
             )

@@ -62,6 +62,7 @@ final class IntegerValueType implements IntegerType, FixedType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} does not match integer value {expected_value}.')
+            ->withCode('invalid_integer_value')
             ->withParameter('expected_value', (string)$this->value)
             ->build();
     }

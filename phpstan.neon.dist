@@ -25,9 +25,6 @@ parameters:
 
         - '#Method [\w\\:]+_data_provider\(\) return type has no value type specified in iterable type#'
 
-        - message: '#Method CuyZ\\Valinor\\MapperBuilder::withCache\(\) has parameter \$cache with generic interface Psr\\SimpleCache\\\CacheInterface but does not specify its types: EntryType#'
-          path: src/MapperBuilder.php
-
     stubFiles:
-        - qa/PHPStan/Stubs/Psr/SimpleCache/CacheInterface.stub
+        - qa/PHPStan/Stubs/vfs/vfsStreamAbstractContent.stub
     tmpDir: var/cache/phpstan

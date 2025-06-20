@@ -60,7 +60,9 @@ final class NegativeIntegerType implements IntegerType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid negative integer.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid negative integer.')
+            ->withCode('invalid_negative_integer')
+            ->build();
     }
 
     public function nativeType(): NativeIntegerType

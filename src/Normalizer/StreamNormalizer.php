@@ -14,6 +14,9 @@ use CuyZ\Valinor\Normalizer\Transformer\Transformer;
  */
 final class StreamNormalizer implements Normalizer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private Transformer $transformer,
         private JsonFormatter $formatter,

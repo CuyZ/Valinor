@@ -147,11 +147,14 @@ final class ClassStringType implements StringType, CompositeType
     {
         if ($this->subType) {
             return MessageBuilder::newError('Value {source_value} is not a valid class string of `{expected_class_type}`.')
+                ->withCode('invalid_class_string')
                 ->withParameter('expected_class_type', $this->subType->toString())
                 ->build();
         }
 
-        return MessageBuilder::newError('Value {source_value} is not a valid class string.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid class string.')
+            ->withCode('invalid_class_string')
+            ->build();
     }
 
     public function subType(): ObjectType|UnionType|null

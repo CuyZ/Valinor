@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
-use LanguageServerProtocol\MessageType;
 use RuntimeException;
 use Throwable;
 
@@ -42,11 +41,11 @@ final class MessageBuilder
     }
 
     /**
-     * @return self<ErrorMessage>
+     * @return self<ErrorMessage&Throwable>
      */
     public static function newError(string $body): self
     {
-        /** @var self<ErrorMessage> $instance */
+        /** @var self<ErrorMessage&Throwable> $instance */
         $instance = new self($body);
         $instance->isError = true;
 
@@ -155,7 +154,7 @@ final class MessageBuilder
         };
     }
 
-    private function buildErrorMessage(): ErrorMessage&HasCode&HasParameters
+    private function buildErrorMessage(): ErrorMessage&Throwable&HasCode&HasParameters
     {
         return new class ($this->body, $this->code, $this->parameters) extends RuntimeException implements ErrorMessage, HasCode, HasParameters {
             /**

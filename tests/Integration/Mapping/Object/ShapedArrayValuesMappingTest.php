@@ -113,7 +113,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo' => '[unknown] Value object(stdClass) is not a valid string.',
+                'foo' => '[invalid_string] Value object(stdClass) is not a valid string.',
             ]);
         }
     }
@@ -130,7 +130,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
             );
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'bar' => "[1630946163] Key 'bar' does not match type `int`.",
+                'bar' => "[invalid_array_key] Key 'bar' does not match type `int`.",
             ]);
         }
     }
@@ -147,7 +147,7 @@ final class ShapedArrayValuesMappingTest extends IntegrationTestCase
             );
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'bar' => "[unknown] Value 'bar' is not a valid integer.",
+                'bar' => "[invalid_integer] Value 'bar' is not a valid integer.",
             ]);
         }
     }

@@ -24,7 +24,7 @@ use function usort;
 /** @internal */
 final class UnionNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
 
@@ -38,7 +38,7 @@ final class UnionNodeBuilder implements NodeBuilder
             // @infection-ignore-all / This is a performance optimisation, so we
             // cannot easily test this behavior.
             if ($subType instanceof NullType && $shell->value() === null) {
-                return TreeNode::leaf($shell, null);
+                return Node::new(null);
             }
 
             try {
@@ -59,12 +59,15 @@ final class UnionNodeBuilder implements NodeBuilder
             if ($subType instanceof InterfaceType || $subType instanceof ClassType || $subType instanceof ShapedArrayType) {
                 $structs[] = $node;
             } elseif ($subType instanceof ScalarType) {
-                $scalars[] = $node;
+                $scalars[] = [
+                    'type' => $subType,
+                    'node' => $node,
+                ];
             }
         }
 
         if ($all === []) {
-            return TreeNode::error($shell, new CannotResolveTypeFromUnion($shell->value(), $type));
+            return Node::error($shell, new CannotResolveTypeFromUnion($shell->value(), $type));
         }
 
         if (count($all) === 1) {
@@ -73,7 +76,7 @@ final class UnionNodeBuilder implements NodeBuilder
 
         // If there is only one scalar and one struct, the scalar has priority.
         if (count($scalars) === 1 && count($structs) === 1) {
-            return $scalars[0];
+            return $scalars[0]['node'];
         }
 
         if ($structs !== []) {
@@ -84,7 +87,7 @@ final class UnionNodeBuilder implements NodeBuilder
             $childrenCount = [];
 
             foreach ($structs as $node) {
-                $childrenCount[count($node->children())][] = $node;
+                $childrenCount[$node->childrenCount()][] = $node;
             }
 
             krsort($childrenCount);
@@ -97,12 +100,12 @@ final class UnionNodeBuilder implements NodeBuilder
         } elseif ($scalars !== []) {
             usort(
                 $scalars,
-                fn (TreeNode $a, TreeNode $b): int => TypeHelper::typePriority($b->type()) <=> TypeHelper::typePriority($a->type()),
+                fn (array $a, array $b): int => TypeHelper::typePriority($b['type']) <=> TypeHelper::typePriority($a['type']),
             );
 
-            return $scalars[0];
+            return $scalars[0]['node'];
         }
 
-        return TreeNode::error($shell, new TooManyResolvedTypesFromUnion($type));
+        return Node::error($shell, new TooManyResolvedTypesFromUnion($type));
     }
 }

@@ -8,16 +8,14 @@ production environment.
 The library provides a cache implementation out of the box, which saves
 cache entries into the file system.
 
-!!! note
-
-    It is also possible to use any PSR-16 compliant implementation, as
-    long as it is capable of caching the entries handled by the library.
-
 When the application runs in a development environment, the cache implementation
 should be decorated with `FileWatchingCache`, which will watch the files of the
 application and invalidate cache entries when a PHP file is modified by a
 developer — preventing the library not behaving as expected when the signature
 of a property or a method changes.
+
+The same cache instance can be used by both the mapper builder and the
+normalizer builder.
 
 ```php
 $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-directory');
@@ -30,6 +28,11 @@ if ($isApplicationInDevelopmentEnvironment) {
     ->withCache($cache)
     ->mapper()
     ->map(SomeClass::class, [/* … */]);
+    
+(new \CuyZ\Valinor\NormalizerBuilder())
+    ->withCache($cache)
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
+    ->normalize($someData);
 ```
 
 ## Warming up cache
@@ -48,8 +51,8 @@ $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
 $mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())->withCache($cache);
 
 // During the build:
-$mapperBuilder->warmup(SomeClass::class, SomeOtherClass::class);
+$mapperBuilder->warmupCacheFor(SomeClass::class, SomeOtherClass::class);
 
 // In the application:
-$mapper->mapper()->map(SomeClass::class, [/* … */]);
+$mapperBuilder->mapper()->map(SomeClass::class, [/* … */]);
 ```

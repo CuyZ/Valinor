@@ -56,7 +56,9 @@ final class NativeFloatType implements FloatType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid float.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid float.')
+            ->withCode('invalid_float')
+            ->build();
     }
 
     public function nativeType(): NativeFloatType

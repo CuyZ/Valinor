@@ -102,7 +102,7 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(SimpleObject::class, new stdClass());
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[unknown] Value object(stdClass) is not a valid string.',
+                '*root*' => '[invalid_string] Value object(stdClass) is not a valid string.',
             ]);
         }
     }
@@ -113,7 +113,7 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array-key', new stdClass());
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[unknown] Value object(stdClass) is not a valid array key.',
+                '*root*' => '[invalid_array_key] Value object(stdClass) is not a valid array key.',
             ]);
         }
     }

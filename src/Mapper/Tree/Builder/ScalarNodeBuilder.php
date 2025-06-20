@@ -12,7 +12,7 @@ use function assert;
 /** @internal */
 final class ScalarNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
         $value = $shell->value();
@@ -20,13 +20,13 @@ final class ScalarNodeBuilder implements NodeBuilder
         assert($type instanceof ScalarType);
 
         if ($type->accepts($value)) {
-            return TreeNode::leaf($shell, $value);
+            return Node::new($value);
         }
 
         if (! $shell->allowScalarValueCasting() || ! $type->canCast($value)) {
-            return TreeNode::error($shell, $type->errorMessage());
+            return Node::error($shell, $type->errorMessage());
         }
 
-        return TreeNode::leaf($shell, $type->cast($value));
+        return Node::new($type->cast($value));
     }
 }

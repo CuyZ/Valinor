@@ -10,7 +10,7 @@ use Attribute;
  * This attribute can be used to automatically register a transformer attribute.
  *
  * When there is no control over the transformer attribute class, the following
- * method can be used: @see \CuyZ\Valinor\MapperBuilder::registerTransformer
+ * method can be used: @see \CuyZ\Valinor\NormalizerBuilder::registerTransformer
  *
  * ```php
  * namespace My\App;

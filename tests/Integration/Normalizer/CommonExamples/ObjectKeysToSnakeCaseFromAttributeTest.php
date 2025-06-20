@@ -12,7 +12,7 @@ final class ObjectKeysToSnakeCaseFromAttributeTest extends IntegrationTestCase
 {
     public function test_object_keys_are_converted_to_snake_case(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(SnakeCaseProperties::class)
             ->normalizer(Format::array())
             ->normalize(new #[SnakeCaseProperties] class () {

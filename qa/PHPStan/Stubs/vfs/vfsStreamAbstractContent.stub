@@ -1,0 +1,11 @@
+<?php
+
+namespace org\bovigo\vfs;
+
+abstract class vfsStreamAbstractContent
+{
+    /**
+     * @return non-empty-string
+     */
+    public function url(): string {}
+}

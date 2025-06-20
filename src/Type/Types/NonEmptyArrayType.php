@@ -58,6 +58,10 @@ final class NonEmptyArrayType implements CompositeTraversableType
             return false;
         }
 
+        if ($this === self::native()) {
+            return true;
+        }
+
         return Polyfill::array_all(
             $value,
             fn (mixed $item, mixed $key) => $this->keyType->accepts($key) && $this->subType->accepts($item),

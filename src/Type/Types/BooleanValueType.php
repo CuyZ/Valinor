@@ -81,6 +81,7 @@ final class BooleanValueType implements BooleanType, FixedType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} does not match boolean value {expected_value}.')
+            ->withCode('invalid_boolean_value')
             ->withParameter('expected_value', $this->toString())
             ->build();
     }

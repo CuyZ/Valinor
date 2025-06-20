@@ -9,25 +9,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
-/**
- * Can be given to {@see MapperBuilder::registerConstructor()} to describe which
- * date formats should be allowed during mapping.
- *
- * By default, if this constructor is never registered, the dates will accept
- * any valid timestamp or RFC 3339-formatted value.
- *
- * Usage:
- *
- * ```php
- * (new \CuyZ\Valinor\MapperBuilder())
- *     // Both `Cookie` and `ATOM` formats will be accepted
- *     ->registerConstructor(new DateTimeFormatConstructor(DATE_COOKIE, DATE_ATOM))
- *     ->mapper()
- *     ->map(DateTimeInterface::class, 'Monday, 08-Nov-1971 13:37:42 UTC');
- * ```
- *
- * @internal
- */
+/** @internal */
 final class DateTimeFormatConstructor
 {
     /** @var non-empty-list<non-empty-string> */

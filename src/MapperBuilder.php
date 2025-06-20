@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Normalizer\Format;
-use CuyZ\Valinor\Normalizer\Normalizer;
-use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
 use function array_unique;
@@ -66,7 +64,13 @@ final class MapperBuilder
 
     /**
      * Registers a constructor that can be used by the mapper to create an
-     * instance of an object. A constructor is a callable that can be either:
+     * instance of an object.
+     *
+     * Note that depending on your needs, a more straightforward way to register
+     * a constructor is to use the following attribute on a static method:
+     * @see \CuyZ\Valinor\Mapper\Object\Constructor
+     *
+     * A constructor is a callable that can be either:
      *
      * 1. A named constructor, also known as a static factory method
      * 2. The method of a service — for instance a repository
@@ -251,20 +255,17 @@ final class MapperBuilder
 
     /**
      * Inject a cache implementation that will be in charge of caching heavy
-     * data used by the mapper.
+     * data used by the mapper. It is *strongly* recommended to use it when the
+     * application runs in a production environment.
      *
-     * An implementation is provided by the library, which writes cache entries
-     * in the file system; it is strongly recommended to use it when the
-     * application runs in production environment.
-     *
-     * It is also possible to use any PSR-16 compliant implementation, as long
-     * as it is capable of caching the entries handled by the library.
+     * An implementation is provided out of the box, which writes cache entries
+     * in the file system.
      *
      * When the application runs in a development environment, the cache
-     * implementation should be decorated with `FileWatchingCache`, which will
-     * watch the files of the application and invalidate cache entries when a
-     * PHP file is modified by a developer — preventing the library not behaving
-     * as expected when the signature of a property or a method changes.
+     * implementation should be decorated with `FileWatchingCache`. This service
+     * will watch the files of the application and invalidate cache entries when
+     * a PHP file is modified by a developer — preventing the library not
+     * behaving as expected when the signature of a property or a method changes.
      *
      * ```php
      * $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
@@ -281,40 +282,12 @@ final class MapperBuilder
      *     ]);
      * ```
      */
-    public function withCache(CacheInterface $cache): self
+    public function withCache(Cache $cache): self
     {
         $clone = clone $this;
         $clone->settings->cache = $cache;
 
         return $clone;
-    }
-
-    /**
-     * @template T
-     * @param callable(T): T $callback
-     */
-    public function alter(callable $callback): self
-    {
-        $clone = clone $this;
-        $clone->settings->valueModifier[] = $callback;
-
-        return $clone;
-    }
-
-    /**
-     * This setting will be removed in a future major version, as a replacement
-     * the following methods should be used:
-     *
-     * - @see allowScalarValueCasting()
-     * - @see allowNonSequentialList()
-     * - @see allowUndefinedValues()
-     */
-    public function enableFlexibleCasting(): self
-    {
-        return $this
-            ->allowScalarValueCasting()
-            ->allowNonSequentialList()
-            ->allowUndefinedValues();
     }
 
     /**
@@ -450,6 +423,67 @@ final class MapperBuilder
     }
 
     /**
+     * A mapper converter allows users to hook into the mapping process and
+     * apply custom logic to the input, by defining a callable signature that
+     * properly describes when it should be called:
+     *
+     * - A first argument with a type matching the expected input being mapped
+     * - A return type representing the targeted mapped type
+     *
+     * These two types are enough for the library to know when to call the
+     * converter and can contain advanced type annotations for more specific
+     * use cases.
+     *
+     * Below is a basic example of a converter that converts string inputs to
+     * uppercase:
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConverter(fn (string $value): string => strtoupper($value))
+     *     ->mapper()
+     *     ->map('string', 'hello world'); // 'HELLO WORLD'
+     * ```
+     *
+     * Converters can be chained, allowing multiple transformations to be
+     * applied to a value. A second `callable` parameter can be declared,
+     * allowing the current converter to call the next one in the chain.
+     *
+     * A priority can be given to a converter to control the order in which
+     * converters are applied. The higher the priority, the earlier the
+     * converter will be executed. The default priority is 0.
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConverter(
+     *         function(string $value, callable $next): string {
+     *             return $next(strtoupper($value));
+     *         }
+     *     )
+     *     ->registerConverter(
+     *         function(string $value, callable $next): string {
+     *             return $next($value . '!');
+     *         },
+     *         priority: -10,
+     *     )
+     *     ->registerConverter(
+     *         function(string $value, callable $next): string {
+     *             return $next($value . '?');
+     *         },
+     *         priority: 10,
+     *     )
+     *     ->mapper()
+     *     ->map('string', 'hello world'); // 'HELLO WORLD?!'
+     * ```
+     */
+    public function registerConverter(callable $converter, int $priority = 0): self
+    {
+        $clone = clone $this;
+        $clone->settings->mapperConverters[$priority][] = $converter;
+
+        return $clone;
+    }
+
+    /**
      * Filters which userland exceptions are allowed during the mapping.
      *
      * It is advised to use this feature with caution: userland exceptions may
@@ -493,86 +527,49 @@ final class MapperBuilder
     }
 
     /**
-     * A transformer is responsible for transforming specific values during a
-     * normalization process.
-     *
-     * Transformers can be chained, the last registered one will take precedence
-     * over the previous ones.
-     *
-     * By specifying the type of its first parameter, the given callable will
-     * determine when the transformer is used. Advanced type annotations like
-     * `non-empty-string` can be used to target a more specific type.
-     *
-     * A second `callable` parameter may be declared, allowing to call the next
-     * transformer in the chain and get the modified value from it, before
-     * applying its own transformations.
-     *
-     * A priority can be given to a transformer, to make sure it is called
-     * before or after another one. The higher the priority, the sooner the
-     * transformer will be called. Default priority is 0.
-     *
-     * An attribute on a property or a class can act as a transformer if:
-     *  1. It defines a `normalize` or `normalizeKey` method.
-     *  2. It is registered using either the `registerTransformer()` method or
-     *     the following attribute: @see \CuyZ\Valinor\Normalizer\AsTransformer
-     *
-     * Example:
+     * Warms up the injected cache implementation with the provided type
+     * signatures. This will improve the performance when the first call to the
+     * mapper is done for each of these types.
      *
      * ```php
-     * (new \CuyZ\Valinor\MapperBuilder())
+     * $mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())
+     *    ->withCache(new \CuyZ\Valinor\Cache\FileSystemCache('path/to/dir'));
      *
-     *     // The type of the first parameter of the transformer will determine
-     *     // when it will be used by the normalizer.
-     *     ->registerTransformer(
-     *         fn (string $value, callable $next) => strtoupper($next())
-     *     )
+     * // During the build:
+     * $mapperBuilder->warmupCacheFor(
+     *        // This will also recursively warm up the cache for the types of
+     *        // the class properties.
+     *        SomeClass::class,
      *
-     *     // Transformers can be chained, the last registered one will take
-     *     // precedence over the previous ones, which can be called using the
-     *     // `$next` parameter.
-     *     ->registerTransformer(
-     *         fn (string $value, callable $next) => $next() . '!'
-     *     )
+     *        // Any valid type signature can be used.
+     *        'non-empty-list<string, SomeClass>',
+     *        'array{name: string, age: int}',
+     *    );
      *
-     *     // A priority can be given to a transformer, to make sure it is
-     *     // called before or after another one.
-     *     ->registerTransformer(
-     *         fn (string $value, callable $next) => $next() . '?',
-     *         priority: -100 // Negative priority: transformer is called early
-     *     )
-     *
-     *     // External transformer attributes must be registered before they are
-     *     // used by the normalizer.
-     *     ->registerTransformer(\Some\External\TransformerAttribute::class)
-     *
-     *     ->normalizer()
-     *     ->normalize('Hello world'); // HELLO WORLD?!
+     * // In the application:
+     * $mapperBuilder->mapper()->map(SomeClass::class, […]);
      * ```
-     *
-     * @param callable|class-string $transformer
      */
-    public function registerTransformer(callable|string $transformer, int $priority = 0): self
+    public function warmupCacheFor(string ...$signatures): void
     {
-        $clone = clone $this;
-
-        if (is_callable($transformer)) {
-            $clone->settings->transformers[$priority][] = $transformer;
-        } else {
-            $clone->settings->transformerAttributes[$transformer] = null;
+        if (! isset($this->settings->cache)) {
+            return;
         }
 
-        return $clone;
+        $this->container()->cacheWarmupService()->warmup(...$signatures);
     }
 
     /**
-     * Warms up the injected cache implementation with the provided class names.
-     *
-     * By passing a class which contains recursive objects, every nested object
-     * will be cached as well.
+     * Clears all persisted cache entries from the registered cache
+     * implementation.
      */
-    public function warmup(string ...$signatures): void
+    public function clearCache(): void
     {
-        $this->container()->cacheWarmupService()->warmup(...$signatures);
+        if (! isset($this->settings->cache)) {
+            return;
+        }
+
+        $this->settings->cache->clear();
     }
 
     public function mapper(): TreeMapper
@@ -583,17 +580,6 @@ final class MapperBuilder
     public function argumentsMapper(): ArgumentsMapper
     {
         return $this->container()->argumentsMapper();
-    }
-
-    /**
-     * @template T of Normalizer
-     *
-     * @param Format<T> $format
-     * @return T
-     */
-    public function normalizer(Format $format): Normalizer
-    {
-        return $this->container()->normalizer($format);
     }
 
     public function __clone()

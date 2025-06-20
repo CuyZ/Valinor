@@ -25,34 +25,22 @@ final class MapperBuilderTest extends TestCase
 
     public function test_builder_methods_return_clone_of_builder_instance(): void
     {
-        $builderA = $this->mapperBuilder;
-        $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
-        $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
-        $builderD = $builderA->alter(static fn (string $value): string => 'foo');
-        $builderE = $builderA->enableFlexibleCasting();
-        $builderF = $builderA->allowScalarValueCasting();
-        $builderG = $builderA->allowNonSequentialList();
-        $builderH = $builderA->allowUndefinedValues();
-        $builderI = $builderA->allowSuperfluousKeys();
-        $builderJ = $builderA->allowPermissiveTypes();
-        $builderK = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderL = $builderA->withCache(new FakeCache());
-        $builderM = $builderA->supportDateFormats('Y-m-d');
-        $builderN = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
+        $builders = [
+            $this->mapperBuilder->infer(DateTimeInterface::class, static fn () => DateTime::class),
+            $this->mapperBuilder->registerConstructor(static fn (): stdClass => new stdClass()),
+            $this->mapperBuilder->allowScalarValueCasting(),
+            $this->mapperBuilder->allowNonSequentialList(),
+            $this->mapperBuilder->allowSuperfluousKeys(),
+            $this->mapperBuilder->allowPermissiveTypes(),
+            $this->mapperBuilder->registerConverter(fn (string $value) => $value),
+            $this->mapperBuilder->filterExceptions(fn () => new FakeErrorMessage()),
+            $this->mapperBuilder->withCache(new FakeCache()),
+            $this->mapperBuilder->supportDateFormats('Y-m-d'),
+        ];
 
-        self::assertNotSame($builderA, $builderB);
-        self::assertNotSame($builderA, $builderC);
-        self::assertNotSame($builderA, $builderD);
-        self::assertNotSame($builderA, $builderE);
-        self::assertNotSame($builderA, $builderF);
-        self::assertNotSame($builderA, $builderG);
-        self::assertNotSame($builderA, $builderH);
-        self::assertNotSame($builderA, $builderI);
-        self::assertNotSame($builderA, $builderJ);
-        self::assertNotSame($builderA, $builderK);
-        self::assertNotSame($builderA, $builderL);
-        self::assertNotSame($builderA, $builderM);
-        self::assertNotSame($builderA, $builderN);
+        foreach ($builders as $builder) {
+            self::assertNotSame($this->mapperBuilder, $builder);
+        }
     }
 
     public function test_mapper_instance_is_the_same(): void
@@ -86,5 +74,21 @@ final class MapperBuilderTest extends TestCase
         $mapperBuilder = $this->mapperBuilder->supportDateFormats('Y-m-d', 'd/m/Y', 'Y-m-d');
 
         self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_settings_are_cloned_when_configuring_mapper_builder(): void
+    {
+        $resultA = $this->mapperBuilder
+            ->registerConverter(fn (string $value): string => strtoupper($value))
+            ->mapper()
+            ->map('string', 'foo');
+
+        $resultB = $this->mapperBuilder
+            ->registerConverter(fn (string $value): string => $value . '!')
+            ->mapper()
+            ->map('string', 'foo');
+
+        self::assertSame('FOO', $resultA);
+        self::assertSame('foo!', $resultB);
     }
 }

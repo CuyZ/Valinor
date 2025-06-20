@@ -63,6 +63,8 @@ final class JsonNormalizer implements Normalizer
      *   for PHPStan but Psalm does have some (not all) issues as well.
      * - Using this annotation provokes *severe* performance issues when
      *   running PHPStan analysis, therefore it is preferable to avoid it.
+     *
+     * @internal
      */
     public function __construct(
         Transformer $transformer,

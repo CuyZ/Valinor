@@ -37,4 +37,32 @@ final class MappingErrorTest extends IntegrationTestCase
 
         $this->mapperBuilder()->argumentsMapper()->mapArguments(fn (string $foo) => $foo, 42);
     }
+
+    public function test_type_and_source_are_accessible_from_the_mapping_error(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map('array<string>', ['foo', 42, 'bar']);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertSame('array<string>', $exception->type());
+            self::assertSame(['foo', 42, 'bar'], $exception->source());
+        }
+    }
+
+    public function test_type_and_source_are_accessible_from_the_arguments_mapping_error(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->argumentsMapper()
+                ->mapArguments(fn (string $foo) => $foo, 42);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertSame('array{foo: string}', $exception->type());
+            self::assertSame(42, $exception->source());
+        }
+    }
 }

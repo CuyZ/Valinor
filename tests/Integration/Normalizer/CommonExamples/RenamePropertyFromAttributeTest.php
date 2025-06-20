@@ -12,7 +12,7 @@ final class RenamePropertyFromAttributeTest extends IntegrationTestCase
 {
     public function test_rename_attribute_works_properly(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(Rename::class)
             ->normalizer(Format::array())
             ->normalize(new class () {

@@ -51,6 +51,10 @@ final class ListType implements CompositeTraversableType
             return false;
         }
 
+        if ($this === self::native()) {
+            return true;
+        }
+
         return Polyfill::array_all(
             $value,
             fn (mixed $item) => $this->subType->accepts($item),

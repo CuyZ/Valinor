@@ -4,26 +4,28 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Message\Messages;
-use CuyZ\Valinor\Mapper\Tree\Node;
+use CuyZ\Valinor\Mapper\Tree\Message\DefaultMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\NormalizerBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function array_keys;
+use function array_map;
 use function bin2hex;
 use function implode;
-use function iterator_to_array;
+use function preg_match;
 use function random_bytes;
 use function sys_get_temp_dir;
 
 abstract class IntegrationTestCase extends TestCase
 {
-    /** @var CacheInterface<mixed> */
-    private CacheInterface $cacheToInject;
+    private Cache $cacheToInject;
 
     /**
      * After the test has run, it is run again with the cache injected. This
@@ -46,18 +48,22 @@ abstract class IntegrationTestCase extends TestCase
         $cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
         $this->cacheToInject = new FileSystemCache($cacheDir);
 
+        if (! $this->status()->isSuccess()) {
+            return;
+        }
+
         // First rerun of the test: the cache entries will be injected.
         parent::runBare();
 
         // Second rerun of the test: the cache entries will be used and tested.
         parent::runBare();
 
-        $this->cacheToInject->clear();
+        (new Filesystem())->remove($cacheDir);
     }
 
     /**
      * This method *must* be used by every integration test in replacement of a
-     * direct creation of a MapperBuilder instance. The goal is to ensure that
+     * direct creation of a `MapperBuilder` instance. The goal is to ensure that
      * a test is run twice: once without a cache and once with the internal
      * filesystem cache injected.
      */
@@ -73,14 +79,35 @@ abstract class IntegrationTestCase extends TestCase
     }
 
     /**
+     * This method *must* be used by every integration test in replacement of a
+     * direct creation of a `NormalizerBuilder` instance. The goal is to ensure
+     * that a test is run twice: once without a cache and once with the internal
+     * filesystem cache injected.
+     */
+    protected function normalizerBuilder(): NormalizerBuilder
+    {
+        $builder = new NormalizerBuilder();
+
+        if (isset($this->cacheToInject)) {
+            $builder = $builder->withCache($this->cacheToInject);
+        }
+
+        return $builder;
+    }
+
+    /**
      * @param non-empty-array<non-empty-string> $expected
      */
-    protected function assertMappingErrors(MappingError $error, array $expected): void
+    protected function assertMappingErrors(MappingError $exception, array $expected, bool $assertErrorsBodiesAreRegistered = true): void
     {
+        if ($assertErrorsBodiesAreRegistered) {
+            $this->assertErrorsBodiesAreRegistered($exception);
+        }
+
         $errors = [];
 
-        foreach (Messages::flattenFromNode($error->node()) as $message) {
-            $errors[$message->node()->path()] = $message;
+        foreach ($exception->messages() as $message) {
+            $errors[$message->path()] = $message;
         }
 
         $remainingErrors = $errors;
@@ -105,30 +132,24 @@ abstract class IntegrationTestCase extends TestCase
 
     protected function mappingFail(MappingError $error): never
     {
-        $errorFinder = static function (Node $node, callable $errorFinder) {
-            if ($node->isValid()) {
-                return;
-            }
+        $this->assertErrorsBodiesAreRegistered($error);
 
-            $errors = [];
+        $errors = array_map(
+            fn (NodeMessage $message) => "{$message->path()}: {$message->toString()} ({$message->code()})",
+            $error->messages()->toArray()
+        );
 
-            foreach ($node->messages() as $message) {
-                if ($message->isError()) {
-                    $errors[] = (string)$message;
-                }
-            }
+        self::fail(implode(' — ', $errors));
+    }
 
-            if (count($errors) > 0) {
-                yield $node->path() => "{$node->path()}: " . implode(' / ', $errors);
-            }
-
-            foreach ($node->children() as $child) {
-                yield from $errorFinder($child, $errorFinder);
-            }
-        };
-
-        $list = iterator_to_array($errorFinder($error->node(), $errorFinder));
-
-        self::fail(implode(' — ', $list));
+    private function assertErrorsBodiesAreRegistered(MappingError $error): void
+    {
+        foreach ($error->messages() as $message) {
+            self::assertArrayHasKey(
+                $message->body(),
+                DefaultMessage::TRANSLATIONS,
+                'The error message is not registered in `' . DefaultMessage::class . '::TRANSLATIONS`.',
+            );
+        }
     }
 }

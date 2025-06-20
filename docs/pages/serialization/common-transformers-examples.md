@@ -32,7 +32,7 @@ example below:
 <summary>Show code example — Global date format</summary>
 
 ```php
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->registerTransformer(
         fn (\DateTimeInterface $date) => $date->format('Y/m/d')
     )
@@ -81,7 +81,7 @@ final readonly class Event
     ) {}
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\Event(
@@ -133,7 +133,7 @@ final class CamelToSnakeCaseTransformer
     }
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->registerTransformer(new \My\App\CamelToSnakeCaseTransformer())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
@@ -203,7 +203,7 @@ final readonly class Country
     ) {}
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new \My\App\User(
@@ -267,7 +267,7 @@ final readonly class User
     ) {}
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->registerTransformer(
         fn (object $value, callable $next) => array_filter(
             $next(),
@@ -319,7 +319,7 @@ final readonly class Address
     ) {}
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
     ->normalize(
         new Address(
@@ -367,7 +367,7 @@ final readonly class Address
     }
 }
 
-(new \CuyZ\Valinor\MapperBuilder())
+(new \CuyZ\Valinor\NormalizerBuilder())
     ->registerTransformer(function (object $object, callable $next) {
         return method_exists($object, 'normalize')
             ? $object->normalize()
@@ -432,7 +432,7 @@ final readonly class Address implements \My\App\HasVersionedNormalization
 
 function normalizeWithVersion(string $version): mixed
 {
-    return (new \CuyZ\Valinor\MapperBuilder())
+    return (new \CuyZ\Valinor\NormalizerBuilder())
         ->registerTransformer(
             fn (\My\App\HasVersionedNormalization $object) => $object->normalizeWithVersion($version)
         )

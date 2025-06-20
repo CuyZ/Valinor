@@ -113,6 +113,7 @@ final class IntegerRangeType implements IntegerType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} is not a valid integer between {min} and {max}.')
+            ->withCode('invalid_integer_range')
             ->withParameter('min', (string)$this->min)
             ->withParameter('max', (string)$this->max)
             ->build();

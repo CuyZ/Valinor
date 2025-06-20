@@ -14,7 +14,7 @@ final class DateFormatFromAttributeTest extends IntegrationTestCase
 {
     public function test_date_format_attribute_works_properly(): void
     {
-        $result = $this->mapperBuilder()
+        $result = $this->normalizerBuilder()
             ->registerTransformer(DateTimeFormat::class)
             ->normalizer(Format::array())
             ->normalize(new class (

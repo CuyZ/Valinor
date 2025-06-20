@@ -17,7 +17,7 @@ final class StreamNormalizerTest extends IntegrationTestCase
         /** @var resource $resource */
         $resource = fopen('php://memory', 'r+');
 
-        $this->mapperBuilder()
+        $this->normalizerBuilder()
             ->normalizer(Format::json())
             ->streamTo($resource)
             ->normalize(['foo' => 'bar']);

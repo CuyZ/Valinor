@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Library;
 
 use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
 use stdClass;
 use Throwable;
 
@@ -21,7 +21,7 @@ final class SettingsTest extends TestCase
     {
         $settings = new Settings();
 
-        self::assertSame('2a24fb52f61377b93f562e764ed4dbec', $settings->hash());
+        self::assertSame('8f80a356e617c1920fc611ec22ba3709', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -30,18 +30,18 @@ final class SettingsTest extends TestCase
         $settings->inferredMapping[stdClass::class] = fn () => stdClass::class;
         $settings->nativeConstructors[stdClass::class] = null;
         $settings->customConstructors[] = fn (): stdClass => new stdClass();
-        $settings->valueModifier[] = fn (string $value): string => $value;
-        $settings->cache = $this->createMock(CacheInterface::class);
+        $settings->cache = new FakeCache();
         $settings->supportedDateFormats = ['Y-m-d\\TH:i:sP'];
         $settings->allowScalarValueCasting = true;
         $settings->allowNonSequentialList = true;
         $settings->allowUndefinedValues = true;
         $settings->allowSuperfluousKeys = true;
         $settings->allowPermissiveTypes = true;
+        $settings->mapperConverters[] = [fn (mixed $value): mixed => $value];
         $settings->exceptionFilter = fn (Throwable $e) => throw $e;
-        $settings->transformers[] = [fn (mixed $value): mixed => $value];
-        $settings->transformerAttributes[stdClass::class] = null;
+        $settings->normalizerTransformers[] = [fn (mixed $value): mixed => $value];
+        $settings->normalizerTransformerAttributes[stdClass::class] = null;
 
-        self::assertSame('0beb5be3f63aae0ba6e8c9b0f1040301', $settings->hash());
+        self::assertSame('678400c2e5e305845f78b34467f50241', $settings->hash());
     }
 }

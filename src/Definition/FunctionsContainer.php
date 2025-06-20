@@ -11,6 +11,7 @@ use Traversable;
 
 use function array_keys;
 use function count;
+use function iterator_to_array;
 
 /**
  * @internal
@@ -36,6 +37,14 @@ final class FunctionsContainer implements IteratorAggregate, Countable
     public function get(string|int $key): FunctionObject
     {
         return $this->function($key);
+    }
+
+    /**
+     * @return array<FunctionObject>
+     */
+    public function toArray(): array
+    {
+        return iterator_to_array($this);
     }
 
     public function getIterator(): Traversable

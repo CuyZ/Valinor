@@ -16,7 +16,7 @@ Basic usage:
 ```php
 namespace My\App;
 
-$normalizer = (new \CuyZ\Valinor\MapperBuilder())
+$normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json());
 
 $userAsJson = $normalizer->normalize(
@@ -43,7 +43,7 @@ data to a PHP resource:
 ```php
 $file = fopen('path/to/some_file.json', 'w');
 
-$normalizer = (new \CuyZ\Valinor\MapperBuilder())
+$normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
     ->streamTo($file);
 
@@ -63,7 +63,7 @@ $users = $database->execute('SELECT * FROM users');
 
 $file = fopen('path/to/some_file.json', 'w');
 
-$normalizer = (new \CuyZ\Valinor\MapperBuilder())
+$normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
     ->streamTo($file);
 
@@ -84,7 +84,7 @@ This can be achieved by passing these flags to the
 ```php
 namespace My\App;
 
-$normalizer = (new \CuyZ\Valinor\MapperBuilder())
+$normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
     ->withOptions(\JSON_PRESERVE_ZERO_FRACTION);
 
