@@ -1,5 +1,6 @@
 includes:
     - qa/PHPStan/valinor-phpstan-configuration.php
+    - qa/PHPStan/valinor-phpstan-suppress-pure-errors.php
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
 
@@ -24,6 +25,19 @@ parameters:
         - '#Construct empty\(\) is not allowed\. Use more strict comparison\.#'
 
         - '#Method [\w\\:]+_data_provider\(\) return type has no value type specified in iterable type#'
+
+        # Although PHPStan has a quite strong purity inferring mechanism, some
+        # caveats remain and make it really hard to properly add `@pure` markers
+        # all over the codebase. For this reason, we suppress these errors.
+        -
+            identifier: possiblyImpure.functionCall
+        -
+            identifier: possiblyImpure.methodCall
+        -
+            identifier: possiblyImpure.new
+        -
+            identifier: impure.functionCall
+
 
     stubFiles:
         - qa/PHPStan/Stubs/vfs/vfsStreamAbstractContent.stub

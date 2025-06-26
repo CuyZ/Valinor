@@ -11,6 +11,7 @@
 - [Removed Simple Cache (PSR-16) handling](#removed-simple-cache-psr-16-handling)
 - [Removed `MapperBuilder::enableFlexibleCasting()`](#removed-mapperbuilderenableflexiblecasting)
 - [Removed `MapperBuilder::alter()`](#removed-mapperbuilderalter)
+- [Add `@pure` markers to `MapperBuilder` and `NormalizerBuilder` methods](#add-pure-markers-to-mapperbuilder-and-normalizerbuilder-methods)
 - [Removed classes and interfaces](#removed-classes-and-interfaces)
 - [Class constructors marked as `@internal`](#class-constructors-marked-as-internal)
 
@@ -146,6 +147,43 @@ Note that the `MapperBuilder::alter()` was never really documented, so there are
 good chances that only a few users were using it.
 
 [mapper converters]: ../how-to/convert-input.md
+
+### Add `@pure` markers to `MapperBuilder` and `NormalizerBuilder` methods
+
+The `@pure` annotations were removed in a previous commit for the following
+reasons:
+
+> Due to the current overhead required to make PHPStan and Psalm work with the
+> pure feature, these requirements have been removed.
+>
+> Since PHPStan and Psalm are unfortunately unable to automatically detect
+> whether callable values provided to `MapperBuilder` are pure, users are forced
+> to manually add `@pure` annotations.
+>
+> This decision aims to strike a fair balance between the library's strictness
+> and user experience.
+
+After a discussion with `@pure` aficionados, the decision has been made to
+re-introduce them. This time, is is possible to easily suppress the errors
+reported by PHPStan and Psalm by using plugins provided out of the box by this
+library.
+
+To globally suppress these errors in PHPStan, the following line must be added
+to `phpstan.neon`:
+
+```yaml
+includes:
+    - vendor/cuyz/valinor/qa/PHPStan/valinor-phpstan-suppress-pure-errors.php
+```
+
+To globally suppress these errors in Psalm, the following line must be added to
+`psalm.xml`:
+
+```xml
+
+<xi:include href="qa/Psalm/valinor-psalm-suppress-pure-errors.xml"
+            xmlns:xi="http://www.w3.org/2001/XInclude"/>
+```
 
 ### Removed classes and interfaces
 
