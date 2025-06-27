@@ -35,6 +35,9 @@ final class MapperBuilder
      * using the given source. These arguments can then be used to decide which
      * implementation should be used.
      *
+     * The callback *must* be pure, its output must be deterministic.
+     * @see https://en.wikipedia.org/wiki/Pure_function
+     *
      * Example:
      *
      * ```php
@@ -53,6 +56,7 @@ final class MapperBuilder
      * ```
      *
      * @param interface-string|class-string $name
+     * @param pure-callable $callback
      */
     public function infer(string $name, callable $callback): self
     {
@@ -198,7 +202,10 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @param callable|class-string ...$constructors
+     * The constructor *must* be pure, its output must be deterministic.
+     * @see https://en.wikipedia.org/wiki/Pure_function
+     *
+     * @param pure-callable|class-string ...$constructors
      */
     public function registerConstructor(callable|string ...$constructors): self
     {
@@ -474,6 +481,11 @@ final class MapperBuilder
      *     ->mapper()
      *     ->map('string', 'hello world'); // 'HELLO WORLD?!'
      * ```
+     *
+     * The converter *must* be pure, its output must be deterministic.
+     * @see https://en.wikipedia.org/wiki/Pure_function
+     *
+     * @param pure-callable $converter
      */
     public function registerConverter(callable $converter, int $priority = 0): self
     {

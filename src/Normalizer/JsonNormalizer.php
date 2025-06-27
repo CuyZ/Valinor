@@ -102,6 +102,9 @@ final class JsonNormalizer implements Normalizer
         return new self($this->transformer, $options);
     }
 
+    /**
+     * @pure
+     */
     public function normalize(mixed $value): string
     {
         $result = $this->transformer->transform($value);

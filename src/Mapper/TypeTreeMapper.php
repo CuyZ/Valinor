@@ -22,6 +22,9 @@ final class TypeTreeMapper implements TreeMapper
         private Settings $settings,
     ) {}
 
+    /**
+     * @pure
+     */
     public function map(string $signature, mixed $source): mixed
     {
         try {
