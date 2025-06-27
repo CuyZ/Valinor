@@ -2,6 +2,19 @@
 
 ## Upgrade from 1.x to 2.x
 
+**Summary**
+
+- [TL;DR — Full list of breaking changes](#full-list-of-breaking-changes)
+- [Changes to messages/errors handling](#changes-to-messageserrors-handling)
+- [Changes to messages codes](#changes-to-messages-codes)
+- [Introduced `NormalizerBuilder` as the main entry for normalizers](#introduced-normalizerbuilder-as-the-main-entry-for-normalizers)
+- [Removed Simple Cache (PSR-16) handling](#removed-simple-cache-psr-16-handling)
+- [Removed `MapperBuilder::enableFlexibleCasting()`](#removed-mapperbuilderenableflexiblecasting)
+- [Removed `MapperBuilder::alter()`](#removed-mapperbuilderalter)
+- [Add `@pure` markers to `MapperBuilder` and `NormalizerBuilder` methods](#add-pure-markers-to-mapperbuilder-and-normalizerbuilder-methods)
+- [Removed classes and interfaces](#removed-classes-and-interfaces)
+- [Class constructors marked as `@internal`](#class-constructors-marked-as-internal)
+
 ### Changes to messages/errors handling
 
 Some changes have been made to the way messages and errors are handled.
