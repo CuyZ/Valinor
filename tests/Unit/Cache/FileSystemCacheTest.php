@@ -14,6 +14,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
 use function file_put_contents;
+use function umask;
 
 final class FileSystemCacheTest extends TestCase
 {
@@ -71,6 +72,16 @@ final class FileSystemCacheTest extends TestCase
         $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
     }
 
+    public function test_temporary_dir_has_correct_permissions(): void
+    {
+        self::assertFalse($this->files->hasChild('.valinor.tmp'));
+
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+
+        self::assertTrue($this->files->hasChild('.valinor.tmp'));
+        self::assertSame(0777, $this->files->getChild('.valinor.tmp')->getPermissions());
+    }
+
     public function test_temporary_cache_file_not_writable_throws_exception(): void
     {
         $this->expectException(CompiledPhpCacheFileNotWritten::class);
@@ -110,6 +121,15 @@ final class FileSystemCacheTest extends TestCase
         }
 
         self::assertEmpty($tmpDirectory->getChildren());
+    }
+
+    public function test_cache_file_has_correct_permissions(): void
+    {
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+
+        $file = $this->files->getChildren()[1];
+
+        self::assertSame(0666 & ~umask(), $file->getPermissions());
     }
 
     public function test_clear_entries_clears_everything(): void
