@@ -19,6 +19,7 @@ interface Normalizer
      * a data format (JSON, CSV, XML, etc.). The normalizer will take care of
      * recursively transforming the data into a format that can be serialized.
      *
+     * @pure
      * @return T
      */
     public function normalize(mixed $value): mixed;
