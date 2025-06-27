@@ -121,12 +121,12 @@ by using the `@pure` annotation that is handled by [PHPStan] and [Psalm].
 
 Mapping user-provided data is, in itself, a potentially dangerous operation: by
 relying only on pure functions/types for mapping, you ensure that malicious user
-input won't cause side effects when `TreeMapper#map()` is called. You are free to
-suppress/ignore the given purity guidelines, at the cost of an expanded attack
-surface.
+input won't cause side effects when `TreeMapper::map()` is called. You are free
+to suppress/ignore the given purity guidelines, at the cost of an expanded
+attack surface.
 
-There are cases where the purity analysis can return false-positives, which can be 
-easily ignored, for instance by using the
+There are cases where the purity analysis can return false-positives, which can
+be easily ignored, for instance by using the
 [`@phpstan-ignore`](https://phpstan.org/user-guide/ignoring-errors#ignoring-in-code-using-phpdocs)
 and
 [`@psalm-suppress`](https://psalm.dev/docs/running_psalm/dealing_with_code_issues/#docblock-suppression)
