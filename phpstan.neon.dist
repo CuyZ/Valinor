@@ -37,6 +37,8 @@ parameters:
             identifier: possiblyImpure.new
         -
             identifier: impure.functionCall
+        -
+            identifier: impure.propertyAssign
 
 
     stubFiles:

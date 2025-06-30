@@ -55,6 +55,7 @@ final class MapperBuilder
      *     ]);
      * ```
      *
+     * @pure
      * @param interface-string|class-string $name
      * @param pure-callable $callback
      */
@@ -205,6 +206,7 @@ final class MapperBuilder
      * The constructor *must* be pure, its output must be deterministic.
      * @see https://en.wikipedia.org/wiki/Pure_function
      *
+     * @pure
      * @param pure-callable|class-string ...$constructors
      */
     public function registerConstructor(callable|string ...$constructors): self
@@ -236,6 +238,7 @@ final class MapperBuilder
      *     ->map(DateTimeInterface::class, 'Monday, 08-Nov-1971 13:37:42 UTC');
      * ```
      *
+     * @pure
      * @param non-empty-string $format
      * @param non-empty-string ...$formats
      */
@@ -253,6 +256,7 @@ final class MapperBuilder
      * By default, any valid timestamp or RFC 3339-formatted value are accepted.
      * Custom formats can be set using method `supportDateFormats()`.
      *
+     * @pure
      * @return non-empty-array<non-empty-string>
      */
     public function supportedDateFormats(): array
@@ -288,6 +292,8 @@ final class MapperBuilder
      *         // …
      *     ]);
      * ```
+     *
+     * @pure
      */
     public function withCache(Cache $cache): self
     {
@@ -323,6 +329,8 @@ final class MapperBuilder
      *         'active' => 1, // Will be cast to bool
      *     ]);
      * ```
+     *
+     * @pure
      */
     public function allowScalarValueCasting(): self
     {
@@ -349,6 +357,8 @@ final class MapperBuilder
      *
      * // => [0 => 42, 1 => 1337]
      * ```
+     *
+     * @pure
      */
     public function allowNonSequentialList(): self
     {
@@ -374,6 +384,8 @@ final class MapperBuilder
      *
      * // => ['name' => 'John Doe', 'age' => null]
      * ```
+     *
+     * @pure
      */
     public function allowUndefinedValues(): self
     {
@@ -399,6 +411,8 @@ final class MapperBuilder
      *         'city' => 'Paris', // Will be ignored
      *     ]);
      * ```
+     *
+     * @pure
      */
     public function allowSuperfluousKeys(): self
     {
@@ -420,6 +434,8 @@ final class MapperBuilder
      *         'data' => 42, // Could be any value
      *     ]);
      * ```
+     *
+     * @pure
      */
     public function allowPermissiveTypes(): self
     {
@@ -519,6 +535,7 @@ final class MapperBuilder
      * The converter *must* be pure, its output must be deterministic.
      * @see https://en.wikipedia.org/wiki/Pure_function
      *
+     * @pure
      * @param pure-callable|class-string $converter
      */
     public function registerConverter(callable|string $converter, int $priority = 0): self
@@ -567,6 +584,7 @@ final class MapperBuilder
      *     ]);
      * ```
      *
+     * @pure
      * @param callable(Throwable): ErrorMessage $filter
      */
     public function filterExceptions(callable $filter): self
@@ -623,11 +641,13 @@ final class MapperBuilder
         $this->settings->cache->clear();
     }
 
+    /** @pure */
     public function mapper(): TreeMapper
     {
         return $this->container()->treeMapper();
     }
 
+    /** @pure */
     public function argumentsMapper(): ArgumentsMapper
     {
         return $this->container()->argumentsMapper();

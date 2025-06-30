@@ -9,5 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 /** @api */
 interface MessageFormatter
 {
+    /** @pure */
     public function format(NodeMessage $message): NodeMessage;
 }

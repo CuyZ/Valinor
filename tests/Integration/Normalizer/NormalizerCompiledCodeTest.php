@@ -47,6 +47,7 @@ final class NormalizerCompiledCodeTest extends TestCase
             $builder = $builder->registerTransformer($transformer);
         }
 
+        // @phpstan-ignore method.resultUnused
         $builder->normalizer(Format::array())->normalize($input);
 
         $cacheFiles = glob($directory . DIRECTORY_SEPARATOR . 'transformer-*.php');

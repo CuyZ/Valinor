@@ -69,6 +69,7 @@ final class MessageMapFormatter implements MessageFormatter
         private array $map
     ) {}
 
+    /** @pure */
     public function format(NodeMessage $message): NodeMessage
     {
         $target = $this->target($message);

@@ -12,5 +12,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
  */
 interface HasCode extends Message
 {
+    /** @pure */
     public function code(): string;
 }

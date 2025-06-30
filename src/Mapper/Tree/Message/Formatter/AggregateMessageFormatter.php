@@ -17,6 +17,7 @@ final class AggregateMessageFormatter implements MessageFormatter
         $this->formatters = $formatters;
     }
 
+    /** @pure */
     public function format(NodeMessage $message): NodeMessage
     {
         foreach ($this->formatters as $formatter) {

@@ -31,6 +31,7 @@ final class CacheClearTest extends IntegrationTestCase
 
         $mapperBuilder = $this->normalizerBuilder()->withCache($cache);
 
+        // @phpstan-ignore method.resultUnused
         $mapperBuilder->normalizer(Format::array())->normalize('foo');
 
         self::assertGreaterThan(0, $cache->countEntries());

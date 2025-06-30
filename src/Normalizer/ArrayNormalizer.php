@@ -21,9 +21,7 @@ final class ArrayNormalizer implements Normalizer
         private Transformer $transformer,
     ) {}
 
-    /**
-     * @pure
-     */
+    /** @pure */
     public function normalize(mixed $value): mixed
     {
         /** @var array<mixed>|scalar|null */

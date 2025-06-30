@@ -30,6 +30,7 @@ final class NodeMessage implements Message, HasCode, Stringable
         private string $sourceValue,
     ) {}
 
+    /** @pure */
     public function withLocale(string $locale): self
     {
         $clone = clone $this;
@@ -38,6 +39,7 @@ final class NodeMessage implements Message, HasCode, Stringable
         return $clone;
     }
 
+    /** @pure */
     public function locale(): string
     {
         return $this->locale;
@@ -61,6 +63,8 @@ final class NodeMessage implements Message, HasCode, Stringable
      * ```php
      * $message = $message->withBody('new message for value: {source_value}');
      * ```
+     *
+     * @pure
      */
     public function withBody(string $body): self
     {
@@ -70,26 +74,31 @@ final class NodeMessage implements Message, HasCode, Stringable
         return $clone;
     }
 
+    /** @pure */
     public function body(): string
     {
         return $this->body;
     }
 
+    /** @pure */
     public function name(): string
     {
         return $this->name;
     }
 
+    /** @pure */
     public function path(): string
     {
         return $this->path;
     }
 
+    /** @pure */
     public function type(): string
     {
         return $this->type;
     }
 
+    /** @pure */
     public function sourceValue(): string
     {
         return $this->sourceValue;
@@ -99,6 +108,8 @@ final class NodeMessage implements Message, HasCode, Stringable
      * Adds a parameter that can replace a placeholder in the message body.
      *
      * @see self::withBody()
+     *
+     * @pure
      */
     public function withParameter(string $name, string $value): self
     {
@@ -108,16 +119,19 @@ final class NodeMessage implements Message, HasCode, Stringable
         return $clone;
     }
 
+    /** @pure */
     public function originalMessage(): Message
     {
         return $this->message;
     }
 
+    /** @pure */
     public function isError(): bool
     {
         return $this->message instanceof ErrorMessage;
     }
 
+    /** @pure */
     public function code(): string
     {
         if ($this->message instanceof HasCode) {
@@ -131,17 +145,20 @@ final class NodeMessage implements Message, HasCode, Stringable
         return 'unknown';
     }
 
+    /** @pure */
     public function toString(): string
     {
         return $this->format($this->body, $this->parameters());
     }
 
+    /** @pure */
     public function __toString(): string
     {
         return $this->toString();
     }
 
     /**
+     * @pure
      * @param array<string, string> $parameters
      */
     private function format(string $body, array $parameters): string
