@@ -40,6 +40,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 interface HasParameters extends Message
 {
     /**
+     * @pure
      * @return array<string, string>
      */
     public function parameters(): array;

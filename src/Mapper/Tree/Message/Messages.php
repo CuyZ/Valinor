@@ -65,6 +65,7 @@ final class Messages implements IteratorAggregate, Countable
         $this->messages = $messages;
     }
 
+    /** @pure */
     public function errors(): self
     {
         $clone = clone $this;
@@ -73,6 +74,7 @@ final class Messages implements IteratorAggregate, Countable
         return $clone;
     }
 
+    /** @pure */
     public function formatWith(MessageFormatter ...$formatters): self
     {
         $clone = clone $this;
@@ -82,6 +84,7 @@ final class Messages implements IteratorAggregate, Countable
     }
 
     /**
+     * @pure
      * @return list<NodeMessage>
      */
     public function toArray(): array
@@ -90,6 +93,7 @@ final class Messages implements IteratorAggregate, Countable
         return iterator_to_array($this);
     }
 
+    /** @pure */
     public function count(): int
     {
         return count($this->messages);

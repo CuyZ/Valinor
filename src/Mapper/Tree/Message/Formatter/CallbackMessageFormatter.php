@@ -40,6 +40,7 @@ final class CallbackMessageFormatter implements MessageFormatter
         $this->callback = $callback;
     }
 
+    /** @pure */
     public function format(NodeMessage $message): NodeMessage
     {
         return ($this->callback)($message);

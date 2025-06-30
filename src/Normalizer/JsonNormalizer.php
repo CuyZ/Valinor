@@ -96,15 +96,15 @@ final class JsonNormalizer implements Normalizer
      * // `$lowerManhattanAsJson` is a valid JSON string representing the data:
      * // {"longitude":40.7128,"latitude":-74.0000}
      * ```
+     *
+     * @pure
      */
     public function withOptions(int $options): self
     {
         return new self($this->transformer, $options);
     }
 
-    /**
-     * @pure
-     */
+    /** @pure */
     public function normalize(mixed $value): string
     {
         $result = $this->transformer->transform($value);
@@ -150,6 +150,7 @@ final class JsonNormalizer implements Normalizer
      * $normalizer->normalize($users);
      * ```
      *
+     * @pure
      * @param resource $resource
      */
     public function streamTo(mixed $resource): StreamNormalizer

@@ -22,9 +22,7 @@ final class StreamNormalizer implements Normalizer
         private JsonFormatter $formatter,
     ) {}
 
-    /**
-     * @pure
-     */
+    /** @pure */
     public function normalize(mixed $value): mixed
     {
         $result = $this->transformer->transform($value);

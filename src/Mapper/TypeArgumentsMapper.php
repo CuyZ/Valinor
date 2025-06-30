@@ -25,9 +25,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
         private Settings $settings,
     ) {}
 
-    /**
-     * @pure
-     */
+    /** @pure */
     public function mapArguments(callable $callable, mixed $source): array
     {
         $function = $this->functionDefinitionRepository->for($callable);

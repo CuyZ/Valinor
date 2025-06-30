@@ -45,6 +45,7 @@ final class Format
      * // ];
      * ```
      *
+     * @pure
      * @return self<ArrayNormalizer>
      */
     public static function array(): self
@@ -76,6 +77,7 @@ final class Format
      * // {"name":"John Doe","age":42,"country":{"name":"France","code":"FR"}}
      * ```
      *
+     * @pure
      * @return self<JsonNormalizer>
      */
     public static function json(): self
@@ -89,6 +91,7 @@ final class Format
     private function __construct(private string $type) {}
 
     /**
+     * @pure
      * @return class-string<T>
      */
     public function type(): string

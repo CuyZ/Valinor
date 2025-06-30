@@ -35,6 +35,8 @@ final class TranslationMessageFormatter implements MessageFormatter
      *     'Valeur invalide {source_value}.',
      * );
      * ```
+     *
+     * @pure
      */
     public function withTranslation(string $locale, string $original, string $translation): self
     {
@@ -64,6 +66,7 @@ final class TranslationMessageFormatter implements MessageFormatter
      * $message = $formatter->format($message);
      * ```
      *
+     * @pure
      * @param array<string, array<string, string>> $translations
      */
     public function withTranslations(array $translations): self
@@ -75,6 +78,7 @@ final class TranslationMessageFormatter implements MessageFormatter
         return $clone;
     }
 
+    /** @pure */
     public function format(NodeMessage $message): NodeMessage
     {
         $body = $this->translations[$message->body()][$message->locale()] ?? null;

@@ -38,6 +38,7 @@ final class Settings
     /** @var list<callable> */
     public array $customConstructors = [];
 
+    /** @pure */
     public Cache $cache;
 
     /** @var non-empty-list<non-empty-string> */

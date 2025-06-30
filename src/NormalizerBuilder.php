@@ -48,6 +48,8 @@ final class NormalizerBuilder
      *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
      *     ->normalize($someData);
      * ```
+     *
+     * @pure
      */
     public function withCache(Cache $cache): self
     {
@@ -117,6 +119,7 @@ final class NormalizerBuilder
      * The transformer *must* be pure, its output must be deterministic.
      * @see https://en.wikipedia.org/wiki/Pure_function
      *
+     * @pure
      * @param pure-callable|class-string $transformer
      */
     public function registerTransformer(callable|string $transformer, int $priority = 0): self
@@ -146,6 +149,8 @@ final class NormalizerBuilder
     }
 
     /**
+     * @pure
+     *
      * @template T of Normalizer
      *
      * @param Format<T> $format

@@ -24,6 +24,7 @@ final class Source implements IteratorAggregate
     ) {}
 
     /**
+     * @pure
      * @param iterable<mixed> $data
      */
     public static function iterable(iterable $data): Source
@@ -32,6 +33,7 @@ final class Source implements IteratorAggregate
     }
 
     /**
+     * @pure
      * @param array<mixed> $data
      */
     public static function array(array $data): Source
@@ -40,6 +42,7 @@ final class Source implements IteratorAggregate
     }
 
     /**
+     * @pure
      * @throws InvalidSource
      */
     public static function json(string $jsonSource): Source
@@ -48,6 +51,7 @@ final class Source implements IteratorAggregate
     }
 
     /**
+     * @pure
      * @throws InvalidSource
      */
     public static function yaml(string $yamlSource): Source
@@ -55,17 +59,20 @@ final class Source implements IteratorAggregate
         return new Source(new YamlSource($yamlSource));
     }
 
+    /** @pure */
     public static function file(SplFileObject $file): Source
     {
         return new Source(new FileSource($file));
     }
 
+    /** @pure */
     public function camelCaseKeys(): Source
     {
         return new Source(new CamelCaseKeys($this));
     }
 
     /**
+     * @pure
      * @param array<string> $map
      */
     public function map(array $map): Source
