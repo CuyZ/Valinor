@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use RuntimeException;
 
-/** @api */
+/** @internal */
 final class ValueConverterHasNoArgument extends RuntimeException
 {
     public function __construct(FunctionDefinition $function)
