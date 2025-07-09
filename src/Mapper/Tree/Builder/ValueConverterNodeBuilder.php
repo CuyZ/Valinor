@@ -27,7 +27,9 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         try {
             $result = $this->unstack($this->functions->toArray(), $shell, $rootBuilder);
 
-            return Node::new($result);
+            $shell = $shell->withValue($result);
+
+            return $this->delegate->build($shell, $rootBuilder);
         } catch (InvalidNodeDuringValueConversion $exception) {
             return $exception->node;
         }
