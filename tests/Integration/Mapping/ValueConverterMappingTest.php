@@ -140,6 +140,20 @@ final class ValueConverterMappingTest extends IntegrationTestCase
             ->map('string', 'foo');
     }
 
+    public function test_converter_returning_invalid_value_makes_mapping_fail(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->registerConverter(fn (string $value) => '')
+                ->mapper()
+                ->map('non-empty-string', 'foo');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[invalid_non_empty_string] Value '' is not a valid non-empty string.",
+            ]);
+        }
+    }
+
     public function test_can_convert_snake_case_to_camel_case_for_object(): void
     {
         $class = new class () {
