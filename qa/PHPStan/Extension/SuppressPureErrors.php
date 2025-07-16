@@ -6,12 +6,12 @@ namespace CuyZ\Valinor\QA\PHPStan\Extension;
 
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\NormalizerBuilder;
+use CuyZ\Valinor\Utility\Polyfill;
 use PhpParser\Node;
 use PHPStan\Analyser\Error;
 use PHPStan\Analyser\IgnoreErrorExtension;
 use PHPStan\Analyser\Scope;
 
-use function array_find;
 use function in_array;
 
 /**
@@ -40,7 +40,7 @@ final class SuppressPureErrors implements IgnoreErrorExtension
             return false;
         }
 
-        if (! array_find($type->getObjectClassNames(), fn (string $className) => $className === MapperBuilder::class || $className === NormalizerBuilder::class)) {
+        if (! Polyfill::array_find($type->getObjectClassNames(), fn (string $className) => $className === MapperBuilder::class || $className === NormalizerBuilder::class)) {
             return false;
         }
 

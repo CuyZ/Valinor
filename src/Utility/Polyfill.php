@@ -22,4 +22,19 @@ final class Polyfill
 
         return true;
     }
+    /**
+     * PHP8.4 use native function `array_find` instead.
+     *
+     * @param array<mixed> $array
+     */
+    public static function array_find(array $array, callable $callback): mixed
+    {
+        foreach ($array as $key => $value) {
+            if ($callback($value, $key)) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
 }
