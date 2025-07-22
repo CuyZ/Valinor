@@ -25,6 +25,7 @@ final class Polyfill
     /**
      * PHP8.4 use native function `array_find` instead.
      *
+     * @infection-ignore-all
      * @param array<mixed> $array
      */
     public static function array_find(array $array, callable $callback): mixed
