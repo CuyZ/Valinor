@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Definition\FunctionObject;
-use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Definition\AttributeDefinition;
+use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeDuringValueConversion;
-use CuyZ\Valinor\Mapper\Tree\Exception\ValueConverterHasNoArgument;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\ObjectType;
+use Exception;
+use Throwable;
 
+use function array_map;
 use function array_shift;
 use function is_float;
 use function is_nan;
@@ -19,13 +25,46 @@ final class ValueConverterNodeBuilder implements NodeBuilder
 {
     public function __construct(
         private NodeBuilder $delegate,
-        private FunctionsContainer $functions,
+        private ConverterContainer $converterContainer,
+        private ClassDefinitionRepository $classDefinitionRepository,
+        private FunctionDefinitionRepository $functionDefinitionRepository,
+        /** @var callable(Throwable): ErrorMessage */
+        private mixed $exceptionFilter,
     ) {}
 
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
+        $type = $shell->type();
+        $attributes = $shell->attributes();
+
+        if ($type instanceof ObjectType) {
+            $class = $this->classDefinitionRepository->for($type);
+
+            $attributes = $attributes->merge($class->attributes);
+        }
+
+        // @infection-ignore-all (This is a performance optimization, we don't test this)
+        if ($attributes->count() === 0 && $this->converterContainer->converters() === []) {
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
+        $converterAttributes = $attributes->filter(ConverterContainer::filterConverterAttributes(...));
+
+        $stack = [
+            ...array_map(
+                // @phpstan-ignore method.notFound (we know the `map` method exists)
+                static fn (AttributeDefinition $attribute) => $attribute->instantiate()->map(...),
+                $converterAttributes->toArray(),
+            ),
+            ...$this->converterContainer->converters(),
+        ];
+
+        if ($stack === []) {
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
         try {
-            $result = $this->unstack($this->functions->toArray(), $shell, $rootBuilder);
+            $result = $this->unstack($stack, $shell, $rootBuilder);
 
             $shell = $shell->withValue($result);
 
@@ -36,26 +75,24 @@ final class ValueConverterNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @param array<FunctionObject> $stack
+     * @param array<callable> $stack
      */
     private function unstack(array $stack, Shell $shell, RootNodeBuilder $rootBuilder): mixed
     {
         while ($current = array_shift($stack)) {
-            if ($current->definition->parameters->count() === 0) {
-                throw new ValueConverterHasNoArgument($current->definition);
-            }
+            $converter = $this->functionDefinitionRepository->for($current);
 
-            if (! $shell->type()->matches($current->definition->returnType)) {
+            if (! $shell->type()->matches($converter->returnType)) {
                 continue;
             }
 
-            if (! $current->definition->parameters->at(0)->type->accepts($shell->value())) {
+            if (! $converter->parameters->at(0)->type->accepts($shell->value())) {
                 continue;
             }
 
             $arguments = [$shell->value()];
 
-            if ($current->definition->parameters->count() >= 2) {
+            if ($converter->parameters->count() > 1) {
                 $arguments[] = function (mixed $value = NAN) use ($stack, $shell, $rootBuilder) {
                     if (! is_float($value) || ! is_nan($value)) {
                         $shell = $shell->withValue($value);
@@ -65,7 +102,17 @@ final class ValueConverterNodeBuilder implements NodeBuilder
                 };
             }
 
-            return ($current->callback)(...$arguments);
+            try {
+                return $current(...$arguments);
+            } catch (Exception $exception) {
+                if (! $exception instanceof Message) {
+                    $exception = ($this->exceptionFilter)($exception);
+                }
+
+                $error = Node::error($shell, $exception);
+
+                throw new InvalidNodeDuringValueConversion($error);
+            }
         }
 
         $node = $this->delegate->build($shell, $rootBuilder);

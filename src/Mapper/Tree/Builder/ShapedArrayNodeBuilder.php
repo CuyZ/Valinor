@@ -40,6 +40,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $key = $element->key()->value();
 
             $child = $shell->child((string)$key, $element->type());
+            $child = $child->withAttributes($element->attributes());
 
             if (array_key_exists($key, $value)) {
                 $child = $child->withValue($value[$key]);

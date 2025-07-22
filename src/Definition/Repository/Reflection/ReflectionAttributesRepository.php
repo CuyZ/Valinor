@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Definition\Repository\Reflection;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Mapper\AsConverter;
 use CuyZ\Valinor\Normalizer\AsTransformer;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
@@ -37,9 +38,8 @@ final class ReflectionAttributesRepository implements AttributesRepository
                     }
                 }
 
-                $parentAttributes = Reflection::class($attribute->getName())->getAttributes(AsTransformer::class);
-
-                return $parentAttributes !== [];
+                return Reflection::class($attribute->getName())->getAttributes(AsConverter::class) !== []
+                    || Reflection::class($attribute->getName())->getAttributes(AsTransformer::class) !== [];
             },
         );
 

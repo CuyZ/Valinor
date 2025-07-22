@@ -26,8 +26,8 @@ final class ClassDefinitionCompiler
 
     public function __construct()
     {
-        $this->typeCompiler = new TypeCompiler();
         $this->attributesCompiler = new AttributesCompiler($this);
+        $this->typeCompiler = new TypeCompiler($this->attributesCompiler);
 
         $this->methodCompiler = new MethodDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
         $this->propertyCompiler = new PropertyDefinitionCompiler($this->typeCompiler, $this->attributesCompiler);
