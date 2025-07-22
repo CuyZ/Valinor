@@ -16,8 +16,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.php-version }}
-          extensions: ${{ env.php-extensions }}
-          ini-values: zend.assertions=1
           coverage: none # Xdebug is installed by default, so we remove it manually
 
       - uses: "ramsey/composer-install@v2"
