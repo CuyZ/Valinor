@@ -459,38 +459,77 @@ final class MapperBuilder
      * converters are applied. The higher the priority, the earlier the
      * converter will be executed. The default priority is 0.
      *
+     * An attribute on a property or a class can act as a converter if:
+     *  1. It defines a `map` method.
+     *  2. It is registered using either the `registerConverter()` method or
+     *     the following attribute: @see \CuyZ\Valinor\Mapper\AsConverter
+     *
      * ```php
      * (new \CuyZ\Valinor\MapperBuilder())
+     *
+     *     // The type of the first parameter of the converter will determine
+     *     // when it will be used by the mapper.
      *     ->registerConverter(
-     *         function(string $value, callable $next): string {
-     *             return $next(strtoupper($value));
-     *         }
+     *         fn (string $value, callable $next): string => $next(strtoupper($value))
      *     )
+     *
+     *     // Converters can be chained, the last registered one will take
+     *     // precedence over the previous ones, which can be called using the
+     *     // `$next` parameter.
      *     ->registerConverter(
-     *         function(string $value, callable $next): string {
-     *             return $next($value . '!');
-     *         },
-     *         priority: -10,
+     *         fn (string $value, callable $next): string => $next($value . '!')
      *     )
+     *
+     *     // A priority can be given to a converter, to make sure it is called
+     *     // before or after another one.
      *     ->registerConverter(
-     *         function(string $value, callable $next): string {
-     *             return $next($value . '?');
-     *         },
-     *         priority: 10,
+     *         fn (string $value, callable $next): string => $next($value . '?'),
+     *         priority: -100 // Negative priority: converter is called early
      *     )
+     *
+     *     // External converter attributes must be registered before they are
+     *     // used by the mapper.
+     *     ->registerConverter(\Some\External\ConverterAttribute::class)
+     *
      *     ->mapper()
-     *     ->map('string', 'hello world'); // 'HELLO WORLD?!'
+     *     ->map('string', 'hello world'); // 'HELLO WORLD!?'
+     * ```
+     *
+     * It is also possible to register attributes that share a common interface
+     * by giving the interface name to the registration method.
+     *
+     * ```php
+     * namespace My\App;
+     *
+     * interface MyAttributeInterface {}
+     *
+     * #[\Attribute]
+     * final class SomeAttribute implements \My\App\MyAttributeInterface {}
+     *
+     * #[\Attribute]
+     * final class SomeOtherAttribute implements \My\App\MyAttributeInterface {}
+     *
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     // Registers both `SomeAttribute` and `SomeOtherAttribute` attributes
+     *     ->registerConverter(\My\App\MyAttributeInterface::class)
+     *     ->mapper()
+     *     ->map(…);
      * ```
      *
      * The converter *must* be pure, its output must be deterministic.
      * @see https://en.wikipedia.org/wiki/Pure_function
      *
-     * @param pure-callable $converter
+     * @param pure-callable|class-string $converter
      */
-    public function registerConverter(callable $converter, int $priority = 0): self
+    public function registerConverter(callable|string $converter, int $priority = 0): self
     {
         $clone = clone $this;
-        $clone->settings->mapperConverters[$priority][] = $converter;
+
+        if (is_callable($converter)) {
+            $clone->settings->mapperConverters[$priority][] = $converter;
+        } else {
+            $clone->settings->mapperConverterAttributes[$converter] = null;
+        }
 
         return $clone;
     }

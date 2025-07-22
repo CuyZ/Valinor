@@ -113,9 +113,9 @@ final class ObjectNodeBuilder implements NodeBuilder
         foreach ($arguments as $argument) {
             $name = $argument->name();
             $type = $argument->type();
-            $attributes = $argument->attributes();
 
-            $child = $shell->child($name, $type, $attributes);
+            $child = $shell->child($name, $type);
+            $child = $child->withAttributes($argument->attributes());
 
             if ($arguments->hasValue($name)) {
                 $child = $child->withValue($arguments->getValue($name));

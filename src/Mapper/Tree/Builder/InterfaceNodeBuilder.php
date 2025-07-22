@@ -104,7 +104,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $shell = $shell->withType($classType);
         $shell = $shell->withAllowedSuperfluousKeys($arguments->names());
 
-        return $this->delegate->build($shell, $rootBuilder);
+        return $rootBuilder->build($shell);
     }
 
     private function constructorRegisteredFor(Type $type): bool
@@ -128,9 +128,9 @@ final class InterfaceNodeBuilder implements NodeBuilder
         foreach ($arguments as $argument) {
             $name = $argument->name();
             $type = $argument->type();
-            $attributes = $argument->attributes();
 
-            $child = $shell->child($name, $type, $attributes);
+            $child = $shell->child($name, $type);
+            $child = $child->withAttributes($argument->attributes());
 
             if ($arguments->hasValue($name)) {
                 $child = $child->withValue($arguments->getValue($name));

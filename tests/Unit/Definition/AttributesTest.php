@@ -69,4 +69,21 @@ final class AttributesTest extends TestCase
         self::assertCount(1, $filteredAttributes);
         self::assertSame($attributeB, $filteredAttributes->toArray()[0]);
     }
+
+    public function test_merge_attributes_merges_attributes(): void
+    {
+        $attributeA = FakeAttributeDefinition::new();
+        $attributeB = FakeAttributeDefinition::new();
+        $attributeC = FakeAttributeDefinition::new();
+
+        $attributesA = new Attributes($attributeA, $attributeB);
+        $attributesB = new Attributes($attributeC);
+
+        $mergedAttributes = $attributesA->merge($attributesB);
+
+        self::assertCount(3, $mergedAttributes);
+        self::assertSame([$attributeA, $attributeB, $attributeC], $mergedAttributes->toArray());
+
+        self::assertNotSame($attributesA, $mergedAttributes);
+    }
 }
