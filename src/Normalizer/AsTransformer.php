@@ -36,7 +36,7 @@ use Attribute;
  *     ) {}
  * }
  *
- * (new \CuyZ\Valinor\MapperBuilder())
+ * (new \CuyZ\Valinor\NormalizerBuilder())
  *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
  *     ->normalize(new \My\App\Event(
  *         eventName: 'Release of legendary album',

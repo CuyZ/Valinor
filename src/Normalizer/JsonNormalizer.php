@@ -82,7 +82,7 @@ final class JsonNormalizer implements Normalizer
      * This can be achieved by passing these flags to this method:
      *
      * ```php
-     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     * $normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
      *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
      *     ->withOptions(\JSON_PRESERVE_ZERO_FRACTION);
      *
@@ -141,7 +141,7 @@ final class JsonNormalizer implements Normalizer
      *
      * $file = fopen('path/to/some_file.json', 'w');
      *
-     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     * $normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
      *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
      *     ->streamTo($file);
      *
