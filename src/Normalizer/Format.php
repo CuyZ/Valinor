@@ -18,7 +18,7 @@ final class Format
      * ```php
      * namespace My\App;
      *
-     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     * $normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
      *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::array());
      *
      * $userAsArray = $normalizer->normalize(
@@ -58,7 +58,7 @@ final class Format
      * ```php
      * namespace My\App;
      *
-     * $normalizer = (new \CuyZ\Valinor\MapperBuilder())
+     * $normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
      *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json());
      *
      * $userAsJson = $normalizer->normalize(
