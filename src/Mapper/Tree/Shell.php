@@ -5,20 +5,24 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree;
 
 use CuyZ\Valinor\Definition\Attributes;
-use CuyZ\Valinor\Definition\AttributesContainer;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotGetParentOfRootShell;
-use CuyZ\Valinor\Mapper\Tree\Exception\NewShellTypeDoesNotMatch;
-use CuyZ\Valinor\Mapper\Tree\Exception\ShellHasNoValue;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
+use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
-use function array_unshift;
+use function assert;
 use function implode;
+use function is_array;
+use function is_iterable;
 
 /** @internal */
 final class Shell
 {
+    private Settings $settings;
+
+    private Type $type;
+
     private string $name;
 
     private bool $hasValue = false;
@@ -27,29 +31,40 @@ final class Shell
 
     private Attributes $attributes;
 
-    private self $parent;
+    /** @var list<string> */
+    private array $path;
 
-    private function __construct(private Type $type)
+    /** @var list<string> */
+    private array $allowedSuperfluousKeys = [];
+
+    /**
+     * @param list<string> $path
+     */
+    private function __construct(Settings $settings, Type $type, array $path = [])
     {
         if ($type instanceof UnresolvableType) {
             throw new UnresolvableShellType($type);
         }
+
+        $this->settings = $settings;
+        $this->type = $type;
+        $this->path = $path;
     }
 
-    public static function root(Type $type, mixed $value): self
-    {
-        return (new self($type))->withValue($value);
+    public static function root(
+        Settings $settings,
+        Type $type,
+        mixed $value,
+    ): self {
+        return (new self($settings, $type))->withValue($value);
     }
 
-    public function child(string $name, Type $type, Attributes $attributes = null): self
+    public function child(string $name, Type $type): self
     {
-        $instance = new self($type);
+        $path = $this->path;
+        $path[] = $name;
+        $instance = new self($this->settings, $type, $path);
         $instance->name = $name;
-        $instance->parent = $this;
-
-        if ($attributes) {
-            $instance->attributes = $attributes;
-        }
 
         return $instance;
     }
@@ -61,26 +76,14 @@ final class Shell
 
     public function isRoot(): bool
     {
-        return ! isset($this->parent);
-    }
-
-    public function parent(): self
-    {
-        if (! isset($this->parent)) {
-            throw new CannotGetParentOfRootShell();
-        }
-
-        return $this->parent;
+        return ! isset($this->name);
     }
 
     public function withType(Type $newType): self
     {
         $clone = clone $this;
         $clone->type = $newType;
-
-        if (! $newType->matches($this->type)) {
-            throw new NewShellTypeDoesNotMatch($this, $newType);
-        }
+        $clone->value = self::castCompatibleValue($newType, $this->value);
 
         return $clone;
     }
@@ -94,7 +97,7 @@ final class Shell
     {
         $clone = clone $this;
         $clone->hasValue = true;
-        $clone->value = $value;
+        $clone->value = self::castCompatibleValue($clone->type, $value);
 
         return $clone;
     }
@@ -106,32 +109,97 @@ final class Shell
 
     public function value(): mixed
     {
-        if (! $this->hasValue) {
-            throw new ShellHasNoValue();
-        }
+        assert($this->hasValue);
 
         return $this->value;
     }
 
+    public function withAttributes(Attributes $attributes): self
+    {
+        $clone = clone $this;
+        $clone->attributes = $this->attributes()->merge($attributes);
+
+        return $clone;
+    }
+
+    public function allowScalarValueCasting(): bool
+    {
+        return $this->settings->allowScalarValueCasting;
+    }
+    public function allowNonSequentialList(): bool
+    {
+        return $this->settings->allowNonSequentialList;
+    }
+    public function allowUndefinedValues(): bool
+    {
+        return $this->settings->allowUndefinedValues;
+    }
+
+    public function allowSuperfluousKeys(): bool
+    {
+        return $this->settings->allowSuperfluousKeys;
+    }
+
+    public function allowPermissiveTypes(): bool
+    {
+        return $this->settings->allowPermissiveTypes;
+    }
+
     public function attributes(): Attributes
     {
-        return $this->attributes ?? AttributesContainer::empty();
+        return $this->attributes ?? Attributes::empty();
+    }
+
+    /**
+     * @param list<string> $allowedSuperfluousKeys
+     */
+    public function withAllowedSuperfluousKeys(array $allowedSuperfluousKeys): self
+    {
+        $clone = clone $this;
+        $clone->allowedSuperfluousKeys = $allowedSuperfluousKeys;
+
+        return $clone;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function allowedSuperfluousKeys(): array
+    {
+        return $this->allowedSuperfluousKeys;
+    }
+
+    public function transformIteratorToArray(): self
+    {
+        if (is_iterable($this->value) && ! is_array($this->value)) {
+            $self = clone $this;
+            $self->value = iterator_to_array($this->value);
+
+            return $self;
+        }
+
+        return $this;
     }
 
     public function path(): string
     {
-        if (! isset($this->parent)) {
+        if ($this->isRoot()) {
             return '*root*';
         }
 
-        $node = $this;
-        $path = [];
+        return implode('.', $this->path);
+    }
 
-        while (isset($node->parent)) {
-            array_unshift($path, $node->name);
-            $node = $node->parent;
+    private static function castCompatibleValue(Type $type, mixed $value): mixed
+    {
+        // When the value is an integer and the type is a float, the value is
+        // cast to float, to follow the rule of PHP regarding acceptance of an
+        // integer value in a float type. Note that PHPStan/Psalm analysis
+        // applies the same rule.
+        if ($type instanceof FloatType && is_int($value)) {
+            return (float)$value;
         }
 
-        return implode('.', $path);
+        return $value;
     }
 }

@@ -7,13 +7,18 @@ namespace CuyZ\Valinor\Mapper\Source\Exception;
 use RuntimeException;
 
 /** @internal */
-final class InvalidYaml extends RuntimeException implements SourceException
+final class InvalidYaml extends RuntimeException implements InvalidSource
 {
-    public function __construct()
+    public function __construct(private string $source)
     {
         parent::__construct(
-            "The given value is not a valid YAML entry.",
+            'Invalid YAML source.',
             1629990223
         );
+    }
+
+    public function source(): string
+    {
+        return $this->source;
     }
 }

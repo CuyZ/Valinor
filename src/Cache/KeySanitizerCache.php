@@ -4,93 +4,54 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Cache;
 
-use Closure;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Utility\Package;
-use Psr\SimpleCache\CacheInterface;
-use Traversable;
 
-use function sha1;
+use function hash;
+use function strstr;
 
 /**
  * @internal
  *
  * @template EntryType
- * @implements CacheInterface<EntryType>
+ * @implements Cache<EntryType>
  */
-final class KeySanitizerCache implements CacheInterface
+final class KeySanitizerCache implements Cache
 {
     private static string $version;
 
-    /** @var Closure(string): string */
-    private Closure $sanitize;
-
     public function __construct(
-        /** @var CacheInterface<EntryType> */
-        private CacheInterface $delegate
-    ) {
-        // Two things:
-        // 1. We append the current version of the package to the cache key in
-        //    order to avoid collisions between entries from different versions
-        //    of the library.
-        // 2. The key is sha1'd so that it does not contain illegal characters.
-        //    @see https://www.php-fig.org/psr/psr-16/#12-definitions
-        $this->sanitize = static fn (string $key) => sha1("$key." . self::$version ??= PHP_VERSION . '/' . Package::version());
+        /** @var Cache<EntryType> */
+        private Cache $delegate,
+        private Settings $settings,
+    ) {}
+
+    public function get(string $key, mixed ...$arguments): mixed
+    {
+        return $this->delegate->get($this->sanitize($key), ...$arguments);
     }
 
-    public function get($key, $default = null): mixed
+    public function set(string $key, CacheEntry $entry): void
     {
-        return $this->delegate->get(($this->sanitize)($key), $default);
+        $this->delegate->set($this->sanitize($key), $entry);
     }
 
-    public function set($key, $value, $ttl = null): bool
+    public function clear(): void
     {
-        return $this->delegate->set(($this->sanitize)($key), $value, $ttl);
-    }
-
-    public function delete($key): bool
-    {
-        return $this->delegate->delete(($this->sanitize)($key));
-    }
-
-    public function clear(): bool
-    {
-        return $this->delegate->clear();
-    }
-
-    public function has($key): bool
-    {
-        return $this->delegate->has(($this->sanitize)($key));
+        $this->delegate->clear();
     }
 
     /**
-     * @return Traversable<string, EntryType|null>
+     * @return non-empty-string
      */
-    public function getMultiple($keys, $default = null): Traversable
+    private function sanitize(string $key): string
     {
-        foreach ($keys as $key) {
-            yield $key => $this->delegate->get(($this->sanitize)($key), $default);
-        }
-    }
+        // @infection-ignore-all
+        self::$version ??= PHP_VERSION . '/' . Package::version();
 
-    public function setMultiple($values, $ttl = null): bool
-    {
-        $versionedValues = [];
+        $firstPart = strstr($key, "\0", before_needle: true);
 
-        foreach ($values as $key => $value) {
-            $versionedValues[($this->sanitize)($key)] = $value;
-        }
-
-        return $this->delegate->setMultiple($versionedValues, $ttl);
-    }
-
-    public function deleteMultiple($keys): bool
-    {
-        $transformedKeys = [];
-
-        foreach ($keys as $key) {
-            $transformedKeys[] = ($this->sanitize)($key);
-        }
-
-        return $this->delegate->deleteMultiple($transformedKeys);
+        // @infection-ignore-all
+        return $firstPart . hash('xxh128', $key . $this->settings->hash() . self::$version);
     }
 }

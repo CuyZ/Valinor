@@ -28,7 +28,7 @@ final class Mapping
     {
         $from = $this->keys[$atDepth] ?? null;
 
-        return $from === $key || $from === '*';
+        return $from === (string)$key || $from === '*';
     }
 
     public function findMappedKey(int|string $key, int $atDepth): ?string

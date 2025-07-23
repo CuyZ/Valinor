@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
@@ -14,6 +16,8 @@ use function assert;
 use function filter_var;
 use function is_bool;
 use function is_int;
+use function is_string;
+use function ltrim;
 
 /** @internal */
 final class PositiveIntegerType implements IntegerType
@@ -25,6 +29,11 @@ final class PositiveIntegerType implements IntegerType
         return is_int($value) && $value > 0;
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::functionCall('is_int', [$node])->and($node->isGreaterThan(Node::value(0)));
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
@@ -33,11 +42,16 @@ final class PositiveIntegerType implements IntegerType
 
         return $other instanceof self
             || $other instanceof NativeIntegerType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 
     public function canCast(mixed $value): bool
     {
+        if (is_string($value)) {
+            $value = ltrim($value, '0');
+        }
+
         return ! is_bool($value)
             && filter_var($value, FILTER_VALIDATE_INT) !== false
             && $value > 0;
@@ -52,7 +66,14 @@ final class PositiveIntegerType implements IntegerType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid positive integer.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid positive integer.')
+            ->withCode('invalid_positive_integer')
+            ->build();
+    }
+
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
     }
 
     public function toString(): string

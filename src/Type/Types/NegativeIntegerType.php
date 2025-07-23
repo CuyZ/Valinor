@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
@@ -25,6 +27,11 @@ final class NegativeIntegerType implements IntegerType
         return is_int($value) && $value < 0;
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::functionCall('is_int', [$node])->and($node->isLessThan(Node::value(0)));
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
@@ -33,6 +40,7 @@ final class NegativeIntegerType implements IntegerType
 
         return $other instanceof self
             || $other instanceof NativeIntegerType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 
@@ -52,7 +60,14 @@ final class NegativeIntegerType implements IntegerType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid negative integer.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid negative integer.')
+            ->withCode('invalid_negative_integer')
+            ->build();
+    }
+
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
     }
 
     public function toString(): string

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Message;
 
-use LanguageServerProtocol\MessageType;
 use RuntimeException;
 use Throwable;
 
@@ -31,9 +30,7 @@ final class MessageBuilder
     /** @var array<string, string> */
     private array $parameters = [];
 
-    private function __construct(private string $body)
-    {
-    }
+    private function __construct(private string $body) {}
 
     /**
      * @return self<Message>
@@ -44,14 +41,14 @@ final class MessageBuilder
     }
 
     /**
-     * @return self<ErrorMessage>
+     * @return self<ErrorMessage&Throwable>
      */
     public static function newError(string $body): self
     {
+        /** @var self<ErrorMessage&Throwable> $instance */
         $instance = new self($body);
         $instance->isError = true;
 
-        /** @var self<ErrorMessage> */
         return $instance;
     }
 
@@ -118,10 +115,9 @@ final class MessageBuilder
     }
 
     /**
-     * PHP8.1 intersection
      * @return MessageType&HasCode&HasParameters
      */
-    public function build(): Message
+    public function build(): Message&HasCode&HasParameters
     {
         /** @var MessageType&HasCode&HasParameters */
         return $this->isError
@@ -129,15 +125,17 @@ final class MessageBuilder
             : $this->buildMessage();
     }
 
-    private function buildMessage(): Message
+    private function buildMessage(): Message&HasCode&HasParameters
     {
         return new class ($this->body, $this->code, $this->parameters) implements Message, HasCode, HasParameters {
             /**
              * @param array<string, string> $parameters
              */
-            public function __construct(private string $body, private string $code, private array $parameters)
-            {
-            }
+            public function __construct(
+                private string $body,
+                private string $code,
+                private array  $parameters
+            ) {}
 
             public function body(): string
             {
@@ -156,7 +154,7 @@ final class MessageBuilder
         };
     }
 
-    private function buildErrorMessage(): ErrorMessage
+    private function buildErrorMessage(): ErrorMessage&Throwable&HasCode&HasParameters
     {
         return new class ($this->body, $this->code, $this->parameters) extends RuntimeException implements ErrorMessage, HasCode, HasParameters {
             /**
@@ -171,11 +169,13 @@ final class MessageBuilder
 
             public function body(): string
             {
+                /** @var string */
                 return $this->message;
             }
 
             public function code(): string
             {
+                /** @var string */
                 return $this->code;
             }
 

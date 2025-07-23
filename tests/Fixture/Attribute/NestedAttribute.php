@@ -12,6 +12,5 @@ final class NestedAttribute
     public function __construct(
         /** @var list<object> */
         public array $nestedAttributes,
-    ) {
-    }
+    ) {}
 }

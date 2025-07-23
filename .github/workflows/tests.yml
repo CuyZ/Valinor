@@ -12,15 +12,16 @@ jobs:
           - "highest"
           - "locked"
         php-version:
-          - "8.0"
           - "8.1"
           - "8.2"
+          - "8.3"
+          - "8.4"
 
     env:
-      php-extensions: yaml
+      php-extensions: ds,yaml
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -28,10 +29,12 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: ${{ env.php-extensions }}
           ini-values: zend.assertions=1
+          coverage: none # Xdebug is installed by default, so we remove it manually
 
       - uses: "ramsey/composer-install@v2"
         with:
           dependency-versions: ${{ matrix.dependencies }}
+          composer-options: "--ignore-platform-reqs" # Remove when Psalm supports PHP 8.4 / @see https://github.com/vimeo/psalm/pull/10928
 
       - name: Running unit tests
         run: php vendor/bin/phpunit --testsuite=unit
@@ -41,3 +44,12 @@ jobs:
 
       - name: Running integration tests
         run: php vendor/bin/phpunit --testsuite=integration
+
+      - name: Running unit tests (no mb_strcut)
+        run: php -d disable_functions=mb_strcut vendor/bin/phpunit --testsuite=unit
+
+      - name: Running functional tests (no mb_strcut)
+        run: php -d disable_functions=mb_strcut vendor/bin/phpunit --testsuite=functional
+
+      - name: Running integration tests (no mb_strcut)
+        run: php -d disable_functions=mb_strcut vendor/bin/phpunit --testsuite=integration

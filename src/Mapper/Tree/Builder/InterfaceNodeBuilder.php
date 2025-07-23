@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
-use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\FilteredObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
+use CuyZ\Valinor\Mapper\Tree\Exception\InterfaceHasBothConstructorAndInfer;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
-use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
+use Throwable;
 
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
@@ -21,97 +27,110 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private NodeBuilder $delegate,
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
-        private ObjectBuilderFactory $objectBuilderFactory,
-        private ClassNodeBuilder $classNodeBuilder,
-        private bool $enableFlexibleCasting
-    ) {
-    }
+        private FunctionsContainer $constructors,
+        /** @var callable(Throwable): ErrorMessage */
+        private mixed $exceptionFilter,
+    ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
 
-        if (! $type instanceof InterfaceType) {
+        if (! $type instanceof InterfaceType && ! $type instanceof NativeClassType) {
             return $this->delegate->build($shell, $rootBuilder);
         }
 
-        if ($this->enableFlexibleCasting && $shell->value() === null) {
-            $shell = $shell->withValue([]);
+        if ($type->accepts($shell->value())) {
+            return Node::new($shell->value());
         }
 
-        $interfaceName = $type->className();
+        if ($this->constructorRegisteredFor($type)) {
+            if ($this->implementations->has($type->className())) {
+                throw new InterfaceHasBothConstructorAndInfer($type->className());
+            }
 
-        $function = $this->implementations->function($interfaceName);
-        $arguments = Arguments::fromParameters($function->parameters());
+            return $this->delegate->build($shell, $rootBuilder);
+        }
 
-        $children = $this->children($shell, $arguments, $rootBuilder);
+        if ($shell->allowUndefinedValues() && $shell->value() === null) {
+            $shell = $shell->withValue([]);
+        } else {
+            $shell = $shell->transformIteratorToArray();
+        }
+
+        $className = $type->className();
+
+        if (! $this->implementations->has($className)) {
+            if ($type instanceof InterfaceType || $this->classDefinitionRepository->for($type)->isAbstract) {
+                throw new CannotResolveObjectType($className);
+            }
+
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
+        $function = $this->implementations->function($className);
+        $arguments = Arguments::fromParameters($function->parameters);
+
+        if ($type instanceof NativeClassType && $this->classDefinitionRepository->for($type)->isFinal) {
+            throw new CannotInferFinalClass($type, $function);
+        }
+
+        $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
+
+        if ($argumentsValues->hasInvalidValue()) {
+            return Node::error($shell, new InvalidSource($shell->value(), $arguments));
+        }
+
+        $children = $this->children($shell, $argumentsValues, $rootBuilder);
 
         $values = [];
 
         foreach ($children as $child) {
             if (! $child->isValid()) {
-                return TreeNode::branch($shell, null, $children);
+                return Node::branchWithErrors($children);
             }
 
             $values[] = $child->value();
         }
 
         try {
-            $classType = $this->implementations->implementation($interfaceName, $values);
+            $classType = $this->implementations->implementation($className, $values);
         } catch (ObjectImplementationCallbackError $exception) {
-            throw UserlandError::from($exception->original());
+            $exception = ($this->exceptionFilter)($exception->original());
+
+            return Node::error($shell, $exception);
         }
 
-        $class = $this->classDefinitionRepository->for($classType);
-        $objectBuilder = new FilteredObjectBuilder($shell->value(), ...$this->objectBuilderFactory->for($class));
+        $shell = $shell->withType($classType);
+        $shell = $shell->withAllowedSuperfluousKeys($arguments->names());
 
-        $shell = $this->transformSourceForClass($shell, $arguments, $objectBuilder->describeArguments());
-
-        return $this->classNodeBuilder->build($objectBuilder, $shell, $rootBuilder);
+        return $rootBuilder->build($shell);
     }
 
-    private function transformSourceForClass(Shell $shell, Arguments $interfaceArguments, Arguments $classArguments): Shell
+    private function constructorRegisteredFor(Type $type): bool
     {
-        $value = $shell->value();
-
-        if (! is_array($value)) {
-            return $shell;
-        }
-
-        foreach ($interfaceArguments as $argument) {
-            $name = $argument->name();
-
-            if (array_key_exists($name, $value) && ! $classArguments->has($name)) {
-                unset($value[$name]);
+        foreach ($this->constructors as $constructor) {
+            if ($type->matches($constructor->definition->returnType)) {
+                return true;
             }
         }
 
-        if (count($classArguments) === 1 && count($value) === 1) {
-            $name = $classArguments->at(0)->name();
-
-            if (array_key_exists($name, $value)) {
-                $value = $value[$name];
-            }
-        }
-
-        return $shell->withValue($value);
+        return false;
     }
 
     /**
-     * @return array<TreeNode>
+     * @return list<Node>
      */
-    private function children(Shell $shell, Arguments $arguments, RootNodeBuilder $rootBuilder): array
+    private function children(Shell $shell, ArgumentsValues $arguments, RootNodeBuilder $rootBuilder): array
     {
-        $arguments = ArgumentsValues::forInterface($arguments, $shell->value());
-
         $children = [];
 
         foreach ($arguments as $argument) {
             $name = $argument->name();
             $type = $argument->type();
-            $attributes = $argument->attributes();
 
-            $child = $shell->child($name, $type, $attributes);
+            $child = $shell->child($name, $type);
+            $child = $child->withAttributes($argument->attributes());
 
             if ($arguments->hasValue($name)) {
                 $child = $child->withValue($arguments->getValue($name));

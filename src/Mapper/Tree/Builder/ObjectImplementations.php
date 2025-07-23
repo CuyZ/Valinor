@@ -6,21 +6,20 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidAbstractObjectName;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidResolvedImplementationValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingObjectImplementationRegistration;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationNotRegistered;
 use CuyZ\Valinor\Mapper\Tree\Exception\ResolvedImplementationIsNotAccepted;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use Exception;
+
+use function assert;
 
 /** @internal */
 final class ObjectImplementations
@@ -31,20 +30,16 @@ final class ObjectImplementations
     public function __construct(
         private FunctionsContainer $functions,
         private TypeParser $typeParser
-    ) {
-        foreach ($functions as $name => $function) {
-            /** @var string $name */
-            $this->implementations[$name] = $this->implementations($name);
-        }
+    ) {}
+
+    public function has(string $name): bool
+    {
+        return $this->functions->has($name);
     }
 
     public function function(string $name): FunctionDefinition
     {
-        if (! $this->functions->has($name)) {
-            throw new CannotResolveObjectType($name);
-        }
-
-        return $this->functions->get($name)->definition();
+        return $this->functions->get($name)->definition;
     }
 
     /**
@@ -52,6 +47,9 @@ final class ObjectImplementations
      */
     public function implementation(string $name, array $arguments): ClassType
     {
+        /** @infection-ignore-all / We cannot test the assignment */
+        $this->implementations[$name] ??= $this->implementations($name);
+
         $class = $this->call($name, $arguments);
 
         return $this->implementations[$name][$class]
@@ -64,7 +62,7 @@ final class ObjectImplementations
     private function call(string $name, array $arguments): string
     {
         try {
-            $signature = ($this->functions->get($name)->callback())(...$arguments);
+            $signature = ($this->functions->get($name)->callback)(...$arguments);
         } catch (Exception $exception) {
             throw new ObjectImplementationCallbackError($name, $exception);
         }
@@ -81,25 +79,21 @@ final class ObjectImplementations
      */
     private function implementations(string $name): array
     {
-        $function = $this->functions->get($name)->definition();
+        $function = $this->functions->get($name)->definition;
 
-        try {
-            $type = $this->typeParser->parse($name);
-        } catch (InvalidType) {
-        }
+        $type = $this->typeParser->parse($name);
 
-        if (! isset($type) || ! $type instanceof InterfaceType) {
-            throw new InvalidAbstractObjectName($name);
-        }
+        /** @infection-ignore-all */
+        assert($type instanceof InterfaceType || $type instanceof ClassType);
 
         $classes = $this->implementationsByReturnSignature($name, $function);
 
-        if (empty($classes)) {
+        if ($classes === []) {
             throw new MissingObjectImplementationRegistration($name, $function);
         }
 
         foreach ($classes as $classType) {
-            if (! $classType instanceof ClassType || ! $type->matches($classType)) {
+            if (! $classType instanceof ClassType || ! $classType->matches($type)) {
                 throw new ResolvedImplementationIsNotAccepted($name, $classType);
             }
         }
@@ -113,10 +107,10 @@ final class ObjectImplementations
      */
     private function implementationsByReturnSignature(string $name, FunctionDefinition $function): array
     {
-        $returnType = $function->returnType();
+        $returnType = $function->returnType;
 
         if (! $returnType instanceof ClassStringType && ! $returnType instanceof UnionType) {
-            if (count($function->parameters()) > 0) {
+            if (count($function->parameters) > 0) {
                 return [];
             }
 

@@ -9,31 +9,14 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
-/**
- * Can be given to {@see MapperBuilder::registerConstructor()} to describe which
- * date formats should be allowed during mapping.
- *
- * By default, if this constructor is never registered, the dates will accept
- * any valid timestamp or ATOM-formatted value.
- *
- * Usage:
- *
- * ```php
- * (new \CuyZ\Valinor\MapperBuilder())
- *     // Both `Cookie` and `ATOM` formats will be accepted
- *     ->registerConstructor(new DateTimeFormatConstructor(DATE_COOKIE, DATE_ATOM))
- *     ->mapper()
- *     ->map(DateTimeInterface::class, 'Monday, 08-Nov-1971 13:37:42 UTC');
- * ```
- *
- * @internal
- */
+/** @internal */
 final class DateTimeFormatConstructor
 {
-    /** @var non-empty-array<non-empty-string> */
+    /** @var non-empty-list<non-empty-string> */
     private array $formats;
 
     /**
+     * @no-named-arguments
      * @param non-empty-string $format
      * @param non-empty-string ...$formats
      */
@@ -44,10 +27,10 @@ final class DateTimeFormatConstructor
 
     /**
      * @param class-string<DateTime|DateTimeImmutable> $className
-     * @param non-empty-string|positive-int $value
+     * @param non-empty-string|int|float $value
      */
     #[DynamicConstructor]
-    public function __invoke(string $className, string|int $value): DateTimeInterface
+    public function __invoke(string $className, string|int|float $value): DateTimeInterface
     {
         foreach ($this->formats as $format) {
             $date = $className::createFromFormat($format, (string)$value) ?: null;

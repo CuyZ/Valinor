@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ParameterDefinition;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
 
@@ -19,11 +19,12 @@ final class ParameterDefinitionTest extends TestCase
         $isOptional = true;
         $isVariadic = true;
         $defaultValue = 'Some parameter default value';
-        $attributes = new FakeAttributes();
+        $attributes = new Attributes();
 
         $parameter = new ParameterDefinition(
             $name,
             $signature,
+            $type,
             $type,
             $isOptional,
             $isVariadic,
@@ -31,12 +32,12 @@ final class ParameterDefinitionTest extends TestCase
             $attributes
         );
 
-        self::assertSame($name, $parameter->name());
-        self::assertSame($signature, $parameter->signature());
-        self::assertSame($type, $parameter->type());
-        self::assertSame($isOptional, $parameter->isOptional());
-        self::assertSame($isVariadic, $parameter->isVariadic());
-        self::assertSame($defaultValue, $parameter->defaultValue());
-        self::assertSame($attributes, $parameter->attributes());
+        self::assertSame($name, $parameter->name);
+        self::assertSame($signature, $parameter->signature);
+        self::assertSame($type, $parameter->type);
+        self::assertSame($isOptional, $parameter->isOptional);
+        self::assertSame($isVariadic, $parameter->isVariadic);
+        self::assertSame($defaultValue, $parameter->defaultValue);
+        self::assertSame($attributes, $parameter->attributes);
     }
 }

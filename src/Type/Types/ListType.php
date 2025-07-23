@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
 
+use function array_is_list;
+use function function_exists;
 use function is_array;
 
 /** @internal */
@@ -42,19 +47,39 @@ final class ListType implements CompositeTraversableType
             return false;
         }
 
-        $i = 0;
-
-        foreach ($value as $key => $item) {
-            if ($key !== $i++) {
-                return false;
-            }
-
-            if (! $this->subType->accepts($item)) {
-                return false;
-            }
+        if (! array_is_list($value)) {
+            return false;
         }
 
-        return true;
+        if ($this === self::native()) {
+            return true;
+        }
+
+        return Polyfill::array_all(
+            $value,
+            fn (mixed $item) => $this->subType->accepts($item),
+        );
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        $condition = Node::logicalAnd(
+            Node::functionCall('is_array', [$node]),
+            Node::functionCall('array_is_list', [$node]),
+        );
+
+        if ($this === self::native()) {
+            return $condition;
+        }
+
+        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+            $node,
+            Node::shortClosure(
+                $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+            )->witParameters(
+                Node::parameterDeclaration('item', 'mixed'),
+            ),
+        ]));
     }
 
     public function matches(Type $other): bool
@@ -89,13 +114,18 @@ final class ListType implements CompositeTraversableType
         return $this->subType;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
-        yield $this->subType;
-
         if ($this->subType instanceof CompositeType) {
-            yield from $this->subType->traverse();
+            return [$this->subType, ...$this->subType->traverse()];
         }
+
+        return [$this->subType];
+    }
+
+    public function nativeType(): ArrayType
+    {
+        return ArrayType::native();
     }
 
     public function toString(): string

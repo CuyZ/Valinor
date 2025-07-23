@@ -1,8 +1,8 @@
 # Using custom object constructors
 
 An object may have custom ways of being created, in such cases these
-constructors need to be registered to the mapper to be used. A constructor is a
-callable that can be either:
+constructors need to be registered to the mapper to be used. A constructor can
+be either:
 
 1. A named constructor, also known as a static factory method
 2. The method of a service — for instance a repository
@@ -14,22 +14,65 @@ know when to use it. Any argument can be provided and will automatically be
 mapped using the given source. These arguments can then be used to instantiate
 the object in the desired way.
 
-Registering any constructor will disable the native constructor — the
-`__construct` method — of the targeted class. If for some reason it still needs
-to be handled as well, the name of the class must be given to the
-registration method.
-
 If several constructors are registered, they must provide distinct signatures to
 prevent collision during mapping — meaning that if two constructors require
 several arguments with the exact same names, the mapping will fail.
 
+!!! note
+
+    Registering a constructor for a class will prevent its native constructor 
+    (the `__construct` method) to be handled by the mapper. If it needs to be
+    be enabled again, it has to be explicitly registered.
+
+## The `Constructor` attribute
+
+The quickest and easiest way to register a constructor is to use the
+`Constructor` attribute, which will mark a method as a constructor that can be
+used by the mapper.
+
+The targeted method must be public, static and return an instance of the class
+it is part of.
+
+```php
+final readonly class Email
+{
+    // When another constructor is registered for the class, the native
+    // constructor is disabled. To enable it again, it is mandatory to
+    // explicitly register it again.
+    #[\CuyZ\Valinor\Mapper\Object\Constructor]
+    public function __construct(public string $value) {}
+
+    #[\CuyZ\Valinor\Mapper\Object\Constructor]
+    public static function createFrom(string $userName, string $domainName): self
+    {
+        return new self($userName . '@' . $domainName);
+    }
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(Email::class, [
+        'userName' => 'john.doe',
+        'domainName' => 'example.com',
+    ]); // john.doe@example.com
+```
+
+## Manually registering a constructor
+
+There are cases where the `Constructor` attribute cannot be used, for instance
+when the class is an external dependency that cannot be modified. In such cases,
+the `registerConstructor` method can be used to register any callable as a
+constructor.
+
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     ->registerConstructor(
-        // Allow the native constructor to be used
+        // When another constructor is registered for the class, the native
+        // constructor is disabled. To enable it again, it is mandatory to
+        // explicitly register it again by giving the class name to this method.
         Color::class,
 
-        // Register a named constructor (1)
+        // Register a named constructor
         Color::fromHex(...),
 
         /**
@@ -87,10 +130,97 @@ final class Color
 }
 ```
 
-1.  …or for PHP < 8.1:
-    
+## Interface implementation constructor
+
+By default, the mapper cannot instantiate an interface, as it does not know
+which implementation to use. To do so, it is possible to register a constructor
+for an interface, in the same way as for a class.
+
+!!! note
+
+    Because the mapper cannot automatically guess which implementation can be
+    used for an interface, it is not possible to use the `Constructor`
+    attribute, the `MapperBuilder::registerConstructor()` method must be used
+    instead.
+
+In the example below, the mapper is taught how to instantiate an implementation
+of `UuidInterface` from package [`ramsey/uuid`](https://github.com/ramsey/uuid):
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConstructor(
+        // The static method below has return type `UuidInterface`; therefore,
+        // the mapper will build an instance of `Uuid` when it needs to 
+        // instantiate an implementation of `UuidInterface`.
+        Ramsey\Uuid\Uuid::fromString(...)
+    )
+    ->mapper()
+    ->map(
+        Ramsey\Uuid\UuidInterface::class,
+        '663bafbf-c3b5-4336-b27f-1796be8554e0'
+    );
+```
+
+## Custom enum constructor
+
+Registering a constructor for an enum works the same way as for a class, as
+described above.
+
+```php
+enum Color: string
+{
+    case LIGHT_RED = 'LIGHT_RED';
+    case LIGHT_GREEN = 'LIGHT_GREEN';
+    case LIGHT_BLUE = 'LIGHT_BLUE';
+    case DARK_RED = 'DARK_RED';
+    case DARK_GREEN = 'DARK_GREEN';
+    case DARK_BLUE = 'DARK_BLUE';
+
+    #[\CuyZ\Valinor\Mapper\Object\Constructor]
+    public static function fromMatrix(string $type, string $color): Color
+    {
+        return self::from($type . '_' . $color);
+    }
+}
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->mapper()
+    ->map(Color::class , [
+        'type' => 'DARK',
+        'color' => 'RED'
+    ]); // Color::DARK_RED
+```
+
+!!! note
+
+    An enum constructor can target a specific pattern:
+
     ```php
-    [Color::class, 'fromHex'],
+    enum Color: string
+    {
+        case LIGHT_RED = 'LIGHT_RED';
+        case LIGHT_GREEN = 'LIGHT_GREEN';
+        case LIGHT_BLUE = 'LIGHT_BLUE';
+        case DARK_RED = 'DARK_RED';
+        case DARK_GREEN = 'DARK_GREEN';
+        case DARK_BLUE = 'DARK_BLUE';
+    
+        /**
+         * This constructor will be called only when pattern `SomeEnum::DARK_*`
+         * is requested during mapping.
+         *
+         * @return Color::DARK_*
+         */
+        #[\CuyZ\Valinor\Mapper\Object\Constructor]
+        public static function darkFrom(string $value): Color
+        {
+            return self::from('DARK_' . $value);
+        }
+    }
+    
+    (new \CuyZ\Valinor\MapperBuilder())
+        ->mapper()
+        ->map(Color::class . '::DARK_*', 'RED'); // Color::DARK_RED
     ```
 
 ## Dynamic constructors
@@ -128,7 +258,7 @@ final class ClassWithInheritedStaticConstructor implements InterfaceWithStaticCo
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->registerConstructor(
-        #[\CuyZ\Valinor\Attribute\DynamicConstructor]
+        #[\CuyZ\Valinor\Mapper\Object\DynamicConstructor]
         function (string $className, string $value): InterfaceWithStaticConstructor {
             return $className::from($value);
         }

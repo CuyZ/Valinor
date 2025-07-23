@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
-use CuyZ\Valinor\Definition\Exception\MethodNotFound;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeMethodDefinition;
 use CuyZ\Valinor\Tests\Traits\IteratorTester;
@@ -24,17 +23,8 @@ final class MethodsTest extends TestCase
         self::assertFalse($methods->has('unknownMethod'));
         self::assertFalse($methods->hasConstructor());
 
-        self::assertTrue($methods->has($method->name()));
-        self::assertSame($method, $methods->get($method->name()));
-    }
-
-    public function test_get_non_existing_method_throws_exception(): void
-    {
-        $this->expectException(MethodNotFound::class);
-        $this->expectExceptionCode(1510936269);
-        $this->expectExceptionMessage('The method `unknownMethod` does not exist.');
-
-        (new Methods())->get('unknownMethod');
+        self::assertTrue($methods->has($method->name));
+        self::assertSame($method, $methods->get($method->name));
     }
 
     public function test_constructor_is_found(): void

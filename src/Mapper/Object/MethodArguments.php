@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Definition\Parameters;
-use CuyZ\Valinor\Mapper\Object\Exception\MissingMethodArgument;
 use IteratorAggregate;
 use Traversable;
 
@@ -27,13 +26,9 @@ final class MethodArguments implements IteratorAggregate
     public function __construct(Parameters $parameters, array $arguments)
     {
         foreach ($parameters as $parameter) {
-            $name = $parameter->name();
+            $name = $parameter->name;
 
-            if (! array_key_exists($parameter->name(), $arguments) && ! $parameter->isOptional()) {
-                throw new MissingMethodArgument($parameter);
-            }
-
-            if ($parameter->isVariadic()) {
+            if ($parameter->isVariadic) {
                 $this->arguments = [...$this->arguments, ...array_values($arguments[$name])]; // @phpstan-ignore-line we know that the argument is iterable
             } else {
                 $this->arguments[] = $arguments[$name];

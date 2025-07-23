@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\CombiningType;
+use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
 
 /** @internal */
-final class InterfaceType implements ObjectType
+final class InterfaceType implements ObjectType, GenericType
 {
     public function __construct(
         /** @var class-string */
         private string $interfaceName,
-        /** @var array<string, Type> */
+        /** @var array<non-empty-string, Type> */
         private array $generics = []
-    ) {
-    }
+    ) {}
 
     public function className(): string
     {
@@ -36,6 +38,11 @@ final class InterfaceType implements ObjectType
         return $value instanceof $this->interfaceName;
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return $node->instanceOf($this->interfaceName);
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof MixedType || $other instanceof UndefinedObjectType) {
@@ -50,7 +57,27 @@ final class InterfaceType implements ObjectType
             return false;
         }
 
-        return is_a($other->className(), $this->interfaceName, true);
+        return is_a($this->interfaceName, $other->className(), true);
+    }
+
+    public function traverse(): array
+    {
+        $types = [];
+
+        foreach ($this->generics as $type) {
+            $types[] = $type;
+
+            if ($type instanceof CompositeType) {
+                $types = [...$types, ...$type->traverse()];
+            }
+        }
+
+        return $types;
+    }
+
+    public function nativeType(): InterfaceType
+    {
+        return new self($this->interfaceName);
     }
 
     public function toString(): string

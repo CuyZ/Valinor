@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FixedType;
@@ -14,28 +16,24 @@ use Stringable;
 
 use function is_numeric;
 use function is_string;
+use function str_starts_with;
+use function substr;
 
 /** @internal */
 final class StringValueType implements StringType, FixedType
 {
     private string $quoteChar;
 
-    public function __construct(private string $value)
-    {
-    }
+    public function __construct(private string $value) {}
 
-    public static function singleQuote(string $value): self
+    public static function from(string $value): self
     {
-        $instance = new self($value);
-        $instance->quoteChar = "'";
+        if (! str_starts_with($value, '"') && ! str_starts_with($value, "'")) {
+            return new self($value);
+        }
 
-        return $instance;
-    }
-
-    public static function doubleQuote(string $value): self
-    {
-        $instance = new self($value);
-        $instance->quoteChar = '"';
+        $instance = new self(substr($value, 1, -1));
+        $instance->quoteChar = $value[0];
 
         return $instance;
     }
@@ -43,6 +41,11 @@ final class StringValueType implements StringType, FixedType
     public function accepts(mixed $value): bool
     {
         return $value === $this->value;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return $node->equals(Node::value($this->value));
     }
 
     public function matches(Type $other): bool
@@ -60,6 +63,7 @@ final class StringValueType implements StringType, FixedType
         }
 
         return $other instanceof StringType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 
@@ -84,8 +88,14 @@ final class StringValueType implements StringType, FixedType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} does not match string value {expected_value}.')
+            ->withCode('invalid_string_value')
             ->withParameter('expected_value', ValueDumper::dump($this->value))
             ->build();
+    }
+
+    public function nativeType(): NativeStringType
+    {
+        return NativeStringType::get();
     }
 
     public function toString(): string

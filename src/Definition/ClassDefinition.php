@@ -4,44 +4,19 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition;
 
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 
 /** @internal */
 final class ClassDefinition
 {
     public function __construct(
-        private ClassType $type,
-        private Attributes $attributes,
-        private Properties $properties,
-        private Methods $methods
-    ) {
-    }
-
-    /**
-     * @return class-string
-     */
-    public function name(): string
-    {
-        return $this->type->className();
-    }
-
-    public function type(): ClassType
-    {
-        return $this->type;
-    }
-
-    public function attributes(): Attributes
-    {
-        return $this->attributes;
-    }
-
-    public function properties(): Properties
-    {
-        return $this->properties;
-    }
-
-    public function methods(): Methods
-    {
-        return $this->methods;
-    }
+        /** @var class-string */
+        public readonly string $name,
+        public readonly ObjectType $type,
+        public readonly Attributes $attributes,
+        public readonly Properties $properties,
+        public readonly Methods $methods,
+        public readonly bool $isFinal,
+        public readonly bool $isAbstract,
+    ) {}
 }

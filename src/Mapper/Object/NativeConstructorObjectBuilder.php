@@ -13,19 +13,17 @@ final class NativeConstructorObjectBuilder implements ObjectBuilder
 {
     private Arguments $arguments;
 
-    public function __construct(private ClassDefinition $class)
-    {
-    }
+    public function __construct(private ClassDefinition $class) {}
 
     public function describeArguments(): Arguments
     {
-        return $this->arguments ??= Arguments::fromParameters($this->class->methods()->constructor()->parameters());
+        return $this->arguments ??= Arguments::fromParameters($this->class->methods->constructor()->parameters);
     }
 
     public function build(array $arguments): object
     {
-        $className = $this->class->name();
-        $arguments = new MethodArguments($this->class->methods()->constructor()->parameters(), $arguments);
+        $className = $this->class->name;
+        $arguments = new MethodArguments($this->class->methods->constructor()->parameters, $arguments);
 
         try {
             return new $className(...$arguments);
@@ -36,6 +34,6 @@ final class NativeConstructorObjectBuilder implements ObjectBuilder
 
     public function signature(): string
     {
-        return $this->class->methods()->constructor()->signature();
+        return $this->class->methods->constructor()->signature;
     }
 }

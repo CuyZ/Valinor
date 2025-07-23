@@ -7,40 +7,49 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
+use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotInstantiateObject;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorClassTypeParameter;
+use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodWithAttributeReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\NativeEnumObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
+use CuyZ\Valinor\Type\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function array_key_exists;
+use function array_values;
 use function count;
+use function is_a;
 
 /** @internal */
 final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
 {
+    /** @var list<FunctionObject> */
+    private array $filteredConstructors;
+
     public function __construct(
         private ObjectBuilderFactory $delegate,
         /** @var array<class-string, null> */
-        public array $nativeConstructors,
-        private FunctionsContainer $constructors
-    ) {
-    }
+        private array $nativeConstructors,
+        private FunctionsContainer $constructors,
+    ) {}
 
     public function for(ClassDefinition $class): array
     {
         $builders = $this->builders($class);
 
         if (count($builders) === 0) {
-            if ($class->methods()->hasConstructor()) {
+            if ($class->methods->hasConstructor()) {
                 throw new CannotInstantiateObject($class);
             }
 
@@ -55,61 +64,90 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
      */
     private function builders(ClassDefinition $class): array
     {
-        $className = $class->name();
-        $classType = $class->type();
-        $methods = $class->methods();
+        $className = $class->name;
+        $classType = $class->type;
+        $methods = $class->methods;
 
         $builders = [];
 
-        foreach ($this->constructors as $function) {
-            if (! $this->constructorMatches($function, $classType)) {
+        foreach ($this->filteredConstructors() as $constructor) {
+            if (! $this->constructorMatches($constructor, $classType)) {
                 continue;
             }
 
-            $definition = $function->definition();
-            $functionClass = $definition->class();
+            $definition = $constructor->definition;
+            $functionClass = $definition->class;
 
-            if ($functionClass && $definition->isStatic() && ! $definition->isClosure()) {
-                $builders[] = new MethodObjectBuilder($className, $definition->name(), $definition->parameters());
+            if ($functionClass && $definition->isStatic && ! $definition->isClosure) {
+                $scopedClass = is_a($className, $functionClass, true) ? $className : $functionClass;
+
+                $builders[$definition->signature] = new MethodObjectBuilder($scopedClass, $definition->name, $definition->parameters);
             } else {
-                $builders[] = new FunctionObjectBuilder($function, $classType);
+                $builders[$definition->signature] = new FunctionObjectBuilder($constructor, $classType);
             }
         }
 
-        if (! array_key_exists($className, $this->nativeConstructors) && count($builders) > 0) {
-            return $builders;
+        foreach ($methods as $method) {
+            if (! $method->isStatic) {
+                continue;
+            }
+
+            if (! $method->attributes->has(Constructor::class)) {
+                continue;
+            }
+
+            if (! $method->returnType instanceof ClassType) {
+                throw new InvalidConstructorMethodWithAttributeReturnType($className, $method);
+            }
+
+            if (! is_a($className, $method->returnType->className(), true)) {
+                throw new InvalidConstructorMethodWithAttributeReturnType($className, $method);
+            }
+
+            if (! $class->type->matches($method->returnType)) {
+                continue;
+            }
+
+            $builders[$method->signature] = new MethodObjectBuilder($className, $method->name, $method->parameters);
         }
 
-        if ($methods->hasConstructor() && $methods->constructor()->isPublic()) {
+        if ($classType instanceof EnumType) {
+            $buildersWithOneArguments = array_filter($builders, fn (ObjectBuilder $builder) => $builder->describeArguments()->count() === 1);
+
+            if (count($buildersWithOneArguments) === 0) {
+                $builders[] = new NativeEnumObjectBuilder($classType);
+            }
+        } elseif ($methods->hasConstructor()
+            && $methods->constructor()->isPublic
+            && (
+                count($builders) === 0
+                || $methods->constructor()->attributes->has(Constructor::class)
+                || array_key_exists($className, $this->nativeConstructors)
+            )
+        ) {
             $builders[] = new NativeConstructorObjectBuilder($class);
         }
 
-        return $builders;
+        return array_values($builders);
     }
 
-    private function constructorMatches(FunctionObject $function, ClassType $classType): bool
+    private function constructorMatches(FunctionObject $function, ObjectType $classType): bool
     {
-        $definition = $function->definition();
-        $parameters = $definition->parameters();
-        $returnType = $definition->returnType();
+        $definition = $function->definition;
 
-        if (! $returnType instanceof ClassType && ! $returnType instanceof InterfaceType) {
-            throw new InvalidConstructorReturnType($definition);
-        }
-
-        if (! $classType->matches($returnType)) {
+        if (! $classType->matches($definition->returnType)) {
             return false;
         }
 
-        if (! $definition->attributes()->has(DynamicConstructor::class)) {
+        if (! $definition->attributes->has(DynamicConstructor::class)) {
             return true;
         }
 
-        if (count($parameters) === 0) {
+        if (count($definition->parameters) === 0) {
             throw new MissingConstructorClassTypeParameter($definition);
         }
 
-        $parameterType = $parameters->at(0)->type();
+        $parameterType = $definition->parameters->at(0)->type;
 
         if ($parameterType instanceof NativeStringType) {
             $parameterType = ClassStringType::get();
@@ -126,5 +164,34 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         }
 
         return true;
+    }
+
+    /**
+     * @return list<FunctionObject>
+     */
+    private function filteredConstructors(): array
+    {
+        if (! isset($this->filteredConstructors)) {
+            $this->filteredConstructors = [];
+
+            foreach ($this->constructors as $constructor) {
+                $function = $constructor->definition;
+
+                if ($function->class
+                    && Reflection::enumExists($function->class)
+                    && in_array($function->name, ['from', 'tryFrom'], true)
+                ) {
+                    continue;
+                }
+
+                if (! $function->returnType instanceof ObjectType) {
+                    throw new InvalidConstructorReturnType($function);
+                }
+
+                $this->filteredConstructors[] = $constructor;
+            }
+        }
+
+        return $this->filteredConstructors;
     }
 }

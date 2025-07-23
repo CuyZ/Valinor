@@ -137,7 +137,7 @@ You can click on the entries below to get advice on available replacements.
 
 ??? tip "Mapper builder `flexible` method removal"
 
-    The flexible has been splitted in three disctint modes, see [type strictness
+    The flexible has been split in three disctint modes, see [type strictness
     & flexibility chapter].
 
 ??? tip "Mapper builder `withCacheDir` method removal"
@@ -204,8 +204,8 @@ You can click on the entries below to get advice on available replacements.
 [type strictness & flexibility chapter]: ../../usage/type-strictness-and-flexibility.md
 [performance & caching chapter]: ../../other/performance-and-caching.md
 [custom object constructors chapter]: ../../how-to/use-custom-object-constructors.md 
-[error handling chapter]: ../../usage/error-handling.md
-[custom exception chapter]: ../../usage/error-handling.md#custom-exception-messages
+[error handling chapter]: ../../usage/validation-and-error-handling.md
+[custom exception chapter]: ../../usage/validation-and-error-handling.md#custom-exception-messages
 [error messages customization chapter]: ../../how-to/customize-error-messages.md
 
 ## ⚠ BREAKING CHANGES

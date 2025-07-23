@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
-use CuyZ\Valinor\Mapper\Object\DateTimeFormatConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
+use function array_unique;
+use function array_values;
 use function is_callable;
 
 /** @api */
@@ -54,20 +55,26 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @param interface-string $interfaceName
-     * @psalm-param pure-callable $callback
+     * @param interface-string|class-string $name
+     * @param pure-callable $callback
      */
-    public function infer(string $interfaceName, callable $callback): self
+    public function infer(string $name, callable $callback): self
     {
         $clone = clone $this;
-        $clone->settings->interfaceMapping[$interfaceName] = $callback;
+        $clone->settings->inferredMapping[$name] = $callback;
 
         return $clone;
     }
 
     /**
      * Registers a constructor that can be used by the mapper to create an
-     * instance of an object. A constructor is a callable that can be either:
+     * instance of an object.
+     *
+     * Note that depending on your needs, a more straightforward way to register
+     * a constructor is to use the following attribute on a static method:
+     * @see \CuyZ\Valinor\Mapper\Object\Constructor
+     *
+     * A constructor is a callable that can be either:
      *
      * 1. A named constructor, also known as a static factory method
      * 2. The method of a service — for instance a repository
@@ -83,9 +90,6 @@ final class MapperBuilder
      * `__construct` method — of the targeted class. If for some reason it still
      * needs to be handled as well, the name of the class must be given to this
      * method.
-     *
-     * A constructor *must* be pure, its output must be deterministic.
-     * @see https://en.wikipedia.org/wiki/Pure_function
      *
      * ```php
      * final class SomeClass
@@ -163,8 +167,45 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @psalm-param pure-callable|class-string ...$constructors
-     * @param callable|class-string ...$constructors
+     * Enum constructors can be registered the same way:
+     *
+     * * ```php
+     * enum SomeEnum: string
+     * {
+     *     case CASE_A = 'FOO_VALUE_1';
+     *     case CASE_B = 'FOO_VALUE_2';
+     *     case CASE_C = 'BAR_VALUE_1';
+     *     case CASE_D = 'BAR_VALUE_2';
+     *
+     *     /**
+     *      * \@param 'FOO'|'BAR' $type
+     *      * \@param int<1, 2> $number
+     *      * /
+     *     public static function fromMatrix(string $type, int $number): self
+     *     {
+     *         return self::from("{$type}_VALUE_{$number}");
+     *     }
+     * }
+     *
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConstructor(
+     *         // Allow the native constructor to be used
+     *         SomeEnum::class,
+     *
+     *         // Register a named constructor
+     *         SomeEnum::fromMatrix(...)
+     *     )
+     *     ->mapper()
+     *     ->map(SomeEnum::class, [
+     *         'type' => 'FOO',
+     *         'number' => 'BAR',
+     *     ]);
+     * ```
+     *
+     * The constructor *must* be pure, its output must be deterministic.
+     * @see https://en.wikipedia.org/wiki/Pure_function
+     *
+     * @param pure-callable|class-string ...$constructors
      */
     public function registerConstructor(callable|string ...$constructors): self
     {
@@ -184,7 +225,7 @@ final class MapperBuilder
     /**
      * Describes which date formats will be supported during mapping.
      *
-     * By default, the dates will accept any valid timestamp or ATOM-formatted
+     * By default, the dates will accept any valid timestamp or RFC 3339-formatted
      * value.
      *
      * ```php
@@ -200,25 +241,38 @@ final class MapperBuilder
      */
     public function supportDateFormats(string $format, string ...$formats): self
     {
-        return $this->registerConstructor(new DateTimeFormatConstructor($format, ...$formats));
+        $clone = clone $this;
+        $clone->settings->supportedDateFormats = array_values(array_unique([$format, ...$formats]));
+
+        return $clone;
+    }
+
+    /**
+     * Returns the date formats supported during mapping.
+     *
+     * By default, any valid timestamp or RFC 3339-formatted value are accepted.
+     * Custom formats can be set using method `supportDateFormats()`.
+     *
+     * @return non-empty-array<non-empty-string>
+     */
+    public function supportedDateFormats(): array
+    {
+        return $this->settings->supportedDateFormats;
     }
 
     /**
      * Inject a cache implementation that will be in charge of caching heavy
-     * data used by the mapper.
+     * data used by the mapper. It is *strongly* recommended to use it when the
+     * application runs in a production environment.
      *
-     * An implementation is provided by the library, which writes cache entries
-     * in the file system; it is strongly recommended to use it when the
-     * application runs in production environment.
-     *
-     * It is also possible to use any PSR-16 compliant implementation, as long
-     * as it is capable of caching the entries handled by the library.
+     * An implementation is provided out of the box, which writes cache entries
+     * in the file system.
      *
      * When the application runs in a development environment, the cache
-     * implementation should be decorated with `FileWatchingCache`, which will
-     * watch the files of the application and invalidate cache entries when a
-     * PHP file is modified by a developer — preventing the library not behaving
-     * as expected when the signature of a property or a method changes.
+     * implementation should be decorated with `FileWatchingCache`. This service
+     * will watch the files of the application and invalidate cache entries when
+     * a PHP file is modified by a developer — preventing the library not
+     * behaving as expected when the signature of a property or a method changes.
      *
      * ```php
      * $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
@@ -235,7 +289,7 @@ final class MapperBuilder
      *     ]);
      * ```
      */
-    public function withCache(CacheInterface $cache): self
+    public function withCache(Cache $cache): self
     {
         $clone = clone $this;
         $clone->settings->cache = $cache;
@@ -244,85 +298,106 @@ final class MapperBuilder
     }
 
     /**
-     * @template T
-     * @psalm-param pure-callable(T): T $callback
-     * @param callable(T): T $callback
-     */
-    public function alter(callable $callback): self
-    {
-        $clone = clone $this;
-        $clone->settings->valueModifier[] = $callback;
-
-        return $clone;
-    }
-
-    /**
-     * Changes the behaviours explained below:
+     * With this setting enabled, scalar types will accept castable values:
+     *
+     * - Integer types will accept any valid numeric value, for instance the
+     *   string value "42".
+     *
+     * - Float types will accept any valid numeric value, for instance the
+     *   string value "1337.42".
+     *
+     * - String types will accept any integer, float or object implementing the
+     *   `Stringable` interface.
+     *
+     * - Boolean types will accept any truthy or falsy value:
+     *     - "true" (string), "1" (string) and 1 (int) will be cast to `true`
+     *     - "false" (string), "0" (string) and 0 (int) will be cast to `false`
      *
      * ```php
-     * $flexibleMapper = (new \CuyZ\Valinor\MapperBuilder())
-     *     ->enableFlexibleCasting()
-     *     ->mapper();
-     *
-     * // ---
-     * // Scalar types will accept non-strict values; for instance an integer
-     * // type will accept any valid numeric value like the *string* "42".
-     *
-     * $flexibleMapper->map('int', '42');
-     * // => 42
-     *
-     * // ---
-     * // List type will accept non-incremental keys.
-     *
-     * $flexibleMapper->map('list<int>', ['foo' => 42, 'bar' => 1337]);
-     * // => [0 => 42, 1 => 1338]
-     *
-     * // ---
-     * // If a value is missing in a source for a node that accepts `null`, the
-     * // node will be filled with `null`.
-     *
-     * $flexibleMapper->map(
-     *     'array{foo: string, bar: null|string}',
-     *     ['foo' => 'foo'] // `bar` is missing
-     * );
-     * // => ['foo' => 'foo', 'bar' => null]
-     *
-     * // ---
-     * // Array and list types will convert `null` or missing values to an empty
-     * // array.
-     *
-     * $flexibleMapper->map(
-     *     'array{foo: string, bar: array<string>}',
-     *     ['foo' => 'foo'] // `bar` is missing
-     * );
-     * // => ['foo' => 'foo', 'bar' => []]
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->allowScalarValueCasting()
+     *     ->mapper()
+     *     ->map('array{id: string, price: float, active: bool}', [
+     *         'id' => 549465210, // Will be cast to string
+     *         'price' => '42.39', // Will be cast to float
+     *         'active' => 1, // Will be cast to bool
+     *     ]);
      * ```
      */
-    public function enableFlexibleCasting(): self
+    public function allowScalarValueCasting(): self
     {
         $clone = clone $this;
-        $clone->settings->enableFlexibleCasting = true;
+        $clone->settings->allowScalarValueCasting = true;
 
         return $clone;
     }
 
     /**
-     * Superfluous keys in source arrays will be ignored, preventing errors when
-     * a value is not bound to any object property/parameter or shaped array
-     * element.
+     * By default, list types will only accept sequential keys starting from 0.
+     *
+     * This setting allows the mapper to convert associative arrays to a list
+     * with sequential keys.
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->allowNonSequentialList()
+     *     ->mapper()
+     *     ->map('list<int>', [
+     *         'foo' => 42,
+     *         'bar' => 1337,
+     *     ]);
+     *
+     * // => [0 => 42, 1 => 1337]
+     * ```
+     */
+    public function allowNonSequentialList(): self
+    {
+        $clone = clone $this;
+        $clone->settings->allowNonSequentialList = true;
+
+        return $clone;
+    }
+
+    /**
+     * Allows the mapper to accept undefined values (missing from the input), by
+     * converting them to `null` (if the current type is nullable) or an empty
+     * array (if the current type is an object or an iterable).
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->allowUndefinedValues()
+     *     ->mapper()
+     *     ->map('array{name: string, age: int|null}', [
+     *         'name' => 'John Doe',
+     *         // 'age' is not defined
+     *     ]);
+     *
+     * // => ['name' => 'John Doe', 'age' => null]
+     * ```
+     */
+    public function allowUndefinedValues(): self
+    {
+        $clone = clone $this;
+        $clone->settings->allowUndefinedValues = true;
+
+        return $clone;
+    }
+
+    /**
+     * By default, an error is raised when a source array contains keys that
+     * do not match a class property/parameter or a shaped array element.
+     *
+     * This setting allows the mapper to ignore these superfluous keys.
      *
      * ```php
      * (new \CuyZ\Valinor\MapperBuilder())
      *     ->allowSuperfluousKeys()
      *     ->mapper()
-     *     ->map(
-     *         'array{foo: string, bar: int}',
-     *         [
-     *             'foo' => 'foo',
-     *             'bar' => 42,
-     *             'baz' => 1337.404, // `baz` will be ignored
-     *         ]
-     *     );
+     *     ->map('array{name: string, age: int}', [
+     *         'name' => 'John Doe',
+     *         'age' => 42,
+     *         'city' => 'Paris', // Will be ignored
+     *     ]);
      * ```
      */
     public function allowSuperfluousKeys(): self
@@ -340,13 +415,10 @@ final class MapperBuilder
      * (new \CuyZ\Valinor\MapperBuilder())
      *     ->allowPermissiveTypes()
      *     ->mapper()
-     *     ->map(
-     *         'array{foo: string, bar: mixed}',
-     *         [
-     *             'foo' => 'foo',
-     *             'bar' => 42, // Could be any value
-     *         ]
-     *     );
+     *     ->map('array{name: string, data: mixed}', [
+     *         'name' => 'some_product',
+     *         'data' => 42, // Could be any value
+     *     ]);
      * ```
      */
     public function allowPermissiveTypes(): self
@@ -358,15 +430,117 @@ final class MapperBuilder
     }
 
     /**
+     * A mapper converter allows users to hook into the mapping process and
+     * apply custom logic to the input, by defining a callable signature that
+     * properly describes when it should be called:
+     *
+     * - A first argument with a type matching the expected input being mapped
+     * - A return type representing the targeted mapped type
+     *
+     * These two types are enough for the library to know when to call the
+     * converter and can contain advanced type annotations for more specific
+     * use cases.
+     *
+     * Below is a basic example of a converter that converts string inputs to
+     * uppercase:
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     ->registerConverter(fn (string $value): string => strtoupper($value))
+     *     ->mapper()
+     *     ->map('string', 'hello world'); // 'HELLO WORLD'
+     * ```
+     *
+     * Converters can be chained, allowing multiple transformations to be
+     * applied to a value. A second `callable` parameter can be declared,
+     * allowing the current converter to call the next one in the chain.
+     *
+     * A priority can be given to a converter to control the order in which
+     * converters are applied. The higher the priority, the earlier the
+     * converter will be executed. The default priority is 0.
+     *
+     * An attribute on a property or a class can act as a converter if:
+     *  1. It defines a `map` method.
+     *  2. It is registered using either the `registerConverter()` method or
+     *     the following attribute: @see \CuyZ\Valinor\Mapper\AsConverter
+     *
+     * ```php
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *
+     *     // The type of the first parameter of the converter will determine
+     *     // when it will be used by the mapper.
+     *     ->registerConverter(
+     *         fn (string $value, callable $next): string => $next(strtoupper($value))
+     *     )
+     *
+     *     // Converters can be chained, the last registered one will take
+     *     // precedence over the previous ones, which can be called using the
+     *     // `$next` parameter.
+     *     ->registerConverter(
+     *         fn (string $value, callable $next): string => $next($value . '!')
+     *     )
+     *
+     *     // A priority can be given to a converter, to make sure it is called
+     *     // before or after another one.
+     *     ->registerConverter(
+     *         fn (string $value, callable $next): string => $next($value . '?'),
+     *         priority: -100 // Negative priority: converter is called early
+     *     )
+     *
+     *     // External converter attributes must be registered before they are
+     *     // used by the mapper.
+     *     ->registerConverter(\Some\External\ConverterAttribute::class)
+     *
+     *     ->mapper()
+     *     ->map('string', 'hello world'); // 'HELLO WORLD!?'
+     * ```
+     *
+     * It is also possible to register attributes that share a common interface
+     * by giving the interface name to the registration method.
+     *
+     * ```php
+     * namespace My\App;
+     *
+     * interface MyAttributeInterface {}
+     *
+     * #[\Attribute]
+     * final class SomeAttribute implements \My\App\MyAttributeInterface {}
+     *
+     * #[\Attribute]
+     * final class SomeOtherAttribute implements \My\App\MyAttributeInterface {}
+     *
+     * (new \CuyZ\Valinor\MapperBuilder())
+     *     // Registers both `SomeAttribute` and `SomeOtherAttribute` attributes
+     *     ->registerConverter(\My\App\MyAttributeInterface::class)
+     *     ->mapper()
+     *     ->map(…);
+     * ```
+     *
+     * The converter *must* be pure, its output must be deterministic.
+     * @see https://en.wikipedia.org/wiki/Pure_function
+     *
+     * @param pure-callable|class-string $converter
+     */
+    public function registerConverter(callable|string $converter, int $priority = 0): self
+    {
+        $clone = clone $this;
+
+        if (is_callable($converter)) {
+            $clone->settings->mapperConverters[$priority][] = $converter;
+        } else {
+            $clone->settings->mapperConverterAttributes[$converter] = null;
+        }
+
+        return $clone;
+    }
+
+    /**
      * Filters which userland exceptions are allowed during the mapping.
      *
      * It is advised to use this feature with caution: userland exceptions may
      * contain sensible information — for instance an SQL exception showing a
      * part of a query should never be allowed. Therefore, only an exhaustive
      * list of carefully chosen exceptions should be filtered.
-     *
-     * The filter callback *must* be pure, its output must be deterministic.
-     * @see https://en.wikipedia.org/wiki/Pure_function
      *
      * ```php
      * final class SomeClass
@@ -393,7 +567,6 @@ final class MapperBuilder
      *     ]);
      * ```
      *
-     * @psalm-param pure-callable(Throwable): ErrorMessage $filter
      * @param callable(Throwable): ErrorMessage $filter
      */
     public function filterExceptions(callable $filter): self
@@ -405,14 +578,49 @@ final class MapperBuilder
     }
 
     /**
-     * Warms up the injected cache implementation with the provided class names.
+     * Warms up the injected cache implementation with the provided type
+     * signatures. This will improve the performance when the first call to the
+     * mapper is done for each of these types.
      *
-     * By passing a class which contains recursive objects, every nested object
-     * will be cached as well.
+     * ```php
+     * $mapperBuilder = (new \CuyZ\Valinor\MapperBuilder())
+     *    ->withCache(new \CuyZ\Valinor\Cache\FileSystemCache('path/to/dir'));
+     *
+     * // During the build:
+     * $mapperBuilder->warmupCacheFor(
+     *        // This will also recursively warm up the cache for the types of
+     *        // the class properties.
+     *        SomeClass::class,
+     *
+     *        // Any valid type signature can be used.
+     *        'non-empty-list<string, SomeClass>',
+     *        'array{name: string, age: int}',
+     *    );
+     *
+     * // In the application:
+     * $mapperBuilder->mapper()->map(SomeClass::class, […]);
+     * ```
      */
-    public function warmup(string ...$signatures): void
+    public function warmupCacheFor(string ...$signatures): void
     {
+        if (! isset($this->settings->cache)) {
+            return;
+        }
+
         $this->container()->cacheWarmupService()->warmup(...$signatures);
+    }
+
+    /**
+     * Clears all persisted cache entries from the registered cache
+     * implementation.
+     */
+    public function clearCache(): void
+    {
+        if (! isset($this->settings->cache)) {
+            return;
+        }
+
+        $this->settings->cache->clear();
     }
 
     public function mapper(): TreeMapper

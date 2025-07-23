@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\StringType;
@@ -25,6 +27,11 @@ final class NonEmptyStringType implements StringType
         return is_string($value) && $value !== '';
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::functionCall('is_string', [$node])->and($node->different(Node::value('')));
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
@@ -33,6 +40,7 @@ final class NonEmptyStringType implements StringType
 
         return $other instanceof self
             || $other instanceof NativeStringType
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 
@@ -51,7 +59,14 @@ final class NonEmptyStringType implements StringType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid non-empty string.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid non-empty string.')
+            ->withCode('invalid_non_empty_string')
+            ->build();
+    }
+
+    public function nativeType(): NativeStringType
+    {
+        return NativeStringType::get();
     }
 
     public function toString(): string

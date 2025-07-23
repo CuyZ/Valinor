@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -29,20 +34,24 @@ final class FloatValueTypeTest extends TestCase
         self::assertSame(1337.42, $this->floatValueType->value());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([1337.42])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->floatValueType->accepts(1337.42));
+        self::assertTrue($this->floatValueType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->floatValueType, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([404])]
+    #[TestWith([404.42])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->floatValueType->accepts(null));
-        self::assertFalse($this->floatValueType->accepts('Schwifty!'));
-        self::assertFalse($this->floatValueType->accepts(404));
-        self::assertFalse($this->floatValueType->accepts(404.42));
-        self::assertFalse($this->floatValueType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->floatValueType->accepts(false));
-        self::assertFalse($this->floatValueType->accepts(new stdClass()));
+        self::assertFalse($this->floatValueType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->floatValueType, $value));
     }
 
     public function test_can_cast_float_value(): void
@@ -103,6 +112,11 @@ final class FloatValueTypeTest extends TestCase
         self::assertFalse($this->floatValueType->matches(new FakeType()));
     }
 
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue($this->floatValueType->matches(new ScalarConcreteType()));
+    }
+
     public function test_matches_mixed_type(): void
     {
         self::assertTrue($this->floatValueType->matches(new MixedType()));
@@ -135,5 +149,16 @@ final class FloatValueTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->floatValueType->matches($unionType));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('float', (new FloatValueType(1337.42))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

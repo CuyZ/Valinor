@@ -6,12 +6,15 @@ namespace CuyZ\Valinor\Type\Types\Factory;
 
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
+use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Utility\Reflection\Reflection;
 use UnitEnum;
 
 use function is_array;
@@ -39,19 +42,23 @@ final class ValueTypeFactory
         }
 
         if ($value instanceof UnitEnum) {
-            return new EnumValueType($value);
+            return EnumType::fromPattern($value::class, $value->name);
         }
 
         if (is_string($value)) {
+            if (Reflection::classOrInterfaceExists($value)) {
+                return new ClassStringType(new NativeClassType($value));
+            }
+
             if (str_contains($value, "'") && str_contains($value, '"')) {
-                return StringValueType::singleQuote(str_replace("'", "\'", $value));
+                $value = "'" . str_replace("'", "\'", $value) . "'";
+            } elseif (str_contains($value, "'")) {
+                $value = '"' . $value . '"';
+            } else {
+                $value = "'" . $value . "'";
             }
 
-            if (str_contains($value, "'")) {
-                return StringValueType::doubleQuote($value);
-            }
-
-            return StringValueType::singleQuote($value);
+            return StringValueType::from($value);
         }
 
         if (is_array($value)) {

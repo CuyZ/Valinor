@@ -24,21 +24,31 @@ final class PhpParser
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
      * @return array<string, string>
      */
-    public static function parseUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
+    public static function parseUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
     {
+        $signature = "{$reflection->getFileName()}:{$reflection->getStartLine()}";
+
         // @infection-ignore-all
-        return self::$statements[Reflection::signature($reflection)] ??= self::fetchUseStatements($reflection);
+        return self::$statements[$signature] ??= self::fetchUseStatements($reflection);
+    }
+
+    public static function parseNamespace(ReflectionFunction $reflection): ?string
+    {
+        $content = self::getFileContent($reflection);
+
+        if ($content === null) {
+            return null;
+        }
+
+        return (new NamespaceFinder())->findNamespace($content);
     }
 
     /**
      * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
      * @return array<string, string>
      */
-    private static function fetchUseStatements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection): array
+    private static function fetchUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
     {
-        $filename = $reflection->getFileName();
-        $startLine = $reflection->getStartLine();
-
         if ($reflection instanceof ReflectionMethod) {
             $namespaceName = $reflection->getDeclaringClass()->getNamespaceName();
         } elseif ($reflection instanceof ReflectionFunction && $reflection->getClosureScopeClass()) {
@@ -47,29 +57,38 @@ final class PhpParser
             $namespaceName = $reflection->getNamespaceName();
         }
 
-        // @infection-ignore-all these values will never be `true`
-        if ($filename === false || $startLine === false) {
+        $content = self::getFileContent($reflection);
+
+        if ($content === null) {
             return [];
         }
-
-        if (! is_file($filename)) {
-            return [];
-        }
-
-        $content = self::getFileContent($filename, $startLine);
 
         return (new TokenParser($content))->parseUseStatements($namespaceName);
     }
 
-    private static function getFileContent(string $filename, int $lineNumber): string
+    /**
+     * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
+     */    private static function getFileContent(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): ?string
     {
+        $filename = $reflection->getFileName();
+        $startLine = $reflection->getStartLine();
+
+        // @infection-ignore-all these values will never be `true`
+        if ($filename === false || $startLine === false) {
+            return null;
+        }
+
+        if (! is_file($filename)) {
+            return null;
+        }
+
         // @infection-ignore-all no need to test with `-1`
         $lineCnt = 0;
         $content = '';
         $file = new SplFileObject($filename);
 
         while (! $file->eof()) {
-            if ($lineCnt++ === $lineNumber) {
+            if ($lineCnt++ === $startLine) {
                 break;
             }
 

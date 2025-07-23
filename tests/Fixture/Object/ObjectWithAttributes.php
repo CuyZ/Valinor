@@ -9,20 +9,16 @@ use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use CuyZ\Valinor\Tests\Fixture\Attribute\PropertyTargetAttribute;
 
 #[BasicAttribute]
-#[AttributeWithArguments('foo', 'bar')]
+#[AttributeWithArguments('foo', 'bar', new StringableObject('bar'), ['baz' => 'fiz'])]
 final class ObjectWithAttributes
 {
     #[BasicAttribute]
     #[AttributeWithArguments('foo', 'bar')]
     public bool $property;
 
-    public function __construct(#[PropertyTargetAttribute] public bool $promotedProperty)
-    {
-    }
+    public function __construct(#[PropertyTargetAttribute] public bool $promotedProperty) {}
 
     #[BasicAttribute]
     #[AttributeWithArguments('foo', 'bar')]
-    public function method(#[BasicAttribute] string $parameter): void
-    {
-    }
+    public function method(#[BasicAttribute] string $parameter): void {}
 }

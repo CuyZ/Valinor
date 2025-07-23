@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
-use CuyZ\Valinor\Definition\Exception\InvalidParameterIndex;
-use CuyZ\Valinor\Definition\Exception\ParameterNotFound;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeParameterDefinition;
 use CuyZ\Valinor\Tests\Traits\IteratorTester;
@@ -24,17 +22,8 @@ final class ParametersTest extends TestCase
 
         self::assertFalse($parameters->has('unknownParameter'));
 
-        self::assertTrue($parameters->has($parameter->name()));
-        self::assertSame($parameter, $parameters->get($parameter->name()));
-    }
-
-    public function test_get_non_existing_parameter_throws_exception(): void
-    {
-        $this->expectException(ParameterNotFound::class);
-        $this->expectExceptionCode(1514302629);
-        $this->expectExceptionMessage('The parameter `unknownParameter` does not exist.');
-
-        (new Parameters())->get('unknownParameter');
+        self::assertTrue($parameters->has($parameter->name));
+        self::assertSame($parameter, $parameters->get($parameter->name));
     }
 
     public function test_get_parameter_at_index_returns_correct_parameter(): void
@@ -47,13 +36,13 @@ final class ParametersTest extends TestCase
         self::assertSame($parameterB, $parameters->at(1));
     }
 
-    public function test_get_parameter_at_index_out_of_range_throws_exception(): void
+    public function test_parameters_to_list_returns_list(): void
     {
-        $this->expectException(InvalidParameterIndex::class);
-        $this->expectExceptionCode(1644936619);
-        $this->expectExceptionMessage('Index 1 is out of range, it should be between 0 and 0.');
+        $parameterA = FakeParameterDefinition::new('SomeParameterA');
+        $parameterB = FakeParameterDefinition::new('SomeParameterB');
+        $parameters = new Parameters($parameterA, $parameterB);
 
-        (new Parameters(FakeParameterDefinition::new()))->at(1);
+        self::assertSame([$parameterA, $parameterB], $parameters->toList());
     }
 
     public function test_parameters_are_countable(): void

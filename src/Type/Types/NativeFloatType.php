@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\FloatType;
@@ -24,6 +26,11 @@ final class NativeFloatType implements FloatType
         return is_float($value);
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::functionCall('is_float', [$node]);
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
@@ -31,6 +38,7 @@ final class NativeFloatType implements FloatType
         }
 
         return $other instanceof self
+            || $other instanceof ScalarConcreteType
             || $other instanceof MixedType;
     }
 
@@ -48,7 +56,14 @@ final class NativeFloatType implements FloatType
 
     public function errorMessage(): ErrorMessage
     {
-        return MessageBuilder::newError('Value {source_value} is not a valid float.')->build();
+        return MessageBuilder::newError('Value {source_value} is not a valid float.')
+            ->withCode('invalid_float')
+            ->build();
+    }
+
+    public function nativeType(): NativeFloatType
+    {
+        return $this;
     }
 
     public function toString(): string

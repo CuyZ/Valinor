@@ -5,54 +5,42 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
-use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedShapedArrayKeys;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
 use function array_key_exists;
-use function array_keys;
 use function assert;
-use function count;
 use function is_array;
+use function is_iterable;
 
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $allowSuperfluousKeys)
-    {
-    }
-
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
         $value = $shell->value();
 
         assert($type instanceof ShapedArrayType);
 
-        if (! is_array($value)) {
-            throw new SourceMustBeIterable($value, $type);
+        if (! is_iterable($value)) {
+            return Node::error($shell, new SourceMustBeIterable($value, $type));
         }
 
-        $children = $this->children($type, $shell, $rootBuilder);
-        $array = $this->buildArray($children);
-
-        return TreeNode::branch($shell, $array, $children);
-    }
-
-    /**
-     * @return array<TreeNode>
-     */
-    private function children(ShapedArrayType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
-    {
-        /** @var array<mixed> $value */
-        $value = $shell->value();
-        $elements = $type->elements();
         $children = [];
+        $childrenNames = [];
+        $errors = [];
 
-        foreach ($elements as $element) {
+        if (! is_array($value)) {
+            $value = iterator_to_array($value);
+        }
+
+        foreach ($type->elements() as $element) {
+            $childrenNames[] = $element->key()->value();
             $key = $element->key()->value();
 
             $child = $shell->child((string)$key, $element->type());
+            $child = $child->withAttributes($element->attributes());
 
             if (array_key_exists($key, $value)) {
                 $child = $child->withValue($value[$key]);
@@ -60,34 +48,39 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            $children[$key] = $rootBuilder->build($child);
+            $child = $rootBuilder->build($child);
+
+            if (! $child->isValid()) {
+                $errors[] = $child;
+            } else {
+                $children[$key] = $child->value();
+            }
 
             unset($value[$key]);
         }
 
-        if (! $this->allowSuperfluousKeys && count($value) > 0) {
-            throw new UnexpectedShapedArrayKeys(array_keys($value), $elements);
-        }
+        if ($type->isUnsealed()) {
+            $childrenNames = array_merge($childrenNames, array_keys($value));
 
-        return $children;
-    }
+            $unsealedShell = $shell->withType($type->unsealedType())->withValue($value);
+            $unsealedNode = $rootBuilder->build($unsealedShell);
 
-    /**
-     * @param array<TreeNode> $children
-     * @return mixed[]|null
-     */
-    private function buildArray(array $children): ?array
-    {
-        $array = [];
-
-        foreach ($children as $key => $child) {
-            if (! $child->isValid()) {
-                return null;
+            if (! $unsealedNode->isValid()) {
+                $errors[] = $unsealedNode;
+            } else {
+                // @phpstan-ignore assignOp.invalid (we know value is an array)
+                $children += $unsealedNode->value();
             }
-
-            $array[$key] = $child->value();
         }
 
-        return $array;
+        if ($errors === []) {
+            $node = Node::new(value: $children, childrenCount: count($children));
+        } else {
+            $node = Node::branchWithErrors($errors);
+        }
+
+        $node = $node->checkUnexpectedKeys($shell, $childrenNames);
+
+        return $node;
     }
 }

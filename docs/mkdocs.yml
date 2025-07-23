@@ -36,6 +36,7 @@ theme:
     - navigation.sections
     - navigation.top
     - navigation.indexes
+    - navigation.instant
     - content.code.annotate
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -79,19 +80,32 @@ nav:
   - Getting Started: getting-started.md
   - Usage:
       - Object construction: usage/object-construction.md
-      - Error handling: usage/error-handling.md
+      - Validation & error handling: usage/validation-and-error-handling.md
       - Type strictness & flexibility: usage/type-strictness-and-flexibility.md
       - Type reference: usage/type-reference.md
   - How-to:
       - Use custom object constructors: how-to/use-custom-object-constructors.md
       - Deal with dates: how-to/deal-with-dates.md
+      - Convert input during mapping: how-to/convert-input.md
+      - Common converters examples: how-to/common-converters-examples.md
+      - Import formatted source: how-to/import-formatted-source.md
       - Infer interfaces: how-to/infer-interfaces.md
-      - Transform input: how-to/transform-input.md
       - Map arguments of a callable: how-to/map-arguments-of-a-callable.md
       - Customize error messages: how-to/customize-error-messages.md
+  - Serialization:
+      - Normalizing data: serialization/normalizer.md
+      - Extending the normalizer: serialization/extending-normalizer.md
+      - Common transformers examples: serialization/common-transformers-examples.md
+      - Normalizing to JSON: serialization/normalizing-json.md
   - Other:
       - Performance & caching: other/performance-and-caching.md
+      - App & framework integration: other/app-and-framework-integration.md
       - Static analysis — PHPStan/Psalm: other/static-analysis.md
   - Project:
+      - Upgrading: project/upgrading.md
+      - Alternatives: project/alternatives.md
       - Changelog: project/changelog.md
       - Credits: project/credits.md
+  - Internals:
+      - Benchmarks : internals/benchmarks.md
+not_in_nav: project/changelog/version-*.md

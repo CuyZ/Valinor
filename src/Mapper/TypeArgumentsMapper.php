@@ -6,8 +6,12 @@ namespace CuyZ\Valinor\Mapper;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
+use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -15,40 +19,58 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 /** @internal */
 final class TypeArgumentsMapper implements ArgumentsMapper
 {
-    private FunctionDefinitionRepository $functionDefinitionRepository;
+    public function __construct(
+        private FunctionDefinitionRepository $functionDefinitionRepository,
+        private RootNodeBuilder $nodeBuilder,
+        private Settings $settings,
+    ) {}
 
-    private RootNodeBuilder $nodeBuilder;
-
-    public function __construct(FunctionDefinitionRepository $functionDefinitionRepository, RootNodeBuilder $nodeBuilder)
-    {
-        $this->functionDefinitionRepository = $functionDefinitionRepository;
-        $this->nodeBuilder = $nodeBuilder;
-    }
-
-    /** @pure */
+    /**
+     * @pure
+     */
     public function mapArguments(callable $callable, mixed $source): array
     {
         $function = $this->functionDefinitionRepository->for($callable);
 
         $elements = array_map(
             fn (ParameterDefinition $parameter) => new ShapedArrayElement(
-                new StringValueType($parameter->name()),
-                $parameter->type(),
-                $parameter->isOptional()
+                new StringValueType($parameter->name),
+                $parameter->type,
+                $parameter->isOptional,
+                $parameter->attributes,
             ),
-            iterator_to_array($function->parameters())
+            $function->parameters->toList(),
         );
 
-        $type = new ShapedArrayType(...array_values($elements));
-        $shell = Shell::root($type, $source);
+        $type = new ShapedArrayType(...$elements);
 
-        $node = $this->nodeBuilder->build($shell);
+        $shell = Shell::root($this->settings, $type, $source);
+        $shell = $shell->withAttributes($function->attributes);
 
-        if (! $node->isValid()) {
-            throw new ArgumentsMapperError($function, $node->node());
+        try {
+            $node = $this->nodeBuilder->build($shell);
+        } catch (UnresolvableShellType $exception) {
+            throw new TypeErrorDuringArgumentsMapping($function, $exception);
         }
 
-        /** @var array<string, mixed> */
-        return $node->value();
+        if ($node->isValid()) {
+            /** @var array<string, mixed> */
+            return $node->value();
+        }
+
+        // Transforms the source value if there is only one object argument, to
+        // ensure the source can contain flattened values.
+        if (count($elements) === 1 && $elements[0]->type() instanceof ObjectType) {
+            $shell = $shell->withType($elements[0]->type());
+
+            $node = $this->nodeBuilder->build($shell);
+
+            if ($node->isValid()) {
+                /** @var array<string, mixed> */
+                return [$elements[0]->key()->value() => $node->value()];
+            }
+        }
+
+        throw new ArgumentsMapperError($shell->value(), $type->toString(), $function->signature, $node->messages());
     }
 }

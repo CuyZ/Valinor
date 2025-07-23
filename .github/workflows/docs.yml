@@ -13,7 +13,7 @@ jobs:
       version: ${{ steps.check.outputs.version }}
       tag: ${{ steps.check.outputs.tag }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -37,12 +37,12 @@ jobs:
     needs: check
     if: needs.check.outputs.status == 'ok'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
@@ -56,7 +56,7 @@ jobs:
 
       - name: Find latest release
         id: latest
-        uses: pozetroninc/github-action-get-latest-release@v0.6.0
+        uses: pozetroninc/github-action-get-latest-release@v0.8.0
         with:
           repository: ${{ github.repository }}
           excludes: draft
@@ -76,7 +76,7 @@ jobs:
 
       - run: |
           # Check if the "latest" alias exists
-          VALINOR_HAS_LATEST=$(mike list --config-file docs/mkdocs.yml --rebase --remote doc | grep latest) || true
+          VALINOR_HAS_LATEST=$(mike list --config-file docs/mkdocs.yml --remote doc | grep latest) || true
           
           # If so then it is set as the default version (to enable the index redirect)
           if [ "${VALINOR_HAS_LATEST}" != "" ]

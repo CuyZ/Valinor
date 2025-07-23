@@ -4,84 +4,43 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Cache;
 
+use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\RuntimeCache;
+use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 final class RuntimeCacheTest extends TestCase
 {
-    /** @var RuntimeCache<mixed> */
-    private RuntimeCache $cache;
-
-    protected function setUp(): void
+    public function test_value_is_fetched_only_once_from_delegate(): void
     {
-        parent::setUp();
+        $delegate = new FakeCache();
+        $cache = new RuntimeCache($delegate);
 
-        $this->cache = new RuntimeCache();
-    }
+        $cache->set('foo', new CacheEntry('fn () => "foo"'));
 
-    public function test_value_can_be_fetched_and_deleted(): void
-    {
-        $key = 'foo';
-        $value = new stdClass();
+        $valueA = $cache->get('foo');
+        $valueB = $cache->get('foo');
 
-        self::assertFalse($this->cache->has($key));
-        self::assertTrue($this->cache->set($key, $value));
-        self::assertTrue($this->cache->has($key));
-        self::assertSame($value, $this->cache->get($key));
-        self::assertTrue($this->cache->delete($key));
-        self::assertFalse($this->cache->has($key));
-    }
+        self::assertSame('foo', $valueA);
+        self::assertSame('foo', $valueB);
 
-    public function test_get_non_existing_entry_returns_default_value(): void
-    {
-        $defaultValue = new stdClass();
-
-        self::assertSame($defaultValue, $this->cache->get('Schwifty', $defaultValue));
-    }
-
-    public function test_get_existing_entry_does_not_return_default_value(): void
-    {
-        $this->cache->set('foo', 'foo');
-
-        self::assertSame('foo', $this->cache->get('foo', 'bar'));
+        self::assertSame(1, $delegate->timesEntryWasFetched('foo'));
     }
 
     public function test_clear_entries_clears_everything(): void
     {
-        $keyA = 'foo';
-        $keyB = 'bar';
+        $delegate = new FakeCache();
+        $cache = new RuntimeCache($delegate);
 
-        $this->cache->set($keyA, new stdClass());
-        $this->cache->set($keyB, new stdClass());
+        $cache->set('foo', new CacheEntry('fn () => "foo"'));
+        $cache->set('bar', new CacheEntry('fn () => "bar"'));
 
-        self::assertTrue($this->cache->has($keyA));
-        self::assertTrue($this->cache->has($keyB));
-        self::assertTrue($this->cache->clear());
-        self::assertFalse($this->cache->has($keyA));
-        self::assertFalse($this->cache->has($keyB));
-    }
+        self::assertSame(2, $delegate->countEntries());
 
-    public function test_multiple_values_set_can_be_fetched_and_deleted(): void
-    {
-        $values = [
-            'foo' => new stdClass(),
-            'bar' => new stdClass(),
-        ];
+        $cache->clear();
 
-        self::assertFalse($this->cache->has('foo'));
-        self::assertFalse($this->cache->has('bar'));
-
-        self::assertTrue($this->cache->setMultiple($values));
-
-        self::assertTrue($this->cache->has('foo'));
-        self::assertTrue($this->cache->has('bar'));
-
-        self::assertSame($values, $this->cache->getMultiple(['foo', 'bar']));
-
-        self::assertTrue($this->cache->deleteMultiple(['foo', 'bar']));
-
-        self::assertFalse($this->cache->has('foo'));
-        self::assertFalse($this->cache->has('bar'));
+        self::assertNull($cache->get('foo'));
+        self::assertNull($cache->get('bar'));
+        self::assertSame(0, $delegate->countEntries());
     }
 }

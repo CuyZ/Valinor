@@ -1,5 +1,6 @@
 includes:
     - qa/PHPStan/valinor-phpstan-configuration.php
+    - qa/PHPStan/valinor-phpstan-suppress-pure-errors.php
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
 
@@ -14,6 +15,7 @@ parameters:
         - qa
     excludePaths:
         - tests/StaticAnalysis
+        - tests/Integration/Normalizer/ExpectedCache/
     ignoreErrors:
         # \PHPStan\Rules\BooleansInConditions
         - '#Only booleans are allowed in .* given#'
@@ -24,9 +26,19 @@ parameters:
 
         - '#Method [\w\\:]+_data_provider\(\) return type has no value type specified in iterable type#'
 
-        - message: '#Method CuyZ\\Valinor\\MapperBuilder::withCache\(\) has parameter \$cache with generic interface Psr\\SimpleCache\\\CacheInterface but does not specify its types: EntryType#'
-          path: src/MapperBuilder.php
+        # Although PHPStan has a quite strong purity inferring mechanism, some
+        # caveats remain and make it really hard to properly add `@pure` markers
+        # all over the codebase. For this reason, we suppress these errors.
+        -
+            identifier: possiblyImpure.functionCall
+        -
+            identifier: possiblyImpure.methodCall
+        -
+            identifier: possiblyImpure.new
+        -
+            identifier: impure.functionCall
+
 
     stubFiles:
-        - qa/PHPStan/Stubs/Psr/SimpleCache/CacheInterface.stub
+        - qa/PHPStan/Stubs/vfs/vfsStreamAbstractContent.stub
     tmpDir: var/cache/phpstan

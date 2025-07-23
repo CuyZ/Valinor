@@ -10,64 +10,18 @@ use CuyZ\Valinor\Type\Type;
 final class FunctionDefinition
 {
     public function __construct(
-        private string $name,
-        private string $signature,
-        private Attributes $attributes,
-        private ?string $fileName,
+        /** @var non-empty-string */
+        public readonly string $name,
+        /** @var non-empty-string */
+        public readonly string $signature,
+        public readonly Attributes $attributes,
+        /** @var non-empty-string|null */
+        public readonly ?string $fileName,
         /** @var class-string|null */
-        private ?string $class,
-        private bool $isStatic,
-        private bool $isClosure,
-        private Parameters $parameters,
-        private Type $returnType
-    ) {
-    }
-
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function signature(): string
-    {
-        return $this->signature;
-    }
-
-    public function attributes(): Attributes
-    {
-        return $this->attributes;
-    }
-
-    public function fileName(): ?string
-    {
-        return $this->fileName;
-    }
-
-    /**
-     * @return class-string|null
-     */
-    public function class(): ?string
-    {
-        return $this->class;
-    }
-
-    public function isStatic(): bool
-    {
-        return $this->isStatic;
-    }
-
-    public function isClosure(): bool
-    {
-        return $this->isClosure;
-    }
-
-    public function parameters(): Parameters
-    {
-        return $this->parameters;
-    }
-
-    public function returnType(): Type
-    {
-        return $this->returnType;
-    }
+        public readonly ?string $class,
+        public readonly bool $isStatic,
+        public readonly bool $isClosure,
+        public readonly Parameters $parameters,
+        public readonly Type $returnType
+    ) {}
 }

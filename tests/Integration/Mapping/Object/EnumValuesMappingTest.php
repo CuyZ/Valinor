@@ -5,23 +5,20 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-/**
- * @requires PHP >= 8.1
- */
-final class EnumValuesMappingTest extends IntegrationTest
+final class EnumValuesMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {
         $source = [
             'pureEnumWithFirstValue' => 'FOO',
             'pureEnumWithSecondValue' => 'BAR',
+            'pureEnumWithFullNamespace' => 'FOO',
             'pureEnumWithPattern' => 'BAZ',
             'backedStringEnum' => 'foo',
             'backedStringEnumWithPattern' => 'baz',
@@ -31,13 +28,14 @@ final class EnumValuesMappingTest extends IntegrationTest
 
         foreach ([EnumValues::class, EnumValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
 
             self::assertSame(PureEnum::FOO, $result->pureEnumWithFirstValue);
             self::assertSame(PureEnum::BAR, $result->pureEnumWithSecondValue);
+            self::assertSame(PureEnum::FOO, $result->pureEnumWithFullNamespace);
             self::assertSame(PureEnum::BAZ, $result->pureEnumWithPattern);
             self::assertSame(BackedStringEnum::FOO, $result->backedStringEnum);
             self::assertSame(BackedStringEnum::BAZ, $result->backedStringEnumWithPattern);
@@ -49,66 +47,66 @@ final class EnumValuesMappingTest extends IntegrationTest
     public function test_invalid_string_enum_value_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(BackedStringEnum::class, new StringableObject('fiz'));
+            $this->mapperBuilder()->mapper()->map(BackedStringEnum::class, new StringableObject('fiz'));
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('Value object(' . StringableObject::class . ") does not match any of 'foo', 'bar', 'baz'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[cannot_resolve_type_from_union] Value object(' . StringableObject::class . ") does not match any of 'foo', 'bar', 'baz'.",
+            ]);
         }
     }
 
     public function test_invalid_integer_enum_value_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(BackedIntegerEnum::class, '512');
+            $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, '512');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value '512' does not match any of 42, 404, 1337.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[cannot_resolve_type_from_union] Value '512' does not match any of 42, 404, 1337.",
+            ]);
         }
     }
 
     public function test_value_not_matching_pure_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(PureEnum::class . '::FOO', 'fiz');
+            $this->mapperBuilder()->mapper()->map(PureEnum::class . '::FOO', 'fiz');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value 'fiz' does not match 'FOO'.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[invalid_string_value] Value 'fiz' does not match string value 'FOO'.",
+            ]);
         }
     }
 
     public function test_value_not_matching_backed_integer_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(BackedIntegerEnum::class . '::FOO', '512');
+            $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class . '::FOO', '512');
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame("Value '512' does not match 42.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[invalid_integer_value] Value '512' does not match integer value 42.",
+            ]);
         }
     }
 
     public function test_value_not_filled_for_pure_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
+            $this->mapperBuilder()->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['foo']->messages()[0];
-
-            self::assertSame('Cannot be empty and must be filled with a value matching type `FOO`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching type `FOO`.',
+            ]);
         }
     }
 
     public function test_value_not_filled_for_backed_integer_enum_case_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
+            $this->mapperBuilder()->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['foo']->messages()[0];
-
-            self::assertSame('Cannot be empty and must be filled with a value matching type `42`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching type `42`.',
+            ]);
         }
     }
 }
@@ -118,6 +116,9 @@ class EnumValues
     public PureEnum $pureEnumWithFirstValue;
 
     public PureEnum $pureEnumWithSecondValue;
+
+    /** @var \CuyZ\Valinor\Tests\Fixture\Enum\PureEnum */
+    public mixed $pureEnumWithFullNamespace;
 
     /** @var PureEnum::BA* */
     public PureEnum $pureEnumWithPattern;
@@ -136,6 +137,7 @@ class EnumValues
 class EnumValuesWithConstructor extends EnumValues
 {
     /**
+     * @param \CuyZ\Valinor\Tests\Fixture\Enum\PureEnum $pureEnumWithFullNamespace
      * @param PureEnum::BA* $pureEnumWithPattern
      * @param BackedStringEnum::BA* $backedStringEnumWithPattern
      * @param BackedIntegerEnum::BA* $backedIntegerEnumWithPattern
@@ -143,6 +145,7 @@ class EnumValuesWithConstructor extends EnumValues
     public function __construct(
         PureEnum $pureEnumWithFirstValue,
         PureEnum $pureEnumWithSecondValue,
+        mixed $pureEnumWithFullNamespace,
         PureEnum $pureEnumWithPattern,
         BackedStringEnum $backedStringEnum,
         BackedStringEnum $backedStringEnumWithPattern,
@@ -151,6 +154,7 @@ class EnumValuesWithConstructor extends EnumValues
     ) {
         $this->pureEnumWithFirstValue = $pureEnumWithFirstValue;
         $this->pureEnumWithSecondValue = $pureEnumWithSecondValue;
+        $this->pureEnumWithFullNamespace = $pureEnumWithFullNamespace;
         $this->pureEnumWithPattern = $pureEnumWithPattern;
         $this->backedStringEnum = $backedStringEnum;
         $this->backedIntegerEnum = $backedIntegerEnum;

@@ -8,11 +8,11 @@ use CuyZ\Valinor\Cache\Exception\InvalidSignatureToWarmup;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 
 use function in_array;
@@ -28,8 +28,7 @@ final class RecursiveCacheWarmupService
         private ObjectImplementations $implementations,
         private ClassDefinitionRepository $classDefinitionRepository,
         private ObjectBuilderFactory $objectBuilderFactory
-    ) {
-    }
+    ) {}
 
     public function warmup(string ...$signatures): void
     {
@@ -61,12 +60,18 @@ final class RecursiveCacheWarmupService
 
     private function warmupInterfaceType(InterfaceType $type): void
     {
-        $function = $this->implementations->function($type->className());
+        $interfaceName = $type->className();
 
-        $this->warmupType($function->returnType());
+        if (! $this->implementations->has($interfaceName)) {
+            return;
+        }
 
-        foreach ($function->parameters() as $parameter) {
-            $this->warmupType($parameter->type());
+        $function = $this->implementations->function($interfaceName);
+
+        $this->warmupType($function->returnType);
+
+        foreach ($function->parameters as $parameter) {
+            $this->warmupType($parameter->type);
         }
     }
 

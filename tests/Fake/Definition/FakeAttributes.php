@@ -5,37 +5,26 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
 use CuyZ\Valinor\Definition\Attributes;
-use Traversable;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionMethod;
+use ReflectionParameter;
+use ReflectionProperty;
+use Reflector;
+use ReflectionAttribute;
 
-final class FakeAttributes implements Attributes
+final class FakeAttributes
 {
-    private int $count = 0;
-
-    public static function notEmpty(): self
+    /**
+     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
+     */
+    public static function fromReflection(Reflector $reflection): Attributes
     {
-        $self = new self();
-        $self->count = 1;
-
-        return $self;
-    }
-
-    public function has(string $className): bool
-    {
-        return false;
-    }
-
-    public function ofType(string $className): array
-    {
-        return [];
-    }
-
-    public function count(): int
-    {
-        return $this->count;
-    }
-
-    public function getIterator(): Traversable
-    {
-        yield from [];
+        return new Attributes(
+            ...array_map(
+                static fn (ReflectionAttribute $reflection) => FakeAttributeDefinition::fromReflection($reflection),
+                $reflection->getAttributes(),
+            ),
+        );
     }
 }

@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -57,34 +62,48 @@ final class ListTypeTest extends TestCase
         self::assertSame($subType, (new ListType($subType))->subType());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['accepts' => true, 'value' => []])]
+    #[TestWith(['accepts' => true, 'value' => ['Some value', 'Some value', 'Some value']])]
+    #[TestWith(['accepts' => true, 'value' => ['Some value', 'Schwifty!', 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [1 => 'Some value', 2 => 'Some value']])]
+    public function test_native_list_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = FakeType::accepting('Some value');
+        $type = ListType::native();
 
-        self::assertTrue((new ListType($type))->accepts([
-            'Some value',
-            'Some value',
-            'Some value',
-        ]));
-
-        self::assertFalse((new ListType($type))->accepts([
-            'Some value',
-            'Schwifty!',
-            'Some value',
-        ]));
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['accepts' => true, 'value' => []])]
+    #[TestWith(['accepts' => true, 'value' => ['Some value', 'Some value', 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => ['Some value', 'Schwifty!', 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [1 => 'Some value', 2 => 'Some value']])]
+    public function test_list_of_type_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertFalse(ListType::native()->accepts([1 => 'foo']));
-        self::assertFalse(ListType::native()->accepts(['foo' => 'foo']));
+        $type = new ListType(new StringValueType('Some value'));
 
-        self::assertFalse(ListType::native()->accepts(null));
-        self::assertFalse(ListType::native()->accepts('Schwifty!'));
-        self::assertFalse(ListType::native()->accepts(42.1337));
-        self::assertFalse(ListType::native()->accepts(404));
-        self::assertFalse(ListType::native()->accepts(false));
-        self::assertFalse(ListType::native()->accepts(new stdClass()));
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith([[1 => 'foo']])]
+    #[TestWith([['foo' => 'foo']])]
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
+    {
+        $nativeType = ListType::native();
+        $listOfType = new ListType(new StringValueType('Some value'));
+
+        self::assertFalse($nativeType->accepts($value));
+        self::assertFalse($listOfType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($nativeType, $value));
+        self::assertFalse($this->compiledAccept($listOfType, $value));
     }
 
     public function test_matches_valid_list_type(): void
@@ -210,5 +229,17 @@ final class ListTypeTest extends TestCase
         self::assertCount(2, $type->traverse());
         self::assertContains($subType, $type->traverse());
         self::assertContains($compositeType, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('array', ListType::native()->nativeType()->toString());
+        self::assertSame('array', (new ListType(new FakeType()))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -48,6 +48,4 @@ use CuyZ\Valinor\MapperBuilder;
  * @api
  */
 #[Attribute(Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
-final class DynamicConstructor
-{
-}
+final class DynamicConstructor {}

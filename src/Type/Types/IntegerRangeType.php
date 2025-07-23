@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\IntegerType;
@@ -11,6 +13,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\ReversedValuesForIntegerRange;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\SameValueForIntegerRange;
 use CuyZ\Valinor\Type\Type;
 
+use function is_string;
+use function ltrim;
+use function preg_match;
 use function sprintf;
 
 /** @internal */
@@ -32,12 +37,12 @@ final class IntegerRangeType implements IntegerType
             $max < PHP_INT_MAX ? $max : 'max'
         );
 
-        if ($min === $max) {
-            throw new SameValueForIntegerRange($min);
-        }
-
         if ($min > $max) {
             throw new ReversedValuesForIntegerRange($min, $max);
+        }
+
+        if ($min === $max) {
+            throw new SameValueForIntegerRange($min);
         }
     }
 
@@ -48,13 +53,20 @@ final class IntegerRangeType implements IntegerType
             && $value <= $this->max;
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::functionCall('is_int', [$node])
+            ->and($node->isGreaterOrEqualsTo(Node::value($this->min)))
+            ->and($node->isLessOrEqualsTo(Node::value($this->max)));
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
             return $other->isMatchedBy($this);
         }
 
-        if ($other instanceof NativeIntegerType || $other instanceof MixedType) {
+        if ($other instanceof NativeIntegerType || $other instanceof ScalarConcreteType || $other instanceof MixedType) {
             return true;
         }
 
@@ -62,11 +74,11 @@ final class IntegerRangeType implements IntegerType
             return true;
         }
 
-        if ($other instanceof NegativeIntegerType && $this->min < 0 && $this->max < 0) {
+        if ($other instanceof NegativeIntegerType && $this->max < 0) {
             return true;
         }
 
-        if ($other instanceof PositiveIntegerType && $this->min > 0 && $this->max > 0) {
+        if ($other instanceof PositiveIntegerType && $this->min > 0) {
             return true;
         }
 
@@ -79,6 +91,12 @@ final class IntegerRangeType implements IntegerType
 
     public function canCast(mixed $value): bool
     {
+        if (is_string($value)) {
+            $value = preg_match('/^0+$/', $value)
+                ? '0'
+                : ltrim($value, '0');
+        }
+
         return ! is_bool($value)
             && filter_var($value, FILTER_VALIDATE_INT) !== false
             && $value >= $this->min
@@ -95,6 +113,7 @@ final class IntegerRangeType implements IntegerType
     public function errorMessage(): ErrorMessage
     {
         return MessageBuilder::newError('Value {source_value} is not a valid integer between {min} and {max}.')
+            ->withCode('invalid_integer_range')
             ->withParameter('min', (string)$this->min)
             ->withParameter('max', (string)$this->max)
             ->build();
@@ -108,6 +127,11 @@ final class IntegerRangeType implements IntegerType
     public function max(): int
     {
         return $this->max;
+    }
+
+    public function nativeType(): NativeIntegerType
+    {
+        return NativeIntegerType::get();
     }
 
     public function toString(): string

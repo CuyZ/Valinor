@@ -11,9 +11,6 @@ final class UnknownSymbol extends RuntimeException implements InvalidType
 {
     public function __construct(string $symbol)
     {
-        parent::__construct(
-            "Cannot parse unknown symbol `$symbol`.",
-            1632918723
-        );
+        parent::__construct("Cannot parse unknown symbol `$symbol`.");
     }
 }

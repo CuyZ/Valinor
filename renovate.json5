@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    ":dependencyDashboard",
+    ":automergeDisabled",
+    ":configMigration",
+    ":semanticCommits",
+  ],
+  "enabledManagers": [
+    "github-actions",
+  ],
+  "prConcurrentLimit": 2,
+  "packageRules": [
+    {
+      "dependencyDashboardApproval": true,
+      "matchUpdateTypes": [ "major" ],
+      "groupName": "all-updates"
+    }
+  ]
+}

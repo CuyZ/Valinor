@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       php-version: '8.1'
-      php-extensions: pcov, yaml
+      php-extensions: ds,yaml
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Needed for the `git diff` used below for Infection
 
@@ -23,6 +23,7 @@ jobs:
           php-version: ${{ env.php-version }}
           extensions: ${{ env.php-extensions }}
           ini-values: zend.assertions=1
+          coverage: pcov
 
       - uses: "ramsey/composer-install@v2"
 
@@ -30,10 +31,11 @@ jobs:
         run: mkdir -p var/cache
 
       - name: Cache Mutation results
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: var/cache
-          key: ${{ runner.os }}-qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
+          key: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
+          restore-keys: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
 
       - name: Running mutation tests
         if: github.ref == 'refs/heads/master'

@@ -6,23 +6,22 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Source;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\ObjectWithSubProperties;
 use IteratorAggregate;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Traversable;
 
-final class SourceTest extends IntegrationTest
+final class SourceTest extends IntegrationTestCase
 {
     /**
-     * @dataProvider sources_are_mapped_properly_data_provider
-     *
      * @param iterable<mixed> $source
      */
+    #[DataProvider('sources_are_mapped_properly_data_provider')]
     public function test_sources_are_mapped_properly(iterable $source): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(ObjectWithSubProperties::class, $source);
+            $object = $this->mapperBuilder()->mapper()->map(ObjectWithSubProperties::class, $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -33,7 +32,7 @@ final class SourceTest extends IntegrationTest
         self::assertSame('bar2', $object->someOtherValue->someOtherNestedValue);
     }
 
-    public function sources_are_mapped_properly_data_provider(): iterable
+    public static function sources_are_mapped_properly_data_provider(): iterable
     {
         yield 'Iterable class' => [
             Source::iterable(new class () implements IteratorAggregate {
@@ -70,9 +69,11 @@ final class SourceTest extends IntegrationTest
             Source::json('{"someValue": {"someNestedValue": "foo", "someOtherNestedValue": "bar"}, "someOtherValue": {"someNestedValue": "foo2", "someOtherNestedValue": "bar2"}}'),
         ];
 
-        yield 'YAML' => [
-            Source::yaml("someValue:\n someNestedValue: foo\n someOtherNestedValue: bar\nsomeOtherValue:\n someNestedValue: foo2\n someOtherNestedValue: bar2"),
-        ];
+        if (extension_loaded('yaml')) {
+            yield 'YAML' => [
+                Source::yaml("someValue:\n someNestedValue: foo\n someOtherNestedValue: bar\nsomeOtherValue:\n someNestedValue: foo2\n someOtherNestedValue: bar2"),
+            ];
+        }
 
         yield 'Camel case' => [
             Source::array([

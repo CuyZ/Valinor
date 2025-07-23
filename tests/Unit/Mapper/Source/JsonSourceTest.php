@@ -22,19 +22,27 @@ final class JsonSourceTest extends TestCase
 
     public function test_invalid_json_throws_exception(): void
     {
-        $this->expectException(InvalidJson::class);
-        $this->expectExceptionCode(1566307185);
-        $this->expectExceptionMessage('The given value is not a valid JSON entry.');
+        try {
+            new JsonSource('some invalid JSON entry');
 
-        new JsonSource('@');
+            self::fail();
+        } catch (InvalidJson $exception) {
+            self::assertSame(1566307185, $exception->getCode());
+            self::assertSame('Invalid JSON source.', $exception->getMessage());
+            self::assertSame('some invalid JSON entry', $exception->source());
+        }
     }
 
     public function test_invalid_json_type_throws_exception(): void
     {
-        $this->expectException(SourceNotIterable::class);
-        $this->expectExceptionCode(1566307291);
-        $this->expectExceptionMessage('Invalid source true, expected an iterable.');
+        try {
+            new JsonSource('true');
 
-        new JsonSource('true');
+            self::fail();
+        } catch (SourceNotIterable $exception) {
+            self::assertSame(1566307291, $exception->getCode());
+            self::assertSame('Invalid source, expected an iterable.', $exception->getMessage());
+            self::assertSame('true', $exception->source());
+        }
     }
 }

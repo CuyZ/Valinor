@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -29,21 +35,25 @@ final class NumericStringTypeTest extends TestCase
         $this->numericStringType = new NumericStringType();
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['777.7'])]
+    #[TestWith(['0'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->numericStringType->accepts('777.7'));
-        self::assertTrue($this->numericStringType->accepts('0'));
+        self::assertTrue($this->numericStringType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->numericStringType, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith([''])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->numericStringType->accepts(null));
-        self::assertFalse($this->numericStringType->accepts(''));
-        self::assertFalse($this->numericStringType->accepts(42.1337));
-        self::assertFalse($this->numericStringType->accepts(404));
-        self::assertFalse($this->numericStringType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->numericStringType->accepts(false));
-        self::assertFalse($this->numericStringType->accepts(new stdClass()));
+        self::assertFalse($this->numericStringType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->numericStringType, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -62,15 +72,13 @@ final class NumericStringTypeTest extends TestCase
         self::assertFalse($this->numericStringType->canCast(new stdClass()));
     }
 
-    /**
-     * @dataProvider cast_value_returns_correct_result_data_provider
-     */
+    #[DataProvider('cast_value_returns_correct_result_data_provider')]
     public function test_cast_value_returns_correct_result(mixed $value, string $expected): void
     {
         self::assertSame($expected, $this->numericStringType->cast($value));
     }
 
-    public function cast_value_returns_correct_result_data_provider(): array
+    public static function cast_value_returns_correct_result_data_provider(): array
     {
         return [
             'String from float' => [
@@ -130,6 +138,11 @@ final class NumericStringTypeTest extends TestCase
         self::assertFalse($this->numericStringType->matches(new FakeType()));
     }
 
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue($this->numericStringType->matches(new ScalarConcreteType()));
+    }
+
     public function test_matches_mixed_type(): void
     {
         self::assertTrue($this->numericStringType->matches(new MixedType()));
@@ -151,5 +164,16 @@ final class NumericStringTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->numericStringType->matches($unionType));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string', (new NumericStringType())->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

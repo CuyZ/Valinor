@@ -4,41 +4,48 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
 use function array_map;
+use function array_values;
 use function implode;
 
 /** @internal */
 final class UnionType implements CombiningType
 {
-    /** @var Type[] */
-    private array $types = [];
+    /** @var non-empty-list<Type> */
+    private array $types;
 
     private string $signature;
 
-    public function __construct(Type ...$types)
+    public function __construct(Type $type, Type $otherType, Type ...$otherTypes)
     {
-        $this->signature = implode('|', array_map(fn (Type $type) => $type->toString(), $types));
+        $types = [$type, $otherType, ...$otherTypes];
+        $filteredTypes = [];
 
-        foreach ($types as $type) {
-            if ($type instanceof self) {
-                foreach ($type->types as $subType) {
-                    $this->types[] = $subType;
+        foreach ($types as $subType) {
+            if ($subType instanceof self) {
+                foreach ($subType->types as $anotherSubType) {
+                    $filteredTypes[] = $anotherSubType;
                 }
 
                 continue;
             }
 
-            if ($type instanceof MixedType) {
+            if ($subType instanceof MixedType) {
                 throw new ForbiddenMixedType();
             }
 
-            $this->types[] = $type;
+            $filteredTypes[] = $subType;
         }
+
+        $this->types = $filteredTypes;
+        $this->signature = implode('|', array_map(fn (Type $type) => $type->toString(), $this->types));
     }
 
     public function accepts(mixed $value): bool
@@ -50,6 +57,16 @@ final class UnionType implements CombiningType
         }
 
         return false;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::logicalOr(
+            ...array_map(
+                fn (Type $type) => $type->compiledAccept($node),
+                $this->types,
+            )
+        );
     }
 
     public function matches(Type $other): bool
@@ -65,12 +82,12 @@ final class UnionType implements CombiningType
         }
 
         foreach ($this->types as $type) {
-            if (! $type->matches($other)) {
-                return false;
+            if ($type->matches($other)) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public function isMatchedBy(Type $other): bool
@@ -84,20 +101,39 @@ final class UnionType implements CombiningType
         return false;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
+        $types = [];
+
         foreach ($this->types as $type) {
-            yield $type;
+            $types[] = $type;
 
             if ($type instanceof CompositeType) {
-                yield from $type->traverse();
+                $types = [...$types, ...$type->traverse()];
             }
         }
+
+        return $types;
     }
 
     public function types(): array
     {
         return $this->types;
+    }
+
+    public function nativeType(): UnionType
+    {
+        $subNativeTypes = [];
+
+        foreach ($this->types as $type) {
+            if (isset($subNativeTypes[$type->toString()])) {
+                continue;
+            }
+
+            $subNativeTypes[$type->toString()] = $type->nativeType();
+        }
+
+        return new self(...array_values($subNativeTypes));
     }
 
     public function toString(): string

@@ -10,42 +10,14 @@ use CuyZ\Valinor\Type\Type;
 final class MethodDefinition
 {
     public function __construct(
-        private string $name,
-        private string $signature,
-        private Parameters $parameters,
-        private bool $isStatic,
-        private bool $isPublic,
-        private Type $returnType
-    ) {
-    }
-
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function signature(): string
-    {
-        return $this->signature;
-    }
-
-    public function parameters(): Parameters
-    {
-        return $this->parameters;
-    }
-
-    public function isStatic(): bool
-    {
-        return $this->isStatic;
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->isPublic;
-    }
-
-    public function returnType(): Type
-    {
-        return $this->returnType;
-    }
+        /** @var non-empty-string */
+        public readonly string $name,
+        /** @var non-empty-string */
+        public readonly string $signature,
+        public readonly Attributes $attributes,
+        public readonly Parameters $parameters,
+        public readonly bool $isStatic,
+        public readonly bool $isPublic,
+        public readonly Type $returnType
+    ) {}
 }

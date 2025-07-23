@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ClassType;
 use RuntimeException;
 
 use function array_map;

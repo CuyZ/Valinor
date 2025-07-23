@@ -1,15 +1,17 @@
 # Inferring interfaces
 
 When the mapper meets an interface, it needs to understand which implementation
-(a class that implements this interface) will be used — this information must be
-provided in the mapper builder, using the method `infer()`.
+will be used. This can be done by [registering a constructor for the interface],
+but it can have limitations. A more powerful way to handle this is to infer the
+implementation based on the data provided to the mapper. This can be done using
+the `infer()` method.
 
 The callback given to this method must return the name of a class that
 implements the interface. Any arguments can be required by the callback; they
 will be mapped properly using the given source.
 
 If the callback can return several class names, it needs to provide a return
-signature with the list of all class-strings that can be returned (see below).
+signature with the list of all class-strings that can be returned.
 
 ```php
 $mapper = (new \CuyZ\Valinor\MapperBuilder())
@@ -54,3 +56,75 @@ final class SecondImplementation implements SomeInterface
     public readonly int $someInt;
 }
 ```
+
+## Inferring classes
+
+The same mechanics can be applied to infer abstract or parent classes.
+
+Example with an abstract class:
+
+```php
+abstract class SomeAbstractClass
+{
+    public string $foo;
+
+    public string $bar;
+}
+
+final class SomeChildClass extends SomeAbstractClass
+{
+    public string $baz;
+}
+
+$result = (new \CuyZ\Valinor\MapperBuilder())
+    ->infer(
+        SomeAbstractClass::class, 
+        fn () => SomeChildClass::class
+    )
+    ->mapper()
+    ->map(SomeAbstractClass::class, [
+        'foo' => 'foo',
+        'bar' => 'bar',
+        'baz' => 'baz',
+    ]);
+
+assert($result instanceof SomeChildClass);
+assert($result->foo === 'foo');
+assert($result->bar === 'bar');
+assert($result->baz === 'baz');
+```
+
+Example with inheritance:
+
+```php
+class SomeParentClass
+{
+    public string $foo;
+
+    public string $bar;
+}
+
+final class SomeChildClass extends SomeParentClass
+{
+    public string $baz;
+}
+
+$result = (new \CuyZ\Valinor\MapperBuilder())
+    ->infer(
+        SomeParentClass::class, 
+        fn () => SomeChildClass::class
+    )
+    ->mapper()
+    ->map(SomeParentClass::class, [
+        'foo' => 'foo',
+        'bar' => 'bar',
+        'baz' => 'baz',
+    ]);
+
+assert($result instanceof SomeChildClass);
+assert($result->foo === 'foo');
+assert($result->bar === 'bar');
+assert($result->baz === 'baz');
+```
+
+[registering a constructor for the interface]: use-custom-object-constructors.md#interface-implementation-constructor

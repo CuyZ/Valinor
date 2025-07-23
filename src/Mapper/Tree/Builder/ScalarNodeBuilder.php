@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\EnumType;
 use CuyZ\Valinor\Type\ScalarType;
 
 use function assert;
@@ -13,24 +12,21 @@ use function assert;
 /** @internal */
 final class ScalarNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $enableFlexibleCasting)
-    {
-    }
-
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
         $value = $shell->value();
 
         assert($type instanceof ScalarType);
 
-        // The flexible mode is always active for enum types, as it makes no
-        // sense not to activate it in the strict mode: a scalar value is always
-        // wanted as input.
-        if ((! $this->enableFlexibleCasting && ! $type instanceof EnumType) || ! $type->canCast($value)) {
-            throw $type->errorMessage();
+        if ($type->accepts($value)) {
+            return Node::new($value);
         }
 
-        return TreeNode::leaf($shell, $type->cast($value));
+        if (! $shell->allowScalarValueCasting() || ! $type->canCast($value)) {
+            return Node::error($shell, $type->errorMessage());
+        }
+
+        return Node::new($type->cast($value));
     }
 }

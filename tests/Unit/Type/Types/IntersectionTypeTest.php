@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -20,8 +26,14 @@ final class IntersectionTypeTest extends TestCase
         $typeA = new FakeObjectType();
         $typeB = new FakeObjectType();
         $typeC = new FakeObjectType();
+        $typeD = new FakeObjectType();
 
-        $types = (new IntersectionType($typeA, $typeB, $typeC))->types();
+        $types = (new IntersectionType(
+            $typeA,
+            $typeB,
+            // Putting those in associative array on purpose
+            ...['C' => $typeC, 'D' => $typeD],
+        ))->types();
 
         self::assertSame($typeA, $types[0]);
         self::assertSame($typeB, $types[1]);
@@ -41,32 +53,29 @@ final class IntersectionTypeTest extends TestCase
 
     public function test_accepts_correct_values(): void
     {
-        $object = new stdClass();
-
-        $typeA = FakeObjectType::accepting($object);
-        $typeB = FakeObjectType::accepting($object);
-        $typeC = FakeObjectType::accepting($object);
+        $typeA = FakeObjectType::accepting(stdClass::class);
+        $typeB = FakeObjectType::accepting(stdClass::class);
+        $typeC = FakeObjectType::accepting(stdClass::class);
 
         $intersectionType = new IntersectionType($typeA, $typeB, $typeC);
 
-        self::assertTrue($intersectionType->accepts($object));
+        self::assertTrue($intersectionType->accepts(new stdClass()));
+        self::assertTrue($this->compiledAccept($intersectionType, new stdClass()));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        $typeA = new FakeObjectType();
-        $typeB = new FakeObjectType();
-        $typeC = new FakeObjectType();
+        $intersectionType = new IntersectionType(new FakeObjectType(), new FakeObjectType());
 
-        $intersectionType = new IntersectionType($typeA, $typeB, $typeC);
-
-        self::assertFalse($intersectionType->accepts(null));
-        self::assertFalse($intersectionType->accepts('Schwifty!'));
-        self::assertFalse($intersectionType->accepts(42.1337));
-        self::assertFalse($intersectionType->accepts(404));
-        self::assertFalse($intersectionType->accepts(['foo' => 'bar']));
-        self::assertFalse($intersectionType->accepts(false));
-        self::assertFalse($intersectionType->accepts(new stdClass()));
+        self::assertFalse($intersectionType->accepts($value));
+        self::assertFalse($this->compiledAccept($intersectionType, $value));
     }
 
     public function test_matches_valid_type(): void
@@ -152,5 +161,19 @@ final class IntersectionTypeTest extends TestCase
         self::assertContains($subTypeB, $type->traverse());
         self::assertContains($objectTypeA, $type->traverse());
         self::assertContains($objectTypeB, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame(stdClass::class . '&' . DateTimeImmutable::class, (new IntersectionType(
+            new NativeClassType(stdClass::class, ['Template' => new FakeType()]),
+            new FakeObjectType(DateTimeImmutable::class),
+        ))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

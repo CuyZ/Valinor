@@ -4,27 +4,24 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
-use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\ClassContextSpecification;
-use CuyZ\Valinor\Type\Parser\Factory\Specifications\TypeAliasAssignerSpecification;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassImportedTypeAliasResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassLocalTypeAliasResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassParentTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
+use CuyZ\Valinor\Type\GenericType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\TypeParser;
-use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -37,7 +34,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 {
     private TypeParserFactory $typeParserFactory;
 
-    private AttributesRepository $attributesFactory;
+    private AttributesRepository $attributesRepository;
 
     private ReflectionPropertyDefinitionBuilder $propertyBuilder;
 
@@ -46,45 +43,73 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     /** @var array<string, ReflectionTypeResolver> */
     private array $typeResolver = [];
 
-    public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesFactory)
-    {
+    /**
+     * @param list<class-string> $allowedAttributes
+     */
+    public function __construct(
+        TypeParserFactory $typeParserFactory,
+        array $allowedAttributes,
+    ) {
         $this->typeParserFactory = $typeParserFactory;
-        $this->attributesFactory = $attributesFactory;
-        $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($attributesFactory);
-        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($attributesFactory);
+        $this->attributesRepository = new ReflectionAttributesRepository($this, $allowedAttributes);
+        $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($this->attributesRepository);
+        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($this->attributesRepository);
     }
 
-    public function for(ClassType $type): ClassDefinition
+    public function for(ObjectType $type): ClassDefinition
     {
         $reflection = Reflection::class($type->className());
 
         return new ClassDefinition(
+            $reflection->name,
             $type,
-            $this->attributesFactory->for($reflection),
+            new Attributes(...$this->attributesRepository->for($reflection)),
             new Properties(...$this->properties($type)),
             new Methods(...$this->methods($type)),
+            $reflection->isFinal(),
+            $reflection->isAbstract(),
         );
     }
 
     /**
      * @return list<PropertyDefinition>
      */
-    private function properties(ClassType $type): array
+    private function properties(ObjectType $type): array
     {
-        return array_map(
-            function (ReflectionProperty $property) use ($type) {
-                $typeResolver = $this->typeResolver($type, $property->class);
+        $reflection = Reflection::class($type->className());
 
-                return $this->propertyBuilder->for($property, $typeResolver);
-            },
-            Reflection::class($type->className())->getProperties()
-        );
+        $properties = [];
+
+        foreach ($reflection->getProperties() as $property) {
+            $typeResolver = $this->typeResolver($type, $property->getDeclaringClass());
+
+            $properties[$property->name] = $this->propertyBuilder->for($property, $typeResolver);
+        }
+
+        // Properties will be sorted by inheritance order, from parent to child.
+        $sortedProperties = [];
+
+        while ($reflection) {
+            $currentProperties = array_map(
+                fn (ReflectionProperty $property) => $properties[$property->name],
+                array_filter(
+                    $reflection->getProperties(),
+                    fn (ReflectionProperty $property) => isset($properties[$property->name]),
+                ),
+            );
+
+            $sortedProperties = [...$currentProperties, ...$sortedProperties];
+
+            $reflection = $reflection->getParentClass();
+        }
+
+        return $sortedProperties;
     }
 
     /**
      * @return list<MethodDefinition>
      */
-    private function methods(ClassType $type): array
+    private function methods(ObjectType $type): array
     {
         $reflection = Reflection::class($type->className());
         $methods = $reflection->getMethods();
@@ -97,27 +122,37 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         }
 
         return array_map(function (ReflectionMethod $method) use ($type) {
-            $typeResolver = $this->typeResolver($type, $method->class);
+            $typeResolver = $this->typeResolver($type, $method->getDeclaringClass());
 
             return $this->methodBuilder->for($method, $typeResolver);
         }, $methods);
     }
 
-    private function typeResolver(ClassType $type, string $targetClass): ReflectionTypeResolver
+    /**
+     * @param ReflectionClass<object> $target
+     */
+    private function typeResolver(ObjectType $type, ReflectionClass $target): ReflectionTypeResolver
     {
-        $typeKey = "{$type->toString()}/$targetClass";
+        $typeKey = $target->isInterface()
+            ? "{$type->toString()}/{$type->className()}"
+            : "{$type->toString()}/$target->name";
 
         if (isset($this->typeResolver[$typeKey])) {
             return $this->typeResolver[$typeKey];
         }
 
-        while ($type->className() !== $targetClass) {
-            $type = $type->parent();
+        $parentTypeResolver = new ClassParentTypeResolver($this->typeParserFactory);
+
+        while ($type->className() !== $target->name) {
+            $type = $parentTypeResolver->resolveParentTypeFor($type);
         }
 
-        $generics = $type->generics();
-        $localAliases = $this->localTypeAliases($type);
-        $importedAliases = $this->importedTypeAliases($type);
+        $localTypeAliasResolver = new ClassLocalTypeAliasResolver($this->typeParserFactory);
+        $importedTypeAliasResolver = new ClassImportedTypeAliasResolver($this->typeParserFactory);
+
+        $generics = $type instanceof GenericType ? $type->generics() : [];
+        $localAliases = $localTypeAliasResolver->resolveLocalTypeAliases($type);
+        $importedAliases = $importedTypeAliasResolver->resolveImportedTypeAliases($type);
 
         $duplicates = [];
         $keys = [...array_keys($generics), ...array_keys($localAliases), ...array_keys($importedAliases)];
@@ -126,7 +161,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $sameKeys = array_filter($keys, fn ($value) => $value === $key);
 
             if (count($sameKeys) > 1) {
-                $duplicates[$key] = true;
+                $duplicates[$key] = null;
             }
         }
 
@@ -134,87 +169,9 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             throw new ClassTypeAliasesDuplication($type->className(), ...array_keys($duplicates));
         }
 
-        $advancedParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($type->className()),
-            new AliasSpecification(Reflection::class($type->className())),
-            new TypeAliasAssignerSpecification($generics + $localAliases + $importedAliases)
-        );
-
-        $nativeParser = $this->typeParserFactory->get(
-            new ClassContextSpecification($type->className())
-        );
+        $advancedParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type, $generics + $localAliases + $importedAliases);
+        $nativeParser = $this->typeParserFactory->buildNativeTypeParserForClass($type->className());
 
         return $this->typeResolver[$typeKey] = new ReflectionTypeResolver($nativeParser, $advancedParser);
-    }
-
-    /**
-     * @return array<string, Type>
-     */
-    private function localTypeAliases(ClassType $type): array
-    {
-        $reflection = Reflection::class($type->className());
-        $rawTypes = Reflection::localTypeAliases($reflection);
-
-        $typeParser = $this->typeParser($type);
-
-        $types = [];
-
-        foreach ($rawTypes as $name => $raw) {
-            try {
-                $types[$name] = $typeParser->parse($raw);
-            } catch (InvalidType $exception) {
-                $raw = trim($raw);
-
-                $types[$name] = UnresolvableType::forLocalAlias($raw, $name, $type, $exception);
-            }
-        }
-
-        return $types;
-    }
-
-    /**
-     * @return array<string, Type>
-     */
-    private function importedTypeAliases(ClassType $type): array
-    {
-        $reflection = Reflection::class($type->className());
-        $importedTypesRaw = Reflection::importedTypeAliases($reflection);
-
-        $typeParser = $this->typeParser($type);
-
-        $importedTypes = [];
-
-        foreach ($importedTypesRaw as $class => $types) {
-            try {
-                $classType = $typeParser->parse($class);
-            } catch (InvalidType) {
-                throw new InvalidTypeAliasImportClass($type, $class);
-            }
-
-            if (! $classType instanceof ClassType) {
-                throw new InvalidTypeAliasImportClassType($type, $classType);
-            }
-
-            $localTypes = $this->localTypeAliases($classType);
-
-            foreach ($types as $importedType) {
-                if (! isset($localTypes[$importedType])) {
-                    throw new UnknownTypeAliasImport($type, $classType->className(), $importedType);
-                }
-
-                $importedTypes[$importedType] = $localTypes[$importedType];
-            }
-        }
-
-        return $importedTypes;
-    }
-
-    private function typeParser(ClassType $type): TypeParser
-    {
-        return $this->typeParserFactory->get(
-            new ClassContextSpecification($type->className()),
-            new AliasSpecification(Reflection::class($type->className())),
-            new TypeAliasAssignerSpecification($type->generics()),
-        );
     }
 }

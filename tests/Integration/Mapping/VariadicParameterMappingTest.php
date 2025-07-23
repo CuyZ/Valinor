@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class VariadicParameterMappingTest extends IntegrationTest
+final class VariadicParameterMappingTest extends IntegrationTestCase
 {
     public function test_only_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
+            $object = $this->mapperBuilder()->mapper()->map(SomeClassWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -24,7 +23,7 @@ final class VariadicParameterMappingTest extends IntegrationTest
     public function test_variadic_parameters_are_mapped_properly_when_string_keys_are_given(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
+            $object = $this->mapperBuilder()->mapper()->map(SomeClassWithOnlyVariadicParameters::class, [
                 'foo' => 'foo',
                 'bar' => 'bar',
                 'baz' => 'baz',
@@ -36,42 +35,24 @@ final class VariadicParameterMappingTest extends IntegrationTest
         self::assertSame(['foo', 'bar', 'baz'], $object->values);
     }
 
-    public function test_named_constructor_with_only_variadic_parameters_are_mapped_properly(): void
+    public function test_constructor_with_variadic_parameters_with_dots_in_dot_blocks_are_defined_properly(): void
     {
         try {
-            $object = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, 'new'])
+            $this->mapperBuilder()
                 ->mapper()
-                ->map(SomeClassWithNamedConstructorWithOnlyVariadicParameters::class, ['foo', 'bar', 'baz']);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
+                ->map(SomeClassWithVariadicParametersInDocBlock::class, ['', '']);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '0' => "[invalid_non_empty_string] Value '' is not a valid non-empty string.",
+                '1' => "[invalid_non_empty_string] Value '' is not a valid non-empty string.",
+            ]);
         }
-
-        self::assertSame(['foo', 'bar', 'baz'], $object->values);
     }
-
-//    public function test_variadic_list_parameters_are_mapped_properly_when_string_keys_are_given(): void
-//    {
-//        try {
-//            $object = (new MapperBuilder())->flexible()->mapper()->map(SomeClassWithListVariadicParameters::class, [
-//                'values' => [
-//                    'foo' => 'foo',
-//                    'bar' => 'bar',
-//                    'baz' => 'baz',
-//                ],
-//            ]);
-//        } catch (MappingError $error) {
-//            $this->mappingFail($error);
-//        }
-//
-//        self::assertSame(['foo', 'bar', 'baz'], $object->values);
-//    }
 
     public function test_non_variadic_and_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(SomeClassWithNonVariadicAndVariadicParameters::class, [
+            $object = $this->mapperBuilder()->mapper()->map(SomeClassWithNonVariadicAndVariadicParameters::class, [
                 'int' => 42,
                 'values' => ['foo', 'bar', 'baz'],
             ]);
@@ -86,9 +67,8 @@ final class VariadicParameterMappingTest extends IntegrationTest
     public function test_named_constructor_with_non_variadic_and_variadic_parameters_are_mapped_properly(): void
     {
         try {
-            $object = (new MapperBuilder())
-                // PHP8.1 first-class callable syntax
-                ->registerConstructor([SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, 'new'])
+            $object = $this->mapperBuilder()
+                ->registerConstructor(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::new(...))
                 ->mapper()
                 ->map(SomeClassWithNamedConstructorWithNonVariadicAndVariadicParameters::class, [
                     'int' => 42,
@@ -130,19 +110,19 @@ final class SomeClassWithNamedConstructorWithOnlyVariadicParameters
     }
 }
 
-//final class SomeClassWithListVariadicParameters
-//{
-//    /** @var list<string> */
-//    public array $values;
-//
-//    /**
-//     * @param list<string> $values
-//     */
-//    public function __construct(string ...$values)
-//    {
-//        $this->values = $values;
-//    }
-//}
+final class SomeClassWithVariadicParametersInDocBlock
+{
+    /** @var array<non-empty-string> */
+    public array $values;
+
+    /**
+     * @param non-empty-string ...$values
+     */
+    public function __construct(string ...$values)
+    {
+        $this->values = $values;
+    }
+}
 
 final class SomeClassWithNonVariadicAndVariadicParameters
 {

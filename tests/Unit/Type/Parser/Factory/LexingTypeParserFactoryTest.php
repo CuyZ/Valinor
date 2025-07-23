@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Factory;
 
-use CuyZ\Valinor\Tests\Fake\Type\Parser\Template\FakeTemplateParser;
 use CuyZ\Valinor\Type\Parser\CachedParser;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
@@ -18,13 +17,13 @@ final class LexingTypeParserFactoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->typeParserFactory = new LexingTypeParserFactory(new FakeTemplateParser());
+        $this->typeParserFactory = new LexingTypeParserFactory();
     }
 
-    public function test_get_parser_without_specification_returns_same_cached_parser(): void
+    public function test_get_default_parser_returns_same_cached_parser(): void
     {
-        $parserA = $this->typeParserFactory->get();
-        $parserB = $this->typeParserFactory->get();
+        $parserA = $this->typeParserFactory->buildDefaultTypeParser();
+        $parserB = $this->typeParserFactory->buildDefaultTypeParser();
 
         self::assertInstanceOf(CachedParser::class, $parserA);
         self::assertSame($parserA, $parserB);

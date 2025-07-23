@@ -4,83 +4,36 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Cache;
 
-use Psr\SimpleCache\CacheInterface;
-
 /**
- * Simple PSR-16-compatible runtime cache implementation.
- *
- * Used by default by the library so that entries can be cached in memory during
- * runtime.
- *
- * @link http://www.php-fig.org/psr/psr-16/
- *
  * @internal
  *
  * @template EntryType
- * @implements CacheInterface<EntryType>
+ * @implements Cache<EntryType>
  */
-final class RuntimeCache implements CacheInterface
+final class RuntimeCache implements Cache
 {
-    /** @var array<string, EntryType> */
+    /** @var array<string, EntryType|null> */
     private array $entries = [];
 
-    public function get($key, $default = null): mixed
+    public function __construct(
+        /** @var Cache<EntryType> */
+        private Cache $delegate,
+    ) {}
+
+    public function get(string $key, mixed ...$arguments): mixed
     {
-        return $this->entries[$key] ?? $default;
+        return $this->entries[$key] ??= $this->delegate->get($key, ...$arguments);
     }
 
-    public function set($key, $value, $ttl = null): bool
+    public function set(string $key, CacheEntry $entry): void
     {
-        $this->entries[$key] = $value;
-
-        return true;
+        $this->delegate->set($key, $entry);
     }
 
-    public function delete($key): bool
-    {
-        unset($this->entries[$key]);
-
-        return true;
-    }
-
-    public function clear(): bool
+    public function clear(): void
     {
         $this->entries = [];
 
-        return true;
-    }
-
-    public function getMultiple($keys, $default = null): iterable
-    {
-        $entries = [];
-
-        foreach ($keys as $key) {
-            $entries[$key] = $this->get($key, $default);
-        }
-
-        return $entries;
-    }
-
-    public function setMultiple($values, $ttl = null): bool
-    {
-        foreach ($values as $key => $value) {
-            $this->set($key, $value, $ttl);
-        }
-
-        return true;
-    }
-
-    public function deleteMultiple($keys): bool
-    {
-        foreach ($keys as $key) {
-            $this->delete($key);
-        }
-
-        return true;
-    }
-
-    public function has($key): bool
-    {
-        return isset($this->entries[$key]);
+        $this->delegate->clear();
     }
 }

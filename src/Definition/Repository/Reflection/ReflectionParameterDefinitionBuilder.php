@@ -4,27 +4,30 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Repository\AttributesRepository;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ParameterTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionParameter;
 
 /** @internal */
 final class ReflectionParameterDefinitionBuilder
 {
-    public function __construct(private AttributesRepository $attributesFactory)
-    {
-    }
+    public function __construct(private AttributesRepository $attributesRepository) {}
 
     public function for(ReflectionParameter $reflection, ReflectionTypeResolver $typeResolver): ParameterDefinition
     {
+        $parameterTypeResolver = new ParameterTypeResolver($typeResolver);
+
+        /** @var non-empty-string $name */
         $name = $reflection->name;
-        $signature = Reflection::signature($reflection);
-        $type = $typeResolver->resolveType($reflection);
+        $signature = $this->signature($reflection);
+        $type = $parameterTypeResolver->resolveTypeFor($reflection);
+        $nativeType = $parameterTypeResolver->resolveNativeTypeFor($reflection);
         $isOptional = $reflection->isOptional();
         $isVariadic = $reflection->isVariadic();
-        $attributes = $this->attributesFactory->for($reflection);
 
         if ($reflection->isDefaultValueAvailable()) {
             $defaultValue = $reflection->getDefaultValue();
@@ -34,13 +37,38 @@ final class ReflectionParameterDefinitionBuilder
             $defaultValue = null;
         }
 
-        if ($isOptional
-            && ! $type instanceof UnresolvableType
-            && ! $type->accepts($defaultValue)
-        ) {
+        if ($type instanceof UnresolvableType) {
+            $type = $type->forParameter($signature);
+        } elseif (! $type->matches($nativeType)) {
+            $type = UnresolvableType::forNonMatchingParameterTypes($signature, $nativeType, $type);
+        } elseif ($isOptional && ! $type->accepts($defaultValue)) {
             $type = UnresolvableType::forInvalidParameterDefaultValue($signature, $type, $defaultValue);
         }
 
-        return new ParameterDefinition($name, $signature, $type, $isOptional, $isVariadic, $defaultValue, $attributes);
+        return new ParameterDefinition(
+            $name,
+            $signature,
+            $type,
+            $nativeType,
+            $isOptional,
+            $isVariadic,
+            $defaultValue,
+            new Attributes(...$this->attributesRepository->for($reflection)),
+        );
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    private function signature(ReflectionParameter $reflection): string
+    {
+        $signature = $reflection->getDeclaringFunction()->name . "(\$$reflection->name)";
+        $class = $reflection->getDeclaringClass();
+
+        if ($class) {
+            $signature = $class->name . '::' . $signature;
+        }
+
+        return $signature;
     }
 }

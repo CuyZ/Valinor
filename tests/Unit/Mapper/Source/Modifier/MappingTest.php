@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\Source\Modifier\Mapping;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class MappingTest extends TestCase
 {
     /**
-     * @dataProvider mappingsDataProvider
-     *
      * @param array<string> $keys
      */
+    #[DataProvider('mappings_data_provider')]
     public function test_matches_string_key_at_sub_level(
         array $keys,
         string $to,
@@ -31,7 +31,7 @@ final class MappingTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function mappingsDataProvider(): array
+    public static function mappings_data_provider(): array
     {
         return [
             [

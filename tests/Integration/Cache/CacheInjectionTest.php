@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Cache;
 
+use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
-use Psr\SimpleCache\CacheInterface;
 use stdClass;
 
 use function file_get_contents;
 use function str_ends_with;
 
-final class CacheInjectionTest extends IntegrationTest
+final class CacheInjectionTest extends IntegrationTestCase
 {
     public function test_cache_entries_are_written_once_during_mapping(): void
     {
@@ -33,7 +32,7 @@ final class CacheInjectionTest extends IntegrationTest
 
         $files = $this->recursivelyFindPhpFiles($cacheDirectory);
 
-        self::assertCount(6, $files);
+        self::assertCount(4, $files);
 
         foreach ($files as $file) {
             $file->setContent($file->getContent() . "\n// generated value 1661895014");
@@ -48,12 +47,9 @@ final class CacheInjectionTest extends IntegrationTest
         }
     }
 
-    /**
-     * @param CacheInterface<mixed> $cache
-     */
-    private function createMapper(CacheInterface $cache): TreeMapper
+    private function createMapper(Cache $cache): TreeMapper
     {
-        return (new MapperBuilder())
+        return $this->mapperBuilder()
             ->withCache($cache)
             // The cache should be able to cache function definitions…
             ->registerConstructor(fn (): stdClass => new stdClass())

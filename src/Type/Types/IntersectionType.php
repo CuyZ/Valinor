@@ -4,25 +4,28 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
+use function array_values;
 use function implode;
 
 /** @internal */
 final class IntersectionType implements CombiningType
 {
-    /** @var ObjectType[] */
+    /** @var non-empty-list<ObjectType> */
     private array $types;
 
     private string $signature;
 
-    public function __construct(ObjectType ...$types)
+    public function __construct(ObjectType $type, ObjectType $otherType, ObjectType ...$otherTypes)
     {
-        $this->types = $types;
-        $this->signature = implode('&', array_map(fn (Type $type) => $type->toString(), $types));
+        $this->types = [$type, $otherType, ...array_values($otherTypes)];
+        $this->signature = implode('&', array_map(fn (Type $type) => $type->toString(), $this->types));
     }
 
     public function accepts(mixed $value): bool
@@ -34,6 +37,14 @@ final class IntersectionType implements CombiningType
         }
 
         return true;
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return Node::logicalAnd(...array_map(
+            fn (ObjectType $type) => $type->compiledAccept($node),
+            $this->types,
+        ));
     }
 
     public function matches(Type $other): bool
@@ -66,23 +77,37 @@ final class IntersectionType implements CombiningType
         return true;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
+        $types = [];
+
         foreach ($this->types as $type) {
-            yield $type;
+            $types[] = $type;
 
             if ($type instanceof CompositeType) {
-                yield from $type->traverse();
+                $types = [...$types, ...$type->traverse()];
             }
         }
+
+        return $types;
     }
 
     /**
-     * @return ObjectType[]
+     * @return non-empty-list<ObjectType>
      */
     public function types(): array
     {
         return $this->types;
+    }
+
+    public function nativeType(): IntersectionType
+    {
+        return new self(
+            ...array_map(
+                static fn (ObjectType $type) => $type->nativeType(),
+                $this->types,
+            ),
+        );
     }
 
     public function toString(): string

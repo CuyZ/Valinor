@@ -11,7 +11,7 @@ use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\ObjectType;
 use DateTimeZone;
 use Exception;
 
@@ -35,7 +35,7 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
     {
         $builders = $this->delegate->for($class);
 
-        if ($class->name() !== DateTimeZone::class) {
+        if ($class->name !== DateTimeZone::class) {
             return $builders;
         }
 
@@ -54,19 +54,22 @@ final class DateTimeZoneObjectBuilderFactory implements ObjectBuilderFactory
 
         if ($useDefaultBuilder) {
             // @infection-ignore-all / Ignore memoization
-            $builders[] = $this->defaultBuilder($class->type());
+            $builders[] = $this->defaultBuilder($class->type);
         }
 
+        /** @var non-empty-list<ObjectBuilder> */
         return $builders;
     }
 
-    private function defaultBuilder(ClassType $type): FunctionObjectBuilder
+    private function defaultBuilder(ObjectType $type): FunctionObjectBuilder
     {
         $constructor = function (string $timezone) {
             try {
                 return new DateTimeZone($timezone);
             } catch (Exception) {
-                throw MessageBuilder::newError('Value {source_value} is not a valid timezone.')->build();
+                throw MessageBuilder::newError('Value {source_value} is not a valid timezone.')
+                    ->withCode('invalid_timezone')
+                    ->build();
             }
         };
 

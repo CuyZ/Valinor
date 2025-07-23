@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -30,19 +34,23 @@ final class NullTypeTest extends TestCase
         self::assertSame('null', $this->nullType->toString());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([null])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->nullType->accepts(null));
+        self::assertTrue($this->nullType->accepts($value));
+        self::assertTrue($this->compiledAccept($this->nullType, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->nullType->accepts('Schwifty!'));
-        self::assertFalse($this->nullType->accepts(42.1337));
-        self::assertFalse($this->nullType->accepts(404));
-        self::assertFalse($this->nullType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->nullType->accepts(false));
-        self::assertFalse($this->nullType->accepts(new stdClass()));
+        self::assertFalse($this->nullType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->nullType, $value));
     }
 
     public function test_matches_same_type(): void
@@ -76,5 +84,16 @@ final class NullTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->nullType->matches($unionType));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('null', (new NullType())->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -11,6 +11,7 @@ use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Bar;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Foo;
 use CuyZ\Valinor\Utility\Reflection\PhpParser;
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
@@ -24,12 +25,10 @@ require_once __DIR__ . '/Fixtures/FunctionWithGroupedImportStatements.php';
 final class PhpParserTest extends TestCase
 {
     /**
-     * @dataProvider useStatementsDataProvider
-     * @template T of object
-     *
-     * @param ReflectionClass<T>|ReflectionFunction|ReflectionMethod $reflection
+     * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
      * @param array<string, string> $expectedMap
      */
+    #[DataProvider('use_statements_data_provider')]
     public function test_parse_use_statements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection, array $expectedMap): void
     {
         $actualMap = PhpParser::parseUseStatements($reflection);
@@ -37,7 +36,7 @@ final class PhpParserTest extends TestCase
         self::assertSame($expectedMap, $actualMap);
     }
 
-    public function useStatementsDataProvider(): Generator
+    public static function use_statements_data_provider(): Generator
     {
         yield 'no use statements' => [
             new ReflectionClass(\stdClass::class),

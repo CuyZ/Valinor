@@ -6,21 +6,20 @@ namespace CuyZ\Valinor\Tests\Integration\Mapping\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\ObjectWithSubProperties;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-final class CamelCaseKeysMappingTest extends IntegrationTest
+final class CamelCaseKeysMappingTest extends IntegrationTestCase
 {
     /**
-     * @dataProvider sources_are_mapped_properly_data_provider
-     *
      * @param iterable<mixed> $source
      */
+    #[DataProvider('sources_are_mapped_properly_data_provider')]
     public function test_sources_are_mapped_properly(iterable $source): void
     {
         try {
-            $object = (new MapperBuilder())->mapper()->map(ObjectWithSubProperties::class, $source);
+            $object = $this->mapperBuilder()->mapper()->map(ObjectWithSubProperties::class, $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -31,7 +30,7 @@ final class CamelCaseKeysMappingTest extends IntegrationTest
         self::assertSame('bar2', $object->someOtherValue->someOtherNestedValue);
     }
 
-    public function sources_are_mapped_properly_data_provider(): iterable
+    public static function sources_are_mapped_properly_data_provider(): iterable
     {
         yield 'underscore' => [
             new CamelCaseKeys([

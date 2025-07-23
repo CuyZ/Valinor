@@ -5,11 +5,17 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -29,26 +35,33 @@ final class StringValueTypeTest extends TestCase
         self::assertSame('Schwifty!', $this->type->value());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['Schwifty!'])]
+    public function test_accepts_correct_values(mixed $value): void
     {
         $type = new StringValueType('Schwifty!');
-        $typeSingleQuote = StringValueType::singleQuote('Schwifty!');
-        $typeDoubleQuote = StringValueType::doubleQuote('Schwifty!');
+        $typeSingleQuote = StringValueType::from("'Schwifty!'");
+        $typeDoubleQuote = StringValueType::from('"Schwifty!"');
 
-        self::assertTrue($type->accepts('Schwifty!'));
-        self::assertTrue($typeSingleQuote->accepts('Schwifty!'));
-        self::assertTrue($typeDoubleQuote->accepts('Schwifty!'));
+        self::assertTrue($type->accepts($value));
+        self::assertTrue($typeSingleQuote->accepts($value));
+        self::assertTrue($typeDoubleQuote->accepts($value));
+
+        self::assertTrue($this->compiledAccept($type, $value));
+        self::assertTrue($this->compiledAccept($typeSingleQuote, $value));
+        self::assertTrue($this->compiledAccept($typeDoubleQuote, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['other string'])]
+    #[TestWith([null])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->type->accepts('other string'));
-        self::assertFalse($this->type->accepts(null));
-        self::assertFalse($this->type->accepts(42.1337));
-        self::assertFalse($this->type->accepts(404));
-        self::assertFalse($this->type->accepts(['foo' => 'bar']));
-        self::assertFalse($this->type->accepts(false));
-        self::assertFalse($this->type->accepts(new stdClass()));
+        self::assertFalse($this->type->accepts($value));
+        self::assertFalse($this->compiledAccept($this->type, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -67,15 +80,13 @@ final class StringValueTypeTest extends TestCase
         self::assertFalse($this->type->canCast(new stdClass()));
     }
 
-    /**
-     * @dataProvider cast_value_returns_correct_result_data_provider
-     */
+    #[DataProvider('cast_value_returns_correct_result_data_provider')]
     public function test_cast_value_returns_correct_result(StringValueType $type, mixed $value, string $expected): void
     {
         self::assertSame($expected, $type->cast($value));
     }
 
-    public function cast_value_returns_correct_result_data_provider(): array
+    public static function cast_value_returns_correct_result_data_provider(): array
     {
         return [
             'String from float' => [
@@ -113,8 +124,8 @@ final class StringValueTypeTest extends TestCase
     public function test_string_value_is_correct(): void
     {
         $type = new StringValueType('Schwifty!');
-        $typeSingleQuote = StringValueType::singleQuote('Schwifty!');
-        $typeDoubleQuote = StringValueType::doubleQuote('Schwifty!');
+        $typeSingleQuote = StringValueType::from("'Schwifty!'");
+        $typeDoubleQuote = StringValueType::from('"Schwifty!"');
 
         self::assertSame('Schwifty!', $type->toString());
         self::assertSame("'Schwifty!'", $typeSingleQuote->toString());
@@ -125,8 +136,8 @@ final class StringValueTypeTest extends TestCase
     {
         $typeA = new StringValueType('Schwifty!');
         $typeB = new StringValueType('Schwifty!');
-        $typeC = StringValueType::singleQuote('Schwifty!');
-        $typeD = StringValueType::doubleQuote('Schwifty!');
+        $typeC = StringValueType::from("'Schwifty!'");
+        $typeD = StringValueType::from('"Schwifty!"');
 
         self::assertTrue($typeA->matches($typeB));
         self::assertTrue($typeA->matches($typeC));
@@ -144,6 +155,11 @@ final class StringValueTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse($this->type->matches(new FakeType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue($this->type->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void
@@ -167,5 +183,16 @@ final class StringValueTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->type->matches($unionType));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string', (new StringValueType('foo'))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issueHandlers xmlns="https://getpsalm.org/schema/config">
+    <InvalidArgument>
+        <errorLevel type="suppress">
+            <referencedFunction name="CuyZ\Valinor\NormalizerBuilder::registerTransformer"/>
+            <referencedFunction name="\CuyZ\Valinor\MapperBuilder::infer"/>
+            <referencedFunction name="\CuyZ\Valinor\MapperBuilder::registerConstructor"/>
+            <referencedFunction name="\CuyZ\Valinor\MapperBuilder::registerConverter"/>
+        </errorLevel>
+    </InvalidArgument>
+</issueHandlers>

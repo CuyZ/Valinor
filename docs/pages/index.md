@@ -25,6 +25,10 @@ providing precise and human-readable error messages.
 The mapper can handle native PHP types as well as other advanced types supported
 by [PHPStan] and [Psalm] like shaped arrays, generics, integer ranges and more.
 
+The library also provides a normalization mechanism that can help transform any
+input into a data format (JSON, CSV, …), while preserving the original
+structure.
+
 ## Why?
 
 There are many benefits of using objects instead of plain arrays in a codebase:
@@ -34,6 +38,14 @@ There are many benefits of using objects instead of plain arrays in a codebase:
 2. **Data integrity** — the object cannot be in an invalid state, it will always
    contain valid data.
 3. **Encapsulation** — the logic of an object is isolated from the outside.
+
+## What about serialization?
+
+This library also provides a serialization system that can help transform a
+given input into a data format (JSON, CSV, …), while preserving the original
+structure.
+
+You can find more information on this topic in the [normalizer chapter].
 
 ---
 
@@ -88,3 +100,5 @@ try {
 
 This library provides advanced features for more complex cases, check out the
 [next chapter](getting-started.md) to get started.
+
+[normalizer chapter]: serialization/normalizer.md

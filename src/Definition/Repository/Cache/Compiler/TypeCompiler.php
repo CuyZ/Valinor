@@ -9,9 +9,9 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -21,7 +21,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -29,16 +29,21 @@ use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use UnitEnum;
 
+use function array_keys;
 use function array_map;
 use function implode;
 use function var_export;
@@ -46,6 +51,10 @@ use function var_export;
 /** @internal */
 final class TypeCompiler
 {
+    public function __construct(
+        private AttributesCompiler $attributesCompiler,
+    ) {}
+
     public function compile(Type $type): string
     {
         $class = $type::class;
@@ -57,11 +66,15 @@ final class TypeCompiler
             case $type instanceof NativeIntegerType:
             case $type instanceof PositiveIntegerType:
             case $type instanceof NegativeIntegerType:
+            case $type instanceof NonPositiveIntegerType:
+            case $type instanceof NonNegativeIntegerType:
             case $type instanceof NativeStringType:
             case $type instanceof NonEmptyStringType:
             case $type instanceof NumericStringType:
             case $type instanceof UndefinedObjectType:
+            case $type instanceof CallableType:
             case $type instanceof MixedType:
+            case $type instanceof ScalarConcreteType:
                 return "$class::get()";
             case $type instanceof BooleanValueType:
                 return $type->value() === true
@@ -70,6 +83,9 @@ final class TypeCompiler
             case $type instanceof IntegerRangeType:
                 return "new $class({$type->min()}, {$type->max()})";
             case $type instanceof StringValueType:
+                $value = var_export($type->toString(), true);
+
+                return "$class::from($value)";
             case $type instanceof IntegerValueType:
             case $type instanceof FloatValueType:
                 $value = var_export($type->value(), true);
@@ -90,13 +106,20 @@ final class TypeCompiler
                     default => "$class::default()",
                 };
             case $type instanceof ShapedArrayType:
-                $shapes = array_map(
+                $elements = implode(', ', array_map(
                     fn (ShapedArrayElement $element) => $this->compileArrayShapeElement($element),
                     $type->elements()
-                );
-                $shapes = implode(', ', $shapes);
+                ));
 
-                return "new $class(...[$shapes])";
+                if ($type->hasUnsealedType()) {
+                    $unsealedType = $this->compile($type->unsealedType());
+
+                    return "$class::unsealed($unsealedType, $elements)";
+                } elseif ($type->isUnsealed()) {
+                    return "$class::unsealedWithoutType($elements)";
+                }
+
+                return "new $class($elements)";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
                 if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {
@@ -121,7 +144,7 @@ final class TypeCompiler
                 $subType = $this->compile($type->subType());
 
                 return "new $class($keyType, $subType)";
-            case $type instanceof ClassType:
+            case $type instanceof NativeClassType:
             case $type instanceof InterfaceType:
                 $generics = [];
 
@@ -131,15 +154,7 @@ final class TypeCompiler
 
                 $generics = implode(', ', $generics);
 
-                if ($type instanceof InterfaceType) {
-                    return "new $class('{$type->className()}', [$generics])";
-                }
-
-                $parent = $type->hasParent()
-                    ? $this->compile($type->parent())
-                    : 'null';
-
-                return "new $class('{$type->className()}', [$generics], $parent)";
+                return "new $class('{$type->className()}', [$generics])";
             case $type instanceof ClassStringType:
                 if (null === $type->subType()) {
                     return "new $class()";
@@ -148,13 +163,21 @@ final class TypeCompiler
                 $subType = $this->compile($type->subType());
 
                 return "new $class($subType)";
-            case $type instanceof NativeEnumType:
-                return "new $class({$type->className()}::class)";
-            case $type instanceof EnumValueType:
-                return "new $class({$type->toString()})";
+            case $type instanceof EnumType:
+                $enumName = var_export($type->className(), true);
+                $pattern = var_export($type->pattern(), true);
+
+                $cases = array_map(
+                    fn (string|int $key, UnitEnum $case) => var_export($key, true) . ' => ' . var_export($case, true),
+                    array_keys($type->cases()),
+                    $type->cases()
+                );
+                $cases = implode(', ', $cases);
+
+                return "new $class($enumName, $pattern, [$cases])";
             case $type instanceof UnresolvableType:
                 $raw = var_export($type->toString(), true);
-                $message = var_export($type->getMessage(), true);
+                $message = var_export($type->message(), true);
 
                 return "new $class($raw, $message)";
             default:
@@ -168,7 +191,8 @@ final class TypeCompiler
         $key = $this->compile($element->key());
         $type = $this->compile($element->type());
         $optional = var_export($element->isOptional(), true);
+        $attributes = $this->attributesCompiler->compile($element->attributes());
 
-        return "new $class($key, $type, $optional)";
+        return "new $class($key, $type, $optional, $attributes)";
     }
 }

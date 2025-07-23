@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition;
 
 use Countable;
-use CuyZ\Valinor\Definition\Exception\PropertyNotFound;
 use IteratorAggregate;
 use Traversable;
 
@@ -22,7 +21,7 @@ final class Properties implements IteratorAggregate, Countable
     public function __construct(PropertyDefinition ...$properties)
     {
         foreach ($properties as $property) {
-            $this->properties[$property->name()] = $property;
+            $this->properties[$property->name] = $property;
         }
     }
 
@@ -33,10 +32,6 @@ final class Properties implements IteratorAggregate, Countable
 
     public function get(string $name): PropertyDefinition
     {
-        if (! $this->has($name)) {
-            throw new PropertyNotFound($name);
-        }
-
         return $this->properties[$name];
     }
 

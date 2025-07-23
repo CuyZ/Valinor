@@ -6,26 +6,15 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Iterable;
 
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ArrayType;
-use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use RuntimeException;
 
 /** @internal */
 final class InvalidArrayKey extends RuntimeException implements InvalidType
 {
-    /**
-     * @param class-string<ArrayType|NonEmptyArrayType> $arrayType
-     */
-    public function __construct(string $arrayType, Type $keyType, Type $subType)
+    public function __construct(Type $keyType)
     {
-        $signature = "array<{$keyType->toString()}, {$subType->toString()}>";
-
-        if ($arrayType === NonEmptyArrayType::class) {
-            $signature = "non-empty-array<{$keyType->toString()}, {$subType->toString()}>";
-        }
-
         parent::__construct(
-            "Invalid key type `{$keyType->toString()}` for `$signature`. It must be one of `array-key`, `int` or `string`.",
+            "Invalid array key type `{$keyType->toString()}`, it must be a valid string or integer.",
             1604335007
         );
     }

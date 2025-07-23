@@ -1,104 +1,114 @@
 # Type strictness & flexibility
 
-The mapper is sensitive to the types of the data that is recursively populated —
-for instance a string `"42"` given to a node that expects an integer will make
-the mapping fail because the type is not strictly respected.
+The mapper provided by this library is designed to be as strict as possible.
+Any deviation from the expected types or structures will result in a mapping
+error.
 
-Array keys that are not bound to any node are forbidden. Mapping an array
-`['foo' => …, 'bar' => …, 'baz' => …]` to an object that needs only `foo` and
-`bar` will fail, because `baz` is superfluous. The same rule applies for
-shaped arrays.
+1. Scalar types will only accept values that strictly match their type.
+2. Objects will only accept values that can be mapped to their constructor
+   parameters, unneeded array entries will cause a mapping error.
+3. Arrays and lists will only accept values that strictly match their subtypes
+   and structure.
 
-When mapping to a list, the given array must have sequential integer keys
-starting at 0; if any gap or invalid key is found it will fail, like for 
-instance trying to map `['foo' => 'foo', 'bar' => 'bar']` to `list<string>`.
-
-Types that are too permissive are not permitted — if the mapper encounters a 
-type like `mixed`, `object` or `array` it will fail because those types are not
-precise enough.
-
----
+Types like `mixed` or `object` are too permissive and not permitted, because
+they are not precise enough.
 
 If these limitations are too restrictive, the mapper can be made more flexible
 to disable one or several rule(s) declared above.
 
-## Enabling flexible casting
+## Allowing scalar value casting
 
-This setting changes the behaviours explained below:
+With this setting enabled, scalar types will accept castable values:
+
+- Integer types will accept any valid numeric value, for instance the string
+  value `"42"`.
+
+- Float types will accept any valid numeric value, for instance the string value
+  `"1337.42"`.
+
+- String types will accept any integer, float or object implementing the
+  `Stringable` interface.
+
+- Boolean types will accept any truthy or falsy value:
+    * `(string) "true"`, `(string) "1"` and `(int) 1` will be cast to `true`
+    * `(string) "false"`, `(string) "0"` and `(int) 0` will be cast to `false`
 
 ```php
-$flexibleMapper = (new \CuyZ\Valinor\MapperBuilder())
-    ->enableFlexibleCasting()
-    ->mapper();
+(new \CuyZ\Valinor\MapperBuilder())
+    ->allowScalarValueCasting()
+    ->mapper()
+    ->map('array{id: string, price: float, active: bool}', [
+        'id' => 549465210, // Will be cast to string
+        'price' => '42.39', // Will be cast to float
+        'active' => 1, // Will be cast to bool
+    ]);
+```
 
-// ---
-// Scalar types will accept non-strict values; for instance an integer
-// type will accept any valid numeric value like the *string* "42".
+## Allowing non-sequential lists
 
-$flexibleMapper->map('int', '42');
-// => 42
+By default, list types will only accept sequential keys starting from 0.
 
-// ---
-// List type will accept non-incremental keys.
+This setting allows the mapper to convert associative arrays to a list with
+sequential keys.
 
-$flexibleMapper->map('list<int>', ['foo' => 42, 'bar' => 1337]);
-// => [0 => 42, 1 => 1338]
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->allowNonSequentialList()
+    ->mapper()
+    ->map('list<int>', [
+        'foo' => 42,
+        'bar' => 1337,
+    ]);
 
-// ---
-// If a value is missing in a source for a node that accepts `null`, the
-// node will be filled with `null`.
+// => [0 => 42, 1 => 1337]
+```
 
-$flexibleMapper->map(
-    'array{foo: string, bar: null|string}',
-    ['foo' => 'foo'] // `bar` is missing
-);
-// => ['foo' => 'foo', 'bar' => null]
+## Allowing undefined values
 
-// ---
-// Array and list types will convert `null` or missing values to an empty
-// array.
+Allows the mapper to accept undefined values (missing from the input), by 
+converting them to `null` (if the current type is nullable) or an empty array
+(if the current type is an object or an iterable).
 
-$flexibleMapper->map(
-    'array{foo: string, bar: array<string>}',
-    ['foo' => 'foo'] // `bar` is missing
-);
-// => ['foo' => 'foo', 'bar' => []]
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->allowUndefinedValues()
+    ->mapper()
+    ->map('array{name: string, age: int|null}', [
+        'name' => 'John Doe',
+        // 'age' is not defined
+    ]);
+
+// => ['name' => 'John Doe', 'age' => null]
 ```
 
 ## Allowing superfluous keys
 
-With this setting enabled, superfluous keys in source arrays will be allowed, 
-preventing errors when a value is not bound to any object property/parameter or
-shaped array element.
+By default, an error is raised when a source array contains keys that do not
+match a class property/parameter or a shaped array element.
+
+This setting allows the mapper to ignore these superfluous keys.
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     ->allowSuperfluousKeys()
     ->mapper()
-    ->map(
-        'array{foo: string, bar: int}',
-        [
-            'foo' => 'foo',
-            'bar' => 42,
-            'baz' => 1337.404, // `baz` will be ignored
-        ]
-    );
+    ->map('array{name: string, age: int}', [
+        'name' => 'John Doe',
+        'age' => 42,
+        'city' => 'Paris', // Will be ignored
+    ]);
 ```
 
 ## Allowing permissive types
 
-This setting allows permissive types `mixed` and `object` to be used during 
-mapping.
+Allows permissive types `mixed` and `object` to be used during mapping.
 
 ```php
 (new \CuyZ\Valinor\MapperBuilder())
     ->allowPermissiveTypes()
     ->mapper()
-    ->map(
-        'array{foo: string, bar: mixed}',
-        [
-            'foo' => 'foo',
-            'bar' => 42, // Could be any value
-        ]
-    );
+    ->map('array{name: string, data: mixed}', [
+        'name' => 'some_product',
+        'data' => 42, // Could be any value
+    ]);
 ```

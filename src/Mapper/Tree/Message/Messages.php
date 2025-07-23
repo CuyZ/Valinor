@@ -6,17 +6,15 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 
 use Countable;
 use CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageFormatter;
-use CuyZ\Valinor\Mapper\Tree\Node;
-use CuyZ\Valinor\Mapper\Tree\NodeTraverser;
 use Iterator;
 use IteratorAggregate;
 
 use function array_filter;
 use function count;
+use function iterator_to_array;
 
 /**
- * Contains instances of messages. Can be used to flatten all messages of a node
- * when a mapping error occurs.
+ * Container for messages representing errors detected during mapping.
  *
  * Message formatters can be added and will be applied on all messages.
  *
@@ -26,10 +24,8 @@ use function count;
  *         ->mapper()
  *         ->map(SomeClass::class, [/* … * /]);
  * } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
- *     // Get a flatten list of all messages through the whole nodes tree
- *     $messages = \CuyZ\Valinor\Mapper\Tree\Message\Messages::flattenFromNode(
- *         $error->node()
- *     );
+ *     // Get a flattened list of all messages detected during mapping
+ *     $messages = $error->messages();
  *
  *     // Formatters can be added and will be applied on all messages
  *     $messages = $messages->formatWith(
@@ -42,11 +38,8 @@ use function count;
  *             ])
  *     );
  *
- *     // If only errors are wanted, they can be filtered
- *     $errors = $messages->errors();
- *
- *     foreach ($errors as $errorMessage) {
- *         // …
+ *     foreach ($messages as $message) {
+ *         echo $message;
  *     }
  * }
  * ```
@@ -57,13 +50,14 @@ use function count;
  */
 final class Messages implements IteratorAggregate, Countable
 {
-    /** @var list<NodeMessage> */
+    /** @var array<NodeMessage> */
     private array $messages;
 
     /** @var array<MessageFormatter> */
     private array $formatters = [];
 
     /**
+     * @internal
      * @no-named-arguments
      */
     public function __construct(NodeMessage ...$messages)
@@ -71,25 +65,10 @@ final class Messages implements IteratorAggregate, Countable
         $this->messages = $messages;
     }
 
-    public static function flattenFromNode(Node $node): self
-    {
-        $nodeMessages = (new NodeTraverser(
-            fn (Node $node) => $node->messages()
-        ))->traverse($node);
-
-        $messages = [];
-
-        foreach ($nodeMessages as $messagesGroup) {
-            $messages = [...$messages, ...$messagesGroup];
-        }
-
-        return new self(...$messages);
-    }
-
     public function errors(): self
     {
         $clone = clone $this;
-        $clone->messages = array_filter($clone->messages, fn (NodeMessage $message) => $message->isError());
+        $clone->messages = array_filter($this->messages, fn (NodeMessage $message) => $message->isError());
 
         return $clone;
     }
@@ -107,7 +86,8 @@ final class Messages implements IteratorAggregate, Countable
      */
     public function toArray(): array
     {
-        return [...$this];
+        /** @var list<NodeMessage> */
+        return iterator_to_array($this);
     }
 
     public function count(): int

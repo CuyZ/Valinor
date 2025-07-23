@@ -20,7 +20,7 @@ final class MessageMapFormatterTest extends TestCase
             FakeMessage::class => 'nope',
         ]))->defaultsTo('nope');
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('ok', (string)$message);
     }
@@ -33,7 +33,7 @@ final class MessageMapFormatterTest extends TestCase
             FakeMessage::class => 'nope',
         ]))->defaultsTo('nope');
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('ok some message', (string)$message);
     }
@@ -45,7 +45,7 @@ final class MessageMapFormatterTest extends TestCase
             FakeMessage::class => 'nope',
         ]))->defaultsTo('nope');
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('ok', (string)$message);
     }
@@ -56,7 +56,7 @@ final class MessageMapFormatterTest extends TestCase
             FakeMessage::class => 'foo',
         ]))->defaultsTo('nope');
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('foo', (string)$message);
     }
@@ -65,7 +65,7 @@ final class MessageMapFormatterTest extends TestCase
     {
         $formatter = (new MessageMapFormatter([]))->defaultsTo('foo');
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('foo', (string)$message);
     }
@@ -74,8 +74,16 @@ final class MessageMapFormatterTest extends TestCase
     {
         $formatter = new MessageMapFormatter([]);
 
-        $message = $formatter->format(FakeNodeMessage::any());
+        $message = $formatter->format(FakeNodeMessage::new());
 
         self::assertSame('some message', (string)$message);
+    }
+
+    public function test_default_to_returns_another_instance(): void
+    {
+        $formatterA = new MessageMapFormatter([]);
+        $formatterB = $formatterA->defaultsTo('foo');
+
+        self::assertNotSame($formatterA, $formatterB);
     }
 }

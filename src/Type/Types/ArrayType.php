@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Polyfill;
 
+use function function_exists;
 use function is_array;
 
 /** @internal */
@@ -58,17 +62,36 @@ final class ArrayType implements CompositeTraversableType
             return false;
         }
 
-        foreach ($value as $key => $item) {
-            if (! $this->keyType->accepts($key)) {
-                return false;
-            }
-
-            if (! $this->subType->accepts($item)) {
-                return false;
-            }
+        if ($this === self::native()) {
+            return true;
         }
 
-        return true;
+        return Polyfill::array_all(
+            $value,
+            fn (mixed $item, mixed $key) => $this->keyType->accepts($key) && $this->subType->accepts($item),
+        );
+    }
+
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        $condition = Node::functionCall('is_array', [$node]);
+
+        if ($this === self::native()) {
+            return $condition;
+        }
+
+        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+            $node,
+            Node::shortClosure(
+                Node::logicalAnd(
+                    $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
+                    $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+                ),
+            )->witParameters(
+                Node::parameterDeclaration('item', 'mixed'),
+                Node::parameterDeclaration('key', 'mixed'),
+            ),
+        ]));
     }
 
     public function matches(Type $other): bool
@@ -86,7 +109,7 @@ final class ArrayType implements CompositeTraversableType
         }
 
         return $this->keyType->matches($other->keyType())
-                && $this->subType->matches($other->subType());
+            && $this->subType->matches($other->subType());
     }
 
     public function keyType(): ArrayKeyType
@@ -99,13 +122,18 @@ final class ArrayType implements CompositeTraversableType
         return $this->subType;
     }
 
-    public function traverse(): iterable
+    public function traverse(): array
     {
-        yield $this->subType;
-
         if ($this->subType instanceof CompositeType) {
-            yield from $this->subType->traverse();
+            return [$this->subType, ...$this->subType->traverse()];
         }
+
+        return [$this->subType];
+    }
+
+    public function nativeType(): ArrayType
+    {
+        return self::native();
     }
 
     public function toString(): string

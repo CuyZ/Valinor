@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -51,57 +56,59 @@ final class ClassStringTypeTest extends TestCase
         new ClassStringType($type);
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([stdClass::class])]
+    #[TestWith([DateTimeInterface::class])]
+    public function test_basic_class_string_accepts_correct_values(mixed $value): void
     {
-        $classStringType = new ClassStringType();
+        $type = new ClassStringType();
 
-        self::assertTrue($classStringType->accepts(stdClass::class));
-        self::assertTrue($classStringType->accepts(DateTimeInterface::class));
+        self::assertTrue($type->accepts($value));
+        self::assertTrue($this->compiledAccept($type, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['accepts' => true, 'value' => DateTime::class])]
+    #[TestWith(['accepts' => true, 'value' => DateTimeImmutable::class])]
+    #[TestWith(['accepts' => true, 'value' => DateTimeInterface::class])]
+    #[TestWith(['accepts' => false, 'value' => stdClass::class])]
+    public function test_object_class_string_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $classStringType = new ClassStringType();
+        $type = new ClassStringType(new FakeObjectType(DateTimeInterface::class));
 
-        self::assertFalse($classStringType->accepts(null));
-        self::assertFalse($classStringType->accepts('Schwifty!'));
-        self::assertFalse($classStringType->accepts(42.1337));
-        self::assertFalse($classStringType->accepts(404));
-        self::assertFalse($classStringType->accepts(['foo' => 'bar']));
-        self::assertFalse($classStringType->accepts(false));
-        self::assertFalse($classStringType->accepts(new stdClass()));
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
-    public function test_accepts_correct_values_with_sub_type(): void
+    #[TestWith(['accepts' => true, 'value' => DateTime::class])]
+    #[TestWith(['accepts' => true, 'value' => stdClass::class])]
+    #[TestWith(['accepts' => false, 'value' => DateTimeImmutable::class])]
+    public function test_union_of_objects_class_string_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $objectType = new FakeObjectType(DateTimeInterface::class);
-        $classStringType = new ClassStringType($objectType);
+        $type = new ClassStringType(new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class)));
 
-        self::assertTrue($classStringType->accepts(DateTime::class));
-        self::assertTrue($classStringType->accepts(DateTimeImmutable::class));
-        self::assertTrue($classStringType->accepts(DateTimeInterface::class));
-
-        self::assertFalse($classStringType->accepts(stdClass::class));
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
-    public function test_accepts_correct_values_with_union_sub_type(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        $type = new UnionType(new FakeObjectType(DateTimeInterface::class), new FakeObjectType(stdClass::class));
-        $classStringType = new ClassStringType($type);
+        $basicClassStringType = new ClassStringType();
+        $objectClassStringType = new ClassStringType(new FakeObjectType());
+        $unionClassStringType = new ClassStringType(new UnionType(new FakeObjectType(), new FakeObjectType()));
 
-        self::assertTrue($classStringType->accepts(DateTime::class));
-        self::assertTrue($classStringType->accepts(DateTimeImmutable::class));
-        self::assertTrue($classStringType->accepts(DateTimeInterface::class));
+        self::assertFalse($basicClassStringType->accepts($value));
+        self::assertFalse($objectClassStringType->accepts($value));
+        self::assertFalse($unionClassStringType->accepts($value));
 
-        self::assertTrue($classStringType->accepts(stdClass::class));
-    }
-
-    public function test_does_not_accept_incorrect_values_with_union_sub_type(): void
-    {
-        $unionType = new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class));
-        $classStringType = new ClassStringType($unionType);
-
-        self::assertFalse($classStringType->accepts(DateTimeImmutable::class));
+        self::assertFalse($this->compiledAccept($basicClassStringType, $value));
+        self::assertFalse($this->compiledAccept($objectClassStringType, $value));
+        self::assertFalse($this->compiledAccept($unionClassStringType, $value));
     }
 
     public function test_can_cast_stringable_value(): void
@@ -201,9 +208,9 @@ final class ClassStringTypeTest extends TestCase
         self::assertTrue((new ClassStringType($objectTypeB))->matches(new ClassStringType($objectTypeA)));
     }
 
-    public function test_does_not_match_same_type_with_no_object_type(): void
+    public function test_does_match_same_type_with_no_object_type(): void
     {
-        self::assertFalse((new ClassStringType(new FakeObjectType()))->matches(new ClassStringType()));
+        self::assertTrue((new ClassStringType(new FakeObjectType()))->matches(new ClassStringType()));
     }
 
     public function test_does_not_match_same_type_with_invalid_object_type(): void
@@ -217,6 +224,11 @@ final class ClassStringTypeTest extends TestCase
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse((new ClassStringType())->matches(new FakeType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue((new ClassStringType())->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void
@@ -271,5 +283,17 @@ final class ClassStringTypeTest extends TestCase
         self::assertContains($subTypeB, $type->traverse());
         self::assertContains($objectTypeA, $type->traverse());
         self::assertContains($objectTypeB, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('string', (new ClassStringType())->nativeType()->toString());
+        self::assertSame('string', (new ClassStringType(new FakeObjectType()))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -34,7 +34,7 @@ final class IntegerToken implements TraversingToken
             throw new IntegerRangeMissingMinValue();
         }
 
-        if ($stream->next() instanceof UnknownSymbolToken) {
+        if ($stream->next()->symbol() === 'min') {
             $min = new IntegerValueType(PHP_INT_MIN);
             $stream->forward();
         } else {
@@ -53,7 +53,7 @@ final class IntegerToken implements TraversingToken
             throw new IntegerRangeMissingMaxValue($min);
         }
 
-        if ($stream->next() instanceof UnknownSymbolToken) {
+        if ($stream->next()->symbol() === 'max') {
             $max = new IntegerValueType(PHP_INT_MAX);
             $stream->forward();
         } else {

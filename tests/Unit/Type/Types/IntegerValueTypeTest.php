@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -31,21 +40,25 @@ final class IntegerValueTypeTest extends TestCase
         self::assertSame(1337, $this->type->value());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith([1337])]
+    public function test_accepts_correct_values(mixed $value): void
     {
-        self::assertTrue($this->type->accepts(1337));
+        self::assertTrue($this->type->accepts($value));
+        self::assertTrue($this->compiledAccept($this->type, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([404])]
+    #[TestWith([-404])]
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->type->accepts(404));
-        self::assertFalse($this->type->accepts(-404));
-        self::assertFalse($this->type->accepts(null));
-        self::assertFalse($this->type->accepts('Schwifty!'));
-        self::assertFalse($this->type->accepts(42.1337));
-        self::assertFalse($this->type->accepts(['foo' => 'bar']));
-        self::assertFalse($this->type->accepts(false));
-        self::assertFalse($this->type->accepts(new stdClass()));
+        self::assertFalse($this->type->accepts($value));
+        self::assertFalse($this->compiledAccept($this->type, $value));
     }
 
     public function test_can_cast_integer_value(): void
@@ -65,15 +78,13 @@ final class IntegerValueTypeTest extends TestCase
         self::assertFalse($this->type->canCast(new stdClass()));
     }
 
-    /**
-     * @dataProvider cast_value_returns_correct_result_data_provider
-     */
+    #[DataProvider('cast_value_returns_correct_result_data_provider')]
     public function test_cast_value_returns_correct_result(mixed $value, int $expected): void
     {
         self::assertSame($expected, $this->type->cast($value));
     }
 
-    public function cast_value_returns_correct_result_data_provider(): array
+    public static function cast_value_returns_correct_result_data_provider(): array
     {
         return [
             'Integer from float' => [
@@ -130,6 +141,11 @@ final class IntegerValueTypeTest extends TestCase
         self::assertFalse((new IntegerValueType(-1337))->matches(new PositiveIntegerType()));
     }
 
+    public function test_does_not_match_positive_integer_when_value_is_zero(): void
+    {
+        self::assertFalse((new IntegerValueType(0))->matches(new PositiveIntegerType()));
+    }
+
     public function test_matches_negative_integer_when_value_is_negative(): void
     {
         self::assertTrue((new IntegerValueType(-1337))->matches(new NegativeIntegerType()));
@@ -140,9 +156,61 @@ final class IntegerValueTypeTest extends TestCase
         self::assertFalse((new IntegerValueType(1337))->matches(new NegativeIntegerType()));
     }
 
+    public function test_does_not_match_negative_integer_when_value_is_zero(): void
+    {
+        self::assertFalse((new IntegerValueType(0))->matches(new NegativeIntegerType()));
+    }
+
+    public function test_matches_non_positive_integer_when_value_is_negative(): void
+    {
+        self::assertTrue((new IntegerValueType(-1337))->matches(new NonPositiveIntegerType()));
+    }
+
+    public function test_matches_non_positive_integer_when_value_is_zero(): void
+    {
+        self::assertTrue((new IntegerValueType(0))->matches(new NonPositiveIntegerType()));
+    }
+
+    public function test_does_not_match_non_positive_integer_when_value_is_positive(): void
+    {
+        self::assertFalse((new IntegerValueType(1337))->matches(new NonPositiveIntegerType()));
+    }
+
+    public function test_matches_non_negative_integer_when_value_is_positive(): void
+    {
+        self::assertTrue((new IntegerValueType(1337))->matches(new NonNegativeIntegerType()));
+    }
+
+    public function test_matches_non_negative_integer_when_value_is_zero(): void
+    {
+        self::assertTrue((new IntegerValueType(0))->matches(new NonNegativeIntegerType()));
+    }
+
+    public function test_does_not_match_non_negative_integer_when_value_is_negative(): void
+    {
+        self::assertFalse((new IntegerValueType(-1337))->matches(new NonNegativeIntegerType()));
+    }
+
+    public function test_matches_integer_range_when_value_is_in_range(): void
+    {
+        self::assertTrue((new IntegerValueType(10))->matches(new IntegerRangeType(10, 20)));
+        self::assertTrue((new IntegerValueType(15))->matches(new IntegerRangeType(10, 20)));
+        self::assertTrue((new IntegerValueType(20))->matches(new IntegerRangeType(10, 20)));
+    }
+
+    public function test_does_not_match_integer_range_when_value_is_not_in_range(): void
+    {
+        self::assertFalse((new IntegerValueType(50))->matches(new IntegerRangeType(10, 20)));
+    }
+
     public function test_does_not_match_other_type(): void
     {
         self::assertFalse($this->type->matches(new FakeType()));
+    }
+
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue($this->type->matches(new ScalarConcreteType()));
     }
 
     public function test_matches_mixed_type(): void
@@ -167,5 +235,16 @@ final class IntegerValueTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->type->matches($unionType));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('int', (new IntegerValueType(1337))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
+use stdClass;
 
-final class ListValuesMappingTest extends IntegrationTest
+final class ListValuesMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {
@@ -22,12 +23,13 @@ final class ListValuesMappingTest extends IntegrationTest
             'objects' => ['foo', 'bar', 'baz'],
             'objectsWithAlias' => ['foo', 'bar', 'baz'],
             'listOfStrings' => ['foo', 'bar', 'baz',],
+            'listOfStringWithEmptyValue' => [],
             'nonEmptyListOfStrings' => ['foo', 'bar', 'baz'],
         ];
 
         foreach ([ListValues::class, ListValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
@@ -43,6 +45,7 @@ final class ListValuesMappingTest extends IntegrationTest
             self::assertSame('bar', $result->objectsWithAlias[1]->value);
             self::assertSame('baz', $result->objectsWithAlias[2]->value);
             self::assertSame($source['listOfStrings'], $result->listOfStrings);
+            self::assertSame($source['listOfStringWithEmptyValue'], $result->listOfStringWithEmptyValue);
             self::assertSame($source['nonEmptyListOfStrings'], $result->nonEmptyListOfStrings);
         }
     }
@@ -50,43 +53,51 @@ final class ListValuesMappingTest extends IntegrationTest
     public function test_empty_list_in_non_empty_list_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ListValues::class, [
-                'nonEmptyListOfStrings' => [],
-            ]);
+            $this->mapperBuilder()->mapper()->map('non-empty-list<string>', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['nonEmptyListOfStrings']->messages()[0];
-
-            self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match type `non-empty-list<string>`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => "[value_is_empty_list] List cannot be empty and must contain values of type `string`.",
+            ]);
         }
     }
 
     public function test_map_array_with_non_sequential_keys_to_list_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('list<string>', [
+            $this->mapperBuilder()->mapper()->map('list<string>', [
                 0 => 'foo',
                 2 => 'bar',
             ]);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()[2]->messages()[0];
-
-            self::assertSame('1654273010', $error->code());
-            self::assertSame('Invalid sequential key 2, expected 1.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '2' => '[invalid_list_key] Invalid sequential key 2, expected 1.',
+            ]);
         }
     }
 
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ListValues::class, [
-                'integers' => ['foo'],
-            ]);
+            $this->mapperBuilder()->mapper()->map('list<int>', ['foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['integers']->children()['0']->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '0' => "[invalid_integer] Value 'foo' is not a valid integer.",
+            ]);
         }
+    }
+
+    public function test_invalid_list_key_type_throws_exception(): void
+    {
+        $this->expectException(InvalidIterableKeyType::class);
+        $this->expectExceptionCode(1737104770);
+        $this->expectExceptionMessage('Invalid key of type `stdClass` at path `*root*`, only integers and strings are allowed.');
+
+        $this->mapperBuilder()->mapper()->map(
+            'list<string>',
+            (function () {
+                yield new stdClass() => 'foo';
+            })(),
+        );
     }
 }
 
@@ -113,6 +124,9 @@ class ListValues
     /** @var list<string> */
     public array $listOfStrings;
 
+    /** @var list<string> */
+    public array $listOfStringWithEmptyValue;
+
     /** @var non-empty-list<string> */
     public array $nonEmptyListOfStrings = ['foo'];
 }
@@ -127,6 +141,7 @@ class ListValuesWithConstructor extends ListValues
      * @param list<SimpleObject> $objects
      * @param list<SimpleObjectAlias> $objectsWithAlias
      * @param list<string> $listOfStrings
+     * @param list<string> $listOfStringWithEmptyValue
      * @param non-empty-list<string> $nonEmptyListOfStrings
      */
     public function __construct(
@@ -137,6 +152,7 @@ class ListValuesWithConstructor extends ListValues
         array $objects,
         array $objectsWithAlias,
         array $listOfStrings,
+        array $listOfStringWithEmptyValue,
         array $nonEmptyListOfStrings
     ) {
         $this->booleans = $booleans;
@@ -146,6 +162,7 @@ class ListValuesWithConstructor extends ListValues
         $this->objects = $objects;
         $this->objectsWithAlias = $objectsWithAlias;
         $this->listOfStrings = $listOfStrings;
+        $this->listOfStringWithEmptyValue = $listOfStringWithEmptyValue;
         $this->nonEmptyListOfStrings = $nonEmptyListOfStrings;
     }
 }

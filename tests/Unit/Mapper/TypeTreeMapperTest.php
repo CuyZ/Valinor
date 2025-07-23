@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper;
 
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
@@ -22,6 +23,7 @@ final class TypeTreeMapperTest extends TestCase
         $this->mapper = new TypeTreeMapper(
             new FakeTypeParser(),
             new RootNodeBuilder(new FakeNodeBuilder()),
+            new Settings(),
         );
     }
 

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
-use CuyZ\Valinor\Type\Types\ClassType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -17,9 +18,7 @@ use function array_map;
 
 final class FakeClassDefinition
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * @param class-string $name
@@ -27,10 +26,13 @@ final class FakeClassDefinition
     public static function new(string $name = stdClass::class): ClassDefinition
     {
         return new ClassDefinition(
-            new ClassType($name),
-            new FakeAttributes(),
+            $name,
+            new NativeClassType($name),
+            new Attributes(),
             new Properties(),
-            new Methods()
+            new Methods(),
+            true,
+            false,
         );
     }
 
@@ -50,10 +52,13 @@ final class FakeClassDefinition
         );
 
         return new ClassDefinition(
-            new ClassType($reflection->name),
-            new FakeAttributes(),
+            $reflection->name,
+            new NativeClassType($reflection->name),
+            new Attributes(),
             new Properties(...$properties),
-            new Methods(...$methods)
+            new Methods(...$methods),
+            $reflection->isFinal(),
+            $reflection->isAbstract(),
         );
     }
 }

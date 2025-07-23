@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
+use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
@@ -17,6 +19,11 @@ final class NullType implements Type
         return $value === null;
     }
 
+    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    {
+        return $node->equals(Node::value(null));
+    }
+
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
@@ -25,6 +32,11 @@ final class NullType implements Type
 
         return $other instanceof self
             || $other instanceof MixedType;
+    }
+
+    public function nativeType(): Type
+    {
+        return $this;
     }
 
     public function toString(): string

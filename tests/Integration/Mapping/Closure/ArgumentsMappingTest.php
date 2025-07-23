@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Closure;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class ArgumentsMappingTest extends IntegrationTest
+final class ArgumentsMappingTest extends IntegrationTestCase
 {
     public function test_can_map_to_anonymous_function(): void
     {
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
 
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($function, [
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -31,8 +30,7 @@ final class ArgumentsMappingTest extends IntegrationTest
         $object = new SomeClassWithMethods();
 
         try {
-            // PHP8.1 First-class callable syntax
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments([$object, 'somePublicMethod'], [
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($object->somePublicMethod(...), [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -46,8 +44,7 @@ final class ArgumentsMappingTest extends IntegrationTest
     public function test_can_map_to_class_static_method(): void
     {
         try {
-            // PHP8.1 First-class callable syntax
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments([SomeClassWithMethods::class, 'somePublicStaticMethod'], [
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments(SomeClassWithMethods::somePublicStaticMethod(...), [
                 'foo' => 'foo',
                 'bar' => 42,
             ]);
@@ -63,7 +60,7 @@ final class ArgumentsMappingTest extends IntegrationTest
         $function = fn (string $foo): string => $foo;
 
         try {
-            $arguments = (new MapperBuilder())->argumentsMapper()->mapArguments($function, ['foo' => 'foo']);
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, ['foo' => 'foo']);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -71,20 +68,140 @@ final class ArgumentsMappingTest extends IntegrationTest
         self::assertSame('foo', $function(...$arguments));
     }
 
+    public function test_can_map_to_single_argument_of_type_object_with_one_property_with_array_source(): void
+    {
+        $function = fn (SomeClassWithOneProperty $value): string => $value->foo . $value->foo;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foofoo', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_one_property_with_array_source_sharing_names(): void
+    {
+        $function = fn (SomeClassWithOneProperty $foo): string => $foo->foo . $foo->foo;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foofoo', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_one_property_with_scalar_source(): void
+    {
+        $function = fn (SomeClassWithOneProperty $value): string => $value->foo . $value->foo;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foofoo', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_several_properties(): void
+    {
+        $function = fn (SomeClassWithTwoProperties $value): string => $value->foo . $value->bar;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo42', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_object_with_several_properties_when_single_argument_shares_name_with_one_of_object_property_name(): void
+    {
+        $function = fn (SomeClassWithTwoProperties $foo): string => $foo->foo . $foo->bar;
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo42', $function(...$arguments));
+    }
+
+    public function test_can_map_to_single_argument_of_type_shaped_array(): void
+    {
+        $function =
+            /**
+             * @param array{foo: string, bar: int} $value
+             */
+            fn (array $value): string => $value['foo'] . $value['bar']; // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+
+        try {
+            $arguments = $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'value' => [
+                    'foo' => 'foo',
+                    'bar' => 42,
+                ],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo42', $function(...$arguments));
+    }
+
+    public function test_map_to_single_argument_of_type_shaped_array_does_not_accept_flattened_values(): void
+    {
+        $function =
+            /**
+             * @param array{foo: string, bar: int} $value
+             */
+            fn (array $value): string => $value['foo'] . $value['bar']; // @phpstan-ignore binaryOp.invalid (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+
+        try {
+            $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
+                'foo' => 'foo',
+                'bar' => 42,
+            ]);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => '[unexpected_keys] Unexpected key(s) `foo`, `bar`, expected `value`.',
+                'value' => '[missing_value] Cannot be empty and must be filled with a value matching type `array{foo: string, bar: int}`.',
+            ]);
+        }
+    }
+
     public function test_invalid_source_with_one_error_throws_mapping_error(): void
     {
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
 
         try {
-            (new MapperBuilder())->argumentsMapper()->mapArguments($function, [
+            $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
                 'foo' => false,
                 'bar' => false,
             ]);
         } catch (MappingError $exception) {
             self::assertMatchesRegularExpression('/Could not map arguments of `[^`]+` with value array{foo: false, bar: false}. A total of 2 errors were encountered./', $exception->getMessage());
 
-            self::assertSame('Value false is not a valid string.', (string)$exception->node()->children()['foo']->messages()[0]);
-            self::assertSame('Value false is not a valid integer.', (string)$exception->node()->children()['bar']->messages()[0]);
+            self::assertMappingErrors($exception, [
+                'foo' => '[invalid_string] Value false is not a valid string.',
+                'bar' => '[invalid_integer] Value false is not a valid integer.',
+            ]);
         }
     }
 
@@ -93,14 +210,16 @@ final class ArgumentsMappingTest extends IntegrationTest
         $function = fn (string $foo, int $bar): string => "$foo / $bar";
 
         try {
-            (new MapperBuilder())->argumentsMapper()->mapArguments($function, [
+            $this->mapperBuilder()->argumentsMapper()->mapArguments($function, [
                 'foo' => false,
                 'bar' => 42,
             ]);
         } catch (MappingError $exception) {
             self::assertMatchesRegularExpression('/Could not map arguments of `[^`]+`. An error occurred at path foo: Value false is not a valid string./', $exception->getMessage());
 
-            self::assertSame('Value false is not a valid string.', (string)$exception->node()->children()['foo']->messages()[0]);
+            self::assertMappingErrors($exception, [
+                'foo' => '[invalid_string] Value false is not a valid string.',
+            ]);
         }
     }
 }
@@ -116,4 +235,15 @@ final class SomeClassWithMethods
     {
         return "$foo / $bar";
     }
+}
+
+final class SomeClassWithOneProperty
+{
+    public string $foo;
+}
+
+final class SomeClassWithTwoProperties
+{
+    public string $foo;
+    public int $bar;
 }

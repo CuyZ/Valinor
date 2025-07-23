@@ -12,9 +12,10 @@ use CuyZ\Valinor\Definition\PropertyDefinition;
 use IteratorAggregate;
 use Traversable;
 
+use function array_keys;
 use function array_map;
 use function array_values;
-use function iterator_to_array;
+use function count;
 
 /**
  * @internal
@@ -23,19 +24,21 @@ use function iterator_to_array;
  */
 final class Arguments implements IteratorAggregate, Countable
 {
-    /** @var Argument[] */
-    private array $arguments;
+    /** @var array<string, Argument> */
+    private array $arguments = [];
 
     public function __construct(Argument ...$arguments)
     {
-        $this->arguments = $arguments;
+        foreach ($arguments as $argument) {
+            $this->arguments[$argument->name()] = $argument;
+        }
     }
 
     public static function fromParameters(Parameters $parameters): self
     {
         return new self(...array_map(
             fn (ParameterDefinition $parameter) => Argument::fromParameter($parameter),
-            array_values(iterator_to_array($parameters)) // PHP8.1 array unpacking
+            [...$parameters],
         ));
     }
 
@@ -43,24 +46,29 @@ final class Arguments implements IteratorAggregate, Countable
     {
         return new self(...array_map(
             fn (PropertyDefinition $property) => Argument::fromProperty($property),
-            array_values(iterator_to_array($properties)) // PHP8.1 array unpacking
+            [...$properties],
         ));
     }
 
     public function at(int $index): Argument
     {
-        return $this->arguments[$index];
+        return array_values($this->arguments)[$index];
     }
 
-    public function has(string $name): bool
+    /**
+     * @return list<string>
+     */
+    public function names(): array
     {
-        foreach ($this->arguments as $argument) {
-            if ($argument->name() === $name) {
-                return true;
-            }
-        }
+        return array_keys($this->arguments);
+    }
 
-        return false;
+    /**
+     * @return array<string, Argument>
+     */
+    public function toArray(): array
+    {
+        return $this->arguments;
     }
 
     public function count(): int

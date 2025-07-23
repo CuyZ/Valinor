@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -35,17 +39,22 @@ final class UndefinedObjectTypeTest extends TestCase
     public function test_accepts_correct_values(): void
     {
         self::assertTrue($this->undefinedObjectType->accepts(new stdClass()));
-        self::assertTrue($this->undefinedObjectType->accepts(new class () { }));
+        self::assertTrue($this->undefinedObjectType->accepts(new class () {}));
+
+        self::assertTrue($this->compiledAccept($this->undefinedObjectType, new stdClass()));
+        self::assertTrue($this->compiledAccept($this->undefinedObjectType, new class () {}));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([false])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
     {
-        self::assertFalse($this->undefinedObjectType->accepts(null));
-        self::assertFalse($this->undefinedObjectType->accepts('Schwifty!'));
-        self::assertFalse($this->undefinedObjectType->accepts(42.1337));
-        self::assertFalse($this->undefinedObjectType->accepts(404));
-        self::assertFalse($this->undefinedObjectType->accepts(['foo' => 'bar']));
-        self::assertFalse($this->undefinedObjectType->accepts(false));
+        self::assertFalse($this->undefinedObjectType->accepts($value));
+        self::assertFalse($this->compiledAccept($this->undefinedObjectType, $value));
     }
 
     public function test_matches_valid_types(): void
@@ -79,11 +88,22 @@ final class UndefinedObjectTypeTest extends TestCase
 
     public function test_matches_intersection_type(): void
     {
-        self::assertTrue($this->undefinedObjectType->matches(new IntersectionType()));
+        self::assertTrue($this->undefinedObjectType->matches(new IntersectionType(new FakeObjectType(), new FakeObjectType())));
     }
 
     public function test_matches_mixed_type(): void
     {
         self::assertTrue($this->undefinedObjectType->matches(new MixedType()));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('object', (new UndefinedObjectType())->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

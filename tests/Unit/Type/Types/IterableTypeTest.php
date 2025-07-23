@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class IterableTypeTest extends TestCase
 {
@@ -55,38 +61,99 @@ final class IterableTypeTest extends TestCase
         self::assertSame($subType, (new IterableType(ArrayKeyType::default(), $subType))->subType());
     }
 
-    public function test_accepts_correct_values(): void
+    public function test_accepts_generators_with_correct_values(): void
     {
-        $type = FakeType::accepting('Some value');
+        $type = new StringValueType('Some value');
 
+        $iterableNative = IterableType::native();
         $iterableWithDefaultKey = new IterableType(ArrayKeyType::default(), $type);
         $iterableWithIntegerKey = new IterableType(ArrayKeyType::integer(), $type);
         $iterableWithStringKey = new IterableType(ArrayKeyType::string(), $type);
 
-        self::assertTrue($iterableWithDefaultKey->accepts([42 => 'Some value']));
-        self::assertTrue($iterableWithDefaultKey->accepts(['foo' => 'Some value']));
-        self::assertFalse($iterableWithDefaultKey->accepts([42 => 1337.404]));
-        self::assertFalse($iterableWithDefaultKey->accepts(['foo' => 1337.404]));
         self::assertTrue($iterableWithDefaultKey->accepts((static fn () => yield 42 => 'Some value')()));
         self::assertTrue($iterableWithDefaultKey->accepts((static fn () => yield 'foo' => 'Some value')()));
         self::assertFalse($iterableWithDefaultKey->accepts((static fn () => yield 42 => 1337.404)()));
         self::assertFalse($iterableWithDefaultKey->accepts((static fn () => yield 'foo' => 1337.404)()));
 
-        self::assertTrue($iterableWithIntegerKey->accepts([42 => 'Some value']));
-        self::assertFalse($iterableWithIntegerKey->accepts(['foo' => 'Some value']));
-        self::assertFalse($iterableWithIntegerKey->accepts([42 => 1337.404]));
         self::assertTrue($iterableWithIntegerKey->accepts((static fn () => yield 42 => 'Some value')()));
         self::assertFalse($iterableWithIntegerKey->accepts((static fn () => yield 'foo' => 'Some value')()));
         self::assertFalse($iterableWithIntegerKey->accepts((static fn () => yield 42 => 1337.404)()));
 
-        self::assertTrue($iterableWithStringKey->accepts([42 => 'Some value']));
-        self::assertTrue($iterableWithStringKey->accepts(['foo' => 'Some value']));
-        self::assertFalse($iterableWithIntegerKey->accepts([42 => 1337.404]));
         self::assertTrue($iterableWithStringKey->accepts((static fn () => yield 42 => 'Some value')()));
         self::assertTrue($iterableWithStringKey->accepts((static fn () => yield 'foo' => 'Some value')()));
         self::assertFalse($iterableWithStringKey->accepts((static fn () => yield 42 => 1337.404)()));
 
-        self::assertFalse(IterableType::native()->accepts('foo'));
+        self::assertTrue($iterableNative->accepts((static fn () => yield 42 => 'Some value')()));
+        self::assertTrue($iterableNative->accepts((static fn () => yield 'foo' => 'Some value')()));
+        self::assertTrue($iterableNative->accepts((static fn () => yield 42 => 1337.404)()));
+        self::assertTrue($iterableNative->accepts((static fn () => yield 'foo' => 1337.404)()));
+    }
+
+    #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
+    #[TestWith(['accepts' => true, 'value' => ['foo' => 'Some value']])]
+    #[TestWith(['accepts' => true, 'value' => [42 => 1337.404]])]
+    #[TestWith(['accepts' => true, 'value' => ['foo' => 1337.404]])]
+    public function test_native_array_accepts_correct_values(bool $accepts, mixed $value): void
+    {
+        $type = IterableType::native();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
+    #[TestWith(['accepts' => true, 'value' => ['foo' => 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [42 => 1337.404]])]
+    #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
+    public function test_default_array_key_accepts_correct_values(bool $accepts, mixed $value): void
+    {
+        $type = new IterableType(ArrayKeyType::default(), new StringValueType('Some value'));
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => ['foo' => 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [42 => 1337.404]])]
+    #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
+    public function test_integer_array_key_accepts_correct_values(bool $accepts, mixed $value): void
+    {
+        $type = new IterableType(ArrayKeyType::integer(), new StringValueType('Some value'));
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
+    #[TestWith(['accepts' => true, 'value' => ['foo' => 'Some value']])]
+    #[TestWith(['accepts' => false, 'value' => [42 => 1337.404]])]
+    #[TestWith(['accepts' => false, 'value' => ['foo' => 1337.404]])]
+    public function test_string_array_key_accepts_correct_values(bool $accepts, mixed $value): void
+    {
+        $type = new IterableType(ArrayKeyType::string(), new StringValueType('Some value'));
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith([null])]
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([false])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
+    {
+        self::assertFalse(IterableType::native()->accepts($value));
+        self::assertFalse((new IterableType(ArrayKeyType::default(), new StringValueType('Some value')))->accepts($value));
+        self::assertFalse((new IterableType(ArrayKeyType::integer(), new StringValueType('Some value')))->accepts($value));
+        self::assertFalse((new IterableType(ArrayKeyType::string(), new StringValueType('Some value')))->accepts($value));
+
+        self::assertFalse($this->compiledAccept(IterableType::native(), $value));
+        self::assertFalse($this->compiledAccept(new IterableType(ArrayKeyType::default(), new StringValueType('Some value')), $value));
+        self::assertFalse($this->compiledAccept(new IterableType(ArrayKeyType::integer(), new StringValueType('Some value')), $value));
+        self::assertFalse($this->compiledAccept(new IterableType(ArrayKeyType::string(), new StringValueType('Some value')), $value));
     }
 
     public function test_matches_valid_iterable_type(): void
@@ -168,5 +235,17 @@ final class IterableTypeTest extends TestCase
         self::assertCount(2, $type->traverse());
         self::assertContains($subType, $type->traverse());
         self::assertContains($compositeType, $type->traverse());
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('iterable', IterableType::native()->nativeType()->toString());
+        self::assertSame('iterable', (new IterableType(ArrayKeyType::default(), new FakeType()))->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

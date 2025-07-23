@@ -25,28 +25,70 @@ final class MapperBuilderTest extends TestCase
 
     public function test_builder_methods_return_clone_of_builder_instance(): void
     {
-        $builderA = $this->mapperBuilder;
-        $builderB = $builderA->infer(DateTimeInterface::class, static fn () => DateTime::class);
-        $builderC = $builderA->registerConstructor(static fn (): stdClass => new stdClass());
-        $builderD = $builderA->alter(static fn (string $value): string => 'foo');
-        $builderE = $builderA->enableFlexibleCasting();
-        $builderF = $builderA->allowSuperfluousKeys();
-        $builderG = $builderA->allowPermissiveTypes();
-        $builderH = $builderA->filterExceptions(fn () => new FakeErrorMessage());
-        $builderI = $builderA->withCache(new FakeCache());
+        $builders = [
+            $this->mapperBuilder->infer(DateTimeInterface::class, static fn () => DateTime::class),
+            $this->mapperBuilder->registerConstructor(static fn (): stdClass => new stdClass()),
+            $this->mapperBuilder->allowScalarValueCasting(),
+            $this->mapperBuilder->allowNonSequentialList(),
+            $this->mapperBuilder->allowSuperfluousKeys(),
+            $this->mapperBuilder->allowPermissiveTypes(),
+            $this->mapperBuilder->registerConverter(fn (string $value) => $value),
+            $this->mapperBuilder->filterExceptions(fn () => new FakeErrorMessage()),
+            $this->mapperBuilder->withCache(new FakeCache()),
+            $this->mapperBuilder->supportDateFormats('Y-m-d'),
+        ];
 
-        self::assertNotSame($builderA, $builderB);
-        self::assertNotSame($builderA, $builderC);
-        self::assertNotSame($builderA, $builderD);
-        self::assertNotSame($builderA, $builderE);
-        self::assertNotSame($builderA, $builderF);
-        self::assertNotSame($builderA, $builderG);
-        self::assertNotSame($builderA, $builderH);
-        self::assertNotSame($builderA, $builderI);
+        foreach ($builders as $builder) {
+            self::assertNotSame($this->mapperBuilder, $builder);
+        }
     }
 
     public function test_mapper_instance_is_the_same(): void
     {
         self::assertSame($this->mapperBuilder->mapper(), $this->mapperBuilder->mapper());
+    }
+
+    public function test_get_supported_date_formats_returns_defaults_formats_when_not_overridden(): void
+    {
+        self::assertSame(['Y-m-d\\TH:i:sP', 'Y-m-d\\TH:i:s.uP', 'U', 'U.u'], $this->mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_get_supported_date_formats_returns_configured_values(): void
+    {
+        $mapperBuilder = $this->mapperBuilder->supportDateFormats('Y-m-d', 'd/m/Y');
+
+        self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_get_supported_date_formats_returns_last_values(): void
+    {
+        $mapperBuilder = $this->mapperBuilder
+            ->supportDateFormats('Y-m-d')
+            ->supportDateFormats('d/m/Y');
+
+        self::assertSame(['d/m/Y'], $mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_supported_date_formats_are_unique(): void
+    {
+        $mapperBuilder = $this->mapperBuilder->supportDateFormats('Y-m-d', 'd/m/Y', 'Y-m-d');
+
+        self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
+    }
+
+    public function test_settings_are_cloned_when_configuring_mapper_builder(): void
+    {
+        $resultA = $this->mapperBuilder
+            ->registerConverter(fn (string $value): string => strtoupper($value))
+            ->mapper()
+            ->map('string', 'foo');
+
+        $resultB = $this->mapperBuilder
+            ->registerConverter(fn (string $value): string => $value . '!')
+            ->mapper()
+            ->map('string', 'foo');
+
+        self::assertSame('FOO', $resultA);
+        self::assertSame('foo!', $resultB);
     }
 }

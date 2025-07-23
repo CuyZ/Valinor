@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use AssertionError;
+use CuyZ\Valinor\Compiler\Compiler;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -27,29 +32,42 @@ final class BooleanValueTypeTest extends TestCase
         self::assertSame('false', BooleanValueType::false()->toString());
     }
 
-    public function test_accepts_correct_values(): void
+    #[TestWith(['accepts' => true, 'value' => true])]
+    #[TestWith(['accepts' => false, 'value' => false])]
+    public function test_true_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertTrue(BooleanValueType::true()->accepts(true));
-        self::assertTrue(BooleanValueType::false()->accepts(false));
+        $type = BooleanValueType::true();
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
     }
 
-    public function test_does_not_accept_incorrect_values(): void
+    #[TestWith(['accepts' => true, 'value' => false])]
+    #[TestWith(['accepts' => false, 'value' => true])]
+    public function test_false_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        self::assertFalse(BooleanValueType::true()->accepts('Schwifty!'));
-        self::assertFalse(BooleanValueType::true()->accepts(42.1337));
-        self::assertFalse(BooleanValueType::true()->accepts(404));
-        self::assertFalse(BooleanValueType::true()->accepts(['foo' => 'bar']));
-        self::assertFalse(BooleanValueType::true()->accepts(false));
-        self::assertFalse(BooleanValueType::true()->accepts(null));
-        self::assertFalse(BooleanValueType::true()->accepts(new stdClass()));
+        $type = BooleanValueType::false();
 
-        self::assertFalse(BooleanValueType::false()->accepts('Schwifty!'));
-        self::assertFalse(BooleanValueType::false()->accepts(42.1337));
-        self::assertFalse(BooleanValueType::false()->accepts(404));
-        self::assertFalse(BooleanValueType::false()->accepts(['foo' => 'bar']));
-        self::assertFalse(BooleanValueType::false()->accepts(true));
-        self::assertFalse(BooleanValueType::false()->accepts(null));
-        self::assertFalse(BooleanValueType::false()->accepts(new stdClass()));
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith(['Schwifty!'])]
+    #[TestWith([42.1337])]
+    #[TestWith([404])]
+    #[TestWith([['foo' => 'bar']])]
+    #[TestWith([null])]
+    #[TestWith([new stdClass()])]
+    public function test_does_not_accept_incorrect_values(mixed $value): void
+    {
+        $trueType = BooleanValueType::true();
+        $falseType = BooleanValueType::false();
+
+        self::assertFalse($trueType->accepts($value));
+        self::assertFalse($falseType->accepts($value));
+
+        self::assertFalse($this->compiledAccept($trueType, $value));
+        self::assertFalse($this->compiledAccept($falseType, $value));
     }
 
     public function test_can_cast_boolean_value(): void
@@ -148,6 +166,12 @@ final class BooleanValueTypeTest extends TestCase
         self::assertTrue(BooleanValueType::false()->matches(new NativeBooleanType()));
     }
 
+    public function test_matches_concrete_scalar_type(): void
+    {
+        self::assertTrue(BooleanValueType::true()->matches(new ScalarConcreteType()));
+        self::assertTrue(BooleanValueType::false()->matches(new ScalarConcreteType()));
+    }
+
     public function test_matches_mixed_type(): void
     {
         self::assertTrue(BooleanValueType::true()->matches(new MixedType()));
@@ -178,5 +202,17 @@ final class BooleanValueTypeTest extends TestCase
 
         self::assertFalse(BooleanValueType::true()->matches($unionType));
         self::assertFalse(BooleanValueType::false()->matches($unionType));
+    }
+
+    public function test_native_type_is_correct(): void
+    {
+        self::assertSame('bool', BooleanValueType::true()->nativeType()->toString());
+        self::assertSame('bool', BooleanValueType::false()->nativeType()->toString());
+    }
+
+    private function compiledAccept(Type $type, mixed $value): bool
+    {
+        /** @var bool */
+        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

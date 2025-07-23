@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 
+use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\AttributesCompiler;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\TypeCompiler;
+use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributeDefinition;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\ClassType;
-use CuyZ\Valinor\Type\Types\EnumValueType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -22,7 +26,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\NativeEnumType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -30,6 +34,8 @@ use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -40,8 +46,10 @@ use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Error;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -53,12 +61,10 @@ final class TypeCompilerTest extends TestCase
     {
         parent::setUp();
 
-        $this->typeCompiler = new TypeCompiler();
+        $this->typeCompiler = new TypeCompiler(new AttributesCompiler(new ClassDefinitionCompiler()));
     }
 
-    /**
-     * @dataProvider type_is_compiled_correctly_data_provider
-     */
+    #[DataProvider('type_is_compiled_correctly_data_provider')]
     public function test_type_is_compiled_correctly(Type $type): void
     {
         $code = $this->typeCompiler->compile($type);
@@ -73,7 +79,7 @@ final class TypeCompilerTest extends TestCase
         self::assertSame($type->toString(), $compiledType->toString());
     }
 
-    public function type_is_compiled_correctly_data_provider(): iterable
+    public static function type_is_compiled_correctly_data_provider(): iterable
     {
         yield [NullType::get()];
         yield [BooleanValueType::true()];
@@ -85,6 +91,8 @@ final class TypeCompilerTest extends TestCase
         yield [NativeIntegerType::get()];
         yield [PositiveIntegerType::get()];
         yield [NegativeIntegerType::get()];
+        yield [NonPositiveIntegerType::get()];
+        yield [NonNegativeIntegerType::get()];
         yield [new IntegerValueType(1337)];
         yield [new IntegerValueType(-1337)];
         yield [new IntegerRangeType(42, 1337)];
@@ -96,14 +104,10 @@ final class TypeCompilerTest extends TestCase
         yield [UndefinedObjectType::get()];
         yield [MixedType::get()];
         yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
-        yield [new ClassType(stdClass::class, ['Template' => NativeStringType::get()])];
-        yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new ClassType(DateTime::class))];
-
-        if (PHP_VERSION_ID >= 8_01_00) {
-            yield [new NativeEnumType(PureEnum::class)];
-            yield [new EnumValueType(PureEnum::FOO)];
-        }
-
+        yield [new NativeClassType(stdClass::class, ['Template' => NativeStringType::get()])];
+        yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new NativeClassType(DateTime::class))];
+        yield [EnumType::native(PureEnum::class)];
+        yield [EnumType::fromPattern(PureEnum::class, 'BA*')];
         yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), NativeFloatType::get())];
         yield [ArrayType::native()];
         yield [new ArrayType(ArrayKeyType::default(), NativeFloatType::get())];
@@ -125,23 +129,37 @@ final class TypeCompilerTest extends TestCase
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
         )];
+        yield [ShapedArrayType::unsealedWithoutType(
+            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        )];
+        yield [ShapedArrayType::unsealed(
+            new ArrayType(ArrayKeyType::default(), NativeFloatType::get()),
+            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        )];
         yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new IterableType(ArrayKeyType::string(), NativeStringType::get())];
         yield [new ClassStringType()];
-        yield [new ClassStringType(new ClassType(stdClass::class))];
+        yield [new ClassStringType(new NativeClassType(stdClass::class))];
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
+        yield [new CallableType()];
         yield [new UnresolvableType('some-type', 'some message')];
     }
 
-    public function test_class_parent_is_compiled_properly(): void
+    public function test_shaped_array_elements_attributes_are_compiled_properly(): void
     {
-        $type = new ClassType(
-            stdClass::class,
-            parent: new ClassType(
-                stdClass::class,
-                ['Template' => NativeStringType::get()],
-            )
+        $type = new ShapedArrayType(
+            new ShapedArrayElement(
+                new IntegerValueType(1337),
+                NativeIntegerType::get(),
+                true,
+                new Attributes(
+                    FakeAttributeDefinition::new(DateTime::class),
+                    FakeAttributeDefinition::new(DateTimeImmutable::class),
+                ),
+            ),
         );
 
         $code = $this->typeCompiler->compile($type);
@@ -152,7 +170,9 @@ final class TypeCompilerTest extends TestCase
             self::fail($exception->getMessage());
         }
 
-        self::assertInstanceOf(ClassType::class, $compiledType);
-        self::assertInstanceOf(NativeStringType::class, $compiledType->parent()->generics()['Template']);
+        self::assertInstanceOf(ShapedArrayType::class, $compiledType);
+
+        self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTime::class));
+        self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTimeImmutable::class));
     }
 }

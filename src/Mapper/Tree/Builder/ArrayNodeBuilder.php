@@ -4,85 +4,78 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidTraversableKey;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidArrayKey;
+use CuyZ\Valinor\Mapper\Tree\Exception\SourceIsEmptyArray;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 
+use function array_map;
 use function assert;
-use function is_array;
+use function count;
+use function is_int;
+use function is_iterable;
+use function is_string;
 
 /** @internal */
 final class ArrayNodeBuilder implements NodeBuilder
 {
-    public function __construct(private bool $enableFlexibleCasting)
-    {
-    }
-
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): TreeNode
+    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
         $value = $shell->value();
 
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
-        if ($this->enableFlexibleCasting && $value === null) {
-            return TreeNode::branch($shell, [], []);
+        if ($shell->allowUndefinedValues() && $value === null) {
+            return Node::new([]);
         }
 
-        if (! is_array($value)) {
-            throw new SourceMustBeIterable($value, $type);
+        if (! is_iterable($value)) {
+            return Node::error($shell, new SourceMustBeIterable($value, $type));
         }
 
-        $children = $this->children($type, $shell, $rootBuilder);
-        $array = $this->buildArray($children);
+        if ($value === [] && $type instanceof NonEmptyArrayType) {
+            return Node::error($shell, new SourceIsEmptyArray($type));
+        }
 
-        return TreeNode::branch($shell, $array, $children);
-    }
-
-    /**
-     * @return array<TreeNode>
-     */
-    private function children(CompositeTraversableType $type, Shell $shell, RootNodeBuilder $rootBuilder): array
-    {
-        /** @var array<mixed> $values */
-        $values = $shell->value();
         $keyType = $type->keyType();
         $subType = $type->subType();
 
         $children = [];
+        $errors = [];
 
-        foreach ($values as $key => $value) {
+        foreach ($value as $key => $val) {
+            if (! is_string($key) && ! is_int($key)) {
+                throw new InvalidIterableKeyType($key, $shell->path());
+            }
+
+            $child = $shell->child((string)$key, $subType);
+
             if (! $keyType->accepts($key)) {
-                throw new InvalidTraversableKey($key, $keyType);
+                $children[$key] = Node::error($child, new InvalidArrayKey($key, $keyType));
+            } else {
+                $children[$key] = $rootBuilder->build($child->withValue($val));
             }
 
-            $child = $shell->child((string)$key, $subType)->withValue($value);
-            $children[$key] = $rootBuilder->build($child);
-        }
-
-        return $children;
-    }
-
-    /**
-     * @param array<TreeNode> $children
-     * @return mixed[]|null
-     */
-    private function buildArray(array $children): ?array
-    {
-        $array = [];
-
-        foreach ($children as $key => $child) {
-            if (! $child->isValid()) {
-                return null;
+            if (! $children[$key]->isValid()) {
+                $errors[] = $children[$key];
             }
-
-            $array[$key] = $child->value();
         }
 
-        return $array;
+        if ($errors !== []) {
+            return Node::branchWithErrors($errors);
+        }
+
+        return Node::new(
+            value: array_map(
+                static fn (Node $child) => $child->value(),
+                $children,
+            ),
+            childrenCount: count($children),
+        );
     }
 }

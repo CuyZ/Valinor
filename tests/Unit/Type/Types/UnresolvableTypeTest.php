@@ -4,28 +4,48 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 final class UnresolvableTypeTest extends TestCase
 {
-    public function test_call_unresolvable_type_accepts_throws_itself(): void
+    public function test_call_unresolvable_type_accepts_throws_exception(): void
     {
         $type = new UnresolvableType('some-type', 'some message');
 
-        $this->expectExceptionObject($type);
+        $this->expectException(LogicException::class);
 
         $type->accepts('foo');
     }
 
-    public function test_call_unresolvable_type_matches_throws_itself(): void
+    public function test_call_unresolvable_type_compiled_accept_throws_exception(): void
     {
         $type = new UnresolvableType('some-type', 'some message');
 
-        $this->expectExceptionObject($type);
+        $this->expectException(LogicException::class);
+
+        $type->compiledAccept(Node::value(true));
+    }
+
+    public function test_call_unresolvable_type_matches_throws_exception(): void
+    {
+        $type = new UnresolvableType('some-type', 'some message');
+
+        $this->expectException(LogicException::class);
 
         $type->matches(new FakeType());
+    }
+
+    public function test_call_unresolvable_type_native_type_throws_exception(): void
+    {
+        $type = new UnresolvableType('some-type', 'some message');
+
+        $this->expectException(LogicException::class);
+
+        $type->nativeType();
     }
 
     public function test_cast_string_unresolvable_type_returns_type(): void

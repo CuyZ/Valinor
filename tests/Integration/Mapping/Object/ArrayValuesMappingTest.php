@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidIterableKeyType;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
+use stdClass;
 
-final class ArrayValuesMappingTest extends IntegrationTest
+final class ArrayValuesMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {
         $source = [
+            'scalars' => [1337, 42.0, 'foo', true],
             'booleans' => [true, false, true],
             'floats' => [42.404, 404.42],
             'integers' => [42, 404, 1337],
@@ -41,11 +43,12 @@ final class ArrayValuesMappingTest extends IntegrationTest
 
         foreach ([ArrayValues::class, ArrayValuesWithConstructor::class] as $class) {
             try {
-                $result = (new MapperBuilder())->mapper()->map($class, $source);
+                $result = $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $error) {
                 $this->mappingFail($error);
             }
 
+            self::assertSame($source['scalars'], $result->scalars);
             self::assertSame($source['booleans'], $result->booleans);
             self::assertSame($source['floats'], $result->floats);
             self::assertSame($source['integers'], $result->integers);
@@ -70,33 +73,45 @@ final class ArrayValuesMappingTest extends IntegrationTest
     public function test_empty_array_in_non_empty_array_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ArrayValues::class, [
-                'nonEmptyArraysOfStrings' => [],
-            ]);
+            $this->mapperBuilder()->mapper()->map('non-empty-array<string>', []);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['nonEmptyArraysOfStrings']->messages()[0];
-
-            self::assertSame('1630678334', $error->code());
-            self::assertSame('Value array (empty) does not match type `non-empty-array<string>`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[value_is_empty_array] Array cannot be empty and must contain values of type `string`.',
+            ]);
         }
     }
 
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map(ArrayValues::class, [
-                'integers' => ['foo'],
-            ]);
+            $this->mapperBuilder()->mapper()->map('array<int>', ['foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['integers']->children()[0]->messages()[0];
-
-            self::assertSame("Value 'foo' is not a valid integer.", (string)$error);
+            self::assertMappingErrors($exception, [
+                '0' => "[invalid_integer] Value 'foo' is not a valid integer.",
+            ]);
         }
+    }
+
+    public function test_invalid_array_key_type_throws_exception(): void
+    {
+        $this->expectException(InvalidIterableKeyType::class);
+        $this->expectExceptionCode(1737104770);
+        $this->expectExceptionMessage('Invalid key of type `stdClass` at path `*root*`, only integers and strings are allowed.');
+
+        $this->mapperBuilder()->mapper()->map(
+            'array<string>',
+            (function () {
+                yield new stdClass() => 'foo';
+            })(),
+        );
     }
 }
 
 class ArrayValues
 {
+    /** @var array<scalar> */
+    public array $scalars;
+
     /** @var array<bool> */
     public array $booleans;
 
@@ -143,6 +158,7 @@ class ArrayValues
 class ArrayValuesWithConstructor extends ArrayValues
 {
     /**
+     * @param array<scalar> $scalars
      * @param array<bool> $booleans
      * @param array<float> $floats
      * @param array<int> $integers
@@ -159,6 +175,7 @@ class ArrayValuesWithConstructor extends ArrayValues
      * @param non-empty-array<string, string> $nonEmptyArrayWithStringKeyType
      */
     public function __construct(
+        array $scalars,
         array $booleans,
         array $floats,
         array $integers,
@@ -174,6 +191,7 @@ class ArrayValuesWithConstructor extends ArrayValues
         array $nonEmptyArrayWithIntegerKeyType,
         array $nonEmptyArrayWithStringKeyType
     ) {
+        $this->scalars = $scalars;
         $this->booleans = $booleans;
         $this->floats = $floats;
         $this->integers = $integers;

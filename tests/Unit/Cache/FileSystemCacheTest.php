@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Cache;
 
+use CuyZ\Valinor\Cache\CacheEntry;
+use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
+use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
+use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
 use CuyZ\Valinor\Cache\FileSystemCache;
-use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use CuyZ\Valinor\Tests\Fake\Cache\FakeFailingCache;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
-use function iterator_to_array;
+use function file_put_contents;
+use function umask;
 
 final class FileSystemCacheTest extends TestCase
 {
@@ -29,121 +28,137 @@ final class FileSystemCacheTest extends TestCase
         parent::setUp();
 
         $this->files = vfsStream::setup('cache-dir');
+
         $this->cache = new FileSystemCache($this->files->url());
-
-        $this->injectFakeCache();
     }
 
-    public function test_cache_entries_are_handled_properly(): void
+    public function test_set_cache_sets_cache(): void
     {
-        $classDefinition = FakeClassDefinition::new();
-        $functionDefinition = FakeFunctionDefinition::new();
+        $code = 'fn () => "foo"';
 
-        self::assertFalse($this->cache->has('class-definition'));
-        self::assertFalse($this->cache->has('function-definition'));
+        $this->cache->set('foo', new CacheEntry($code));
 
-        self::assertTrue($this->cache->set('class-definition', $classDefinition));
-        self::assertTrue($this->cache->set('function-definition', $functionDefinition));
-
-        self::assertTrue($this->cache->has('class-definition'));
-        self::assertTrue($this->cache->has('function-definition'));
-
-        /** @var ClassDefinition $cachedClassDefinition */
-        $cachedClassDefinition = $this->cache->get('class-definition');
-        /** @var FunctionDefinition $cachedFunctionDefinition */
-        $cachedFunctionDefinition = $this->cache->get('function-definition');
-
-        self::assertSame($classDefinition->name(), $cachedClassDefinition->name());
-        self::assertSame($functionDefinition->signature(), $cachedFunctionDefinition->signature());
-
-        self::assertTrue($this->cache->delete('class-definition'));
-        self::assertTrue($this->cache->delete('function-definition'));
-
-        self::assertFalse($this->cache->has('class-definition'));
-        self::assertFalse($this->cache->has('function-definition'));
+        self::assertSame('foo', $this->cache->get('foo'));
     }
 
-    public function test_clear_cache_clears_all_caches(): void
+    public function test_get_missing_cache_entry_returns_null(): void
     {
-        $classDefinition = FakeClassDefinition::new();
-        $functionDefinition = FakeFunctionDefinition::new();
+        $value = $this->cache->get('foo');
 
-        $this->cache->set('class-definition', $classDefinition);
-        $this->cache->set('function-definition', $functionDefinition);
-
-        self::assertTrue($this->cache->has('class-definition'));
-        self::assertTrue($this->cache->has('function-definition'));
-
-        self::assertTrue($this->cache->clear());
-
-        self::assertFalse($this->cache->has('class-definition'));
-        self::assertFalse($this->cache->has('function-definition'));
+        self::assertSame(null, $value);
     }
 
-    public function test_multiple_cache_entries_are_handled_properly(): void
+    public function test_corrupted_file_throws_exception(): void
     {
-        $classDefinition = FakeClassDefinition::new();
-        $functionDefinition = FakeFunctionDefinition::new();
+        $code = 'fn () => invalid php code';
 
-        self::assertTrue($this->cache->setMultiple([
-            'class-definition' => $classDefinition,
-            'function-definition' => $functionDefinition,
-        ]));
+        $this->cache->set('foo', new CacheEntry($code));
 
-        $cached = iterator_to_array($this->cache->getMultiple(['class-definition', 'function-definition']));
+        $this->expectException(CorruptedCompiledPhpCacheFile::class);
+        $this->expectExceptionCode(1628949607);
+        $this->expectExceptionMessageMatches('/Compiled php cache file `[^`]+` has corrupted value./');
 
-        /** @var ClassDefinition $cachedClassDefinition */
-        $cachedClassDefinition = $cached['class-definition'];
-        /** @var FunctionDefinition $cachedFunctionDefinition */
-        $cachedFunctionDefinition = $cached['function-definition'];
-
-        self::assertSame($classDefinition->name(), $cachedClassDefinition->name());
-        self::assertSame($functionDefinition->signature(), $cachedFunctionDefinition->signature());
-
-        self::assertTrue($this->cache->deleteMultiple(['class-definition', 'function-definition']));
-
-        self::assertFalse($this->cache->has('class-definition'));
-        self::assertFalse($this->cache->has('function-definition'));
+        $this->cache->get('foo');
     }
 
-    public function test_methods_returns_false_if_delegates_fail(): void
+    public function test_cache_directory_not_writable_throws_exception(): void
     {
-        $this->injectFakeCache(true);
+        $this->expectException(CacheDirectoryNotWritable::class);
+        $this->expectExceptionCode(1616445016);
+        $this->expectExceptionMessage("Provided directory `{$this->files->url()}` is not writable.");
 
-        $classDefinition = FakeClassDefinition::new();
-        $functionDefinition = FakeFunctionDefinition::new();
+        $this->files->chmod(0444);
 
-        self::assertTrue($this->cache->set('class-definition', $classDefinition));
-        self::assertFalse($this->cache->set('function-definition', $functionDefinition));
-
-        self::assertFalse($this->cache->delete('class-definition'));
-        self::assertFalse($this->cache->delete('function-definition'));
-
-        self::assertFalse($this->cache->clear());
-
-        self::assertFalse($this->cache->setMultiple([
-            'class-definition' => $classDefinition,
-            'function-definition' => $functionDefinition,
-        ]));
-
-        self::assertFalse($this->cache->deleteMultiple(['class-definition', 'function-definition']));
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
     }
 
-    public function test_get_non_existing_entry_returns_default_value(): void
+    public function test_temporary_dir_has_correct_permissions(): void
     {
-        $defaultValue = FakeClassDefinition::new();
+        self::assertFalse($this->files->hasChild('.valinor.tmp'));
 
-        self::assertSame($defaultValue, $this->cache->get('non-existing-entry', $defaultValue));
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+
+        self::assertTrue($this->files->hasChild('.valinor.tmp'));
+        self::assertSame(0777, $this->files->getChild('.valinor.tmp')->getPermissions());
     }
 
-    private function injectFakeCache(bool $withFailingCache = false): void
+    public function test_temporary_cache_file_not_writable_throws_exception(): void
     {
-        (function () use ($withFailingCache) {
-            $this->delegates = [
-                '*' => new FakeCache(),
-                ClassDefinition::class => new FakeCache(),
-                FunctionDefinition::class => $withFailingCache ? new FakeFailingCache() : new FakeCache(),
-            ];
-        })->call($this->cache);
+        $this->expectException(CompiledPhpCacheFileNotWritten::class);
+        $this->expectExceptionCode(1616445695);
+        $this->expectExceptionMessageMatches('/^File `[^`]+.valinor.tmp[^`]+` could not be written\.$/');
+
+        (vfsStream::newDirectory('.valinor.tmp'))
+            ->chmod(0444)
+            ->at($this->files);
+
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+    }
+
+    public function test_cache_file_not_writable_throws_exception(): void
+    {
+        $this->expectException(CompiledPhpCacheFileNotWritten::class);
+        $this->expectExceptionCode(1616445695);
+        $this->expectExceptionMessageMatches('/^File `[^`]+` could not be written\.$/');
+
+        (vfsStream::newDirectory('.valinor.tmp'))->at($this->files);
+
+        $this->files->chmod(0444);
+
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+    }
+
+    public function test_temporary_cache_file_is_always_deleted(): void
+    {
+        $tmpDirectory = vfsStream::newDirectory('.valinor.tmp');
+        $tmpDirectory->at($this->files);
+
+        $this->files->chmod(0444);
+
+        try {
+            $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+        } catch (CompiledPhpCacheFileNotWritten) {
+        }
+
+        self::assertEmpty($tmpDirectory->getChildren());
+    }
+
+    public function test_cache_file_has_correct_permissions(): void
+    {
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+
+        $file = $this->files->getChildren()[1];
+
+        self::assertSame(0666 & ~umask(), $file->getPermissions());
+    }
+
+    public function test_clear_entries_clears_everything(): void
+    {
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+        $this->cache->set('bar', new CacheEntry('fn () => "bar"'));
+
+        self::assertSame(3, count($this->files->getChildren()));
+
+        $this->cache->clear();
+
+        self::assertDirectoryDoesNotExist($this->files->url());
+        self::assertSame(0, count($this->files->getChildren()));
+    }
+
+    public function test_clear_entries_when_external_file_was_added_does_not_remove_it(): void
+    {
+        $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
+        $this->cache->set('bar', new CacheEntry('fn () => "bar"'));
+
+        $externalFile = $this->files->url() . '/external-file.php';
+        file_put_contents($externalFile, 'some-external-content');
+
+        self::assertSame(4, count($this->files->getChildren()));
+
+        $this->cache->clear();
+
+        self::assertDirectoryExists($this->files->url());
+        self::assertFileExists($externalFile);
+        self::assertSame(1, count($this->files->getChildren()));
     }
 }

@@ -7,10 +7,10 @@ namespace CuyZ\Valinor\Tests\Integration\Cache;
 use CuyZ\Valinor\Cache\Exception\InvalidSignatureToWarmup;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeInterface;
 
-final class CacheWarmupTest extends IntegrationTest
+final class CacheWarmupTest extends IntegrationTestCase
 {
     private FakeCache $cache;
 
@@ -21,13 +21,13 @@ final class CacheWarmupTest extends IntegrationTest
         parent::setUp();
 
         $this->cache = new FakeCache();
-        $this->mapper = (new MapperBuilder())->withCache($this->cache);
+        $this->mapper = $this->mapperBuilder()->withCache($this->cache);
     }
 
     public function test_will_warmup_type_parser_cache_for_object_with_properties(): void
     {
-        $this->mapper->warmup(ObjectToWarmupWithProperties::class);
-        $this->mapper->warmup(ObjectToWarmupWithProperties::class, SomeObjectJ::class);
+        $this->mapper->warmupCacheFor(ObjectToWarmupWithProperties::class);
+        $this->mapper->warmupCacheFor(ObjectToWarmupWithProperties::class, SomeObjectJ::class);
 
         self::assertSame(10, $this->cache->countEntries());
         self::assertSame(10, $this->cache->timeSetWasCalled());
@@ -35,17 +35,16 @@ final class CacheWarmupTest extends IntegrationTest
 
     public function test_will_warmup_type_parser_cache_for_object_with_constructor(): void
     {
-        // PHP8.1 first-class callable syntax
         $mapper = $this->mapper->registerConstructor(
-            [ObjectToWarmupWithConstructors::class, 'constructorA'],
-            [ObjectToWarmupWithConstructors::class, 'constructorB'],
+            ObjectToWarmupWithConstructors::constructorA(...),
+            ObjectToWarmupWithConstructors::constructorB(...),
         );
 
-        $mapper->warmup(ObjectToWarmupWithConstructors::class);
-        $mapper->warmup(ObjectToWarmupWithConstructors::class, SomeObjectC::class);
+        $mapper->warmupCacheFor(ObjectToWarmupWithConstructors::class);
+        $mapper->warmupCacheFor(ObjectToWarmupWithConstructors::class, SomeObjectC::class);
 
-        self::assertSame(7, $this->cache->countEntries());
-        self::assertSame(7, $this->cache->timeSetWasCalled());
+        self::assertSame(6, $this->cache->countEntries());
+        self::assertSame(6, $this->cache->timeSetWasCalled());
     }
 
     public function test_will_warmup_type_parser_cache_for_interface(): void
@@ -57,8 +56,8 @@ final class CacheWarmupTest extends IntegrationTest
                 fn (string $foo, SomeObjectI $objectI) => $foo === 'foo' ? ObjectToWarmupWithProperties::class : ObjectToWarmupWithConstructors::class
             );
 
-        $mapper->warmup(SomeInterface::class);
-        $mapper->warmup(SomeInterface::class, SomeObjectJ::class);
+        $mapper->warmupCacheFor(SomeInterface::class);
+        $mapper->warmupCacheFor(SomeInterface::class, SomeObjectJ::class);
 
         self::assertSame(13, $this->cache->countEntries());
         self::assertSame(13, $this->cache->timeSetWasCalled());
@@ -70,13 +69,11 @@ final class CacheWarmupTest extends IntegrationTest
         $this->expectExceptionCode(1653330261);
         $this->expectExceptionMessage('Cannot warm up invalid signature `SomeInvalidClass`: Cannot parse unknown symbol `SomeInvalidClass`.');
 
-        $this->mapper->warmup('SomeInvalidClass');
+        $this->mapper->warmupCacheFor('SomeInvalidClass');
     }
 }
 
-interface SomeInterface
-{
-}
+interface SomeInterface {}
 
 final class ObjectToWarmupWithProperties implements SomeInterface
 {
@@ -123,42 +120,22 @@ final class ObjectToWarmupWithConstructors implements SomeInterface
     }
 }
 
-class SomeObjectA
-{
-}
+class SomeObjectA {}
 
-class SomeObjectB
-{
-}
+class SomeObjectB {}
 
-class SomeObjectC
-{
-}
+class SomeObjectC {}
 
-class SomeObjectD
-{
-}
+class SomeObjectD {}
 
-class SomeObjectE
-{
-}
+class SomeObjectE {}
 
-class SomeObjectF
-{
-}
+class SomeObjectF {}
 
-class SomeObjectG
-{
-}
+class SomeObjectG {}
 
-class SomeObjectH
-{
-}
+class SomeObjectH {}
 
-class SomeObjectI
-{
-}
+class SomeObjectI {}
 
-class SomeObjectJ
-{
-}
+class SomeObjectJ {}

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Other;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\MapperBuilder;
-use CuyZ\Valinor\Tests\Integration\IntegrationTest;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
-final class ShapedArrayMappingTest extends IntegrationTest
+final class ShapedArrayMappingTest extends IntegrationTestCase
 {
     public function test_values_are_mapped_properly(): void
     {
@@ -19,7 +18,7 @@ final class ShapedArrayMappingTest extends IntegrationTest
         ];
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array{foo: string, bar: int, fiz: float}', $source);
+            $result = $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int, fiz: float}', $source);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -38,7 +37,7 @@ final class ShapedArrayMappingTest extends IntegrationTest
         })();
 
         try {
-            $result = (new MapperBuilder())->mapper()->map('array{foo: string, bar: int, fiz: float}', $iterator);
+            $result = $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int, fiz: float}', $iterator);
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
@@ -51,30 +50,29 @@ final class ShapedArrayMappingTest extends IntegrationTest
     public function test_missing_element_throws_exception(): void
     {
         try {
-            (new MapperBuilder())->mapper()->map('array{foo: string, bar: int}', ['foo' => 'foo']);
+            $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', ['foo' => 'foo']);
         } catch (MappingError $exception) {
-            $error = $exception->node()->children()['bar']->messages()[0];
-
-            self::assertSame('1655449641', $error->code());
-            self::assertSame('Cannot be empty and must be filled with a value matching type `int`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                'bar' => "[missing_value] Cannot be empty and must be filled with a value matching type `int`.",
+            ]);
         }
     }
 
-    public function test_superfluous_values_throws_exception(): void
+    public function test_superfluous_values_throws_exception_and_keeps_nested_errors(): void
     {
         $source = [
-            'foo' => 'foo',
+            'foo' => 404,
             'bar' => 42,
             'fiz' => 1337.404,
         ];
 
         try {
-            (new MapperBuilder())->mapper()->map('array{foo: string, bar: int}', $source);
+            $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', $source);
         } catch (MappingError $exception) {
-            $error = $exception->node()->messages()[0];
-
-            self::assertSame('1655117782', $error->code());
-            self::assertSame('Unexpected key(s) `fiz`, expected `foo`, `bar`.', (string)$error);
+            self::assertMappingErrors($exception, [
+                '*root*' => '[unexpected_keys] Unexpected key(s) `fiz`, expected `foo`, `bar`.',
+                'foo' => '[invalid_string] Value 404 is not a valid string.',
+            ]);
         }
     }
 }

@@ -4,21 +4,26 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassTemplatesResolver;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantColon;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingSpecificClassConstantCase;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ClassType;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionClassConstant;
 
 use function array_map;
+use function array_shift;
+use function array_values;
 use function count;
 use function explode;
 
@@ -44,11 +49,16 @@ final class ClassNameToken implements TraversingToken
             return $constant;
         }
 
+        $templates = (new ClassTemplatesResolver())->resolveTemplateNamesFrom($this->reflection->name);
+
+        $generics = $this->generics($stream, $this->reflection->name, $templates);
+        $generics = $this->assignGenerics($this->reflection->name, $templates, $generics);
+
         if ($this->reflection->isInterface()) {
-            return new InterfaceType($this->reflection->name);
+            return new InterfaceType($this->reflection->name, $generics);
         }
 
-        return new ClassType($this->reflection->name);
+        return new NativeClassType($this->reflection->name, $generics);
     }
 
     public function symbol(): string
@@ -58,36 +68,17 @@ final class ClassNameToken implements TraversingToken
 
     private function classConstant(TokenStream $stream): ?Type
     {
-        if ($stream->done() || ! $stream->next() instanceof ColonToken) {
+        if ($stream->done() || ! $stream->next() instanceof DoubleColonToken) {
             return null;
         }
 
-        $case = $stream->forward();
-        $missingColon = true;
+        $stream->forward();
 
-        if (! $stream->done()) {
-            $case = $stream->forward();
-
-            $missingColon = ! $case instanceof ColonToken;
+        if ($stream->done()) {
+            throw new MissingClassConstantCase($this->reflection->name);
         }
 
-        if (! $missingColon) {
-            if ($stream->done()) {
-                throw new MissingClassConstantCase($this->reflection->name);
-            }
-
-            $case = $stream->forward();
-        }
-
-        $symbol = $case->symbol();
-
-        if ($symbol === '*') {
-            throw new MissingSpecificClassConstantCase($this->reflection->name);
-        }
-
-        if ($missingColon) {
-            throw new MissingClassConstantColon($this->reflection->name, $symbol);
-        }
+        $symbol = $stream->forward()->symbol();
 
         $cases = [];
 
@@ -103,9 +94,74 @@ final class ClassNameToken implements TraversingToken
         $cases = array_map(static fn ($value) => ValueTypeFactory::from($value), $cases);
 
         if (count($cases) > 1) {
-            return new UnionType(...$cases);
+            return new UnionType(...array_values($cases));
         }
 
         return reset($cases);
+    }
+
+    /**
+     * @param array<non-empty-string> $templates
+     * @param class-string $className
+     * @return list<Type>
+     */
+    private function generics(TokenStream $stream, string $className, array $templates): array
+    {
+        if ($stream->done() || ! $stream->next() instanceof OpeningBracketToken) {
+            return [];
+        }
+
+        $generics = [];
+
+        $stream->forward();
+
+        while (true) {
+            if ($stream->done()) {
+                throw new MissingGenerics($className, $generics, $templates);
+            }
+
+            $generics[] = $stream->read();
+
+            if ($stream->done()) {
+                throw new GenericClosingBracketMissing($className, $generics);
+            }
+
+            $next = $stream->forward();
+
+            if ($next instanceof ClosingBracketToken) {
+                break;
+            }
+
+            if (! $next instanceof CommaToken) {
+                throw new GenericCommaMissing($className, $generics);
+            }
+        }
+
+        return $generics;
+    }
+
+    /**
+     * @param class-string $className
+     * @param array<non-empty-string> $templates
+     * @param list<Type> $generics
+     * @return array<non-empty-string, Type>
+     */
+    private function assignGenerics(string $className, array $templates, array $generics): array
+    {
+        $assignedGenerics = [];
+
+        foreach ($templates as $template) {
+            $generic = array_shift($generics);
+
+            if ($generic) {
+                $assignedGenerics[$template] = $generic;
+            }
+        }
+
+        if (! empty($generics)) {
+            throw new CannotAssignGeneric($className, ...$generics);
+        }
+
+        return $assignedGenerics;
     }
 }

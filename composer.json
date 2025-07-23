@@ -15,21 +15,21 @@
         }
     ],
     "require": {
-        "php": "~8.0.0 || ~8.1.0 || ~8.2.0",
-        "composer-runtime-api": "^2.0",
-        "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
+        "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+        "composer-runtime-api": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5",
-        "infection/infection": "^0.26",
-        "phpstan/phpstan": "^1.3",
-        "phpstan/phpstan-strict-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.0",
+        "phpunit/phpunit": "^10.5",
+        "infection/infection": "^0.29",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
         "friendsofphp/php-cs-fixer": "^3.4",
         "marcocesarato/php-conventional-changelog": "^1.12",
-        "vimeo/psalm": "^5.0",
+        "vimeo/psalm": "^6.0",
         "mikey179/vfsstream": "^1.6.10",
-        "rector/rector": "^0.12.23"
+        "rector/rector": "^2.0",
+        "phpbench/phpbench": "^1.3"
     },
     "autoload": {
         "psr-4": {
@@ -46,33 +46,52 @@
         "check": [
             "@putenv XDEBUG_MODE=off",
             "phpunit",
+            "phpstan",
             "psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml",
             "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
-            "phpstan",
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix --dry-run",
-            "rector --dry-run"
+            "rector --dry-run",
+            "@check-todo"
+        ],
+        "check-todo": [
+            "! git --no-pager grep --extended-regexp --ignore-case 'todo|fixme' -- ':!composer.json' ':!*/quality-assurance.yml'"
         ],
         "fix": [
             "@putenv XDEBUG_MODE=off",
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
             "php-cs-fixer fix",
             "rector"
+        ],
+        "test": [
+            "@putenv XDEBUG_MODE=off",
+            "phpunit"
         ],
         "mutation": [
             "infection --threads=max --git-diff-lines"
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
-            "pip install -r docs/requirements.txt",
-            "mkdocs serve --config-file docs/mkdocs.yml"
+            "docker build -t valinor-doc ./docs",
+            "docker run --name valinor-doc --rm -it -p 8000:8000 -v ${PWD}/docs:/docs valinor-doc"
+        ],
+        "benchmark-baseline": [
+            "phpbench run --tag=original --retry-threshold=5 --iterations=10"
+        ],
+        "benchmark-compare": [
+            "phpbench run --report=aggregate --ref=original --retry-threshold=5 --iterations=10 --assert='mode(variant.time.avg) <= mode(baseline.time.avg) +/- 10%'"
+        ],
+        "benchmark": [
+            "phpbench run --report=aggregate --iterations=10"
         ]
     },
     "config": {
         "allow-plugins": {
             "infection/extension-installer": false
         }
+    },
+    "conflict": {
+        "vimeo/psalm": "<5.0 || >=7.0",
+        "phpstan/phpstan": "<1.0 || >= 3.0"
     }
 }
