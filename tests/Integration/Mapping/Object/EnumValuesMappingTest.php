@@ -109,6 +109,28 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             ]);
         }
     }
+
+    public function test_nested_error_path_is_correctly_flattened_when_using_single_argument_for_enum(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, 'foo');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[cannot_resolve_type_from_union] Value 'foo' does not match any of 42, 404, 1337.",
+            ]);
+        }
+    }
+
+    public function test_error_path_is_correct_when_using_nested_argument_for_enum(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map(BackedIntegerEnum::class, ['value' => 'foo']);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'value' => "[cannot_resolve_type_from_union] Value 'foo' does not match any of 42, 404, 1337.",
+            ]);
+        }
+    }
 }
 
 class EnumValues

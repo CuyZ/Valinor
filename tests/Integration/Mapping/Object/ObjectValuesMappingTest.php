@@ -99,11 +99,10 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
         }
     }
 
-    public function test_nested_error_path_is_correcly_flattened_when_using_single_argument(): void
+    public function test_nested_error_path_is_correctly_flattened_when_using_single_argument(): void
     {
         $class = (new class () {
-            /** @var array{first: array{second: float}} */
-            public array $value;
+            public ObjectWithSingleShapedArrayProperty $subObject;
         })::class;
 
         try {
@@ -145,3 +144,9 @@ final class ObjectWithTwoProperties
 interface SomeInterfaceWithOneImplementation {}
 
 final class SomeClassImplementingSomeInterface implements SomeInterfaceWithOneImplementation {}
+
+final class ObjectWithSingleShapedArrayProperty
+{
+    /** @var array{first: array{second: float}} */
+    public array $value;
+}
