@@ -33,6 +33,7 @@ final class UnionNodeBuilder implements NodeBuilder
         $structs = [];
         $scalars = [];
         $all = [];
+        $errors = [];
 
         foreach ($type->types() as $subType) {
             // @infection-ignore-all / This is a performance optimisation, so we
@@ -51,6 +52,8 @@ final class UnionNodeBuilder implements NodeBuilder
             }
 
             if (! $node->isValid()) {
+                $errors[TypeHelper::typePriority($subType)][] = $node;
+
                 continue;
             }
 
@@ -67,6 +70,13 @@ final class UnionNodeBuilder implements NodeBuilder
         }
 
         if ($all === []) {
+            /** @var non-empty-array<int, non-empty-list<Node>> $errors */
+            krsort($errors);
+
+            if (count(reset($errors)) === 1) {
+                return reset($errors)[0];
+            }
+
             return Node::error($shell, new CannotResolveTypeFromUnion($shell->value(), $type));
         }
 
@@ -100,7 +110,7 @@ final class UnionNodeBuilder implements NodeBuilder
         } elseif ($scalars !== []) {
             usort(
                 $scalars,
-                fn (array $a, array $b): int => TypeHelper::typePriority($b['type']) <=> TypeHelper::typePriority($a['type']),
+                fn (array $a, array $b): int => TypeHelper::scalarTypePriority($b['type']) <=> TypeHelper::scalarTypePriority($a['type']),
             );
 
             return $scalars[0]['node'];
