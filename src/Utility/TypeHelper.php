@@ -7,11 +7,13 @@ namespace CuyZ\Valinor\Utility;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Type\BooleanType;
+use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
@@ -20,9 +22,22 @@ use CuyZ\Valinor\Type\Types\EnumType;
 final class TypeHelper
 {
     /**
-     * Sorting the scalar types by priority: int, float, string, bool.
+     * Sorting the types by priority: objects, arrays, scalars, everything else.
      */
     public static function typePriority(Type $type): int
+    {
+        return match (true) {
+            $type instanceof ObjectType => 3,
+            $type instanceof CompositeTraversableType => 2,
+            $type instanceof ScalarType => 1,
+            default => 0,
+        };
+    }
+
+    /**
+     * Sorting the scalar types by priority: int, float, string, bool.
+     */
+    public static function scalarTypePriority(ScalarType $type): int
     {
         return match (true) {
             $type instanceof IntegerType => 4,
