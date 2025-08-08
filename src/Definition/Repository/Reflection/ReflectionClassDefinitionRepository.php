@@ -17,6 +17,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassImportedType
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassLocalTypeAliasResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassParentTypeResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
+use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
@@ -107,12 +108,12 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     }
 
     /**
-     * @return list<MethodDefinition>
+     * @return array<MethodDefinition>
      */
     private function methods(ObjectType $type): array
     {
         $reflection = Reflection::class($type->className());
-        $methods = $reflection->getMethods();
+        $methods = array_filter($reflection->getMethods(), $this->shouldMethodBeIncluded(...));
 
         // Because `ReflectionMethod::getMethods()` wont list the constructor if
         // it comes from a parent class AND is not public, we need to manually
@@ -173,5 +174,13 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $nativeParser = $this->typeParserFactory->buildNativeTypeParserForClass($type->className());
 
         return $this->typeResolver[$typeKey] = new ReflectionTypeResolver($nativeParser, $advancedParser);
+    }
+
+    private function shouldMethodBeIncluded(ReflectionMethod $method): bool
+    {
+        return $method->name === 'map'
+            || $method->name === 'normalize'
+            || $method->name === 'normalizeKey'
+            || $method->getAttributes(Constructor::class) !== [];
     }
 }

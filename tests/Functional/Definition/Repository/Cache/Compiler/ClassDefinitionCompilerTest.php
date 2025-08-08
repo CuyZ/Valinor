@@ -8,6 +8,7 @@ use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
@@ -42,11 +43,13 @@ final class ClassDefinitionCompilerTest extends TestCase
             new class () {
                 public string $property = 'Some property default value';
 
+                #[Constructor]
                 public static function method(string $parameter = 'Some parameter default value', string ...$variadic): string
                 {
                     return $parameter . implode(' / ', $variadic);
                 }
 
+                #[Constructor]
                 public static function methodWithDefaultObjectValue(StringableObject $object = new StringableObject('bar')): StringableObject
                 {
                     return $object;
