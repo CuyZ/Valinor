@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection;
 
 use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
@@ -76,14 +77,16 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @param string $parameterWithDocBlockType
              * @phpstan-ignore-next-line
              */
-            public function publicMethod(
+            #[Constructor]
+            public static function publicMethod(
                 bool $mandatoryParameter,
                 $parameterWithNoType,
                 $parameterWithDocBlockType,
                 string $optionalParameter = 'Optional parameter value'
             ): void {}
 
-            public function publicMethodWithReturnType(): string
+            #[Constructor]
+            public static function publicMethodWithReturnType(): string
             {
                 return 'foo';
             }
@@ -91,12 +94,14 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             /**
              * @return string
              */
-            public function publicMethodWithDocBlockReturnType()
+            #[Constructor]
+            public static function publicMethodWithDocBlockReturnType()
             {
                 return 'foo';
             }
 
-            public function publicMethodWithNativeAndDocBlockReturnTypes(): string
+            #[Constructor]
+            public static function publicMethodWithNativeAndDocBlockReturnTypes(): string
             {
                 return 'foo';
             }
@@ -146,7 +151,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $methods = $this->repository->for($type)->methods;
 
         self::assertTrue($methods->has('of'));
-        self::assertTrue($methods->has('jsonSerialize'));
     }
 
     public function test_private_parent_constructor_is_listed_in_methods(): void
@@ -193,9 +197,9 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @formatter:off
              * @param InvalidTypeWithPendingSpaces         $parameterWithInvalidType
              * @formatter:on
-             * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidType): void {}
+            #[Constructor]
+            public static function publicMethod($parameterWithInvalidType): void {} // @phpstan-ignore class.notFound
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -210,9 +214,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $class = (new class () {
             /**
              * @return InvalidType
-             * @phpstan-ignore-next-line
+             * @phpstan-ignore missingType.parameter, return.phpDocType
              */
-            public function publicMethod($parameterWithInvalidType): void {}
+            #[Constructor]
+            public static function publicMethod($parameterWithInvalidType): void {} // @phpstan-ignore class.notFound
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -227,9 +232,9 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $class = (new class () {
             /**
              * @param string $parameterWithInvalidDefaultValue
-             * @phpstan-ignore-next-line
              */
-            public function publicMethod($parameterWithInvalidDefaultValue = false): void {}
+            #[Constructor]
+            public static function publicMethod($parameterWithInvalidDefaultValue = false): void {} // @phpstan-ignore parameter.defaultValue
         })::class;
 
         $class = $this->repository->for(new NativeClassType($class));
@@ -246,7 +251,8 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
              * @return bool
              * @phpstan-ignore-next-line
              */
-            public function publicMethod(): string
+            #[Constructor]
+            public static function publicMethod(): string
             {
                 return 'foo';
             }
@@ -260,6 +266,19 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $returnType);
         self::assertMatchesRegularExpression('/^Return types for method `.*` do not match: `bool` \(docblock\) does not accept `string` \(native\).$/', $returnType->message());
+    }
+
+    public function test_method_that_should_not_be_included_is_not_included(): void
+    {
+        $class = (new class () {
+            public function publicMethod(): void {}
+        })::class;
+
+        $methods = $this->repository
+            ->for(new NativeClassType($class))
+            ->methods;
+
+        self::assertFalse($methods->has('publicMethod'));
     }
 
     public function test_class_with_local_type_alias_name_duplication_throws_exception(): void
