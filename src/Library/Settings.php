@@ -9,7 +9,6 @@ use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
-use CuyZ\Valinor\Normalizer\AsTransformer;
 use DateTimeImmutable;
 use DateTimeInterface;
 use ReflectionFunction;
@@ -57,6 +56,9 @@ final class Settings
     /** @var array<int, list<callable>> */
     public array $mapperConverters = [];
 
+    /** @var array<class-string, null> */
+    public array $mapperConverterAttributes = [];
+
     /** @var callable(Throwable): ErrorMessage */
     public mixed $exceptionFilter;
 
@@ -80,9 +82,9 @@ final class Settings
     public function allowedAttributes(): array
     {
         return [
-            AsTransformer::class,
             Constructor::class,
             DynamicConstructor::class,
+            ...array_keys($this->mapperConverterAttributes),
             ...array_keys($this->normalizerTransformerAttributes),
         ];
     }
@@ -133,6 +135,7 @@ final class Settings
             $this->allowUndefinedValues,
             $this->allowSuperfluousKeys,
             $this->allowPermissiveTypes,
+            $this->mapperConverterAttributes,
             $this->normalizerTransformerAttributes,
             implode('', array_map(function (callable $callable) {
                 $reflection = new ReflectionFunction(Closure::fromCallable($callable));

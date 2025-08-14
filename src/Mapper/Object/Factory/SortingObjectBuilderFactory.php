@@ -96,7 +96,7 @@ final class SortingObjectBuilderFactory implements ObjectBuilderFactory
     private function sortTypes(Type $typeA, Type $typeB): int
     {
         if ($typeA instanceof ScalarType && $typeB instanceof ScalarType) {
-            return TypeHelper::typePriority($typeB) <=> TypeHelper::typePriority($typeA);
+            return TypeHelper::scalarTypePriority($typeB) <=> TypeHelper::scalarTypePriority($typeA);
         }
 
         if (! $typeA instanceof ScalarType) {

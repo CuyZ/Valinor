@@ -83,10 +83,6 @@ final class ObjectNodeBuilder implements NodeBuilder
                 }
 
                 $node = Node::branchWithErrors($children);
-
-                if ($argumentsValues->hadSingleArgument()) {
-                    $node = $node->flatten();
-                }
             } else {
                 $node = Node::new(value: $object, childrenCount: count($children));
             }
@@ -113,9 +109,14 @@ final class ObjectNodeBuilder implements NodeBuilder
         foreach ($arguments as $argument) {
             $name = $argument->name();
             $type = $argument->type();
-            $attributes = $argument->attributes();
 
-            $child = $shell->child($name, $type, $attributes);
+            if ($arguments->hadSingleArgument()) {
+                $child = $shell->withType($type);
+            } else {
+                $child = $shell->child($name, $type);
+            }
+
+            $child = $child->withAttributes($argument->attributes());
 
             if ($arguments->hasValue($name)) {
                 $child = $child->withValue($arguments->getValue($name));

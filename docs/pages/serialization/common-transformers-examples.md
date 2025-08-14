@@ -17,6 +17,7 @@ third-party libraries or applications.
 - [Transforming property name to “snake_case”](#transforming-property-name-to-snake_case)
 - [Ignoring properties](#ignoring-properties)
 - [Renaming properties](#renaming-properties)
+- [Flattening single property objects](#flattening-single-property-objects)
 - [Transforming objects](#transforming-objects)
 - [Versioning API](#versioning-api)
 
@@ -106,7 +107,7 @@ If this transformation is needed on every object, it can be done globally by
 using a global transformer, as shown in the example below:
 
 <details>
-<summary>Show code example — global “snake_case” properties</summary>
+<summary>Show code example — Global “snake_case” properties</summary>
 
 ```php
 namespace My\App;
@@ -150,7 +151,7 @@ final class CamelToSnakeCaseTransformer
 
 // [
 //     'name' => 'John Doe',
-//     'email_address' => 'john.doe@example', // snake_case
+//     'email_address' => 'john.doe@example.com', // snake_case
 //     'age' => 42,
 //     'country' => [
 //         'name' => 'France',
@@ -219,7 +220,7 @@ final readonly class Country
 
 // [
 //     'name' => 'John Doe',
-//     'emailAddress' => 'john.doe@example', // camelCase
+//     'emailAddress' => 'john.doe@example.com', // camelCase
 //     'age' => 42,
 //     'country' => [
 //         'name' => 'France',
@@ -333,6 +334,97 @@ final readonly class Address
 //     'street' => '221B Baker Street',
 //     'zipCode' => 'NW1 6XE',
 //     'town' => 'London',
+// ]
+```
+</details>
+
+## Flattening single property objects
+
+When an object only has one property, it may be useful to flatten it so that
+instead of `['someProperty' => 'value']` the normalized result is simply
+`'value'`.
+
+This transformation can be applied globally on all objects, as shown in the
+example below:
+
+<details>
+<summary>Show code example — Global single property object flattening</summary>
+
+```php
+namespace My\App;
+
+final class SinglePropertyObjectFlattener
+{
+    public function __invoke(object $object, callable $next): mixed
+    {
+        $result = $next();
+
+        if (is_array($result) && count($result) === 1) {
+            return current($result);
+        }
+
+        return $result;
+    }
+}
+
+(new \CuyZ\Valinor\NormalizerBuilder())
+    ->registerTransformer(new \My\App\SinglePropertyObjectFlattener())
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize(
+         new \My\App\Email(email: 'john.doe@example.com')
+    );
+
+// 'john.doe@example.com'
+```
+
+</details>
+
+For a more granular control, an attribute can be used to target specific objects
+or properties, as shown in the example below:
+
+<details>
+<summary>Show code example — Single property object flattening attribute</summary>
+
+```php
+namespace My\App;
+
+#[\CuyZ\Valinor\Normalizer\AsTransformer]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_PROPERTY)]
+final class Flatten
+{
+    public function normalize(object $object, callable $next): mixed
+    {
+        $result = $next();
+
+        if (is_array($result) && count($result) === 1) {
+            return current($result);
+        }
+
+        return $result;
+    }
+}
+
+final class User
+{
+    public function __construct(
+        public string $name,
+        #[\My\App\Flatten]
+        public \My\App\Email $email,
+    ) {}
+}
+
+(new \CuyZ\Valinor\NormalizerBuilder())
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize(
+        new User(
+            name: 'John Doe',
+            email: new \My\App\Email('john.doe@example.com'),
+        )
+    );
+
+// [
+//     'name' => 'John Doe',
+//     'email' => 'john.doe@example.com',
 // ]
 ```
 </details>

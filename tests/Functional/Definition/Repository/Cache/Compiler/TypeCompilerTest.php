@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Cache\Compiler;
 
+use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\AttributesCompiler;
+use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\TypeCompiler;
+use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributeDefinition;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -12,7 +16,7 @@ use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -22,7 +26,7 @@ use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
-use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
@@ -42,6 +46,7 @@ use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Error;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -56,7 +61,7 @@ final class TypeCompilerTest extends TestCase
     {
         parent::setUp();
 
-        $this->typeCompiler = new TypeCompiler();
+        $this->typeCompiler = new TypeCompiler(new AttributesCompiler(new ClassDefinitionCompiler()));
     }
 
     #[DataProvider('type_is_compiled_correctly_data_provider')]
@@ -141,5 +146,33 @@ final class TypeCompilerTest extends TestCase
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
         yield [new CallableType()];
         yield [new UnresolvableType('some-type', 'some message')];
+    }
+
+    public function test_shaped_array_elements_attributes_are_compiled_properly(): void
+    {
+        $type = new ShapedArrayType(
+            new ShapedArrayElement(
+                new IntegerValueType(1337),
+                NativeIntegerType::get(),
+                true,
+                new Attributes(
+                    FakeAttributeDefinition::new(DateTime::class),
+                    FakeAttributeDefinition::new(DateTimeImmutable::class),
+                ),
+            ),
+        );
+
+        $code = $this->typeCompiler->compile($type);
+
+        try {
+            $compiledType = eval("return $code;");
+        } catch (Error $exception) {
+            self::fail($exception->getMessage());
+        }
+
+        self::assertInstanceOf(ShapedArrayType::class, $compiledType);
+
+        self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTime::class));
+        self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTimeImmutable::class));
     }
 }

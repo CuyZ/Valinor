@@ -31,6 +31,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
@@ -62,7 +63,6 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
 use function call_user_func;
-use function count;
 
 /** @internal */
 final class Container
@@ -120,18 +120,19 @@ final class Container
                     $settings->exceptionFilter,
                 );
 
-                if (count($settings->mapperConverters) > 0) {
-                    $builder = new ValueConverterNodeBuilder(
-                        $builder,
-                        new FunctionsContainer(
-                            $this->get(FunctionDefinitionRepository::class),
-                            $settings->convertersSortedByPriority(),
-                        ),
-                    );
-                }
-
-                return $builder;
+                return new ValueConverterNodeBuilder(
+                    $builder,
+                    $this->get(ConverterContainer::class),
+                    $this->get(ClassDefinitionRepository::class),
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->exceptionFilter,
+                );
             },
+
+            ConverterContainer::class => fn () => new ConverterContainer(
+                $this->get(FunctionDefinitionRepository::class),
+                $settings->convertersSortedByPriority(),
+            ),
 
             ObjectImplementations::class => fn () => new ObjectImplementations(
                 new FunctionsContainer(

@@ -59,16 +59,12 @@ final class Shell
         return (new self($settings, $type))->withValue($value);
     }
 
-    public function child(string $name, Type $type, ?Attributes $attributes = null): self
+    public function child(string $name, Type $type): self
     {
         $path = $this->path;
         $path[] = $name;
         $instance = new self($this->settings, $type, $path);
         $instance->name = $name;
-
-        if ($attributes) {
-            $instance->attributes = $attributes;
-        }
 
         return $instance;
     }
@@ -116,6 +112,14 @@ final class Shell
         assert($this->hasValue);
 
         return $this->value;
+    }
+
+    public function withAttributes(Attributes $attributes): self
+    {
+        $clone = clone $this;
+        $clone->attributes = $this->attributes()->merge($attributes);
+
+        return $clone;
     }
 
     public function allowScalarValueCasting(): bool

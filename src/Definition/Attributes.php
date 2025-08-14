@@ -58,6 +58,14 @@ final class Attributes implements IteratorAggregate, Countable
         );
     }
 
+    public function merge(self $other): self
+    {
+        $clone = clone $this;
+        $clone->attributes = [...$this->attributes, ...$other->attributes];
+
+        return $clone;
+    }
+
     public function count(): int
     {
         return count($this->attributes);

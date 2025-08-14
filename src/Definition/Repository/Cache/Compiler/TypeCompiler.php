@@ -51,6 +51,10 @@ use function var_export;
 /** @internal */
 final class TypeCompiler
 {
+    public function __construct(
+        private AttributesCompiler $attributesCompiler,
+    ) {}
+
     public function compile(Type $type): string
     {
         $class = $type::class;
@@ -187,7 +191,8 @@ final class TypeCompiler
         $key = $this->compile($element->key());
         $type = $this->compile($element->type());
         $optional = var_export($element->isOptional(), true);
+        $attributes = $this->attributesCompiler->compile($element->attributes());
 
-        return "new $class($key, $type, $optional)";
+        return "new $class($key, $type, $optional, $attributes)";
     }
 }

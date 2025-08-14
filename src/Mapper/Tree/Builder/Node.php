@@ -94,36 +94,6 @@ final class Node
         return $this->childrenCount;
     }
 
-    public function flatten(): self
-    {
-        $messages = [];
-
-        foreach ($this->messages as $message) {
-            $path = $message->path();
-
-            if (strpos($path, '.')) {
-                $path = explode('.', $path, 2)[1];
-            } else {
-                $path = '*root*';
-            }
-
-            $messages[] = new NodeMessage(
-                $message->originalMessage(),
-                $message->body(),
-                $message->name(),
-                $path,
-                $message->type(),
-                $message->sourceValue(),
-            );
-        }
-
-        return new self(
-            $this->value,
-            $messages,
-            $this->childrenCount,
-        );
-    }
-
     /**
      * @param list<int|string> $children
      */

@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributeDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use PHPUnit\Framework\TestCase;
 
@@ -75,17 +76,34 @@ final class ShellTest extends TestCase
     {
         $value = 'some value';
         $type = FakeType::permissive();
-        $attributes = new Attributes();
 
         $shell = Shell::root(new Settings(), new FakeType(), []);
-        $child = $shell->child('foo', $type, $attributes)->withValue($value);
+        $child = $shell->child('foo', $type)->withValue($value);
 
         self::assertFalse($child->isRoot());
         self::assertSame('foo', $child->name());
         self::assertSame('foo', $child->path());
         self::assertSame($type, $child->type());
         self::assertSame($value, $child->value());
-        self::assertSame($attributes, $child->attributes());
+    }
+
+    public function test_can_merge_attributes_for_shell(): void
+    {
+        $attributeA = FakeAttributeDefinition::new();
+        $attributeB = FakeAttributeDefinition::new();
+        $attributesA = new Attributes($attributeA);
+        $attributesB = new Attributes($attributeB);
+
+        $shellA = Shell::root(new Settings(), new FakeType(), []);
+        $shellB = $shellA->withAttributes($attributesA);
+        $shellC = $shellB->withAttributes($attributesB);
+
+        self::assertNotSame($shellA, $shellB);
+        ;
+        self::assertNotSame($shellB, $shellC);
+        ;
+        self::assertSame([$attributeA], $shellB->attributes()->toArray());
+        self::assertSame([$attributeA, $attributeB], $shellC->attributes()->toArray());
     }
 
     public function test_can_transform_iterator_to_array(): void

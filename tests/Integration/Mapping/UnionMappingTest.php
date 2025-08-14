@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
+use Throwable;
 
 final class UnionMappingTest extends IntegrationTestCase
 {
@@ -364,6 +367,62 @@ final class UnionMappingTest extends IntegrationTestCase
             self::assertMappingErrors($exception, [
                 '*root*' => "[too_many_resolved_types_from_union] Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.",
             ]);
+        }
+    }
+
+    public function test_nullable_object_throwing_custom_exception_adds_exception_to_mapping_errors(): void
+    {
+        $class = new class () {
+            public function __construct(string $value = 'foo')
+            {
+                if ($value !== 'foo') {
+                    throw new RuntimeException('Some custom exception', 1753300798);
+                }
+            }
+        };
+
+        try {
+            $this->mapperBuilder()
+                ->filterExceptions(fn (Throwable $exception) => MessageBuilder::from($exception))
+                ->mapper()
+                ->map(
+                    $class::class . '|null',
+                    'bar',
+                );
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1753300798] Some custom exception",
+            ], assertErrorsBodiesAreRegistered: false);
+        }
+    }
+
+    public function test_scalar_or_object_throwing_custom_exception_adds_exception_to_mapping_errors(): void
+    {
+        $class = new class () {
+            public function __construct(string $value = 'foo')
+            {
+                if ($value !== 'foo') {
+                    throw new RuntimeException('Some custom exception', 1753300798);
+                }
+            }
+        };
+
+        try {
+            $this->mapperBuilder()
+                ->filterExceptions(fn (Throwable $exception) => MessageBuilder::from($exception))
+                ->mapper()
+                ->map(
+                    '"foo"|' . $class::class,
+                    'bar',
+                );
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[1753300798] Some custom exception",
+            ], assertErrorsBodiesAreRegistered: false);
         }
     }
 }

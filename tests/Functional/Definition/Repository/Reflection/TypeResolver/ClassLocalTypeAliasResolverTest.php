@@ -48,6 +48,18 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
         yield 'PHPStan alias' => [
             'className' => (
                 /**
+                 * @phpstan-type PhpStanNonEmptyStringAlias=non-empty-string
+                 */
+                new class () {}
+            )::class,
+            [
+                'PhpStanNonEmptyStringAlias' => 'non-empty-string',
+            ]
+        ];
+
+        yield 'PHPStan alias with spaces between equal sign' => [
+            'className' => (
+                /**
                  * @phpstan-type PhpStanNonEmptyStringAlias = non-empty-string
                  */
                 new class () {}
@@ -58,6 +70,18 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
         ];
 
         yield 'Psalm alias' => [
+            'className' => (
+                /**
+                 * @phpstan-type PsalmNonEmptyStringAlias=non-empty-string
+                 */
+                new class () {}
+            )::class,
+            [
+                'PsalmNonEmptyStringAlias' => 'non-empty-string',
+            ]
+        ];
+
+        yield 'Psalm alias with spaces between equal sign' => [
             'className' => (
                 /**
                  * @phpstan-type PsalmNonEmptyStringAlias = non-empty-string

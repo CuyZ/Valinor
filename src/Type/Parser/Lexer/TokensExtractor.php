@@ -27,6 +27,7 @@ final class TokensExtractor
         'Opening curly bracket' => '\{',
         'Closing curly bracket' => '\}',
         'Colon' => '\:',
+        'Equal' => '=',
         'Question mark' => '\?',
         'Comma' => ',',
         'Single quote' => "'",

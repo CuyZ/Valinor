@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Tests\Integration\Mapping;
+namespace CuyZ\Valinor\Tests\Integration\Mapping\Converter;
 
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Exception\ValueConverterHasNoArgument;
+use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasInvalidCallableParameter;
+use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasNoParameter;
+use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasTooManyParameters;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -128,11 +130,11 @@ final class ValueConverterMappingTest extends IntegrationTestCase
         }
     }
 
-    public function test_converter_with_no_argument_throws_exception(): void
+    public function test_converter_with_no_parameter_throws_exception(): void
     {
-        $this->expectException(ValueConverterHasNoArgument::class);
+        $this->expectException(ConverterHasNoParameter::class);
         $this->expectExceptionCode(1746449489);
-        $this->expectExceptionMessageMatches('/The value converter `.*` has no argument to convert the value to, a typed argument is required\./');
+        $this->expectExceptionMessageMatches('/The value converter `.*` has no parameter to convert the value to, a typed parameter is required\./');
 
         $this->mapperBuilder()
             ->registerConverter(fn () => 'bar')
@@ -140,75 +142,41 @@ final class ValueConverterMappingTest extends IntegrationTestCase
             ->map('string', 'foo');
     }
 
-    public function test_can_convert_snake_case_to_camel_case_for_object(): void
+    public function test_converter_with_too_many_parameters_throws_exception(): void
     {
-        $class = new class () {
-            public string $someValue;
+        $this->expectException(ConverterHasTooManyParameters::class);
+        $this->expectExceptionCode(1751296711);
+        $this->expectExceptionMessageMatches('/Converter must have at most 2 parameters, 3 given for `.*`\./');
 
-            /** @var array<string> */
-            public array $someOtherValue;
-        };
-
-        try {
-            $result = $this->mapperBuilder()
-                // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
-                ->registerConverter(fn (array $values, callable $next): object => $next(array_combine(
-                    array_map(
-                        fn ($key) => lcfirst(str_replace([' ', '_', '-'], '', ucwords($key, ' _-'))),
-                        array_keys($values),
-                    ),
-                    $values,
-                )))
-                ->mapper()
-                ->map($class::class, [
-                    'some_value' => 'foo',
-                    'some_other_value' => [
-                        'bar' => 'bar',
-                        'baz' => 'baz',
-                    ],
-                ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
-
-        self::assertSame('foo', $result->someValue);
-        self::assertSame(['bar' => 'bar', 'baz' => 'baz'], $result->someOtherValue);
+        $this->mapperBuilder()
+            ->registerConverter(fn (string $foo, callable $next, int $bar) => 'bar')
+            ->mapper()
+            ->map('string', 'foo');
     }
 
-    public function test_can_rename_keys_for_object(): void
+    public function test_converter_with_invalid_callable_parameter_throws_exception(): void
     {
-        $class = new class () {
-            public string $someValue;
+        $this->expectException(ConverterHasInvalidCallableParameter::class);
+        $this->expectExceptionCode(1751296766);
+        $this->expectExceptionMessageMatches('/Converter\'s second parameter must be a callable, `int` given for `.*`\./');
 
-            public int $someOtherValue;
-        };
+        $this->mapperBuilder()
+            ->registerConverter(fn (string $foo, int $next) => 'bar')
+            ->mapper()
+            ->map('string', 'foo');
+    }
 
-        $renameKeys = fn (array $values, array $keyReplacements) => array_combine(
-            // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
-            array_map(
-                fn ($key) => $keyReplacements[$key] ?? $key,
-                array_keys($values),
-            ),
-            $values,
-        );
-
+    public function test_converter_returning_invalid_value_makes_mapping_fail(): void
+    {
         try {
-            $result = $this->mapperBuilder()
-                // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
-                ->registerConverter(fn (array $values, callable $next): object => $next($renameKeys($values, [
-                    'aValue' => 'someValue',
-                    'anotherValue' => 'someOtherValue',
-                ])))
+            $this->mapperBuilder()
+                ->registerConverter(fn (string $value) => '')
                 ->mapper()
-                ->map($class::class, [
-                    'aValue' => 'foo',
-                    'anotherValue' => 42,
-                ]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
+                ->map('non-empty-string', 'foo');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[invalid_non_empty_string] Value '' is not a valid non-empty string.",
+            ]);
         }
-
-        self::assertSame('foo', $result->someValue);
-        self::assertSame(42, $result->someOtherValue);
     }
 }
