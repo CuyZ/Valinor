@@ -102,6 +102,17 @@ final class ValueConverterMappingTest extends IntegrationTestCase
                 ],
             ],
         ];
+
+        yield 'union type with converter matching one of the types' => [
+            'type' => 'int|bool',
+            'value' => 123,
+            'expectedResult' => 124,
+            'convertersByPriority' => [
+                [
+                    fn (int $value): int => $value + 1,
+                ],
+            ],
+        ];
     }
 
     public function test_converter_with_no_priority_has_priority_0_by_default(): void
@@ -114,6 +125,26 @@ final class ValueConverterMappingTest extends IntegrationTestCase
             ->map('string', 'foo');
 
         self::assertSame('foo#?!', $result);
+    }
+
+    public function test_converters_are_called_only_once_for_interface(): void
+    {
+        $class = new class () implements SomeInterfaceForClassInferring {
+            public int $value;
+        };
+
+        $result = $this->mapperBuilder()
+            ->infer(SomeInterfaceForClassInferring::class, fn () => $class::class)
+            ->registerConverter(function (int $value, callable $next): SomeInterfaceForClassInferring {
+                $value++;
+
+                /** @var SomeInterfaceForClassInferring */
+                return $next($value);
+            })
+            ->mapper()
+            ->map(SomeInterfaceForClassInferring::class, 123);
+
+        self::assertSame(124, $result->value); // @phpstan-ignore property.notFound
     }
 
     public function test_converter_is_stopped_if_mapping_error_occurs(): void
@@ -180,3 +211,5 @@ final class ValueConverterMappingTest extends IntegrationTestCase
         }
     }
 }
+
+interface SomeInterfaceForClassInferring {}

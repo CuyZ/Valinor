@@ -12,6 +12,8 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use Exception;
 use Throwable;
 
@@ -35,6 +37,11 @@ final class ValueConverterNodeBuilder implements NodeBuilder
     public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
     {
         $type = $shell->type();
+
+        if ($type instanceof UnionType || $type instanceof InterfaceType) {
+            return $this->delegate->build($shell, $rootBuilder);
+        }
+
         $attributes = $shell->attributes();
 
         if ($type instanceof ObjectType) {
