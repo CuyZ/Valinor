@@ -31,17 +31,7 @@ final class FloatValueType implements FloatType, FixedType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof UnionType) {
-            return $other->isMatchedBy($this);
-        }
-
-        if ($other instanceof self) {
-            return $this->value === $other->value;
-        }
-
-        return $other instanceof NativeFloatType
-            || $other instanceof ScalarConcreteType
-            || $other instanceof MixedType;
+        return $other->accepts($this->value);
     }
 
     public function canCast(mixed $value): bool

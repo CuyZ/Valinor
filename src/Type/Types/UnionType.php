@@ -90,12 +90,12 @@ final class UnionType implements CombiningType, DumpableType
         }
 
         foreach ($this->types as $type) {
-            if ($type->matches($other)) {
-                return true;
+            if (! $type->matches($other)) {
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     public function isMatchedBy(Type $other): bool

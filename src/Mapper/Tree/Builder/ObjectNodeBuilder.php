@@ -132,7 +132,7 @@ final class ObjectNodeBuilder implements NodeBuilder
             } else {
                 $childBuilder = $rootBuilder;
 
-                if ($type->matches($shell->type())) {
+                if ($shell->type()->matches($type)) {
                     $childBuilder = $rootBuilder->withTypeAsCurrentRoot($type);
                 }
 
