@@ -12,6 +12,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -265,6 +266,21 @@ final class ClassStringTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($classStringType->matches($unionType));
+    }
+
+    public function test_matches_default_array_key_type(): void
+    {
+        self::assertTrue((new ClassStringType())->matches(ArrayKeyType::default()));
+    }
+
+    public function test_matches_array_key_type_with_string_type(): void
+    {
+        self::assertTrue((new ClassStringType())->matches(ArrayKeyType::string()));
+    }
+
+    public function test_does_not_match_array_key_type_with_integer_type(): void
+    {
+        self::assertFalse((new ClassStringType())->matches(ArrayKeyType::integer()));
     }
 
     public function test_traverse_type_yields_types_recursively(): void

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -183,6 +184,21 @@ final class StringValueTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->type->matches($unionType));
+    }
+
+    public function test_matches_default_array_key_type(): void
+    {
+        self::assertTrue($this->type->matches(ArrayKeyType::default()));
+    }
+
+    public function test_matches_array_key_type_with_string_type(): void
+    {
+        self::assertTrue($this->type->matches(ArrayKeyType::string()));
+    }
+
+    public function test_does_not_match_array_key_type_with_integer_type(): void
+    {
+        self::assertFalse($this->type->matches(ArrayKeyType::integer()));
     }
 
     public function test_native_type_is_correct(): void
