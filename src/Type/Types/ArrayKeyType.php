@@ -121,7 +121,13 @@ final class ArrayKeyType implements ScalarType
         }
 
         if ($other instanceof UnionType) {
-            return $this->isMatchedBy($other);
+            foreach ($this->types as $type) {
+                if (! $type->matches($other)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         if (! $other instanceof self) {

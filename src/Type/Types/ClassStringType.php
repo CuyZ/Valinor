@@ -115,6 +115,10 @@ final class ClassStringType implements StringType, CompositeType
             return $other->isMatchedBy($this);
         }
 
+        if ($other instanceof ArrayKeyType) {
+            return $other->isMatchedBy($this);
+        }
+
         if (! $other instanceof self) {
             return false;
         }

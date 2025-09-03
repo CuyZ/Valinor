@@ -38,6 +38,10 @@ final class NonEmptyStringType implements StringType
             return $other->isMatchedBy($this);
         }
 
+        if ($other instanceof ArrayKeyType) {
+            return $other->isMatchedBy($this);
+        }
+
         return $other instanceof self
             || $other instanceof NativeStringType
             || $other instanceof ScalarConcreteType
