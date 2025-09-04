@@ -24,4 +24,19 @@ final class FunctionDefinition
         public readonly Parameters $parameters,
         public readonly Type $returnType
     ) {}
+
+    public function forCallable(callable $callable): self
+    {
+        return new self(
+            $this->name,
+            $this->signature,
+            $this->attributes->forCallable($callable),
+            $this->fileName,
+            $this->class,
+            $this->isStatic,
+            $this->isClosure,
+            $this->parameters->forCallable($callable),
+            $this->returnType
+        );
+    }
 }

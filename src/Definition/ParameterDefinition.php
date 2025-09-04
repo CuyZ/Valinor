@@ -21,4 +21,18 @@ final class ParameterDefinition
         public readonly mixed $defaultValue,
         public readonly Attributes $attributes
     ) {}
+
+    public function forCallable(callable $callable): self
+    {
+        return new self(
+            $this->name,
+            $this->signature,
+            $this->type,
+            $this->nativeType,
+            $this->isOptional,
+            $this->isVariadic,
+            $this->defaultValue,
+            $this->attributes->forCallable($callable)
+        );
+    }
 }
