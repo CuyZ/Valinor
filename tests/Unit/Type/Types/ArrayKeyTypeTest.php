@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
@@ -199,6 +200,18 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertTrue($arrayKeyString->matches($arrayKeyDefault));
         self::assertTrue($arrayKeyString->matches($arrayKeyString));
         self::assertFalse($arrayKeyString->matches($arrayKeyInteger));
+    }
+
+    public function test_matches_correct_union_types(): void
+    {
+        self::assertFalse(ArrayKeyType::default()->matches(new UnionType(NativeStringType::get(), NativeBooleanType::get())));
+        self::assertTrue(ArrayKeyType::default()->matches(new UnionType(NativeStringType::get(), NativeIntegerType::get())));
+
+        self::assertFalse(ArrayKeyType::string()->matches(new UnionType(NativeIntegerType::get(), NativeBooleanType::get())));
+        self::assertTrue(ArrayKeyType::string()->matches(new UnionType(NativeStringType::get(), NativeIntegerType::get())));
+
+        self::assertFalse(ArrayKeyType::integer()->matches(new UnionType(NativeStringType::get(), NativeBooleanType::get())));
+        self::assertTrue(ArrayKeyType::integer()->matches(new UnionType(NativeStringType::get(), NativeIntegerType::get())));
     }
 
     public function test_does_not_match_other_type(): void

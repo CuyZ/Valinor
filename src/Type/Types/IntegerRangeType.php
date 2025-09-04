@@ -82,6 +82,10 @@ final class IntegerRangeType implements IntegerType
             return true;
         }
 
+        if ($other instanceof ArrayKeyType) {
+            return $other->isMatchedBy($this);
+        }
+
         if ($other instanceof self) {
             return $other->min === $this->min && $other->max === $this->max;
         }
