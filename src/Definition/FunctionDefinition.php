@@ -27,6 +27,21 @@ final class FunctionDefinition
         public readonly Type $returnType,
     ) {}
 
+    public function forCallable(callable $callable): self
+    {
+        return new self(
+            $this->name,
+            $this->signature,
+            $this->attributes->forCallable($callable),
+            $this->fileName,
+            $this->class,
+            $this->isStatic,
+            $this->isClosure,
+            $this->parameters->forCallable($callable),
+            $this->returnType
+        );
+    }
+
     public function assignGenerics(Generics $generics): self
     {
         if ($generics->items === []) {

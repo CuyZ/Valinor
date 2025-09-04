@@ -9,6 +9,7 @@ use IteratorAggregate;
 use Traversable;
 
 use function array_filter;
+use function array_map;
 use function count;
 use function is_a;
 
@@ -35,6 +36,14 @@ final class Attributes implements IteratorAggregate, Countable
     public static function empty(): self
     {
         return self::$empty ??= new self();
+    }
+
+    public function forCallable(callable $callable): self
+    {
+        return new self(...array_map(
+            fn (AttributeDefinition $attribute) => $attribute->forCallable($callable),
+            $this->attributes,
+        ));
     }
 
     public function has(string $className): bool

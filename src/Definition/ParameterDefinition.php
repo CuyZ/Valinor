@@ -24,6 +24,20 @@ final class ParameterDefinition
         public readonly Attributes $attributes
     ) {}
 
+    public function forCallable(callable $callable): self
+    {
+        return new self(
+            $this->name,
+            $this->signature,
+            $this->type,
+            $this->nativeType,
+            $this->isOptional,
+            $this->isVariadic,
+            $this->defaultValue,
+            $this->attributes->forCallable($callable)
+        );
+    }
+
     public function assignGenerics(Generics $generics): self
     {
         assert($generics->items !== []);

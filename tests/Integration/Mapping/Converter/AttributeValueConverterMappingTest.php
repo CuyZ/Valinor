@@ -103,6 +103,68 @@ final class AttributeValueConverterMappingTest extends IntegrationTestCase
         ], $result);
     }
 
+    public function test_can_use_converter_attribute_with_object_parameter_on_class(): void
+    {
+        $class = new #[ConverterWithObjectParameter(new ObjectHoldingValue('bar'))]
+        class () {
+            public string $value;
+        };
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class::class, 'foo');
+
+        self::assertSame('foobar', $result->value);
+    }
+
+    public function test_can_use_converter_attribute_with_object_parameter_on_property(): void
+    {
+        $class = new class () {
+            #[ConverterWithObjectParameter(new ObjectHoldingValue('bar'))]
+            public string $value;
+        };
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class::class, 'foo');
+
+        self::assertSame('foobar', $result->value);
+    }
+
+    public function test_can_use_converter_attribute_with_object_parameter_on_parameter(): void
+    {
+        $class = new class ('foo') {
+            public string $value;
+
+            public function __construct(
+                #[ConverterWithObjectParameter(new ObjectHoldingValue('bar'))]
+                string $value,
+            ) {
+                $this->value = $value;
+            }
+        };
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class::class, 'foo');
+
+        self::assertSame('foobar', $result->value);
+    }
+
+    public function test_can_use_converter_attribute_with_object_parameter_on_callable_parameter(): void
+    {
+        $callable = fn (
+            #[ConverterWithObjectParameter(new ObjectHoldingValue('bar'))]
+            string $value,
+        ) => $value;
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($callable, ['value' => 'foo']);
+
+        self::assertSame('foobar', $result['value']);
+    }
+
     public function test_can_use_converter_attribute_implementing_registered_interface(): void
     {
         $class = new class () {
@@ -308,6 +370,33 @@ final class FunctionConverter
         }
 
         return $next($values);
+    }
+}
+
+final class ObjectHoldingValue
+{
+    public function __construct(
+        public mixed $value,
+    ) {}
+}
+
+#[Attribute, AsConverter]
+final class ConverterWithObjectParameter
+{
+    public function __construct(
+        private ObjectHoldingValue $object,
+    ) {}
+
+    /**
+     * @template T
+     * @param callable(mixed): T $next
+     * @return T
+     */
+    public function map(string $value, callable $next): mixed
+    {
+        assert(is_string($this->object->value));
+
+        return $next($value . $this->object->value);
     }
 }
 

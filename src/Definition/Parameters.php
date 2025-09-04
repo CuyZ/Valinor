@@ -70,6 +70,14 @@ final class Parameters implements IteratorAggregate, Countable
         return count($this->parameters);
     }
 
+    public function forCallable(callable $callable): self
+    {
+        return new self(...array_map(
+            fn (ParameterDefinition $parameter) => $parameter->forCallable($callable),
+            $this->parameters
+        ));
+    }
+
     /**
      * @return Traversable<string, ParameterDefinition>
      */

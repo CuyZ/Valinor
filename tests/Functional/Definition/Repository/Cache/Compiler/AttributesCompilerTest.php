@@ -6,18 +6,14 @@ use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\AttributesCompiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
-use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributes;
+use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithArguments;
+use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithClosure;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
-use CuyZ\Valinor\Tests\Fixture\Attribute\NestedAttribute;
-use CuyZ\Valinor\Tests\Fixture\Attribute\PropertyTargetAttribute;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithAttributes;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithNestedAttributes;
 use Error;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
-use ReflectionMethod;
-use ReflectionProperty;
+use stdClass;
 
 final class AttributesCompilerTest extends TestCase
 {
@@ -35,109 +31,343 @@ final class AttributesCompilerTest extends TestCase
         self::assertSame(Attributes::empty(), $attributes);
     }
 
-    public function test_compiles_attributes_for_class_with_attributes(): void
+    public function test_compiles_attributes_with_arguments(): void
     {
-        $reflection = new ReflectionClass(ObjectWithAttributes::class);
-        $attributes = FakeAttributes::fromReflection($reflection);
+        $attributes = new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: [],
+                reflectionParts: [
+                    'class',
+                    stdClass::class,
+                ],
+                attributeIndex: 2,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: [
+                    'foo',
+                    42,
+                    ['baz' => 'fiz'],
+                ],
+                reflectionParts: [
+                    'property',
+                    stdClass::class,
+                    'someProperty',
+                ],
+                attributeIndex: 3,
+            ),
+        );
 
-        $attributes = $this->compile($attributes);
+        $attributes = $this->compile($attributes)->toArray();
 
         self::assertCount(2, $attributes);
-        self::assertTrue($attributes->has(BasicAttribute::class));
-        self::assertTrue($attributes->has(AttributeWithArguments::class));
 
-        $attribute = $attributes->filter(
-            fn (AttributeDefinition $attribute) => $attribute->class->type->className() === AttributeWithArguments::class
-        )->toArray()[0]->instantiate();
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
 
-        /** @var AttributeWithArguments $attribute */
-        self::assertSame('foo', $attribute->foo);
-        self::assertSame('bar', $attribute->bar);
-        self::assertSame('bar', $attribute->object->__toString());
-        self::assertSame(['baz' => 'fiz'], $attribute->array);
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
+
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
+
+        self::assertSame('foo', $attributeWithArguments->foo);
+        self::assertSame(42, $attributeWithArguments->bar);
+        self::assertSame(['baz' => 'fiz'], $attributeWithArguments->array);
     }
 
-    public function test_compiles_attributes_for_class_without_attributes(): void
+    public function test_compiles_class_attributes_using_reflection(): void
     {
-        $reflection = new ReflectionClass(new class () {});
-        $attributes = FakeAttributes::fromReflection($reflection);
+        $class = new
+        #[BasicAttribute]
+        #[AttributeWithArguments('foo', 42, ['foo' => 'foo'])]
+        class () {};
 
-        $attributes = $this->compile($attributes);
+        $attributes = new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: null,
+                reflectionParts: [
+                    'class',
+                    $class::class,
+                ],
+                attributeIndex: 0,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: null,
+                reflectionParts: [
+                    'class',
+                    $class::class,
+                ],
+                attributeIndex: 1,
+            ),
+        );
 
-        self::assertSame(Attributes::empty(), $attributes);
+        $attributes = $this->compile($attributes)->toArray();
+
+        self::assertCount(2, $attributes);
+
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
+
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
+
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
+
+        self::assertSame('foo', $attributeWithArguments->foo);
+        self::assertSame(42, $attributeWithArguments->bar);
+        self::assertSame(['foo' => 'foo'], $attributeWithArguments->array);
     }
 
-    public function test_compiles_attributes_for_class_with_nested_attributes(): void
+    public function test_compiles_property_attributes_using_reflection(): void
     {
-        $reflection = new ReflectionClass(ObjectWithNestedAttributes::class);
-        $attributes = FakeAttributes::fromReflection($reflection);
+        $class = new class () {
+            #[BasicAttribute]
+            #[AttributeWithArguments('bar', 404, ['bar' => 'bar'])]
+            public string $someProperty;
+        };
 
-        $attributes = $this->compile($attributes);
+        $attributes = new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: null,
+                reflectionParts: [
+                    'property',
+                    $class::class,
+                    'someProperty',
+                ],
+                attributeIndex: 0,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: null,
+                reflectionParts: [
+                    'property',
+                    $class::class,
+                    'someProperty',
+                ],
+                attributeIndex: 1,
+            ),
+        );
 
-        self::assertCount(3, $attributes);
-        self::assertTrue($attributes->has(BasicAttribute::class));
-        self::assertTrue($attributes->has(AttributeWithArguments::class));
-        self::assertTrue($attributes->has(NestedAttribute::class));
+        $attributes = $this->compile($attributes)->toArray();
 
-        $attribute = $attributes->filter(
-            fn (AttributeDefinition $attribute) => $attribute->class->type->className() === AttributeWithArguments::class
-        )->toArray()[0]->instantiate();
+        self::assertCount(2, $attributes);
 
-        /** @var AttributeWithArguments $attribute */
-        self::assertSame('foo', $attribute->foo);
-        self::assertSame('bar', $attribute->bar);
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
 
-        $attribute = $attributes->filter(
-            fn (AttributeDefinition $attribute) => $attribute->class->type->className() === NestedAttribute::class
-        )->toArray()[0]->instantiate();
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
 
-        /** @var NestedAttribute $attribute */
-        self::assertCount(2, $attribute->nestedAttributes);
-        self::assertInstanceOf(BasicAttribute::class, $attribute->nestedAttributes[0]);
-        self::assertInstanceOf(AttributeWithArguments::class, $attribute->nestedAttributes[1]);
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
 
-        /** @var AttributeWithArguments $nestedAttribute */
-        $nestedAttribute = $attribute->nestedAttributes[1];
-
-        self::assertSame('foo', $nestedAttribute->foo);
-        self::assertSame('bar', $nestedAttribute->bar);
+        self::assertSame('bar', $attributeWithArguments->foo);
+        self::assertSame(404, $attributeWithArguments->bar);
+        self::assertSame(['bar' => 'bar'], $attributeWithArguments->array);
     }
 
-    public function test_compiles_attributes_for_property_with_nested_attributes(): void
+    public function test_compiles_method_attributes_using_reflection(): void
     {
-        $reflection = new ReflectionProperty(ObjectWithNestedAttributes::class, 'property');
-        $attributes = FakeAttributes::fromReflection($reflection);
+        $class = new class () {
+            #[BasicAttribute]
+            #[AttributeWithArguments('fiz', 1337, ['fiz' => 'fiz'])]
+            public function someMethod(): void {}
+        };
 
-        $attributes = $this->compile($attributes);
+        $attributes = new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: null,
+                reflectionParts: [
+                    'method',
+                    $class::class,
+                    'someMethod',
+                ],
+                attributeIndex: 0,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: null,
+                reflectionParts: [
+                    'method',
+                    $class::class,
+                    'someMethod',
+                ],
+                attributeIndex: 1,
+            ),
+        );
 
-        self::assertCount(3, $attributes);
-        self::assertTrue($attributes->has(BasicAttribute::class));
-        self::assertTrue($attributes->has(AttributeWithArguments::class));
-        self::assertTrue($attributes->has(NestedAttribute::class));
+        $attributes = $this->compile($attributes)->toArray();
+
+        self::assertCount(2, $attributes);
+
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
+
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
+
+        self::assertSame('fiz', $attributeWithArguments->foo);
+        self::assertSame(1337, $attributeWithArguments->bar);
+        self::assertSame(['fiz' => 'fiz'], $attributeWithArguments->array);
     }
 
-    public function test_compiles_attributes_for_method_with_nested_attributes(): void
+    public function test_compiles_method_parameters_attributes_using_reflection(): void
     {
-        $reflection = new ReflectionMethod(ObjectWithNestedAttributes::class, 'method');
-        $attributes = FakeAttributes::fromReflection($reflection);
+        $class = new class () {
+            public function someMethod(
+                #[BasicAttribute]
+                #[AttributeWithArguments('fiz', 1337, ['fiz' => 'fiz'])]
+                string $someParameter,
+            ): void {}
+        };
 
-        $attributes = $this->compile($attributes);
+        $attributes = new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: null,
+                reflectionParts: [
+                    'methodParameter',
+                    $class::class,
+                    'someMethod',
+                    0,
+                ],
+                attributeIndex: 0,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: null,
+                reflectionParts: [
+                    'methodParameter',
+                    $class::class,
+                    'someMethod',
+                    0,
+                ],
+                attributeIndex: 1,
+            ),
+        );
 
-        self::assertCount(3, $attributes);
-        self::assertTrue($attributes->has(BasicAttribute::class));
-        self::assertTrue($attributes->has(AttributeWithArguments::class));
-        self::assertTrue($attributes->has(NestedAttribute::class));
+        $attributes = $this->compile($attributes)->toArray();
+
+        self::assertCount(2, $attributes);
+
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
+
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
+
+        self::assertSame('fiz', $attributeWithArguments->foo);
+        self::assertSame(1337, $attributeWithArguments->bar);
+        self::assertSame(['fiz' => 'fiz'], $attributeWithArguments->array);
     }
 
-    public function test_compiles_attributes_for_promoted_property_with_property_target_attribute(): void
+    public function test_compiles_closure_attributes_using_reflection(): void
     {
-        $reflection = new ReflectionProperty(ObjectWithAttributes::class, 'promotedProperty');
-        $attributes = FakeAttributes::fromReflection($reflection);
+        $closure =
+            #[BasicAttribute]
+            #[AttributeWithArguments('fiz', 1337, ['fiz' => 'fiz'])]
+            fn () => 42;
 
-        $attributes = $this->compile($attributes);
+        $attributes = (new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: null,
+                reflectionParts: ['closure'],
+                attributeIndex: 0,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: null,
+                reflectionParts: ['closure'],
+                attributeIndex: 1,
+            ),
+        ))->forCallable($closure);
+
+        $attributes = $this->compile($attributes)->forCallable($closure)->toArray();
+
+        self::assertCount(2, $attributes);
+
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
+
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
+
+        self::assertSame('fiz', $attributeWithArguments->foo);
+        self::assertSame(1337, $attributeWithArguments->bar);
+        self::assertSame(['fiz' => 'fiz'], $attributeWithArguments->array);
+    }
+
+    public function test_compiles_closure_parameter_attributes_using_reflection(): void
+    {
+        $closure =
+            fn (
+                #[BasicAttribute]
+                #[AttributeWithArguments('fiz', 1337, ['fiz' => 'fiz'])]
+                string $foo,
+            ) => 42;
+
+        $attributes = (new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(BasicAttribute::class),
+                arguments: null,
+                reflectionParts: [
+                    'closureParameter',
+                    0,
+                ],
+                attributeIndex: 0,
+            ),
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithArguments::class),
+                arguments: null,
+                reflectionParts: [
+                    'closureParameter',
+                    0,
+                ],
+                attributeIndex: 1,
+            ),
+        ))->forCallable($closure);
+
+        $attributes = $this->compile($attributes)->forCallable($closure)->toArray();
+
+        self::assertCount(2, $attributes);
+
+        $basicAttribute = $attributes[0]->instantiate();
+        $attributeWithArguments = $attributes[1]->instantiate();
+
+        self::assertInstanceOf(BasicAttribute::class, $basicAttribute);
+        self::assertInstanceOf(AttributeWithArguments::class, $attributeWithArguments);
+
+        self::assertSame('fiz', $attributeWithArguments->foo);
+        self::assertSame(1337, $attributeWithArguments->bar);
+        self::assertSame(['fiz' => 'fiz'], $attributeWithArguments->array);
+    }
+
+    #[RequiresPhp('>=8.5')]
+    public function test_compiles_attribute_with_closure(): void
+    {
+        $attributes = new Attributes(
+            new AttributeDefinition(
+                class: FakeClassDefinition::new(AttributeWithClosure::class),
+                arguments: null,
+                reflectionParts: [
+                    'class',
+                    ClassWithAttributeWithClosure::class,
+                ],
+                attributeIndex: 0,
+            ),
+        );
+
+        $attributes = $this->compile($attributes)->toArray();
 
         self::assertCount(1, $attributes);
-        self::assertTrue($attributes->has(PropertyTargetAttribute::class));
+
+        $attributeWithClosure = $attributes[0]->instantiate();
+
+        self::assertInstanceOf(AttributeWithClosure::class, $attributeWithClosure);
+
+        self::assertSame('foo', ($attributeWithClosure->closure)('FOO'));
     }
 
     private function compile(Attributes $attributes): Attributes

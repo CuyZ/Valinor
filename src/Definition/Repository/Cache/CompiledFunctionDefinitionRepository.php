@@ -31,7 +31,7 @@ final class CompiledFunctionDefinitionRepository implements FunctionDefinitionRe
         $entry = $this->cache->get($key);
 
         if ($entry) {
-            return $entry;
+            return $entry->forCallable($function);
         }
 
         $definition = $this->delegate->for($function);
@@ -42,6 +42,6 @@ final class CompiledFunctionDefinitionRepository implements FunctionDefinitionRe
         $this->cache->set($key, new CacheEntry($code, $filesToWatch));
 
         /** @var FunctionDefinition */
-        return $this->cache->get($key);
+        return $this->cache->get($key)?->forCallable($function);
     }
 }

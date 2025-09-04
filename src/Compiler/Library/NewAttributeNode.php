@@ -7,9 +7,10 @@ namespace CuyZ\Valinor\Compiler\Library;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
+use ReflectionClass;
+use ReflectionProperty;
 
 use function array_map;
-use function serialize;
 
 /** @internal */
 final class NewAttributeNode extends Node
@@ -18,36 +19,26 @@ final class NewAttributeNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        $argumentNodes = self::argumentNode($this->attribute->arguments);
+        if ($this->attribute->arguments !== null) {
+            return $compiler->compile(
+                Node::newClass(
+                    $this->attribute->class->name,
+                    ...array_map(Node::value(...), $this->attribute->arguments),
+                ),
+            );
+        }
+
+        // @phpstan-ignore match.unhandled (for now only those two cases can be handled here anyway)
+        $node = match ($this->attribute->reflectionParts[0]) {
+            'class' => Node::newClass(ReflectionClass::class, Node::className($this->attribute->reflectionParts[1])),
+            'property' => Node::newClass(ReflectionProperty::class, Node::className($this->attribute->reflectionParts[1]), Node::value($this->attribute->reflectionParts[2])),
+        };
 
         return $compiler->compile(
-            Node::newClass(
-                $this->attribute->class->name,
-                ...$argumentNodes,
-            ),
+            $node->wrap()
+                ->callMethod('getAttributes')
+                ->key(Node::value($this->attribute->attributeIndex))
+                ->callMethod('newInstance'),
         );
-    }
-
-    /**
-     * @param array<mixed> $arguments
-     * @return array<Node>
-     */
-    private static function argumentNode(array $arguments): array
-    {
-        return array_map(static function (mixed $argument) {
-            if (is_object($argument)) {
-                return Node::functionCall(
-                    name: 'unserialize',
-                    arguments: [Node::value(serialize($argument))],
-                );
-            }
-
-            if (is_array($argument)) {
-                return Node::array(self::argumentNode($argument));
-            }
-
-            /** @var scalar $argument */
-            return Node::value($argument);
-        }, $arguments);
     }
 }

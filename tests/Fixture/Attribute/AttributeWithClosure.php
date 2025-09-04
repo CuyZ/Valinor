@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Fixture\Attribute;
 
 use Attribute;
+use Closure;
 
 #[Attribute]
-final class NestedAttribute
+final class AttributeWithClosure
 {
     public function __construct(
-        /** @var list<object> */
-        public array $nestedAttributes,
+        public Closure $closure,
     ) {}
 }
