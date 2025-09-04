@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Compiler;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ArrayNode;
+use CuyZ\Valinor\Compiler\Native\ClassNameNode;
 use CuyZ\Valinor\Compiler\Native\ClassNode;
 use CuyZ\Valinor\Compiler\Native\ClosureNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
@@ -65,6 +66,14 @@ abstract class Node
     public static function class(string $name): ClassNode
     {
         return new ClassNode($name);
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public static function className(string $className): ClassNameNode
+    {
+        return new ClassNameNode($className);
     }
 
     public static function closure(Node ...$nodes): ClosureNode

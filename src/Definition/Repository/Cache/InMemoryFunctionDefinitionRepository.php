@@ -25,6 +25,6 @@ final class InMemoryFunctionDefinitionRepository implements FunctionDefinitionRe
         // @infection-ignore-all
         $key = $reflection->getFileName() . ':' . $reflection->getStartLine() . '-' . $reflection->getEndLine();
 
-        return $this->functionDefinitions[$key] ??= $this->delegate->for($function);
+        return ($this->functionDefinitions[$key] ??= $this->delegate->for($function))->forCallable($function);
     }
 }

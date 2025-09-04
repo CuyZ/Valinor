@@ -156,6 +156,20 @@ final class NormalizerCompiledCodeTest extends TestCase
             'input' => new ClassWithUnresolvableTypeAndMixedNativeType('foo'),
             'expectedFile' => __DIR__ . '/ExpectedCache/class-with-unresolvable-type-and-mixed-native-type.php',
         ];
+
+        if (PHP_VERSION_ID >= 8_05_00) {
+            yield 'class with transformer with callable' => [
+                // @phpstan-ignore-next-line PHP8.5 remove
+                'input' => (require 'TemporaryPHP85/TemporaryAttributesWithCallable.php')[0],
+                'expectedFile' => __DIR__ . '/ExpectedCache/class-with-transformer-with-callable.php',
+            ];
+
+            yield 'class with property transformer with callable' => [
+                // @phpstan-ignore-next-line PHP8.5 remove
+                'input' => (require 'TemporaryPHP85/TemporaryAttributesWithCallable.php')[1],
+                'expectedFile' => __DIR__ . '/ExpectedCache/class-with-property-transformer-with-callable.php',
+            ];
+        }
     }
 }
 

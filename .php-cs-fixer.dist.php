@@ -14,6 +14,10 @@ if (PHP_VERSION_ID < 8_02_00) {
     $finder = $finder->notPath('Fixture/Object/ObjectWithPropertyWithNativeDisjunctiveNormalFormType.php');
 }
 
+if (PHP_VERSION_ID < 8_05_00) {
+    $finder = $finder->notPath('Integration/Normalizer/TemporaryPHP85/ClassWithPropertyTransformerWithCallable.php');
+}
+
 return (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setCacheFile('var/cache/.php_cs.cache')
