@@ -13,10 +13,15 @@ use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use Error;
 use ReflectionAttribute;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionParameter;
+use ReflectionProperty;
 use Reflector;
 
-use function array_map;
-use function array_values;
+use function is_a;
+use function is_array;
+use function is_scalar;
 
 /** @internal */
 final class ReflectionAttributesRepository implements AttributesRepository
@@ -29,27 +34,53 @@ final class ReflectionAttributesRepository implements AttributesRepository
 
     public function for(Reflector $reflection): array
     {
-        $attributes = array_filter(
-            $reflection->getAttributes(),
-            function (ReflectionAttribute $attribute) {
-                foreach ($this->allowedAttributes as $allowedAttribute) {
-                    if (is_a($attribute->getName(), $allowedAttribute, true)) {
-                        return $this->attributeCanBeInstantiated($attribute);
-                    }
-                }
+        $attributes = [];
 
-                return Reflection::class($attribute->getName())->getAttributes(AsConverter::class) !== []
-                    || Reflection::class($attribute->getName())->getAttributes(AsTransformer::class) !== [];
-            },
-        );
+        foreach ($reflection->getAttributes() as $key => $attribute) {
+            if (! $this->attributeIsAllowed($attribute) || ! $this->attributeCanBeInstantiated($attribute)) {
+                continue;
+            }
 
-        return array_values(array_map(
-            fn (ReflectionAttribute $attribute) => new AttributeDefinition(
+            $arguments = $attribute->getArguments();
+
+            if (! self::containOnlyScalar($arguments)) {
+                $arguments = null;
+            }
+
+            /** @var null|list<array<scalar>|scalar> $arguments */
+            $attributes[] = new AttributeDefinition(
                 $this->classDefinitionRepository->for(new NativeClassType($attribute->getName())),
-                array_values($attribute->getArguments()),
-            ),
-            $attributes,
-        ));
+                $arguments,
+                match ($reflection::class) {
+                    ReflectionClass::class => ['class', $reflection->name],
+                    ReflectionProperty::class => ['property', $reflection->getDeclaringClass()->name, $reflection->name],
+                    ReflectionMethod::class => ['method', $reflection->getDeclaringClass()->name, $reflection->name],
+                    ReflectionParameter::class => $reflection->getDeclaringFunction()->isClosure()
+                        ? ['closureParameter', $reflection->getPosition()]
+                        // @phpstan-ignore property.nonObject ($reflection->getDeclaringClass() is not null)
+                        : ['methodParameter', $reflection->getDeclaringClass()->name, $reflection->getDeclaringFunction()->name, $reflection->getPosition()],
+                    default => ['closure'],
+                },
+                $key,
+            );
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * @param ReflectionAttribute<object> $attribute
+     */
+    private function attributeIsAllowed(ReflectionAttribute $attribute): bool
+    {
+        foreach ($this->allowedAttributes as $allowedAttribute) {
+            if (is_a($attribute->getName(), $allowedAttribute, true)) {
+                return true;
+            }
+        }
+
+        return Reflection::class($attribute->getName())->getAttributes(AsConverter::class) !== []
+            || Reflection::class($attribute->getName())->getAttributes(AsTransformer::class) !== [];
     }
 
     /**
@@ -70,5 +101,24 @@ final class ReflectionAttributesRepository implements AttributesRepository
             // Ignore attribute if the instantiation failed.
             return false;
         }
+    }
+
+    private static function containOnlyScalar(mixed $value): bool
+    {
+        if (is_scalar($value)) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $subValue) {
+                if (! self::containOnlyScalar($subValue)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
