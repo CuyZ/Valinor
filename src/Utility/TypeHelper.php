@@ -17,19 +17,21 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\NullType;
 
 /** @internal */
 final class TypeHelper
 {
     /**
-     * Sorting the types by priority: objects, arrays, scalars, everything else.
+     * Sorting the types by priority: objects, arrays, scalars/null, everything else.
      */
     public static function typePriority(Type $type): int
     {
         return match (true) {
             $type instanceof ObjectType => 3,
             $type instanceof CompositeTraversableType => 2,
-            $type instanceof ScalarType => 1,
+            $type instanceof ScalarType,
+            $type instanceof NullType => 1,
             default => 0,
         };
     }
