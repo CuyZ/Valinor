@@ -299,6 +299,22 @@ final class UnionMappingTest extends IntegrationTestCase
         self::assertSame(['status' => 200, 'data' => ['text' => 'foo']], $result);
     }
 
+    public function test_int_or_null_throws_exception(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->allowSuperfluousKeys()
+                ->mapper()
+                ->map('int|null', 'foo');
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[cannot_resolve_type_from_union] Value 'foo' does not match any of `int`, `null`.",
+            ]);
+        }
+    }
+
     public function test_scalar_value_matching_two_objects_in_union_throws_exception(): void
     {
         try {
