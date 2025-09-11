@@ -62,7 +62,7 @@ final class MessageBuilder
         }
 
         return self::newError($error->getMessage())
-            ->withCode((string)$error->getCode())
+            ->withCode($error->getCode() === 0 ? 'unknown' : (string)$error->getCode())
             ->build();
     }
 

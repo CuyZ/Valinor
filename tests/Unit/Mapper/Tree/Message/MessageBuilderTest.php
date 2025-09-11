@@ -76,6 +76,16 @@ final class MessageBuilderTest extends TestCase
         self::assertSame('1664450422', $message->code());
     }
 
+    public function test_from_throwable_build_error_message_without_code(): void
+    {
+        $exception = new Exception('some error message');
+
+        $message = MessageBuilder::from($exception);
+
+        self::assertInstanceOf(HasCode::class, $message);
+        self::assertSame('unknown', $message->code());
+    }
+
     public function test_from_error_message_returns_same_instance(): void
     {
         $error = new FakeErrorMessage();
