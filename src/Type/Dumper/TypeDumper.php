@@ -7,7 +7,6 @@ use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
@@ -23,16 +22,12 @@ final class TypeDumper
     public function dump(Type $type): string
     {
         if ($type instanceof EnumType) {
-            $text = $type->readableSignature();
-        } elseif ($type instanceof FixedType) {
-            return $type->toString();
+            return $type->readableSignature();
         } elseif ($type instanceof ObjectType) {
-            $text = $this->getStringTypeFromObject($type);
-        } else {
-            $text = $type->toString();
+            return $this->getStringTypeFromObject($type);
         }
 
-        return $text;
+        return $type->toString();
     }
 
     private function getStringTypeFromObject(ObjectType $type): string
