@@ -19,28 +19,11 @@ final class NonEmptyListType implements CompositeTraversableType
 {
     private static self $native;
 
-    private Type $subType;
+    public function __construct(private Type $subType) {}
 
-    private string $signature;
-
-    public function __construct(Type $subType)
-    {
-        $this->subType = $subType;
-        $this->signature = "non-empty-list<{$this->subType->toString()}>";
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * @infection-ignore-all
-     */
     public static function native(): self
     {
-        if (! isset(self::$native)) {
-            self::$native = new self(MixedType::get());
-            self::$native->signature = 'non-empty-list';
-        }
-
-        return self::$native;
+        return self::$native ??= new self(MixedType::get());
     }
 
     public function accepts(mixed $value): bool
@@ -140,6 +123,10 @@ final class NonEmptyListType implements CompositeTraversableType
 
     public function toString(): string
     {
-        return $this->signature;
+        if ($this === self::native()) {
+            return 'non-empty-list';
+        }
+
+        return "non-empty-list<{$this->subType->toString()}>";
     }
 }

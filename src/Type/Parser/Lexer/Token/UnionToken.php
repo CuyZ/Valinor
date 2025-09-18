@@ -21,7 +21,7 @@ final class UnionToken implements LeftTraversingToken
             throw new RightUnionTypeMissing($type);
         }
 
-        return new UnionType($type, $stream->read());
+        return UnionType::from($type, $stream->read());
     }
 
     public function symbol(): string

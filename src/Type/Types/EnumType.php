@@ -9,6 +9,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
+use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumHasNoCase;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CaseFinder;
 use CuyZ\Valinor\Type\Type;
 use UnitEnum;
@@ -19,31 +20,15 @@ use function in_array;
 /** @internal */
 final class EnumType implements ClassType
 {
-    /** @var class-string<UnitEnum> */
-    private string $enumName;
-
-    private string $pattern;
-
-    /** @var non-empty-array<UnitEnum> */
-    private array $cases;
-
-    /**
-     * @param class-string<UnitEnum> $enumName
-     * @param array<UnitEnum> $cases
-     */
-    public function __construct(string $enumName, string $pattern, array $cases)
-    {
+    public function __construct(
+        /** @var class-string<UnitEnum> */
+        private string $enumName,
+        private string $pattern,
+        /** @var non-empty-array<UnitEnum> */
+        private array $cases,
+    ) {
         // @phpstan-ignore assign.propertyType (it is still an enum class-string)
         $this->enumName = ltrim($enumName, '\\');
-        $this->pattern = $pattern;
-
-        if (empty($cases)) {
-            throw new EnumCaseNotFound($this->enumName, $pattern);
-        }
-
-        foreach ($cases as $case) {
-            $this->cases[$case instanceof BackedEnum ? $case->value : $case->name] = $case;
-        }
     }
 
     /**
@@ -51,7 +36,7 @@ final class EnumType implements ClassType
      */
     public static function native(string $enumName): self
     {
-        return new self($enumName, '', $enumName::cases());
+        return self::from($enumName, '', $enumName::cases());
     }
 
     /**
@@ -62,13 +47,35 @@ final class EnumType implements ClassType
         $namedCases = [];
 
         foreach ($enumName::cases() as $case) {
-            /** @var UnitEnum $case */
             $namedCases[$case->name] = $case;
         }
 
         $cases = (new CaseFinder($namedCases))->matching(explode('*', $pattern));
 
-        return new self($enumName, $pattern, $cases);
+        if ($cases === []) {
+            throw new EnumCaseNotFound($enumName, $pattern);
+        }
+
+        return self::from($enumName, $pattern, $cases);
+    }
+
+    /**
+     * @param class-string<UnitEnum> $enumName
+     * @param array<UnitEnum> $cases
+     */
+    private static function from(string $enumName, string $pattern, array $cases): self
+    {
+        if ($cases === []) {
+            throw new EnumHasNoCase($enumName);
+        }
+
+        $sortedCases = [];
+
+        foreach ($cases as $case) {
+            $sortedCases[$case instanceof BackedEnum ? $case->value : $case->name] = $case;
+        }
+
+        return new self($enumName, $pattern, $sortedCases);
     }
 
     /**
@@ -80,7 +87,7 @@ final class EnumType implements ClassType
     }
 
     /**
-     * @return array<UnitEnum>
+     * @return non-empty-array<UnitEnum>
      */
     public function cases(): array
     {

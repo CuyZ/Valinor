@@ -94,7 +94,7 @@ final class ClassNameToken implements TraversingToken
         $cases = array_map(static fn ($value) => ValueTypeFactory::from($value), $cases);
 
         if (count($cases) > 1) {
-            return new UnionType(...array_values($cases));
+            return UnionType::from(...array_values($cases));
         }
 
         return reset($cases);

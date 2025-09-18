@@ -53,7 +53,7 @@ final class ClassStringTypeTest extends TestCase
         $this->expectExceptionCode(1648830951);
         $this->expectExceptionMessage("Type `{$type->toString()}` contains invalid class string element(s).");
 
-        new ClassStringType($type);
+        ClassStringType::from($type);
     }
 
     #[TestWith([stdClass::class])]

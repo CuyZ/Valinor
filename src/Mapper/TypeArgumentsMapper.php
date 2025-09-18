@@ -40,7 +40,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
             $function->parameters->toList(),
         );
 
-        $type = new ShapedArrayType(...$elements);
+        $type = new ShapedArrayType($elements);
 
         $shell = Shell::root($this->settings, $type, $source);
         $shell = $shell->withAttributes($function->attributes);
