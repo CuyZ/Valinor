@@ -3,7 +3,7 @@
 namespace CuyZ\Valinor\Type\Dumper;
 
 /** @internal */
-final class ArgumentDump
+final class ArgumentsDump
 {
     public function __construct(
         public readonly int $weight,

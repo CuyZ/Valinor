@@ -51,18 +51,18 @@ final class TypeDumper
             $objectBuilders
         );
 
-        usort($textArray, fn (ArgumentDump $a, ArgumentDump $b) => $a->weight <=> $b->weight);
-        return implode('|', array_map(fn (ArgumentDump $dump) => $dump->type, $textArray));
+        usort($textArray, fn (ArgumentsDump $a, ArgumentsDump $b) => $a->weight <=> $b->weight);
+        return implode('|', array_map(fn (ArgumentsDump $dump) => $dump->type, $textArray));
     }
 
-    private function formatArguments(Arguments $arguments, TypeDumpContext $context): ArgumentDump
+    private function formatArguments(Arguments $arguments, TypeDumpContext $context): ArgumentsDump
     {
         $argumentsArray = $arguments->toArray();
 
         if (count($argumentsArray) === 1) {
             $arg = reset($argumentsArray);
             $context = $context->addWeight(TypeHelper::typePriority($arg->type()));
-            return new ArgumentDump($context->weight, $this->dump($arg->type(), $context));
+            return new ArgumentsDump($context->weight, $this->dump($arg->type(), $context));
         }
 
         $subTexts = [];
@@ -73,6 +73,7 @@ final class TypeDumper
             $subTexts[] = $context->length > self::MAX_LENGTH ? sprintf('%s%s: array{…}', $arg->name(), $arg->isRequired() ? '' : '?') : $subText;
         }
 
-        return new ArgumentDump($context->weight, 'array{' . implode(', ', $subTexts) . '}');
+        return new ArgumentsDump($context->weight, 'array{' . implode(', ', $subTexts) . '}');
     }
+
 }
