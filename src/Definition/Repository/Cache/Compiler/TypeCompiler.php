@@ -101,9 +101,17 @@ final class TypeCompiler
                 return "new $class(" . implode(', ', $subTypes) . ')';
             case $type instanceof ArrayKeyType:
                 return match ($type->toString()) {
+                    'array-key' => "$class::default()",
                     'string' => "$class::string()",
                     'int' => "$class::integer()",
-                    default => "$class::default()",
+                    default => (function () use ($type, $class) {
+                        $types = array_map(
+                            fn (Type $subType) => $this->compile($subType),
+                            $type->types,
+                        );
+
+                        return "new $class([" . implode(', ', $types) . '])';
+                    })(),
                 };
             case $type instanceof ShapedArrayType:
                 $elements = implode(', ', array_map(
@@ -119,15 +127,20 @@ final class TypeCompiler
                     return "$class::unsealedWithoutType($elements)";
                 }
 
-                return "new $class($elements)";
+                return "new $class([$elements])";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
                 if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {
                     return "$class::native()";
                 }
 
-                $keyType = $this->compile($type->keyType());
                 $subType = $this->compile($type->subType());
+
+                if (str_ends_with($type->toString(), '[]')) {
+                    return "$class::simple($subType)";
+                }
+
+                $keyType = $this->compile($type->keyType());
 
                 return "new $class($keyType, $subType)";
             case $type instanceof ListType:

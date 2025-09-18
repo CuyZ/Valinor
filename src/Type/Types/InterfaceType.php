@@ -84,6 +84,6 @@ final class InterfaceType implements ObjectType, GenericType
     {
         return empty($this->generics)
             ? $this->interfaceName
-            : $this->interfaceName . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $this->generics)) . '>';
+            : $this->interfaceName . '<' . implode(', ', array_map(static fn (Type $type) => $type->toString(), $this->generics)) . '>';
     }
 }

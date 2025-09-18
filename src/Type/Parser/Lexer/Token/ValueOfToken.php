@@ -52,7 +52,7 @@ final class ValueOfToken implements TraversingToken
         );
 
         if (count($cases) > 1) {
-            return new UnionType(...$cases);
+            return UnionType::from(...$cases);
         }
 
         return $cases[0];

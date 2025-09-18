@@ -17,7 +17,7 @@ final class NullableToken implements TraversingToken
 
     public function traverse(TokenStream $stream): Type
     {
-        return new UnionType(NullType::get(), $stream->read());
+        return UnionType::from(NullType::get(), $stream->read());
     }
 
     public function symbol(): string

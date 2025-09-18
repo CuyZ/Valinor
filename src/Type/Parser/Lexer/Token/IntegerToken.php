@@ -68,7 +68,7 @@ final class IntegerToken implements TraversingToken
             throw new IntegerRangeMissingClosingBracket($min, $max);
         }
 
-        return new IntegerRangeType($min->value(), $max->value());
+        return IntegerRangeType::from($min->value(), $max->value());
     }
 
     public function symbol(): string

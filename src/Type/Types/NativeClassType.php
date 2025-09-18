@@ -87,6 +87,6 @@ final class NativeClassType implements ClassType, GenericType
     {
         return empty($this->generics)
             ? $this->className
-            : $this->className . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $this->generics)) . '>';
+            : $this->className . '<' . implode(', ', array_map(static fn (Type $type) => $type->toString(), $this->generics)) . '>';
     }
 }

@@ -26,11 +26,11 @@ final class ClassStringType implements StringType, CompositeType
 {
     use IsSingleton;
 
-    private ObjectType|UnionType|null $subType;
+    public function __construct(
+        private ObjectType|UnionType|null $subType = null,
+    ) {}
 
-    private string $signature;
-
-    public function __construct(ObjectType|UnionType|null $subType = null)
+    public static function from(ObjectType|UnionType|null $subType = null): self
     {
         if ($subType instanceof UnionType) {
             foreach ($subType->types() as $type) {
@@ -40,10 +40,7 @@ final class ClassStringType implements StringType, CompositeType
             }
         }
 
-        $this->subType = $subType;
-        $this->signature = $this->subType
-            ? "class-string<{$this->subType->toString()}>"
-            : 'class-string';
+        return new self($subType);
     }
 
     public function accepts(mixed $value): bool
@@ -182,6 +179,8 @@ final class ClassStringType implements StringType, CompositeType
 
     public function toString(): string
     {
-        return $this->signature;
+        return $this->subType
+            ? "class-string<{$this->subType->toString()}>"
+            : 'class-string';
     }
 }
