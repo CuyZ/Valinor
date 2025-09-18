@@ -21,9 +21,6 @@ final class BooleanValueType implements BooleanType, FixedType
 
     private static self $false;
 
-    /**
-     * @codeCoverageIgnore
-     */
     private function __construct(private bool $value) {}
 
     public static function true(): self

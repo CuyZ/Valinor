@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
+use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumHasNoCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
@@ -1528,6 +1529,15 @@ final class LexingParserTest extends TestCase
         $this->parser->parse(PureEnum::class . '::F**O');
     }
 
+    public function test_enum_with_no_case_throws_exception(): void
+    {
+        $this->expectException(EnumHasNoCase::class);
+        $this->expectExceptionCode(1758213561);
+        $this->expectExceptionMessage('Enum `' . EnumWithNoCase::class . '` must have at least one case.');
+
+        $this->parser->parse(EnumWithNoCase::class);
+    }
+
     public function test_missing_specific_enum_case_throws_exception(): void
     {
         $this->expectException(MissingSpecificEnumCase::class);
@@ -1703,3 +1713,5 @@ final class SomeClassWithFirstTemplateWithoutTypeAndSecondTemplateWithType {}
  * @template TemplateA
  */
 interface SomeInterfaceWithOneTemplate {}
+
+enum EnumWithNoCase {}

@@ -11,7 +11,6 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
-use function array_values;
 use function implode;
 
 /** @internal */
@@ -20,12 +19,12 @@ final class IntersectionType implements CombiningType
     /** @var non-empty-list<ObjectType> */
     private array $types;
 
-    private string $signature;
-
+    /**
+     * @no-named-arguments
+     */
     public function __construct(ObjectType $type, ObjectType $otherType, ObjectType ...$otherTypes)
     {
-        $this->types = [$type, $otherType, ...array_values($otherTypes)];
-        $this->signature = implode('&', array_map(fn (Type $type) => $type->toString(), $this->types));
+        $this->types = [$type, $otherType, ...$otherTypes];
     }
 
     public function accepts(mixed $value): bool
@@ -112,6 +111,6 @@ final class IntersectionType implements CombiningType
 
     public function toString(): string
     {
-        return $this->signature;
+        return implode('&', array_map(static fn (Type $type) => $type->toString(), $this->types));
     }
 }

@@ -21,22 +21,13 @@ use function sprintf;
 /** @internal */
 final class IntegerRangeType implements IntegerType
 {
-    private int $min;
+    public function __construct(
+        private int $min,
+        private int $max
+    ) {}
 
-    private int $max;
-
-    private string $signature;
-
-    public function __construct(int $min, int $max)
+    public static function from(int $min, int $max): self
     {
-        $this->min = $min;
-        $this->max = $max;
-        $this->signature = sprintf(
-            'int<%s, %s>',
-            $min > PHP_INT_MIN ? $min : 'min',
-            $max < PHP_INT_MAX ? $max : 'max'
-        );
-
         if ($min > $max) {
             throw new ReversedValuesForIntegerRange($min, $max);
         }
@@ -44,6 +35,8 @@ final class IntegerRangeType implements IntegerType
         if ($min === $max) {
             throw new SameValueForIntegerRange($min);
         }
+
+        return new self($min, $max);
     }
 
     public function accepts(mixed $value): bool
@@ -136,6 +129,10 @@ final class IntegerRangeType implements IntegerType
 
     public function toString(): string
     {
-        return $this->signature;
+        return sprintf(
+            'int<%s, %s>',
+            $this->min > PHP_INT_MIN ? $this->min : 'min',
+            $this->max < PHP_INT_MAX ? $this->max : 'max'
+        );
     }
 }

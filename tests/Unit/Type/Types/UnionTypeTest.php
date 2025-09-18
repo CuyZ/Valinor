@@ -43,8 +43,8 @@ final class UnionTypeTest extends TestCase
         $typeB = new FakeType();
         $typeC = new FakeType();
 
-        $unionA = new UnionType($typeA, $typeB);
-        $unionB = new UnionType($unionA, $typeC);
+        $unionA = UnionType::from($typeA, $typeB);
+        $unionB = UnionType::from($unionA, $typeC);
 
         self::assertSame(
             [$typeA, $typeB, $typeC],
@@ -58,7 +58,7 @@ final class UnionTypeTest extends TestCase
         $this->expectExceptionCode(1608146262);
         $this->expectExceptionMessage('Type `mixed` can only be used as a standalone type and not as a union member.');
 
-        new UnionType(new FakeType(), new MixedType());
+        UnionType::from(new FakeType(), new MixedType());
     }
 
     public function test_to_string_returns_correct_value(): void

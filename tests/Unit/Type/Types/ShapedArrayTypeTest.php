@@ -63,7 +63,7 @@ final class ShapedArrayTypeTest extends TestCase
         $this->expectExceptionCode(1631283279);
         $this->expectExceptionMessage('Key `42` cannot be used several times in shaped array signature `array{42: string, 42: string}`.');
 
-        new ShapedArrayType(
+        ShapedArrayType::from(
             new ShapedArrayElement(new IntegerValueType(42), new NativeStringType()),
             new ShapedArrayElement(new IntegerValueType(42), new NativeStringType()),
         );
@@ -136,9 +136,9 @@ final class ShapedArrayTypeTest extends TestCase
             new ShapedArrayElement(new IntegerValueType(42), new NativeStringType()),
         );
 
-        $shapedArray = new ShapedArrayType(
+        $shapedArray = new ShapedArrayType([
             new ShapedArrayElement(new IntegerValueType(42), new NativeStringType()),
-        );
+        ]);
 
         self::assertTrue($unsealedShapedArray->matches($shapedArray));
     }
@@ -299,10 +299,10 @@ final class ShapedArrayTypeTest extends TestCase
     {
         self::assertSame(
             'array',
-            (new ShapedArrayType(
+            (new ShapedArrayType([
                 new ShapedArrayElement(new IntegerValueType(42), new NativeIntegerType()),
                 new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
-            ))->nativeType()->toString(),
+            ]))->nativeType()->toString(),
         );
 
         self::assertSame(

@@ -67,13 +67,7 @@ final class TypeCompilerTest extends TestCase
     #[DataProvider('type_is_compiled_correctly_data_provider')]
     public function test_type_is_compiled_correctly(Type $type): void
     {
-        $code = $this->typeCompiler->compile($type);
-
-        try {
-            $compiledType = eval("return $code;");
-        } catch (Error $exception) {
-            self::fail($exception->getMessage());
-        }
+        $compiledType = $this->compiledType($type);
 
         self::assertInstanceOf($type::class, $compiledType);
         self::assertSame($type->toString(), $compiledType->toString());
@@ -113,6 +107,7 @@ final class TypeCompilerTest extends TestCase
         yield [new ArrayType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new ArrayType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new ArrayType(ArrayKeyType::string(), NativeStringType::get())];
+        yield [new ArrayType(new ArrayKeyType([new IntegerValueType(42), new StringValueType('foo')]), NativeStringType::get())];
         yield [NonEmptyArrayType::native()];
         yield [new NonEmptyArrayType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new NonEmptyArrayType(ArrayKeyType::integer(), NativeIntegerType::get())];
@@ -125,10 +120,10 @@ final class TypeCompilerTest extends TestCase
         yield [new NonEmptyListType(NativeFloatType::get())];
         yield [new NonEmptyListType(NativeIntegerType::get())];
         yield [new NonEmptyListType(NativeStringType::get())];
-        yield [new ShapedArrayType(
+        yield [new ShapedArrayType([
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
-        )];
+        ])];
         yield [ShapedArrayType::unsealedWithoutType(
             new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
             new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
@@ -150,7 +145,7 @@ final class TypeCompilerTest extends TestCase
 
     public function test_shaped_array_elements_attributes_are_compiled_properly(): void
     {
-        $type = new ShapedArrayType(
+        $type = new ShapedArrayType([
             new ShapedArrayElement(
                 new IntegerValueType(1337),
                 NativeIntegerType::get(),
@@ -160,7 +155,7 @@ final class TypeCompilerTest extends TestCase
                     FakeAttributeDefinition::new(DateTimeImmutable::class),
                 ),
             ),
-        );
+        ]);
 
         $code = $this->typeCompiler->compile($type);
 
@@ -174,5 +169,32 @@ final class TypeCompilerTest extends TestCase
 
         self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTime::class));
         self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTimeImmutable::class));
+    }
+
+    public function test_default_array_key_types_are_compiled_properly(): void
+    {
+        $defaults = [
+            ArrayKeyType::default(),
+            ArrayKeyType::string(),
+            ArrayKeyType::integer(),
+        ];
+
+        foreach ($defaults as $default) {
+            $compiledType = $this->compiledType($default);
+
+            self::assertSame($default, $compiledType);
+        }
+    }
+
+    private function compiledType(Type $type): Type
+    {
+        $code = $this->typeCompiler->compile($type);
+
+        try {
+            /** @var Type */
+            return eval("return $code;");
+        } catch (Error $exception) {
+            self::fail($exception->getMessage());
+        }
     }
 }

@@ -231,6 +231,6 @@ final class ArrayToken implements TraversingToken
             return ShapedArrayType::unsealedWithoutType(...$elements);
         }
 
-        return new ShapedArrayType(...$elements);
+        return ShapedArrayType::from(...$elements);
     }
 }

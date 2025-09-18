@@ -19,41 +19,20 @@ final class ArrayType implements CompositeTraversableType
 {
     private static self $native;
 
-    private ArrayKeyType $keyType;
+    public function __construct(
+        private ArrayKeyType $keyType,
+        private Type $subType,
+        private bool $simple = false,
+    ) {}
 
-    private Type $subType;
-
-    private string $signature;
-
-    public function __construct(ArrayKeyType $keyType, Type $subType)
-    {
-        $this->keyType = $keyType;
-        $this->subType = $subType;
-        $this->signature = $keyType === ArrayKeyType::default()
-            ? "array<{$subType->toString()}>"
-            : "array<{$keyType->toString()}, {$subType->toString()}>";
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * @infection-ignore-all
-     */
     public static function native(): self
     {
-        if (! isset(self::$native)) {
-            self::$native = new self(ArrayKeyType::default(), MixedType::get());
-            self::$native->signature = 'array';
-        }
-
-        return self::$native;
+        return self::$native ??= new self(ArrayKeyType::default(), MixedType::get());
     }
 
     public static function simple(Type $type): self
     {
-        $instance = new self(ArrayKeyType::default(), $type);
-        $instance->signature = $instance->subType->toString() . '[]';
-
-        return $instance;
+        return new self(ArrayKeyType::default(), $type, simple: true);
     }
 
     public function accepts(mixed $value): bool
@@ -138,6 +117,16 @@ final class ArrayType implements CompositeTraversableType
 
     public function toString(): string
     {
-        return $this->signature;
+        if ($this === self::native()) {
+            return 'array';
+        }
+
+        if ($this->simple) {
+            return $this->subType->toString() . '[]';
+        }
+
+        return $this->keyType === ArrayKeyType::default()
+            ? "array<{$this->subType->toString()}>"
+            : "array<{$this->keyType->toString()}, {$this->subType->toString()}>";
     }
 }

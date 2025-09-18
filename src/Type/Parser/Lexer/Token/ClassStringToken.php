@@ -36,7 +36,7 @@ final class ClassStringToken implements TraversingToken
             throw new ClassStringClosingBracketMissing($type);
         }
 
-        return new ClassStringType($type);
+        return ClassStringType::from($type);
     }
 
     public function symbol(): string

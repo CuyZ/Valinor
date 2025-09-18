@@ -31,13 +31,14 @@ final class IntersectionTypeTest extends TestCase
         $types = (new IntersectionType(
             $typeA,
             $typeB,
-            // Putting those in associative array on purpose
-            ...['C' => $typeC, 'D' => $typeD],
+            $typeC,
+            $typeD,
         ))->types();
 
         self::assertSame($typeA, $types[0]);
         self::assertSame($typeB, $types[1]);
         self::assertSame($typeC, $types[2]);
+        self::assertSame($typeD, $types[3]);
     }
 
     public function test_to_string_returns_correct_value(): void

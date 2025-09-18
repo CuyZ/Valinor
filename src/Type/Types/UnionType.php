@@ -21,9 +21,18 @@ final class UnionType implements CombiningType
     /** @var non-empty-list<Type> */
     private array $types;
 
-    private string $signature;
-
+    /**
+     * @no-named-arguments
+     */
     public function __construct(Type $type, Type $otherType, Type ...$otherTypes)
+    {
+        $this->types = [$type, $otherType, ...$otherTypes];
+    }
+
+    /**
+     * @no-named-arguments
+     */
+    public static function from(Type $type, Type $otherType, Type ...$otherTypes): self
     {
         $types = [$type, $otherType, ...$otherTypes];
         $filteredTypes = [];
@@ -44,8 +53,7 @@ final class UnionType implements CombiningType
             $filteredTypes[] = $subType;
         }
 
-        $this->types = $filteredTypes;
-        $this->signature = implode('|', array_map(fn (Type $type) => $type->toString(), $this->types));
+        return new self(...$filteredTypes);
     }
 
     public function accepts(mixed $value): bool
@@ -138,6 +146,6 @@ final class UnionType implements CombiningType
 
     public function toString(): string
     {
-        return $this->signature;
+        return implode('|', array_map(static fn (Type $type) => $type->toString(), $this->types));
     }
 }
