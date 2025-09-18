@@ -24,14 +24,12 @@ final class TypeDumper
     private const MAX_LENGTH = 150;
 
     public function __construct(
-        private ClassDefinitionRepository $classDefinitionRepository,
-        private ObjectBuilderFactory $objectBuilderFactory
+        private readonly ClassDefinitionRepository $classDefinitionRepository,
+        private readonly ObjectBuilderFactory $objectBuilderFactory
     ) {}
 
-    public function dump(Type $type, ?TypeDumpContext $context = null): string
+    public function dump(Type $type, TypeDumpContext $context = new TypeDumpContext()): string
     {
-        $context = (null === $context) ? TypeDumpContext::root() : $context->nextDepth();
-
         if ($type instanceof EnumType) {
             return $type->readableSignature();
         } elseif ($type instanceof ObjectType) {
@@ -70,7 +68,9 @@ final class TypeDumper
             $context = $context->addWeight(TypeHelper::typePriority($arg->type()));
             $subText = sprintf('%s%s: %s', $arg->name(), $arg->isRequired() ? '' : '?', $this->dump($arg->type(), $context));
             $context = $context->addLength(strlen($subText));
-            $subTexts[] = $context->length > self::MAX_LENGTH ? sprintf('%s%s: array{…}', $arg->name(), $arg->isRequired() ? '' : '?') : $subText;
+            $subTexts[] = $context->length > self::MAX_LENGTH ?
+                sprintf('%s%s: array{…}', $arg->name(), $arg->isRequired() ? '' : '?') :
+                $subText;
         }
 
         return new ArgumentsDump($context->weight, 'array{' . implode(', ', $subTexts) . '}');
