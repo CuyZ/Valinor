@@ -28,52 +28,68 @@ final class TypeDumper
         private readonly ObjectBuilderFactory $objectBuilderFactory
     ) {}
 
-    public function dump(Type $type, TypeDumpContext $context = new TypeDumpContext()): string
+    public function dump(Type $type): string
+    {
+        return $this->doDump(type: $type, length: 0, weight: 0);
+    }
+
+    private function doDump(Type $type, int $length, int $weight): string
     {
         if ($type instanceof EnumType) {
             return $type->readableSignature();
         } elseif ($type instanceof ObjectType) {
-            return $this->getStringTypeFromObject($type, $context);
+            return $this->getStringTypeFromObject($type, $length, $weight);
         }
 
         return $type->toString();
     }
 
-    private function getStringTypeFromObject(ObjectType $type, TypeDumpContext $context): string
+    private function getStringTypeFromObject(ObjectType $type, int $length, int $weight): string
     {
         $class = $this->classDefinitionRepository->for($type);
         $objectBuilders = $this->objectBuilderFactory->for($class);
 
         $textArray = array_map(
-            fn (ObjectBuilder $builder) => $this->formatArguments($builder->describeArguments(), $context),
+            fn (ObjectBuilder $builder) => $this->formatArguments($builder->describeArguments(), $length, $weight),
             $objectBuilders
         );
 
-        usort($textArray, fn (ArgumentsDump $a, ArgumentsDump $b) => $a->weight <=> $b->weight);
-        return implode('|', array_map(fn (ArgumentsDump $dump) => $dump->type, $textArray));
+        usort($textArray, static fn ($a, $b) => $a['weight'] <=> $b['weight']);
+
+        return implode('|', array_map(static fn ($dump) => $dump['type'], $textArray));
     }
 
-    private function formatArguments(Arguments $arguments, TypeDumpContext $context): ArgumentsDump
+    /**
+     * @return array{weight: int, type: string}
+     */
+    private function formatArguments(Arguments $arguments, int $length, int $weight): array
     {
-        $argumentsArray = $arguments->toArray();
+        if (count($arguments) === 1) {
+            $argument = $arguments->at(0);
 
-        if (count($argumentsArray) === 1) {
-            $arg = reset($argumentsArray);
-            $context = $context->addWeight(TypeHelper::typePriority($arg->type()));
-            return new ArgumentsDump($context->weight, $this->dump($arg->type(), $context));
+            return [
+                'weight' => $weight + TypeHelper::typePriority($argument->type()),
+                'type' => $this->doDump($argument->type(), $length, $weight),
+            ];
         }
 
         $subTexts = [];
-        foreach ($argumentsArray as $arg) {
-            $context = $context->addWeight(TypeHelper::typePriority($arg->type()));
-            $subText = sprintf('%s%s: %s', $arg->name(), $arg->isRequired() ? '' : '?', $this->dump($arg->type(), $context));
-            $context = $context->addLength(strlen($subText));
-            $subTexts[] = $context->length > self::MAX_LENGTH ?
-                sprintf('%s%s: array{…}', $arg->name(), $arg->isRequired() ? '' : '?') :
+
+        foreach ($arguments as $argument) {
+            $weight += TypeHelper::typePriority($argument->type());
+
+            $subText = sprintf('%s%s: %s', $argument->name(), $argument->isRequired() ? '' : '?', $this->doDump($argument->type(), $length, $weight));
+
+            $length += strlen($subText);
+
+            $subTexts[] = $length > self::MAX_LENGTH ?
+                sprintf('%s%s: array{…}', $argument->name(), $argument->isRequired() ? '' : '?') :
                 $subText;
         }
 
-        return new ArgumentsDump($context->weight, 'array{' . implode(', ', $subTexts) . '}');
+        return [
+            'weight' => $weight,
+            'type' => 'array{' . implode(', ', $subTexts) . '}',
+        ];
     }
-
 }

@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 final class TypeDumperTest extends FunctionalTestCase
 {
-    #[DataProvider('getTypeCases')]
+    #[DataProvider('type_dump_is_correct_data_provider')]
     public function test_type_dump_is_correct(Type $type, string $expected): void
     {
         $result = $this->getService(TypeDumper::class)->dump($type);
@@ -27,20 +27,37 @@ final class TypeDumperTest extends FunctionalTestCase
     /**
      * @return iterable<array{Type, string}>
      */
-    public static function getTypeCases(): iterable
+    public static function type_dump_is_correct_data_provider(): iterable
     {
-        yield [new NativeStringType(), 'string'];
-        yield [new NativeIntegerType(), 'int'];
-        yield [new NativeClassType(WithTwoProperties::class), 'array{foo: string, bar: int}'];
         yield [
-            new NativeClassType(WithTwoConstructors::class),
-            'int|array{intValue: int, stringValue?: string}|array{intValue: int, twoProperties: array{foo: string, bar: int}}'
+            'type' => new NativeStringType(),
+            'expected' => 'string'
         ];
+
         yield [
-            new NativeClassType(ObjectWithLotsOfProperties::class),
-            'array{propertyA: string, propertyB: string, propertyC: string, propertyD: string, propertyE: string, propertyF: string, propertyG: string, propertyH: string, withTwoProperties: array{…}}'
+            'type' => new NativeIntegerType(),
+            'expected' => 'int'
         ];
-        yield [EnumType::native(SomeEnum::class), 'FOO|BAR|BAZ'];
+
+        yield [
+            'type' => new NativeClassType(WithTwoProperties::class),
+            'expected' => 'array{foo: string, bar: int}'
+        ];
+
+        yield [
+            'type' => new NativeClassType(WithTwoConstructors::class),
+            'expected' => 'int|array{intValue: int, stringValue?: string}|array{intValue: int, twoProperties: array{foo: string, bar: int}}'
+        ];
+
+        yield [
+            'type' => new NativeClassType(ObjectWithLotsOfProperties::class),
+            'expected' => 'array{propertyA: string, propertyB: string, propertyC: string, propertyD: string, propertyE: string, propertyF: string, propertyG: string, propertyH: string, withTwoProperties: array{…}}'
+        ];
+
+        yield [
+            'type' => EnumType::native(SomeEnum::class),
+            'expected' => 'FOO|BAR|BAZ'
+        ];
 
     }
 
