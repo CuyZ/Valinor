@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
@@ -25,6 +26,10 @@ final class ClassStringToken implements TraversingToken
         }
 
         $stream->forward();
+
+        if ($stream->done()) {
+            throw new ClassStringMissingSubType();
+        }
 
         $type = $stream->read();
 
