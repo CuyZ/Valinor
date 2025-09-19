@@ -67,7 +67,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
             $returnType = UnresolvableType::forNonMatchingFunctionReturnTypes($name, $nativeReturnType, $returnType);
         }
 
-        return new FunctionDefinition(
+        return (new FunctionDefinition(
             $name,
             $signature,
             new Attributes(...$this->attributesRepository->for($reflection)),
@@ -77,7 +77,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
             $isClosure,
             new Parameters(...$parameters),
             $returnType,
-        );
+        ))->forCallable($function);
     }
 
     /**
