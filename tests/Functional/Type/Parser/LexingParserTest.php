@@ -26,9 +26,6 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidIterableKey;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\IterableClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\IterableCommaMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
@@ -1234,17 +1231,17 @@ final class LexingParserTest extends TestCase
 
     public function test_invalid_iterable_key_throws_exception(): void
     {
-        $this->expectException(InvalidIterableKey::class);
-        $this->expectExceptionCode(1618994708);
-        $this->expectExceptionMessage('Invalid key type `float` for `iterable<float, string>`. It must be one of `array-key`, `int` or `string`.');
+        $this->expectException(InvalidArrayKey::class);
+        $this->expectExceptionCode(1604335007);
+        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('iterable<float, string>');
     }
 
     public function test_missing_iterable_comma_throws_exception(): void
     {
-        $this->expectException(IterableCommaMissing::class);
-        $this->expectExceptionCode(1618994669);
+        $this->expectException(ArrayCommaMissing::class);
+        $this->expectExceptionCode(1606483614);
         $this->expectExceptionMessage('A comma is missing for `iterable<int, ?>`.');
 
         $this->parser->parse('iterable<int string>');
@@ -1252,8 +1249,8 @@ final class LexingParserTest extends TestCase
 
     public function test_missing_iterable_closing_bracket_throws_exception(): void
     {
-        $this->expectException(IterableClosingBracketMissing::class);
-        $this->expectExceptionCode(1618994728);
+        $this->expectException(ArrayClosingBracketMissing::class);
+        $this->expectExceptionCode(1606483975);
         $this->expectExceptionMessage('The closing bracket is missing for `iterable<int, string>`.');
 
         $this->parser->parse('iterable<int, string');
