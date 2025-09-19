@@ -142,6 +142,16 @@ final class InterfaceTypeTest extends TestCase
         self::assertFalse((new InterfaceType(DateTime::class))->matches($intersectionType));
     }
 
+    public function test_traverse_type_yields_generic_types(): void
+    {
+        $subTypeA = new FakeType();
+        $subTypeB = new FakeType();
+
+        $type = new InterfaceType(stdClass::class, ['T1' => $subTypeA, 'T2' => $subTypeB]);
+
+        self::assertSame([$subTypeA, $subTypeB], $type->traverse());
+    }
+
     public function test_native_type_is_correct(): void
     {
         self::assertSame(stdClass::class, (new InterfaceType(stdClass::class))->nativeType()->toString());

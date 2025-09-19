@@ -102,4 +102,20 @@ final class TypeHelper
 
         return $type instanceof ObjectType;
     }
+
+    /**
+     * @return list<Type>
+     */
+    public static function traverseRecursively(Type $type): array
+    {
+        $types = [];
+
+        if ($type instanceof CompositeType) {
+            foreach ($type->traverse() as $subType) {
+                $types = [...$types, $subType, ...self::traverseRecursively($subType)];
+            }
+        }
+
+        return $types;
+    }
 }

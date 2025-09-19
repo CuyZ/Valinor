@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 use Generator;
@@ -113,11 +112,7 @@ final class IterableType implements CompositeTraversableType
 
     public function traverse(): array
     {
-        if ($this->subType instanceof CompositeType) {
-            return [$this->subType, ...$this->subType->traverse()];
-        }
-
-        return [$this->subType];
+        return [$this->keyType, $this->subType];
     }
 
     public function nativeType(): IterableType

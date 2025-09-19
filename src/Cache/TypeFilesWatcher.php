@@ -7,10 +7,10 @@ namespace CuyZ\Valinor\Cache;
 use Closure;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Library\Settings;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use CuyZ\Valinor\Utility\TypeHelper;
 use ReflectionFunction;
 
 use function array_filter;
@@ -92,10 +92,8 @@ final class TypeFilesWatcher
             return [];
         }
 
-        if ($type instanceof CompositeType) {
-            foreach ($type->traverse() as $subType) {
-                $files = [...$files, ...$this->filesToWatch($subType, $files)];
-            }
+        foreach (TypeHelper::traverseRecursively($type) as $subType) {
+            $files = [...$files, ...$this->filesToWatch($subType, $files)];
         }
 
         if ($type instanceof ObjectType) {

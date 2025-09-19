@@ -9,11 +9,11 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Utility\TypeHelper;
 
 use function in_array;
 
@@ -51,10 +51,8 @@ final class RecursiveCacheWarmupService
             $this->warmupClassType($type);
         }
 
-        if ($type instanceof CompositeType) {
-            foreach ($type->traverse() as $subType) {
-                $this->warmupType($subType);
-            }
+        foreach (TypeHelper::traverseRecursively($type) as $subType) {
+            $this->warmupType($subType);
         }
     }
 
