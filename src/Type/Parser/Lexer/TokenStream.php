@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
+use CuyZ\Valinor\Type\Parser\Exception\UnexpectedToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\LeftTraversingToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
@@ -31,7 +32,9 @@ final class TokenStream
 
         $token = $this->forward();
 
-        assert($token instanceof TraversingToken);
+        if (! $token instanceof TraversingToken) {
+            throw new UnexpectedToken($token->symbol());
+        }
 
         $type = $token->traverse($this);
 
