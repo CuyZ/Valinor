@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayExpectedCommaOrClosingBracket;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
@@ -63,6 +65,8 @@ final class ArrayToken implements TraversingToken
         }
 
         if ($stream->next() instanceof OpeningBracketToken) {
+            $stream->forward();
+
             return $this->arrayType($stream);
         }
 
@@ -80,8 +84,16 @@ final class ArrayToken implements TraversingToken
 
     private function arrayType(TokenStream $stream): CompositeTraversableType
     {
-        $stream->forward();
+        if ($stream->done()) {
+            throw new ArrayMissingSubType($this->symbol . '<');
+        }
+
         $type = $stream->read();
+
+        if ($stream->done()) {
+            throw new ArrayExpectedCommaOrClosingBracket($this->symbol, $type);
+        }
+
         $token = $stream->forward();
 
         if ($token instanceof ClosingBracketToken) {
@@ -93,6 +105,11 @@ final class ArrayToken implements TraversingToken
         }
 
         $keyType = ArrayKeyType::from($type);
+
+        if ($stream->done()) {
+            throw new ArrayMissingSubType($this->symbol . '<' . $keyType->toString() . ',');
+        }
+
         $subType = $stream->read();
 
         $arrayType = new ($this->arrayType)($keyType, $subType);

@@ -25,8 +25,11 @@ use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayExpectedCommaOrClosingBracket;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
@@ -38,11 +41,13 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSe
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\SimpleArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\MissingClosingQuoteChar;
 use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\RightUnionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeInvalidMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeInvalidMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingClosingBracket;
@@ -50,6 +55,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingComma;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
+use CuyZ\Valinor\Type\Parser\Exception\Scalar\NullableMissingRightType;
 use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
 use CuyZ\Valinor\Type\Parser\Exception\UnexpectedToken;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
@@ -1203,6 +1209,33 @@ final class LexingParserTest extends TestCase
         $this->parser->parse('non-empty-array<int string>');
     }
 
+    public function test_missing_array_subtype_throws_exception(): void
+    {
+        $this->expectException(ArrayMissingSubType::class);
+        $this->expectExceptionCode(1758292926);
+        $this->expectExceptionMessage('The subtype is missing for `array<`.');
+
+        $this->parser->parse('array<');
+    }
+
+    public function test_missing_array_subtype_after_key_type_throws_exception(): void
+    {
+        $this->expectException(ArrayMissingSubType::class);
+        $this->expectExceptionCode(1758292926);
+        $this->expectExceptionMessage('The subtype is missing for `array<string,`.');
+
+        $this->parser->parse('array<string,');
+    }
+
+    public function test_missing_array_comma_or_closing_bracket_throws_exception(): void
+    {
+        $this->expectException(ArrayExpectedCommaOrClosingBracket::class);
+        $this->expectExceptionCode(1758293180);
+        $this->expectExceptionMessage('Expected comma or closing bracket after `array<string`.');
+
+        $this->parser->parse('array<string');
+    }
+
     public function test_missing_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayClosingBracketMissing::class);
@@ -1219,6 +1252,15 @@ final class LexingParserTest extends TestCase
         $this->expectExceptionMessage('The closing bracket is missing for `non-empty-array<int, string>`.');
 
         $this->parser->parse('non-empty-array<int, string');
+    }
+
+    public function test_missing_list_subtype_throws_exception(): void
+    {
+        $this->expectException(ListMissingSubType::class);
+        $this->expectExceptionCode(1758292354);
+        $this->expectExceptionMessage('The subtype is missing for `non-empty-list<`.');
+
+        $this->parser->parse('non-empty-list<');
     }
 
     public function test_missing_list_closing_bracket_throws_exception(): void
@@ -1273,6 +1315,15 @@ final class LexingParserTest extends TestCase
         $this->expectExceptionMessage('The closing bracket is missing for the class string expression `class-string<DateTimeInterface>`.');
 
         $this->parser->parse('class-string<DateTimeInterface');
+    }
+
+    public function test_class_string_missing_subtype_throws_exception(): void
+    {
+        $this->expectException(ClassStringMissingSubType::class);
+        $this->expectExceptionCode(1758293466);
+        $this->expectExceptionMessage('The subtype is missing for `class-string<`.');
+
+        $this->parser->parse('class-string<');
     }
 
     public function test_invalid_class_string_type_throws_exception(): void
@@ -1661,6 +1712,15 @@ final class LexingParserTest extends TestCase
         $this->parser->parse('value-of');
     }
 
+    public function test_value_of_enum_missing_subtype_throws_exception(): void
+    {
+        $this->expectException(ValueOfMissingSubType::class);
+        $this->expectExceptionCode(1758293754);
+        $this->expectExceptionMessage('The subtype is missing for `value-of<`.');
+
+        $this->parser->parse("value-of<");
+    }
+
     public function test_value_of_enum_missing_closing_bracket_throws_exception(): void
     {
         $enumName = BackedStringEnum::class;
@@ -1690,6 +1750,15 @@ final class LexingParserTest extends TestCase
         $this->expectExceptionMessage("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.");
 
         $this->parser->parse("value-of<$enumName>");
+    }
+
+    public function test_nullable_type_missing_right_type_throws_exception(): void
+    {
+        $this->expectException(NullableMissingRightType::class);
+        $this->expectExceptionCode(1758293873);
+        $this->expectExceptionMessage('Missing right type for nullable type after `?`.');
+
+        $this->parser->parse('?');
     }
 }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListMissingSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ListType;
@@ -37,6 +38,10 @@ final class ListToken implements TraversingToken
     {
         if (! $stream->done() && $stream->next() instanceof OpeningBracketToken) {
             $stream->forward();
+
+            if ($stream->done()) {
+                throw new ListMissingSubType($this->symbol);
+            }
 
             $subType = $stream->read();
 
