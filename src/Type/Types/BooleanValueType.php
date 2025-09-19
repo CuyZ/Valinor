@@ -45,14 +45,7 @@ final class BooleanValueType implements BooleanType, FixedType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof UnionType) {
-            return $other->isMatchedBy($this);
-        }
-
-        return $other === $this
-            || $other instanceof NativeBooleanType
-            || $other instanceof ScalarConcreteType
-            || $other instanceof MixedType;
+        return $other->accepts($this->value);
     }
 
     public function canCast(mixed $value): bool
