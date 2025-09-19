@@ -51,6 +51,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
+use CuyZ\Valinor\Type\Parser\Exception\UnexpectedToken;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
@@ -1108,6 +1109,15 @@ final class LexingParserTest extends TestCase
         self::assertInstanceOf(IntegerType::class, $types[0]);
         self::assertInstanceOf(NativeFloatType::class, $types[1]);
         self::assertInstanceOf(StringType::class, $types[2]);
+    }
+
+    public function test_unexpected_non_traversing_token_throws_exception(): void
+    {
+        $this->expectException(UnexpectedToken::class);
+        $this->expectExceptionCode(1758291524);
+        $this->expectExceptionMessage('Unexpected token `>`, expected a valid type.');
+
+        $this->parser->parse('array<>');
     }
 
     public function test_missing_right_union_type_throws_exception(): void
