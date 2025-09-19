@@ -17,7 +17,11 @@ final class ArrayTokenTest extends TestCase
         $nonEmptyArrayA = ArrayToken::nonEmptyArray();
         $nonEmptyArrayB = ArrayToken::nonEmptyArray();
 
+        $iterableA = ArrayToken::iterable();
+        $iterableB = ArrayToken::iterable();
+
         self::assertSame($arrayA, $arrayB);
         self::assertSame($nonEmptyArrayA, $nonEmptyArrayB);
+        self::assertSame($iterableA, $iterableB);
     }
 }

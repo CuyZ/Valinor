@@ -20,6 +20,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\IterableType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -32,8 +33,10 @@ final class ArrayToken implements TraversingToken
 
     private static self $nonEmptyArray;
 
+    private static self $iterable;
+
     private function __construct(
-        /** @var class-string<ArrayType|NonEmptyArrayType> */
+        /** @var class-string<ArrayType|NonEmptyArrayType|IterableType> */
         private string $arrayType,
         private string $symbol
     ) {}
@@ -46,6 +49,11 @@ final class ArrayToken implements TraversingToken
     public static function nonEmptyArray(): self
     {
         return self::$nonEmptyArray ??= new self(NonEmptyArrayType::class, 'non-empty-array');
+    }
+
+    public static function iterable(): self
+    {
+        return self::$iterable ??= new self(IterableType::class, 'iterable');
     }
 
     public function traverse(TokenStream $stream): Type
@@ -81,7 +89,7 @@ final class ArrayToken implements TraversingToken
         }
 
         if (! $token instanceof CommaToken) {
-            throw new ArrayCommaMissing($this->arrayType, $type);
+            throw new ArrayCommaMissing($this->symbol, $type);
         }
 
         $keyType = ArrayKeyType::from($type);
