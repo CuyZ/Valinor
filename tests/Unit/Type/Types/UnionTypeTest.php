@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
@@ -159,25 +158,7 @@ final class UnionTypeTest extends TestCase
 
         $type = new UnionType($subTypeA, $subTypeB);
 
-        self::assertCount(2, $type->traverse());
-        self::assertContains($subTypeA, $type->traverse());
-        self::assertContains($subTypeB, $type->traverse());
-    }
-
-    public function test_traverse_type_yields_types_recursively(): void
-    {
-        $subTypeA = new FakeType();
-        $subTypeB = new FakeType();
-        $compositeTypeA = new FakeCompositeType($subTypeA);
-        $compositeTypeB = new FakeCompositeType($subTypeB);
-
-        $type = new UnionType($compositeTypeA, $compositeTypeB);
-
-        self::assertCount(4, $type->traverse());
-        self::assertContains($subTypeA, $type->traverse());
-        self::assertContains($subTypeB, $type->traverse());
-        self::assertContains($compositeTypeA, $type->traverse());
-        self::assertContains($compositeTypeB, $type->traverse());
+        self::assertSame([$subTypeA, $subTypeB], $type->traverse());
     }
 
     public function test_native_type_is_correct(): void

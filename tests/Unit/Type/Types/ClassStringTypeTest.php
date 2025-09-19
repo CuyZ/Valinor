@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
@@ -270,19 +269,11 @@ final class ClassStringTypeTest extends TestCase
 
     public function test_traverse_type_yields_types_recursively(): void
     {
-        $subTypeA = new FakeType();
-        $subTypeB = new FakeType();
-        $objectTypeA = new FakeObjectCompositeType(stdClass::class, ['Template' => $subTypeA]);
-        $objectTypeB = new FakeObjectCompositeType(stdClass::class, ['Template' => $subTypeB]);
-        $unionType = new UnionType($objectTypeA, $objectTypeB);
+        $subType = new FakeObjectType();
 
-        $type = new ClassStringType($unionType);
+        $type = new ClassStringType($subType);
 
-        self::assertContains($unionType, $type->traverse());
-        self::assertContains($subTypeA, $type->traverse());
-        self::assertContains($subTypeB, $type->traverse());
-        self::assertContains($objectTypeA, $type->traverse());
-        self::assertContains($objectTypeB, $type->traverse());
+        self::assertSame([$subType], $type->traverse());
     }
 
     public function test_native_type_is_correct(): void

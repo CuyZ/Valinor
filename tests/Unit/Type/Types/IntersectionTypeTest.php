@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Tests\Fake\Type\FakeObjectCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
@@ -143,25 +142,7 @@ final class IntersectionTypeTest extends TestCase
 
         $type = new IntersectionType($objectTypeA, $objectTypeB);
 
-        self::assertCount(2, $type->traverse());
-        self::assertContains($objectTypeA, $type->traverse());
-        self::assertContains($objectTypeB, $type->traverse());
-    }
-
-    public function test_traverse_type_yields_types_recursively(): void
-    {
-        $subTypeA = new FakeType();
-        $subTypeB = new FakeType();
-        $objectTypeA = new FakeObjectCompositeType(stdClass::class, ['Template' => $subTypeA]);
-        $objectTypeB = new FakeObjectCompositeType(stdClass::class, ['Template' => $subTypeB]);
-
-        $type = new IntersectionType($objectTypeA, $objectTypeB);
-
-        self::assertCount(4, $type->traverse());
-        self::assertContains($subTypeA, $type->traverse());
-        self::assertContains($subTypeB, $type->traverse());
-        self::assertContains($objectTypeA, $type->traverse());
-        self::assertContains($objectTypeB, $type->traverse());
+        self::assertSame([$objectTypeA, $objectTypeB], $type->traverse());
     }
 
     public function test_native_type_is_correct(): void
