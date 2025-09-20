@@ -68,7 +68,7 @@
             "phpunit"
         ],
         "mutation": [
-            "infection --threads=max --git-diff-lines"
+            "infection --threads=max --git-diff-lines --min-msi=100"
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
