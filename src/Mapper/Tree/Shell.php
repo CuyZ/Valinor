@@ -81,6 +81,10 @@ final class Shell
 
     public function withType(Type $newType): self
     {
+        if ($newType instanceof UnresolvableType) {
+            throw new UnresolvableShellType($newType);
+        }
+
         $clone = clone $this;
         $clone->type = $newType;
         $clone->value = self::castCompatibleValue($newType, $this->value);
