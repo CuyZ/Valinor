@@ -17,6 +17,7 @@
             ]
         }
     },
+    "timeout": 2,
     "tmpDir": "var/cache/infection",
     "logs": {
         "text": "var/infection/infection.log",
