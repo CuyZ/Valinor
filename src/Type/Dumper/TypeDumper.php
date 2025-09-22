@@ -5,26 +5,23 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Dumper;
 
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
+use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Utility\TypeHelper;
 
-use function array_map;
 use function count;
-use function implode;
-use function sprintf;
-use function strlen;
 use function usort;
 
 /** @internal */
 final class TypeDumper
 {
-    private const MAX_LENGTH = 150;
-
     public function __construct(
         private readonly ClassDefinitionRepository $classDefinitionRepository,
         private readonly ObjectBuilderFactory $objectBuilderFactory,
@@ -32,70 +29,75 @@ final class TypeDumper
 
     public function dump(Type $type): string
     {
-        $dump = $this->doDump(type: $type, weight: 0, truncate: false);
+        $context = $this->doDump($type, new TypeDumpContext());
 
-        // If the dump is too long, we re-dump everything but the sub-objects
-        // are being truncated to lower the dump length.
-        if (strlen($dump) > self::MAX_LENGTH) {
-            return $this->doDump(type: $type, weight: 0, truncate: true);
-        }
-
-        return $dump;
+        return $context->read();
     }
 
-    private function doDump(Type $type, int $weight, bool $truncate): string
+    private function doDump(Type $type, TypeDumpContext $context): TypeDumpContext
     {
-        return match (true) {
-            $type instanceof EnumType => $type->readableSignature(),
-            $type instanceof ObjectType => $this->getStringTypeFromObject($type, $weight, $truncate),
-            default => $type->toString(),
+        $context = $context->increaseDepth();
+
+        $context = match (true) {
+            $type instanceof EnumType => $context->write($type->readableSignature()),
+            $type instanceof NativeClassType => $this->getStringTypeFromObject($type, $context),
+            $type instanceof InterfaceType => $context->write('todo interface'),
+            default => $context->write($type->toString()),
         };
+
+        return $context->decreaseDepth();
     }
 
-    private function getStringTypeFromObject(ObjectType $type, int $weight, bool $truncate): string
+    private function getStringTypeFromObject(ObjectType $type, TypeDumpContext $context): TypeDumpContext
     {
-        if ($truncate && $weight > 0) {
-            return 'array{…}';
-        }
-
         $class = $this->classDefinitionRepository->for($type);
         $objectBuilders = $this->objectBuilderFactory->for($class);
 
-        $textArray = array_map(
-            fn (ObjectBuilder $builder) => $this->formatArguments($builder->describeArguments(), $weight, $truncate),
-            $objectBuilders,
-        );
+        usort($objectBuilders, fn ($a, $b) => $this->objectBuilderWeight($a) <=> $this->objectBuilderWeight($b));
 
-        usort($textArray, static fn ($a, $b) => $a['weight'] <=> $b['weight']);
+        while ($builder = array_shift($objectBuilders)) {
+            // @todo detect `array{…}` duplicates
+            $context = $this->formatArguments($builder->describeArguments(), $context);
 
-        return implode('|', array_map(static fn ($dump) => $dump['type'], $textArray));
+            if ($objectBuilders !== []) {
+                $context = $context->write('|');
+            }
+        }
+
+        return $context;
     }
 
-    /**
-     * @return array{type: string, weight: int}
-     */
-    private function formatArguments(Arguments $arguments, int $weight, bool $truncate): array
+    private function formatArguments(Arguments $arguments, TypeDumpContext $context): TypeDumpContext
     {
         if (count($arguments) === 1) {
-            $argument = $arguments->at(0);
-
-            return [
-                'type' => $this->doDump($argument->type(), $weight, $truncate),
-                'weight' => $weight + TypeHelper::typePriority($argument->type()),
-            ];
+            return $this->doDump($arguments->at(0)->type(), $context);
         }
 
-        $subTexts = [];
-
-        foreach ($arguments as $argument) {
-            $weight += TypeHelper::typePriority($argument->type());
-
-            $subTexts[] = sprintf('%s%s: %s', $argument->name(), $argument->isRequired() ? '' : '?', $this->doDump($argument->type(), $weight, $truncate));
+        if ($context->isTooLong()) {
+            return $context->write('array{…}');
         }
 
-        return [
-            'type' => 'array{' . implode(', ', $subTexts) . '}',
-            'weight' => $weight,
-        ];
+        $arguments = $arguments->toArray();
+        $context = $context->write('array{');
+
+        while ($argument = array_shift($arguments)) {
+            $context = $context->write(sprintf('%s%s: ', $argument->name(), $argument->isRequired() ? '' : '?'));
+            $context = $this->doDump($argument->type(), $context);
+
+            if ($arguments !== []) {
+                $context = $context->write(', ');
+            }
+        }
+
+        return $context->write('}');
+    }
+
+    private function objectBuilderWeight(ObjectBuilder $builder): int
+    {
+        return array_reduce(
+            $builder->describeArguments()->toArray(),
+            static fn ($weight, Argument $argument) => $weight + TypeHelper::typePriority($argument->type()),
+            0,
+        );
     }
 }
