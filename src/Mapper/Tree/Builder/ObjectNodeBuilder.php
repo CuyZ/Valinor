@@ -37,7 +37,6 @@ final class ObjectNodeBuilder implements NodeBuilder
     {
         $type = $shell->type();
 
-        // @infection-ignore-all
         assert($type instanceof ObjectType);
 
         if ($type->accepts($shell->value())) {

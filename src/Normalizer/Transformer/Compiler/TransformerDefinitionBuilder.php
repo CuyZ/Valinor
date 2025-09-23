@@ -104,7 +104,6 @@ final class TransformerDefinitionBuilder
 
     private function typeFormatter(Type $type): TypeFormatter
     {
-        // @infection-ignore-all (mutation from `true` to `false` is useless)
         return match (true) {
             $type instanceof CompositeTraversableType => new TraversableFormatter($type->subType()),
             $type instanceof EnumType => new EnumFormatter($type),
