@@ -12,13 +12,14 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use LogicException;
 
 use function is_int;
 
 /** @internal */
-final class ArrayKeyType implements ScalarType
+final class ArrayKeyType implements ScalarType, DumpableType
 {
     private static self $default;
 
@@ -184,6 +185,19 @@ final class ArrayKeyType implements ScalarType
         }
 
         return new UnionType(...array_values($types));
+    }
+
+    public function dumpParts(): iterable
+    {
+        $types = $this->types;
+
+        while ($type = array_shift($types)) {
+            yield $type;
+
+            if ($types !== []) {
+                yield '|';
+            }
+        }
     }
 
     public function toString(): string

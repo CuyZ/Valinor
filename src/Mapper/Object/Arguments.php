@@ -63,6 +63,25 @@ final class Arguments implements IteratorAggregate, Countable
         return array_keys($this->arguments);
     }
 
+    public function merge(self $other): self
+    {
+        return new self(
+            ...$this->arguments,
+            ...array_diff_key($other->arguments, $this->arguments)
+        );
+    }
+
+    public function hash(): string
+    {
+        $arguments = $this->arguments;
+
+        ksort($arguments);
+
+        $arguments = array_map(static fn (Argument $argument) => $argument->type()->toString(), $arguments);
+
+        return hash('xxh128', serialize($arguments));
+    }
+
     /**
      * @return array<string, Argument>
      */

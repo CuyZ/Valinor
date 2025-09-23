@@ -15,8 +15,8 @@ abstract class FunctionalTestCase extends TestCase
      * @param class-string<T> $name
      * @return T
      */
-    protected function getService(string $name): object
+    protected function getService(string $name, Settings $settings = new Settings()): object
     {
-        return (new Container(new Settings()))->get($name);
+        return (new Container($settings))->get($name);
     }
 }

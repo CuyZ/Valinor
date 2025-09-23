@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
@@ -16,7 +17,7 @@ use function array_values;
 use function implode;
 
 /** @internal */
-final class UnionType implements CombiningType
+final class UnionType implements CombiningType, DumpableType
 {
     /** @var non-empty-list<Type> */
     private array $types;
@@ -142,6 +143,19 @@ final class UnionType implements CombiningType
         }
 
         return new self(...array_values($subNativeTypes));
+    }
+
+    public function dumpParts(): iterable
+    {
+        $types = $this->types;
+
+        while ($type = array_shift($types)) {
+            yield $type;
+
+            if ($types !== []) {
+                yield '|';
+            }
+        }
     }
 
     public function toString(): string

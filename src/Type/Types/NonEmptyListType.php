@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 
@@ -15,7 +16,7 @@ use function function_exists;
 use function is_array;
 
 /** @internal */
-final class NonEmptyListType implements CompositeTraversableType
+final class NonEmptyListType implements CompositeTraversableType, DumpableType
 {
     private static self $native;
 
@@ -119,6 +120,13 @@ final class NonEmptyListType implements CompositeTraversableType
     public function nativeType(): ArrayType
     {
         return ArrayType::native();
+    }
+
+    public function dumpParts(): iterable
+    {
+        yield 'non-empty-list<';
+        yield $this->subType;
+        yield '>';
     }
 
     public function toString(): string

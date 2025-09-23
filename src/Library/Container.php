@@ -242,6 +242,11 @@ final class Container
             TypeDumper::class => fn () => new TypeDumper(
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(ObjectBuilderFactory::class),
+                $this->get(ObjectImplementations::class),
+                new FunctionsContainer(
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->customConstructors,
+                ),
             ),
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
