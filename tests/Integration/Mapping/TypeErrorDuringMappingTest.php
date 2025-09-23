@@ -44,6 +44,36 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         $this->mapperBuilder()->mapper()->map($class, ['parameterWithNotMatchingTypes' => true]);
     }
 
+    public function test_property_with_unresolvable_type_throws_exception(): void
+    {
+        $class = (new class () {
+            /** @var InvalidType */
+            public $propertyWithInvalidType; // @phpstan-ignore-line
+        })::class;
+
+        $this->expectException(TypeErrorDuringMapping::class);
+        $this->expectExceptionCode(1711526329);
+        $this->expectExceptionMessage("Error while trying to map to `$class`: The type `InvalidType` for property `$class::\$propertyWithInvalidType` could not be resolved: Cannot parse unknown symbol `InvalidType`.");
+
+        $this->mapperBuilder()->mapper()->map($class, 'foo');
+    }
+
+    public function test_parameter_with_unresolvable_type_throws_exception(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                /** @var InvalidType */
+                public $parameterWithInvalidType = 'foo', // @phpstan-ignore-line
+            ) {}
+        })::class;
+
+        $this->expectException(TypeErrorDuringMapping::class);
+        $this->expectExceptionCode(1711526329);
+        $this->expectExceptionMessage("Error while trying to map to `$class`: The type `InvalidType` for parameter `$class::__construct(\$parameterWithInvalidType)` could not be resolved: Cannot parse unknown symbol `InvalidType`.");
+
+        $this->mapperBuilder()->mapper()->map($class, 'foo');
+    }
+
     public function test_function_parameter_with_non_matching_types_throws_exception(): void
     {
         $function =

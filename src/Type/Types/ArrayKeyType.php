@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
 use CuyZ\Valinor\Type\ScalarType;
@@ -19,7 +20,7 @@ use LogicException;
 use function is_int;
 
 /** @internal */
-final class ArrayKeyType implements ScalarType, DumpableType
+final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
 {
     private static self $default;
 
@@ -170,6 +171,11 @@ final class ArrayKeyType implements ScalarType, DumpableType
         return MessageBuilder::newError('Value {source_value} is not a valid array key.')
             ->withCode('invalid_array_key')
             ->build();
+    }
+
+    public function traverse(): array
+    {
+        return $this->types;
     }
 
     public function nativeType(): Type

@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -215,26 +214,14 @@ final class IterableTypeTest extends TestCase
         self::assertFalse(IterableType::native()->matches($unionType));
     }
 
-    public function test_traverse_type_yields_sub_type(): void
+    public function test_traverse_type_yields_array_key_and_sub_type(): void
     {
+        $arrayKeyType = ArrayKeyType::default();
         $subType = new FakeType();
 
-        $type = new IterableType(ArrayKeyType::default(), $subType);
+        $type = new IterableType($arrayKeyType, $subType);
 
-        self::assertCount(1, $type->traverse());
-        self::assertContains($subType, $type->traverse());
-    }
-
-    public function test_traverse_type_yields_types_recursively(): void
-    {
-        $subType = new FakeType();
-        $compositeType = new FakeCompositeType($subType);
-
-        $type = new IterableType(ArrayKeyType::default(), $compositeType);
-
-        self::assertCount(2, $type->traverse());
-        self::assertContains($subType, $type->traverse());
-        self::assertContains($compositeType, $type->traverse());
+        self::assertSame([$arrayKeyType, $subType], $type->traverse());
     }
 
     public function test_native_type_is_correct(): void

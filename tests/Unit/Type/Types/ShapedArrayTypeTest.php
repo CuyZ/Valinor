@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Tests\Fake\Type\FakeCompositeType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
 use CuyZ\Valinor\Type\Type;
@@ -255,7 +254,7 @@ final class ShapedArrayTypeTest extends TestCase
 
     public function test_traverse_type_yields_sub_types(): void
     {
-        $unsealedType = new ArrayType(ArrayKeyType::integer(), new NonEmptyStringType());
+        $unsealedType = new ArrayType(ArrayKeyType::integer(), new FakeType());
         $subTypeA = new FakeType();
         $subTypeB = new FakeType();
 
@@ -265,34 +264,7 @@ final class ShapedArrayTypeTest extends TestCase
             new ShapedArrayElement(new StringValueType('bar'), $subTypeB),
         );
 
-        self::assertCount(4, $type->traverse());
-        self::assertContains($unsealedType, $type->traverse());
-        self::assertContains($subTypeA, $type->traverse());
-        self::assertContains($subTypeB, $type->traverse());
-    }
-
-    public function test_traverse_type_yields_types_recursively(): void
-    {
-        $unsealedSubType = new NonEmptyStringType();
-        $unsealedType = new ArrayType(ArrayKeyType::integer(), ArrayType::simple($unsealedSubType));
-        $subTypeA = new FakeType();
-        $subTypeB = new FakeType();
-        $compositeTypeA = new FakeCompositeType($subTypeA);
-        $compositeTypeB = new FakeCompositeType($subTypeB);
-
-        $type = ShapedArrayType::unsealed(
-            $unsealedType,
-            new ShapedArrayElement(new StringValueType('foo'), $compositeTypeA),
-            new ShapedArrayElement(new StringValueType('bar'), $compositeTypeB),
-        );
-
-        self::assertCount(7, $type->traverse());
-        self::assertContains($unsealedType, $type->traverse());
-        self::assertContains($unsealedSubType, $type->traverse());
-        self::assertContains($subTypeA, $type->traverse());
-        self::assertContains($subTypeB, $type->traverse());
-        self::assertContains($compositeTypeA, $type->traverse());
-        self::assertContains($compositeTypeB, $type->traverse());
+        self::assertSame([$subTypeA, $subTypeB, $unsealedType], $type->traverse());
     }
 
     public function test_native_type_is_correct(): void

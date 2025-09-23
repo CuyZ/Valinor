@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser;
 
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassTemplatesResolver;
-use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\AssignedGenericNotFound;
@@ -16,6 +15,7 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Utility\TypeHelper;
 
 use function array_keys;
 
@@ -38,10 +38,8 @@ final class GenericCheckerParser implements TypeParser
 
     private function checkGenerics(Type $type): void
     {
-        if ($type instanceof CompositeTraversableType) {
-            foreach ($type->traverse() as $subType) {
-                $this->checkGenerics($subType);
-            }
+        foreach (TypeHelper::traverseRecursively($type) as $subType) {
+            $this->checkGenerics($subType);
         }
 
         if (! $type instanceof GenericType) {

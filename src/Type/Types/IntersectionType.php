@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
@@ -78,17 +77,7 @@ final class IntersectionType implements CombiningType
 
     public function traverse(): array
     {
-        $types = [];
-
-        foreach ($this->types as $type) {
-            $types[] = $type;
-
-            if ($type instanceof CompositeType) {
-                $types = [...$types, ...$type->traverse()];
-            }
-        }
-
-        return $types;
+        return $this->types;
     }
 
     /**

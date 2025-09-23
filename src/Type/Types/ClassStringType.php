@@ -165,10 +165,6 @@ final class ClassStringType implements StringType, CompositeType
             return [];
         }
 
-        if ($this->subType instanceof CompositeType) {
-            return [$this->subType, ...$this->subType->traverse()];
-        }
-
         return [$this->subType];
     }
 

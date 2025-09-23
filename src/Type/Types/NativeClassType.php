@@ -8,10 +8,10 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\GenericType;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
+use function array_values;
 use function is_a;
 
 /** @internal */
@@ -65,17 +65,7 @@ final class NativeClassType implements ClassType, GenericType
 
     public function traverse(): array
     {
-        $types = [];
-
-        foreach ($this->generics as $type) {
-            $types[] = $type;
-
-            if ($type instanceof CompositeType) {
-                $types = [...$types, ...$type->traverse()];
-            }
-        }
-
-        return $types;
+        return array_values($this->generics);
     }
 
     public function nativeType(): NativeClassType

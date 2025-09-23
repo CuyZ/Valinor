@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 use BackedEnum;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
@@ -29,6 +30,10 @@ final class ValueOfToken implements TraversingToken
     {
         if ($stream->done() || !$stream->forward() instanceof OpeningBracketToken) {
             throw new ValueOfOpeningBracketMissing();
+        }
+
+        if ($stream->done()) {
+            throw new ValueOfMissingSubType();
         }
 
         $subType = $stream->read();

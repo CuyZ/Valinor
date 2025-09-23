@@ -220,18 +220,10 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
     public function traverse(): array
     {
-        $types = [];
+        $types = array_map(static fn (ShapedArrayElement $element) => $element->type(), $this->elements);
 
-        foreach ($this->elements as $element) {
-            $types[] = $type = $element->type();
-
-            if ($type instanceof CompositeType) {
-                $types = [...$types, ...$type->traverse()];
-            }
-        }
-
-        if ($this->isUnsealed) {
-            $types = [...$types, $this->unsealedType(), ...$this->unsealedType()->traverse()];
+        if (isset($this->unsealedType)) {
+            $types[] = $this->unsealedType;
         }
 
         return $types;

@@ -7,10 +7,10 @@ namespace CuyZ\Valinor\Mapper\Object\Factory;
 use CuyZ\Valinor\Definition\ClassDefinition;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Exception\PermissiveTypeNotAllowed;
-use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
+use CuyZ\Valinor\Utility\TypeHelper;
 
 /** @internal */
 final class StrictTypesObjectBuilderFactory implements ObjectBuilderFactory
@@ -34,10 +34,8 @@ final class StrictTypesObjectBuilderFactory implements ObjectBuilderFactory
 
     private function checkPresenceOfPermissiveType(Argument $argument, Type $type): void
     {
-        if ($type instanceof CompositeType) {
-            foreach ($type->traverse() as $subType) {
-                self::checkPresenceOfPermissiveType($argument, $subType);
-            }
+        foreach (TypeHelper::traverseRecursively($type) as $subType) {
+            self::checkPresenceOfPermissiveType($argument, $subType);
         }
 
         if ($type instanceof MixedType || $type instanceof UndefinedObjectType) {
