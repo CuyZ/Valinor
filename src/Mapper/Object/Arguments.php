@@ -71,17 +71,6 @@ final class Arguments implements IteratorAggregate, Countable
         );
     }
 
-    public function hash(): string
-    {
-        $arguments = $this->arguments;
-
-        ksort($arguments);
-
-        $arguments = array_map(static fn (Argument $argument) => $argument->type()->toString(), $arguments);
-
-        return hash('xxh128', serialize($arguments));
-    }
-
     /**
      * @return array<string, Argument>
      */

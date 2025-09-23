@@ -127,7 +127,7 @@ final class TypeDumper
 
                 // We use the arguments hash to prevent constructor duplicates
                 // that can be shared between different classes.
-                $classArguments[$arguments->hash()] = $interfaceArguments->merge($arguments);
+                $classArguments[$this->argumentsHash($arguments)] = $interfaceArguments->merge($arguments);
             }
         }
 
@@ -178,6 +178,17 @@ final class TypeDumper
             // @infection-ignore-all (the initial value does not really matter here)
             initial: 0,
         );
+    }
+
+    private function argumentsHash(Arguments $arguments): string
+    {
+        $arguments = $arguments->toArray();
+
+        ksort($arguments);
+
+        $arguments = array_map(static fn (Argument $argument) => $argument->type()->toString(), $arguments);
+
+        return hash('xxh128', serialize($arguments));
     }
 
     private function constructorRegisteredFor(Type $type): bool
