@@ -74,7 +74,7 @@ final class TypeDumperTest extends FunctionalTestCase
 
         yield 'class with lots of properties' => [
             'type' => new NativeClassType(ClassWithLotsOfProperties::class),
-            'expected' => 'array{firstObject: array{foo: string, bar: int}, propertyA: string, propertyB: string, propertyC: string, propertyD: string, propertyE: string, propertyF: string, secondObject: array{…}}',
+            'expected' => 'array{firstObject: array{foo: string, bar: int}, propertyA: string, propertyB: string, propertyC: string, propertyD: string, propertyE: string, propertyF: string, secondObject: int|array{…}}',
         ];
 
         yield 'array of class (with no array-key)' => [
@@ -232,7 +232,7 @@ class ClassWithLotsOfProperties
     public string $propertyD;
     public string $propertyE;
     public string $propertyF;
-    public ClassWithTwoProperties $secondObject;
+    public ClassWithSeveralConstructors $secondObject;
 }
 
 enum SomeEnum

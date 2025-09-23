@@ -9,6 +9,7 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\DumpableType;
@@ -76,16 +77,12 @@ final class TypeDumper
 
         usort($objectBuilders, fn ($a, $b) => $this->argumentsWeight($a->describeArguments()) <=> $this->argumentsWeight($b->describeArguments()));
 
-        while ($builder = array_shift($objectBuilders)) {
-            // @todo detect `array{…}` duplicates
-            $context = $this->formatArguments($builder->describeArguments(), $context);
+        $arguments = array_map(
+            static fn (ObjectBuilder $builder) => $builder->describeArguments(),
+            $objectBuilders,
+        );
 
-            if ($objectBuilders !== []) {
-                $context = $context->write('|');
-            }
-        }
-
-        return $context;
+        return $this->formatArguments($arguments, $context);
     }
 
     /**
@@ -119,7 +116,7 @@ final class TypeDumper
 
         $classTypes = $this->implementations->implementations($type->className());
 
-        $classesArguments = [];
+        $classArguments = [];
 
         foreach ($classTypes as $classType) {
             $class = $this->classDefinitionRepository->for($classType);
@@ -130,46 +127,47 @@ final class TypeDumper
 
                 // We use the arguments hash to prevent constructor duplicates
                 // that can be shared between different classes.
-                $classesArguments[$arguments->hash()] = $interfaceArguments->merge($arguments);
+                $classArguments[$arguments->hash()] = $interfaceArguments->merge($arguments);
             }
         }
 
-        usort($classesArguments, fn ($a, $b) => $this->argumentsWeight($a) <=> $this->argumentsWeight($b));
+        usort($classArguments, fn ($a, $b) => $this->argumentsWeight($a) <=> $this->argumentsWeight($b));
 
-        while ($classArguments = array_shift($classesArguments)) {
-            $context = $this->formatArguments($classArguments, $context);
+        return $this->formatArguments($classArguments, $context);
+    }
 
-            if ($classesArguments !== []) {
+    /**
+     * @param non-empty-array<Arguments> $argumentsList
+     */
+    private function formatArguments(array $argumentsList, TypeDumpContext $context): TypeDumpContext
+    {
+        while ($arguments = array_shift($argumentsList)) {
+            if (count($arguments) === 1) {
+                $context = $this->doDump($arguments->at(0)->type(), $context);
+            } elseif ($context->isTooLong()) {
+                return $context->write('array{…}');
+            } else {
+                $arguments = $arguments->toArray();
+                $context = $context->write('array{');
+
+                while ($argument = array_shift($arguments)) {
+                    $context = $context->write(sprintf('%s%s: ', $argument->name(), $argument->isRequired() ? '' : '?'));
+                    $context = $this->doDump($argument->type(), $context);
+
+                    if ($arguments !== []) {
+                        $context = $context->write(', ');
+                    }
+                }
+
+                $context = $context->write('}');
+            }
+
+            if ($argumentsList !== []) {
                 $context = $context->write('|');
             }
         }
 
         return $context;
-    }
-
-    private function formatArguments(Arguments $arguments, TypeDumpContext $context): TypeDumpContext
-    {
-        if (count($arguments) === 1) {
-            return $this->doDump($arguments->at(0)->type(), $context);
-        }
-
-        if ($context->isTooLong()) {
-            return $context->write('array{…}');
-        }
-
-        $arguments = $arguments->toArray();
-        $context = $context->write('array{');
-
-        while ($argument = array_shift($arguments)) {
-            $context = $context->write(sprintf('%s%s: ', $argument->name(), $argument->isRequired() ? '' : '?'));
-            $context = $this->doDump($argument->type(), $context);
-
-            if ($arguments !== []) {
-                $context = $context->write(', ');
-            }
-        }
-
-        return $context->write('}');
     }
 
     private function argumentsWeight(Arguments $arguments): int
