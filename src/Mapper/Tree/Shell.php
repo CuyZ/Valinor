@@ -7,8 +7,10 @@ namespace CuyZ\Valinor\Mapper\Tree;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
+use CuyZ\Valinor\Type\Dumper\TypeDumper;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use function assert;
@@ -20,6 +22,8 @@ use function is_iterable;
 final class Shell
 {
     private Settings $settings;
+
+    private TypeDumper $typeDumper;
 
     private Type $type;
 
@@ -40,30 +44,32 @@ final class Shell
     /**
      * @param list<string> $path
      */
-    private function __construct(Settings $settings, Type $type, array $path = [])
+    private function __construct(Settings $settings, TypeDumper $typeDumper, Type $type, array $path = [])
     {
         if ($type instanceof UnresolvableType) {
             throw new UnresolvableShellType($type);
         }
 
         $this->settings = $settings;
+        $this->typeDumper = $typeDumper;
         $this->type = $type;
         $this->path = $path;
     }
 
     public static function root(
         Settings $settings,
+        TypeDumper $typeDumper,
         Type $type,
         mixed $value,
     ): self {
-        return (new self($settings, $type))->withValue($value);
+        return (new self($settings, $typeDumper, $type))->withValue($value);
     }
 
     public function child(string $name, Type $type): self
     {
         $path = $this->path;
         $path[] = $name;
-        $instance = new self($this->settings, $type, $path);
+        $instance = new self($this->settings, $this->typeDumper, $type, $path);
         $instance->name = $name;
 
         return $instance;
@@ -192,6 +198,18 @@ final class Shell
         }
 
         return implode('.', $this->path);
+    }
+
+    public function expectedSignature(): string
+    {
+        if ($this->type instanceof UnionType) {
+            return implode(', ', array_map(
+                fn (Type $type) => $this->typeDumper->dump($type),
+                $this->type->types(),
+            ));
+        }
+
+        return $this->typeDumper->dump($this->type);
     }
 
     private static function castCompatibleValue(Type $type, mixed $value): mixed

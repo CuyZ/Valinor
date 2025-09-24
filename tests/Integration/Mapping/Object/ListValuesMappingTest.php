@@ -56,7 +56,7 @@ final class ListValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('non-empty-list<string>', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[value_is_empty_list] List cannot be empty and must contain values of type `string`.",
+                '*root*' => "[value_is_empty_list] Cannot be empty and must be filled with a value matching `non-empty-list<string>`.",
             ]);
         }
     }

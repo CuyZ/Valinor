@@ -326,7 +326,7 @@ final class UnionMappingTest extends IntegrationTestCase
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[too_many_resolved_types_from_union] Invalid value 'foo', it matches two or more types from union: cannot take a decision.",
+                '*root*' => "[too_many_resolved_types_from_union] Invalid value 'foo', cannot take a decision because it matches two or more types from `string|array{string: string}`, `string|array{string: string}`.",
             ]);
         }
     }
@@ -345,7 +345,7 @@ final class UnionMappingTest extends IntegrationTestCase
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[too_many_resolved_types_from_union] Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.",
+                '*root*' => "[too_many_resolved_types_from_union] Invalid value array{string: 'foo'}, cannot take a decision because it matches two or more types from `string|array{string: string}`, `string|array{string: string}`.",
             ]);
         }
     }
@@ -363,7 +363,7 @@ final class UnionMappingTest extends IntegrationTestCase
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[too_many_resolved_types_from_union] Invalid value array{0: 'foo', 1: 'bar'}, it matches two or more types from `array<string>`, `array<'foo'|'bar'>`: cannot take a decision.",
+                '*root*' => "[too_many_resolved_types_from_union] Invalid value array{0: 'foo', 1: 'bar'}, cannot take a decision because it matches two or more types from `array<string>`, `array<'foo'|'bar'>`.",
             ]);
         }
     }
@@ -381,7 +381,7 @@ final class UnionMappingTest extends IntegrationTestCase
             self::fail('No mapping error when one was expected');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[too_many_resolved_types_from_union] Invalid value array{string: 'foo'}, it matches two or more types from union: cannot take a decision.",
+                '*root*' => "[too_many_resolved_types_from_union] Invalid value array{string: 'foo'}, cannot take a decision because it matches two or more types from `array{string: string}`, `string|array{string: string}`.",
             ]);
         }
     }

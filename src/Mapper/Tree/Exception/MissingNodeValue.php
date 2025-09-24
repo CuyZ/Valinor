@@ -6,25 +6,24 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
-use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
+use CuyZ\Valinor\Mapper\Tree\Message\Message;
+use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\TypeHelper;
 
 /** @internal */
-final class MissingNodeValue implements ErrorMessage, HasCode, HasParameters
+final class MissingNodeValue implements ErrorMessage, HasCode
 {
-    private string $body = 'Cannot be empty and must be filled with a value matching type {expected_type}.';
+    private string $body = 'Cannot be empty and must be filled with a value matching {expected_signature}.';
 
     private string $code = 'missing_value';
 
-    /** @var array<string, string> */
-    private array $parameters;
-
-    public function __construct(Type $type)
+    public static function from(Type $type): Message
     {
-        $this->parameters = [
-            'expected_type' => TypeHelper::dump($type),
-        ];
+        if ($type instanceof ScalarType) {
+            return $type->errorMessage();
+        }
+
+        return new self();
     }
 
     public function body(): string
@@ -35,10 +34,5 @@ final class MissingNodeValue implements ErrorMessage, HasCode, HasParameters
     public function code(): string
     {
         return $this->code;
-    }
-
-    public function parameters(): array
-    {
-        return $this->parameters;
     }
 }

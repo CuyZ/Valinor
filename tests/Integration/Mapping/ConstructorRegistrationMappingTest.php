@@ -674,7 +674,7 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
                 ->map(stdClass::class, []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[cannot_find_object_builder] Value array (empty) does not match any of `string`, `array{bar: int, baz?: float}`.",
+                '*root*' => "[cannot_find_object_builder] Value array (empty) does not match `string|array{foo: string}|array{bar: int, baz?: float}`.",
             ]);
         }
     }

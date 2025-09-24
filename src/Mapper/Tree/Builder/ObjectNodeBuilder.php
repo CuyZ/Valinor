@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\CircularDependencyDetected;
@@ -56,10 +55,6 @@ final class ObjectNodeBuilder implements NodeBuilder
             $argumentsValues = ArgumentsValues::forClass($builder->describeArguments(), $shell);
 
             if ($argumentsValues->hasInvalidValue()) {
-                if (count($builders) === 1) {
-                    return Node::error($shell, new InvalidSource($shell->value(), $builder->describeArguments()));
-                }
-
                 continue;
             }
 
@@ -95,7 +90,7 @@ final class ObjectNodeBuilder implements NodeBuilder
             }
         }
 
-        return Node::error($shell, new CannotFindObjectBuilder($builders));
+        return Node::error($shell, new CannotFindObjectBuilder());
     }
 
     /**
@@ -133,7 +128,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                     throw new CircularDependencyDetected($argument);
                 }
 
-                $children[$name] = Node::error($shell, new InvalidNodeValue($type));
+                $children[$name] = Node::error($shell, new InvalidNodeValue());
             } else {
                 $childBuilder = $rootBuilder;
 

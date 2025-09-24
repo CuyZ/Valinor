@@ -27,6 +27,7 @@ final class NodeMessage implements Message, HasCode, Stringable
         private string $name,
         private string $path,
         private string $type,
+        private string $expectedSignature,
         private string $sourceValue,
     ) {}
 
@@ -49,14 +50,15 @@ final class NodeMessage implements Message, HasCode, Stringable
      * Allows to customize the body of the message. It can contain placeholders
      * that will be replaced by their corresponding values, as described below:
      *
-     * | Placeholder          | Description                                    |
-     * |----------------------|------------------------------------------------|
-     * | `{message_code}`     | The code of the message                        |
-     * | `{node_name}`        | Name of the node to which the message is bound |
-     * | `{node_path}`        | Path of the node to which the message is bound |
-     * | `{node_type}`        | Type of the node to which the message is bound |
-     * | `{source_value}`     | The source value that was given to the node    |
-     * | `{original_message}` | The original message before being customized   |
+     * | Placeholder            | Description                                  |
+     * |------------------------|----------------------------------------------|
+     * | `{message_code}`       | The code of the message                      |
+     * | `{node_name}`          | Name of the node                             |
+     * | `{node_path}`          | Path of the node                             |
+     * | `{node_type}`          | PHP type of the node                         |
+     * | `{expected_signature}` | String representation of the expected type   |
+     * | `{source_value}`       | The source value that was given to the node  |
+     * | `{original_message}`   | The original message before being customized |
      *
      * Example:
      *
@@ -96,6 +98,12 @@ final class NodeMessage implements Message, HasCode, Stringable
     public function type(): string
     {
         return $this->type;
+    }
+
+    /** @pure */
+    public function expectedSignature(): string
+    {
+        return $this->expectedSignature;
     }
 
     /** @pure */
@@ -176,6 +184,7 @@ final class NodeMessage implements Message, HasCode, Stringable
             'node_name' => $this->name,
             'node_path' => $this->path,
             'node_type' => $this->type,
+            'expected_signature' => $this->expectedSignature,
             'source_value' => $this->sourceValue,
         ];
 

@@ -24,7 +24,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         assert($type instanceof ShapedArrayType);
 
         if (! is_iterable($value)) {
-            return Node::error($shell, new SourceMustBeIterable($value, $type));
+            return Node::error($shell, new SourceMustBeIterable($value));
         }
 
         $children = [];

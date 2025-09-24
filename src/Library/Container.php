@@ -79,6 +79,7 @@ final class Container
         $this->factories = [
             TreeMapper::class => fn () => new TypeTreeMapper(
                 $this->get(TypeParser::class),
+                $this->get(TypeDumper::class),
                 $this->get(RootNodeBuilder::class),
                 $settings,
             ),
@@ -86,6 +87,7 @@ final class Container
             ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
                 $this->get(FunctionDefinitionRepository::class),
                 $this->get(RootNodeBuilder::class),
+                $this->get(TypeDumper::class),
                 $settings,
             ),
 

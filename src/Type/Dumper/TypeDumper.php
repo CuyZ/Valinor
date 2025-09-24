@@ -11,6 +11,7 @@ use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
@@ -37,7 +38,11 @@ final class TypeDumper
     {
         $context = $this->doDump($type, new TypeDumpContext());
 
-        return $context->read();
+        if ($type instanceof FixedType || $type instanceof EnumType || $type instanceof UnresolvableType) {
+            return $context->read();
+        }
+
+        return '`' . $context->read() . '`';
     }
 
     private function doDump(Type $type, TypeDumpContext $context): TypeDumpContext
@@ -72,6 +77,12 @@ final class TypeDumper
      */
     private function fromObjectType(ObjectType $type, TypeDumpContext $context): TypeDumpContext
     {
+        if ($context->typeIsRetained($type)) {
+            return $context->write('array{…}');
+        }
+
+        $context = $context->retain($type);
+
         $class = $this->classDefinitionRepository->for($type);
         $objectBuilders = $this->objectBuilderFactory->for($class);
 
@@ -82,7 +93,10 @@ final class TypeDumper
             $objectBuilders,
         );
 
-        return $this->formatArguments($arguments, $context);
+        $context = $this->formatArguments($arguments, $context);
+        $context = $context->forgetLastRetained();
+
+        return $context;
     }
 
     /**

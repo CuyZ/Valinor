@@ -53,7 +53,7 @@ final class ShapedArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', ['foo' => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'bar' => "[missing_value] Cannot be empty and must be filled with a value matching type `int`.",
+                'bar' => "[invalid_integer] Value *missing* is not a valid integer.",
             ]);
         }
     }

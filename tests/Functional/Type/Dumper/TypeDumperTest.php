@@ -49,77 +49,77 @@ final class TypeDumperTest extends FunctionalTestCase
 
         yield 'string' => [
             'type' => new NativeStringType(),
-            'expected' => 'string',
+            'expected' => '`string`',
         ];
 
         yield 'integer' => [
             'type' => new NativeIntegerType(),
-            'expected' => 'int',
+            'expected' => '`int`',
         ];
 
         yield 'enum' => [
             'type' => EnumType::native(SomeEnum::class),
-            'expected' => 'FOO|BAR|BAZ',
+            'expected' => "'FOO'|'BAR'|'BAZ'",
         ];
 
         yield 'class with two properties' => [
             'type' => new NativeClassType(ClassWithTwoProperties::class),
-            'expected' => 'array{foo: string, bar: int}',
+            'expected' => '`array{foo: string, bar: int}`',
         ];
 
         yield 'class with several constructors' => [
             'type' => new NativeClassType(ClassWithSeveralConstructors::class),
-            'expected' => 'int|array{intValue: int}|array{intValue: int, stringValue?: string}|array{intValue: int, twoProperties: array{foo: string, bar: int}}',
+            'expected' => '`int|array{intValue: int}|array{intValue: int, stringValue?: string}|array{intValue: int, twoProperties: array{foo: string, bar: int}}`',
         ];
 
         yield 'class with lots of properties' => [
             'type' => new NativeClassType(ClassWithLotsOfProperties::class),
-            'expected' => 'array{firstObject: array{foo: string, bar: int}, propertyA: string, propertyB: string, propertyC: string, propertyD: string, propertyE: string, propertyF: string, secondObject: int|array{…}}',
+            'expected' => '`array{firstObject: array{foo: string, bar: int}, propertyA: string, propertyB: string, propertyC: string, propertyD: string, propertyE: string, propertyF: string, secondObject: int|array{…}}`',
         ];
 
         yield 'array of class (with no array-key)' => [
             'type' => new ArrayType(ArrayKeyType::default(), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'array<array{foo: string, bar: int}>',
+            'expected' => '`array<array{foo: string, bar: int}>`',
         ];
 
         yield 'array of class (with integer key)' => [
             'type' => new ArrayType(ArrayKeyType::integer(), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'array<int, array{foo: string, bar: int}>',
+            'expected' => '`array<int, array{foo: string, bar: int}>`',
         ];
 
         yield 'array of class (with complex key)' => [
             'type' => new ArrayType(new ArrayKeyType([new IntegerValueType(42), new StringValueType('foo')]), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'array<42|foo, array{foo: string, bar: int}>',
+            'expected' => '`array<42|foo, array{foo: string, bar: int}>`',
         ];
 
         yield 'non-empty-array of class (with no array-key)' => [
             'type' => new NonEmptyArrayType(ArrayKeyType::default(), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'non-empty-array<array{foo: string, bar: int}>',
+            'expected' => '`non-empty-array<array{foo: string, bar: int}>`',
         ];
 
         yield 'non-empty-array of class (with integer key)' => [
             'type' => new NonEmptyArrayType(ArrayKeyType::integer(), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'non-empty-array<int, array{foo: string, bar: int}>',
+            'expected' => '`non-empty-array<int, array{foo: string, bar: int}>`',
         ];
 
         yield 'iterable of class (with no array-key)' => [
             'type' => new IterableType(ArrayKeyType::default(), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'iterable<array{foo: string, bar: int}>',
+            'expected' => '`iterable<array{foo: string, bar: int}>`',
         ];
 
         yield 'iterable of class (with integer key)' => [
             'type' => new IterableType(ArrayKeyType::integer(), new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'iterable<int, array{foo: string, bar: int}>',
+            'expected' => '`iterable<int, array{foo: string, bar: int}>`',
         ];
 
         yield 'list of class' => [
             'type' => new ListType(new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'list<array{foo: string, bar: int}>',
+            'expected' => '`list<array{foo: string, bar: int}>`',
         ];
 
         yield 'non-empty-list of class' => [
             'type' => new NonEmptyListType(new NativeClassType(ClassWithTwoProperties::class)),
-            'expected' => 'non-empty-list<array{foo: string, bar: int}>',
+            'expected' => '`non-empty-list<array{foo: string, bar: int}>`',
         ];
 
         yield 'shaped array' => [
@@ -134,17 +134,17 @@ final class TypeDumperTest extends FunctionalTestCase
                     optional: true,
                 ),
             ]),
-            'expected' => 'array{classWithTwoProperties: array{foo: string, bar: int}, integer?: int}',
+            'expected' => '`array{classWithTwoProperties: array{foo: string, bar: int}, integer?: int}`',
         ];
 
         yield 'union of classes' => [
             'type' => new UnionType(new NativeClassType(ClassWithTwoProperties::class), new NativeClassType(WithThreeProperties::class)),
-            'expected' => 'array{foo: string, bar: int}|array{foo: string, bar: int, baz: bool}',
+            'expected' => '`array{foo: string, bar: int}|array{foo: string, bar: int, baz: bool}`',
         ];
 
         yield 'interface without custom constructor nor inferring constructor' => [
             'type' => new InterfaceType(SomeInterface::class),
-            'expected' => '*unknown*',
+            'expected' => '`*unknown*`',
         ];
 
         $settings = new Settings();
@@ -154,7 +154,7 @@ final class TypeDumperTest extends FunctionalTestCase
 
         yield 'interface with custom constructor' => [
             'type' => new InterfaceType(SomeInterface::class),
-            'expected' => 'array{foo: string, bar?: int}',
+            'expected' => '`array{foo: string, bar?: int}`',
             'settings' => $settings,
         ];
 
@@ -167,7 +167,7 @@ final class TypeDumperTest extends FunctionalTestCase
 
         yield 'interface with inferring constructor' => [
             'type' => new InterfaceType(SomeInterface::class),
-            'expected' => 'array{type: string, intValue: int}|array{type: string, intValue: int, stringValue?: string}',
+            'expected' => '`array{type: string, intValue: int}|array{type: string, intValue: int, stringValue?: string}`',
             'settings' => $settings,
         ];
 
@@ -180,8 +180,13 @@ final class TypeDumperTest extends FunctionalTestCase
 
         yield 'interface with inferring constructor with classes that have common constructors' => [
             'type' => new InterfaceType(SomeInterface::class),
-            'expected' => 'array{type: string, size: int, intValue: int}|array{type: string, size: int, stringValue: string}|array{type: string, size: int, stringValue: string, intValue: int}',
+            'expected' => '`array{type: string, size: int, intValue: int}|array{type: string, size: int, stringValue: string}|array{type: string, size: int, stringValue: string, intValue: int}`',
             'settings' => $settings,
+        ];
+
+        yield 'class with self reference' => [
+            'type' => new UnionType(new NativeClassType(ClassWithSelfReference::class), new NativeClassType(SomeClassWithReferenceToOtherClass::class)),
+            'expected' => '`array{reference: array{reference: array{…}, string: string}, int: int}|array{reference: array{reference: array{…}, int: int}, string: string}`',
         ];
     }
 }
@@ -270,4 +275,18 @@ final class AnotherClassImplementingInterface implements SomeInterface
     {
         return new self();
     }
+}
+
+final class ClassWithSelfReference
+{
+    public SomeClassWithReferenceToOtherClass $reference;
+
+    public int $int;
+}
+
+final class SomeClassWithReferenceToOtherClass
+{
+    public ClassWithSelfReference $reference;
+
+    public string $string;
 }
