@@ -69,7 +69,7 @@ final class TypeDumperTest extends FunctionalTestCase
 
         yield 'class with several constructors' => [
             'type' => new NativeClassType(ClassWithSeveralConstructors::class),
-            'expected' => 'int|array{intValue: int, stringValue?: string}|array{intValue: int, twoProperties: array{foo: string, bar: int}}',
+            'expected' => 'int|array{intValue: int}|array{intValue: int, stringValue?: string}|array{intValue: int, twoProperties: array{foo: string, bar: int}}',
         ];
 
         yield 'class with lots of properties' => [

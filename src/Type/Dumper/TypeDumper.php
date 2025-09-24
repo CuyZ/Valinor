@@ -144,7 +144,10 @@ final class TypeDumper
         while ($arguments = array_shift($argumentsList)) {
             if (count($arguments) === 1) {
                 $context = $this->doDump($arguments->at(0)->type(), $context);
-            } elseif ($context->isTooLong()) {
+                $context = $context->write('|');
+            }
+
+            if ($context->isTooLong()) {
                 return $context->write('array{…}');
             } else {
                 $arguments = $arguments->toArray();
