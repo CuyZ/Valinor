@@ -101,6 +101,20 @@ final class UndefinedValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_non_empty_list_does_not_accept_null_when_undefined_values_are_allowed(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->allowUndefinedValues()
+                ->mapper()
+                ->map('array{values: non-empty-list<string>}', []);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'values' => '[value_is_empty_list] List cannot be empty and must contain values of type `string`.',
+            ]);
+        }
+    }
+
     public function test_array_type_does_not_accept_null_when_undefined_values_are_not_allowed(): void
     {
         try {
