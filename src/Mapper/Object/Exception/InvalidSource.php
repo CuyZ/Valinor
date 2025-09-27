@@ -4,31 +4,23 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object\Exception;
 
-use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
-use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
-use CuyZ\Valinor\Utility\TypeHelper;
 
 /** @internal */
-final class InvalidSource implements ErrorMessage, HasCode, HasParameters
+final class InvalidSource implements ErrorMessage, HasCode
 {
     private string $body;
 
     private string $code = 'invalid_source';
 
-    /** @var array<string, string> */
-    private array $parameters;
-
-    public function __construct(mixed $source, Arguments $arguments)
+    public function __construct(mixed $source)
     {
-        $this->parameters = [
-            'expected_type' => TypeHelper::dumpArguments($arguments),
-        ];
-
-        $this->body = $source === null
-            ? 'Cannot be empty and must be filled with a value matching type {expected_type}.'
-            : 'Value {source_value} does not match type {expected_type}.';
+        if ($source === null) {
+            $this->body = 'Cannot be empty and must be filled with a value matching {expected_signature}.';
+        } else {
+            $this->body = 'Value {source_value} does not match {expected_signature}.';
+        }
     }
 
     public function body(): string
@@ -39,10 +31,5 @@ final class InvalidSource implements ErrorMessage, HasCode, HasParameters
     public function code(): string
     {
         return $this->code;
-    }
-
-    public function parameters(): array
-    {
-        return $this->parameters;
     }
 }

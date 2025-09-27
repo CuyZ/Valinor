@@ -9,6 +9,7 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementDuplicatedKey;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 
 use CuyZ\Valinor\Utility\Polyfill;
@@ -23,7 +24,7 @@ use function in_array;
 use function is_array;
 
 /** @internal */
-final class ShapedArrayType implements CompositeType
+final class ShapedArrayType implements CompositeType, DumpableType
 {
     private bool $isUnsealed = false;
 
@@ -239,6 +240,25 @@ final class ShapedArrayType implements CompositeType
     public function nativeType(): ArrayType
     {
         return ArrayType::native();
+    }
+
+    public function dumpParts(): iterable
+    {
+        $elements = $this->elements;
+
+        yield 'array{';
+
+        while ($element = array_shift($elements)) {
+            $optional = $element->isOptional() ? '?' : '';
+            yield $element->key()->toString() .  "$optional: ";
+            yield $element->type();
+
+            if ($elements !== []) {
+                yield ', ';
+            }
+        }
+
+        yield '}';
     }
 
     public function toString(): string

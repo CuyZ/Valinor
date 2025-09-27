@@ -57,27 +57,9 @@ final class ObjectImplementations
     }
 
     /**
-     * @param mixed[] $arguments
-     */
-    private function call(string $name, array $arguments): string
-    {
-        try {
-            $signature = ($this->functions->get($name)->callback)(...$arguments);
-        } catch (Exception $exception) {
-            throw new ObjectImplementationCallbackError($name, $exception);
-        }
-
-        if (! is_string($signature)) {
-            throw new InvalidResolvedImplementationValue($name, $signature);
-        }
-
-        return $signature;
-    }
-
-    /**
      * @return non-empty-array<string, ClassType>
      */
-    private function implementations(string $name): array
+    public function implementations(string $name): array
     {
         $function = $this->functions->get($name)->definition;
 
@@ -100,6 +82,24 @@ final class ObjectImplementations
 
         /** @var non-empty-array<string, ClassType> $classes */
         return $classes;
+    }
+
+    /**
+     * @param mixed[] $arguments
+     */
+    private function call(string $name, array $arguments): string
+    {
+        try {
+            $signature = ($this->functions->get($name)->callback)(...$arguments);
+        } catch (Exception $exception) {
+            throw new ObjectImplementationCallbackError($name, $exception);
+        }
+
+        if (! is_string($signature)) {
+            throw new InvalidResolvedImplementationValue($name, $signature);
+        }
+
+        return $signature;
     }
 
     /**

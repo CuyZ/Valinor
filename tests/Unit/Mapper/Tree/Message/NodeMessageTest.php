@@ -24,6 +24,7 @@ final class NodeMessageTest extends TestCase
             name: 'nodeName',
             path: 'some.node.path',
             type: 'string',
+            expectedSignature: 'expected_signature',
             sourceValue: 'some source value',
         );
 
@@ -31,6 +32,7 @@ final class NodeMessageTest extends TestCase
         self::assertSame('nodeName', $message->name());
         self::assertSame('some.node.path', $message->path());
         self::assertSame('string', $message->type());
+        self::assertSame('expected_signature', $message->expectedSignature());
         self::assertSame('some source value', $message->sourceValue());
         self::assertFalse($message->isError());
     }

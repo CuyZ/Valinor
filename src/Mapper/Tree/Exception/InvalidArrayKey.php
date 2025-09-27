@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Utility\TypeHelper;
 use CuyZ\Valinor\Utility\ValueDumper;
 
 /** @internal */
@@ -25,7 +24,7 @@ final class InvalidArrayKey implements ErrorMessage, HasCode, HasParameters
     {
         $this->parameters = [
             'key' => ValueDumper::dump($key),
-            'expected_type' => TypeHelper::dump($type),
+            'expected_type' => '`' . $type->toString() . '`',
         ];
     }
 

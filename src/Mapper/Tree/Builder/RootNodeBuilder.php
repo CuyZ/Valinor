@@ -22,7 +22,7 @@ final class RootNodeBuilder
     {
         if (! $shell->hasValue()) {
             if (! $shell->allowUndefinedValues()) {
-                return Node::error($shell, new MissingNodeValue($shell->type()));
+                return Node::error($shell, MissingNodeValue::from($shell->type()));
             }
 
             $shell = $shell->withValue(null);

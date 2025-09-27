@@ -78,7 +78,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
 
         if ($argumentsValues->hasInvalidValue()) {
-            return Node::error($shell, new InvalidSource($shell->value(), $arguments));
+            return Node::error($shell, new InvalidSource($shell->value()));
         }
 
         $children = $this->children($shell, $argumentsValues, $rootBuilder);

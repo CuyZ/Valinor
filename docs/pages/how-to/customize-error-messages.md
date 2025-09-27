@@ -6,14 +6,15 @@ placeholders that will be replaced with useful information.
 The placeholders below are always available; even more may be used depending
 on the original message.
 
-| Placeholder          | Description                                          |
-|----------------------|:-----------------------------------------------------|
-| `{message_code}`     | the code of the message                              |
-| `{node_name}`        | name of the node to which the message is bound       |
-| `{node_path}`        | path of the node to which the message is bound       |
-| `{node_type}`        | type of the node to which the message is bound       |
-| `{source_value}`     | the source value that was given to the node          |
-| `{original_message}` | the original message before being customized         |
+| Placeholder             | Description                                    |
+|-------------------------|:-----------------------------------------------|
+| `{message_code}`        | the code of the message                        |
+| `{node_name}`           | name of the node to which the message is bound |
+| `{node_path}`           | path of the node to which the message is bound |
+| `{node_type}`           | type of the node to which the message is bound |
+| `{expected_signature}`  | string representation of the expected type     |
+| `{source_value}`        | the source value that was given to the node    |
+| `{original_message}`    | the original message before being customized   |
 
 Usage:
 

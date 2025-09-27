@@ -76,7 +76,7 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('non-empty-array<string>', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[value_is_empty_array] Array cannot be empty and must contain values of type `string`.',
+                '*root*' => '[value_is_empty_array] Cannot be empty and must be filled with a value matching `non-empty-array<string>`.',
             ]);
         }
     }

@@ -23,6 +23,7 @@ final class FakeNodeMessage
             name: $name ?? 'some_name',
             path: $path ?? 'some.path',
             type: $type ?? 'mixed',
+            expectedSignature: 'mixed',
             sourceValue: $sourceValue ?? 'some value',
         );
     }

@@ -29,7 +29,7 @@ final class StrictMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'bar' => '[missing_value] Cannot be empty and must be filled with a value matching type `string`.',
+                'bar' => '[invalid_string] Value *missing* is not a valid string.',
             ]);
         }
     }
@@ -217,7 +217,7 @@ final class StrictMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array<float>', 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[value_is_not_iterable] Value 'foo' does not match type `array<float>`.",
+                '*root*' => "[value_is_not_iterable] Value 'foo' does not match `array<float>`.",
             ]);
         }
     }
@@ -228,7 +228,7 @@ final class StrictMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('list<float>', 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[value_is_not_iterable] Value 'foo' does not match type `list<float>`.",
+                '*root*' => "[value_is_not_iterable] Value 'foo' does not match `list<float>`.",
             ]);
         }
     }
@@ -239,7 +239,7 @@ final class StrictMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: string}', 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[value_is_not_iterable] Value 'foo' does not match type `array{foo: string}`.",
+                '*root*' => "[value_is_not_iterable] Value 'foo' does not match `array{foo: string}`.",
             ]);
         }
     }
@@ -250,7 +250,7 @@ final class StrictMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: stdClass}', 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[value_is_not_iterable] Invalid value 'foo'.",
+                '*root*' => "[value_is_not_iterable] Value 'foo' does not match `array{foo: array{}}`.",
             ]);
         }
     }

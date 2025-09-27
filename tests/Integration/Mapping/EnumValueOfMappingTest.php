@@ -69,7 +69,7 @@ final class EnumValueOfMappingTest extends IntegrationTestCase
                 ->map('array<value-of<' . SomeStringEnumForValueOf::class . '>, string>', ['oof' => 'foo']);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'oof' => "[invalid_array_key] Key 'oof' does not match type `'FOO'|'FOZ'|'BAZ'`.",
+               'oof' => "[invalid_array_key] Key 'oof' does not match type `'FOO'|'FOZ'|'BAZ'`.",
             ]);
         }
     }

@@ -371,7 +371,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->map(SomeInterface::class, 42);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[invalid_source] Value 42 does not match type `array{type: string, key: int}`.",
+                '*root*' => "[invalid_source] Value 42 does not match `array{type: string, key: int, valueA: string}`.",
             ]);
         }
     }

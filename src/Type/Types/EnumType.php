@@ -138,7 +138,11 @@ final class EnumType implements ClassType
      */
     public function readableSignature(): string
     {
-        return implode('|', array_keys($this->cases));
+        // PHP8.5 use pipes
+        return implode('|', array_map(
+            fn ($key) => is_string($key) ? "'$key'" : $key,
+            array_keys($this->cases),
+        ));
     }
 
     public function nativeType(): EnumType

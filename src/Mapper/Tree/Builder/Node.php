@@ -43,6 +43,7 @@ final class Node
             $shell->name(),
             $shell->path(),
             "`{$shell->type()->toString()}`",
+            $shell->expectedSignature(),
             $shell->hasValue() ? ValueDumper::dump($shell->value()) : '*missing*',
         );
 
@@ -117,6 +118,7 @@ final class Node
                 $shell->name(),
                 $shell->path(),
                 "`{$shell->type()->toString()}`",
+                $shell->expectedSignature(),
                 ValueDumper::dump($shell->value()),
             );
 
