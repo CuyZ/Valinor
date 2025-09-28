@@ -53,11 +53,16 @@ final class CallableType implements CompositeType
             return false;
         }
 
-        if (count($this->parameters) !== count($other->parameters)) {
+        if (count($this->parameters) < count($other->parameters)) {
             return false;
         }
 
         foreach ($this->parameters as $key => $parameter) {
+            if (! isset($other->parameters[$key])) {
+                // @infection-ignore-all
+                break;
+            }
+
             if (! $parameter->matches($other->parameters[$key])) {
                 return false;
             }
@@ -69,6 +74,14 @@ final class CallableType implements CompositeType
     public function traverse(): array
     {
         return [...$this->parameters, $this->returnType];
+    }
+
+    public function replace(callable $callback): Type
+    {
+        return new self(
+            array_map($callback, $this->parameters),
+            $callback($this->returnType),
+        );
     }
 
     public function nativeType(): Type

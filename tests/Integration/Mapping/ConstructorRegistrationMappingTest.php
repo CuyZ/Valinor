@@ -258,6 +258,30 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
         self::assertSame($object, $result);
     }
 
+    public function test_dynamic_constructor_with_non_matching_class_string_is_not_called(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConstructor(
+                    /**
+                     * This constructor should not be called because it expects
+                     * a `DateTime` class-string, but we're mapping to a
+                     * `DateTimeImmutable`.
+                     *
+                     * @param class-string<DateTime> $className
+                     */
+                    #[DynamicConstructor]
+                    fn (string $className, int $timestamp): DateTimeInterface => new DateTime("$timestamp")
+                )
+                ->mapper()
+                ->map(DateTimeImmutable::class, 1759653766);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('1759653766', $result->format('U'));
+    }
+
     public function test_native_constructor_is_not_called_if_not_registered_but_other_constructors_are_registered(): void
     {
         try {
@@ -699,14 +723,14 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_invalid_constructor_return_type_missing_generic_throws_exception(): void
     {
         $this->expectException(InvalidConstructorReturnType::class);
-        $this->expectExceptionMessageMatches('/The return type `.*` of function `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
+        $this->expectExceptionMessageMatches('/The return type `.*` of function `.*` could not be resolved: there are 1 missing generics for `.*`/');
 
         $this->mapperBuilder()
             ->registerConstructor(
                 fn (): SimpleObjectWithGeneric => new SimpleObjectWithGeneric()
             )
             ->mapper()
-            ->map(stdClass::class, []);
+            ->map(SimpleObjectWithGeneric::class . '<string>', []);
     }
 
     public function test_missing_constructor_class_type_parameter_throws_exception(): void

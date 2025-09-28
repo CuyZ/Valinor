@@ -7,8 +7,8 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Parser\Exception\Union\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -128,9 +128,9 @@ final class UnionTypeTest extends TestCase
 
     public function test_matches_other_matching_union(): void
     {
-        $typeA = new FakeType();
-        $typeB = new FakeType();
-        $typeC = new FakeType();
+        $typeA = new NativeStringType();
+        $typeB = new NativeIntegerType();
+        $typeC = new NativeFloatType();
 
         $unionTypeA = new UnionType($typeA, $typeC);
         $unionTypeB = new UnionType($typeA, $typeB, $typeC);

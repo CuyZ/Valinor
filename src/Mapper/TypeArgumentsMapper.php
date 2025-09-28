@@ -34,7 +34,7 @@ final class TypeArgumentsMapper implements ArgumentsMapper
                 $parameter->isOptional,
                 $parameter->attributes,
             ),
-            $function->parameters->toList(),
+            $function->parameters->toArray(),
         );
 
         $type = new ShapedArrayType($elements);
@@ -52,12 +52,12 @@ final class TypeArgumentsMapper implements ArgumentsMapper
 
         // Transforms the source value if there is only one object argument, to
         // ensure the source can contain flattened values.
-        if (count($elements) === 1 && $elements[0]->type() instanceof ObjectType) {
-            $node = $this->nodeBuilder->build($source, $elements[0]->type(), $function->attributes);
+        if (count($elements) === 1 && $function->parameters->at(0)->type instanceof ObjectType) {
+            $node = $this->nodeBuilder->build($source, $function->parameters->at(0)->type, $function->attributes);
 
             if ($node->isValid()) {
                 /** @var array<string, mixed> */
-                return [$elements[0]->key()->value() => $node->value()];
+                return [$function->parameters->at(0)->name => $node->value()];
             }
         }
 

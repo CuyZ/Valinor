@@ -19,7 +19,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
-use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\TypeHelper;
 
 use function count;
@@ -39,7 +39,7 @@ final class TypeDumper
     {
         $context = $this->doDump($type, new TypeDumpContext());
 
-        if ($type instanceof FixedType || $type instanceof EnumType || $type instanceof UnresolvableType) {
+        if ($type instanceof FixedType || $type instanceof EnumType || $type instanceof VacantType) {
             return $context->read();
         }
 
@@ -53,7 +53,7 @@ final class TypeDumper
             $type instanceof EnumType => $context->write($type->readableSignature()),
             $type instanceof NativeClassType => $this->fromObjectType($type, $context),
             $type instanceof InterfaceType => $this->fromInterfaceType($type, $context),
-            $type instanceof UnresolvableType => $context->write('*unknown*'),
+            $type instanceof VacantType => $context->write('*unknown*'),
             default => $context->write($type->toString()),
         };
     }

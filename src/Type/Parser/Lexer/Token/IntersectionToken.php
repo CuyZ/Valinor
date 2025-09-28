@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
-use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
-use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Intersection\RightIntersectionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntersectionType;
@@ -19,10 +17,6 @@ final class IntersectionToken implements LeftTraversingToken
 
     public function traverse(Type $type, TokenStream $stream): Type
     {
-        if (! $type instanceof ObjectType) {
-            throw new InvalidIntersectionType($type);
-        }
-
         if ($stream->done()) {
             throw new RightIntersectionTypeMissing($type);
         }
@@ -30,14 +24,10 @@ final class IntersectionToken implements LeftTraversingToken
         $rightType = $stream->read();
 
         if ($rightType instanceof IntersectionType) {
-            return new IntersectionType($type, ...$rightType->types());
+            return IntersectionType::from($type, ...$rightType->types());
         }
 
-        if (! $rightType instanceof ObjectType) {
-            throw new InvalidIntersectionType($rightType);
-        }
-
-        return new IntersectionType($type, $rightType);
+        return IntersectionType::from($type, $rightType);
     }
 
     public function symbol(): string

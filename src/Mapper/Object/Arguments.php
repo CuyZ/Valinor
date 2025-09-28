@@ -76,15 +76,19 @@ final class Arguments implements IteratorAggregate, Countable
 
     public function toShapedArray(): ShapedArrayType
     {
-        return new ShapedArrayType(array_map(
-            static fn (Argument $argument) => new ShapedArrayElement(
-                key: new StringValueType($argument->name()),
-                type: $argument->type(),
-                optional: ! $argument->isRequired(),
-                attributes: $argument->attributes(),
+        return new ShapedArrayType(
+            elements: array_map(
+                static fn (Argument $argument) => new ShapedArrayElement(
+                    key: new StringValueType($argument->name()),
+                    type: $argument->type(),
+                    optional: ! $argument->isRequired(),
+                    attributes: $argument->attributes(),
+                ),
+                $this->arguments,
             ),
-            array_values($this->arguments),
-        ));
+            isUnsealed: false,
+            unsealedType: null,
+        );
     }
 
     /**

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Type\Parser\Lexer\Annotations;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Utility\Reflection\Annotations;
 use ReflectionProperty;
 
 /** @internal */
@@ -15,7 +15,7 @@ final class PropertyTypeResolver
 
     public function resolveTypeFor(ReflectionProperty $reflection): Type
     {
-        $docBlockType = $this->extractTypeFromDocBlock($reflection);
+        $docBlockType = Annotations::forProperty($reflection);
 
         return $this->typeResolver->resolveType($reflection->getType(), $docBlockType);
     }
@@ -23,20 +23,5 @@ final class PropertyTypeResolver
     public function resolveNativeTypeFor(ReflectionProperty $reflection): Type
     {
         return $this->typeResolver->resolveNativeType($reflection->getType());
-    }
-
-    public function extractTypeFromDocBlock(ReflectionProperty $reflection): ?string
-    {
-        $docBlock = $reflection->getDocComment();
-
-        if ($docBlock === false) {
-            return null;
-        }
-
-        return (new Annotations($docBlock))->firstOf(
-            '@phpstan-var',
-            '@psalm-var',
-            '@var',
-        )?->raw();
     }
 }

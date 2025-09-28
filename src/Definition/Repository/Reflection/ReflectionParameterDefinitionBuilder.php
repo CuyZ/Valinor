@@ -40,9 +40,9 @@ final class ReflectionParameterDefinitionBuilder
         if ($type instanceof UnresolvableType) {
             $type = $type->forParameter($signature);
         } elseif (! $type->matches($nativeType)) {
-            $type = UnresolvableType::forNonMatchingParameterTypes($signature, $nativeType, $type);
+            $type = UnresolvableType::forNonMatchingTypes($nativeType, $type)->forParameter($signature);
         } elseif ($isOptional && ! $type->accepts($defaultValue)) {
-            $type = UnresolvableType::forInvalidParameterDefaultValue($signature, $type, $defaultValue);
+            $type = UnresolvableType::forInvalidDefaultValue($type, $defaultValue)->forParameter($signature);
         }
 
         return new ParameterDefinition(

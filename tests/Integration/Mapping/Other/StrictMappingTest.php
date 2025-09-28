@@ -140,6 +140,28 @@ final class StrictMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_invalid_class_string_throws_exception(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map('class-string', 42);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[invalid_class_string] Value 42 is not a valid class string.",
+            ]);
+        }
+    }
+
+    public function test_invalid_class_string_of_object_throws_exception(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map('class-string<DateTimeInterface>', 42);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[invalid_class_string] Value 42 is not a valid class string of `DateTimeInterface`.",
+            ]);
+        }
+    }
+
     public function test_invalid_enum_value_throws_exception(): void
     {
         try {

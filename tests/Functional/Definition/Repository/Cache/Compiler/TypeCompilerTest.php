@@ -18,6 +18,7 @@ use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
+use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\IntegerRangeType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
@@ -97,8 +98,8 @@ final class TypeCompilerTest extends TestCase
         yield [NumericStringType::get()];
         yield [UndefinedObjectType::get()];
         yield [MixedType::get()];
-        yield [new InterfaceType(DateTimeInterface::class, ['Template' => NativeStringType::get()])];
-        yield [new NativeClassType(stdClass::class, ['Template' => NativeStringType::get()])];
+        yield [new InterfaceType(DateTimeInterface::class, [NativeStringType::get()])];
+        yield [new NativeClassType(stdClass::class, [NativeStringType::get()])];
         yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new NativeClassType(DateTime::class))];
         yield [EnumType::native(PureEnum::class)];
         yield [EnumType::fromPattern(PureEnum::class, 'BA*')];
@@ -120,27 +121,38 @@ final class TypeCompilerTest extends TestCase
         yield [new NonEmptyListType(NativeFloatType::get())];
         yield [new NonEmptyListType(NativeIntegerType::get())];
         yield [new NonEmptyListType(NativeStringType::get())];
-        yield [new ShapedArrayType([
-            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
-            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
-        ])];
-        yield [ShapedArrayType::unsealedWithoutType(
-            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
-            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        yield [new ShapedArrayType(
+            elements: [
+                new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+                new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+            ],
+            isUnsealed: false,
+            unsealedType: null,
         )];
-        yield [ShapedArrayType::unsealed(
-            new ArrayType(ArrayKeyType::default(), NativeFloatType::get()),
-            new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
-            new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+        yield [new ShapedArrayType(
+            elements: [
+                new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+                new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true),
+            ],
+            isUnsealed: true,
+            unsealedType: null,
+        )];
+        yield [new ShapedArrayType(
+            elements: [
+                new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+                new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true),
+            ],
+            isUnsealed: true,
+            unsealedType: new ArrayType(ArrayKeyType::default(), NativeFloatType::get()),
         )];
         yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];
         yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];
         yield [new IterableType(ArrayKeyType::string(), NativeStringType::get())];
         yield [new ClassStringType()];
-        yield [new ClassStringType(new NativeClassType(stdClass::class))];
-        yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
+        yield [new ClassStringType([new NativeClassType(stdClass::class)])];
+        yield [new ClassStringType([new InterfaceType(DateTimeInterface::class)])];
         yield [new CallableType([new NativeStringType(), new NativeIntegerType()], NativeBooleanType::get())];
-
+        yield [new GenericType('SomeGeneric', new NativeStringType())];
         yield [new UnresolvableType('some-type', 'some message')];
     }
 
@@ -168,8 +180,8 @@ final class TypeCompilerTest extends TestCase
 
         self::assertInstanceOf(ShapedArrayType::class, $compiledType);
 
-        self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTime::class));
-        self::assertTrue($compiledType->elements()[0]->attributes()->has(DateTimeImmutable::class));
+        self::assertTrue($compiledType->elements[0]->attributes()->has(DateTime::class));
+        self::assertTrue($compiledType->elements[0]->attributes()->has(DateTimeImmutable::class));
     }
 
     public function test_default_array_key_types_are_compiled_properly(): void

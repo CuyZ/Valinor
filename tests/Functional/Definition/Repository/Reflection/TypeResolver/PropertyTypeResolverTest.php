@@ -6,8 +6,7 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection\TypeRes
 
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\PropertyTypeResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
-use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -23,8 +22,8 @@ final class PropertyTypeResolverTest extends TestCase
 
         $this->resolver = new PropertyTypeResolver(
             new ReflectionTypeResolver(
-                (new LexingTypeParserFactory())->buildDefaultTypeParser(),
-                (new LexingTypeParserFactory())->buildAdvancedTypeParserForClass(new NativeClassType(self::class)),
+                (new TypeParserFactory())->buildDefaultTypeParser(),
+                (new TypeParserFactory())->buildAdvancedTypeParserForClass(self::class),
             ),
         );
     }

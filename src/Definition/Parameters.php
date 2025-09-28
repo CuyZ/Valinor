@@ -17,7 +17,7 @@ use function array_values;
  */
 final class Parameters implements IteratorAggregate, Countable
 {
-    /** @var ParameterDefinition[] */
+    /** @var array<non-empty-string, ParameterDefinition> */
     private array $parameters = [];
 
     public function __construct(ParameterDefinition ...$parameters)
@@ -46,11 +46,11 @@ final class Parameters implements IteratorAggregate, Countable
     }
 
     /**
-     * @return list<ParameterDefinition>
+     * @return array<non-empty-string, ParameterDefinition>
      */
-    public function toList(): array
+    public function toArray(): array
     {
-        return array_values($this->parameters);
+        return $this->parameters;
     }
 
     public function count(): int

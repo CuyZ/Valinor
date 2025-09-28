@@ -8,13 +8,15 @@ use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Type\Type;
 use LogicException;
 
+use function lcfirst;
+
 /** @internal */
 final class TypeErrorDuringMapping extends LogicException
 {
     public function __construct(Type $type, UnresolvableShellType $exception)
     {
         parent::__construct(
-            "Error while trying to map to `{$type->toString()}`: {$exception->getMessage()}",
+            "Error while trying to map to `{$type->toString()}`: " . lcfirst($exception->getMessage()),
             previous: $exception,
         );
     }

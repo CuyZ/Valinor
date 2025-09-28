@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
-use CuyZ\Valinor\Type\Parser\Exception\RightUnionTypeMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Union\RightUnionTypeMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnionType;

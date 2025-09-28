@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Definition\Exception\ExtendTagTypeError;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagClassName;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
-use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassParentTypeResolver;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -24,7 +21,7 @@ final class ClassParentTypeResolverTest extends TestCase
         parent::setUp();
 
         $this->resolver = new ClassParentTypeResolver(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
         );
     }
 
@@ -47,50 +44,50 @@ final class ClassParentTypeResolverTest extends TestCase
         ];
     }
 
-    public function test_several_extends_tags_throws_exception(): void
+    public function test_several_extends_tags_sets_unresolvable_type_in_generic(): void
     {
         $class =
             /**
-             * @extends stdClass<string>
-             * @extends stdClass<string>
+             * @extends SomeAbstractClassDefiningTwoTemplates<string, int>
+             * @extends SomeAbstractClassDefiningTwoTemplates<int, string>
              */
-            (new class () {})::class;
+            (new class () extends SomeAbstractClassDefiningTwoTemplates {})::class;
 
-        $this->expectException(SeveralExtendTagsFound::class);
-        $this->expectExceptionMessage("Only one `@extends` tag should be set for the class `$class`.");
+        $parent = $this->resolver->resolveParentTypeFor(new NativeClassType($class));
 
-        $this->resolver->resolveParentTypeFor(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $parent->generics()[0]);
+        self::assertSame("Only one `@extends` tag should be set for the class `$class`.", $parent->generics()[0]->message());
     }
 
-    public function test_extend_tag_type_error_throws_exception(): void
+    public function test_extend_tag_type_error_sets_unresolvable_type_in_generic(): void
     {
         $class =
             /**
-             * @extends stdClass<InvalidType>
+             * @extends SomeAbstractClassDefiningTwoTemplates<array<string>
              */
-            (new class () {})::class;
+            (new class () extends SomeAbstractClassDefiningTwoTemplates {})::class;
 
-        $this->expectException(ExtendTagTypeError::class);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$class` is not valid: Cannot parse unknown symbol `InvalidType`.");
+        $parent = $this->resolver->resolveParentTypeFor(new NativeClassType($class));
 
-        $this->resolver->resolveParentTypeFor(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $parent->generics()[0]);
+        self::assertSame("The `@extends` tag of the class `$class` is not valid: the closing bracket is missing for the generic `" . SomeAbstractClassDefiningTwoTemplates::class . "<array<string>>`.", $parent->generics()[0]->message());
     }
 
-    public function test_invalid_extends_tag_throws_exception(): void
+    public function test_invalid_extends_tag_sets_unresolvable_type_in_generic(): void
     {
         $class =
             /**
              * @extends string
              */
-            (new class () extends stdClass {})::class;
+            (new class () extends SomeAbstractClassDefiningTwoTemplates {})::class;
 
-        $this->expectException(InvalidExtendTagType::class);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$class` has invalid type `string`, it should be `stdClass`.");
+        $parent = $this->resolver->resolveParentTypeFor(new NativeClassType($class));
 
-        $this->resolver->resolveParentTypeFor(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $parent->generics()[0]);
+        self::assertSame("The `@extends` tag of the class `$class` has invalid type `string`, it should be `" . SomeAbstractClassDefiningTwoTemplates::class . '`.', $parent->generics()[0]->message());
     }
 
-    public function test_invalid_extends_tag_class_name_throws_exception(): void
+    public function test_invalid_extends_tag_class_name_sets_unresolvable_type_in_generic(): void
     {
         $class =
             /**
@@ -98,10 +95,10 @@ final class ClassParentTypeResolverTest extends TestCase
              */
             (new class () extends SomeAbstractClassDefiningTwoTemplates {})::class;
 
-        $this->expectException(InvalidExtendTagClassName::class);
-        $this->expectExceptionMessage("The `@extends` tag of the class `$class` has invalid class `stdClass`, it should be `" . SomeAbstractClassDefiningTwoTemplates::class . "`.");
+        $parent = $this->resolver->resolveParentTypeFor(new NativeClassType($class));
 
-        $this->resolver->resolveParentTypeFor(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $parent->generics()[0]);
+        self::assertSame("The `@extends` tag of the class `$class` has invalid type `stdClass`, it should be `" . SomeAbstractClassDefiningTwoTemplates::class . "`.", $parent->generics()[0]->message());
     }
 }
 

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
-use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassImportedTypeAliasResolver;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -27,7 +26,7 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
         parent::setUp();
 
         $this->resolver = new ClassImportedTypeAliasResolver(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
         );
     }
 
@@ -66,7 +65,6 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
                 'NonEmptyStringAlias' => 'non-empty-string',
                 'IntegerRangeAlias' => 'int<42, 1337>',
                 'MultilineShapedArrayAlias' => 'array{foo: string, bar: int}',
-                'ArrayOfGenericAlias' => 'non-empty-array<string>',
             ],
         ];
 
@@ -76,7 +74,6 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
                 'NonEmptyStringAlias' => 'non-empty-string',
                 'IntegerRangeAlias' => 'int<42, 1337>',
                 'MultilineShapedArrayAlias' => 'array{foo: string, bar: int}',
-                'ArrayOfGenericAlias' => 'non-empty-array<string>',
             ],
         ];
 
@@ -88,21 +85,18 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
         ];
     }
 
-    public function test_class_with_invalid_type_alias_import_class_throws_exception(): void
+    public function test_class_with_invalid_alias_import_type_throws_exception(): void
     {
-        $class =
-            /**
-             * @phpstan-import-type T from UnknownType
-             */
-            (new class () {})::class;
+        $class = SomeClassWithInvalidAliasImport::class;
+        $aliases = $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
 
-        $this->expectException(InvalidTypeAliasImportClass::class);
-        $this->expectExceptionMessage("Cannot import a type alias from unknown class `UnknownType` in class `$class`.");
+        self::assertInstanceOf(UnresolvableType::class, $aliases['T']);
+        self::assertSame("Invalid type alias import `T` in class `$class`, a valid class name is expected but `Invalid-Class-Name` was given.", $aliases['T']->message());
 
-        $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
+        self::assertInstanceOf(NonEmptyStringType::class, $aliases['NonEmptyStringAlias']);
     }
 
-    public function test_class_with_invalid_type_alias_import_class_type_throws_exception(): void
+    public function test_class_with_invalid_alias_import_class_type_throws_exception(): void
     {
         $class =
             /**
@@ -110,10 +104,10 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
              */
             (new class () {})::class;
 
-        $this->expectException(InvalidTypeAliasImportClassType::class);
-        $this->expectExceptionMessage("Importing a type alias can only be done with classes, `string` was given in class `$class`.");
+        $aliases = $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
 
-        $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $aliases['T']);
+        self::assertSame("Invalid type alias import `T` in class `$class`, a valid class name is expected but `string` was given.", $aliases['T']->message());
     }
 
     public function test_class_with_unknown_type_alias_import_throws_exception(): void
@@ -124,10 +118,10 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
              */
             (new class () {})::class;
 
-        $this->expectException(UnknownTypeAliasImport::class);
-        $this->expectExceptionMessage("Type alias `T` imported in `$class` could not be found in `stdClass`");
+        $aliases = $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
 
-        $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
+        self::assertInstanceOf(UnresolvableType::class, $aliases['T']);
+        self::assertSame("Type alias `T` imported in `$class` could not be found in `stdClass`", $aliases['T']->message());
     }
 }
 
@@ -158,16 +152,9 @@ final class SomeClassWithLocalAlias {}
 final class AnotherClassWithLocalAlias {}
 
 /**
- * @template T
- * @phpstan-type ArrayOfGenericAlias = non-empty-array<T>
- */
-final class SomeClassWithGenericLocalAlias {}
-
-/**
  * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias
  * @phpstan-import-type IntegerRangeAlias from AnotherClassWithLocalAlias
  * @phpstan-import-type MultilineShapedArrayAlias from SomeClassWithLocalAlias
- * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string> (@phpstan-ignore-line)
  */
 final class SomeClassImportingAlias {}
 
@@ -177,7 +164,6 @@ final class SomeClassImportingAlias {}
  * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias Here is some comment (@phpstan-ignore-line)
  * @phpstan-import-type IntegerRangeAlias from AnotherClassWithLocalAlias Another comment
  * @phpstan-import-type MultilineShapedArrayAlias from SomeClassWithLocalAlias Yet another comment
- * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string> And another comment
  *
  * Another comment
  */
@@ -193,3 +179,10 @@ final class SomeClassImportingAliasWithComments {}
  * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias
  */
 final class SomeClassImportingAliasWithEmptyImports {}
+
+/**
+ * @phpstan-import-type T from Invalid-Class-Name
+ * @phpstan-import-type NonEmptyStringAlias from SomeClassWithLocalAlias
+ * @phpstan-ignore class.notFound
+ */
+final class SomeClassWithInvalidAliasImport {}

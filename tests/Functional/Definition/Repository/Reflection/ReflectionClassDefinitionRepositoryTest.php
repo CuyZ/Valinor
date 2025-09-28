@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection;
 
-use CuyZ\Valinor\Definition\Exception\ClassTypeAliasesDuplication;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\StringType;
+use CuyZ\Valinor\Type\Types\CallableType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class ReflectionClassDefinitionRepositoryTest extends TestCase
 {
@@ -26,7 +32,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         parent::setUp();
 
         $this->repository = new ReflectionClassDefinitionRepository(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
             [],
         );
     }
@@ -82,7 +88,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
                 bool $mandatoryParameter,
                 $parameterWithNoType,
                 $parameterWithDocBlockType,
-                string $optionalParameter = 'Optional parameter value'
+                string $optionalParameter = 'Optional parameter value',
             ): void {}
 
             #[Constructor]
@@ -145,6 +151,45 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertSame('Optional parameter value', $optionalParameter->defaultValue);
     }
 
+    public function test_generics_are_assigned_for_interface(): void
+    {
+        $type = new InterfaceType(SomeInterfaceWithGeneric::class, [NonEmptyStringType::get()]);
+        $methods = $this->repository->for($type)->methods;
+
+        self::assertInstanceOf(NonEmptyStringType::class, $methods->get('map')->returnType);
+    }
+
+    public function test_generics_are_assigned_in_properties_types(): void
+    {
+        $class =
+            (new /** @template T */ class () {
+                /** @var callable(T): int */
+                public $callableWithGeneric;
+
+                /** @var \CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection\SomeInterfaceWithGeneric<T> */
+                public SomeInterfaceWithGeneric $interfaceWithGeneric;
+
+                /** @var stdClass&T */
+                public $intersectionWithGeneric;
+            })::class;
+
+        $type = new NativeClassType($class, [new NativeClassType(DateTimeImmutable::class)]);
+        $properties = $this->repository->for($type)->properties;
+
+        $callableWithGeneric = $properties->get('callableWithGeneric');
+        $interfaceWithGeneric = $properties->get('interfaceWithGeneric');
+        $intersectionWithGeneric = $properties->get('intersectionWithGeneric');
+
+        self::assertInstanceOf(CallableType::class, $callableWithGeneric->type);
+        self::assertSame('callable(DateTimeImmutable): int', $callableWithGeneric->type->toString());
+
+        self::assertInstanceOf(InterfaceType::class, $interfaceWithGeneric->type);
+        self::assertSame(SomeInterfaceWithGeneric::class . '<DateTimeImmutable>', $interfaceWithGeneric->type->toString());
+
+        self::assertInstanceOf(IntersectionType::class, $intersectionWithGeneric->type);
+        self::assertSame('stdClass&DateTimeImmutable', $intersectionWithGeneric->type->toString());
+    }
+
     public function test_methods_can_be_retrieved_from_abstract_object_with_interface_and_with_method_referencing_self(): void
     {
         $type = new NativeClassType(AbstractObjectWithInterface::class);
@@ -162,7 +207,73 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertFalse($methods->constructor()->isPublic);
     }
 
-    public function test_invalid_property_type_throws_exception(): void
+    public function test_can_use_generic_type_from_imported_alias_type(): void
+    {
+        $type = new NativeClassType(SomeClassImportingAliasWithGeneric::class);
+        $properties = $this->repository->for($type)->properties;
+        $propertyType = $properties->get('propertyWithGenericAlias')->type;
+
+        self::assertSame('non-empty-array<string>', $propertyType->toString());
+    }
+
+    public function test_can_use_nested_local_types(): void
+    {
+        $class =
+            /**
+             * @phpstan-type SomeType = non-empty-string
+             * @phpstan-type SomeNestedType = non-empty-array<SomeType>
+             */
+            (new class () {
+                /** @var SomeNestedType */ // @phpstan-ignore class.notFound
+                public $propertyWithNestedType;
+            })::class;
+
+        $type = new NativeClassType($class);
+        $properties = $this->repository->for($type)->properties;
+        $propertyType = $properties->get('propertyWithNestedType')->type;
+
+        self::assertSame('non-empty-array<non-empty-string>', $propertyType->toString());
+    }
+
+    public function test_phpstan_local_type_can_use_psalm_local_type(): void
+    {
+        $class =
+            /**
+             * @psalm-type SomeType = non-empty-string
+             * @phpstan-type SomeNestedType = non-empty-array<SomeType>
+             */
+            (new class () {
+                /** @var SomeNestedType */ // @phpstan-ignore class.notFound
+                public $propertyWithNestedType;
+            })::class;
+
+        $type = new NativeClassType($class);
+        $properties = $this->repository->for($type)->properties;
+        $propertyType = $properties->get('propertyWithNestedType')->type;
+
+        self::assertSame('non-empty-array<non-empty-string>', $propertyType->toString());
+    }
+
+    public function test_psalm_local_type_can_use_phpstan_local_type(): void
+    {
+        $class =
+            /**
+             * @phpstan-type SomeType = non-empty-string
+             * @psalm-type SomeNestedType = non-empty-array<SomeType>
+             */
+            (new class () {
+                /** @var SomeNestedType */ // @phpstan-ignore class.notFound
+                public $propertyWithNestedType;
+            })::class;
+
+        $type = new NativeClassType($class);
+        $properties = $this->repository->for($type)->properties;
+        $propertyType = $properties->get('propertyWithNestedType')->type;
+
+        self::assertSame('non-empty-array<non-empty-string>', $propertyType->toString());
+    }
+
+    public function test_invalid_property_type_is_marked_as_unresolvable(): void
     {
         $class = (new class () {
             /** @var InvalidType */
@@ -176,7 +287,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertMatchesRegularExpression('/^The type `InvalidType` for property `.*` could not be resolved: .*$/', $type->message());
     }
 
-    public function test_invalid_property_default_value_throws_exception(): void
+    public function test_invalid_property_default_value_is_marked_as_unresolvable(): void
     {
         $class = (new class () {
             /** @var string */
@@ -187,10 +298,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->properties->get('propertyWithInvalidDefaultValue')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/Property `.*::\$propertyWithInvalidDefaultValue` of type `string` has invalid default value false/', $type->message());
+        self::assertMatchesRegularExpression('/The type `string` for property `.*::\$propertyWithInvalidDefaultValue` could not be resolved: invalid default value false/', $type->message());
     }
 
-    public function test_invalid_parameter_type_throws_exception(): void
+    public function test_invalid_parameter_type_is_marked_as_unresolvable(): void
     {
         $class = (new class () {
             /**
@@ -209,7 +320,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertMatchesRegularExpression('/^The type `InvalidTypeWithPendingSpaces` for parameter `.*` could not be resolved: .*$/', $type->message());
     }
 
-    public function test_invalid_method_return_type_throws_exception(): void
+    public function test_invalid_method_return_type_is_marked_as_unresolvable(): void
     {
         $class = (new class () {
             /**
@@ -227,7 +338,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertMatchesRegularExpression('/^The return type `InvalidType` of method `.*` could not be resolved: .*$/', $type->message());
     }
 
-    public function test_invalid_parameter_default_value_throws_exception(): void
+    public function test_invalid_parameter_default_value_is_marked_as_unresolvable(): void
     {
         $class = (new class () {
             /**
@@ -241,10 +352,10 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $class->methods->get('publicMethod')->parameters->get('parameterWithInvalidDefaultValue')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/Parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` of type `string` has invalid default value false/', $type->message());
+        self::assertMatchesRegularExpression('/The type `string` for parameter `.*::publicMethod\(\$parameterWithInvalidDefaultValue\)` could not be resolved: invalid default value false/', $type->message());
     }
 
-    public function test_method_with_non_matching_return_types_throws_exception(): void
+    public function test_method_with_non_matching_return_types_is_marked_as_unresolvable(): void
     {
         $class = (new class () {
             /**
@@ -265,7 +376,7 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             ->returnType;
 
         self::assertInstanceOf(UnresolvableType::class, $returnType);
-        self::assertMatchesRegularExpression('/^Return types for method `.*` do not match: `bool` \(docblock\) does not accept `string` \(native\).$/', $returnType->message());
+        self::assertMatchesRegularExpression('/The return type `bool` of method `.*::publicMethod\(\)` could not be resolved: `bool` \(docblock\) does not accept `string` \(native\)./', $returnType->message());
     }
 
     public function test_method_that_should_not_be_included_is_not_included(): void
@@ -281,27 +392,37 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         self::assertFalse($methods->has('publicMethod'));
     }
 
-    public function test_class_with_local_type_alias_name_duplication_throws_exception(): void
+    public function test_class_with_local_type_alias_name_duplication_is_marked_as_unresolvable(): void
     {
-        $class =
+        $className =
             /**
-             * @template T
+             * @template SomeTemplate
              * @template AnotherTemplate
-             * @psalm-type T = int
+             * @template YetAnotherTemplate
+             * @psalm-type SomeTemplate = int
              * @phpstan-type AnotherTemplate = int
              */
             (new class () {
-                /** @var T */
-                public $value; // @phpstan-ignore-line
+                /** @var SomeTemplate */
+                public $someTemplate; // @phpstan-ignore-line
+
+                /** @var AnotherTemplate */
+                public $anotherTemplate; // @phpstan-ignore-line
             })::class;
 
-        $this->expectException(ClassTypeAliasesDuplication::class);
-        $this->expectExceptionMessage("The following type aliases already exist in class `$class`: `T`, `AnotherTemplate`.");
+        $class = $this->repository->for(new NativeClassType($className, [new FakeType(), new FakeType(), new FakeType()]));
 
-        $this->repository->for(new NativeClassType($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));
+        $someTemplateProperty = $class->properties->get('someTemplate');
+        $anotherTemplateProperty = $class->properties->get('anotherTemplate');
+
+        self::assertInstanceOf(UnresolvableType::class, $someTemplateProperty->type);
+        self::assertSame("The type `SomeTemplate` for property `$className::\$someTemplate` could not be resolved: collision for the type alias `SomeTemplate` that was declared 2 times.", $someTemplateProperty->type->message());
+
+        self::assertInstanceOf(UnresolvableType::class, $anotherTemplateProperty->type);
+        self::assertSame("The type `AnotherTemplate` for property `$className::\$anotherTemplate` could not be resolved: collision for the type alias `AnotherTemplate` that was declared 2 times.", $anotherTemplateProperty->type->message());
     }
 
-    public function test_class_with_invalid_type_alias_throws_exception(): void
+    public function test_class_with_invalid_type_alias_is_marked_as_unresolvable(): void
     {
         $class =
             /**
@@ -315,8 +436,36 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
         $type = $this->repository->for(new NativeClassType($class))->properties->get('value')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: The type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: Missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
+        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: the type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
     }
+
+    public function test_template_with_invalid_value_for_property_subtype_returns_unresolvable_type(): void
+    {
+        $class =
+            /**
+             * @template T
+             */
+            (new class () {
+                /** @var class-string<T> */
+                public $value; // @phpstan-ignore class.notFound
+            })::class;
+
+        $type = $this->repository->for(new NativeClassType($class, [new NativeFloatType()]))->properties->get('value')->type;
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertMatchesRegularExpression('/The type `class-string<T>` for property `.*` could not be resolved: invalid class string `class-string<float>`, each element must be a class name or an interface name but found `float`./', $type->message());
+    }
+}
+
+/**
+ * @template T
+ */
+interface SomeInterfaceWithGeneric
+{
+    /**
+     * @return T
+     */
+    public function map();
 }
 
 abstract class AbstractClassWithPrivateConstructor
@@ -325,3 +474,22 @@ abstract class AbstractClassWithPrivateConstructor
 }
 
 final class ClassWithInheritedPrivateConstructor extends AbstractClassWithPrivateConstructor {}
+
+/**
+ * @template T
+ * @phpstan-type ArrayOfGenericAlias = non-empty-array<T>
+ */
+class SomeClassWithGenericLocalAlias
+{
+    /** @var T */
+    public $propertyWithLocalAlias;
+}
+
+/**
+ * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string> (@phpstan-ignore-line)
+ */
+final class SomeClassImportingAliasWithGeneric
+{
+    /** @var ArrayOfGenericAlias */ // @phpstan-ignore class.notFound
+    public $propertyWithGenericAlias;
+}

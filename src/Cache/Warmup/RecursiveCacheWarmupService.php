@@ -9,10 +9,10 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\TypeHelper;
 
 use function in_array;
@@ -33,11 +33,13 @@ final class RecursiveCacheWarmupService
     public function warmup(string ...$signatures): void
     {
         foreach ($signatures as $signature) {
-            try {
-                $this->warmupType($this->parser->parse($signature));
-            } catch (InvalidType $exception) {
-                throw new InvalidSignatureToWarmup($signature, $exception);
+            $type = $this->parser->parse($signature);
+
+            if ($type instanceof UnresolvableType) {
+                throw new InvalidSignatureToWarmup($type);
             }
+
+            $this->warmupType($type);
         }
     }
 

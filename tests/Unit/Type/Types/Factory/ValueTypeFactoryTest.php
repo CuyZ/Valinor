@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use DateTime;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class ValueTypeFactoryTest extends TestCase
 {
@@ -42,6 +43,10 @@ final class ValueTypeFactoryTest extends TestCase
         yield 'string value' => [
             'value' => 'foo bar',
             'type' => "'foo bar'",
+        ];
+        yield 'string value with class name' => [
+            'value' => stdClass::class,
+            'type' => 'class-string<stdClass>',
         ];
         yield 'string value with single quote' => [
             'value' => "What's up",

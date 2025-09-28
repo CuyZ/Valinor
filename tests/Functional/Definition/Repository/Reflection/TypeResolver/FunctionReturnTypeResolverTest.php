@@ -9,8 +9,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\FunctionReturnTyp
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
-use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -26,8 +25,8 @@ final class FunctionReturnTypeResolverTest extends TestCase
 
         $this->resolver = new FunctionReturnTypeResolver(
             new ReflectionTypeResolver(
-                (new LexingTypeParserFactory())->buildDefaultTypeParser(),
-                (new LexingTypeParserFactory())->buildAdvancedTypeParserForClass(new NativeClassType(self::class)),
+                (new TypeParserFactory())->buildDefaultTypeParser(),
+                (new TypeParserFactory())->buildAdvancedTypeParserForClass(self::class),
             ),
         );
     }

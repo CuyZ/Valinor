@@ -106,6 +106,14 @@ final class ArrayType implements CompositeTraversableType, DumpableType
         return [$this->keyType, $this->subType];
     }
 
+    public function replace(callable $callback): Type
+    {
+        return new self(
+            $callback($this->keyType),
+            $callback($this->subType),
+        );
+    }
+
     public function nativeType(): ArrayType
     {
         return self::native();

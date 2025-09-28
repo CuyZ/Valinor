@@ -18,7 +18,7 @@ final class ClassContextSpecification implements TypeParserSpecification
     public function manipulateToken(TraversingToken $token): TraversingToken
     {
         if ($token->symbol() === 'self' || $token->symbol() === 'static') {
-            return new ObjectToken($this->className);
+            return ObjectToken::from($this->className);
         }
 
         return $token;

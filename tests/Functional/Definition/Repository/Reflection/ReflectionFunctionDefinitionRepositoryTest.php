@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionAttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use PHPUnit\Framework\TestCase;
@@ -21,9 +21,9 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         parent::setUp();
 
         $this->repository = new ReflectionFunctionDefinitionRepository(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
             new ReflectionAttributesRepository(
-                new ReflectionClassDefinitionRepository(new LexingTypeParserFactory(), []),
+                new ReflectionClassDefinitionRepository(new TypeParserFactory(), []),
                 []
             ),
         );
@@ -91,6 +91,6 @@ final class ReflectionFunctionDefinitionRepositoryTest extends TestCase
         $returnType = $this->repository->for($callback)->returnType;
 
         self::assertInstanceOf(UnresolvableType::class, $returnType);
-        self::assertMatchesRegularExpression('/^Return types for function `.*` do not match: `int` \(docblock\) does not accept `string` \(native\).$/', $returnType->message());
+        self::assertMatchesRegularExpression('/The return type `int` of function `.*` could not be resolved: `int` \(docblock\) does not accept `string` \(native\)./', $returnType->message());
     }
 }

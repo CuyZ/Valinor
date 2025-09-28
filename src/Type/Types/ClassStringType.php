@@ -10,15 +10,17 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\Parser\Exception\Union\InvalidClassStringElements;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
+use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use Stringable;
 
 use function array_map;
 use function assert;
+use function implode;
 use function is_string;
 
 /** @internal */
@@ -27,20 +29,26 @@ final class ClassStringType implements StringType, CompositeType
     use IsSingleton;
 
     public function __construct(
-        private ObjectType|UnionType|null $subType = null,
+        /** @var list<ObjectType|VacantType> */
+        private array $subTypes = [],
     ) {}
 
-    public static function from(ObjectType|UnionType|null $subType = null): self
+    /**
+     * @param list<Type> $subTypes
+     */
+    public static function from(array $subTypes): self
     {
-        if ($subType instanceof UnionType) {
-            foreach ($subType->types() as $type) {
-                if (! $type instanceof ObjectType) {
-                    throw new InvalidUnionOfClassString($subType);
-                }
-            }
+        $invalidSubTypes = array_filter(
+            $subTypes,
+            static fn (Type $type) => ! $type instanceof ObjectType && ! $type instanceof VacantType
+        );
+
+        if ($invalidSubTypes !== []) {
+            throw new InvalidClassStringElements($subTypes, $invalidSubTypes);
         }
 
-        return new self($subType);
+        /** @var non-empty-list<ObjectType|VacantType> $subTypes */
+        return new self($subTypes);
     }
 
     public function accepts(mixed $value): bool
@@ -49,17 +57,12 @@ final class ClassStringType implements StringType, CompositeType
             return false;
         }
 
-        if (! $this->subType) {
+        if ($this->subTypes === []) {
             return Reflection::classOrInterfaceExists($value);
         }
 
-        if ($this->subType instanceof ObjectType) {
-            return is_a($value, $this->subType->className(), true);
-        }
-
-        foreach ($this->subType->types() as $type) {
-            /** @var ObjectType $type */
-            if (is_a($value, $type->className(), true)) {
+        foreach ($this->subTypes as $type) {
+            if ($type instanceof ObjectType && is_a($value, $type->className(), true)) {
                 return true;
             }
         }
@@ -71,29 +74,21 @@ final class ClassStringType implements StringType, CompositeType
     {
         $condition = Node::functionCall('is_string', [$node]);
 
-        if (! $this->subType) {
+        if ($this->subTypes === []) {
             return $condition->and(Node::functionCall(Reflection::class . '::classOrInterfaceExists', [$node]));
         }
 
-        if ($this->subType instanceof ObjectType) {
-            return $condition->and(
-                Node::functionCall('is_a', [
-                    $node,
-                    Node::value($this->subType->className()),
-                    Node::value(true),
-                ])
-            );
-        }
+        $conditions = [];
 
-        $conditions = array_map(
-            // @phpstan-ignore argument.type (We know it's an ObjectType)
-            static fn (ObjectType $type) => Node::functionCall('is_a', [
-                $node,
-                Node::value($type->className()),
-                Node::value(true),
-            ]),
-            $this->subType->types()
-        );
+        foreach ($this->subTypes as $type) {
+            if ($type instanceof ObjectType) {
+                $conditions[] = Node::functionCall('is_a', [
+                    $node,
+                    Node::value($type->className()),
+                    Node::value(true),
+                ]);
+            }
+        }
 
         return $condition->and(Node::logicalOr(...$conditions)->wrap());
     }
@@ -120,15 +115,15 @@ final class ClassStringType implements StringType, CompositeType
             return false;
         }
 
-        if (! $this->subType) {
-            return true;
+        foreach ($this->subTypes as $subType) {
+            foreach ($other->subTypes as $otherSubType) {
+                if (! $subType->matches($otherSubType)) {
+                    return false;
+                }
+            }
         }
 
-        if (! $other->subType) {
-            return true;
-        }
-
-        return $this->subType->matches($other->subType);
+        return true;
     }
 
     public function canCast(mixed $value): bool
@@ -146,30 +141,34 @@ final class ClassStringType implements StringType, CompositeType
 
     public function errorMessage(): ErrorMessage
     {
-        if ($this->subType) {
-            return MessageBuilder::newError('Value {source_value} is not a valid class string of `{expected_class_type}`.')
+        if ($this->subTypes === []) {
+            return MessageBuilder::newError('Value {source_value} is not a valid class string.')
                 ->withCode('invalid_class_string')
-                ->withParameter('expected_class_type', $this->subType->toString())
                 ->build();
         }
 
-        return MessageBuilder::newError('Value {source_value} is not a valid class string.')
+        return MessageBuilder::newError('Value {source_value} is not a valid class string of `{expected_class_type}`.')
             ->withCode('invalid_class_string')
+            ->withParameter('expected_class_type', $this->subTypesSignature())
             ->build();
     }
 
-    public function subType(): ObjectType|UnionType|null
+    /**
+     * @return list<ObjectType|VacantType>
+     */
+    public function subTypes(): array
     {
-        return $this->subType;
+        return $this->subTypes;
     }
 
     public function traverse(): array
     {
-        if (! $this->subType) {
-            return [];
-        }
+        return $this->subTypes;
+    }
 
-        return [$this->subType];
+    public function replace(callable $callback): Type
+    {
+        return self::from(array_map($callback, $this->subTypes));
     }
 
     public function nativeType(): NativeStringType
@@ -179,8 +178,18 @@ final class ClassStringType implements StringType, CompositeType
 
     public function toString(): string
     {
-        return $this->subType
-            ? "class-string<{$this->subType->toString()}>"
-            : 'class-string';
+        if ($this->subTypes === []) {
+            return 'class-string';
+        }
+
+        return 'class-string<' . $this->subTypesSignature() . '>';
+    }
+
+    private function subTypesSignature(): string
+    {
+        return implode('|', array_map(
+            static fn (Type $type) => $type->toString(),
+            $this->subTypes,
+        ));
     }
 }

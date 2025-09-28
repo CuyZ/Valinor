@@ -14,7 +14,7 @@ use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
-use CuyZ\Valinor\Type\Types\Exception\InvalidUnionOfClassString;
+use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
@@ -30,30 +30,6 @@ use stdClass;
 final class ClassStringTypeTest extends TestCase
 {
     use TestIsSingleton;
-
-    public function test_string_subtype_can_be_retrieved(): void
-    {
-        $subType = new FakeObjectType();
-
-        self::assertSame($subType, (new ClassStringType($subType))->subType());
-    }
-
-    public function test_union_of_string_subtype_can_be_retrieved(): void
-    {
-        $subType = new UnionType(new FakeObjectType(), new FakeObjectType());
-
-        self::assertSame($subType, (new ClassStringType($subType))->subType());
-    }
-
-    public function test_union_with_invalid_type_throws_exception(): void
-    {
-        $type = new UnionType(new FakeObjectType(), new FakeType());
-
-        $this->expectException(InvalidUnionOfClassString::class);
-        $this->expectExceptionMessage("Type `{$type->toString()}` contains invalid class string element(s).");
-
-        ClassStringType::from($type);
-    }
 
     #[TestWith([stdClass::class])]
     #[TestWith([DateTimeInterface::class])]
@@ -71,7 +47,7 @@ final class ClassStringTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => stdClass::class])]
     public function test_object_class_string_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new ClassStringType(new FakeObjectType(DateTimeInterface::class));
+        $type = new ClassStringType([new FakeObjectType(DateTimeInterface::class)]);
 
         self::assertSame($accepts, $type->accepts($value));
         self::assertSame($accepts, $this->compiledAccept($type, $value));
@@ -82,7 +58,22 @@ final class ClassStringTypeTest extends TestCase
     #[TestWith(['accepts' => false, 'value' => DateTimeImmutable::class])]
     public function test_union_of_objects_class_string_accepts_correct_values(bool $accepts, mixed $value): void
     {
-        $type = new ClassStringType(new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class)));
+        $type = new ClassStringType([new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class)]);
+
+        self::assertSame($accepts, $type->accepts($value));
+        self::assertSame($accepts, $this->compiledAccept($type, $value));
+    }
+
+    #[TestWith(['accepts' => true, 'value' => DateTime::class])]
+    #[TestWith(['accepts' => true, 'value' => stdClass::class])]
+    #[TestWith(['accepts' => false, 'value' => DateTimeImmutable::class])]
+    public function test_accepts_if_generic_type_is_given(bool $accepts, mixed $value): void
+    {
+        $type = new ClassStringType([
+            new GenericType('T', new NativeStringType()),
+            new FakeObjectType(DateTime::class),
+            new FakeObjectType(stdClass::class)
+        ]);
 
         self::assertSame($accepts, $type->accepts($value));
         self::assertSame($accepts, $this->compiledAccept($type, $value));
@@ -98,8 +89,8 @@ final class ClassStringTypeTest extends TestCase
     public function test_does_not_accept_incorrect_values(mixed $value): void
     {
         $basicClassStringType = new ClassStringType();
-        $objectClassStringType = new ClassStringType(new FakeObjectType());
-        $unionClassStringType = new ClassStringType(new UnionType(new FakeObjectType(), new FakeObjectType()));
+        $objectClassStringType = new ClassStringType([new FakeObjectType()]);
+        $unionClassStringType = new ClassStringType([new FakeObjectType(), new FakeObjectType()]);
 
         self::assertFalse($basicClassStringType->accepts($value));
         self::assertFalse($objectClassStringType->accepts($value));
@@ -145,7 +136,7 @@ final class ClassStringTypeTest extends TestCase
     public function test_cast_to_sub_class_returns_sub_class(): void
     {
         $objectType = new FakeObjectType(DateTimeInterface::class);
-        $result = (new ClassStringType($objectType))->cast(DateTime::class);
+        $result = (new ClassStringType([$objectType]))->cast(DateTime::class);
 
         self::assertSame(DateTime::class, $result);
     }
@@ -173,17 +164,17 @@ final class ClassStringTypeTest extends TestCase
         $objectType = new FakeObjectType();
         $classStringObject = new StringableObject(DateTimeInterface::class);
 
-        (new ClassStringType($objectType))->cast($classStringObject);
+        (new ClassStringType([$objectType]))->cast($classStringObject);
     }
 
     public function test_cast_invalid_class_string_of_union_type_throws_exception(): void
     {
         $this->expectException(AssertionError::class);
 
-        $unionType = new UnionType(new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class));
+        $types = [new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class)];
         $classStringObject = new StringableObject(DateTimeInterface::class);
 
-        (new ClassStringType($unionType))->cast($classStringObject);
+        (new ClassStringType($types))->cast($classStringObject);
     }
 
     public function test_string_value_is_correct(): void
@@ -191,7 +182,7 @@ final class ClassStringTypeTest extends TestCase
         $objectType = new FakeObjectType();
 
         self::assertSame('class-string', (new ClassStringType())->toString());
-        self::assertSame("class-string<{$objectType->toString()}>", (new ClassStringType($objectType))->toString());
+        self::assertSame("class-string<{$objectType->toString()}>", (new ClassStringType([$objectType]))->toString());
     }
 
     public function test_matches_same_type(): void
@@ -204,18 +195,18 @@ final class ClassStringTypeTest extends TestCase
         $objectTypeA = new FakeObjectType();
         $objectTypeB = FakeObjectType::matching($objectTypeA);
 
-        self::assertTrue((new ClassStringType($objectTypeB))->matches(new ClassStringType($objectTypeA)));
+        self::assertTrue((new ClassStringType([$objectTypeB]))->matches(new ClassStringType([$objectTypeA])));
     }
 
     public function test_does_match_same_type_with_no_object_type(): void
     {
-        self::assertTrue((new ClassStringType(new FakeObjectType()))->matches(new ClassStringType()));
+        self::assertTrue((new ClassStringType([new FakeObjectType()]))->matches(new ClassStringType()));
     }
 
     public function test_does_not_match_same_type_with_invalid_object_type(): void
     {
-        $classStringTypeA = new ClassStringType(new FakeObjectType(stdClass::class));
-        $classStringTypeB = new ClassStringType(new FakeObjectType(DateTime::class));
+        $classStringTypeA = new ClassStringType([new FakeObjectType(stdClass::class)]);
+        $classStringTypeB = new ClassStringType([new FakeObjectType(DateTime::class)]);
 
         self::assertFalse($classStringTypeA->matches($classStringTypeB));
     }
@@ -252,16 +243,16 @@ final class ClassStringTypeTest extends TestCase
 
         $unionType = new UnionType(
             new FakeType(),
-            new ClassStringType($objectTypeA),
+            new ClassStringType([$objectTypeA]),
             new FakeType(),
         );
 
-        self::assertTrue((new ClassStringType($objectTypeB))->matches($unionType));
+        self::assertTrue((new ClassStringType([$objectTypeB]))->matches($unionType));
     }
 
     public function test_does_not_match_union_containing_invalid_type(): void
     {
-        $classStringType = new ClassStringType(new FakeObjectType());
+        $classStringType = new ClassStringType([new FakeObjectType()]);
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($classStringType->matches($unionType));
@@ -286,7 +277,7 @@ final class ClassStringTypeTest extends TestCase
     {
         $subType = new FakeObjectType();
 
-        $type = new ClassStringType($subType);
+        $type = new ClassStringType([$subType]);
 
         self::assertSame([$subType], $type->traverse());
     }
@@ -294,7 +285,7 @@ final class ClassStringTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame('string', (new ClassStringType())->nativeType()->toString());
-        self::assertSame('string', (new ClassStringType(new FakeObjectType()))->nativeType()->toString());
+        self::assertSame('string', (new ClassStringType([new FakeObjectType()]))->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

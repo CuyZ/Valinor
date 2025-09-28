@@ -35,9 +35,9 @@ final class ReflectionPropertyDefinitionBuilder
         if ($type instanceof UnresolvableType) {
             $type = $type->forProperty($signature);
         } elseif (! $type->matches($nativeType)) {
-            $type = UnresolvableType::forNonMatchingPropertyTypes($signature, $nativeType, $type);
+            $type = UnresolvableType::forNonMatchingTypes($nativeType, $type)->forProperty($signature);
         } elseif ($hasDefaultValue && ! $type->accepts($defaultValue)) {
-            $type = UnresolvableType::forInvalidPropertyDefaultValue($signature, $type, $defaultValue);
+            $type = UnresolvableType::forInvalidDefaultValue($type, $defaultValue)->forProperty($signature);
         }
 
         return new PropertyDefinition(

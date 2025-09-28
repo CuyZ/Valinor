@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Functional\Cache;
 use CuyZ\Valinor\Cache\TypeFilesWatcher;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Library\Settings;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +28,7 @@ final class TypeFilesWatcherTest extends TestCase
         ];
 
         $classDefinitionRepository = new ReflectionClassDefinitionRepository(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
             []
         );
 
@@ -50,7 +50,7 @@ final class TypeFilesWatcherTest extends TestCase
     public function test_circular_references_in_object_does_not_cause_infinite_loop(): void
     {
         $classDefinitionRepository = new ReflectionClassDefinitionRepository(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
             []
         );
 

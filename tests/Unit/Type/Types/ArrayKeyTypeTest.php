@@ -10,6 +10,7 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
@@ -31,8 +32,8 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertSame(ArrayKeyType::default(), ArrayKeyType::default());
         self::assertSame(ArrayKeyType::integer(), ArrayKeyType::integer());
         self::assertSame(ArrayKeyType::string(), ArrayKeyType::string());
-        self::assertSame(ArrayKeyType::integer(), ArrayKeyType::from(new NativeIntegerType()));
-        self::assertSame(ArrayKeyType::string(), ArrayKeyType::from(new NativeStringType()));
+        self::assertSame(ArrayKeyType::integer(), ArrayKeyType::from([new NativeIntegerType()]));
+        self::assertSame(ArrayKeyType::string(), ArrayKeyType::from([new NativeStringType()]));
     }
 
     public function test_string_values_are_correct(): void
@@ -94,7 +95,7 @@ final class ArrayKeyTypeTest extends TestCase
 
     public function test_string_value_key_accepts_correct_value(): void
     {
-        $type = ArrayKeyType::from(new StringValueType('foo'));
+        $type = new ArrayKeyType([new StringValueType('foo')]);
 
         self::assertTrue($type->accepts('foo'));
         self::assertTrue($this->compiledAccept($type, 'foo'));
@@ -108,7 +109,7 @@ final class ArrayKeyTypeTest extends TestCase
     #[TestWith([new stdClass()])]
     public function test_string_value_key_does_not_accept_incorrect_value(mixed $value): void
     {
-        $type = ArrayKeyType::from(new StringValueType('foo'));
+        $type = new ArrayKeyType([new StringValueType('foo')]);
 
         self::assertFalse($type->accepts($value));
         self::assertFalse($this->compiledAccept($type, $value));
@@ -161,6 +162,16 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertFalse(ArrayKeyType::string()->canCast(new stdClass()));
     }
 
+    public function test_array_key_with_generic_can_cast_numeric_and_string_value(): void
+    {
+        $arrayKeyWithGenericType = new ArrayKeyType([new GenericType('T', new MixedType()), new NativeIntegerType(), new NativeStringType()]);
+
+        self::assertTrue($arrayKeyWithGenericType->canCast(42.1337));
+        self::assertTrue($arrayKeyWithGenericType->canCast(404));
+        self::assertTrue($arrayKeyWithGenericType->canCast('foo'));
+        self::assertTrue($arrayKeyWithGenericType->canCast(new StringableObject('foo')));
+    }
+
     public function test_cast_value_yields_correct_result(): void
     {
         self::assertSame(42, ArrayKeyType::default()->cast(42));
@@ -174,6 +185,13 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertSame('42.1337', ArrayKeyType::string()->cast(42.1337));
         self::assertSame('foo', ArrayKeyType::string()->cast('foo'));
         self::assertSame('foo', ArrayKeyType::string()->cast(new StringableObject('foo')));
+
+        $arrayKeyWithGenericType = new ArrayKeyType([new GenericType('T', new MixedType()), new NativeIntegerType(), new NativeStringType()]);
+
+        self::assertSame(42, $arrayKeyWithGenericType->cast(42));
+        self::assertSame('42.1337', $arrayKeyWithGenericType->cast(42.1337));
+        self::assertSame('foo', $arrayKeyWithGenericType->cast('foo'));
+        self::assertSame('foo', $arrayKeyWithGenericType->cast(new StringableObject('foo')));
     }
 
     public function test_cast_invalid_value_throw_exception(): void
@@ -234,13 +252,11 @@ final class ArrayKeyTypeTest extends TestCase
         self::assertSame('int|string', ArrayKeyType::default()->nativeType()->toString());
         self::assertSame('int', ArrayKeyType::integer()->nativeType()->toString());
         self::assertSame('string', ArrayKeyType::string()->nativeType()->toString());
-        self::assertSame('string|int', ArrayKeyType::from(
-            new UnionType(
+        self::assertSame('string|int', (new ArrayKeyType([
                 new StringValueType('foo'),
                 new IntegerValueType(42),
                 new PositiveIntegerType(),
-            )
-        )->nativeType()->toString());
+        ]))->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

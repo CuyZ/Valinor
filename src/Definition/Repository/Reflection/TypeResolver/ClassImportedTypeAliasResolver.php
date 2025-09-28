@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClass;
-use CuyZ\Valinor\Definition\Exception\InvalidTypeAliasImportClassType;
-use CuyZ\Valinor\Definition\Exception\UnknownTypeAliasImport;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\Lexer\Annotations;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Utility\Reflection\Annotations;
 
 use function current;
 use function key;
@@ -21,10 +17,15 @@ use function next;
 /** @internal */
 final class ClassImportedTypeAliasResolver
 {
-    public function __construct(private TypeParserFactory $typeParserFactory) {}
+    private ClassLocalTypeAliasResolver $localTypeAliasResolver;
+
+    public function __construct(private TypeParserFactory $typeParserFactory)
+    {
+        $this->localTypeAliasResolver = new ClassLocalTypeAliasResolver($this->typeParserFactory);
+    }
 
     /**
-     * @return array<string, Type>
+     * @return array<non-empty-string, Type>
      */
     public function resolveImportedTypeAliases(ObjectType $type): array
     {
@@ -34,29 +35,30 @@ final class ClassImportedTypeAliasResolver
             return [];
         }
 
-        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type);
+        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type->className());
 
         $importedTypes = [];
 
         foreach ($importedTypesRaw as $class => $types) {
-            try {
-                $classType = $typeParser->parse($class);
-            } catch (InvalidType) {
-                throw new InvalidTypeAliasImportClass($type, $class);
-            }
+            $classType = $typeParser->parse($class);
 
             if (! $classType instanceof ObjectType) {
-                throw new InvalidTypeAliasImportClassType($type, $classType);
-            }
-
-            $localTypes = (new ClassLocalTypeAliasResolver($this->typeParserFactory))->resolveLocalTypeAliases($classType);
-
-            foreach ($types as $importedType) {
-                if (! isset($localTypes[$importedType])) {
-                    throw new UnknownTypeAliasImport($type, $classType->className(), $importedType);
+                foreach ($types as $importedType) {
+                    $importedTypes[$importedType] = UnresolvableType::forInvalidAliasImportClassType($type->className(), $types[0], $class);
                 }
 
-                $importedTypes[$importedType] = $localTypes[$importedType];
+                continue;
+            }
+
+            $localTypes = $this->localTypeAliasResolver->resolveLocalTypeAliases($classType);
+
+            foreach ($types as $importedType) {
+                if (isset($localTypes[$importedType])) {
+                    $importedTypes[$importedType] = $localTypes[$importedType];
+                } else {
+                    $importedTypes[$importedType] = UnresolvableType::forUnknownTypeAliasImport($type, $classType->className(), $importedType);
+                }
+
             }
         }
 
@@ -65,22 +67,13 @@ final class ClassImportedTypeAliasResolver
 
     /**
      * @param class-string $className
-     * @return array<non-empty-string, list<non-empty-string>>
+     * @return array<non-empty-string, non-empty-list<non-empty-string>>
      */
     private function extractImportedAliasesFromDocBlock(string $className): array
     {
-        $docBlock = Reflection::class($className)->getDocComment();
-
-        if ($docBlock === false) {
-            return [];
-        }
-
         $importedAliases = [];
 
-        $annotations = (new Annotations($docBlock))->filteredByPriority(
-            '@phpstan-import-type',
-            '@psalm-import-type',
-        );
+        $annotations = Annotations::forImportTypes($className);
 
         foreach ($annotations as $annotation) {
             $tokens = $annotation->filtered();

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Fake\Type\Parser;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
-use RuntimeException;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use function trim;
 
@@ -28,7 +27,7 @@ final class FakeTypeParser implements TypeParser
         $type = FakeType::from($raw);
 
         if ($type instanceof FakeType) {
-            throw new class ("Type `$raw` not handled by `FakeTypeParser`.") extends RuntimeException implements InvalidType {};
+            return new UnresolvableType($raw, "Type `$raw` not handled by `FakeTypeParser`.");
         }
 
         return $type;

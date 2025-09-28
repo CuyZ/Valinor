@@ -34,7 +34,7 @@ final class InterfaceTypeTest extends TestCase
     public function test_string_value_is_correct(): void
     {
         $generic = new FakeType();
-        $type = new InterfaceType(stdClass::class, ['Template' => $generic]);
+        $type = new InterfaceType(stdClass::class, [$generic]);
 
         self::assertSame(stdClass::class . "<{$generic->toString()}>", $type->toString());
     }
@@ -147,7 +147,7 @@ final class InterfaceTypeTest extends TestCase
         $subTypeA = new FakeType();
         $subTypeB = new FakeType();
 
-        $type = new InterfaceType(stdClass::class, ['T1' => $subTypeA, 'T2' => $subTypeB]);
+        $type = new InterfaceType(stdClass::class, [$subTypeA, $subTypeB]);
 
         self::assertSame([$subTypeA, $subTypeB], $type->traverse());
     }
@@ -155,7 +155,7 @@ final class InterfaceTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame(stdClass::class, (new InterfaceType(stdClass::class))->nativeType()->toString());
-        self::assertSame(stdClass::class, (new InterfaceType(stdClass::class, ['Template' => new FakeType()]))->nativeType()->toString());
+        self::assertSame(stdClass::class, (new InterfaceType(stdClass::class, [new FakeType()]))->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

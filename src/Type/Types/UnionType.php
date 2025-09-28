@@ -8,8 +8,8 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\DumpableType;
+use CuyZ\Valinor\Type\Parser\Exception\Union\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\Exception\ForbiddenMixedType;
 
 use function array_map;
 use function array_values;
@@ -79,16 +79,6 @@ final class UnionType implements CombiningType, DumpableType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof self) {
-            foreach ($this->types as $type) {
-                if (! $other->isMatchedBy($type)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         foreach ($this->types as $type) {
             if (! $type->matches($other)) {
                 return false;
@@ -112,6 +102,11 @@ final class UnionType implements CombiningType, DumpableType
     public function traverse(): array
     {
         return $this->types;
+    }
+
+    public function replace(callable $callback): Type
+    {
+        return new self(...array_map($callback, $this->types));
     }
 
     public function types(): array

@@ -4,29 +4,38 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Definition\Exception\ExtendTagTypeError;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagClassName;
-use CuyZ\Valinor\Definition\Exception\InvalidExtendTagType;
-use CuyZ\Valinor\Definition\Exception\SeveralExtendTagsFound;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenizedAnnotation;
-use CuyZ\Valinor\Type\Parser\Lexer\Annotations;
+use CuyZ\Valinor\Type\Parser\VacantTypeAssignerParser;
+use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Utility\Reflection\Annotations;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 
 use function array_map;
+use function array_values;
 
 /** @internal */
 final class ClassParentTypeResolver
 {
-    public function __construct(private TypeParserFactory $typeParserFactory) {}
+    private ClassGenericResolver $genericResolver;
 
-    public function resolveParentTypeFor(ObjectType $type): NativeClassType
+    private TemplateResolver $templateResolver;
+
+    public function __construct(private TypeParserFactory $typeParserFactory)
     {
-        $reflection = Reflection::class($type->className());
+        $this->genericResolver = new ClassGenericResolver($this->typeParserFactory);
+        $this->templateResolver = new TemplateResolver();
+    }
+
+    public function resolveParentTypeFor(ObjectType $child): NativeClassType
+    {
+        assert($child instanceof NativeClassType);
+
+        $reflection = Reflection::class($child->className());
 
         /** @var ReflectionClass<object> $parentReflection */
         $parentReflection = $reflection->getParentClass();
@@ -34,27 +43,26 @@ final class ClassParentTypeResolver
         $extendedClass = $this->extractParentTypeFromDocBlock($reflection);
 
         if (count($extendedClass) > 1) {
-            throw new SeveralExtendTagsFound($reflection);
+            return $this->fillParentGenericsWithUnresolvableTypes($parentReflection, UnresolvableType::forSeveralExtendTagsFound($reflection->name));
         } elseif (count($extendedClass) === 0) {
             $extendedClass = $parentReflection->name;
         } else {
             $extendedClass = $extendedClass[0];
         }
 
-        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type);
+        $generics = $this->genericResolver->resolveGenerics($child);
 
-        try {
-            $parentType = $typeParser->parse($extendedClass);
-        } catch (InvalidType $exception) {
-            throw new ExtendTagTypeError($reflection, $exception);
+        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($child->className());
+        $typeParser = new VacantTypeAssignerParser($typeParser, $generics);
+
+        $parentType = $typeParser->parse($extendedClass);
+
+        if ($parentType instanceof UnresolvableType) {
+            return $this->fillParentGenericsWithUnresolvableTypes($parentReflection, $parentType->forExtendTagTypeError($reflection->name));
         }
 
-        if (! $parentType instanceof NativeClassType) {
-            throw new InvalidExtendTagType($reflection, $parentType);
-        }
-
-        if ($parentType->className() !== $parentReflection->name) {
-            throw new InvalidExtendTagClassName($reflection, $parentType);
+        if (! $parentType instanceof NativeClassType || $parentType->className() !== $parentReflection->name) {
+            return $this->fillParentGenericsWithUnresolvableTypes($parentReflection, UnresolvableType::forInvalidExtendTagType($reflection->name, $parentReflection->name, $parentType));
         }
 
         return $parentType;
@@ -66,21 +74,27 @@ final class ClassParentTypeResolver
      */
     private function extractParentTypeFromDocBlock(ReflectionClass $reflection): array
     {
-        $docBlock = $reflection->getDocComment();
-
-        if ($docBlock === false) {
-            return [];
-        }
-
-        $annotations = (new Annotations($docBlock))->filteredByPriority(
-            '@phpstan-extends',
-            '@psalm-extends',
-            '@extends',
-        );
+        $annotations = Annotations::forParents($reflection->name);
 
         return array_map(
             fn (TokenizedAnnotation $annotation) => $annotation->raw(),
             $annotations,
         );
+    }
+
+    /**
+     * @param ReflectionClass<object> $class
+     */
+    private function fillParentGenericsWithUnresolvableTypes(ReflectionClass $class, UnresolvableType $unresolvableType): NativeClassType
+    {
+        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($class->name);
+
+        $templates = $this->templateResolver->templatesFromDocBlock($class, $class->name, $typeParser);
+        $generics = array_values(array_map(
+            static fn (GenericType $type) => new UnresolvableType($type->symbol, $unresolvableType->message()),
+            $templates,
+        ));
+
+        return new NativeClassType($class->name, $generics);
     }
 }

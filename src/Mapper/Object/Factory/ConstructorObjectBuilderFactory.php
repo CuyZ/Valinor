@@ -64,30 +64,23 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
      */
     private function builders(ClassDefinition $class): array
     {
-        $className = $class->name;
-        $classType = $class->type;
-        $methods = $class->methods;
-
         $builders = [];
 
         foreach ($this->filteredConstructors() as $constructor) {
-            if (! $this->constructorMatches($constructor, $classType)) {
+            if (! $this->constructorMatches($constructor, $class->type)) {
                 continue;
             }
 
-            $definition = $constructor->definition;
-            $functionClass = $definition->class;
+            if ($constructor->definition->class && $constructor->definition->isStatic && ! $constructor->definition->isClosure) {
+                $scopedClass = is_a($class->name, $constructor->definition->class, true) ? $class->name : $constructor->definition->class;
 
-            if ($functionClass && $definition->isStatic && ! $definition->isClosure) {
-                $scopedClass = is_a($className, $functionClass, true) ? $className : $functionClass;
-
-                $builders[$definition->signature] = new MethodObjectBuilder($scopedClass, $definition->name, $definition->parameters);
+                $builders[$constructor->definition->signature] = new MethodObjectBuilder($scopedClass, $constructor->definition->name, $constructor->definition->parameters);
             } else {
-                $builders[$definition->signature] = new FunctionObjectBuilder($constructor, $classType);
+                $builders[$constructor->definition->signature] = new FunctionObjectBuilder($constructor, $class->type);
             }
         }
 
-        foreach ($methods as $method) {
+        foreach ($class->methods as $method) {
             if (! $method->isStatic) {
                 continue;
             }
@@ -97,32 +90,32 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             }
 
             if (! $method->returnType instanceof ClassType) {
-                throw new InvalidConstructorMethodWithAttributeReturnType($className, $method);
+                throw new InvalidConstructorMethodWithAttributeReturnType($class->name, $method);
             }
 
-            if (! is_a($className, $method->returnType->className(), true)) {
-                throw new InvalidConstructorMethodWithAttributeReturnType($className, $method);
+            if (! is_a($class->name, $method->returnType->className(), true)) {
+                throw new InvalidConstructorMethodWithAttributeReturnType($class->name, $method);
             }
 
             if (! $class->type->matches($method->returnType)) {
                 continue;
             }
 
-            $builders[$method->signature] = new MethodObjectBuilder($className, $method->name, $method->parameters);
+            $builders[$method->signature] = new MethodObjectBuilder($class->name, $method->name, $method->parameters);
         }
 
-        if ($classType instanceof EnumType) {
+        if ($class->type instanceof EnumType) {
             $buildersWithOneArguments = array_filter($builders, fn (ObjectBuilder $builder) => $builder->describeArguments()->count() === 1);
 
             if (count($buildersWithOneArguments) === 0) {
-                $builders[] = new NativeEnumObjectBuilder($classType);
+                $builders[] = new NativeEnumObjectBuilder($class->type);
             }
-        } elseif ($methods->hasConstructor()
-            && $methods->constructor()->isPublic
+        } elseif ($class->methods->hasConstructor()
+            && $class->methods->constructor()->isPublic
             && (
                 count($builders) === 0
-                || $methods->constructor()->attributes->has(Constructor::class)
-                || array_key_exists($className, $this->nativeConstructors)
+                || $class->methods->constructor()->attributes->has(Constructor::class)
+                || array_key_exists($class->name, $this->nativeConstructors)
             )
         ) {
             $builders[] = new NativeConstructorObjectBuilder($class);
@@ -157,13 +150,17 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             throw new InvalidConstructorClassTypeParameter($definition, $parameterType);
         }
 
-        $subType = $parameterType->subType();
-
-        if ($subType) {
-            return $classType->matches($subType);
+        if ($parameterType->subTypes() === []) {
+            return true;
         }
 
-        return true;
+        foreach ($parameterType->subTypes() as $subType) {
+            if ($classType->matches($subType)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

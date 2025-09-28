@@ -11,7 +11,10 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\FunctionReturnTypeResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
+use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\TemplateResolver;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
+use CuyZ\Valinor\Type\Parser\UnresolvableTypeFinderParser;
+use CuyZ\Valinor\Type\Parser\VacantTypeAssignerParser;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionFunction;
@@ -30,19 +33,27 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
 
     private ReflectionParameterDefinitionBuilder $parameterBuilder;
 
+    private TemplateResolver $templateResolver;
+
     public function __construct(TypeParserFactory $typeParserFactory, AttributesRepository $attributesRepository)
     {
         $this->typeParserFactory = $typeParserFactory;
         $this->attributesRepository = $attributesRepository;
         $this->parameterBuilder = new ReflectionParameterDefinitionBuilder($attributesRepository);
+        $this->templateResolver = new TemplateResolver();
     }
 
     public function for(callable $function): FunctionDefinition
     {
         $reflection = Reflection::function($function);
+        $signature = $this->signature($reflection);
 
-        $nativeParser = $this->typeParserFactory->buildNativeTypeParserForFunction($reflection);
-        $advancedParser = $this->typeParserFactory->buildAdvancedTypeParserForFunction($reflection);
+        $nativeParser = $this->typeParserFactory->buildNativeTypeParserForFunction($function);
+        $advancedParser = $this->typeParserFactory->buildAdvancedTypeParserForFunction($function);
+
+        $templates = $this->templateResolver->templatesFromDocBlock($reflection, $signature, $advancedParser);
+        $advancedParser = new VacantTypeAssignerParser($advancedParser, $templates);
+        $advancedParser = new UnresolvableTypeFinderParser($advancedParser);
 
         $typeResolver = new ReflectionTypeResolver($nativeParser, $advancedParser);
 
@@ -54,7 +65,6 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         );
 
         $name = $reflection->getName();
-        $signature = $this->signature($reflection);
         $class = $reflection->getClosureScopeClass();
         $returnType = $returnTypeResolver->resolveReturnTypeFor($reflection);
         $nativeReturnType = $returnTypeResolver->resolveNativeReturnTypeFor($reflection);
@@ -64,7 +74,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         if ($returnType instanceof UnresolvableType) {
             $returnType = $returnType->forFunctionReturnType($signature);
         } elseif (! $returnType->matches($nativeReturnType)) {
-            $returnType = UnresolvableType::forNonMatchingFunctionReturnTypes($name, $nativeReturnType, $returnType);
+            $returnType = UnresolvableType::forNonMatchingTypes($nativeReturnType, $returnType)->forFunctionReturnType($signature);
         }
 
         return new FunctionDefinition(

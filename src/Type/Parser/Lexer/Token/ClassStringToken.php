@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringMissingSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
@@ -33,15 +31,13 @@ final class ClassStringToken implements TraversingToken
 
         $type = $stream->read();
 
-        if (! $type instanceof ObjectType && ! $type instanceof UnionType) {
-            throw new InvalidClassStringSubType($type);
-        }
-
         if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
             throw new ClassStringClosingBracketMissing($type);
         }
 
-        return ClassStringType::from($type);
+        $types = $type instanceof UnionType ? $type->types() : [$type];
+
+        return ClassStringType::from($types);
     }
 
     public function symbol(): string
