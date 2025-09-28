@@ -42,7 +42,7 @@ final class ParametersTest extends TestCase
         $parameterB = FakeParameterDefinition::new('SomeParameterB');
         $parameters = new Parameters($parameterA, $parameterB);
 
-        self::assertSame([$parameterA, $parameterB], $parameters->toList());
+        self::assertSame(['SomeParameterA' => $parameterA, 'SomeParameterB' => $parameterB], $parameters->toArray());
     }
 
     public function test_parameters_are_countable(): void

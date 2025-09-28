@@ -37,8 +37,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $value = iterator_to_array($value);
         }
 
-        foreach ($type->elements() as $element) {
-            $key = $element->key()->value();
+        foreach ($type->elements as $key => $element) {
             $childrenNames[] = $key;
 
             $child = $shell->child((string)$key, $element->type());
@@ -61,7 +60,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             unset($value[$key]);
         }
 
-        if ($type->isUnsealed()) {
+        if ($type->isUnsealed) {
             $unsealedNode = $shell
                 ->withType($type->unsealedType())
                 ->withValue($value)
@@ -81,7 +80,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $node = $shell->errors($errors);
         }
 
-        if (! $type->isUnsealed()) {
+        if (! $type->isUnsealed) {
             $node = $this->checkUnexpectedKeys($shell, $node, $childrenNames);
         }
 

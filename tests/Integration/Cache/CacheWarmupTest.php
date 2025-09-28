@@ -66,7 +66,7 @@ final class CacheWarmupTest extends IntegrationTestCase
     public function test_warmup_invalid_signature_throws_exception(): void
     {
         $this->expectException(InvalidSignatureToWarmup::class);
-        $this->expectExceptionMessage('Cannot warm up invalid signature `SomeInvalidClass`: Cannot parse unknown symbol `SomeInvalidClass`.');
+        $this->expectExceptionMessage('Cannot warm up invalid signature `SomeInvalidClass`: cannot parse unknown symbol `SomeInvalidClass`.');
 
         $this->mapper->warmupCacheFor('SomeInvalidClass');
     }

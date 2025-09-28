@@ -60,7 +60,6 @@ use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Type\Dumper\TypeDumper;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
@@ -234,7 +233,7 @@ final class Container
                 return new InMemoryFunctionDefinitionRepository($repository);
             },
 
-            TypeParserFactory::class => fn () => new LexingTypeParserFactory(),
+            TypeParserFactory::class => fn () => new TypeParserFactory(),
 
             TypeParser::class => fn () => $this->get(TypeParserFactory::class)->buildDefaultTypeParser(),
 

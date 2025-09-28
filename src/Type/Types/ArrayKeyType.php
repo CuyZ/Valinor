@@ -15,8 +15,10 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\VacantType;
 use LogicException;
 
+use function in_array;
 use function is_int;
 
 /** @internal */
@@ -29,7 +31,7 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
     private static self $string;
 
     public function __construct(
-        /** @var non-empty-list<IntegerType|StringType> */
+        /** @var non-empty-list<IntegerType|StringType|VacantType> */
         public readonly array $types,
     ) {}
 
@@ -48,26 +50,32 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
         return self::$string ??= new self([NativeStringType::get()]);
     }
 
-    public static function from(Type $type): self
+    /**
+     * @param non-empty-list<Type> $types
+     */
+    public static function from(array $types): self
     {
-        if ($type instanceof self) {
-            return $type;
-        }
+        if (count($types) === 1) {
+            if ($types[0] instanceof NativeStringType) {
+                return self::string();
+            }
 
-        $types = $type instanceof UnionType ? $type->types() : [$type];
-
-        foreach ($types as $subType) {
-            if (! $subType instanceof IntegerType && ! $subType instanceof StringType) {
-                throw new InvalidArrayKey($subType);
+            if ($types[0] instanceof NativeIntegerType) {
+                return self::integer();
             }
         }
 
-        /** @var non-empty-list<IntegerType|StringType> $types */
-        return match (true) {
-            $type instanceof NativeIntegerType => self::integer(),
-            $type instanceof NativeStringType => self::string(),
-            default => new self($types),
-        };
+        $invalidArrayKeys = array_filter(
+            $types,
+            static fn (Type $type) => ! $type instanceof IntegerType && ! $type instanceof StringType && ! $type instanceof VacantType,
+        );
+
+        if ($invalidArrayKeys !== []) {
+            throw new InvalidArrayKey($invalidArrayKeys);
+        }
+
+        /** @var non-empty-list<IntegerType|StringType|VacantType> $types */
+        return new self($types);
     }
 
     public function accepts(mixed $value): bool
@@ -104,36 +112,10 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
 
     public function matches(Type $other): bool
     {
-        if ($other instanceof MixedType) {
-            return true;
-        }
-
-        if ($other instanceof ScalarConcreteType) {
-            return true;
-        }
-
-        if ($other instanceof UnionType) {
-            foreach ($this->types as $type) {
-                if (! $type->matches($other)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        if (! $other instanceof self) {
-            return false;
-        }
-
         foreach ($this->types as $type) {
-            foreach ($other->types as $otherType) {
-                if ($type->matches($otherType)) {
-                    continue 2;
-                }
+            if (! $type->matches($other)) {
+                return false;
             }
-
-            return false;
         }
 
         return true;
@@ -153,7 +135,7 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
     public function canCast(mixed $value): bool
     {
         foreach ($this->types as $type) {
-            if ($type->canCast($value)) {
+            if ($type instanceof ScalarType && $type->canCast($value)) {
                 return true;
             }
         }
@@ -164,7 +146,7 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
     public function cast(mixed $value): string|int
     {
         foreach ($this->types as $type) {
-            if ($type->canCast($value)) {
+            if (! $type instanceof VacantType && $type->canCast($value)) {
                 return $type->cast($value);
             }
         }
@@ -182,6 +164,17 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
     public function traverse(): array
     {
         return $this->types;
+    }
+
+    public function replace(callable $callback): Type
+    {
+        if (in_array($this, [self::default(), self::integer(), self::string()], true)) {
+            return $this;
+        }
+
+        return self::from(
+            array_map($callback, $this->types),
+        );
     }
 
     public function nativeType(): Type

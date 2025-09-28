@@ -87,7 +87,7 @@ final class CallableTypeTest extends TestCase
 
     }
 
-    public function test_does_not_match_callable_with_less_parameters(): void
+    public function test_matches_callable_with_less_parameters(): void
     {
         $callableTypeA = new CallableType(
             [new NonEmptyStringType(), new PositiveIntegerType()],
@@ -99,8 +99,7 @@ final class CallableTypeTest extends TestCase
             new NativeStringType(),
         );
 
-        self::assertFalse($callableTypeA->matches($callableTypeB));
-
+        self::assertTrue($callableTypeA->matches($callableTypeB));
     }
 
     public function test_does_not_match_callable_with_more_parameters(): void

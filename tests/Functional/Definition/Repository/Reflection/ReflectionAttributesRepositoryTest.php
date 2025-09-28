@@ -9,7 +9,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Tests\Fixture\Attribute\AttributeWithArguments;
 use CuyZ\Valinor\Tests\Fixture\Attribute\BasicAttribute;
 use CuyZ\Valinor\Tests\Fixture\Attribute\PropertyTargetAttribute;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionParameter;
@@ -54,7 +54,7 @@ final class ReflectionAttributesRepositoryTest extends TestCase
     private function attributesRepository(array $allowedAttributes = []): ReflectionAttributesRepository
     {
         return new ReflectionAttributesRepository(
-            new ReflectionClassDefinitionRepository(new LexingTypeParserFactory(), $allowedAttributes),
+            new ReflectionClassDefinitionRepository(new TypeParserFactory(), $allowedAttributes),
             $allowedAttributes,
         );
     }

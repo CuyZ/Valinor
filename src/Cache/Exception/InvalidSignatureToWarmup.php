@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Cache\Exception;
 
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use RuntimeException;
+
+use function lcfirst;
 
 /** @internal */
 final class InvalidSignatureToWarmup extends RuntimeException
 {
-    public function __construct(string $signature, InvalidType $exception)
+    public function __construct(UnresolvableType $unresolvableType)
     {
         parent::__construct(
-            "Cannot warm up invalid signature `$signature`: {$exception->getMessage()}",
-            previous: $exception,
+            "Cannot warm up invalid signature `{$unresolvableType->toString()}`: " . lcfirst($unresolvableType->message()),
         );
     }
 }

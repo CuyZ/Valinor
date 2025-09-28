@@ -21,7 +21,7 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionMessage("Error while trying to map to `$class`: Types for property `$class::\$propertyWithNotMatchingTypes` do not match: `string` (docblock) does not accept `bool` (native).");
+        $this->expectExceptionMessage("Error while trying to map to `$class`: the type `string` for property `$class::\$propertyWithNotMatchingTypes` could not be resolved: `string` (docblock) does not accept `bool` (native).");
 
         $this->mapperBuilder()->mapper()->map($class, ['propertyWithNotMatchingTypes' => true]);
     }
@@ -37,7 +37,7 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionMessage("Error while trying to map to `$class`: Types for parameter `$class::__construct(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
+        $this->expectExceptionMessage("Error while trying to map to `$class`: the type `string` for parameter `$class::__construct(\$parameterWithNotMatchingTypes)` could not be resolved: `string` (docblock) does not accept `bool` (native).");
 
         $this->mapperBuilder()->mapper()->map($class, ['parameterWithNotMatchingTypes' => true]);
     }
@@ -45,12 +45,12 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
     public function test_property_with_unresolvable_type_throws_exception(): void
     {
         $class = (new class () {
-            /** @var InvalidType */
+            /** @var array<InvalidType> */
             public $propertyWithInvalidType; // @phpstan-ignore-line
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionMessage("Error while trying to map to `$class`: The type `InvalidType` for property `$class::\$propertyWithInvalidType` could not be resolved: Cannot parse unknown symbol `InvalidType`.");
+        $this->expectExceptionMessage("Error while trying to map to `$class`: the type `array<InvalidType>` for property `$class::\$propertyWithInvalidType` could not be resolved: cannot parse unknown symbol `InvalidType`.");
 
         $this->mapperBuilder()->mapper()->map($class, 'foo');
     }
@@ -59,13 +59,13 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
     {
         $class = (new class () {
             public function __construct(
-                /** @var InvalidType */
+                /** @var array<InvalidType> */
                 public $parameterWithInvalidType = 'foo', // @phpstan-ignore-line
             ) {}
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionMessage("Error while trying to map to `$class`: The type `InvalidType` for parameter `$class::__construct(\$parameterWithInvalidType)` could not be resolved: Cannot parse unknown symbol `InvalidType`.");
+        $this->expectExceptionMessage("Error while trying to map to `$class`: the type `array<InvalidType>` for parameter `$class::__construct(\$parameterWithInvalidType)` could not be resolved: cannot parse unknown symbol `InvalidType`.");
 
         $this->mapperBuilder()->mapper()->map($class, 'foo');
     }
@@ -79,7 +79,7 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
             fn (bool $parameterWithNotMatchingTypes): string => 'foo';
 
         $this->expectException(TypeErrorDuringArgumentsMapping::class);
-        $this->expectExceptionMessageMatches("/Could not map arguments of `.*`: Types for parameter `.*` do not match: `string` \(docblock\) does not accept `bool` \(native\)\./");
+        $this->expectExceptionMessageMatches("/Could not map arguments of `.*`: the type `string` for parameter `.*` could not be resolved: `string` \(docblock\) does not accept `bool` \(native\)\./");
 
         $this->mapperBuilder()->argumentsMapper()->mapArguments($function, ['parameterWithNotMatchingTypes' => true]);
     }

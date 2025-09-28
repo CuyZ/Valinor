@@ -30,7 +30,7 @@ final class NativeClassTypeTest extends TestCase
     public function test_string_value_is_signature(): void
     {
         $generic = new FakeType();
-        $type = new NativeClassType(stdClass::class, ['Template' => $generic]);
+        $type = new NativeClassType(stdClass::class, [$generic]);
 
         self::assertSame(stdClass::class . "<{$generic->toString()}>", $type->toString());
     }
@@ -122,7 +122,7 @@ final class NativeClassTypeTest extends TestCase
         $subTypeA = new FakeType();
         $subTypeB = new FakeType();
 
-        $type = new NativeClassType(stdClass::class, ['T1' => $subTypeA, 'T2' => $subTypeB]);
+        $type = new NativeClassType(stdClass::class, [$subTypeA, $subTypeB]);
 
         self::assertSame([$subTypeA, $subTypeB], $type->traverse());
     }
@@ -130,7 +130,7 @@ final class NativeClassTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame(stdClass::class, (new NativeClassType(stdClass::class))->nativeType()->toString());
-        self::assertSame(stdClass::class, (new NativeClassType(stdClass::class, ['Template' => new FakeType()]))->nativeType()->toString());
+        self::assertSame(stdClass::class, (new NativeClassType(stdClass::class, [new FakeType()]))->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

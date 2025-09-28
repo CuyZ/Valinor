@@ -47,7 +47,7 @@ final class ValueTypeFactory
 
         if (is_string($value)) {
             if (Reflection::classOrInterfaceExists($value)) {
-                return new ClassStringType(new NativeClassType($value));
+                return new ClassStringType([new NativeClassType($value)]);
             }
 
             if (str_contains($value, "'") && str_contains($value, '"')) {
@@ -67,7 +67,7 @@ final class ValueTypeFactory
             foreach ($value as $key => $child) {
                 $keyType = is_string($key) ? new StringValueType($key) : new IntegerValueType($key);
 
-                $elements[] = new ShapedArrayElement($keyType, self::from($child));
+                $elements[$key] = new ShapedArrayElement($keyType, self::from($child));
             }
 
             return new ShapedArrayType($elements);

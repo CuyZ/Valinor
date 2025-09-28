@@ -8,7 +8,7 @@ use Countable;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
 use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
@@ -25,8 +25,8 @@ final class ReflectionTypeResolverTest extends TestCase
         parent::setUp();
 
         $this->resolver = new ReflectionTypeResolver(
-            (new LexingTypeParserFactory())->buildDefaultTypeParser(),
-            (new LexingTypeParserFactory())->buildDefaultTypeParser(),
+            (new TypeParserFactory())->buildDefaultTypeParser(),
+            (new TypeParserFactory())->buildDefaultTypeParser(),
         );
     }
 

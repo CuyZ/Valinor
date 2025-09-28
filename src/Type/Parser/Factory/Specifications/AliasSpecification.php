@@ -39,14 +39,14 @@ final class AliasSpecification implements TypeParserSpecification
 
         if (strtolower($alias) !== strtolower($symbol)) {
             /** @var class-string $alias */
-            return new ObjectToken($alias);
+            return ObjectToken::from($alias);
         }
 
         $namespaced = $this->resolveNamespaced($symbol);
 
         if ($namespaced !== $symbol) {
             /** @var class-string $namespaced */
-            return new ObjectToken($namespaced);
+            return ObjectToken::from($namespaced);
         }
 
         return $token;

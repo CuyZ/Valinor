@@ -13,7 +13,7 @@ final class TreeMapperTest extends FunctionalTestCase
     public function test_invalid_mapping_type_signature_throws_exception(): void
     {
         $this->expectException(InvalidMappingTypeSignature::class);
-        $this->expectExceptionMessageMatches('/^Could not parse the type `foo` that should be mapped: .*/');
+        $this->expectExceptionMessage('Could not parse the type `foo` that should be mapped: cannot parse unknown symbol `foo`.');
 
         $this->getService(TreeMapper::class)->map('foo', []);
     }

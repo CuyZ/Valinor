@@ -8,8 +8,8 @@ use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\RootNodeBuilder;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 /** @internal */
 final class TypeTreeMapper implements TreeMapper
@@ -22,10 +22,10 @@ final class TypeTreeMapper implements TreeMapper
     /** @pure */
     public function map(string $signature, mixed $source): mixed
     {
-        try {
-            $type = $this->typeParser->parse($signature);
-        } catch (InvalidType $exception) {
-            throw new InvalidMappingTypeSignature($signature, $exception);
+        $type = $this->typeParser->parse($signature);
+
+        if ($type instanceof UnresolvableType) {
+            throw new InvalidMappingTypeSignature($type);
         }
 
         try {

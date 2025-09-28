@@ -107,6 +107,14 @@ final class NonEmptyArrayType implements CompositeTraversableType, DumpableType
         return [$this->keyType, $this->subType];
     }
 
+    public function replace(callable $callback): Type
+    {
+        return new self(
+            $callback($this->keyType),
+            $callback($this->subType),
+        );
+    }
+
     public function nativeType(): ArrayType
     {
         return ArrayType::native();

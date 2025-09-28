@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CuyZ\Valinor\Type\Types\Exception;
+namespace CuyZ\Valinor\Type\Parser\Exception\Union;
 
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use LogicException;

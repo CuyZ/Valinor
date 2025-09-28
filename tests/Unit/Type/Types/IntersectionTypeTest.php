@@ -148,7 +148,7 @@ final class IntersectionTypeTest extends TestCase
     public function test_native_type_is_correct(): void
     {
         self::assertSame(stdClass::class . '&' . DateTimeImmutable::class, (new IntersectionType(
-            new NativeClassType(stdClass::class, ['Template' => new FakeType()]),
+            new NativeClassType(stdClass::class, [new FakeType()]),
             new FakeObjectType(DateTimeImmutable::class),
         ))->nativeType()->toString());
     }

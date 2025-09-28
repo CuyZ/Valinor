@@ -26,6 +26,7 @@ use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -113,13 +114,14 @@ final class TransformerDefinitionBuilder
                 $type->className() === stdClass::class => new StdClassFormatter(),
                 is_a($type->className(), DateTimeInterface::class, true) => new DateTimeFormatter(),
                 is_a($type->className(), DateTimeZone::class, true) => new DateTimeZoneFormatter(),
-                is_a($type->className(), Traversable::class, true) => new TraversableFormatter($type->generics()['SubType'] ?? MixedType::get()),
+                is_a($type->className(), Traversable::class, true) => new TraversableFormatter($type->generics()[0] ?? MixedType::get()),
                 default => new ClassFormatter($this->classDefinitionRepository->for($type)),
             },
             $type instanceof NullType => new NullFormatter(),
             $type instanceof ScalarType => new ScalarFormatter(),
             $type instanceof ShapedArrayType => new ShapedArrayFormatter($type),
             $type instanceof UnionType => new UnionFormatter($type),
+            $type instanceof GenericType => $this->typeFormatter($type->innerType),
             default => new MixedFormatter(),
         };
     }

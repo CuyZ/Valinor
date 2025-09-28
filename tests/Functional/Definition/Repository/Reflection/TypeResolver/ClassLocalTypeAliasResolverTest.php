@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection\TypeResolver;
 
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassLocalTypeAliasResolver;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +22,7 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
         parent::setUp();
 
         $this->resolver = new ClassLocalTypeAliasResolver(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
         );
     }
 
@@ -105,47 +107,20 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                 'SomeType' => 'int<42, 1337>',
             ]
         ];
-
-        yield 'types can be nested' => [
-            'className' => (
-                /**
-                 * @phpstan-type SomeType = non-empty-string
-                 * @phpstan-type SomeNestedType = array<SomeType>
-                 */
-                new class () {}
-            )::class,
-            [
-                'SomeType' => 'non-empty-string',
-                'SomeNestedType' => 'array<non-empty-string>',
-            ]
-        ];
-
-        yield 'PHPStan type can use a Psalm type' => [
-            'className' => (
-                /**
-                 * @psalm-type SomeType = non-empty-string
-                 * @phpstan-type SomeNestedType = array<SomeType>
-                 */
-                new class () {}
-            )::class,
-            [
-                'SomeType' => 'non-empty-string',
-                'SomeNestedType' => 'array<non-empty-string>',
-            ]
-        ];
-
-        yield 'Psalm type can use a PHPStan type' => [
-            'className' => (
-                /**
-                 * @phpstan-type SomeType = non-empty-string
-                 * @psalm-type SomeNestedType = array<SomeType>
-                 */
-                new class () {}
-            )::class,
-            [
-                'SomeType' => 'non-empty-string',
-                'SomeNestedType' => 'array<non-empty-string>',
-            ]
-        ];
     }
+
+    public function test_can_resolve_local_types_for_enum(): void
+    {
+        $aliases = $this->resolver->resolveLocalTypeAliases(EnumType::native(SomeEnumWithLocalTypeAlias::class));
+
+        self::assertInstanceOf(NonEmptyStringType::class, $aliases['SomeEnumAlias']);
+    }
+}
+
+/**
+ * @phpstan-type SomeEnumAlias = non-empty-string
+ */
+enum SomeEnumWithLocalTypeAlias
+{
+    case Foo;
 }

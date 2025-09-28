@@ -12,57 +12,7 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\IntegerType;
-use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedClosingParenthesisAfterCallable;
-use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedColonAfterCallableClosingParenthesis;
-use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedReturnTypeAfterCallableColon;
-use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedTypeForCallable;
-use CuyZ\Valinor\Type\Parser\Exception\Callable\UnexpectedTokenAfterCallableClosingParenthesis;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
-use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumHasNoCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingEnumCase;
-use CuyZ\Valinor\Type\Parser\Exception\Enum\MissingSpecificEnumCase;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\GenericCommaMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Generic\MissingGenerics;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidIntersectionType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayCommaMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayExpectedCommaOrClosingBracket;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayMissingSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ListMissingSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayEmptyElements;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayInvalidUnsealedType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayUnexpectedTokenAfterSealedType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSealedType;
-use CuyZ\Valinor\Type\Parser\Exception\Iterable\SimpleArrayClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfMissingSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfOpeningBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\MissingClosingQuoteChar;
-use CuyZ\Valinor\Type\Parser\Exception\RightIntersectionTypeMissing;
-use CuyZ\Valinor\Type\Parser\Exception\RightUnionTypeMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringClosingBracketMissing;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\ClassStringMissingSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeInvalidMaxValue;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeInvalidMinValue;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingClosingBracket;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingComma;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMaxValue;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\IntegerRangeMissingMinValue;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\InvalidClassStringSubType;
-use CuyZ\Valinor\Type\Parser\Exception\Scalar\NullableMissingRightType;
-use CuyZ\Valinor\Type\Parser\Exception\Template\DuplicatedTemplateName;
-use CuyZ\Valinor\Type\Parser\Exception\UnexpectedToken;
+use CuyZ\Valinor\Type\Parser\Factory\Specifications\ObjectSpecification;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
 use CuyZ\Valinor\Type\Parser\LexingParser;
@@ -99,6 +49,7 @@ use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use DateTime;
 use DateTimeInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -114,7 +65,7 @@ final class LexingParserTest extends TestCase
         parent::setUp();
 
         $this->parser = new LexingParser(
-            new NativeLexer(new SpecificationsLexer([]))
+            new NativeLexer(new SpecificationsLexer([new ObjectSpecification(mustCheckTemplates: true)])),
         );
     }
 
@@ -840,6 +791,12 @@ final class LexingParserTest extends TestCase
             'type' => ClassStringType::class,
         ];
 
+        yield 'Class string of union containing generic type' => [
+            'raw' => 'class-string<stdClass|T>',
+            'transformed' => 'class-string<stdClass|T>',
+            'type' => ClassStringType::class,
+        ];
+
         yield 'Class name' => [
             'raw' => stdClass::class,
             'transformed' => stdClass::class,
@@ -1164,18 +1121,18 @@ final class LexingParserTest extends TestCase
 
     public function test_unexpected_non_traversing_token_throws_exception(): void
     {
-        $this->expectException(UnexpectedToken::class);
-        $this->expectExceptionMessage('Unexpected token `>`, expected a valid type.');
+        $type = $this->parser->parse('array<>');
 
-        $this->parser->parse('array<>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected token `>`, expected a valid type.', $type->message());
     }
 
     public function test_missing_right_union_type_throws_exception(): void
     {
-        $this->expectException(RightUnionTypeMissing::class);
-        $this->expectExceptionMessage('Right type is missing for union `string|?`.');
+        $type = $this->parser->parse('string|');
 
-        $this->parser->parse('string|');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Right type is missing for union `string|?`.', $type->message());
     }
 
     public function test_multiple_intersection_types_are_parsed(): void
@@ -1200,583 +1157,566 @@ final class LexingParserTest extends TestCase
 
     public function test_missing_right_intersection_type_throws_exception(): void
     {
-        $this->expectException(RightIntersectionTypeMissing::class);
-        $this->expectExceptionMessage('Right type is missing for intersection `DateTimeInterface&?`.');
+        $type = $this->parser->parse('DateTimeInterface&');
 
-        $this->parser->parse('DateTimeInterface&');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Right type is missing for intersection `DateTimeInterface&?`.', $type->message());
     }
 
     public function test_missing_simple_array_closing_bracket_throws_exception(): void
     {
-        $this->expectException(SimpleArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for the array expression `string[]`.');
+        $type = $this->parser->parse('string[');
 
-        $this->parser->parse('string[');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for the array expression `string[]`.', $type->message());
     }
 
     public function test_invalid_array_key_throws_exception(): void
     {
-        $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
+        $type = $this->parser->parse('array<float, string>');
 
-        $this->parser->parse('array<float, string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid type `array<float, string>`: invalid array-key element(s) `float`, each element must be an integer or a string.', $type->message());
     }
 
     public function test_invalid_non_empty_array_key_throws_exception(): void
     {
-        $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
+        $type = $this->parser->parse('non-empty-array<float, string>');
 
-        $this->parser->parse('non-empty-array<float, string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid type `non-empty-array<float, string>`: invalid array-key element(s) `float`, each element must be an integer or a string.', $type->message());
     }
 
     public function test_missing_array_comma_throws_exception(): void
     {
-        $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionMessage('A comma is missing for `array<int, ?>`.');
+        $type = $this->parser->parse('array<int string>');
 
-        $this->parser->parse('array<int string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A comma is missing for `array<int, ?>`.', $type->message());
     }
 
     public function test_missing_non_empty_array_comma_throws_exception(): void
     {
-        $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionMessage('A comma is missing for `non-empty-array<int, ?>`.');
+        $type = $this->parser->parse('non-empty-array<int string>');
 
-        $this->parser->parse('non-empty-array<int string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A comma is missing for `non-empty-array<int, ?>`.', $type->message());
     }
 
     public function test_missing_array_subtype_throws_exception(): void
     {
-        $this->expectException(ArrayMissingSubType::class);
-        $this->expectExceptionMessage('The subtype is missing for `array<`.');
+        $type = $this->parser->parse('array<');
 
-        $this->parser->parse('array<');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `array<`.', $type->message());
     }
 
     public function test_missing_array_subtype_after_key_type_throws_exception(): void
     {
-        $this->expectException(ArrayMissingSubType::class);
-        $this->expectExceptionMessage('The subtype is missing for `array<string,`.');
+        $type = $this->parser->parse('array<string,');
 
-        $this->parser->parse('array<string,');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `array<string,`.', $type->message());
     }
 
     public function test_missing_array_comma_or_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ArrayExpectedCommaOrClosingBracket::class);
-        $this->expectExceptionMessage('Expected comma or closing bracket after `array<string`.');
+        $type = $this->parser->parse('array<string');
 
-        $this->parser->parse('array<string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected comma or closing bracket after `array<string`.', $type->message());
     }
 
     public function test_missing_array_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for `array<int, string>`.');
+        $type = $this->parser->parse('array<int, string');
 
-        $this->parser->parse('array<int, string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `array<int, string>`.', $type->message());
     }
 
     public function test_missing_non_empty_array_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for `non-empty-array<int, string>`.');
+        $type = $this->parser->parse('non-empty-array<int, string');
 
-        $this->parser->parse('non-empty-array<int, string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `non-empty-array<int, string>`.', $type->message());
     }
 
     public function test_missing_list_subtype_throws_exception(): void
     {
-        $this->expectException(ListMissingSubType::class);
-        $this->expectExceptionMessage('The subtype is missing for `non-empty-list<`.');
+        $type = $this->parser->parse('non-empty-list<');
 
-        $this->parser->parse('non-empty-list<');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `non-empty-list<`.', $type->message());
     }
 
     public function test_missing_list_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ListClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for `list<string>`.');
+        $type = $this->parser->parse('list<string');
 
-        $this->parser->parse('list<string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `list<string>`.', $type->message());
     }
 
     public function test_missing_non_empty_list_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ListClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for `non-empty-list<string>`.');
+        $type = $this->parser->parse('non-empty-list<string');
 
-        $this->parser->parse('non-empty-list<string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `non-empty-list<string>`.', $type->message());
     }
 
     public function test_invalid_iterable_key_throws_exception(): void
     {
-        $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
+        $type = $this->parser->parse('iterable<float, string>');
 
-        $this->parser->parse('iterable<float, string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid type `iterable<float, string>`: invalid array-key element(s) `float`, each element must be an integer or a string.', $type->message());
     }
 
     public function test_missing_iterable_comma_throws_exception(): void
     {
-        $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionMessage('A comma is missing for `iterable<int, ?>`.');
+        $type = $this->parser->parse('iterable<int string>');
 
-        $this->parser->parse('iterable<int string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A comma is missing for `iterable<int, ?>`.', $type->message());
     }
 
     public function test_missing_iterable_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for `iterable<int, string>`.');
+        $type = $this->parser->parse('iterable<int, string');
 
-        $this->parser->parse('iterable<int, string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `iterable<int, string>`.', $type->message());
     }
 
     public function test_missing_class_string_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ClassStringClosingBracketMissing::class);
-        $this->expectExceptionMessage('The closing bracket is missing for the class string expression `class-string<DateTimeInterface>`.');
+        $type = $this->parser->parse('class-string<DateTimeInterface');
 
-        $this->parser->parse('class-string<DateTimeInterface');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for the class string expression `class-string<DateTimeInterface>`.', $type->message());
     }
 
     public function test_class_string_missing_subtype_throws_exception(): void
     {
-        $this->expectException(ClassStringMissingSubType::class);
-        $this->expectExceptionMessage('The subtype is missing for `class-string<`.');
+        $type = $this->parser->parse('class-string<');
 
-        $this->parser->parse('class-string<');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `class-string<`.', $type->message());
     }
 
     public function test_invalid_class_string_type_throws_exception(): void
     {
-        $this->expectException(InvalidClassStringSubType::class);
-        $this->expectExceptionMessage('Invalid class string type `int`, it must be a class name or an interface name.');
+        $type = $this->parser->parse('class-string<stdClass|int>');
 
-        $this->parser->parse('class-string<int');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid class string `class-string<stdClass|int>`, each element must be a class name or an interface name but found `int`.', $type->message());
     }
 
     public function test_invalid_left_intersection_member_throws_exception(): void
     {
-        $this->expectException(InvalidIntersectionType::class);
-        $this->expectExceptionMessage('Invalid intersection member `int`, it must be a class name or an interface name.');
+        $type = $this->parser->parse('int&DateTimeInterface');
 
-        $this->parser->parse('int&DateTimeInterface');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid types in intersection `int&DateTimeInterface`, each element must be a class name or an interface name but found `int`.', $type->message());
     }
 
     public function test_invalid_right_intersection_member_throws_exception(): void
     {
-        $this->expectException(InvalidIntersectionType::class);
-        $this->expectExceptionMessage('Invalid intersection member `int`, it must be a class name or an interface name.');
+        $type = $this->parser->parse('DateTimeInterface&int');
 
-        $this->parser->parse('DateTimeInterface&int');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid types in intersection `DateTimeInterface&int`, each element must be a class name or an interface name but found `int`.', $type->message());
     }
 
     public function test_shaped_array_empty_elements_throws_exception(): void
     {
-        $this->expectException(ShapedArrayEmptyElements::class);
-        $this->expectExceptionMessage('Shaped array must define one or more elements, for instance `array{foo: string}`.');
+        $type = $this->parser->parse('array{}');
 
-        $this->parser->parse('array{}');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Shaped array must define one or more elements, for instance `array{foo: string}`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_throws_exception(): void
     {
-        $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: string`.');
+        $type = $this->parser->parse('array{string');
 
-        $this->parser->parse('array{string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: string`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_after_other_element_throws_exception(): void
     {
-        $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.');
+        $type = $this->parser->parse('array{int, foo: string');
 
-        $this->parser->parse('array{int, foo: string');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_after_comma_throws_exception(): void
     {
-        $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int`.');
+        $type = $this->parser->parse('array{int,');
 
-        $this->parser->parse('array{int,');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int`.', $type->message());
     }
 
     public function test_shaped_array_colon_missing_throws_exception(): void
     {
-        $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{string?`.');
+        $type = $this->parser->parse('array{string?');
 
-        $this->parser->parse('array{string?');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A colon symbol is missing in shaped array signature `array{string?`.', $type->message());
     }
 
     public function test_shaped_array_colon_missing_after_other_element_throws_exception(): void
     {
-        $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{0: int, foo?`.');
+        $type = $this->parser->parse('array{int, foo?');
 
-        $this->parser->parse('array{int, foo?');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A colon symbol is missing in shaped array signature `array{0: int, foo?`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_after_unfinished_element_throws_exception(): void
     {
-        $this->expectException(ShapedArrayElementTypeMissing::class);
-        $this->expectExceptionMessage('Missing element type in shaped array signature `array{0: int, foo?:`.');
+        $type = $this->parser->parse('array{int, foo?:');
 
-        $this->parser->parse('array{int, foo?:');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in shaped array signature `array{0: int, foo?:`.', $type->message());
     }
 
     public function test_shaped_array_colon_expected_but_other_symbol_throws_exception(): void
     {
-        $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{0: int, foo?`.');
+        $type = $this->parser->parse('array{int, foo?;');
 
-        $this->parser->parse('array{int, foo?;');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A colon symbol is missing in shaped array signature `array{0: int, foo?`.', $type->message());
     }
 
     public function test_shaped_array_comma_expected_but_other_symbol_throws_exception(): void
     {
-        $this->expectException(ShapedArrayCommaMissing::class);
-        $this->expectExceptionMessage('Comma missing in shaped array signature `array{0: int, 1: string`.');
+        $type = $this->parser->parse('array{int, string]');
 
-        $this->parser->parse('array{int, string]');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Comma missing in shaped array signature `array{0: int, 1: string`.', $type->message());
     }
 
     public function test_unsealed_shaped_array_with_missing_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, ...`.');
+        $type = $this->parser->parse('array{int, ...');
 
-        $this->parser->parse('array{int, ...');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int, ...`.', $type->message());
     }
 
     public function test_shaped_array_with_unsealed_type_with_missing_closing_bracket_throws_exception(): void
     {
-        $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, ...array`.');
+        $type = $this->parser->parse('array{int, ...array');
 
-        $this->parser->parse('array{int, ...array');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int, ...array`.', $type->message());
     }
 
     public function test_shaped_array_with_invalid_unsealed_type_throws_exception(): void
     {
-        $this->expectException(ShapedArrayInvalidUnsealedType::class);
-        $this->expectExceptionMessage('Invalid unsealed type `string` in shaped array signature `array{0: int, ...string}`, it should be a valid array.');
+        $type = $this->parser->parse('array{int, ...string}');
 
-        $this->parser->parse('array{int, ...string}');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid unsealed type in shaped array `array{0: int, ...string}`, it should be a valid array but `string` was given.', $type->message());
     }
 
     public function test_shaped_array_with_unsealed_type_followed_by_unexpected_token_throws_exception(): void
     {
-        $this->expectException(ShapedArrayUnexpectedTokenAfterSealedType::class);
-        $this->expectExceptionMessage('Unexpected `int|string` after sealed type in shaped array signature `array{0: int, ...array<string>int|string`, expected a `}`.');
+        $type = $this->parser->parse('array{int, ...array<string>int|string}');
 
-        $this->parser->parse('array{int, ...array<string>int|string}');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `int|string` after sealed type in shaped array signature `array{0: int, ...array<string>int|string`, expected a `}`.', $type->message());
     }
 
     public function test_unsealed_shaped_array_without_elements_throws_exception(): void
     {
-        $this->expectException(ShapedArrayWithoutElementsWithSealedType::class);
-        $this->expectExceptionMessage('Missing elements in shaped array signature `array{...array<string>}`.');
+        $type = $this->parser->parse('array{...array<string>}');
 
-        $this->parser->parse('array{...array<string>}');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing elements in shaped array signature `array{...array<string>}`.', $type->message());
     }
 
     public function test_missing_min_value_for_integer_range_throws_exception(): void
     {
-        $this->expectException(IntegerRangeMissingMinValue::class);
-        $this->expectExceptionMessage('Missing min value for integer range, its signature must match `int<min, max>`.');
+        $type = $this->parser->parse('int<');
 
-        $this->parser->parse('int<');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing min value for integer range, its signature must match `int<min, max>`.', $type->message());
     }
 
     public function test_invalid_min_value_for_integer_range_throws_exception(): void
     {
-        $this->expectException(IntegerRangeInvalidMinValue::class);
-        $this->expectExceptionMessage('Invalid type `string` for min value of integer range, it must be either `min` or an integer value.');
+        $type = $this->parser->parse('int<string, 1337>');
 
-        $this->parser->parse('int<string, 1337>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid type `string` for min value of integer range, it must be either `min` or an integer value.', $type->message());
     }
 
     public function test_missing_comma_for_integer_range_throws_exception(): void
     {
-        $this->expectException(IntegerRangeMissingComma::class);
-        $this->expectExceptionMessage('Missing comma in integer range signature `int<42, ?>`.');
+        $type = $this->parser->parse('int<42 1337>');
 
-        $this->parser->parse('int<42 1337>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing comma in integer range signature `int<42, ?>`.', $type->message());
     }
 
     public function test_missing_max_value_for_integer_range_throws_exception(): void
     {
-        $this->expectException(IntegerRangeMissingMaxValue::class);
-        $this->expectExceptionMessage('Missing max value for integer range, its signature must match `int<42, max>`.');
+        $type = $this->parser->parse('int<42,');
 
-        $this->parser->parse('int<42,');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing max value for integer range, its signature must match `int<42, max>`.', $type->message());
     }
 
     public function test_invalid_max_value_for_integer_range_throws_exception(): void
     {
-        $this->expectException(IntegerRangeInvalidMaxValue::class);
-        $this->expectExceptionMessage('Invalid type `string` for max value of integer range `int<42, ?>`, it must be either `max` or an integer value.');
+        $type = $this->parser->parse('int<42, string>');
 
-        $this->parser->parse('int<42, string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid type `string` for max value of integer range `int<42, ?>`, it must be either `max` or an integer value.', $type->message());
     }
 
     public function test_missing_closing_bracket_for_integer_range_throws_exception(): void
     {
-        $this->expectException(IntegerRangeMissingClosingBracket::class);
-        $this->expectExceptionMessage('Missing closing bracket in integer range signature `int<42, 1337>`.');
+        $type = $this->parser->parse('int<42, 1337');
 
-        $this->parser->parse('int<42, 1337');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing bracket in integer range signature `int<42, 1337>`.', $type->message());
     }
 
     public function test_missing_closing_single_quote_throws_exception(): void
     {
-        $this->expectException(MissingClosingQuoteChar::class);
-        $this->expectExceptionMessage("Closing quote is missing for `'foo`.");
+        $type = $this->parser->parse("'foo");
 
-        $this->parser->parse("'foo");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("Closing quote is missing for `'foo`.", $type->message());
     }
 
     public function test_missing_closing_double_quote_throws_exception(): void
     {
-        $this->expectException(MissingClosingQuoteChar::class);
-        $this->expectExceptionMessage('Closing quote is missing for `"foo`.');
+        $type = $this->parser->parse('"foo');
 
-        $this->parser->parse('"foo');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Closing quote is missing for `"foo`.', $type->message());
     }
 
     public function test_missing_enum_case_throws_exception(): void
     {
-        $this->expectException(MissingEnumCase::class);
-        $this->expectExceptionMessage('Missing case name for enum `' . PureEnum::class . '::?`.');
+        $type = $this->parser->parse(PureEnum::class . '::');
 
-        $this->parser->parse(PureEnum::class . '::');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing case name for enum `' . PureEnum::class . '::?`.', $type->message());
     }
 
     public function test_no_enum_case_found_throws_exception(): void
     {
-        $this->expectException(EnumCaseNotFound::class);
-        $this->expectExceptionMessage('Unknown enum case `' . PureEnum::class . '::ABC`.');
+        $type = $this->parser->parse(PureEnum::class . '::ABC');
 
-        $this->parser->parse(PureEnum::class . '::ABC');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unknown enum case `' . PureEnum::class . '::ABC`.', $type->message());
     }
 
     public function test_no_enum_case_found_with_wildcard_throws_exception(): void
     {
-        $this->expectException(EnumCaseNotFound::class);
-        $this->expectExceptionMessage('Cannot find enum case with pattern `' . PureEnum::class . '::ABC*`.');
+        $type = $this->parser->parse(PureEnum::class . '::ABC*');
 
-        $this->parser->parse(PureEnum::class . '::ABC*');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot find enum case with pattern `' . PureEnum::class . '::ABC*`.', $type->message());
     }
 
     public function test_no_enum_case_found_with_several_wildcards_in_a_row_throws_exception(): void
     {
-        $this->expectException(EnumCaseNotFound::class);
-        $this->expectExceptionMessage('Cannot find enum case with pattern `' . PureEnum::class . '::F**O`.');
+        $type = $this->parser->parse(PureEnum::class . '::F**O');
 
-        $this->parser->parse(PureEnum::class . '::F**O');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot find enum case with pattern `' . PureEnum::class . '::F**O`.', $type->message());
     }
 
     public function test_enum_with_no_case_throws_exception(): void
     {
-        $this->expectException(EnumHasNoCase::class);
-        $this->expectExceptionMessage('Enum `' . EnumWithNoCase::class . '` must have at least one case.');
+        $type = $this->parser->parse(EnumWithNoCase::class);
 
-        $this->parser->parse(EnumWithNoCase::class);
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Enum `' . EnumWithNoCase::class . '` must have at least one case.', $type->message());
     }
 
     public function test_missing_specific_enum_case_throws_exception(): void
     {
-        $this->expectException(MissingSpecificEnumCase::class);
-        $this->expectExceptionMessage('Missing specific case for enum `' . PureEnum::class . '::?` (cannot be `*`).');
+        $type = $this->parser->parse(PureEnum::class . '::*');
 
-        $this->parser->parse(PureEnum::class . '::*');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing specific case for enum `' . PureEnum::class . '::?` (cannot be `*`).', $type->message());
     }
 
     public function test_missing_class_constant_case_throws_exception(): void
     {
-        $this->expectException(MissingClassConstantCase::class);
-        $this->expectExceptionMessage('Missing case name for class constant `' . ObjectWithConstants::class . '::?`.');
+        $type = $this->parser->parse(ObjectWithConstants::class . '::');
 
-        $this->parser->parse(ObjectWithConstants::class . '::');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing case name for class constant `' . ObjectWithConstants::class . '::?`.', $type->message());
     }
 
     public function test_no_class_constant_case_found_throws_exception(): void
     {
-        $this->expectException(ClassConstantCaseNotFound::class);
-        $this->expectExceptionMessage('Unknown class constant case `' . ObjectWithConstants::class . '::ABC`.');
+        $type = $this->parser->parse(ObjectWithConstants::class . '::ABC');
 
-        $this->parser->parse(ObjectWithConstants::class . '::ABC');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unknown class constant case `' . ObjectWithConstants::class . '::ABC`.', $type->message());
     }
 
     public function test_no_class_constant_case_found_with_wildcard_throws_exception(): void
     {
-        $this->expectException(ClassConstantCaseNotFound::class);
-        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::ABC*`.');
+        $type = $this->parser->parse(ObjectWithConstants::class . '::ABC*');
 
-        $this->parser->parse(ObjectWithConstants::class . '::ABC*');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::ABC*`.', $type->message());
     }
 
     public function test_no_class_constant_case_found_with_several_wildcards_in_a_row_throws_exception(): void
     {
-        $this->expectException(ClassConstantCaseNotFound::class);
-        $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::F**O`.');
+        $type = $this->parser->parse(ObjectWithConstants::class . '::F**O');
 
-        $this->parser->parse(ObjectWithConstants::class . '::F**O');
-    }
-
-    public function test_missing_generics_throws_exception(): void
-    {
-        $genericClassName = SomeClassWithThreeTemplates::class;
-
-        $this->expectException(MissingGenerics::class);
-        $this->expectExceptionMessage("There are 2 missing generics for `$genericClassName<int, ?, ?>`.");
-
-        $this->parser->parse("$genericClassName<int,");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::F**O`.', $type->message());
     }
 
     public function test_missing_generic_closing_bracket_throws_exception(): void
     {
         $genericClassName = stdClass::class;
 
-        $this->expectException(GenericClosingBracketMissing::class);
-        $this->expectExceptionMessage("The closing bracket is missing for the generic `$genericClassName<string>`.");
+        $type = $this->parser->parse("$genericClassName<string");
 
-        $this->parser->parse("$genericClassName<string");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("The closing bracket is missing for the generic `$genericClassName<string>`.", $type->message());
     }
 
     public function test_missing_comma_in_generics_throws_exception(): void
     {
         $className = SomeClassWithThreeTemplates::class;
 
-        $this->expectException(GenericCommaMissing::class);
-        $this->expectExceptionMessage("A comma is missing for the generic `$className<int, string, ?>`.");
+        $type = $this->parser->parse("$className<int, string bool>");
 
-        $this->parser->parse("$className<int, string bool>");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("A comma is missing for the generic `$className<int, string, ?>`.", $type->message());
     }
 
-    public function test_generic_with_no_template_throws_exception(): void
+    public function test_missing_generic_throws_exception(): void
     {
-        $className = SomeClassWithOneTemplate::class;
+        $className = SomeClassWithThreeTemplates::class;
 
-        $this->expectException(CannotAssignGeneric::class);
-        $this->expectExceptionMessage("Could not find a template to assign the generic(s) `string`, `bool` for the class `$className`.");
+        $type = $this->parser->parse("$className<int>");
 
-        $this->parser->parse("$className<int, string, bool>");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("There are 2 missing generics for `$className<int, ?, ?>`.", $type->message());
     }
 
-    public function test_duplicated_template_name_throws_exception(): void
+    public function test_superfluous_generic_throws_exception(): void
     {
-        $object =
-            /**
-             * @template TemplateA
-             * @template TemplateA
-             */
-            new class () {};
+        $className = SomeClassWithThreeTemplates::class;
 
-        $className = $object::class;
+        $type = $this->parser->parse("$className<int, string, bool, string>");
 
-        $this->expectException(DuplicatedTemplateName::class);
-        $this->expectExceptionMessage("The template `TemplateA` in class `$className` was defined at least twice.");
-
-        $this->parser->parse("$className<int, string>");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("Could not find a template to assign the generic(s) `string` for the class `$className`.", $type->message());
     }
 
     public function test_value_of_enum_missing_opening_bracket_throws_exception(): void
     {
-        $this->expectException(ValueOfOpeningBracketMissing::class);
-        $this->expectExceptionMessage('The opening bracket is missing for `value-of<...>`.');
+        $type = $this->parser->parse('value-of');
 
-        $this->parser->parse('value-of');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The opening bracket is missing for `value-of<...>`.', $type->message());
     }
 
     public function test_value_of_enum_missing_subtype_throws_exception(): void
     {
-        $this->expectException(ValueOfMissingSubType::class);
-        $this->expectExceptionMessage('The subtype is missing for `value-of<`.');
+        $type = $this->parser->parse("value-of<");
 
-        $this->parser->parse("value-of<");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `value-of<`.', $type->message());
     }
 
     public function test_value_of_enum_missing_closing_bracket_throws_exception(): void
     {
         $enumName = BackedStringEnum::class;
 
-        $this->expectException(ValueOfClosingBracketMissing::class);
-        $this->expectExceptionMessage("The closing bracket is missing for `value-of<$enumName>`.");
+        $type = $this->parser->parse("value-of<$enumName");
 
-        $this->parser->parse("value-of<$enumName");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("The closing bracket is missing for `value-of<$enumName>`.", $type->message());
     }
 
     public function test_value_of_incorrect_type_throws_exception(): void
     {
-        $this->expectException(ValueOfIncorrectSubType::class);
-        $this->expectExceptionMessage('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.');
+        $type = $this->parser->parse('value-of<string>');
 
-        $this->parser->parse('value-of<string>');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.', $type->message());
     }
 
     public function test_value_of_unit_enum_type_throws_exception(): void
     {
         $enumName = PureEnum::class;
 
-        $this->expectException(ValueOfIncorrectSubType::class);
-        $this->expectExceptionMessage("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.");
+        $type = $this->parser->parse("value-of<$enumName>");
 
-        $this->parser->parse("value-of<$enumName>");
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.", $type->message());
     }
 
     public function test_nullable_type_missing_right_type_throws_exception(): void
     {
-        $this->expectException(NullableMissingRightType::class);
-        $this->expectExceptionMessage('Missing right type for nullable type after `?`.');
+        $type = $this->parser->parse('?');
 
-        $this->parser->parse('?');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing right type for nullable type after `?`.', $type->message());
     }
 
     public function test_type_expected_for_callable_throws_exception(): void
     {
-        $this->expectException(ExpectedTypeForCallable::class);
-        $this->expectExceptionMessage('Expected type after `callable(`.');
+        $type = $this->parser->parse('callable(');
 
-        $this->parser->parse('callable(');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected type after `callable(`.', $type->message());
     }
 
     public function test_closing_parenthesis_expected_for_callable_throws_exception(): void
     {
-        $this->expectException(ExpectedClosingParenthesisAfterCallable::class);
-        $this->expectExceptionMessage('Expected closing parenthesis after `callable(string, int`.');
+        $type = $this->parser->parse('callable(string, int');
 
-        $this->parser->parse('callable(string, int');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected closing parenthesis after `callable(string, int`.', $type->message());
     }
 
     public function test_colon_expected_after_callable_closing_parenthesis_throws_exception(): void
     {
-        $this->expectException(ExpectedColonAfterCallableClosingParenthesis::class);
-        $this->expectExceptionMessage('Expected `:` to define return type after `callable(string, int)`.');
+        $type = $this->parser->parse('callable(string, int)');
 
-        $this->parser->parse('callable(string, int)');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected `:` to define return type after `callable(string, int)`.', $type->message());
     }
 
     public function test_unexpected_token_after_callable_closing_parenthesis_throws_exception(): void
     {
-        $this->expectException(UnexpectedTokenAfterCallableClosingParenthesis::class);
-        $this->expectExceptionMessage('Expected `:` to define return type after `callable(string, int)`, got `<`.');
+        $type = $this->parser->parse('callable(string, int)<');
 
-        $this->parser->parse('callable(string, int)<');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected `:` to define return type after `callable(string, int)`, got `<`.', $type->message());
     }
 
     public function test_return_type_expected_after_callable_colon_throws_exception(): void
     {
-        $this->expectException(ExpectedReturnTypeAfterCallableColon::class);
-        $this->expectExceptionMessage('Expected return type after `callable(string, int):`.');
+        $type = $this->parser->parse('callable(string, int):');
 
-        $this->parser->parse('callable(string, int):');
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected return type after `callable(string, int):`.', $type->message());
     }
 }
 

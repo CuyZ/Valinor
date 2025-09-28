@@ -11,8 +11,15 @@ use RuntimeException;
 /** @internal */
 final class InvalidArrayKey extends RuntimeException implements InvalidType
 {
-    public function __construct(Type $keyType)
+    /**
+     * @param non-empty-array<Type> $invalidSubTypes
+     */
+    public function __construct(array $invalidSubTypes)
     {
-        parent::__construct("Invalid array key type `{$keyType->toString()}`, it must be a valid string or integer.");
+        $invalidSubTypes = array_map(static fn (Type $type) => $type->toString(), $invalidSubTypes);
+
+        parent::__construct(
+            'Invalid array-key element(s) `' . implode('`, `', $invalidSubTypes) . "`, each element must be an integer or a string.",
+        );
     }
 }

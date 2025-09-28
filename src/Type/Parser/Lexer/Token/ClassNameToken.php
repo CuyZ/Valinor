@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
-use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassTemplatesResolver;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Generic\CannotAssignGeneric;
@@ -17,12 +16,12 @@ use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Utility\Reflection\Annotations;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionClassConstant;
 
 use function array_map;
-use function array_shift;
 use function array_values;
 use function count;
 use function explode;
@@ -33,12 +32,22 @@ final class ClassNameToken implements TraversingToken
     /** @var ReflectionClass<object> */
     private ReflectionClass $reflection;
 
+    private bool $mustCheckTemplates = false;
+
     /**
      * @param class-string $className
      */
     public function __construct(string $className)
     {
         $this->reflection = Reflection::class($className);
+    }
+
+    public function mustCheckTemplates(): self
+    {
+        $self = clone $this;
+        $self->mustCheckTemplates = true;
+
+        return $self;
     }
 
     public function traverse(TokenStream $stream): Type
@@ -49,10 +58,20 @@ final class ClassNameToken implements TraversingToken
             return $constant;
         }
 
-        $templates = (new ClassTemplatesResolver())->resolveTemplateNamesFrom($this->reflection->name);
+        $generics = [];
 
-        $generics = $this->generics($stream, $this->reflection->name, $templates);
-        $generics = $this->assignGenerics($this->reflection->name, $templates, $generics);
+        if ($this->mustCheckTemplates) {
+            $templates = $this->templates($this->reflection->name);
+            $generics = $this->generics($stream, $this->reflection->name);
+
+            if (count($templates) > count($generics)) {
+                throw new MissingGenerics($this->reflection->name, $generics, $templates);
+            }
+
+            if (count($generics) > count($templates)) {
+                throw new CannotAssignGeneric($this->reflection->name, $templates, $generics);
+            }
+        }
 
         if ($this->reflection->isInterface()) {
             return new InterfaceType($this->reflection->name, $generics);
@@ -101,11 +120,10 @@ final class ClassNameToken implements TraversingToken
     }
 
     /**
-     * @param array<non-empty-string> $templates
      * @param class-string $className
      * @return list<Type>
      */
-    private function generics(TokenStream $stream, string $className, array $templates): array
+    private function generics(TokenStream $stream, string $className): array
     {
         if ($stream->done() || ! $stream->next() instanceof OpeningBracketToken) {
             return [];
@@ -115,11 +133,7 @@ final class ClassNameToken implements TraversingToken
 
         $stream->forward();
 
-        while (true) {
-            if ($stream->done()) {
-                throw new MissingGenerics($className, $generics, $templates);
-            }
-
+        while (! $stream->done()) {
             $generics[] = $stream->read();
 
             if ($stream->done()) {
@@ -142,26 +156,20 @@ final class ClassNameToken implements TraversingToken
 
     /**
      * @param class-string $className
-     * @param array<non-empty-string> $templates
-     * @param list<Type> $generics
-     * @return array<non-empty-string, Type>
+     * @return list<non-empty-string>
      */
-    private function assignGenerics(string $className, array $templates, array $generics): array
+    private function templates(string $className): array
     {
-        $assignedGenerics = [];
+        $templates = [];
 
-        foreach ($templates as $template) {
-            $generic = array_shift($generics);
+        $annotations = Annotations::forTemplates(Reflection::class($className));
 
-            if ($generic) {
-                $assignedGenerics[$template] = $generic;
-            }
+        foreach ($annotations as $annotation) {
+            $tokens = $annotation->filtered();
+
+            $templates[] = current($tokens);
         }
 
-        if (! empty($generics)) {
-            throw new CannotAssignGeneric($className, ...$generics);
-        }
-
-        return $assignedGenerics;
+        return $templates;
     }
 }

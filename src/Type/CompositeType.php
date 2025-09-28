@@ -11,4 +11,9 @@ interface CompositeType extends Type
      * @return list<Type>
      */
     public function traverse(): array;
+
+    /**
+     * @param callable<T of Type>(T): T $callback
+     */
+    public function replace(callable $callback): Type;
 }

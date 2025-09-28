@@ -11,7 +11,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
-use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
@@ -32,7 +32,7 @@ final class ClassDefinitionCompilerTest extends TestCase
 
         $this->compiler = new ClassDefinitionCompiler();
         $this->classDefinitionRepository = new ReflectionClassDefinitionRepository(
-            new LexingTypeParserFactory(),
+            new TypeParserFactory(),
             [],
         );
     }

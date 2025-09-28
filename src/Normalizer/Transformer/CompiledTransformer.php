@@ -109,7 +109,7 @@ final class CompiledTransformer implements Transformer
         if (is_iterable($value)) {
             $iterableType = $this->inferIterableType($value);
 
-            return new NativeClassType($value::class, ['SubType' => $iterableType->subType()]);
+            return new NativeClassType($value::class, [$iterableType->subType()]);
         }
 
         return new NativeClassType($value::class);

@@ -8,6 +8,7 @@ use Attribute;
 use CuyZ\Valinor\Cache\FileSystemCache;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\NormalizerBuilder;
+use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use DateTime;
 use DateTimeInterface;
 use IteratorAggregate;
@@ -119,8 +120,13 @@ final class NormalizerCompiledCodeTest extends TestCase
         ];
 
         yield 'class with union' => [
-            'intput' => new ClassWithUnion('foo'),
+            'input' => new ClassWithUnion('foo'),
             'expectedFile' => __DIR__ . '/ExpectedCache/class-with-union.php',
+        ];
+
+        yield 'class with enum' => [
+            'input' => new ClassWithEnum(BackedStringEnum::FOO),
+            'expectedFile' => __DIR__ . '/ExpectedCache/class-with-enum.php',
         ];
 
         yield 'generator with scalars' => [
@@ -134,6 +140,11 @@ final class NormalizerCompiledCodeTest extends TestCase
         yield 'class implementing `IteratorAggregate`' => [
             'input' => new ClassImplementingIteratorAggregate(),
             'expectedFile' => __DIR__ . '/ExpectedCache/class-implementing-iterator-aggregate.php',
+        ];
+
+        yield 'class with generic' => [
+            'input' => new ClassWithGeneric('foo'),
+            'expectedFile' => __DIR__ . '/ExpectedCache/class-with-generic.php',
         ];
 
         yield 'class with unresolvable type and string native type' => [
@@ -179,6 +190,13 @@ final class ClassWithUnsealedShapedArray
     ) {}
 }
 
+final class ClassWithEnum
+{
+    public function __construct(
+        public BackedStringEnum $enum,
+    ) {}
+}
+
 /**
  * @implements IteratorAggregate<string|int>
  */
@@ -189,6 +207,17 @@ final class ClassImplementingIteratorAggregate implements IteratorAggregate
         yield 'foo';
         yield 42;
     }
+}
+
+/**
+ * @template T of string
+ */
+final class ClassWithGeneric
+{
+    public function __construct(
+        /** @var T */
+        public $value,
+    ) {}
 }
 
 #[Attribute(Attribute::TARGET_PROPERTY)]

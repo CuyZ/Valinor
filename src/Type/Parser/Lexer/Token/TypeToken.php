@@ -20,14 +20,6 @@ final class TypeToken implements TraversingToken
         $this->symbol = $type->toString();
     }
 
-    public static function withSymbol(Type $type, string $symbol): self
-    {
-        $self = new self($type);
-        $self->symbol = $symbol;
-
-        return $self;
-    }
-
     public function traverse(TokenStream $stream): Type
     {
         return $this->type;

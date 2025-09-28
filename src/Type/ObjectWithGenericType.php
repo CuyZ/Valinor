@@ -3,7 +3,7 @@
 namespace CuyZ\Valinor\Type;
 
 /** @internal */
-interface GenericType extends ObjectType, CompositeType
+interface ObjectWithGenericType extends ObjectType, CompositeType
 {
     /**
      * @return class-string
@@ -11,7 +11,7 @@ interface GenericType extends ObjectType, CompositeType
     public function className(): string;
 
     /**
-     * @return array<non-empty-string, Type>
+     * @return list<Type>
      */
     public function generics(): array;
 }

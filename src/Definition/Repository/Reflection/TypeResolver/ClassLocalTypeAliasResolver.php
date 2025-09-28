@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
+use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\Lexer\Annotations;
+use CuyZ\Valinor\Type\Parser\VacantTypeAssignerParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
-use CuyZ\Valinor\Utility\Reflection\Reflection;
+use CuyZ\Valinor\Utility\Reflection\Annotations;
 
 use function current;
 use function key;
@@ -19,10 +19,16 @@ use function next;
 /** @internal */
 final class ClassLocalTypeAliasResolver
 {
-    public function __construct(private TypeParserFactory $typeParserFactory) {}
+    private ClassGenericResolver $genericResolver;
+
+    public function __construct(
+        private TypeParserFactory $typeParserFactory,
+    ) {
+        $this->genericResolver = new ClassGenericResolver($this->typeParserFactory);
+    }
 
     /**
-     * @return array<string, Type>
+     * @return array<non-empty-string, Type>
      */
     public function resolveLocalTypeAliases(ObjectType $type): array
     {
@@ -32,15 +38,22 @@ final class ClassLocalTypeAliasResolver
             return [];
         }
 
+        $vacantTypes = [];
+
+        if ($type instanceof ObjectWithGenericType) {
+            $vacantTypes = $this->genericResolver->resolveGenerics($type);
+        }
+
+        $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type->className());
+        $typeParser = new VacantTypeAssignerParser($typeParser, $vacantTypes);
+
         $types = [];
 
         foreach ($localAliases as $name => $raw) {
-            try {
-                $typeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type, $types);
+            $types[$name] = $typeParser->parse($raw);
 
-                $types[$name] = $typeParser->parse($raw);
-            } catch (InvalidType $exception) {
-                $types[$name] = UnresolvableType::forLocalAlias($raw, $name, $type, $exception);
+            if ($types[$name] instanceof UnresolvableType) {
+                $types[$name] = $types[$name]->forLocalAlias($raw, $name, $type);
             }
         }
 
@@ -53,18 +66,9 @@ final class ClassLocalTypeAliasResolver
      */
     private function extractLocalAliasesFromDocBlock(string $className): array
     {
-        $docBlock = Reflection::class($className)->getDocComment();
-
-        if ($docBlock === false) {
-            return [];
-        }
-
         $aliases = [];
 
-        $annotations = (new Annotations($docBlock))->filteredInOrder(
-            '@phpstan-type',
-            '@psalm-type',
-        );
+        $annotations = Annotations::forLocalAliases($className);
 
         foreach ($annotations as $annotation) {
             $tokens = $annotation->filtered();

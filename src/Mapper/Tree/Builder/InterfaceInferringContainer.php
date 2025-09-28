@@ -142,15 +142,11 @@ final class InterfaceInferringContainer
                 return [];
             }
 
-            $subType = $type->subType();
+            $subTypes = $type->subTypes();
 
-            if ($subType === null) {
+            if ($subTypes === []) {
                 return [];
             }
-
-            $subTypes = $subType instanceof UnionType
-                ? $subType->types()
-                : [$subType];
 
             foreach ($subTypes as $classType) {
                 $classes[$classType->toString()] = $classType;

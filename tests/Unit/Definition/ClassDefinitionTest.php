@@ -19,7 +19,7 @@ final class ClassDefinitionTest extends TestCase
 {
     public function test_class_data_can_be_retrieved(): void
     {
-        $type = new NativeClassType(stdClass::class, ['T' => new FakeType()]);
+        $type = new NativeClassType(stdClass::class, [new FakeType()]);
         $attributes = new Attributes();
         $properties = new Properties(FakePropertyDefinition::new());
         $methods = new Methods(FakeMethodDefinition::new());

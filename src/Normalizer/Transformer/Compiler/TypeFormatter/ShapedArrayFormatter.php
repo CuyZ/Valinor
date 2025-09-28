@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
+use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use WeakMap;
@@ -38,7 +39,7 @@ final class ShapedArrayFormatter implements TypeFormatter
             return $class;
         }
 
-        if ($this->type->isUnsealed()) {
+        if ($this->type->isUnsealed && $this->type->unsealedType() instanceof ArrayType) {
             $defaultDefinition = $definitionBuilder->for($this->type->unsealedType()->subType());
         } else {
             $defaultDefinition = $definitionBuilder->for(MixedType::get());
@@ -48,12 +49,12 @@ final class ShapedArrayFormatter implements TypeFormatter
 
         $elementsDefinitions = [];
 
-        foreach ($this->type->elements() as $element) {
+        foreach ($this->type->elements as $key => $element) {
             $elementDefinition = $definitionBuilder->for($element->type());
 
             $class = $elementDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
-            $elementsDefinitions[$element->key()->value()] = $elementDefinition;
+            $elementsDefinitions[$key] = $elementDefinition;
         }
 
         return $class->withMethods(

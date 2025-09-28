@@ -6,21 +6,20 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\GenericType;
+use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
-use function array_values;
 use function is_a;
 
 /** @internal */
-final class NativeClassType implements ClassType, GenericType
+final class NativeClassType implements ClassType, ObjectWithGenericType
 {
     public function __construct(
         /** @var class-string */
         private string $className,
-        /** @var array<non-empty-string, Type> */
+        /** @var list<Type> */
         private array $generics = [],
     ) {
         $this->className = ltrim($this->className, '\\');
@@ -65,7 +64,15 @@ final class NativeClassType implements ClassType, GenericType
 
     public function traverse(): array
     {
-        return array_values($this->generics);
+        return $this->generics;
+    }
+
+    public function replace(callable $callback): Type
+    {
+        return new self(
+            $this->className,
+            array_map($callback, $this->generics),
+        );
     }
 
     public function nativeType(): NativeClassType

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Type\Parser\Lexer\Annotations;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Utility\Reflection\Annotations;
 use ReflectionParameter;
 
 /** @internal */
@@ -24,7 +24,7 @@ final class ParameterTypeResolver
             // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
             $property = $reflection->getDeclaringClass()->getProperty($reflection->name);
 
-            $docBlockType = (new PropertyTypeResolver($this->typeResolver))->extractTypeFromDocBlock($property);
+            $docBlockType = Annotations::forProperty($property);
         }
 
         if ($docBlockType === null) {
@@ -53,17 +53,7 @@ final class ParameterTypeResolver
 
     private function extractTypeFromDocBlock(ReflectionParameter $reflection): ?string
     {
-        $docBlock = $reflection->getDeclaringFunction()->getDocComment();
-
-        if ($docBlock === false) {
-            return null;
-        }
-
-        $annotations = (new Annotations($docBlock))->filteredByPriority(
-            '@phpstan-param',
-            '@psalm-param',
-            '@param',
-        );
+        $annotations = Annotations::forParameters($reflection->getDeclaringFunction());
 
         foreach ($annotations as $annotation) {
             $tokens = $annotation->filtered();

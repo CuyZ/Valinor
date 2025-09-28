@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
-use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
-use CuyZ\Valinor\Type\Types\UnresolvableType;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionType;
@@ -29,7 +27,7 @@ final class ReflectionTypeResolver
         if ($docBlock !== null) {
             $docBlock = trim($docBlock);
 
-            return $this->parseType($docBlock, $this->advancedParser);
+            return $this->advancedParser->parse($docBlock);
         }
 
         if ($native === null) {
@@ -42,7 +40,7 @@ final class ReflectionTypeResolver
         // filled with generics. PHP does not handle generics natively, so we
         // need to make sure that no generics are left unassigned by parsing the
         // type using the advanced parser.
-        return $this->parseType($type, $this->advancedParser);
+        return $this->advancedParser->parse($type);
     }
 
     public function resolveNativeType(?ReflectionType $reflection): Type
@@ -53,7 +51,7 @@ final class ReflectionTypeResolver
 
         $type = $this->exportNativeType($reflection);
 
-        return $this->parseType($type, $this->nativeParser);
+        return $this->nativeParser->parse($type);
     }
 
     private function exportNativeType(ReflectionType $type): string
@@ -73,14 +71,5 @@ final class ReflectionTypeResolver
         }
 
         return $name;
-    }
-
-    private function parseType(string $raw, TypeParser $parser): Type
-    {
-        try {
-            return $parser->parse($raw);
-        } catch (InvalidType $exception) {
-            return new UnresolvableType($raw, $exception->getMessage());
-        }
     }
 }
