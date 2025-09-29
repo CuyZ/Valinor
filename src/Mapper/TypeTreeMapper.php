@@ -10,6 +10,7 @@ use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
 use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Dumper\TypeDumper;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 
@@ -18,6 +19,7 @@ final class TypeTreeMapper implements TreeMapper
 {
     public function __construct(
         private TypeParser $typeParser,
+        private TypeDumper $typeDumper,
         private RootNodeBuilder $nodeBuilder,
         private Settings $settings,
     ) {}
@@ -31,7 +33,7 @@ final class TypeTreeMapper implements TreeMapper
             throw new InvalidMappingTypeSignature($signature, $exception);
         }
 
-        $shell = Shell::root($this->settings, $type, $source);
+        $shell = Shell::root($this->settings, $this->typeDumper, $type, $source);
 
         try {
             $node = $this->nodeBuilder->build($shell);

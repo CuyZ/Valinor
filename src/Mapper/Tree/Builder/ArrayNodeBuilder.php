@@ -35,11 +35,11 @@ final class ArrayNodeBuilder implements NodeBuilder
         }
 
         if (! is_iterable($value)) {
-            return Node::error($shell, new SourceMustBeIterable($value, $type));
+            return Node::error($shell, new SourceMustBeIterable($value));
         }
 
         if ($value === [] && $type instanceof NonEmptyArrayType) {
-            return Node::error($shell, new SourceIsEmptyArray($type));
+            return Node::error($shell, new SourceIsEmptyArray());
         }
 
         $keyType = $type->keyType();

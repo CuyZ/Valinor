@@ -58,6 +58,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\RecursiveTransformer;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
+use CuyZ\Valinor\Type\Dumper\TypeDumper;
 use CuyZ\Valinor\Type\Parser\Factory\LexingTypeParserFactory;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\TypeParser;
@@ -78,6 +79,7 @@ final class Container
         $this->factories = [
             TreeMapper::class => fn () => new TypeTreeMapper(
                 $this->get(TypeParser::class),
+                $this->get(TypeDumper::class),
                 $this->get(RootNodeBuilder::class),
                 $settings,
             ),
@@ -85,6 +87,7 @@ final class Container
             ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
                 $this->get(FunctionDefinitionRepository::class),
                 $this->get(RootNodeBuilder::class),
+                $this->get(TypeDumper::class),
                 $settings,
             ),
 
@@ -238,6 +241,16 @@ final class Container
 
             TypeParser::class => fn () => $this->get(TypeParserFactory::class)->buildDefaultTypeParser(),
 
+            TypeDumper::class => fn () => new TypeDumper(
+                $this->get(ClassDefinitionRepository::class),
+                $this->get(ObjectBuilderFactory::class),
+                $this->get(ObjectImplementations::class),
+                new FunctionsContainer(
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->customConstructors,
+                ),
+            ),
+
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),
                 $this->get(ObjectImplementations::class),
@@ -285,7 +298,7 @@ final class Container
      * @param class-string<T> $name
      * @return T
      */
-    private function get(string $name): object
+    public function get(string $name): object
     {
         return $this->services[$name] ??= call_user_func($this->factories[$name]); // @phpstan-ignore-line
     }

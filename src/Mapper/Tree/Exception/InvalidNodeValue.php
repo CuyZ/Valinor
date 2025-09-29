@@ -6,30 +6,13 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
-use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
-use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\TypeHelper;
 
 /** @internal */
-final class InvalidNodeValue implements ErrorMessage, HasCode, HasParameters
+final class InvalidNodeValue implements ErrorMessage, HasCode
 {
-    private string $body;
+    private string $body = 'Value {source_value} does not match {expected_signature}.';
 
     private string $code = 'invalid_value';
-
-    /** @var array<string, string> */
-    private array $parameters;
-
-    public function __construct(Type $type)
-    {
-        $this->parameters = [
-            'expected_type' => TypeHelper::dump($type),
-        ];
-
-        $this->body = TypeHelper::containsObject($type)
-            ? 'Invalid value {source_value}.'
-            : 'Value {source_value} does not match type {expected_type}.';
-    }
 
     public function body(): string
     {
@@ -39,10 +22,5 @@ final class InvalidNodeValue implements ErrorMessage, HasCode, HasParameters
     public function code(): string
     {
         return $this->code;
-    }
-
-    public function parameters(): array
-    {
-        return $this->parameters;
     }
 }

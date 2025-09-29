@@ -48,7 +48,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
                 $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $exception) {
                 self::assertMappingErrors($exception, [
-                    '*root*' => "[invalid_source] Value 'foo' does not match type `array{object: ?, string: string}`.",
+                    '*root*' => "[cannot_find_object_builder] Value 'foo' does not match `array{object: string|array{value: string}, string: string}`.",
                 ]);
             }
         }
@@ -94,7 +94,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(stdClass::class, 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[invalid_source] Value 'foo' does not match type array.",
+                '*root*' => "[cannot_find_object_builder] Value 'foo' does not match `array{}`.",
             ]);
         }
     }

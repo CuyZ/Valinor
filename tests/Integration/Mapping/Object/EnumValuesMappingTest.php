@@ -94,7 +94,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: ' . PureEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching type `FOO`.',
+                'foo' => "[missing_value] Cannot be empty and must be filled with a value matching 'FOO'.",
             ]);
         }
     }
@@ -105,7 +105,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: ' . BackedIntegerEnum::class . '::FOO}', []);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching type `42`.',
+                'foo' => '[missing_value] Cannot be empty and must be filled with a value matching 42.',
             ]);
         }
     }

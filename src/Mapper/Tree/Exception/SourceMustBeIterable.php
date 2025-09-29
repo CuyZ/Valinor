@@ -6,34 +6,20 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
-use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
-use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\TypeHelper;
 
 /** @internal */
-final class SourceMustBeIterable implements ErrorMessage, HasCode, HasParameters
+final class SourceMustBeIterable implements ErrorMessage, HasCode
 {
     private string $body;
 
     private string $code = 'value_is_not_iterable';
 
-    /** @var array<string, string> */
-    private array $parameters;
-
-    public function __construct(mixed $value, Type $type)
+    public function __construct(mixed $value)
     {
-        $this->parameters = [
-            'expected_type' => TypeHelper::dump($type),
-        ];
-
         if ($value === null) {
-            $this->body = TypeHelper::containsObject($type)
-                ? 'Cannot be empty.'
-                : 'Cannot be empty and must be filled with a value matching type {expected_type}.';
+            $this->body = 'Cannot be empty and must be filled with a value matching {expected_signature}.';
         } else {
-            $this->body = TypeHelper::containsObject($type)
-                ? 'Invalid value {source_value}.'
-                : 'Value {source_value} does not match type {expected_type}.';
+            $this->body = 'Value {source_value} does not match {expected_signature}.';
         }
     }
 
@@ -45,10 +31,5 @@ final class SourceMustBeIterable implements ErrorMessage, HasCode, HasParameters
     public function code(): string
     {
         return $this->code;
-    }
-
-    public function parameters(): array
-    {
-        return $this->parameters;
     }
 }

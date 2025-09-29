@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 use Generator;
@@ -14,7 +15,7 @@ use Generator;
 use function is_iterable;
 
 /** @internal */
-final class IterableType implements CompositeTraversableType
+final class IterableType implements CompositeTraversableType, DumpableType
 {
     private static self $native;
 
@@ -118,6 +119,19 @@ final class IterableType implements CompositeTraversableType
     public function nativeType(): IterableType
     {
         return self::native();
+    }
+
+    public function dumpParts(): iterable
+    {
+        yield 'iterable<';
+
+        if ($this->keyType !== ArrayKeyType::default()) {
+            yield $this->keyType;
+            yield ', ';
+        }
+
+        yield $this->subType;
+        yield '>';
     }
 
     public function toString(): string
