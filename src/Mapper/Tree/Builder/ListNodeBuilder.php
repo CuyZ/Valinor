@@ -28,7 +28,7 @@ final class ListNodeBuilder implements NodeBuilder
         assert($type instanceof ListType || $type instanceof NonEmptyListType);
 
         if ($shell->allowUndefinedValues() && $value === null) {
-            return Node::new(value: []);
+            $value = [];
         }
 
         if (! is_iterable($value)) {
