@@ -6,11 +6,9 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
-use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -60,7 +58,6 @@ final class UndefinedObjectTypeTest extends TestCase
     public function test_matches_valid_types(): void
     {
         self::assertTrue($this->undefinedObjectType->matches(new UndefinedObjectType()));
-        self::assertTrue($this->undefinedObjectType->matches(new FakeObjectType()));
     }
 
     public function test_does_not_match_other_type(): void
@@ -72,7 +69,7 @@ final class UndefinedObjectTypeTest extends TestCase
     {
         $unionType = new UnionType(
             new FakeType(),
-            new FakeObjectType(),
+            new UndefinedObjectType(),
             new FakeType(),
         );
 
@@ -84,11 +81,6 @@ final class UndefinedObjectTypeTest extends TestCase
         $unionType = new UnionType(new FakeType(), new FakeType());
 
         self::assertFalse($this->undefinedObjectType->matches($unionType));
-    }
-
-    public function test_matches_intersection_type(): void
-    {
-        self::assertTrue($this->undefinedObjectType->matches(new IntersectionType(new FakeObjectType(), new FakeObjectType())));
     }
 
     public function test_matches_mixed_type(): void
