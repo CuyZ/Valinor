@@ -7,10 +7,14 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Traits\TestIsSingleton;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -18,15 +22,13 @@ use stdClass;
 
 final class CallableTypeTest extends TestCase
 {
-    use TestIsSingleton;
-
     private CallableType $callableType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->callableType = new CallableType();
+        $this->callableType = CallableType::default();
     }
 
     public function test_accepts_correct_values(): void
@@ -53,9 +55,68 @@ final class CallableTypeTest extends TestCase
         self::assertSame('callable', $this->callableType->toString());
     }
 
-    public function test_matches_same_type(): void
+    public function test_matches_correct_callable(): void
     {
-        self::assertTrue((new CallableType())->matches(new CallableType()));
+        $callableTypeA = new CallableType(
+            [new NonEmptyStringType(), new PositiveIntegerType()],
+            new NonEmptyStringType(),
+        );
+
+        $callableTypeB = new CallableType(
+            [new NativeStringType(), new NativeIntegerType()],
+            new NativeStringType(),
+        );
+
+        self::assertTrue($callableTypeA->matches($callableTypeB));
+        ;
+    }
+
+    public function test_does_not_match_callable_with_non_matching_parameters(): void
+    {
+        $callableTypeA = new CallableType(
+            [new NonEmptyStringType()],
+            new NonEmptyStringType(),
+        );
+
+        $callableTypeB = new CallableType(
+            [new NativeBooleanType()],
+            new NativeStringType(),
+        );
+
+        self::assertFalse($callableTypeA->matches($callableTypeB));
+        ;
+    }
+
+    public function test_does_not_match_callable_with_less_parameters(): void
+    {
+        $callableTypeA = new CallableType(
+            [new NonEmptyStringType(), new PositiveIntegerType()],
+            new NonEmptyStringType(),
+        );
+
+        $callableTypeB = new CallableType(
+            [new NativeStringType()],
+            new NativeStringType(),
+        );
+
+        self::assertFalse($callableTypeA->matches($callableTypeB));
+        ;
+    }
+
+    public function test_does_not_match_callable_with_more_parameters(): void
+    {
+        $callableTypeA = new CallableType(
+            [new NonEmptyStringType(), new PositiveIntegerType()],
+            new NonEmptyStringType(),
+        );
+
+        $callableTypeB = new CallableType(
+            [new NativeStringType(), new NativeIntegerType(), new NativeBooleanType()],
+            new NativeStringType(),
+        );
+
+        self::assertFalse($callableTypeA->matches($callableTypeB));
+        ;
     }
 
     public function test_does_not_match_other_type(): void
@@ -72,7 +133,7 @@ final class CallableTypeTest extends TestCase
     {
         $unionType = new UnionType(
             new FakeType(),
-            new CallableType(),
+            CallableType::default(),
             new FakeType(),
         );
 
@@ -86,9 +147,23 @@ final class CallableTypeTest extends TestCase
         self::assertFalse($this->callableType->matches($unionType));
     }
 
+    public function test_traverse_type_yields_types_recursively(): void
+    {
+        $typeA = new FakeType();
+        $typeB = new FakeType();
+        $typeC = new FakeType();
+
+        $callableType = new CallableType(
+            [$typeA, $typeB],
+            $typeC,
+        );
+
+        self::assertSame([$typeA, $typeB, $typeC], $callableType->traverse());
+    }
+
     public function test_native_type_is_correct(): void
     {
-        self::assertSame('callable', (new CallableType())->nativeType()->toString());
+        self::assertSame('callable', $this->callableType->nativeType()->toString());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

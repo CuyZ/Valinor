@@ -12,6 +12,11 @@ use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithConstants;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\IntegerType;
+use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedClosingParenthesisAfterCallable;
+use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedColonAfterCallableClosingParenthesis;
+use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedReturnTypeAfterCallableColon;
+use CuyZ\Valinor\Type\Parser\Exception\Callable\ExpectedTypeForCallable;
+use CuyZ\Valinor\Type\Parser\Exception\Callable\UnexpectedTokenAfterCallableClosingParenthesis;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\ClassConstantCaseNotFound;
 use CuyZ\Valinor\Type\Parser\Exception\Constant\MissingClassConstantCase;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
@@ -66,6 +71,7 @@ use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
@@ -1085,20 +1091,59 @@ final class LexingParserTest extends TestCase
             'transformed' => PureEnum::class . '::*A*',
             'type' => EnumType::class,
         ];
+
         yield 'value-of<BackedStringEnum>' => [
             'raw' => "value-of<" . BackedStringEnum::class . ">",
             'transformed' => "'foo'|'bar'|'baz'",
             'type' => UnionType::class,
         ];
+
         yield 'value-of<BackedIntegerEnum>' => [
             'raw' => "value-of<" . BackedIntegerEnum::class . ">",
             'transformed' => "42|404|1337",
             'type' => UnionType::class,
         ];
-        yield 'scalar' => [
+
+        yield 'Scalar' => [
             'raw' => 'scalar',
             'transformed' => 'scalar',
             'type' => ScalarConcreteType::class,
+        ];
+
+        yield 'Default callable' => [
+            'raw' => 'callable',
+            'transformed' => 'callable',
+            'type' => CallableType::class,
+        ];
+
+        yield 'Callable with no parameters' => [
+            'raw' => 'callable(): string',
+            'transformed' => 'callable(): string',
+            'type' => CallableType::class,
+        ];
+
+        yield 'Callable with one parameter' => [
+            'raw' => 'callable(string): string',
+            'transformed' => 'callable(string): string',
+            'type' => CallableType::class,
+        ];
+
+        yield 'Callable with two parameters without trailing comma' => [
+            'raw' => 'callable(string, int): string',
+            'transformed' => 'callable(string, int): string',
+            'type' => CallableType::class,
+        ];
+
+        yield 'Callable with two parameters with trailing comma' => [
+            'raw' => 'callable(string, int,): string',
+            'transformed' => 'callable(string, int): string',
+            'type' => CallableType::class,
+        ];
+
+        yield 'Callable or string' => [
+            'raw' => 'callable|string',
+            'transformed' => 'callable|string',
+            'type' => UnionType::class,
         ];
     }
 
@@ -1759,6 +1804,51 @@ final class LexingParserTest extends TestCase
         $this->expectExceptionMessage('Missing right type for nullable type after `?`.');
 
         $this->parser->parse('?');
+    }
+
+    public function test_type_expected_for_callable_throws_exception(): void
+    {
+        $this->expectException(ExpectedTypeForCallable::class);
+        $this->expectExceptionCode(1759257024);
+        $this->expectExceptionMessage('Expected type after `callable(`.');
+
+        $this->parser->parse('callable(');
+    }
+
+    public function test_closing_parenthesis_expected_for_callable_throws_exception(): void
+    {
+        $this->expectException(ExpectedClosingParenthesisAfterCallable::class);
+        $this->expectExceptionCode(1759257335);
+        $this->expectExceptionMessage('Expected closing parenthesis after `callable(string, int`.');
+
+        $this->parser->parse('callable(string, int');
+    }
+
+    public function test_colon_expected_after_callable_closing_parenthesis_throws_exception(): void
+    {
+        $this->expectException(ExpectedColonAfterCallableClosingParenthesis::class);
+        $this->expectExceptionCode(1759260180);
+        $this->expectExceptionMessage('Expected `:` to define return type after `callable(string, int)`.');
+
+        $this->parser->parse('callable(string, int)');
+    }
+
+    public function test_unexpected_token_after_callable_closing_parenthesis_throws_exception(): void
+    {
+        $this->expectException(UnexpectedTokenAfterCallableClosingParenthesis::class);
+        $this->expectExceptionCode(1759265303);
+        $this->expectExceptionMessage('Expected `:` to define return type after `callable(string, int)`, got `<`.');
+
+        $this->parser->parse('callable(string, int)<');
+    }
+
+    public function test_return_type_expected_after_callable_colon_throws_exception(): void
+    {
+        $this->expectException(ExpectedReturnTypeAfterCallableColon::class);
+        $this->expectExceptionCode(1759265272);
+        $this->expectExceptionMessage('Expected return type after `callable(string, int):`.');
+
+        $this->parser->parse('callable(string, int):');
     }
 }
 

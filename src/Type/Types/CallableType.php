@@ -6,15 +6,28 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
+use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Utility\IsSingleton;
 
+use function array_map;
+use function implode;
 use function is_callable;
 
 /** @internal */
-final class CallableType implements Type
+final class CallableType implements CompositeType
 {
-    use IsSingleton;
+    private static self $default;
+
+    public function __construct(
+        /** @var list<Type> */
+        public readonly array $parameters,
+        public readonly Type $returnType,
+    ) {}
+
+    public static function default(): self
+    {
+        return self::$default ??= new self([], MixedType::get());
+    }
 
     public function accepts(mixed $value): bool
     {
@@ -28,12 +41,34 @@ final class CallableType implements Type
 
     public function matches(Type $other): bool
     {
+        if ($other instanceof MixedType) {
+            return true;
+        }
+
         if ($other instanceof UnionType) {
             return $other->isMatchedBy($this);
         }
 
-        return $other instanceof self
-            || $other instanceof MixedType;
+        if (! $other instanceof self) {
+            return false;
+        }
+
+        if (count($this->parameters) !== count($other->parameters)) {
+            return false;
+        }
+
+        foreach ($this->parameters as $key => $parameter) {
+            if (! $parameter->matches($other->parameters[$key])) {
+                return false;
+            }
+        }
+
+        return $this->returnType->matches($other->returnType);
+    }
+
+    public function traverse(): array
+    {
+        return [...$this->parameters, $this->returnType];
     }
 
     public function nativeType(): Type
@@ -43,6 +78,16 @@ final class CallableType implements Type
 
     public function toString(): string
     {
-        return 'callable';
+        if ($this === self::default()) {
+            return 'callable';
+        }
+
+        // PHP8.5 use pipes
+        $parameters = implode(
+            ', ',
+            array_map(static fn (Type $type): string => $type->toString(), $this->parameters),
+        );
+
+        return "callable($parameters): {$this->returnType->toString()}";
     }
 }

@@ -9,6 +9,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\CallableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClassStringToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingCurlyBracketToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingParenthesisToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ClosingSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ColonToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\CommaToken;
@@ -21,6 +22,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningParenthesisToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningSquareBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\StringValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
@@ -59,6 +61,8 @@ final class NativeLexer implements TypeLexer
         return match (strtolower($symbol)) {
             '|' => UnionToken::get(),
             '&' => IntersectionToken::get(),
+            '(' => OpeningParenthesisToken::get(),
+            ')' => ClosingParenthesisToken::get(),
             '<' => OpeningBracketToken::get(),
             '>' => ClosingBracketToken::get(),
             '[' => OpeningSquareBracketToken::get(),
