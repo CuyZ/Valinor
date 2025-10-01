@@ -72,7 +72,6 @@ final class TypeCompiler
             case $type instanceof NonEmptyStringType:
             case $type instanceof NumericStringType:
             case $type instanceof UndefinedObjectType:
-            case $type instanceof CallableType:
             case $type instanceof MixedType:
             case $type instanceof ScalarConcreteType:
                 return "$class::get()";
@@ -188,6 +187,14 @@ final class TypeCompiler
                 $cases = implode(', ', $cases);
 
                 return "new $class($enumName, $pattern, [$cases])";
+            case $type instanceof CallableType:
+                $returnType = $this->compile($type->returnType);
+                $parameters = implode(', ', array_map(
+                    fn (Type $subType) => $this->compile($subType),
+                    $type->parameters,
+                ));
+
+                return "new $class([$parameters], $returnType)";
             case $type instanceof UnresolvableType:
                 $raw = var_export($type->toString(), true);
                 $message = var_export($type->message(), true);

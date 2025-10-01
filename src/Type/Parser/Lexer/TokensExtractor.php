@@ -21,6 +21,8 @@ final class TokensExtractor
         'Whitespace' => '\s+',
         'Union' => '\|',
         'Intersection' => '&',
+        'Opening parenthesis' => '\(',
+        'Closing parenthesis' => '\)',
         'Opening bracket' => '\<',
         'Closing bracket' => '\>',
         'Opening square bracket' => '\[',
