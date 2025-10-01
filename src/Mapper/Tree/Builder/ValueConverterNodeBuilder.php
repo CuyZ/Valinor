@@ -20,7 +20,7 @@ use Throwable;
 use function array_map;
 use function array_shift;
 use function is_float;
-use function is_nan;
+use function is_infinite;
 
 /** @internal */
 final class ValueConverterNodeBuilder implements NodeBuilder
@@ -100,8 +100,8 @@ final class ValueConverterNodeBuilder implements NodeBuilder
             $arguments = [$shell->value()];
 
             if ($converter->parameters->count() > 1) {
-                $arguments[] = function (mixed $value = NAN) use ($stack, $shell, $rootBuilder) {
-                    if (! is_float($value) || ! is_nan($value)) {
+                $arguments[] = function (mixed $value = INF) use ($stack, $shell, $rootBuilder) {
+                    if (! is_float($value) || ! is_infinite($value)) {
                         $shell = $shell->withValue($value);
                     }
 
