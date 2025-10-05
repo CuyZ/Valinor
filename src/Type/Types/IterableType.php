@@ -96,7 +96,7 @@ final class IterableType implements CompositeTraversableType, DumpableType
             return $other->isMatchedBy($this);
         }
 
-        return $other instanceof CompositeTraversableType
+        return $other instanceof self
             && $this->keyType->matches($other->keyType())
             && $this->subType->matches($other->subType());
     }
