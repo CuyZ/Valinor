@@ -9,7 +9,9 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\IterableType;
+use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -174,6 +176,16 @@ final class IterableTypeTest extends TestCase
         $iterableOfTypeB = new IterableType(ArrayKeyType::default(), $typeB);
 
         self::assertFalse($iterableOfTypeA->matches($iterableOfTypeB));
+    }
+
+    public function test_does_not_match_array_types(): void
+    {
+        $iterableType = IterableType::native();
+        $arrayType = ArrayType::native();
+        $listType = ListType::native();
+
+        self::assertFalse($iterableType->matches($arrayType));
+        self::assertFalse($iterableType->matches($listType));
     }
 
     public function test_does_not_match_other_type(): void
