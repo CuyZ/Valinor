@@ -100,9 +100,9 @@ final class ShellTest extends FunctionalTestCase
         $shellC = $shellB->withAttributes($attributesB);
 
         self::assertNotSame($shellA, $shellB);
-        ;
+
         self::assertNotSame($shellB, $shellC);
-        ;
+
         self::assertSame([$attributeA], $shellB->attributes()->toArray());
         self::assertSame([$attributeA, $attributeB], $shellC->attributes()->toArray());
     }

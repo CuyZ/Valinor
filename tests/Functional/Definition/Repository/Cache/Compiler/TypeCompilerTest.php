@@ -140,7 +140,7 @@ final class TypeCompilerTest extends TestCase
         yield [new ClassStringType(new NativeClassType(stdClass::class))];
         yield [new ClassStringType(new InterfaceType(DateTimeInterface::class))];
         yield [new CallableType([new NativeStringType(), new NativeIntegerType()], NativeBooleanType::get())];
-        ;
+
         yield [new UnresolvableType('some-type', 'some message')];
     }
 

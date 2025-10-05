@@ -68,7 +68,7 @@ final class CallableTypeTest extends TestCase
         );
 
         self::assertTrue($callableTypeA->matches($callableTypeB));
-        ;
+
     }
 
     public function test_does_not_match_callable_with_non_matching_parameters(): void
@@ -84,7 +84,7 @@ final class CallableTypeTest extends TestCase
         );
 
         self::assertFalse($callableTypeA->matches($callableTypeB));
-        ;
+
     }
 
     public function test_does_not_match_callable_with_less_parameters(): void
@@ -100,7 +100,7 @@ final class CallableTypeTest extends TestCase
         );
 
         self::assertFalse($callableTypeA->matches($callableTypeB));
-        ;
+
     }
 
     public function test_does_not_match_callable_with_more_parameters(): void
@@ -116,7 +116,7 @@ final class CallableTypeTest extends TestCase
         );
 
         self::assertFalse($callableTypeA->matches($callableTypeB));
-        ;
+
     }
 
     public function test_does_not_match_other_type(): void
