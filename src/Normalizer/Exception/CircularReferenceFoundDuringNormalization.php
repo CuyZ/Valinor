@@ -15,7 +15,6 @@ final class CircularReferenceFoundDuringNormalization extends RuntimeException
 
         parent::__construct(
             "A circular reference was detected with an object of type `$class`. Circular references are not supported by the normalizer.",
-            1695064016,
         );
     }
 }

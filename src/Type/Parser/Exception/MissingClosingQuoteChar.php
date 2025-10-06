@@ -11,9 +11,6 @@ final class MissingClosingQuoteChar extends RuntimeException implements InvalidT
 {
     public function __construct(string $value)
     {
-        parent::__construct(
-            "Closing quote is missing for `$value`.",
-            1666024605
-        );
+        parent::__construct("Closing quote is missing for `$value`.");
     }
 }

@@ -15,7 +15,6 @@ final class ArrayClosingBracketMissing extends RuntimeException implements Inval
     {
         parent::__construct(
             "The closing bracket is missing for `{$arrayType->toString()}`.",
-            1606483975
         );
     }
 }

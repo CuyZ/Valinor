@@ -12,9 +12,6 @@ final class ExpectedTypeForCallable extends RuntimeException implements InvalidT
 {
     public function __construct()
     {
-        parent::__construct(
-            'Expected type after `callable(`.',
-            1759257024,
-        );
+        parent::__construct('Expected type after `callable(`.');
     }
 }

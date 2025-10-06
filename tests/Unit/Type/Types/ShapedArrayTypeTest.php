@@ -59,7 +59,6 @@ final class ShapedArrayTypeTest extends TestCase
     public function test_duplicate_element_key_throws_exception(): void
     {
         $this->expectException(ShapedArrayElementDuplicatedKey::class);
-        $this->expectExceptionCode(1631283279);
         $this->expectExceptionMessage('Key `42` cannot be used several times in shaped array signature `array{42: string, 42: string}`.');
 
         ShapedArrayType::from(

@@ -17,8 +17,7 @@ final class InvalidClassTemplate extends LogicException implements InvalidType
     {
         parent::__construct(
             "Invalid template `$template` for class `$className`: {$exception->getMessage()}",
-            1630092678,
-            $exception
+            previous: $exception
         );
     }
 }

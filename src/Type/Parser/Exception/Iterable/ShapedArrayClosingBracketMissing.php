@@ -27,9 +27,6 @@ final class ShapedArrayClosingBracketMissing extends RuntimeException implements
             $signature .= ', ...' . $unsealedType->toString();
         }
 
-        parent::__construct(
-            "Missing closing curly bracket in shaped array signature `$signature`.",
-            1631283658
-        );
+        parent::__construct("Missing closing curly bracket in shaped array signature `$signature`.");
     }
 }

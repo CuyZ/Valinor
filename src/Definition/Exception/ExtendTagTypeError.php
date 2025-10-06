@@ -18,8 +18,7 @@ final class ExtendTagTypeError extends RuntimeException
     {
         parent::__construct(
             "The `@extends` tag of the class `$reflection->name` is not valid: {$previous->getMessage()}",
-            1670193574,
-            $previous,
+            previous: $previous,
         );
     }
 }

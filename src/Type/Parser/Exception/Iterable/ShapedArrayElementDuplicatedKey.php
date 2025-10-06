@@ -12,9 +12,6 @@ final class ShapedArrayElementDuplicatedKey extends RuntimeException implements 
 {
     public function __construct(string $key, string $signature)
     {
-        parent::__construct(
-            "Key `$key` cannot be used several times in shaped array signature `$signature`.",
-            1631283279
-        );
+        parent::__construct("Key `$key` cannot be used several times in shaped array signature `$signature`.");
     }
 }

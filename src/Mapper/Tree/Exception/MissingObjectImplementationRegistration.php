@@ -12,9 +12,6 @@ final class MissingObjectImplementationRegistration extends RuntimeException
 {
     public function __construct(string $name, FunctionDefinition $functionDefinition)
     {
-        parent::__construct(
-            "No implementation of `$name` found with return type `{$functionDefinition->returnType->toString()}` of `$functionDefinition->signature`.",
-            1653990549
-        );
+        parent::__construct("No implementation of `$name` found with return type `{$functionDefinition->returnType->toString()}` of `$functionDefinition->signature`.");
     }
 }

@@ -12,9 +12,6 @@ final class ListMissingSubType extends RuntimeException implements InvalidType
 {
     public function __construct(string $listType)
     {
-        parent::__construct(
-            "The subtype is missing for `$listType<`.",
-            1758292354,
-        );
+        parent::__construct("The subtype is missing for `$listType<`.");
     }
 }

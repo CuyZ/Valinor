@@ -19,6 +19,6 @@ final class InvalidConstructorReturnType extends LogicException
             $message = "Invalid return type `{$function->returnType->toString()}` for constructor `{$function->signature}`, it must be a valid class name.";
         }
 
-        parent::__construct($message, 1659446121);
+        parent::__construct($message);
     }
 }

@@ -12,9 +12,6 @@ final class NullableMissingRightType extends RuntimeException implements Invalid
 {
     public function __construct()
     {
-        parent::__construct(
-            'Missing right type for nullable type after `?`.',
-            1758293873,
-        );
+        parent::__construct('Missing right type for nullable type after `?`.');
     }
 }

@@ -164,7 +164,6 @@ final class ValueConverterMappingTest extends IntegrationTestCase
     public function test_converter_with_no_parameter_throws_exception(): void
     {
         $this->expectException(ConverterHasNoParameter::class);
-        $this->expectExceptionCode(1746449489);
         $this->expectExceptionMessageMatches('/The value converter `.*` has no parameter to convert the value to, a typed parameter is required\./');
 
         $this->mapperBuilder()
@@ -176,7 +175,6 @@ final class ValueConverterMappingTest extends IntegrationTestCase
     public function test_converter_with_too_many_parameters_throws_exception(): void
     {
         $this->expectException(ConverterHasTooManyParameters::class);
-        $this->expectExceptionCode(1751296711);
         $this->expectExceptionMessageMatches('/Converter must have at most 2 parameters, 3 given for `.*`\./');
 
         $this->mapperBuilder()
@@ -188,7 +186,6 @@ final class ValueConverterMappingTest extends IntegrationTestCase
     public function test_converter_with_invalid_callable_parameter_throws_exception(): void
     {
         $this->expectException(ConverterHasInvalidCallableParameter::class);
-        $this->expectExceptionCode(1751296766);
         $this->expectExceptionMessageMatches('/Converter\'s second parameter must be a callable, `int` given for `.*`\./');
 
         $this->mapperBuilder()

@@ -15,9 +15,6 @@ final class ShapedArrayWithoutElementsWithSealedType extends RuntimeException im
     {
         $signature = "array{...{$unsealedType->toString()}}";
 
-        parent::__construct(
-            "Missing elements in shaped array signature `$signature`.",
-            1711629845,
-        );
+        parent::__construct("Missing elements in shaped array signature `$signature`.");
     }
 }

@@ -11,9 +11,6 @@ final class FileExtensionNotHandled extends LogicException
 {
     public function __construct(string $extension)
     {
-        parent::__construct(
-            "The file extension `$extension` is not handled.",
-            1629991744
-        );
+        parent::__construct("The file extension `$extension` is not handled.");
     }
 }

@@ -15,8 +15,7 @@ final class TypeErrorDuringArgumentsMapping extends LogicException
     {
         parent::__construct(
             "Could not map arguments of `$function->signature`: {$exception->getMessage()}",
-            1711534351,
-            $exception,
+            previous: $exception,
         );
     }
 }

@@ -15,7 +15,6 @@ final class TransformerHasTooManyParameters extends LogicException
     {
         parent::__construct(
             "Transformer must have at most 2 parameters, {$method->parameters->count()} given for `$method->signature`.",
-            1695065433,
         );
     }
 }

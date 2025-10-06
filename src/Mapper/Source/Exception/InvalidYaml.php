@@ -11,10 +11,7 @@ final class InvalidYaml extends RuntimeException implements InvalidSource
 {
     public function __construct(private string $source)
     {
-        parent::__construct(
-            'Invalid YAML source.',
-            1629990223
-        );
+        parent::__construct('Invalid YAML source.');
     }
 
     public function source(): string

@@ -13,9 +13,6 @@ final class ValueOfClosingBracketMissing extends RuntimeException implements Inv
 {
     public function __construct(Type $type)
     {
-        parent::__construct(
-            "The closing bracket is missing for `value-of<{$type->toString()}>`.",
-            1717702289
-        );
+        parent::__construct("The closing bracket is missing for `value-of<{$type->toString()}>`.");
     }
 }

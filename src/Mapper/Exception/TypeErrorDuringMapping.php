@@ -15,8 +15,7 @@ final class TypeErrorDuringMapping extends LogicException
     {
         parent::__construct(
             "Error while trying to map to `{$type->toString()}`: {$exception->getMessage()}",
-            1711526329,
-            $exception,
+            previous: $exception,
         );
     }
 }

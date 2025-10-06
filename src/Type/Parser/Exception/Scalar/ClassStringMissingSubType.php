@@ -12,9 +12,6 @@ final class ClassStringMissingSubType extends RuntimeException implements Invali
 {
     public function __construct()
     {
-        parent::__construct(
-            'The subtype is missing for `class-string<`.',
-            1758293466,
-        );
+        parent::__construct('The subtype is missing for `class-string<`.');
     }
 }

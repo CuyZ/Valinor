@@ -15,9 +15,6 @@ final class SeveralExtendTagsFound extends RuntimeException
      */
     public function __construct(ReflectionClass $reflection)
     {
-        parent::__construct(
-            "Only one `@extends` tag should be set for the class `$reflection->name`.",
-            1670195494,
-        );
+        parent::__construct("Only one `@extends` tag should be set for the class `$reflection->name`.");
     }
 }

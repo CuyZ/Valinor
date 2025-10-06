@@ -16,9 +16,6 @@ final class MissingSpecificEnumCase extends RuntimeException implements InvalidT
      */
     public function __construct(string $enumName)
     {
-        parent::__construct(
-            "Missing specific case for enum `$enumName::?` (cannot be `*`).",
-            1653468438
-        );
+        parent::__construct("Missing specific case for enum `$enumName::?` (cannot be `*`).");
     }
 }

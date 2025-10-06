@@ -38,7 +38,6 @@ final class GenericCheckerParserTest extends TestCase
         $className = $object::class;
 
         $this->expectException(AssignedGenericNotFound::class);
-        $this->expectExceptionCode(1604656730);
         $this->expectExceptionMessage("No generic was assigned to the template(s) `TemplateB`, `TemplateC` for the class `$className`.");
 
         $this->parser->parse("$className<int>");
@@ -55,7 +54,6 @@ final class GenericCheckerParserTest extends TestCase
         $className = $object::class;
 
         $this->expectException(InvalidAssignedGeneric::class);
-        $this->expectExceptionCode(1604613633);
         $this->expectExceptionMessage("The generic `bool` is not a subtype of `string` for the template `Template` of the class `$className`.");
 
         $this->parser->parse("$className<bool>");
@@ -72,7 +70,6 @@ final class GenericCheckerParserTest extends TestCase
         $className = $object::class;
 
         $this->expectException(InvalidAssignedGeneric::class);
-        $this->expectExceptionCode(1604613633);
         $this->expectExceptionMessage("The generic `bool` is not a subtype of `string` for the template `Template` of the class `$className`.");
 
         $this->parser->parse("list<$className<bool>>");
@@ -89,7 +86,6 @@ final class GenericCheckerParserTest extends TestCase
         $className = $object::class;
 
         $this->expectException(InvalidAssignedGeneric::class);
-        $this->expectExceptionCode(1604613633);
         $this->expectExceptionMessage("The generic `bool` is not a subtype of `array-key` for the template `Template` of the class `$className`.");
 
         $this->parser->parse("$className<bool>");
@@ -106,7 +102,6 @@ final class GenericCheckerParserTest extends TestCase
         $className = $object::class;
 
         $this->expectException(InvalidClassTemplate::class);
-        $this->expectExceptionCode(1630092678);
         $this->expectExceptionMessage("Invalid template `Template` for class `$className`: Cannot parse unknown symbol `InvalidType`.");
 
         $this->parser->parse("$className<int>");

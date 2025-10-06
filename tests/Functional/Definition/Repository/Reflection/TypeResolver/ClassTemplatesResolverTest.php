@@ -45,7 +45,6 @@ final class ClassTemplatesResolverTest extends TestCase
         $className = $class::class;
 
         $this->expectException(DuplicatedTemplateName::class);
-        $this->expectExceptionCode(1604612898);
         $this->expectExceptionMessage("The template `TemplateA` in class `$className` was defined at least twice.");
 
         (new ClassTemplatesResolver())->resolveTemplatesFrom($className);

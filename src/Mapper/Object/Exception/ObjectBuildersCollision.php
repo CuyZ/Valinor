@@ -14,7 +14,6 @@ final class ObjectBuildersCollision extends RuntimeException
     {
         parent::__construct(
             "A type collision was detected between the constructors `{$builderA->signature()}` and `{$builderB->signature()}`.",
-            1654955787
         );
     }
 }

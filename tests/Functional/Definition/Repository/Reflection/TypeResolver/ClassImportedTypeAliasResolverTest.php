@@ -97,7 +97,6 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
             (new class () {})::class;
 
         $this->expectException(InvalidTypeAliasImportClass::class);
-        $this->expectExceptionCode(1638535486);
         $this->expectExceptionMessage("Cannot import a type alias from unknown class `UnknownType` in class `$class`.");
 
         $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
@@ -112,7 +111,6 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
             (new class () {})::class;
 
         $this->expectException(InvalidTypeAliasImportClassType::class);
-        $this->expectExceptionCode(1638535608);
         $this->expectExceptionMessage("Importing a type alias can only be done with classes, `string` was given in class `$class`.");
 
         $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));
@@ -127,7 +125,6 @@ final class ClassImportedTypeAliasResolverTest extends TestCase
             (new class () {})::class;
 
         $this->expectException(UnknownTypeAliasImport::class);
-        $this->expectExceptionCode(1638535757);
         $this->expectExceptionMessage("Type alias `T` imported in `$class` could not be found in `stdClass`");
 
         $this->resolver->resolveImportedTypeAliases(new NativeClassType($class));

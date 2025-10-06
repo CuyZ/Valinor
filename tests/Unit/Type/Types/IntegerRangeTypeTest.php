@@ -38,7 +38,6 @@ final class IntegerRangeTypeTest extends TestCase
     public function test_range_with_same_min_and_max_throws_exception(): void
     {
         $this->expectException(SameValueForIntegerRange::class);
-        $this->expectExceptionCode(1638786927);
         $this->expectExceptionMessage('The min and max values for integer range must be different, `42` was given.');
 
         IntegerRangeType::from(42, 42);
@@ -47,7 +46,6 @@ final class IntegerRangeTypeTest extends TestCase
     public function test_range_with_same_min_greater_than_max_throws_exception(): void
     {
         $this->expectException(ReversedValuesForIntegerRange::class);
-        $this->expectExceptionCode(1638787061);
         $this->expectExceptionMessage('The min value must be less than the max for integer range `int<1337, 42>`.');
 
         IntegerRangeType::from(1337, 42);

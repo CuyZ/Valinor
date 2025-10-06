@@ -12,9 +12,6 @@ final class CircularDependencyDetected extends LogicException
 {
     public function __construct(Argument $argument)
     {
-        parent::__construct(
-            "Circular dependency detected for `{$argument->signature()}`.",
-            1739903374,
-        );
+        parent::__construct("Circular dependency detected for `{$argument->signature()}`.");
     }
 }

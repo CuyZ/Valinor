@@ -12,9 +12,6 @@ final class ValueOfMissingSubType extends RuntimeException implements InvalidTyp
 {
     public function __construct()
     {
-        parent::__construct(
-            'The subtype is missing for `value-of<`.',
-            1758293754,
-        );
+        parent::__construct('The subtype is missing for `value-of<`.');
     }
 }

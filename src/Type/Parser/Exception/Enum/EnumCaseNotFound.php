@@ -19,6 +19,6 @@ final class EnumCaseNotFound extends RuntimeException implements InvalidType
             ? "Cannot find enum case with pattern `$enumName::$pattern`."
             : "Unknown enum case `$enumName::$pattern`.";
 
-        parent::__construct($message, 1653468428);
+        parent::__construct($message);
     }
 }

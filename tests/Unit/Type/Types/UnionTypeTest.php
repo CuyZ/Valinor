@@ -54,7 +54,6 @@ final class UnionTypeTest extends TestCase
     public function test_create_union_with_mixed_type_throws_exception(): void
     {
         $this->expectException(ForbiddenMixedType::class);
-        $this->expectExceptionCode(1608146262);
         $this->expectExceptionMessage('Type `mixed` can only be used as a standalone type and not as a union member.');
 
         UnionType::from(new FakeType(), new MixedType());

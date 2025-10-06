@@ -50,7 +50,6 @@ final class ClassStringTypeTest extends TestCase
         $type = new UnionType(new FakeObjectType(), new FakeType());
 
         $this->expectException(InvalidUnionOfClassString::class);
-        $this->expectExceptionCode(1648830951);
         $this->expectExceptionMessage("Type `{$type->toString()}` contains invalid class string element(s).");
 
         ClassStringType::from($type);

@@ -10,14 +10,8 @@ use RuntimeException;
 /** @internal */
 final class ObjectImplementationCallbackError extends RuntimeException
 {
-    public function __construct(string $name, private Exception $original)
-    {
-        parent::__construct(
-            "Error thrown when trying to get implementation of `$name`: " . $original->getMessage(),
-            1653983061,
-            $original
-        );
-    }
+    // @phpstan-ignore constructor.missingParentCall
+    public function __construct(private Exception $original) {}
 
     public function original(): Exception
     {

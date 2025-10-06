@@ -14,7 +14,6 @@ final class KeyTransformerHasTooManyParameters extends LogicException
     {
         parent::__construct(
             "Key transformer must have at most 1 parameter, {$method->parameters->count()} given for `$method->signature`.",
-            1701701102,
         );
     }
 }

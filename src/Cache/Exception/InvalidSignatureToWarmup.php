@@ -14,8 +14,7 @@ final class InvalidSignatureToWarmup extends RuntimeException
     {
         parent::__construct(
             "Cannot warm up invalid signature `$signature`: {$exception->getMessage()}",
-            1653330261,
-            $exception
+            previous: $exception,
         );
     }
 }

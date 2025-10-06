@@ -13,8 +13,7 @@ final class InvalidTypeAliasImportClass extends LogicException
     public function __construct(ObjectType $type, string $className)
     {
         parent::__construct(
-            "Cannot import a type alias from unknown class `$className` in class `{$type->className()}`.",
-            1638535486
+            "Cannot import a type alias from unknown class `$className` in class `{$type->className()}`."
         );
     }
 }

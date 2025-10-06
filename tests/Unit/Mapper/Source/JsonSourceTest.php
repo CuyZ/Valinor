@@ -27,7 +27,6 @@ final class JsonSourceTest extends TestCase
 
             self::fail();
         } catch (InvalidJson $exception) {
-            self::assertSame(1566307185, $exception->getCode());
             self::assertSame('Invalid JSON source.', $exception->getMessage());
             self::assertSame('some invalid JSON entry', $exception->source());
         }
@@ -40,7 +39,6 @@ final class JsonSourceTest extends TestCase
 
             self::fail();
         } catch (SourceNotIterable $exception) {
-            self::assertSame(1566307291, $exception->getCode());
             self::assertSame('Invalid source, expected an iterable.', $exception->getMessage());
             self::assertSame('true', $exception->source());
         }

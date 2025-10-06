@@ -12,9 +12,6 @@ final class ReversedValuesForIntegerRange extends RuntimeException implements In
 {
     public function __construct(int $min, int $max)
     {
-        parent::__construct(
-            "The min value must be less than the max for integer range `int<$min, $max>`.",
-            1638787061
-        );
+        parent::__construct("The min value must be less than the max for integer range `int<$min, $max>`.");
     }
 }

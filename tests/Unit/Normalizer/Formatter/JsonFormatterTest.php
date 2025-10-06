@@ -18,7 +18,6 @@ final class JsonFormatterTest extends TestCase
     {
         $this->expectException(CannotFormatInvalidTypeToJson::class);
         $this->expectExceptionMessage('Value of type `Closure` cannot be normalized to JSON.');
-        $this->expectExceptionCode(1704749897);
 
         /** @var resource $resource */
         $resource = fopen('php://memory', 'r+');

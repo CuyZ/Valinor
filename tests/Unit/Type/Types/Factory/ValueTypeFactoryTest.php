@@ -73,7 +73,6 @@ final class ValueTypeFactoryTest extends TestCase
     public function test_invalid_value_throws_exception(): void
     {
         $this->expectException(CannotBuildTypeFromValue::class);
-        $this->expectExceptionCode(1653592997);
         $this->expectExceptionMessage('Cannot build type from value of type `object`.');
 
         ValueTypeFactory::from(new DateTime());
