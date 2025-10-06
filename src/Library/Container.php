@@ -22,10 +22,11 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionAttributesRepository
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
-use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\CircularDependencyDetectorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
@@ -39,13 +40,13 @@ use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\TypeNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UndefinedObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\UnionNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ValueConverterNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\RootNodeBuilder;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use CuyZ\Valinor\Mapper\TypeArgumentsMapper;
 use CuyZ\Valinor\Mapper\TypeTreeMapper;
@@ -79,20 +80,18 @@ final class Container
         $this->factories = [
             TreeMapper::class => fn () => new TypeTreeMapper(
                 $this->get(TypeParser::class),
-                $this->get(TypeDumper::class),
                 $this->get(RootNodeBuilder::class),
-                $settings,
             ),
 
             ArgumentsMapper::class => fn () => new TypeArgumentsMapper(
                 $this->get(FunctionDefinitionRepository::class),
                 $this->get(RootNodeBuilder::class),
-                $this->get(TypeDumper::class),
-                $settings,
             ),
 
             RootNodeBuilder::class => fn () => new RootNodeBuilder(
                 $this->get(NodeBuilder::class),
+                $this->get(TypeDumper::class),
+                $settings,
             ),
 
             NodeBuilder::class => function () use ($settings) {
@@ -156,6 +155,7 @@ final class Container
                 $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
                 $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->get(FunctionDefinitionRepository::class));
                 $factory = new SortingObjectBuilderFactory($factory);
+                $factory = new CircularDependencyDetectorObjectBuilderFactory($factory);
 
                 if (! $settings->allowPermissiveTypes) {
                     $factory = new StrictTypesObjectBuilderFactory($factory);

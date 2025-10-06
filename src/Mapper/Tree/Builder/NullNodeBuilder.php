@@ -13,17 +13,16 @@ use function assert;
 /** @internal */
 final class NullNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
         $value = $shell->value();
 
-        assert($type instanceof NullType);
+        assert($shell->type instanceof NullType);
 
         if ($value !== null) {
-            return Node::error($shell, new SourceIsNotNull());
+            return $shell->error(new SourceIsNotNull());
         }
 
-        return Node::new(null);
+        return $shell->node(null);
     }
 }

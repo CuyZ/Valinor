@@ -24,26 +24,24 @@ use function usort;
 /** @internal */
 final class UnionNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
-
-        assert($type instanceof UnionType);
+        assert($shell->type instanceof UnionType);
 
         $structs = [];
         $scalars = [];
         $all = [];
         $errors = [];
 
-        foreach ($type->types() as $subType) {
+        foreach ($shell->type->types() as $subType) {
             // @infection-ignore-all / This is a performance optimisation, so we
             // cannot easily test this behavior.
             if ($subType instanceof NullType && $shell->value() === null) {
-                return Node::new(null);
+                return $shell->node(null);
             }
 
             try {
-                $node = $rootBuilder->build($shell->withType($subType));
+                $node = $shell->withType($subType)->build();
             } catch (CannotResolveObjectType) {
                 // We catch a special case where an interface type from the
                 // union has no implementation. In this case, we just ignore the
@@ -77,7 +75,7 @@ final class UnionNodeBuilder implements NodeBuilder
                 return reset($errors)[0];
             }
 
-            return Node::error($shell, new CannotResolveTypeFromUnion($shell->value()));
+            return $shell->error(new CannotResolveTypeFromUnion($shell->value()));
         }
 
         if (count($all) === 1) {
@@ -116,6 +114,6 @@ final class UnionNodeBuilder implements NodeBuilder
             return $scalars[0]['node'];
         }
 
-        return Node::error($shell, new TooManyResolvedTypesFromUnion());
+        return $shell->error(new TooManyResolvedTypesFromUnion());
     }
 }

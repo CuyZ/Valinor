@@ -82,7 +82,7 @@ final class ArgumentsValues implements IteratorAggregate, Countable
     {
         $value = $shell->value();
 
-        $transformedValue = $this->transformValueForSingleArgument($value, $shell->allowSuperfluousKeys());
+        $transformedValue = $this->transformValueForSingleArgument($value, $shell->allowSuperfluousKeys);
 
         if (! is_array($transformedValue)) {
             $this->hasInvalidValue = true;

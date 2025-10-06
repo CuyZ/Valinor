@@ -34,9 +34,9 @@ final class TypeNodeBuilder implements NodeBuilder
         private ObjectNodeBuilder $objectNodeBuilder,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $builder = match ($shell->type()::class) {
+        $builder = match ($shell->type::class) {
             // List
             ListType::class,
             NonEmptyListType::class => $this->listNodeBuilder,
@@ -70,6 +70,6 @@ final class TypeNodeBuilder implements NodeBuilder
             default => $this->scalarNodeBuilder,
         };
 
-        return $builder->build($shell, $rootBuilder);
+        return $builder->build($shell);
     }
 }

@@ -30,7 +30,7 @@ final class Node
     /**
      * @param non-negative-int $childrenCount
      */
-    public static function new(mixed $value, int $childrenCount = 0): self
+    public static function new(mixed $value, int $childrenCount): self
     {
         return new self(value: $value, childrenCount: $childrenCount);
     }
@@ -40,11 +40,11 @@ final class Node
         $nodeMessage = new NodeMessage(
             $error,
             $error->body(),
-            $shell->name(),
-            $shell->path(),
-            "`{$shell->type()->toString()}`",
+            $shell->name,
+            $shell->path,
+            "`{$shell->type->toString()}`",
             $shell->expectedSignature(),
-            $shell->hasValue() ? ValueDumper::dump($shell->value()) : '*missing*',
+            $shell->dumpValue(),
         );
 
         return new self(value: null, messages: [$nodeMessage]);
@@ -102,11 +102,11 @@ final class Node
     {
         $value = $shell->value();
 
-        if ($shell->allowSuperfluousKeys() || ! is_array($value)) {
+        if ($shell->allowSuperfluousKeys || ! is_array($value)) {
             return $this;
         }
 
-        $diff = array_diff(array_keys($value), $children, $shell->allowedSuperfluousKeys());
+        $diff = array_diff(array_keys($value), $children, $shell->allowedSuperfluousKeys);
 
         if ($diff !== []) {
             /** @var non-empty-list<int|string> $children */
@@ -115,9 +115,9 @@ final class Node
             $nodeMessage = new NodeMessage(
                 $error,
                 $error->body(),
-                $shell->name(),
-                $shell->path(),
-                "`{$shell->type()->toString()}`",
+                $shell->name,
+                $shell->path,
+                "`{$shell->type->toString()}`",
                 $shell->expectedSignature(),
                 ValueDumper::dump($shell->value()),
             );
