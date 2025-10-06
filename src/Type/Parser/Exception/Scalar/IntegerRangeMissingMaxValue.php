@@ -14,8 +14,7 @@ final class IntegerRangeMissingMaxValue extends RuntimeException implements Inva
     public function __construct(IntegerValueType $min)
     {
         parent::__construct(
-            "Missing max value for integer range, its signature must match `int<{$min->value()}, max>`.",
-            1638788092
+            "Missing max value for integer range, its signature must match `int<{$min->value()}, max>`."
         );
     }
 }

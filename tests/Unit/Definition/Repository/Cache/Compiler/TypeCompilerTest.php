@@ -25,7 +25,6 @@ final class TypeCompilerTest extends TestCase
     public function test_invalid_compiled_type_throws_exception(): void
     {
         $this->expectException(TypeCannotBeCompiled::class);
-        $this->expectExceptionCode(1616926126);
         $this->expectExceptionMessage('The type `' . FakeType::class . '` cannot be compiled.');
 
         $this->typeCompiler->compile(new FakeType());

@@ -13,9 +13,6 @@ final class ArrayExpectedCommaOrClosingBracket extends RuntimeException implemen
 {
     public function __construct(string $arrayType, Type $subtype)
     {
-        parent::__construct(
-            "Expected comma or closing bracket after `$arrayType<{$subtype->toString()}`.",
-            1758293180,
-        );
+        parent::__construct("Expected comma or closing bracket after `$arrayType<{$subtype->toString()}`.");
     }
 }

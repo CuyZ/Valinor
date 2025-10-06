@@ -16,7 +16,6 @@ final class ExceptionFilteringTest extends IntegrationTestCase
     public function test_userland_exception_not_filtered_is_not_caught(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionCode(1657042062);
         $this->expectExceptionMessage('some error message');
 
         $this->mapperBuilder()->mapper()->map(ClassThatThrowsExceptionIfInvalidValue::class, 'bar');

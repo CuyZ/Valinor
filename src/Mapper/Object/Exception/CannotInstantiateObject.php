@@ -12,9 +12,6 @@ final class CannotInstantiateObject extends RuntimeException
 {
     public function __construct(ClassDefinition $class)
     {
-        parent::__construct(
-            "No available constructor found for class `{$class->name}`.",
-            1646916477
-        );
+        parent::__construct("No available constructor found for class `$class->name`.");
     }
 }

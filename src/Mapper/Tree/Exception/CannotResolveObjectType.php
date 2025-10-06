@@ -11,9 +11,6 @@ final class CannotResolveObjectType extends RuntimeException
 {
     public function __construct(string $name)
     {
-        parent::__construct(
-            "Impossible to resolve an implementation for `$name`.",
-            1618049116
-        );
+        parent::__construct("Impossible to resolve an implementation for `$name`.");
     }
 }

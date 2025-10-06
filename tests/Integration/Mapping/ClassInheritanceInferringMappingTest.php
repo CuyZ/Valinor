@@ -103,7 +103,6 @@ final class ClassInheritanceInferringMappingTest extends IntegrationTestCase
     public function test_infer_final_class_throws_exception(): void
     {
         $this->expectException(CannotInferFinalClass::class);
-        $this->expectExceptionCode(1671468163);
         $this->expectExceptionMessage('Cannot infer final class `' . SomeAbstractChildClass::class . '` with function');
 
         $this->mapperBuilder()

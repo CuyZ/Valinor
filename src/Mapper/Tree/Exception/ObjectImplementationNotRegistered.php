@@ -22,7 +22,6 @@ final class ObjectImplementationNotRegistered extends RuntimeException
 
         parent::__construct(
             "Invalid implementation `$implementation` for `$name`, it should be one of `$allowed`.",
-            1653990989
         );
     }
 }

@@ -15,9 +15,6 @@ final class MissingClassConstantCase extends RuntimeException implements Invalid
      */
     public function __construct(string $className)
     {
-        parent::__construct(
-            "Missing case name for class constant `$className::?`.",
-            1664905018
-        );
+        parent::__construct("Missing case name for class constant `$className::?`.");
     }
 }

@@ -92,7 +92,7 @@ final class ObjectImplementations
         try {
             $signature = ($this->functions->get($name)->callback)(...$arguments);
         } catch (Exception $exception) {
-            throw new ObjectImplementationCallbackError($name, $exception);
+            throw new ObjectImplementationCallbackError($exception);
         }
 
         if (! is_string($signature)) {

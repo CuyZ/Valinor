@@ -15,9 +15,6 @@ final class ArrayCommaMissing extends RuntimeException implements InvalidType
     {
         $signature = "$symbol<{$type->toString()}, ?>";
 
-        parent::__construct(
-            "A comma is missing for `$signature`.",
-            1606483614
-        );
+        parent::__construct("A comma is missing for `$signature`.");
     }
 }

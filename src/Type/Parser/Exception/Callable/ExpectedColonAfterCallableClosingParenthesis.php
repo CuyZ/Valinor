@@ -18,9 +18,6 @@ final class ExpectedColonAfterCallableClosingParenthesis extends RuntimeExceptio
     {
         $parameters = implode(', ', array_map(fn (Type $type) => $type->toString(), $parameters));
 
-        parent::__construct(
-            "Expected `:` to define return type after `callable($parameters)`.",
-            1759260180,
-        );
+        parent::__construct("Expected `:` to define return type after `callable($parameters)`.");
     }
 }

@@ -15,7 +15,6 @@ final class ConverterHasTooManyParameters extends LogicException
     {
         parent::__construct(
             "Converter must have at most 2 parameters, {$method->parameters->count()} given for `$method->signature`.",
-            1751296711,
         );
     }
 }

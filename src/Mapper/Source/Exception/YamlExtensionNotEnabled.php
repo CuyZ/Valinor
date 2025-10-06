@@ -16,9 +16,6 @@ final class YamlExtensionNotEnabled extends LogicException
 {
     public function __construct()
     {
-        parent::__construct(
-            "The PHP YAML extension is not enabled.",
-            1629990959
-        );
+        parent::__construct("The PHP YAML extension is not enabled.");
     }
 }

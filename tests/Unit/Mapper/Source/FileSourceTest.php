@@ -53,7 +53,6 @@ final class FileSourceTest extends TestCase
     public function test_unhandled_extension_throws_exception(): void
     {
         $this->expectException(FileExtensionNotHandled::class);
-        $this->expectExceptionCode(1629991744);
         $this->expectExceptionMessage('The file extension `foo` is not handled.');
 
         $file = (vfsStream::newFile('some-unhandled-extension.foo'))
@@ -74,7 +73,6 @@ final class FileSourceTest extends TestCase
         $file->chmod(0000);
 
         $this->expectException(UnableToReadFile::class);
-        $this->expectExceptionCode(1629993117);
         $this->expectExceptionMessage("Unable to read the file `{$file->url()}`.");
 
         new FileSource($fileObject);

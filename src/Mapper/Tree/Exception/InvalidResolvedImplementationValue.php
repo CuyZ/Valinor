@@ -14,9 +14,6 @@ final class InvalidResolvedImplementationValue extends RuntimeException
     {
         $value = ValueDumper::dump($value);
 
-        parent::__construct(
-            "Invalid value $value, expected a subtype of `$name`.",
-            1630091260
-        );
+        parent::__construct("Invalid value $value, expected a subtype of `$name`.");
     }
 }

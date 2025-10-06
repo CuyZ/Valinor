@@ -57,7 +57,6 @@ final class ClassParentTypeResolverTest extends TestCase
             (new class () {})::class;
 
         $this->expectException(SeveralExtendTagsFound::class);
-        $this->expectExceptionCode(1670195494);
         $this->expectExceptionMessage("Only one `@extends` tag should be set for the class `$class`.");
 
         $this->resolver->resolveParentTypeFor(new NativeClassType($class));
@@ -72,7 +71,6 @@ final class ClassParentTypeResolverTest extends TestCase
             (new class () {})::class;
 
         $this->expectException(ExtendTagTypeError::class);
-        $this->expectExceptionCode(1670193574);
         $this->expectExceptionMessage("The `@extends` tag of the class `$class` is not valid: Cannot parse unknown symbol `InvalidType`.");
 
         $this->resolver->resolveParentTypeFor(new NativeClassType($class));
@@ -87,7 +85,6 @@ final class ClassParentTypeResolverTest extends TestCase
             (new class () extends stdClass {})::class;
 
         $this->expectException(InvalidExtendTagType::class);
-        $this->expectExceptionCode(1670181134);
         $this->expectExceptionMessage("The `@extends` tag of the class `$class` has invalid type `string`, it should be `stdClass`.");
 
         $this->resolver->resolveParentTypeFor(new NativeClassType($class));
@@ -102,7 +99,6 @@ final class ClassParentTypeResolverTest extends TestCase
             (new class () extends SomeAbstractClassDefiningTwoTemplates {})::class;
 
         $this->expectException(InvalidExtendTagClassName::class);
-        $this->expectExceptionCode(1670183564);
         $this->expectExceptionMessage("The `@extends` tag of the class `$class` has invalid class `stdClass`, it should be `" . SomeAbstractClassDefiningTwoTemplates::class . "`.");
 
         $this->resolver->resolveParentTypeFor(new NativeClassType($class));

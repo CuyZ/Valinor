@@ -30,7 +30,6 @@ final class ShapedArrayUnexpectedTokenAfterSealedType extends RuntimeException i
 
         parent::__construct(
             "Unexpected `$unexpected` after sealed type in shaped array signature `$signature`, expected a `}`.",
-            1711618958,
         );
     }
 }

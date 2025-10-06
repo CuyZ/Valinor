@@ -14,9 +14,6 @@ final class TypeCannotBeCompiled extends LogicException
     {
         $class = $type::class;
 
-        parent::__construct(
-            "The type `$class` cannot be compiled.",
-            1616926126
-        );
+        parent::__construct("The type `$class` cannot be compiled.");
     }
 }

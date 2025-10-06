@@ -15,9 +15,6 @@ final class EnumHasNoCase extends RuntimeException implements InvalidType
      */
     public function __construct(string $enumName)
     {
-        parent::__construct(
-            "Enum `$enumName` must have at least one case.",
-            1758213561
-        );
+        parent::__construct("Enum `$enumName` must have at least one case.");
     }
 }

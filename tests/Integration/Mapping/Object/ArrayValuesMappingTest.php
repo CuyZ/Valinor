@@ -95,7 +95,6 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
     public function test_invalid_array_key_type_throws_exception(): void
     {
         $this->expectException(InvalidIterableKeyType::class);
-        $this->expectExceptionCode(1737104770);
         $this->expectExceptionMessage('Invalid key of type `stdClass` at path `*root*`, only integers and strings are allowed.');
 
         $this->mapperBuilder()->mapper()->map(

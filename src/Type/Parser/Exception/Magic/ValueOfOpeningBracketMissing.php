@@ -12,9 +12,6 @@ final class ValueOfOpeningBracketMissing extends RuntimeException implements Inv
 {
     public function __construct()
     {
-        parent::__construct(
-            "The opening bracket is missing for `value-of<...>`.",
-            1717702268
-        );
+        parent::__construct("The opening bracket is missing for `value-of<...>`.");
     }
 }

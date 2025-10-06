@@ -225,7 +225,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_unresolvable_implementation_throws_exception(): void
     {
         $this->expectException(CannotResolveObjectType::class);
-        $this->expectExceptionCode(1618049116);
         $this->expectExceptionMessage('Impossible to resolve an implementation for `' . SomeInterface::class . '`.');
 
         $this->mapperBuilder()
@@ -236,7 +235,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_invalid_resolved_implementation_value_throws_exception(): void
     {
         $this->expectException(InvalidResolvedImplementationValue::class);
-        $this->expectExceptionCode(1630091260);
         $this->expectExceptionMessage('Invalid value 42, expected a subtype of `DateTimeInterface`.');
 
         $this->mapperBuilder()
@@ -248,7 +246,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_invalid_resolved_implementation_type_throws_exception(): void
     {
         $this->expectException(ResolvedImplementationIsNotAccepted::class);
-        $this->expectExceptionCode(1618049487);
         $this->expectExceptionMessage('Invalid implementation type `int`, expected a subtype of `DateTimeInterface`.');
 
         $this->mapperBuilder()
@@ -260,7 +257,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_invalid_resolved_implementation_throws_exception(): void
     {
         $this->expectException(ResolvedImplementationIsNotAccepted::class);
-        $this->expectExceptionCode(1618049487);
         $this->expectExceptionMessage('Invalid implementation type `stdClass`, expected a subtype of `DateTimeInterface`.');
 
         $this->mapperBuilder()
@@ -272,7 +268,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_invalid_object_type_resolved_implementation_throws_exception(): void
     {
         $this->expectException(ResolvedImplementationIsNotAccepted::class);
-        $this->expectExceptionCode(1618049487);
         $this->expectExceptionMessage('Invalid implementation type `DateTimeInterface`, expected a subtype of `DateTimeInterface`.');
 
         $this->mapperBuilder()
@@ -299,7 +294,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_missing_object_implementation_registration_throws_exception(): void
     {
         $this->expectException(MissingObjectImplementationRegistration::class);
-        $this->expectExceptionCode(1653990549);
         $this->expectExceptionMessage('No implementation of `' . SomeInterface::class . '` found with return type `mixed` of');
 
         $this->mapperBuilder()
@@ -314,7 +308,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_invalid_union_object_implementation_registration_throws_exception(): void
     {
         $this->expectException(MissingObjectImplementationRegistration::class);
-        $this->expectExceptionCode(1653990549);
         $this->expectExceptionMessage('No implementation of `' . SomeInterface::class . '` found with return type `string|int` of');
 
         $this->mapperBuilder()
@@ -329,7 +322,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_invalid_class_string_object_implementation_registration_throws_exception(): void
     {
         $this->expectException(MissingObjectImplementationRegistration::class);
-        $this->expectExceptionCode(1653990549);
         $this->expectExceptionMessage('No implementation of `' . SomeInterface::class . '` found with return type `class-string` of');
 
         $this->mapperBuilder()
@@ -345,7 +337,6 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
     public function test_object_implementation_not_registered_throws_exception(): void
     {
         $this->expectException(ObjectImplementationNotRegistered::class);
-        $this->expectExceptionCode(1653990989);
         $this->expectExceptionMessage('Invalid implementation `' . SomeClassThatInheritsInterfaceC::class . '` for `' . SomeInterface::class . '`, it should be one of `' . SomeClassThatInheritsInterfaceA::class . '`, `' . SomeClassThatInheritsInterfaceB::class . '`.');
 
         $this->mapperBuilder()

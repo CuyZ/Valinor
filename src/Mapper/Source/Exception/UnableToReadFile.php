@@ -11,9 +11,6 @@ final class UnableToReadFile extends LogicException
 {
     public function __construct(string $filename)
     {
-        parent::__construct(
-            "Unable to read the file `$filename`.",
-            1629993117
-        );
+        parent::__construct("Unable to read the file `$filename`.");
     }
 }

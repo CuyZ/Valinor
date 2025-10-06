@@ -21,7 +21,6 @@ final class InvalidExtendTagClassName extends RuntimeException
 
         parent::__construct(
             "The `@extends` tag of the class `$reflection->name` has invalid class `{$invalidExtendTag->toString()}`, it should be `$parentClass->name`.",
-            1670183564,
         );
     }
 }

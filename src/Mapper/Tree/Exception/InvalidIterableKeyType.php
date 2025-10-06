@@ -17,7 +17,6 @@ final class InvalidIterableKeyType extends RuntimeException
 
         parent::__construct(
             "Invalid key of type `$type` at path `$path`, only integers and strings are allowed.",
-            1737104770,
         );
     }
 }

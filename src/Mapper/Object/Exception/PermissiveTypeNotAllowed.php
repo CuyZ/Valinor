@@ -15,7 +15,6 @@ final class PermissiveTypeNotAllowed extends LogicException
         parent::__construct(
             "The type of `$argumentSignature` contains `{$permissiveType->toString()}`, which is not " .
             "allowed in strict mode. If really needed, the `allowPermissiveTypes` setting can be used.",
-            1655389255,
         );
     }
 }

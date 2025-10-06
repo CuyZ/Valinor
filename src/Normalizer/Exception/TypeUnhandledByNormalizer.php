@@ -15,9 +15,6 @@ final class TypeUnhandledByNormalizer extends RuntimeException
     {
         $type = get_debug_type($value);
 
-        parent::__construct(
-            "Value of type `$type` cannot be normalized.",
-            1695062925,
-        );
+        parent::__construct("Value of type `$type` cannot be normalized.");
     }
 }

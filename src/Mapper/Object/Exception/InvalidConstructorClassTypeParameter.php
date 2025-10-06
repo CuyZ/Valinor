@@ -15,7 +15,6 @@ final class InvalidConstructorClassTypeParameter extends LogicException
     {
         parent::__construct(
             "Invalid type `{$type->toString()}` for the first parameter of the constructor `{$function->signature}`, it should be of type `class-string`.",
-            1661517000
         );
     }
 }

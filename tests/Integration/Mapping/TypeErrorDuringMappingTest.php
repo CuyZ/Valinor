@@ -21,7 +21,6 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionCode(1711526329);
         $this->expectExceptionMessage("Error while trying to map to `$class`: Types for property `$class::\$propertyWithNotMatchingTypes` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->mapperBuilder()->mapper()->map($class, ['propertyWithNotMatchingTypes' => true]);
@@ -38,7 +37,6 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionCode(1711526329);
         $this->expectExceptionMessage("Error while trying to map to `$class`: Types for parameter `$class::__construct(\$parameterWithNotMatchingTypes)` do not match: `string` (docblock) does not accept `bool` (native).");
 
         $this->mapperBuilder()->mapper()->map($class, ['parameterWithNotMatchingTypes' => true]);
@@ -52,7 +50,6 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionCode(1711526329);
         $this->expectExceptionMessage("Error while trying to map to `$class`: The type `InvalidType` for property `$class::\$propertyWithInvalidType` could not be resolved: Cannot parse unknown symbol `InvalidType`.");
 
         $this->mapperBuilder()->mapper()->map($class, 'foo');
@@ -68,7 +65,6 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         })::class;
 
         $this->expectException(TypeErrorDuringMapping::class);
-        $this->expectExceptionCode(1711526329);
         $this->expectExceptionMessage("Error while trying to map to `$class`: The type `InvalidType` for parameter `$class::__construct(\$parameterWithInvalidType)` could not be resolved: Cannot parse unknown symbol `InvalidType`.");
 
         $this->mapperBuilder()->mapper()->map($class, 'foo');
@@ -83,7 +79,6 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
             fn (bool $parameterWithNotMatchingTypes): string => 'foo';
 
         $this->expectException(TypeErrorDuringArgumentsMapping::class);
-        $this->expectExceptionCode(1711534351);
         $this->expectExceptionMessageMatches("/Could not map arguments of `.*`: Types for parameter `.*` do not match: `string` \(docblock\) does not accept `bool` \(native\)\./");
 
         $this->mapperBuilder()->argumentsMapper()->mapArguments($function, ['parameterWithNotMatchingTypes' => true]);

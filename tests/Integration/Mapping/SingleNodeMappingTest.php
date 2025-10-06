@@ -82,7 +82,6 @@ final class SingleNodeMappingTest extends IntegrationTestCase
     public function test_single_argument_with_self_type_throws_exception(): void
     {
         $this->expectException(CircularDependencyDetected::class);
-        $this->expectExceptionCode(1739903374);
         $this->expectExceptionMessage('Circular dependency detected for `' . SinglePropertyWithSelfType::class . '::$value`.');
 
         $this->mapperBuilder()->mapper()->map(SinglePropertyWithSelfType::class, 'foo');

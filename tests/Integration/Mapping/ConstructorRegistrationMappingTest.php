@@ -576,7 +576,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_identical_registered_constructors_with_no_argument_throws_exception(): void
     {
         $this->expectException(ObjectBuildersCollision::class);
-        $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessageMatches('/A type collision was detected between the constructors `Closure .*` and `Closure .*`\./');
 
         $this->mapperBuilder()
@@ -592,7 +591,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_identical_registered_constructors_with_one_argument_throws_exception(): void
     {
         $this->expectException(ObjectBuildersCollision::class);
-        $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessageMatches('/A type collision was detected between the constructors `Closure .*` and `Closure .*`\./');
 
         $this->mapperBuilder()
@@ -607,7 +605,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_constructors_with_colliding_arguments_throws_exception(): void
     {
         $this->expectException(ObjectBuildersCollision::class);
-        $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessageMatches('/A type collision was detected between the constructors `Closure .*` and `Closure .*`\./');
 
         $this->mapperBuilder()
@@ -622,7 +619,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_identical_registered_constructors_with_several_argument_throws_exception(): void
     {
         $this->expectException(ObjectBuildersCollision::class);
-        $this->expectExceptionCode(1654955787);
         $this->expectExceptionMessage('A type collision was detected between the constructors `CuyZ\Valinor\Tests\Integration\Mapping\constructorA()` and `CuyZ\Valinor\Tests\Integration\Mapping\constructorB()`.');
 
         $this->mapperBuilder()
@@ -682,7 +678,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_non_registered_named_constructors_are_ignored(): void
     {
         $this->expectException(CannotInstantiateObject::class);
-        $this->expectExceptionCode(1646916477);
         $this->expectExceptionMessage('No available constructor found for class `' . SomeClassWithPrivateNativeConstructor::class . '`');
 
         $this->mapperBuilder()
@@ -693,7 +688,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_invalid_constructor_return_type_throws_exception(): void
     {
         $this->expectException(InvalidConstructorReturnType::class);
-        $this->expectExceptionCode(1659446121);
         $this->expectExceptionMessageMatches('/Invalid return type `string` for constructor `.*`\, it must be a valid class name\./');
 
         $this->mapperBuilder()
@@ -705,7 +699,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_invalid_constructor_return_type_missing_generic_throws_exception(): void
     {
         $this->expectException(InvalidConstructorReturnType::class);
-        $this->expectExceptionCode(1659446121);
         $this->expectExceptionMessageMatches('/The return type `.*` of function `.*` could not be resolved: No generic was assigned to the template\(s\) `T` for the class .*/');
 
         $this->mapperBuilder()
@@ -719,7 +712,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_missing_constructor_class_type_parameter_throws_exception(): void
     {
         $this->expectException(MissingConstructorClassTypeParameter::class);
-        $this->expectExceptionCode(1661516853);
         $this->expectExceptionMessageMatches('/Missing first parameter of type `class-string` for the constructor `.*`\./');
 
         $this->mapperBuilder()
@@ -734,7 +726,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_invalid_constructor_class_type_parameter_throws_exception(): void
     {
         $this->expectException(InvalidConstructorClassTypeParameter::class);
-        $this->expectExceptionCode(1661517000);
         $this->expectExceptionMessageMatches('/Invalid type `int` for the first parameter of the constructor `.*`, it should be of type `class-string`\./');
 
         $this->mapperBuilder()
@@ -858,7 +849,6 @@ final class ConstructorRegistrationMappingTest extends IntegrationTestCase
     public function test_interface_with_both_constructor_and_infer_configurations_throws_exception(): void
     {
         $this->expectException(InterfaceHasBothConstructorAndInfer::class);
-        $this->expectExceptionCode(1711915749);
         $this->expectExceptionMessage('Interface `' . SomeInterfaceWithRegisteredConstructor::class . '` is configured with at least one constructor but also has an infer configuration. Only one method can be used.');
 
         $this->mapperBuilder()

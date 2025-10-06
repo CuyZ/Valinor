@@ -14,9 +14,6 @@ final class InterfaceHasBothConstructorAndInfer extends LogicException
      */
     public function __construct(string $name)
     {
-        parent::__construct(
-            "Interface `$name` is configured with at least one constructor but also has an infer configuration. Only one method can be used.",
-            1711915749,
-        );
+        parent::__construct("Interface `$name` is configured with at least one constructor but also has an infer configuration. Only one method can be used.");
     }
 }

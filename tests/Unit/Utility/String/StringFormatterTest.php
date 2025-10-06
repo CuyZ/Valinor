@@ -16,7 +16,6 @@ final class StringFormatterTest extends TestCase
     {
         $this->expectException(StringFormatterError::class);
         $this->expectExceptionMessage('Message formatter error using `some {wrong.format}`');
-        $this->expectExceptionCode(1652901203);
 
         StringFormatter::format('en', 'some {wrong.format}', []);
     }
@@ -29,7 +28,6 @@ final class StringFormatterTest extends TestCase
             ini_set('intl.use_exceptions', '1');
             $this->expectException(StringFormatterError::class);
             $this->expectExceptionMessage('Message formatter error using `some {wrong.format}`');
-            $this->expectExceptionCode(1652901203);
 
             StringFormatter::format('en', 'some {wrong.format}', []);
         } finally {
@@ -41,7 +39,6 @@ final class StringFormatterTest extends TestCase
     {
         $this->expectException(StringFormatterError::class);
         $this->expectExceptionMessage('Message formatter error using `some message with {invalid format}`');
-        $this->expectExceptionCode(1652901203);
 
         StringFormatter::format('en', 'some message with {invalid format}');
     }

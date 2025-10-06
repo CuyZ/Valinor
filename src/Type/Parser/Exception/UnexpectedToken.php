@@ -11,9 +11,6 @@ final class UnexpectedToken extends RuntimeException implements InvalidType
 {
     public function __construct(string $token)
     {
-        parent::__construct(
-            "Unexpected token `$token`, expected a valid type.",
-            1758291524,
-        );
+        parent::__construct("Unexpected token `$token`, expected a valid type.");
     }
 }

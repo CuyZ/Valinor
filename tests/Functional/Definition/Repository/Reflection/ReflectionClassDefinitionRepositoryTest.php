@@ -296,7 +296,6 @@ final class ReflectionClassDefinitionRepositoryTest extends TestCase
             })::class;
 
         $this->expectException(ClassTypeAliasesDuplication::class);
-        $this->expectExceptionCode(1638477604);
         $this->expectExceptionMessage("The following type aliases already exist in class `$class`: `T`, `AnotherTemplate`.");
 
         $this->repository->for(new NativeClassType($class, ['T' => new FakeType(), 'AnotherTemplate' => new FakeType()]));

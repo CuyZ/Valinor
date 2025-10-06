@@ -14,6 +14,6 @@ final class StringFormatterError extends RuntimeException
         if ($message !== '') {
             $message = ": $message";
         }
-        parent::__construct("Message formatter error using `$body`$message.", 1652901203, $previous);
+        parent::__construct("Message formatter error using `$body`$message.", previous: $previous);
     }
 }

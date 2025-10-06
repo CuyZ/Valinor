@@ -12,9 +12,6 @@ final class ArrayMissingSubType extends RuntimeException implements InvalidType
 {
     public function __construct(string $arrayType)
     {
-        parent::__construct(
-            "The subtype is missing for `$arrayType`.",
-            1758292926,
-        );
+        parent::__construct("The subtype is missing for `$arrayType`.");
     }
 }

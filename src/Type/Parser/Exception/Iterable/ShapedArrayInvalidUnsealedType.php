@@ -26,7 +26,6 @@ final class ShapedArrayInvalidUnsealedType extends RuntimeException implements I
 
         parent::__construct(
             "Invalid unsealed type `{$unsealedType->toString()}` in shaped array signature `$signature`, it should be a valid array.",
-            1711618899,
         );
     }
 }

@@ -12,11 +12,7 @@ final class InvalidJson extends RuntimeException implements InvalidSource
 {
     public function __construct(private string $source, ?JsonException $previous = null)
     {
-        parent::__construct(
-            'Invalid JSON source.',
-            1566307185,
-            $previous
-        );
+        parent::__construct('Invalid JSON source.', previous: $previous);
     }
 
     public function source(): string

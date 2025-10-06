@@ -11,10 +11,7 @@ final class SourceNotIterable extends RuntimeException implements InvalidSource
 {
     public function __construct(private string $source)
     {
-        parent::__construct(
-            'Invalid source, expected an iterable.',
-            1566307291
-        );
+        parent::__construct('Invalid source, expected an iterable.');
     }
 
     public function source(): string

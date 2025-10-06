@@ -208,7 +208,6 @@ final class AttributeValueConverterMappingTest extends IntegrationTestCase
         };
 
         $this->expectException(ConverterHasNoParameter::class);
-        $this->expectExceptionCode(1746449489);
         $this->expectExceptionMessageMatches('/The value converter `.*` has no parameter to convert the value to, a typed parameter is required\./');
 
         $this->mapperBuilder()
@@ -224,7 +223,6 @@ final class AttributeValueConverterMappingTest extends IntegrationTestCase
         };
 
         $this->expectException(ConverterHasTooManyParameters::class);
-        $this->expectExceptionCode(1751296711);
         $this->expectExceptionMessageMatches('/Converter must have at most 2 parameters, 3 given for `.*`\./');
 
         $this->mapperBuilder()
@@ -240,7 +238,6 @@ final class AttributeValueConverterMappingTest extends IntegrationTestCase
         };
 
         $this->expectException(ConverterHasInvalidCallableParameter::class);
-        $this->expectExceptionCode(1751296766);
         $this->expectExceptionMessageMatches('/Converter\'s second parameter must be a callable, `int` given for `.*`\./');
 
         $this->mapperBuilder()

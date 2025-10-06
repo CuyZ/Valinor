@@ -13,9 +13,6 @@ final class CannotFormatInvalidTypeToJson extends RuntimeException
     {
         $type = get_debug_type($value);
 
-        parent::__construct(
-            "Value of type `$type` cannot be normalized to JSON.",
-            1704749897,
-        );
+        parent::__construct("Value of type `$type` cannot be normalized to JSON.");
     }
 }

@@ -38,7 +38,7 @@ final class ArgumentsMapperError extends RuntimeException implements MappingErro
             $body = "Could not map arguments of `$function` with value $source. A total of $errorsCount errors were encountered.";
         }
 
-        parent::__construct($body, 1671115362);
+        parent::__construct($body);
     }
 
     public function messages(): Messages

@@ -19,6 +19,6 @@ final class ClassConstantCaseNotFound extends RuntimeException implements Invali
             ? "Cannot find class constant case with pattern `$className::$case`."
             : "Unknown class constant case `$className::$case`.";
 
-        parent::__construct($message, 1652189140);
+        parent::__construct($message);
     }
 }

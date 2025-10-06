@@ -21,7 +21,6 @@ final class UnexpectedTokenAfterCallableClosingParenthesis extends RuntimeExcept
 
         parent::__construct(
             "Expected `:` to define return type after `callable($parameters)`, got `{$token->symbol()}`.",
-            1759265303,
         );
     }
 }

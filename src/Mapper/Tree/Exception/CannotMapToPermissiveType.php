@@ -17,7 +17,6 @@ final class CannotMapToPermissiveType extends LogicException
         parent::__construct(
             "Type `$type` at path `{$shell->path()}` is not allowed in strict mode. " .
             "In case `$type` is really needed, the `allowPermissiveTypes` setting can be used.",
-            1736935538,
         );
     }
 }

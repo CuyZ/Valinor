@@ -22,6 +22,6 @@ final class InvalidConstructorMethodWithAttributeReturnType extends LogicExcepti
             $message = "Invalid return type `{$method->returnType->toString()}` for constructor `{$method->signature}`, it must be `$expectedClassName`.";
         }
 
-        parent::__construct($message, 1708104783);
+        parent::__construct($message);
     }
 }

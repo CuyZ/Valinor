@@ -12,9 +12,6 @@ final class IntegerRangeMissingMinValue extends RuntimeException implements Inva
 {
     public function __construct()
     {
-        parent::__construct(
-            'Missing min value for integer range, its signature must match `int<min, max>`.',
-            1638787061
-        );
+        parent::__construct('Missing min value for integer range, its signature must match `int<min, max>`.');
     }
 }

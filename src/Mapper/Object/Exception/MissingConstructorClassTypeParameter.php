@@ -13,8 +13,7 @@ final class MissingConstructorClassTypeParameter extends LogicException
     public function __construct(FunctionDefinition $function)
     {
         parent::__construct(
-            "Missing first parameter of type `class-string` for the constructor `{$function->signature}`.",
-            1661516853
+            "Missing first parameter of type `class-string` for the constructor `$function->signature`.",
         );
     }
 }

@@ -1165,7 +1165,6 @@ final class LexingParserTest extends TestCase
     public function test_unexpected_non_traversing_token_throws_exception(): void
     {
         $this->expectException(UnexpectedToken::class);
-        $this->expectExceptionCode(1758291524);
         $this->expectExceptionMessage('Unexpected token `>`, expected a valid type.');
 
         $this->parser->parse('array<>');
@@ -1174,7 +1173,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_right_union_type_throws_exception(): void
     {
         $this->expectException(RightUnionTypeMissing::class);
-        $this->expectExceptionCode(1631294715);
         $this->expectExceptionMessage('Right type is missing for union `string|?`.');
 
         $this->parser->parse('string|');
@@ -1203,7 +1201,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_right_intersection_type_throws_exception(): void
     {
         $this->expectException(RightIntersectionTypeMissing::class);
-        $this->expectExceptionCode(1631612575);
         $this->expectExceptionMessage('Right type is missing for intersection `DateTimeInterface&?`.');
 
         $this->parser->parse('DateTimeInterface&');
@@ -1212,7 +1209,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_simple_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(SimpleArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1606474266);
         $this->expectExceptionMessage('The closing bracket is missing for the array expression `string[]`.');
 
         $this->parser->parse('string[');
@@ -1221,7 +1217,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_array_key_throws_exception(): void
     {
         $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionCode(1604335007);
         $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('array<float, string>');
@@ -1230,7 +1225,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_non_empty_array_key_throws_exception(): void
     {
         $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionCode(1604335007);
         $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('non-empty-array<float, string>');
@@ -1239,7 +1233,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_array_comma_throws_exception(): void
     {
         $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionCode(1606483614);
         $this->expectExceptionMessage('A comma is missing for `array<int, ?>`.');
 
         $this->parser->parse('array<int string>');
@@ -1248,7 +1241,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_non_empty_array_comma_throws_exception(): void
     {
         $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionCode(1606483614);
         $this->expectExceptionMessage('A comma is missing for `non-empty-array<int, ?>`.');
 
         $this->parser->parse('non-empty-array<int string>');
@@ -1257,7 +1249,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_array_subtype_throws_exception(): void
     {
         $this->expectException(ArrayMissingSubType::class);
-        $this->expectExceptionCode(1758292926);
         $this->expectExceptionMessage('The subtype is missing for `array<`.');
 
         $this->parser->parse('array<');
@@ -1266,7 +1257,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_array_subtype_after_key_type_throws_exception(): void
     {
         $this->expectException(ArrayMissingSubType::class);
-        $this->expectExceptionCode(1758292926);
         $this->expectExceptionMessage('The subtype is missing for `array<string,`.');
 
         $this->parser->parse('array<string,');
@@ -1275,7 +1265,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_array_comma_or_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayExpectedCommaOrClosingBracket::class);
-        $this->expectExceptionCode(1758293180);
         $this->expectExceptionMessage('Expected comma or closing bracket after `array<string`.');
 
         $this->parser->parse('array<string');
@@ -1284,7 +1273,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1606483975);
         $this->expectExceptionMessage('The closing bracket is missing for `array<int, string>`.');
 
         $this->parser->parse('array<int, string');
@@ -1293,7 +1281,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_non_empty_array_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1606483975);
         $this->expectExceptionMessage('The closing bracket is missing for `non-empty-array<int, string>`.');
 
         $this->parser->parse('non-empty-array<int, string');
@@ -1302,7 +1289,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_list_subtype_throws_exception(): void
     {
         $this->expectException(ListMissingSubType::class);
-        $this->expectExceptionCode(1758292354);
         $this->expectExceptionMessage('The subtype is missing for `non-empty-list<`.');
 
         $this->parser->parse('non-empty-list<');
@@ -1311,7 +1297,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_list_closing_bracket_throws_exception(): void
     {
         $this->expectException(ListClosingBracketMissing::class);
-        $this->expectExceptionCode(1634035071);
         $this->expectExceptionMessage('The closing bracket is missing for `list<string>`.');
 
         $this->parser->parse('list<string');
@@ -1320,7 +1305,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_non_empty_list_closing_bracket_throws_exception(): void
     {
         $this->expectException(ListClosingBracketMissing::class);
-        $this->expectExceptionCode(1634035071);
         $this->expectExceptionMessage('The closing bracket is missing for `non-empty-list<string>`.');
 
         $this->parser->parse('non-empty-list<string');
@@ -1329,7 +1313,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_iterable_key_throws_exception(): void
     {
         $this->expectException(InvalidArrayKey::class);
-        $this->expectExceptionCode(1604335007);
         $this->expectExceptionMessage('Invalid array key type `float`, it must be a valid string or integer.');
 
         $this->parser->parse('iterable<float, string>');
@@ -1338,7 +1321,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_iterable_comma_throws_exception(): void
     {
         $this->expectException(ArrayCommaMissing::class);
-        $this->expectExceptionCode(1606483614);
         $this->expectExceptionMessage('A comma is missing for `iterable<int, ?>`.');
 
         $this->parser->parse('iterable<int string>');
@@ -1347,7 +1329,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_iterable_closing_bracket_throws_exception(): void
     {
         $this->expectException(ArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1606483975);
         $this->expectExceptionMessage('The closing bracket is missing for `iterable<int, string>`.');
 
         $this->parser->parse('iterable<int, string');
@@ -1356,7 +1337,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_class_string_closing_bracket_throws_exception(): void
     {
         $this->expectException(ClassStringClosingBracketMissing::class);
-        $this->expectExceptionCode(1606484169);
         $this->expectExceptionMessage('The closing bracket is missing for the class string expression `class-string<DateTimeInterface>`.');
 
         $this->parser->parse('class-string<DateTimeInterface');
@@ -1365,7 +1345,6 @@ final class LexingParserTest extends TestCase
     public function test_class_string_missing_subtype_throws_exception(): void
     {
         $this->expectException(ClassStringMissingSubType::class);
-        $this->expectExceptionCode(1758293466);
         $this->expectExceptionMessage('The subtype is missing for `class-string<`.');
 
         $this->parser->parse('class-string<');
@@ -1374,7 +1353,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_class_string_type_throws_exception(): void
     {
         $this->expectException(InvalidClassStringSubType::class);
-        $this->expectExceptionCode(1608034138);
         $this->expectExceptionMessage('Invalid class string type `int`, it must be a class name or an interface name.');
 
         $this->parser->parse('class-string<int');
@@ -1383,7 +1361,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_left_intersection_member_throws_exception(): void
     {
         $this->expectException(InvalidIntersectionType::class);
-        $this->expectExceptionCode(1608030163);
         $this->expectExceptionMessage('Invalid intersection member `int`, it must be a class name or an interface name.');
 
         $this->parser->parse('int&DateTimeInterface');
@@ -1392,7 +1369,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_right_intersection_member_throws_exception(): void
     {
         $this->expectException(InvalidIntersectionType::class);
-        $this->expectExceptionCode(1608030163);
         $this->expectExceptionMessage('Invalid intersection member `int`, it must be a class name or an interface name.');
 
         $this->parser->parse('DateTimeInterface&int');
@@ -1401,7 +1377,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_empty_elements_throws_exception(): void
     {
         $this->expectException(ShapedArrayEmptyElements::class);
-        $this->expectExceptionCode(1631286932);
         $this->expectExceptionMessage('Shaped array must define one or more elements, for instance `array{foo: string}`.');
 
         $this->parser->parse('array{}');
@@ -1410,7 +1385,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: string`.');
 
         $this->parser->parse('array{string');
@@ -1419,7 +1393,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_after_other_element_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.');
 
         $this->parser->parse('array{int, foo: string');
@@ -1428,7 +1401,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_after_comma_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int`.');
 
         $this->parser->parse('array{int,');
@@ -1437,7 +1409,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_colon_missing_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionCode(1631283847);
         $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{string?`.');
 
         $this->parser->parse('array{string?');
@@ -1446,7 +1417,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_colon_missing_after_other_element_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionCode(1631283847);
         $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{0: int, foo?`.');
 
         $this->parser->parse('array{int, foo?');
@@ -1455,7 +1425,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_closing_bracket_missing_after_unfinished_element_throws_exception(): void
     {
         $this->expectException(ShapedArrayElementTypeMissing::class);
-        $this->expectExceptionCode(1631286250);
         $this->expectExceptionMessage('Missing element type in shaped array signature `array{0: int, foo?:`.');
 
         $this->parser->parse('array{int, foo?:');
@@ -1464,7 +1433,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_colon_expected_but_other_symbol_throws_exception(): void
     {
         $this->expectException(ShapedArrayColonTokenMissing::class);
-        $this->expectExceptionCode(1631283847);
         $this->expectExceptionMessage('A colon symbol is missing in shaped array signature `array{0: int, foo?`.');
 
         $this->parser->parse('array{int, foo?;');
@@ -1473,7 +1441,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_comma_expected_but_other_symbol_throws_exception(): void
     {
         $this->expectException(ShapedArrayCommaMissing::class);
-        $this->expectExceptionCode(1631286589);
         $this->expectExceptionMessage('Comma missing in shaped array signature `array{0: int, 1: string`.');
 
         $this->parser->parse('array{int, string]');
@@ -1482,7 +1449,6 @@ final class LexingParserTest extends TestCase
     public function test_unsealed_shaped_array_with_missing_closing_bracket_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, ...`.');
 
         $this->parser->parse('array{int, ...');
@@ -1491,7 +1457,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_with_unsealed_type_with_missing_closing_bracket_throws_exception(): void
     {
         $this->expectException(ShapedArrayClosingBracketMissing::class);
-        $this->expectExceptionCode(1631283658);
         $this->expectExceptionMessage('Missing closing curly bracket in shaped array signature `array{0: int, ...array`.');
 
         $this->parser->parse('array{int, ...array');
@@ -1500,7 +1465,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_with_invalid_unsealed_type_throws_exception(): void
     {
         $this->expectException(ShapedArrayInvalidUnsealedType::class);
-        $this->expectExceptionCode(1711618899);
         $this->expectExceptionMessage('Invalid unsealed type `string` in shaped array signature `array{0: int, ...string}`, it should be a valid array.');
 
         $this->parser->parse('array{int, ...string}');
@@ -1509,7 +1473,6 @@ final class LexingParserTest extends TestCase
     public function test_shaped_array_with_unsealed_type_followed_by_unexpected_token_throws_exception(): void
     {
         $this->expectException(ShapedArrayUnexpectedTokenAfterSealedType::class);
-        $this->expectExceptionCode(1711618958);
         $this->expectExceptionMessage('Unexpected `int|string` after sealed type in shaped array signature `array{0: int, ...array<string>int|string`, expected a `}`.');
 
         $this->parser->parse('array{int, ...array<string>int|string}');
@@ -1518,7 +1481,6 @@ final class LexingParserTest extends TestCase
     public function test_unsealed_shaped_array_without_elements_throws_exception(): void
     {
         $this->expectException(ShapedArrayWithoutElementsWithSealedType::class);
-        $this->expectExceptionCode(1711629845);
         $this->expectExceptionMessage('Missing elements in shaped array signature `array{...array<string>}`.');
 
         $this->parser->parse('array{...array<string>}');
@@ -1527,7 +1489,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_min_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingMinValue::class);
-        $this->expectExceptionCode(1638787061);
         $this->expectExceptionMessage('Missing min value for integer range, its signature must match `int<min, max>`.');
 
         $this->parser->parse('int<');
@@ -1536,7 +1497,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_min_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeInvalidMinValue::class);
-        $this->expectExceptionCode(1638787807);
         $this->expectExceptionMessage('Invalid type `string` for min value of integer range, it must be either `min` or an integer value.');
 
         $this->parser->parse('int<string, 1337>');
@@ -1545,7 +1505,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_comma_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingComma::class);
-        $this->expectExceptionCode(1638787915);
         $this->expectExceptionMessage('Missing comma in integer range signature `int<42, ?>`.');
 
         $this->parser->parse('int<42 1337>');
@@ -1554,7 +1513,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_max_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingMaxValue::class);
-        $this->expectExceptionCode(1638788092);
         $this->expectExceptionMessage('Missing max value for integer range, its signature must match `int<42, max>`.');
 
         $this->parser->parse('int<42,');
@@ -1563,7 +1521,6 @@ final class LexingParserTest extends TestCase
     public function test_invalid_max_value_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeInvalidMaxValue::class);
-        $this->expectExceptionCode(1638788172);
         $this->expectExceptionMessage('Invalid type `string` for max value of integer range `int<42, ?>`, it must be either `max` or an integer value.');
 
         $this->parser->parse('int<42, string>');
@@ -1572,7 +1529,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_closing_bracket_for_integer_range_throws_exception(): void
     {
         $this->expectException(IntegerRangeMissingClosingBracket::class);
-        $this->expectExceptionCode(1638788306);
         $this->expectExceptionMessage('Missing closing bracket in integer range signature `int<42, 1337>`.');
 
         $this->parser->parse('int<42, 1337');
@@ -1581,7 +1537,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_closing_single_quote_throws_exception(): void
     {
         $this->expectException(MissingClosingQuoteChar::class);
-        $this->expectExceptionCode(1666024605);
         $this->expectExceptionMessage("Closing quote is missing for `'foo`.");
 
         $this->parser->parse("'foo");
@@ -1590,7 +1545,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_closing_double_quote_throws_exception(): void
     {
         $this->expectException(MissingClosingQuoteChar::class);
-        $this->expectExceptionCode(1666024605);
         $this->expectExceptionMessage('Closing quote is missing for `"foo`.');
 
         $this->parser->parse('"foo');
@@ -1599,7 +1553,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_enum_case_throws_exception(): void
     {
         $this->expectException(MissingEnumCase::class);
-        $this->expectExceptionCode(1653468431);
         $this->expectExceptionMessage('Missing case name for enum `' . PureEnum::class . '::?`.');
 
         $this->parser->parse(PureEnum::class . '::');
@@ -1608,7 +1561,6 @@ final class LexingParserTest extends TestCase
     public function test_no_enum_case_found_throws_exception(): void
     {
         $this->expectException(EnumCaseNotFound::class);
-        $this->expectExceptionCode(1653468428);
         $this->expectExceptionMessage('Unknown enum case `' . PureEnum::class . '::ABC`.');
 
         $this->parser->parse(PureEnum::class . '::ABC');
@@ -1617,7 +1569,6 @@ final class LexingParserTest extends TestCase
     public function test_no_enum_case_found_with_wildcard_throws_exception(): void
     {
         $this->expectException(EnumCaseNotFound::class);
-        $this->expectExceptionCode(1653468428);
         $this->expectExceptionMessage('Cannot find enum case with pattern `' . PureEnum::class . '::ABC*`.');
 
         $this->parser->parse(PureEnum::class . '::ABC*');
@@ -1626,7 +1577,6 @@ final class LexingParserTest extends TestCase
     public function test_no_enum_case_found_with_several_wildcards_in_a_row_throws_exception(): void
     {
         $this->expectException(EnumCaseNotFound::class);
-        $this->expectExceptionCode(1653468428);
         $this->expectExceptionMessage('Cannot find enum case with pattern `' . PureEnum::class . '::F**O`.');
 
         $this->parser->parse(PureEnum::class . '::F**O');
@@ -1635,7 +1585,6 @@ final class LexingParserTest extends TestCase
     public function test_enum_with_no_case_throws_exception(): void
     {
         $this->expectException(EnumHasNoCase::class);
-        $this->expectExceptionCode(1758213561);
         $this->expectExceptionMessage('Enum `' . EnumWithNoCase::class . '` must have at least one case.');
 
         $this->parser->parse(EnumWithNoCase::class);
@@ -1644,7 +1593,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_specific_enum_case_throws_exception(): void
     {
         $this->expectException(MissingSpecificEnumCase::class);
-        $this->expectExceptionCode(1653468438);
         $this->expectExceptionMessage('Missing specific case for enum `' . PureEnum::class . '::?` (cannot be `*`).');
 
         $this->parser->parse(PureEnum::class . '::*');
@@ -1653,7 +1601,6 @@ final class LexingParserTest extends TestCase
     public function test_missing_class_constant_case_throws_exception(): void
     {
         $this->expectException(MissingClassConstantCase::class);
-        $this->expectExceptionCode(1664905018);
         $this->expectExceptionMessage('Missing case name for class constant `' . ObjectWithConstants::class . '::?`.');
 
         $this->parser->parse(ObjectWithConstants::class . '::');
@@ -1662,7 +1609,6 @@ final class LexingParserTest extends TestCase
     public function test_no_class_constant_case_found_throws_exception(): void
     {
         $this->expectException(ClassConstantCaseNotFound::class);
-        $this->expectExceptionCode(1652189140);
         $this->expectExceptionMessage('Unknown class constant case `' . ObjectWithConstants::class . '::ABC`.');
 
         $this->parser->parse(ObjectWithConstants::class . '::ABC');
@@ -1671,7 +1617,6 @@ final class LexingParserTest extends TestCase
     public function test_no_class_constant_case_found_with_wildcard_throws_exception(): void
     {
         $this->expectException(ClassConstantCaseNotFound::class);
-        $this->expectExceptionCode(1652189140);
         $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::ABC*`.');
 
         $this->parser->parse(ObjectWithConstants::class . '::ABC*');
@@ -1680,7 +1625,6 @@ final class LexingParserTest extends TestCase
     public function test_no_class_constant_case_found_with_several_wildcards_in_a_row_throws_exception(): void
     {
         $this->expectException(ClassConstantCaseNotFound::class);
-        $this->expectExceptionCode(1652189140);
         $this->expectExceptionMessage('Cannot find class constant case with pattern `' . ObjectWithConstants::class . '::F**O`.');
 
         $this->parser->parse(ObjectWithConstants::class . '::F**O');
@@ -1691,7 +1635,6 @@ final class LexingParserTest extends TestCase
         $genericClassName = SomeClassWithThreeTemplates::class;
 
         $this->expectException(MissingGenerics::class);
-        $this->expectExceptionCode(1618054357);
         $this->expectExceptionMessage("There are 2 missing generics for `$genericClassName<int, ?, ?>`.");
 
         $this->parser->parse("$genericClassName<int,");
@@ -1702,7 +1645,6 @@ final class LexingParserTest extends TestCase
         $genericClassName = stdClass::class;
 
         $this->expectException(GenericClosingBracketMissing::class);
-        $this->expectExceptionCode(1604333677);
         $this->expectExceptionMessage("The closing bracket is missing for the generic `$genericClassName<string>`.");
 
         $this->parser->parse("$genericClassName<string");
@@ -1713,7 +1655,6 @@ final class LexingParserTest extends TestCase
         $className = SomeClassWithThreeTemplates::class;
 
         $this->expectException(GenericCommaMissing::class);
-        $this->expectExceptionCode(1615829484);
         $this->expectExceptionMessage("A comma is missing for the generic `$className<int, string, ?>`.");
 
         $this->parser->parse("$className<int, string bool>");
@@ -1724,7 +1665,6 @@ final class LexingParserTest extends TestCase
         $className = SomeClassWithOneTemplate::class;
 
         $this->expectException(CannotAssignGeneric::class);
-        $this->expectExceptionCode(1604660485);
         $this->expectExceptionMessage("Could not find a template to assign the generic(s) `string`, `bool` for the class `$className`.");
 
         $this->parser->parse("$className<int, string, bool>");
@@ -1742,7 +1682,6 @@ final class LexingParserTest extends TestCase
         $className = $object::class;
 
         $this->expectException(DuplicatedTemplateName::class);
-        $this->expectExceptionCode(1604612898);
         $this->expectExceptionMessage("The template `TemplateA` in class `$className` was defined at least twice.");
 
         $this->parser->parse("$className<int, string>");
@@ -1751,7 +1690,6 @@ final class LexingParserTest extends TestCase
     public function test_value_of_enum_missing_opening_bracket_throws_exception(): void
     {
         $this->expectException(ValueOfOpeningBracketMissing::class);
-        $this->expectExceptionCode(1717702268);
         $this->expectExceptionMessage('The opening bracket is missing for `value-of<...>`.');
 
         $this->parser->parse('value-of');
@@ -1760,7 +1698,6 @@ final class LexingParserTest extends TestCase
     public function test_value_of_enum_missing_subtype_throws_exception(): void
     {
         $this->expectException(ValueOfMissingSubType::class);
-        $this->expectExceptionCode(1758293754);
         $this->expectExceptionMessage('The subtype is missing for `value-of<`.');
 
         $this->parser->parse("value-of<");
@@ -1771,7 +1708,6 @@ final class LexingParserTest extends TestCase
         $enumName = BackedStringEnum::class;
 
         $this->expectException(ValueOfClosingBracketMissing::class);
-        $this->expectExceptionCode(1717702289);
         $this->expectExceptionMessage("The closing bracket is missing for `value-of<$enumName>`.");
 
         $this->parser->parse("value-of<$enumName");
@@ -1780,7 +1716,6 @@ final class LexingParserTest extends TestCase
     public function test_value_of_incorrect_type_throws_exception(): void
     {
         $this->expectException(ValueOfIncorrectSubType::class);
-        $this->expectExceptionCode(1717702683);
         $this->expectExceptionMessage('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.');
 
         $this->parser->parse('value-of<string>');
@@ -1791,7 +1726,6 @@ final class LexingParserTest extends TestCase
         $enumName = PureEnum::class;
 
         $this->expectException(ValueOfIncorrectSubType::class);
-        $this->expectExceptionCode(1717702683);
         $this->expectExceptionMessage("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.");
 
         $this->parser->parse("value-of<$enumName>");
@@ -1800,7 +1734,6 @@ final class LexingParserTest extends TestCase
     public function test_nullable_type_missing_right_type_throws_exception(): void
     {
         $this->expectException(NullableMissingRightType::class);
-        $this->expectExceptionCode(1758293873);
         $this->expectExceptionMessage('Missing right type for nullable type after `?`.');
 
         $this->parser->parse('?');
@@ -1809,7 +1742,6 @@ final class LexingParserTest extends TestCase
     public function test_type_expected_for_callable_throws_exception(): void
     {
         $this->expectException(ExpectedTypeForCallable::class);
-        $this->expectExceptionCode(1759257024);
         $this->expectExceptionMessage('Expected type after `callable(`.');
 
         $this->parser->parse('callable(');
@@ -1818,7 +1750,6 @@ final class LexingParserTest extends TestCase
     public function test_closing_parenthesis_expected_for_callable_throws_exception(): void
     {
         $this->expectException(ExpectedClosingParenthesisAfterCallable::class);
-        $this->expectExceptionCode(1759257335);
         $this->expectExceptionMessage('Expected closing parenthesis after `callable(string, int`.');
 
         $this->parser->parse('callable(string, int');
@@ -1827,7 +1758,6 @@ final class LexingParserTest extends TestCase
     public function test_colon_expected_after_callable_closing_parenthesis_throws_exception(): void
     {
         $this->expectException(ExpectedColonAfterCallableClosingParenthesis::class);
-        $this->expectExceptionCode(1759260180);
         $this->expectExceptionMessage('Expected `:` to define return type after `callable(string, int)`.');
 
         $this->parser->parse('callable(string, int)');
@@ -1836,7 +1766,6 @@ final class LexingParserTest extends TestCase
     public function test_unexpected_token_after_callable_closing_parenthesis_throws_exception(): void
     {
         $this->expectException(UnexpectedTokenAfterCallableClosingParenthesis::class);
-        $this->expectExceptionCode(1759265303);
         $this->expectExceptionMessage('Expected `:` to define return type after `callable(string, int)`, got `<`.');
 
         $this->parser->parse('callable(string, int)<');
@@ -1845,7 +1774,6 @@ final class LexingParserTest extends TestCase
     public function test_return_type_expected_after_callable_colon_throws_exception(): void
     {
         $this->expectException(ExpectedReturnTypeAfterCallableColon::class);
-        $this->expectExceptionCode(1759265272);
         $this->expectExceptionMessage('Expected return type after `callable(string, int):`.');
 
         $this->parser->parse('callable(string, int):');

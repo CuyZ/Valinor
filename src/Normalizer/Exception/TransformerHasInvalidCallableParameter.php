@@ -16,7 +16,6 @@ final class TransformerHasInvalidCallableParameter extends LogicException
     {
         parent::__construct(
             "Transformer's second parameter must be a callable, `{$parameterType->toString()}` given for `$method->signature`.",
-            1695065710,
         );
     }
 }

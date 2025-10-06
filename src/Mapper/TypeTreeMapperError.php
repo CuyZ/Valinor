@@ -39,7 +39,7 @@ final class TypeTreeMapperError extends RuntimeException implements MappingError
             $body = "Could not map type `$type` with value $source. A total of $errorsCount errors were encountered.";
         }
 
-        parent::__construct($body, 1617193185);
+        parent::__construct($body);
     }
 
     public function messages(): Messages

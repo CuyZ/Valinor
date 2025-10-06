@@ -15,9 +15,6 @@ final class CannotBuildTypeFromValue extends LogicException
     {
         $type = gettype($value);
 
-        parent::__construct(
-            "Cannot build type from value of type `$type`.",
-            1653592997
-        );
+        parent::__construct("Cannot build type from value of type `$type`.");
     }
 }

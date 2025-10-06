@@ -14,9 +14,6 @@ final class DuplicatedTemplateName extends LogicException
      */
     public function __construct(string $className, string $template)
     {
-        parent::__construct(
-            "The template `$template` in class `$className` was defined at least twice.",
-            1604612898
-        );
+        parent::__construct("The template `$template` in class `$className` was defined at least twice.");
     }
 }

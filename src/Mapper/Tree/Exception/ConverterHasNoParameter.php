@@ -15,7 +15,6 @@ final class ConverterHasNoParameter extends RuntimeException
     {
         parent::__construct(
             "The value converter `$function->signature` has no parameter to convert the value to, a typed parameter is required.",
-            1746449489,
         );
     }
 }

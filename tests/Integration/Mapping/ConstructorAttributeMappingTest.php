@@ -70,7 +70,6 @@ final class ConstructorAttributeMappingTest extends IntegrationTestCase
         $className = SomeClassWithConstructorAttributeWithInvalidReturnType::class;
 
         $this->expectException(InvalidConstructorMethodWithAttributeReturnType::class);
-        $this->expectExceptionCode(1708104783);
         $this->expectExceptionMessage("Invalid return type `string` for constructor `$className::someConstructor()`, it must be `$className`.");
 
         $this->mapperBuilder()
@@ -83,7 +82,6 @@ final class ConstructorAttributeMappingTest extends IntegrationTestCase
         $className = SomeClassWithConstructorAttributeWithInvalidReturnClassName::class;
 
         $this->expectException(InvalidConstructorMethodWithAttributeReturnType::class);
-        $this->expectExceptionCode(1708104783);
         $this->expectExceptionMessage("Invalid return type `stdClass` for constructor `$className::someConstructor()`, it must be `$className`.");
 
         $this->mapperBuilder()
@@ -96,7 +94,6 @@ final class ConstructorAttributeMappingTest extends IntegrationTestCase
         $className = SomeClassWithConstructorAttributeWithUnresolvableReturnClassName::class;
 
         $this->expectException(InvalidConstructorMethodWithAttributeReturnType::class);
-        $this->expectExceptionCode(1708104783);
         $this->expectExceptionMessage("The return type `Unresolvable-Type` of method `$className::someConstructor()` could not be resolved: Cannot parse unknown symbol `Unresolvable-Type`.");
 
         $this->mapperBuilder()

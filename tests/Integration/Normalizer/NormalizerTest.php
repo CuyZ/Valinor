@@ -1773,7 +1773,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_no_param_in_transformer_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);
-        $this->expectExceptionCode(1695064946);
         $this->expectExceptionMessageMatches('/Transformer must have at least one parameter, none given for `.*`\./');
 
         $this->normalizerBuilder()
@@ -1785,7 +1784,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_too_many_params_in_transformer_throws_exception(): void
     {
         $this->expectException(TransformerHasTooManyParameters::class);
-        $this->expectExceptionCode(1695065433);
         $this->expectExceptionMessageMatches('/Transformer must have at most 2 parameters, 3 given for `.*`\./');
 
         $this->normalizerBuilder()
@@ -1797,7 +1795,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_second_param_in_transformer_is_not_callable_throws_exception(): void
     {
         $this->expectException(TransformerHasInvalidCallableParameter::class);
-        $this->expectExceptionCode(1695065710);
         $this->expectExceptionMessageMatches('/Transformer\'s second parameter must be a callable, `int` given for `.*`\./');
 
         $this->normalizerBuilder()
@@ -1826,7 +1823,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_no_param_in_transformer_attribute_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);
-        $this->expectExceptionCode(1695064946);
         $this->expectExceptionMessageMatches('/Transformer must have at least one parameter, none given for `.*`./');
 
         $class = new #[TransformerAttributeWithNoParameter] class () {};
@@ -1840,7 +1836,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_too_many_params_in_transformer_attribute_throws_exception(): void
     {
         $this->expectException(TransformerHasTooManyParameters::class);
-        $this->expectExceptionCode(1695065433);
         $this->expectExceptionMessageMatches('/Transformer must have at most 2 parameters, 3 given for `.*`./');
 
         $class = new #[TransformerAttributeWithTooManyParameters] class () {};
@@ -1854,7 +1849,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_second_param_in_transformer_attribute_is_not_callable_throws_exception(): void
     {
         $this->expectException(TransformerHasInvalidCallableParameter::class);
-        $this->expectExceptionCode(1695065710);
         $this->expectExceptionMessageMatches('/Transformer\'s second parameter must be a callable, `int` given for `.*`./');
 
         $class = new #[TransformerAttributeWithSecondParameterNotCallable] class () {};
@@ -1868,7 +1862,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_too_many_params_in_key_transformer_attribute_throws_exception(): void
     {
         $this->expectException(KeyTransformerHasTooManyParameters::class);
-        $this->expectExceptionCode(1701701102);
         $this->expectExceptionMessageMatches('/Key transformer must have at most 1 parameter, 2 given for `.*`./');
 
         $class = new class () {
@@ -1887,7 +1880,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_invalid_param_type_in_key_transformer_attribute_throws_exception(): void
     {
         $this->expectException(KeyTransformerParameterInvalidType::class);
-        $this->expectExceptionCode(1701706316);
         $this->expectExceptionMessageMatches('/Key transformer parameter must be a string, stdClass given for `.*`./');
 
         $class = new class () {
@@ -1906,7 +1898,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_object_circular_reference_is_detected_and_throws_exception(): void
     {
         $this->expectException(CircularReferenceFoundDuringNormalization::class);
-        $this->expectExceptionCode(1695064016);
         $this->expectExceptionMessage('A circular reference was detected with an object of type `' . ObjectWithCircularReferenceA::class . '`. Circular references are not supported by the normalizer');
 
         $a = new ObjectWithCircularReferenceA();
@@ -1920,7 +1911,6 @@ final class NormalizerTest extends IntegrationTestCase
     public function test_unhandled_type_throws_exception(): void
     {
         $this->expectException(TypeUnhandledByNormalizer::class);
-        $this->expectExceptionCode(1695062925);
         $this->expectExceptionMessage('Value of type `Closure` cannot be normalized.');
 
         $this->normalizerBuilder()->normalizer(Format::array())->normalize(fn () => 42);

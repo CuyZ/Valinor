@@ -16,9 +16,6 @@ final class MissingEnumCase extends RuntimeException implements InvalidType
      */
     public function __construct(string $enumName)
     {
-        parent::__construct(
-            "Missing case name for enum `$enumName::?`.",
-            1653468431
-        );
+        parent::__construct("Missing case name for enum `$enumName::?`.");
     }
 }
