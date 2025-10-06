@@ -12,21 +12,21 @@ use function assert;
 /** @internal */
 final class ScalarNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
         $value = $shell->value();
 
         assert($type instanceof ScalarType);
 
         if ($type->accepts($value)) {
-            return Node::new($value);
+            return $shell->node($value);
         }
 
-        if (! $shell->allowScalarValueCasting() || ! $type->canCast($value)) {
-            return Node::error($shell, $type->errorMessage());
+        if (! $shell->allowScalarValueCasting || ! $type->canCast($value)) {
+            return $shell->error($type->errorMessage());
         }
 
-        return Node::new($type->cast($value));
+        return $shell->node($type->cast($value));
     }
 }

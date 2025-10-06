@@ -32,16 +32,16 @@ final class InterfaceNodeBuilder implements NodeBuilder
         private mixed $exceptionFilter,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
 
         if (! $type instanceof InterfaceType && ! $type instanceof NativeClassType) {
-            return $this->delegate->build($shell, $rootBuilder);
+            return $this->delegate->build($shell);
         }
 
         if ($type->accepts($shell->value())) {
-            return Node::new($shell->value());
+            return $shell->node($shell->value());
         }
 
         if ($this->constructorRegisteredFor($type)) {
@@ -49,10 +49,10 @@ final class InterfaceNodeBuilder implements NodeBuilder
                 throw new InterfaceHasBothConstructorAndInfer($type->className());
             }
 
-            return $this->delegate->build($shell, $rootBuilder);
+            return $this->delegate->build($shell);
         }
 
-        if ($shell->allowUndefinedValues() && $shell->value() === null) {
+        if ($shell->allowUndefinedValues && $shell->value() === null) {
             $shell = $shell->withValue([]);
         } else {
             $shell = $shell->transformIteratorToArray();
@@ -65,7 +65,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
                 throw new CannotResolveObjectType($className);
             }
 
-            return $this->delegate->build($shell, $rootBuilder);
+            return $this->delegate->build($shell);
         }
 
         $function = $this->implementations->function($className);
@@ -78,16 +78,16 @@ final class InterfaceNodeBuilder implements NodeBuilder
         $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
 
         if ($argumentsValues->hasInvalidValue()) {
-            return Node::error($shell, new InvalidSource($shell->value()));
+            return $shell->error(new InvalidSource($shell->value()));
         }
 
-        $children = $this->children($shell, $argumentsValues, $rootBuilder);
+        $children = $this->children($shell, $argumentsValues);
 
         $values = [];
 
         foreach ($children as $child) {
             if (! $child->isValid()) {
-                return Node::branchWithErrors($children);
+                return $shell->errors($children);
             }
 
             $values[] = $child->value();
@@ -98,13 +98,13 @@ final class InterfaceNodeBuilder implements NodeBuilder
         } catch (ObjectImplementationCallbackError $exception) {
             $exception = ($this->exceptionFilter)($exception->original());
 
-            return Node::error($shell, $exception);
+            return $shell->error($exception);
         }
 
         $shell = $shell->withType($classType);
         $shell = $shell->withAllowedSuperfluousKeys($arguments->names());
 
-        return $rootBuilder->build($shell);
+        return $shell->build();
     }
 
     private function constructorRegisteredFor(Type $type): bool
@@ -121,7 +121,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
     /**
      * @return list<Node>
      */
-    private function children(Shell $shell, ArgumentsValues $arguments, RootNodeBuilder $rootBuilder): array
+    private function children(Shell $shell, ArgumentsValues $arguments): array
     {
         $children = [];
 
@@ -136,7 +136,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
                 $child = $child->withValue($arguments->getValue($name));
             }
 
-            $children[] = $rootBuilder->build($child);
+            $children[] = $child->build();
         }
 
         return $children;

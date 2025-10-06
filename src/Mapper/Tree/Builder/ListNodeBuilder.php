@@ -20,23 +20,23 @@ use function is_string;
 /** @internal */
 final class ListNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
         $value = $shell->value();
 
         assert($type instanceof ListType || $type instanceof NonEmptyListType);
 
-        if ($shell->allowUndefinedValues() && $value === null) {
+        if ($shell->allowUndefinedValues && $value === null) {
             $value = [];
         }
 
         if (! is_iterable($value)) {
-            return Node::error($shell, new SourceMustBeIterable($value));
+            return $shell->error(new SourceMustBeIterable($value));
         }
 
         if ($value === [] && $type instanceof NonEmptyListType) {
-            return Node::error($shell, new SourceIsEmptyList());
+            return $shell->error(new SourceIsEmptyList());
         }
 
         $subType = $type->subType();
@@ -47,15 +47,17 @@ final class ListNodeBuilder implements NodeBuilder
 
         foreach ($value as $key => $val) {
             if (! is_string($key) && ! is_int($key)) {
-                throw new InvalidIterableKeyType($key, $shell->path());
+                throw new InvalidIterableKeyType($key, $shell->path);
             }
 
-            if ($shell->allowNonSequentialList() || $key === $expected) {
+            if ($shell->allowNonSequentialList || $key === $expected) {
                 $child = $shell->child((string)$expected, $subType);
-                $childNode = $children[$expected] = $rootBuilder->build($child->withValue($val));
+
+                $childNode = $children[$expected] = $child->withValue($val)->build();
             } else {
                 $child = $shell->child((string)$key, $subType);
-                $childNode = $children[$key] = Node::error($child, new InvalidListKey($key, $expected));
+
+                $childNode = $children[$key] = $child->error(new InvalidListKey($key, $expected));
             }
 
             if (! $childNode->isValid()) {
@@ -66,15 +68,14 @@ final class ListNodeBuilder implements NodeBuilder
         }
 
         if ($errors !== []) {
-            return Node::branchWithErrors($errors);
+            return $shell->errors($errors);
         }
 
-        return Node::new(
-            value: array_map(
+        return $shell->node(
+            array_map(
                 static fn (Node $child) => $child->value(),
                 $children,
             ),
-            childrenCount: count($children),
         );
     }
 }

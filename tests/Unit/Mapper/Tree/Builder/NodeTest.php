@@ -19,16 +19,9 @@ final class NodeTest extends TestCase
         self::assertSame(2, $node->childrenCount());
     }
 
-    public function test_new_node_with_no_children_count_has_0_children_count(): void
-    {
-        $node = Node::new('foo');
-
-        self::assertSame(0, $node->childrenCount());
-    }
-
     public function test_branch_error_node_has_0_child(): void
     {
-        $node = Node::branchWithErrors(['foo' => Node::new('foo')]);
+        $node = Node::branchWithErrors(['foo' => Node::new('foo', 1)]);
 
         self::assertSame(0, $node->childrenCount());
     }

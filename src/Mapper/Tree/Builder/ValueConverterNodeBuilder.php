@@ -34,15 +34,15 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         private mixed $exceptionFilter,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
 
         if ($type instanceof UnionType || $type instanceof InterfaceType) {
-            return $this->delegate->build($shell, $rootBuilder);
+            return $this->delegate->build($shell);
         }
 
-        $attributes = $shell->attributes();
+        $attributes = $shell->attributes;
 
         if ($type instanceof ObjectType) {
             $class = $this->classDefinitionRepository->for($type);
@@ -52,7 +52,7 @@ final class ValueConverterNodeBuilder implements NodeBuilder
 
         // @infection-ignore-all (This is a performance optimization, we don't test this)
         if ($attributes->count() === 0 && $this->converterContainer->converters() === []) {
-            return $this->delegate->build($shell, $rootBuilder);
+            return $this->delegate->build($shell);
         }
 
         $converterAttributes = $attributes->filter(ConverterContainer::filterConverterAttributes(...));
@@ -67,15 +67,16 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         ];
 
         if ($stack === []) {
-            return $this->delegate->build($shell, $rootBuilder);
+            // @infection-ignore-all (This is a performance optimization, we don't test this)
+            return $this->delegate->build($shell);
         }
 
         try {
-            $result = $this->unstack($stack, $shell, $rootBuilder);
+            $result = $this->unstack($stack, $shell);
 
             $shell = $shell->withValue($result);
 
-            return $this->delegate->build($shell, $rootBuilder);
+            return $this->delegate->build($shell);
         } catch (InvalidNodeDuringValueConversion $exception) {
             return $exception->node;
         }
@@ -84,12 +85,12 @@ final class ValueConverterNodeBuilder implements NodeBuilder
     /**
      * @param array<callable> $stack
      */
-    private function unstack(array $stack, Shell $shell, RootNodeBuilder $rootBuilder): mixed
+    private function unstack(array $stack, Shell $shell): mixed
     {
         while ($current = array_shift($stack)) {
             $converter = $this->functionDefinitionRepository->for($current);
 
-            if (! $shell->type()->matches($converter->returnType)) {
+            if (! $shell->type->matches($converter->returnType)) {
                 continue;
             }
 
@@ -100,12 +101,12 @@ final class ValueConverterNodeBuilder implements NodeBuilder
             $arguments = [$shell->value()];
 
             if ($converter->parameters->count() > 1) {
-                $arguments[] = function (mixed $value = INF) use ($stack, $shell, $rootBuilder) {
+                $arguments[] = function (mixed $value = INF) use ($stack, $shell) {
                     if (! is_float($value) || ! is_infinite($value)) {
                         $shell = $shell->withValue($value);
                     }
 
-                    return $this->unstack($stack, $shell, $rootBuilder);
+                    return $this->unstack($stack, $shell);
                 };
             }
 
@@ -116,13 +117,13 @@ final class ValueConverterNodeBuilder implements NodeBuilder
                     $exception = ($this->exceptionFilter)($exception);
                 }
 
-                $error = Node::error($shell, $exception);
+                $error = $shell->error($exception);
 
                 throw new InvalidNodeDuringValueConversion($error);
             }
         }
 
-        $node = $this->delegate->build($shell, $rootBuilder);
+        $node = $this->delegate->build($shell);
 
         if (! $node->isValid()) {
             throw new InvalidNodeDuringValueConversion($node);

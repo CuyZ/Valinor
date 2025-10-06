@@ -9,8 +9,6 @@ use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Mapper\Tree\Exception\CircularDependencyDetected;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
@@ -32,17 +30,17 @@ final class ObjectNodeBuilder implements NodeBuilder
         private mixed $exceptionFilter,
     ) {}
 
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
 
         assert($type instanceof ObjectType);
 
         if ($type->accepts($shell->value())) {
-            return Node::new($shell->value());
+            return $shell->node($shell->value());
         }
 
-        if ($shell->allowUndefinedValues() && $shell->value() === null) {
+        if ($shell->allowUndefinedValues && $shell->value() === null) {
             $shell = $shell->withValue([]);
         } else {
             $shell = $shell->transformIteratorToArray();
@@ -58,7 +56,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            $children = $this->children($shell, $argumentsValues, $rootBuilder);
+            $children = $this->children($shell, $argumentsValues);
 
             try {
                 $object = $this->buildObject($builder, $children);
@@ -68,7 +66,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                     $exception = ($this->exceptionFilter)($exception->getPrevious());
                 }
 
-                return Node::error($shell, $exception);
+                return $shell->error($exception);
             }
 
             if ($object === null) {
@@ -76,9 +74,9 @@ final class ObjectNodeBuilder implements NodeBuilder
                     continue;
                 }
 
-                $node = Node::branchWithErrors($children);
+                $node = $shell->errors($children);
             } else {
-                $node = Node::new(value: $object, childrenCount: count($children));
+                $node = $shell->node($object);
             }
 
             if (! $argumentsValues->hadSingleArgument()) {
@@ -90,13 +88,13 @@ final class ObjectNodeBuilder implements NodeBuilder
             }
         }
 
-        return Node::error($shell, new CannotFindObjectBuilder());
+        return $shell->error(new CannotFindObjectBuilder());
     }
 
     /**
      * @return array<non-empty-string, Node>
      */
-    private function children(Shell $shell, ArgumentsValues $arguments, RootNodeBuilder $rootBuilder): array
+    private function children(Shell $shell, ArgumentsValues $arguments): array
     {
         $children = [];
 
@@ -116,28 +114,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                 $child = $child->withValue($arguments->getValue($name));
             }
 
-            // This whole block is needed to detect object circular dependencies
-            // and prevent infinite loops.
-            if ($rootBuilder->typeWasSeen($type)) {
-                // An exception is thrown only when the type of the property is
-                // literally the same as the type of the object being built.
-                // Otherwise, the property type might be a union, for instance,
-                // so we do not want to stop the script execution right away
-                // because the value might be valid.
-                if (count($arguments) === 1 && $type instanceof ObjectType) {
-                    throw new CircularDependencyDetected($argument);
-                }
-
-                $children[$name] = Node::error($shell, new InvalidNodeValue());
-            } else {
-                $childBuilder = $rootBuilder;
-
-                if ($shell->type()->matches($type)) {
-                    $childBuilder = $rootBuilder->withTypeAsCurrentRoot($type);
-                }
-
-                $children[$name] = $childBuilder->build($child);
-            }
+            $children[$name] = $child->build();
         }
 
         return $children;

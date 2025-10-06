@@ -11,6 +11,7 @@ use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\DumpableType;
@@ -128,7 +129,11 @@ final class TypeDumper
         $function = $this->implementations->function($type->className());
         $interfaceArguments = Arguments::fromParameters($function->parameters);
 
-        $classTypes = $this->implementations->implementations($type->className());
+        try {
+            $classTypes = $this->implementations->implementations($type->className());
+        } catch (ObjectImplementationCallbackError) {
+            return $context->write('*unknown*');
+        }
 
         $classArguments = [];
 

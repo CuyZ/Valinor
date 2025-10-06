@@ -15,7 +15,6 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 
 use function array_map;
 use function assert;
-use function count;
 use function is_int;
 use function is_iterable;
 use function is_string;
@@ -23,23 +22,23 @@ use function is_string;
 /** @internal */
 final class ArrayNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
         $value = $shell->value();
 
         assert($type instanceof ArrayType || $type instanceof NonEmptyArrayType || $type instanceof IterableType);
 
-        if ($shell->allowUndefinedValues() && $value === null) {
-            return Node::new([]);
+        if ($shell->allowUndefinedValues && $value === null) {
+            return $shell->node([]);
         }
 
         if (! is_iterable($value)) {
-            return Node::error($shell, new SourceMustBeIterable($value));
+            return $shell->error(new SourceMustBeIterable($value));
         }
 
         if ($value === [] && $type instanceof NonEmptyArrayType) {
-            return Node::error($shell, new SourceIsEmptyArray());
+            return $shell->error(new SourceIsEmptyArray());
         }
 
         $keyType = $type->keyType();
@@ -50,15 +49,15 @@ final class ArrayNodeBuilder implements NodeBuilder
 
         foreach ($value as $key => $val) {
             if (! is_string($key) && ! is_int($key)) {
-                throw new InvalidIterableKeyType($key, $shell->path());
+                throw new InvalidIterableKeyType($key, $shell->path);
             }
 
             $child = $shell->child((string)$key, $subType);
 
             if (! $keyType->accepts($key)) {
-                $children[$key] = Node::error($child, new InvalidArrayKey($key, $keyType));
+                $children[$key] = $child->error(new InvalidArrayKey($key, $keyType));
             } else {
-                $children[$key] = $rootBuilder->build($child->withValue($val));
+                $children[$key] = $child->withValue($val)->build();
             }
 
             if (! $children[$key]->isValid()) {
@@ -67,15 +66,14 @@ final class ArrayNodeBuilder implements NodeBuilder
         }
 
         if ($errors !== []) {
-            return Node::branchWithErrors($errors);
+            return $shell->errors($errors);
         }
 
-        return Node::new(
-            value: array_map(
+        return $shell->node(
+            array_map(
                 static fn (Node $child) => $child->value(),
                 $children,
             ),
-            childrenCount: count($children),
         );
     }
 }

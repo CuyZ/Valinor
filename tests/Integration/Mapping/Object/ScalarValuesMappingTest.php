@@ -96,6 +96,17 @@ final class ScalarValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_can_map_to_float_with_integer_value(): void
+    {
+        try {
+            $result = $this->mapperBuilder()->mapper()->map('float', 1337);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(1337.0, $result);
+    }
+
     public function test_value_with_invalid_type_throws_exception(): void
     {
         try {

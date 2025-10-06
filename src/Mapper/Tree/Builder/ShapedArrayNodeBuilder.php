@@ -16,15 +16,15 @@ use function is_iterable;
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        $type = $shell->type();
+        $type = $shell->type;
         $value = $shell->value();
 
         assert($type instanceof ShapedArrayType);
 
         if (! is_iterable($value)) {
-            return Node::error($shell, new SourceMustBeIterable($value));
+            return $shell->error(new SourceMustBeIterable($value));
         }
 
         $children = [];
@@ -48,7 +48,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
                 continue;
             }
 
-            $child = $rootBuilder->build($child);
+            $child = $child->build();
 
             if (! $child->isValid()) {
                 $errors[] = $child;
@@ -62,8 +62,10 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         if ($type->isUnsealed()) {
             $childrenNames = array_merge($childrenNames, array_keys($value));
 
-            $unsealedShell = $shell->withType($type->unsealedType())->withValue($value);
-            $unsealedNode = $rootBuilder->build($unsealedShell);
+            $unsealedNode = $shell
+                ->withType($type->unsealedType())
+                ->withValue($value)
+                ->build();
 
             if (! $unsealedNode->isValid()) {
                 $errors[] = $unsealedNode;
@@ -74,9 +76,9 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         }
 
         if ($errors === []) {
-            $node = Node::new(value: $children, childrenCount: count($children));
+            $node = $shell->node($children);
         } else {
-            $node = Node::branchWithErrors($errors);
+            $node = $shell->errors($errors);
         }
 
         $node = $node->checkUnexpectedKeys($shell, $childrenNames);

@@ -15,20 +15,20 @@ use function is_object;
 /** @internal */
 final class UndefinedObjectNodeBuilder implements NodeBuilder
 {
-    public function build(Shell $shell, RootNodeBuilder $rootBuilder): Node
+    public function build(Shell $shell): Node
     {
-        assert($shell->type() instanceof UndefinedObjectType);
+        assert($shell->type instanceof UndefinedObjectType);
 
-        if (! $shell->allowPermissiveTypes()) {
+        if (! $shell->allowPermissiveTypes) {
             throw new CannotMapToPermissiveType($shell);
         }
 
         $value = $shell->value();
 
         if (! is_object($value)) {
-            return Node::error($shell, new InvalidNodeValue());
+            return $shell->error(new InvalidNodeValue());
         }
 
-        return Node::new($value);
+        return $shell->node($value);
     }
 }
