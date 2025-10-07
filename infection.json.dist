@@ -4,6 +4,7 @@
             "src"
         ]
     },
+    "staticAnalysisTool": "phpstan",
     "mutators": {
         "@default": true,
         "CloneRemoval": {
