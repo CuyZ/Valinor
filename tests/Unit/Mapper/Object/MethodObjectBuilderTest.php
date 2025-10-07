@@ -40,7 +40,7 @@ final class MethodObjectBuilderTest extends TestCase
 
         $this->expectException(UserlandError::class);
 
-        $objectBuilder->build([]);
+        $objectBuilder->buildObject([]);
     }
 
     public function test_arguments_instance_stays_the_same(): void

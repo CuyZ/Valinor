@@ -24,7 +24,7 @@ final class MethodObjectBuilder implements ObjectBuilder
         return $this->arguments ??= Arguments::fromParameters($this->parameters);
     }
 
-    public function build(array $arguments): object
+    public function buildObject(array $arguments): object
     {
         $methodName = $this->methodName;
         $arguments = new MethodArguments($this->parameters, $arguments);

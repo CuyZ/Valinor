@@ -4,29 +4,27 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Definition\ClassDefinition;
+use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Definition\FunctionsContainer;
-use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
-use CuyZ\Valinor\Mapper\Object\Exception\InvalidSource;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotInferFinalClass;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotResolveObjectType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InterfaceHasBothConstructorAndInfer;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Utility\Polyfill;
 use Throwable;
 
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
 {
     public function __construct(
-        private NodeBuilder $delegate,
-        private ObjectImplementations $implementations,
-        private ClassDefinitionRepository $classDefinitionRepository,
+        private InterfaceInferringContainer $interfaceInferringContainer,
         private FunctionsContainer $constructors,
         /** @var callable(Throwable): ErrorMessage */
         private mixed $exceptionFilter,
@@ -34,111 +32,72 @@ final class InterfaceNodeBuilder implements NodeBuilder
 
     public function build(Shell $shell): Node
     {
-        $type = $shell->type;
+        assert($shell->type instanceof InterfaceType || $shell->type instanceof NativeClassType);
 
-        if (! $type instanceof InterfaceType && ! $type instanceof NativeClassType) {
-            return $this->delegate->build($shell);
-        }
+        $function = $this->interfaceInferringContainer->inferFunctionFor($shell->type->className());
 
-        if ($type->accepts($shell->value())) {
-            return $shell->node($shell->value());
-        }
-
-        if ($this->constructorRegisteredFor($type)) {
-            if ($this->implementations->has($type->className())) {
-                throw new InterfaceHasBothConstructorAndInfer($type->className());
-            }
-
-            return $this->delegate->build($shell);
-        }
-
-        if ($shell->allowUndefinedValues && $shell->value() === null) {
-            $shell = $shell->withValue([]);
-        } else {
-            $shell = $shell->transformIteratorToArray();
-        }
-
-        $className = $type->className();
-
-        if (! $this->implementations->has($className)) {
-            if ($type instanceof InterfaceType || $this->classDefinitionRepository->for($type)->isAbstract) {
-                throw new CannotResolveObjectType($className);
-            }
-
-            return $this->delegate->build($shell);
-        }
-
-        $function = $this->implementations->function($className);
         $arguments = Arguments::fromParameters($function->parameters);
+        $argumentsValues = ArgumentsValues::forInterface($shell, $arguments);
 
-        if ($type instanceof NativeClassType && $this->classDefinitionRepository->for($type)->isFinal) {
-            throw new CannotInferFinalClass($type, $function);
-        }
+        $valuesNode = $argumentsValues->shell->build();
 
-        $argumentsValues = ArgumentsValues::forInterface($arguments, $shell);
+        if (! $valuesNode->isValid()) {
+            $messages = $valuesNode->messages();
 
-        if ($argumentsValues->hasInvalidValue()) {
-            return $shell->error(new InvalidSource($shell->value()));
-        }
-
-        $children = $this->children($shell, $argumentsValues);
-
-        $values = [];
-
-        foreach ($children as $child) {
-            if (! $child->isValid()) {
-                return $shell->errors($children);
+            if ($messages[0]->path() === '*root*') {
+                return $shell->error($valuesNode->messages()[0]);
             }
 
-            $values[] = $child->value();
+            return $valuesNode;
         }
 
         try {
-            $classType = $this->implementations->implementation($className, $values);
+            $values = $argumentsValues->transform($valuesNode->value());
+
+            $classType = $this->interfaceInferringContainer->inferClassFor($shell->type->className(), $values);
         } catch (ObjectImplementationCallbackError $exception) {
             $exception = ($this->exceptionFilter)($exception->original());
 
             return $shell->error($exception);
         }
 
-        $shell = $shell->withType($classType);
-        $shell = $shell->withAllowedSuperfluousKeys($arguments->names());
-
-        return $shell->build();
+        return $shell
+            ->withType($classType)
+            ->withAllowedSuperfluousKeys($arguments->names())
+            ->build();
     }
 
-    private function constructorRegisteredFor(Type $type): bool
+    public function canInferImplementation(ClassDefinition $class): bool
     {
-        foreach ($this->constructors as $constructor) {
-            if ($type->matches($constructor->definition->returnType)) {
-                return true;
+        $hasImplementation = $this->interfaceInferringContainer->has($class->name);
+
+        $hasConstructor = Polyfill::array_any(
+            $this->constructors->toArray(),
+            static fn (FunctionObject $constructor) => $class->type->matches($constructor->definition->returnType),
+        );
+
+        if ($hasConstructor && $hasImplementation) {
+            throw new InterfaceHasBothConstructorAndInfer($class->name);
+        }
+
+        if ($hasConstructor) {
+            return false;
+        }
+
+        if ($hasImplementation) {
+            if ($class->isFinal) {
+                $function = $this->interfaceInferringContainer->inferFunctionFor($class->name);
+
+                throw new CannotInferFinalClass($class->name, $function);
             }
+
+            return true;
+        }
+
+        if ($class->type instanceof InterfaceType || $class->isAbstract) {
+            throw new CannotResolveObjectType($class->name);
         }
 
         return false;
-    }
-
-    /**
-     * @return list<Node>
-     */
-    private function children(Shell $shell, ArgumentsValues $arguments): array
-    {
-        $children = [];
-
-        foreach ($arguments as $argument) {
-            $name = $argument->name();
-            $type = $argument->type();
-
-            $child = $shell->child($name, $type);
-            $child = $child->withAttributes($argument->attributes());
-
-            if ($arguments->hasValue($name)) {
-                $child = $child->withValue($arguments->getValue($name));
-            }
-
-            $children[] = $child->build();
-        }
-
-        return $children;
     }
 }

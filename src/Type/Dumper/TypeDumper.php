@@ -10,7 +10,7 @@ use CuyZ\Valinor\Mapper\Object\Argument;
 use CuyZ\Valinor\Mapper\Object\Arguments;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
@@ -31,7 +31,7 @@ final class TypeDumper
     public function __construct(
         private readonly ClassDefinitionRepository $classDefinitionRepository,
         private readonly ObjectBuilderFactory $objectBuilderFactory,
-        private ObjectImplementations $implementations,
+        private InterfaceInferringContainer $interfaceInferringContainer,
         private FunctionsContainer $constructors,
     ) {}
 
@@ -122,15 +122,15 @@ final class TypeDumper
             return $this->fromObjectType($type, $context);
         }
 
-        if (! $this->implementations->has($type->className())) {
+        if (! $this->interfaceInferringContainer->has($type->className())) {
             return $context->write('*unknown*');
         }
 
-        $function = $this->implementations->function($type->className());
+        $function = $this->interfaceInferringContainer->inferFunctionFor($type->className());
         $interfaceArguments = Arguments::fromParameters($function->parameters);
 
         try {
-            $classTypes = $this->implementations->implementations($type->className());
+            $classTypes = $this->interfaceInferringContainer->classImplementationsFor($type->className());
         } catch (ObjectImplementationCallbackError) {
             return $context->write('*unknown*');
         }

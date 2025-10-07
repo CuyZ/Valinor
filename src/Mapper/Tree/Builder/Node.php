@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedKeysInSource;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Utility\ValueDumper;
 
-use function array_diff;
-use function array_keys;
 use function array_merge;
 use function assert;
-use function is_array;
 
 /** @internal */
 final class Node
@@ -87,47 +82,19 @@ final class Node
         return $this->messages;
     }
 
+    public function appendMessage(NodeMessage $message): self
+    {
+        return new self(
+            value: null,
+            messages: [...$this->messages, $message],
+        );
+    }
+
     /**
      * @return non-negative-int
      */
     public function childrenCount(): int
     {
         return $this->childrenCount;
-    }
-
-    /**
-     * @param list<int|string> $children
-     */
-    public function checkUnexpectedKeys(Shell $shell, array $children): self
-    {
-        $value = $shell->value();
-
-        if ($shell->allowSuperfluousKeys || ! is_array($value)) {
-            return $this;
-        }
-
-        $diff = array_diff(array_keys($value), $children, $shell->allowedSuperfluousKeys);
-
-        if ($diff !== []) {
-            /** @var non-empty-list<int|string> $children */
-            $error = new UnexpectedKeysInSource($value, $children);
-
-            $nodeMessage = new NodeMessage(
-                $error,
-                $error->body(),
-                $shell->name,
-                $shell->path,
-                "`{$shell->type->toString()}`",
-                $shell->expectedSignature(),
-                ValueDumper::dump($shell->value()),
-            );
-
-            return new self(
-                value: null,
-                messages: array_merge($this->messages, [$nodeMessage])
-            );
-        }
-
-        return $this;
     }
 }

@@ -39,7 +39,7 @@ class NativeEnumObjectBuilder implements ObjectBuilder
         return $this->arguments;
     }
 
-    public function build(array $arguments): object
+    public function buildObject(array $arguments): object
     {
         return $this->enum->cases()[$arguments['value']];
     }

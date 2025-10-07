@@ -22,6 +22,23 @@ final class Polyfill
 
         return true;
     }
+
+    /**
+     * PHP8.4 use native function `array_find` instead.
+     *
+     * @param array<mixed> $array
+     */
+    public static function array_any(array $array, callable $callback): bool
+    {
+        foreach ($array as $key => $value) {
+            if ($callback($value, $key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * PHP8.4 use native function `array_find` instead.
      *

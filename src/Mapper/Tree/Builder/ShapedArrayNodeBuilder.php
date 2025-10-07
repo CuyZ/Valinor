@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
+use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedKeysInSource;
+use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
@@ -36,8 +38,8 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         }
 
         foreach ($type->elements() as $element) {
-            $childrenNames[] = $element->key()->value();
             $key = $element->key()->value();
+            $childrenNames[] = $key;
 
             $child = $shell->child((string)$key, $element->type());
             $child = $child->withAttributes($element->attributes());
@@ -60,8 +62,6 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         }
 
         if ($type->isUnsealed()) {
-            $childrenNames = array_merge($childrenNames, array_keys($value));
-
             $unsealedNode = $shell
                 ->withType($type->unsealedType())
                 ->withValue($value)
@@ -81,8 +81,43 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $node = $shell->errors($errors);
         }
 
-        $node = $node->checkUnexpectedKeys($shell, $childrenNames);
+        if (! $type->isUnsealed()) {
+            $node = $this->checkUnexpectedKeys($shell, $node, $childrenNames);
+        }
 
         return $node;
+    }
+
+    /**
+     * @param list<int|string> $children
+     */
+    private function checkUnexpectedKeys(Shell $shell, Node $node, array $children): Node
+    {
+        $value = $shell->value();
+
+        if ($shell->allowSuperfluousKeys || ! is_array($value)) {
+            return $node;
+        }
+
+        $diff = array_diff(array_keys($value), $children, $shell->allowedSuperfluousKeys);
+
+        if ($diff === []) {
+            return $node;
+        }
+
+        /** @var non-empty-list<int|string> $children */
+        $error = new UnexpectedKeysInSource($value, $children);
+
+        $nodeMessage = new NodeMessage(
+            $error,
+            $error->body(),
+            $shell->name,
+            $shell->path,
+            "`{$shell->type->toString()}`",
+            $shell->expectedSignature(),
+            $shell->dumpValue(),
+        );
+
+        return $node->appendMessage($nodeMessage);
     }
 }

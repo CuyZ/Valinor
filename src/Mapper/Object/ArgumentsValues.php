@@ -4,139 +4,107 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
-use Countable;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use IteratorAggregate;
-use Traversable;
 
 use function array_key_exists;
 use function count;
 use function is_array;
 
-/**
- * @internal
- *
- * @implements IteratorAggregate<Argument>
- */
-final class ArgumentsValues implements IteratorAggregate, Countable
+/** @internal */
+final class ArgumentsValues
 {
-    /** @var array<mixed> */
-    private array $value = [];
+    public function __construct(
+        public readonly Shell $shell,
+        private string|null $singleArgumentName = null,
+    ) {}
 
-    private Arguments $arguments;
-
-    private bool $hasInvalidValue = false;
-
-    private bool $forInterface = false;
-
-    private bool $hadSingleArgument = false;
-
-    private function __construct(Arguments $arguments)
+    public static function forInterface(Shell $shell, Arguments $arguments): self
     {
-        $this->arguments = $arguments;
-    }
+        $shell = $shell->allowSuperfluousKeys();
 
-    public static function forInterface(Arguments $arguments, Shell $shell): self
-    {
-        $self = new self($arguments);
-        $self->forInterface = true;
-
-        if (count($arguments) > 0) {
-            $self->transform($shell);
+        if (count($arguments) === 0) {
+            return new self(
+                $shell->withValue([])->withType($arguments->toShapedArray()),
+            );
         }
 
-        return $self;
+        return self::forClass($shell, $arguments);
     }
 
-    public static function forClass(Arguments $arguments, Shell $shell): self
+    /**
+     * This transforms the arguments of an object constructor to a shaped array
+     * equivalent. This shaped array is then given back to the mapper to ensure
+     * the source is mapped by respecting the wanted structure.
+     *
+     * Example:
+     *
+     * ```php
+     * final readonly class User
+     * {
+     *     public function __construct(
+     *         public string $name,
+     *         public DateTimeInterface $birthDate,
+     *         public string|null $email = null,
+     *     ) {}
+     * }
+     *
+     * // This class is represented as:
+     * // array{name: string, birthDate: DateTimeInterface, email?: string|null}
+     * ```
+     */
+    public static function forClass(Shell $shell, Arguments $arguments): self
     {
-        $self = new self($arguments);
-        $self->transform($shell);
-
-        return $self;
-    }
-
-    public function hasInvalidValue(): bool
-    {
-        return $this->hasInvalidValue;
-    }
-
-    public function hasValue(string $name): bool
-    {
-        return array_key_exists($name, $this->value);
-    }
-
-    public function getValue(string $name): mixed
-    {
-        return $this->value[$name];
-    }
-
-    public function hadSingleArgument(): bool
-    {
-        return $this->hadSingleArgument;
-    }
-
-    private function transform(Shell $shell): void
-    {
-        $value = $shell->value();
-
-        $transformedValue = $this->transformValueForSingleArgument($value, $shell->allowSuperfluousKeys);
-
-        if (! is_array($transformedValue)) {
-            $this->hasInvalidValue = true;
-
-            return;
+        if ($shell->allowUndefinedValues && $shell->value() === null) {
+            $shell = $shell->withValue([]);
+        } elseif (is_iterable($shell->value()) && ! is_array($shell->value())) {
+            $shell = $shell->withValue(iterator_to_array($shell->value()));
         }
 
-        if ($transformedValue !== $value) {
-            $this->hadSingleArgument = true;
+        if (count($arguments) !== 1) {
+            return new self($shell->withType($arguments->toShapedArray()));
         }
 
-        foreach ($this->arguments as $argument) {
-            $name = $argument->name();
-
-            if (! array_key_exists($name, $transformedValue) && ! $argument->isRequired()) {
-                $transformedValue[$name] = $argument->defaultValue();
-            }
-        }
-
-        $this->value = $transformedValue;
-    }
-
-    private function transformValueForSingleArgument(mixed $value, bool $allowSuperfluousKeys): mixed
-    {
-        if (count($this->arguments) !== 1) {
-            return $value;
-        }
-
-        $argument = $this->arguments->at(0);
+        $argument = $arguments->at(0);
         $name = $argument->name();
         $type = $argument->type();
+        $attributes = $argument->attributes();
+
         $isTraversableAndAllowsStringKeys = $type instanceof CompositeTraversableType
             && $type->keyType() !== ArrayKeyType::integer();
 
-        if (is_array($value) && array_key_exists($name, $value)) {
-            if ($this->forInterface || ! $isTraversableAndAllowsStringKeys || $allowSuperfluousKeys || count($value) === 1) {
-                return $value;
+        if (is_array($shell->value()) && array_key_exists($name, $shell->value())) {
+            if (! $isTraversableAndAllowsStringKeys || $shell->allowSuperfluousKeys || count($shell->value()) === 1) {
+                return new self($shell->withType($arguments->toShapedArray()));
             }
         }
 
-        if ($value === [] && ! $isTraversableAndAllowsStringKeys) {
-            return $value;
+        if ($shell->value() === [] && ! $isTraversableAndAllowsStringKeys) {
+            return new self($shell->withType($arguments->toShapedArray()));
         }
 
-        return [$name => $value];
+        // If we get there, it means a scalar argument was given where an array
+        // with a single value was awaited. We purposely flatten the shell
+        // structure to allow the mapper to do its job. Note that the method
+        // `transform()` below allows to get back the desired structure, with
+        // the mapped value.
+        return new self(
+            shell: $shell->withType($type)->withAttributes($attributes),
+            singleArgumentName: $argument->name(),
+        );
     }
 
-    public function count(): int
+    /**
+     * @return array<string, mixed>
+     */
+    public function transform(mixed $value): array
     {
-        return count($this->arguments);
-    }
+        if ($this->singleArgumentName) {
+            return [$this->singleArgumentName => $value];
+        }
 
-    public function getIterator(): Traversable
-    {
-        yield from $this->arguments;
+        /** @var array<string, mixed> we know at this point this is an array */
+        return $value;
     }
 }

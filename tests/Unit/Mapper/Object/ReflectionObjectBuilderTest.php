@@ -38,7 +38,7 @@ final class ReflectionObjectBuilderTest extends TestCase
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
         $objectBuilder = new ReflectionObjectBuilder($class);
-        $result = $objectBuilder->build([
+        $result = $objectBuilder->buildObject([
             'valueA' => 'valueA',
             'valueB' => 'valueB',
             'valueC' => 'valueC',

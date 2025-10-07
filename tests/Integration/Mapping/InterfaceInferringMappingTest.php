@@ -349,7 +349,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
             ->map(SomeInterface::class, []);
     }
 
-    public function test_invalid_source_throws_exception(): void
+    public function test_invalid_scalar_source_throws_exception(): void
     {
         try {
             $this->mapperBuilder()
@@ -362,7 +362,26 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->map(SomeInterface::class, 42);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[invalid_source] Value 42 does not match `array{type: string, key: int, valueA: string}`.",
+                '*root*' => "[value_is_not_iterable] Value 42 does not match `array{type: string, key: int, valueA: string}`.",
+            ]);
+        }
+    }
+
+    public function test_invalid_source_throws_exception(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->infer(
+                    SomeInterface::class,
+                    /** @return class-string<SomeClassThatInheritsInterfaceA> */
+                    fn (string $type, int $key) => SomeClassThatInheritsInterfaceA::class
+                )
+                ->mapper()
+                ->map(SomeInterface::class, ['type' => 42, 'key' => true]);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'type' => "[invalid_string] Value 42 is not a valid string.",
+                'key' => "[invalid_integer] Value true is not a valid integer.",
             ]);
         }
     }
@@ -380,7 +399,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ->map(SomeInterface::class, 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'key' => "[invalid_integer] Value 'foo' is not a valid integer.",
+                '*root*' => "[invalid_integer] Value 'foo' is not a valid integer.",
             ]);
         }
     }

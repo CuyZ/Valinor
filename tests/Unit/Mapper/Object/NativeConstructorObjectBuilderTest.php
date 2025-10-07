@@ -36,7 +36,7 @@ final class NativeConstructorObjectBuilderTest extends TestCase
 
         $class = FakeClassDefinition::fromReflection(new ReflectionClass($object));
         $objectBuilder = new NativeConstructorObjectBuilder($class);
-        $result = $objectBuilder->build([
+        $result = $objectBuilder->buildObject([
             'valueA' => 'valueA',
             'valueB' => 'valueB',
             'valueC' => 'valueC',
@@ -54,7 +54,7 @@ final class NativeConstructorObjectBuilderTest extends TestCase
 
         $this->expectException(UserlandError::class);
 
-        $objectBuilder->build([]);
+        $objectBuilder->buildObject([]);
     }
 }
 

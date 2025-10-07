@@ -22,9 +22,9 @@ use Exception;
 use function assert;
 
 /** @internal */
-final class ObjectImplementations
+final class InterfaceInferringContainer
 {
-    /** @var array<string, non-empty-array<string, ClassType>> */
+    /** @var array<class-string, non-empty-array<string, ClassType>> */
     private array $implementations = [];
 
     public function __construct(
@@ -32,35 +32,46 @@ final class ObjectImplementations
         private TypeParser $typeParser
     ) {}
 
+    /**
+     * @param class-string $name
+     */
     public function has(string $name): bool
     {
         return $this->functions->has($name);
     }
 
-    public function function(string $name): FunctionDefinition
+    /**
+     * @param class-string $name
+     */
+    public function inferFunctionFor(string $name): FunctionDefinition
     {
         return $this->functions->get($name)->definition;
     }
 
     /**
-     * @param mixed[] $arguments
+     * @param class-string $name
+     * @param array<mixed> $arguments
      */
-    public function implementation(string $name, array $arguments): ClassType
+    public function inferClassFor(string $name, array $arguments): ClassType
     {
-        /** @infection-ignore-all / We cannot test the assignment */
-        $this->implementations[$name] ??= $this->implementations($name);
-
         $class = $this->call($name, $arguments);
+        $implementations = $this->classImplementationsFor($name);
 
-        return $this->implementations[$name][$class]
-            ?? throw new ObjectImplementationNotRegistered($class, $name, $this->implementations[$name]);
+        return $implementations[$class]
+            ?? throw new ObjectImplementationNotRegistered($class, $name, $implementations);
     }
 
     /**
+     * @param class-string $name
      * @return non-empty-array<string, ClassType>
      */
-    public function implementations(string $name): array
+    public function classImplementationsFor(string $name): array
     {
+        if (isset($this->implementations[$name])) {
+            // @infection-ignore-all / This is a performance optimization, not easily testable so we skip it.
+            return $this->implementations[$name];
+        }
+
         $function = $this->functions->get($name)->definition;
 
         $type = $this->typeParser->parse($name);
@@ -81,7 +92,7 @@ final class ObjectImplementations
         }
 
         /** @var non-empty-array<string, ClassType> $classes */
-        return $classes;
+        return $this->implementations[$name] = $classes;
     }
 
     /**
