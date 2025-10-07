@@ -20,7 +20,7 @@ final class NativeConstructorObjectBuilder implements ObjectBuilder
         return $this->arguments ??= Arguments::fromParameters($this->class->methods->constructor()->parameters);
     }
 
-    public function build(array $arguments): object
+    public function buildObject(array $arguments): object
     {
         $className = $this->class->name;
         $arguments = new MethodArguments($this->class->methods->constructor()->parameters, $arguments);

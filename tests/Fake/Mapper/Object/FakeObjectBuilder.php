@@ -15,7 +15,7 @@ final class FakeObjectBuilder implements ObjectBuilder
         return new Arguments();
     }
 
-    public function build(array $arguments): object
+    public function buildObject(array $arguments): object
     {
         return new stdClass();
     }

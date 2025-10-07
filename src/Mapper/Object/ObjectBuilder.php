@@ -12,7 +12,7 @@ interface ObjectBuilder
     /**
      * @param array<string, mixed> $arguments
      */
-    public function build(array $arguments): object;
+    public function buildObject(array $arguments): object;
 
     /**
      * @return non-empty-string

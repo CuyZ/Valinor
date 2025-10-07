@@ -38,7 +38,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NullNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\ObjectImplementations;
+use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\ObjectNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ScalarNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ShapedArrayNodeBuilder;
@@ -107,19 +107,16 @@ final class Container
                     new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
+                        new InterfaceNodeBuilder(
+                            $this->get(InterfaceInferringContainer::class),
+                            new FunctionsContainer(
+                                $this->get(FunctionDefinitionRepository::class),
+                                $settings->customConstructors,
+                            ),
+                            $settings->exceptionFilter,
+                        ),
                         $settings->exceptionFilter,
                     ),
-                );
-
-                $builder = new InterfaceNodeBuilder(
-                    $builder,
-                    $this->get(ObjectImplementations::class),
-                    $this->get(ClassDefinitionRepository::class),
-                    new FunctionsContainer(
-                        $this->get(FunctionDefinitionRepository::class),
-                        $settings->customConstructors,
-                    ),
-                    $settings->exceptionFilter,
                 );
 
                 return new ValueConverterNodeBuilder(
@@ -136,7 +133,7 @@ final class Container
                 $settings->convertersSortedByPriority(),
             ),
 
-            ObjectImplementations::class => fn () => new ObjectImplementations(
+            InterfaceInferringContainer::class => fn () => new InterfaceInferringContainer(
                 new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
                     $settings->inferredMapping,
@@ -244,7 +241,7 @@ final class Container
             TypeDumper::class => fn () => new TypeDumper(
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(ObjectBuilderFactory::class),
-                $this->get(ObjectImplementations::class),
+                $this->get(InterfaceInferringContainer::class),
                 new FunctionsContainer(
                     $this->get(FunctionDefinitionRepository::class),
                     $settings->customConstructors,
@@ -253,7 +250,7 @@ final class Container
 
             RecursiveCacheWarmupService::class => fn () => new RecursiveCacheWarmupService(
                 $this->get(TypeParser::class),
-                $this->get(ObjectImplementations::class),
+                $this->get(InterfaceInferringContainer::class),
                 $this->get(ClassDefinitionRepository::class),
                 $this->get(ObjectBuilderFactory::class),
             ),

@@ -20,7 +20,7 @@ final class ReflectionObjectBuilder implements ObjectBuilder
         return $this->arguments ??= Arguments::fromProperties($this->class->properties);
     }
 
-    public function build(array $arguments): object
+    public function buildObject(array $arguments): object
     {
         $object = new ($this->class->name)();
 

@@ -20,8 +20,6 @@ use CuyZ\Valinor\Utility\ValueDumper;
 
 use function assert;
 use function implode;
-use function is_array;
-use function is_iterable;
 
 /** @internal */
 final class Shell
@@ -83,6 +81,7 @@ final class Shell
         $self->type = $type;
         $self->path = $this->name === '' ? $name : "$this->path.$name";
         $self->hasValue = false;
+        $self->value = null;
         $self->attributes = Attributes::empty();
         $self->objectTrace = $this->objectTrace->markAsVisited($type);
         $self->childrenCount = 0;
@@ -160,13 +159,12 @@ final class Shell
         return $self;
     }
 
-    public function transformIteratorToArray(): self
+    public function allowSuperfluousKeys(): self
     {
-        if (is_iterable($this->value) && ! is_array($this->value)) {
-            return $this->withValue(iterator_to_array($this->value));
-        }
+        $self = clone $this;
+        $self->allowSuperfluousKeys = true;
 
-        return $this;
+        return $self;
     }
 
     public function expectedSignature(): string

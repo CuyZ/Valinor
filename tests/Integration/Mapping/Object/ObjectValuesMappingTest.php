@@ -48,7 +48,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
                 $this->mapperBuilder()->mapper()->map($class, $source);
             } catch (MappingError $exception) {
                 self::assertMappingErrors($exception, [
-                    '*root*' => "[cannot_find_object_builder] Value 'foo' does not match `array{object: string|array{value: string}, string: string}`.",
+                    '*root*' => "[value_is_not_iterable] Value 'foo' does not match `array{object: string|array{value: string}, string: string}`.",
                 ]);
             }
         }
@@ -94,7 +94,7 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map(stdClass::class, 'foo');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[cannot_find_object_builder] Value 'foo' does not match `array{}`.",
+                '*root*' => "[value_is_not_iterable] Value 'foo' does not match `array{}`.",
             ]);
         }
     }
