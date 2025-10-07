@@ -34,7 +34,7 @@ final class Shell
         public string $name,
         public string $path,
         public Type $type,
-        public bool $hasValue,
+        private bool $hasValue,
         private mixed $value,
         public Attributes $attributes,
         public bool $allowScalarValueCasting,
@@ -47,8 +47,8 @@ final class Shell
         private NodeBuilder $nodeBuilder,
         private TypeDumper $typeDumper,
         private ObjectTrace $objectTrace, // Helps detecting circular dependencies
-        /** @var non-negative-int */ // @infection-ignore-all
-        private int $childrenCount = 0,
+        /** @var non-negative-int */
+        private int $childrenCount,
     ) {
         $this->castFloatValue();
     }

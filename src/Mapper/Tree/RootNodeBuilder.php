@@ -38,6 +38,8 @@ final class RootNodeBuilder
             nodeBuilder: $this->nodeBuilder,
             typeDumper: $this->typeDumper,
             objectTrace: new ObjectTrace(),
+            // @infection-ignore-all
+            childrenCount: 0,
         );
 
         return $shell->build();
