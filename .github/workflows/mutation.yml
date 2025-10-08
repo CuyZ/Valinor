@@ -37,6 +37,12 @@ jobs:
           key: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
           restore-keys: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
 
+      - name: Restore PHPStan result cache to speedup Infection PHPStan killer
+        uses: actions/download-artifact@v4
+        with:
+          name: result-cache
+          path: var/cache/
+
       - name: Running mutation tests
         if: github.ref == 'refs/heads/master'
         run: php vendor/bin/infection --threads=$(nproc) --with-uncovered

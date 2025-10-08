@@ -41,6 +41,12 @@ jobs:
       - name: Running PHPStan (global)
         run: php vendor/bin/phpstan
 
+      - name: Cache PHPStan result cache for re-use while mutation testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-cache
+          path: var/cache/phpstan-resultCache.php
+
       - name: Running PHP Coding Standards Fixer
         run: php vendor/bin/php-cs-fixer fix --dry-run
 
