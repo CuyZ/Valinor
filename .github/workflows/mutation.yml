@@ -39,6 +39,7 @@ jobs:
 
       - name: Restore PHPStan result cache to speedup Infection PHPStan killer
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: phpstan-result-cache
           path: var/cache/
@@ -54,3 +55,9 @@ jobs:
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
           php vendor/bin/infection --threads=$(nproc) --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --with-uncovered --min-msi=100 --show-mutations --verbose
+
+      - name: Cache PHPStan result cache for re-use while mutation testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-result-cache
+          path: var/cache/phpstan/phpstan-resultCache.php
