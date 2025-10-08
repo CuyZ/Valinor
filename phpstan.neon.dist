@@ -16,7 +16,7 @@ parameters:
     excludePaths:
         - tests/StaticAnalysis
         - tests/Integration/Normalizer/ExpectedCache/
-    resultCachePath: var/cache/phpstan-resultCache.php
+    resultCachePath: var/cache/phpstan/phpstan-resultCache.php
     ignoreErrors:
         # \PHPStan\Rules\BooleansInConditions
         - '#Only booleans are allowed in .* given#'
