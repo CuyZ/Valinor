@@ -63,6 +63,7 @@ final class MapperBuilder
     {
         $clone = clone $this;
         $clone->settings->inferredMapping[$name] = $callback;
+        $x = 1; // test change
 
         return $clone;
     }
