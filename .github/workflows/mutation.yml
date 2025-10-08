@@ -58,6 +58,7 @@ jobs:
 
       - name: Cache PHPStan result cache for re-use while mutation testing
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: phpstan-result-cache
           path: var/cache/phpstan/phpstan-resultCache.php
