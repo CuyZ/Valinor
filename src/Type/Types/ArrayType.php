@@ -91,6 +91,17 @@ final class ArrayType implements CompositeTraversableType, DumpableType
             && $this->subType->matches($other->subType());
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if (! $other instanceof CompositeTraversableType) {
+            return $generics;
+        }
+
+        $generics = $this->keyType->inferGenericsFrom($other->keyType(), $generics);
+
+        return $this->subType->inferGenericsFrom($other->subType(), $generics);
+    }
+
     public function keyType(): ArrayKeyType
     {
         return $this->keyType;

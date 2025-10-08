@@ -196,6 +196,23 @@ final class ShapedArrayType implements CompositeType, DumpableType
         return false;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if (! $other instanceof self) {
+            return $generics;
+        }
+
+        foreach ($this->elements as $key => $element) {
+            if (! isset($other->elements[$key])) {
+                continue;
+            }
+
+            $generics = $element->type()->inferGenericsFrom($other->elements[$key]->type(), $generics);
+        }
+
+        return $generics;
+    }
+
     public function traverse(): array
     {
         $types = array_map(static fn (ShapedArrayElement $element) => $element->type(), array_values($this->elements));

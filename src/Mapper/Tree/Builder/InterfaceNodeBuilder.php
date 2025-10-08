@@ -64,6 +64,7 @@ final class InterfaceNodeBuilder implements NodeBuilder
         return $shell
             ->withType($classType)
             ->withAllowedSuperfluousKeys($arguments->names())
+            ->shouldNotApplyConverters()
             ->build();
     }
 

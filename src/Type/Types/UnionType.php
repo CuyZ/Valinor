@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Parser\Exception\Union\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Type;
 
+use function array_filter;
 use function array_map;
 use function array_values;
 use function implode;
@@ -32,9 +33,13 @@ final class UnionType implements CombiningType, DumpableType
     /**
      * @no-named-arguments
      */
-    public static function from(Type $type, Type $otherType, Type ...$otherTypes): self
+    public static function from(Type $type, Type ...$otherTypes): Type
     {
-        $types = [$type, $otherType, ...$otherTypes];
+        if ($otherTypes === []) {
+            return $type;
+        }
+
+        $types = [$type, ...$otherTypes];
         $filteredTypes = [];
 
         foreach ($types as $subType) {
@@ -97,6 +102,20 @@ final class UnionType implements CombiningType, DumpableType
         }
 
         return false;
+    }
+
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        $otherTypes = $other instanceof UnionType ? $other->types : [$other];
+        $otherTypes = array_filter($otherTypes, fn (Type $type) => ! $type->matches($this));
+
+        foreach ($otherTypes as $otherType) {
+            foreach ($this->types as $type) {
+                $generics = $type->inferGenericsFrom($otherType, $generics);
+            }
+        }
+
+        return $generics;
     }
 
     public function traverse(): array

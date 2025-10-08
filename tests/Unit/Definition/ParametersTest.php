@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition;
 
+use CuyZ\Valinor\Definition\Attributes;
+use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeParameterDefinition;
 use CuyZ\Valinor\Tests\Traits\IteratorTester;
+use CuyZ\Valinor\Type\Types\Generics;
+use CuyZ\Valinor\Type\Types\GenericType;
+use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use PHPUnit\Framework\TestCase;
 
 use function array_values;
@@ -43,6 +49,26 @@ final class ParametersTest extends TestCase
         $parameters = new Parameters($parameterA, $parameterB);
 
         self::assertSame(['SomeParameterA' => $parameterA, 'SomeParameterB' => $parameterB], $parameters->toArray());
+    }
+
+    public function test_parameters_can_have_generics_assigned(): void
+    {
+        $parameters = new Parameters(
+            new ParameterDefinition(
+                name: 'SomeParameterA',
+                signature: 'someSignature',
+                type: new GenericType('T', new MixedType()),
+                nativeType: new MixedType(),
+                isOptional: true,
+                isVariadic: false,
+                defaultValue: null,
+                attributes: Attributes::empty(),
+            ),
+        );
+
+        $parameters = $parameters->assignGenerics(new Generics(['T' => new NativeStringType()]));
+
+        self::assertInstanceOf(NativeStringType::class, $parameters->at(0)->type);
     }
 
     public function test_parameters_are_countable(): void

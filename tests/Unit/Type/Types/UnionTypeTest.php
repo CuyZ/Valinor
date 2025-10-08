@@ -45,6 +45,7 @@ final class UnionTypeTest extends TestCase
         $unionA = UnionType::from($typeA, $typeB);
         $unionB = UnionType::from($unionA, $typeC);
 
+        self::assertInstanceOf(UnionType::class, $unionB);
         self::assertSame(
             [$typeA, $typeB, $typeC],
             $unionB->types()

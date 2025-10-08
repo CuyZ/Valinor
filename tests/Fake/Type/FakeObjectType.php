@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\Generics;
 use stdClass;
 
 final class FakeObjectType implements ObjectType
@@ -63,6 +64,11 @@ final class FakeObjectType implements ObjectType
     public function matches(Type $other): bool
     {
         return $other === ($this->matching ?? null);
+    }
+
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
     }
 
     public function nativeType(): ObjectType

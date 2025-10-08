@@ -132,6 +132,18 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
         return false;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if (! $other instanceof self) {
+            return $generics;
+        }
+
+        $selfTypes = UnionType::from(...$this->types);
+        $otherTypes = UnionType::from(...$other->types);
+
+        return $selfTypes->inferGenericsFrom($otherTypes, $generics);
+    }
+
     public function canCast(mixed $value): bool
     {
         foreach ($this->types as $type) {
@@ -185,11 +197,7 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
             $types[$type->nativeType()->toString()] = $type->nativeType();
         }
 
-        if (count($types) === 1) {
-            return reset($types);
-        }
-
-        return new UnionType(...array_values($types));
+        return UnionType::from(...array_values($types));
     }
 
     public function dumpParts(): iterable

@@ -48,6 +48,11 @@ final class NonEmptyStringType implements StringType
             || $other instanceof MixedType;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function canCast(mixed $value): bool
     {
         return (is_string($value) || is_numeric($value) || $value instanceof Stringable)

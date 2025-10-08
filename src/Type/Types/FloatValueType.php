@@ -34,6 +34,11 @@ final class FloatValueType implements FloatType, FixedType
         return $other->accepts($this->value);
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function canCast(mixed $value): bool
     {
         return is_numeric($value) && (float)$value === $this->value;

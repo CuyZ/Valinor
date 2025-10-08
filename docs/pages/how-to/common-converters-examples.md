@@ -44,6 +44,11 @@ final readonly class User
         /**
          * Note that this converter will only be called when the input is an
          * array and the target type is an object.
+         * 
+         * @template T of object
+         * @param array<mixed> $value
+         * @param callable(array<mixed>): T $next
+         * @return T
          */
         function (array $values, callable $next): object {
             $camelCaseConverted = array_combine(
@@ -81,8 +86,10 @@ namespace My\App;
 final class CamelCaseKeys
 {
     /**
+     * @template T of object
      * @param array<mixed> $value
-     * @param callable(array<mixed>): object $next
+     * @param callable(array<mixed>): T $next
+     * @return T
      */
     public function map(array $value, callable $next): object
     {
@@ -137,7 +144,13 @@ final readonly class Location
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->registerConverter(
-        function (array $value, callable $next): mixed {
+        /**
+         * @template T of object
+         * @param array<mixed> $value
+         * @param callable(array<mixed>): T $next
+         * @return T
+         */
+        function (array $value, callable $next): object {
             $mapping = [
                 'town' => 'city',
                 'postalCode' => 'zipCode',
@@ -179,8 +192,10 @@ final class RenameKeys
     ) {}
 
     /**
+     * @template T of object
      * @param array<mixed> $value
-     * @param callable(array<mixed>): object $next
+     * @param callable(array<mixed>): T $next
+     * @return T
      */
     public function map(array $value, callable $next): object
     {
@@ -643,7 +658,7 @@ final class Explode
     ) {}
 
     /**
-     * @return array<mixed>
+     * @return list<string>
      */
     public function map(string $value): array
     {
@@ -655,7 +670,7 @@ final readonly class Product
 {
     public string $name;
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     #[\My\App\Explode(separator: ',')] public array $size;
 }
 
@@ -687,8 +702,9 @@ namespace My\App;
 final class ArrayToList
 {
     /**
-     * @param array<mixed> $value
-     * @return list<mixed>
+     * @template T
+     * @param non-empty-array<T> $value
+     * @return non-empty-list<T>
      */
     public function map(array $value): array
     {
@@ -733,8 +749,10 @@ namespace My\App;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class JsonDecode
 {
-    /**
-     * @param callable(mixed): mixed $next
+     /**
+     * @template T
+     * @param callable(mixed): T $next
+     * @return T
      */
     public function map(string $value, callable $next): mixed
     {

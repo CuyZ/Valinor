@@ -10,10 +10,13 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Type\VacantType;
 
 /** @internal */
 final class TypeHelper
@@ -60,5 +63,35 @@ final class TypeHelper
         }
 
         return $types;
+    }
+
+    /**
+     * @param non-empty-array<non-empty-string, Type> $vacantTypes
+     */
+    public static function assignVacantTypes(Type $type, array $vacantTypes): Type
+    {
+        try {
+            return self::doAssignVacantTypes($type, $vacantTypes);
+        } catch (InvalidType $exception) {
+            return new UnresolvableType($type->toString(), $exception->getMessage());
+        }
+    }
+
+    /**
+     * @param non-empty-array<non-empty-string, Type> $vacantTypes
+     */
+    private static function doAssignVacantTypes(Type $type, array $vacantTypes): Type
+    {
+        if ($type instanceof VacantType && isset($vacantTypes[$type->symbol()])) {
+            return $vacantTypes[$type->symbol()];
+        }
+
+        if ($type instanceof CompositeType) {
+            return $type->replace(
+                static fn (Type $subType) => self::doAssignVacantTypes($subType, $vacantTypes),
+            );
+        }
+
+        return $type;
     }
 }

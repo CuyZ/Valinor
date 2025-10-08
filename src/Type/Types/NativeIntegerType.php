@@ -49,6 +49,11 @@ final class NativeIntegerType implements IntegerType
             || $other instanceof MixedType;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function canCast(mixed $value): bool
     {
         if (is_string($value)) {

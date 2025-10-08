@@ -176,6 +176,11 @@ final class UnresolvableType implements VacantType
         throw new LogicException();
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        throw new LogicException();
+    }
+
     public function compiledAccept(ComplianceNode $node): ComplianceNode
     {
         throw new LogicException();

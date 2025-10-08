@@ -84,6 +84,11 @@ final class IntersectionType implements CombiningType
         return true;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function isMatchedBy(Type $other): bool
     {
         foreach ($this->types as $type) {

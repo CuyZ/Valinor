@@ -121,12 +121,15 @@ final class AttributeValueConverterMappingTest extends IntegrationTestCase
     public function test_attributes_are_handled_on_class_inferred_by_interface(): void
     {
         $result = $this->mapperBuilder()
+            // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+            ->registerConverter(fn (string $value, callable $next): SomeClassThatImplementsInterface => $next($value . '?'))
+            ->registerConverter(fn (string $value): string => $value . '@')
             ->infer(SomeInterface::class, fn () => SomeClassThatImplementsInterface::class)
             ->mapper()
             ->map(SomeInterface::class, 'foo');
 
         self::assertInstanceOf(SomeClassThatImplementsInterface::class, $result);
-        self::assertSame('foo!', $result->value);
+        self::assertSame('FOO?!@', $result->value);
     }
 
     public function test_converter_attribute_returning_invalid_value_makes_mapping_fail(): void
@@ -274,7 +277,10 @@ final class UppercaseSelfRegisteredConverter
 final class ClassConverter
 {
     /**
-     * @param callable(string): object $next
+     * @template T of object
+     *
+     * @param callable(string): T $next
+     * @return T
      */
     public function map(string $value, callable $next): object
     {
@@ -286,9 +292,10 @@ final class ClassConverter
 final class FunctionConverter
 {
     /**
-     * @param array<mixed> $values
-     * @param callable(array<mixed>): array<mixed> $next
-     * @return array<mixed>
+     * @template T of array
+     * @param T $values
+     * @param callable<Type>(Type): T $next
+     * @return T
      */
     public function map(array $values, callable $next): array
     {
@@ -320,15 +327,19 @@ interface SomeInterface {}
 #[ClassConverter]
 final class SomeClassThatImplementsInterface implements SomeInterface
 {
+    #[UppercaseSelfRegisteredConverter]
     public string $value;
 }
 
 #[Attribute, AsConverter]
 final class ConverterReturningEmptyString
 {
+    /**
+     * @return non-empty-string
+     */
     public function map(string $value): string
     {
-        return '';
+        return ''; // @phpstan-ignore return.type (we intentionally return an empty string to check this is handled properly by the mapper)
     }
 }
 

@@ -43,6 +43,11 @@ final class NonPositiveIntegerType implements IntegerType
             || $other instanceof MixedType;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function canCast(mixed $value): bool
     {
         return ! is_bool($value)

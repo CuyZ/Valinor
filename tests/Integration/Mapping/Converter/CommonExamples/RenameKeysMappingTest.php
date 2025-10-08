@@ -18,21 +18,29 @@ final class RenameKeysMappingTest extends IntegrationTestCase
 
         try {
             $result = $this->mapperBuilder()
-                ->registerConverter(function (array $value, callable $next): object {
-                    $mapping = [
-                        'town' => 'city',
-                        'postalCode' => 'zipCode',
-                    ];
+                ->registerConverter(
+                    /**
+                     * @template T of object
+                     * @param array<mixed> $value
+                     * @param callable(array<mixed>): T $next
+                     * @return T
+                     */
+                    function (array $value, callable $next): object {
+                        $mapping = [
+                            'town' => 'city',
+                            'postalCode' => 'zipCode',
+                        ];
 
-                    $renamed = [];
+                        $renamed = [];
 
-                    foreach ($value as $key => $item) {
-                        $renamed[$mapping[$key] ?? $key] = $item;
+                        foreach ($value as $key => $item) {
+                            $renamed[$mapping[$key] ?? $key] = $item;
+                        }
+
+                        /** @var callable(array<mixed>): object $next */
+                        return $next($renamed);
                     }
-
-                    /** @var callable(array<mixed>): object $next */
-                    return $next($renamed);
-                })
+                )
                 ->mapper()
                 ->map($class::class, [
                     'town' => 'Lyon',
