@@ -106,7 +106,6 @@ final class TransformerDefinitionBuilder
     private function typeFormatter(Type $type): TypeFormatter
     {
         return match (true) {
-            $type instanceof CompositeTraversableType => new TraversableFormatter($type->subType()),
             $type instanceof EnumType => new EnumFormatter($type),
             $type instanceof InterfaceType => new InterfaceFormatter($type),
             $type instanceof NativeClassType => match (true) {
@@ -121,6 +120,7 @@ final class TransformerDefinitionBuilder
             $type instanceof ScalarType => new ScalarFormatter(),
             $type instanceof ShapedArrayType => new ShapedArrayFormatter($type),
             $type instanceof UnionType => new UnionFormatter($type),
+            $type instanceof CompositeTraversableType => new TraversableFormatter($type->subType()),
             $type instanceof GenericType => $this->typeFormatter($type->innerType),
             default => new MixedFormatter(),
         };

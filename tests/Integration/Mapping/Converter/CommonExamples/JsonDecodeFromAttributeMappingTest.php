@@ -17,8 +17,7 @@ final class JsonDecodeFromAttributeMappingTest extends IntegrationTestCase
     {
         $class = new class () {
             /** @var array<scalar> */
-            #[JsonDecode]
-            public array $value;
+            #[JsonDecode] public array $value;
         };
 
         try {
@@ -37,6 +36,11 @@ final class JsonDecodeFromAttributeMappingTest extends IntegrationTestCase
 #[Attribute, AsConverter]
 final class JsonDecode
 {
+    /**
+     * @template T
+     * @param callable(mixed): T $next
+     * @return T
+     */
     public function map(string $value, callable $next): mixed
     {
         $decoded = json_decode($value, associative: true, flags: JSON_THROW_ON_ERROR);

@@ -42,7 +42,7 @@ final class Explode
     ) {}
 
     /**
-     * @return array<mixed>
+     * @return list<string>
      */
     public function map(string $value): array
     {

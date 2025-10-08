@@ -90,6 +90,15 @@ final class ListType implements CompositeTraversableType, DumpableType
         return false;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if (! $other instanceof CompositeTraversableType) {
+            return $generics;
+        }
+
+        return $this->subType->inferGenericsFrom($other->subType(), $generics);
+    }
+
     public function keyType(): ArrayKeyType
     {
         return ArrayKeyType::integer();

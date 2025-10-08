@@ -84,6 +84,11 @@ final class CallableType implements CompositeType
         );
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function nativeType(): Type
     {
         return $this;

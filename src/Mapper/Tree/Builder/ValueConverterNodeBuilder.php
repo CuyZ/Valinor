@@ -7,13 +7,15 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
+use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasInvalidReturnType;
 use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeDuringValueConversion;
+use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\Types\InterfaceType;
-use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Type\Types\Generics;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
 use Exception;
 use Throwable;
 
@@ -36,16 +38,10 @@ final class ValueConverterNodeBuilder implements NodeBuilder
 
     public function build(Shell $shell): Node
     {
-        $type = $shell->type;
-
-        if ($type instanceof UnionType || $type instanceof InterfaceType) {
-            return $this->delegate->build($shell);
-        }
-
         $attributes = $shell->attributes;
 
-        if ($type instanceof ObjectType) {
-            $class = $this->classDefinitionRepository->for($type);
+        if ($shell->type instanceof ObjectType) {
+            $class = $this->classDefinitionRepository->for($shell->type);
 
             $attributes = $attributes->merge($class->attributes);
         }
@@ -57,14 +53,15 @@ final class ValueConverterNodeBuilder implements NodeBuilder
 
         $converterAttributes = $attributes->filter(ConverterContainer::filterConverterAttributes(...));
 
-        $stack = [
-            ...array_map(
-                // @phpstan-ignore method.notFound (we know the `map` method exists)
-                static fn (AttributeDefinition $attribute) => $attribute->instantiate()->map(...),
-                $converterAttributes->toArray(),
-            ),
-            ...$this->converterContainer->converters(),
-        ];
+        $stack = array_map(
+            // @phpstan-ignore method.notFound (we know the `map` method exists)
+            static fn (AttributeDefinition $attribute) => $attribute->instantiate()->map(...),
+            $converterAttributes->toArray(),
+        );
+
+        if ($shell->shouldApplyConverters) {
+            $stack = [...$stack, ...$this->converterContainer->converters()];
+        }
 
         if ($stack === []) {
             // @infection-ignore-all (This is a performance optimization, we don't test this)
@@ -74,9 +71,11 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         try {
             $result = $this->unstack($stack, $shell);
 
-            $shell = $shell->withValue($result);
+            if (! $shell->type->accepts($result)) {
+                return $shell->withValue($result)->error(InvalidNodeValue::from($shell->type));
+            }
 
-            return $this->delegate->build($shell);
+            return $shell->node($result);
         } catch (InvalidNodeDuringValueConversion $exception) {
             return $exception->node;
         }
@@ -90,11 +89,25 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         while ($current = array_shift($stack)) {
             $converter = $this->functionDefinitionRepository->for($current);
 
-            if (! $shell->type->matches($converter->returnType)) {
+            if ($converter->returnType instanceof UnresolvableType) {
+                throw new ConverterHasInvalidReturnType($converter);
+            }
+
+            $generics = $converter->returnType->inferGenericsFrom($shell->type, new Generics());
+            $converter = $converter->assignGenerics($generics);
+
+            $firstParameterType = $converter->parameters->at(0)->type;
+            $returnType = $converter->returnType;
+
+            if ($firstParameterType instanceof UnresolvableType || $returnType instanceof UnresolvableType) {
                 continue;
             }
 
-            if (! $converter->parameters->at(0)->type->accepts($shell->value())) {
+            if (! $converter->returnType->matches($shell->type)) {
+                continue;
+            }
+
+            if (! $firstParameterType->accepts($shell->value())) {
                 continue;
             }
 

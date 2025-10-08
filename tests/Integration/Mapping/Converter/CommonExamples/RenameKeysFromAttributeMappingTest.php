@@ -43,8 +43,10 @@ final class RenameKeys
     ) {}
 
     /**
+     * @template T of object
      * @param array<mixed> $value
-     * @param callable(array<mixed>): object $next
+     * @param callable(array<mixed>): T $next
+     * @return T
      */
     public function map(array $value, callable $next): object
     {

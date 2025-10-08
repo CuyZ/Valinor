@@ -6,6 +6,8 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Type\Types\Generics;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -46,6 +48,15 @@ final class UnresolvableTypeTest extends TestCase
         $this->expectException(LogicException::class);
 
         $type->nativeType();
+    }
+
+    public function test_call_unresolvable_type_infer_generic_throws_exception(): void
+    {
+        $type = new UnresolvableType('some-type', 'some message');
+
+        $this->expectException(LogicException::class);
+
+        $type->inferGenericsFrom(new NativeStringType(), new Generics());
     }
 
     public function test_cast_string_unresolvable_type_returns_type(): void

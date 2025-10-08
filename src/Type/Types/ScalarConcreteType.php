@@ -8,11 +8,7 @@ use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
-use CuyZ\Valinor\Type\BooleanType;
-use CuyZ\Valinor\Type\FloatType;
-use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ScalarType;
-use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 use Stringable;
@@ -38,15 +34,16 @@ final class ScalarConcreteType implements ScalarType
     public function matches(Type $other): bool
     {
         if ($other instanceof UnionType) {
-            return $other->isMatchedBy($this);
+            return (new UnionType(NativeIntegerType::get(), NativeFloatType::get(), NativeStringType::get(), NativeBooleanType::get()))->matches($other);
         }
 
         return $other instanceof self
-            || $other instanceof IntegerType
-            || $other instanceof FloatType
-            || $other instanceof StringType
-            || $other instanceof BooleanType
             || $other instanceof MixedType;
+    }
+
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
     }
 
     public function canCast(mixed $value): bool

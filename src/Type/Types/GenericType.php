@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\VacantType;
 final class GenericType implements VacantType
 {
     public function __construct(
+        /** @var non-empty-string */
         public readonly string $symbol,
         public readonly Type $innerType,
     ) {}
@@ -29,6 +30,15 @@ final class GenericType implements VacantType
     public function matches(Type $other): bool
     {
         return $this->innerType->matches($other);
+    }
+
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if ($other->matches($this->innerType)) {
+            return $generics->with($this, $other);
+        }
+
+        return $generics;
     }
 
     public function nativeType(): Type

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition;
 
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\Generics;
+use CuyZ\Valinor\Utility\TypeHelper;
 
 /** @internal */
 final class FunctionDefinition
@@ -22,6 +24,25 @@ final class FunctionDefinition
         public readonly bool $isStatic,
         public readonly bool $isClosure,
         public readonly Parameters $parameters,
-        public readonly Type $returnType
+        public readonly Type $returnType,
     ) {}
+
+    public function assignGenerics(Generics $generics): self
+    {
+        if ($generics->items === []) {
+            return $this;
+        }
+
+        return new self(
+            $this->name,
+            $this->signature,
+            $this->attributes,
+            $this->fileName,
+            $this->class,
+            $this->isStatic,
+            $this->isClosure,
+            $this->parameters->assignGenerics($generics),
+            TypeHelper::assignVacantTypes($this->returnType, $generics->items),
+        );
+    }
 }

@@ -23,18 +23,26 @@ final class ArrayKeysToCamelCaseMappingTest extends IntegrationTestCase
 
         try {
             $result = $this->mapperBuilder()
-                ->registerConverter(function (array $value, callable $next): object {
-                    $transformed = [];
+                ->registerConverter(
+                    /**
+                     * @template T of object
+                     * @param array<mixed> $value
+                     * @param callable(array<mixed>): T $next
+                     * @return T
+                     */
+                    function (array $value, callable $next): object {
+                        $transformed = [];
 
-                    foreach ($value as $key => $item) {
-                        $camelCaseKey = lcfirst(str_replace('_', '', ucwords($key, '_')));
+                        foreach ($value as $key => $item) {
+                            $camelCaseKey = lcfirst(str_replace('_', '', ucwords($key, '_')));
 
-                        $transformed[$camelCaseKey] = $item;
+                            $transformed[$camelCaseKey] = $item;
+                        }
+
+                        /** @var callable(array<mixed>): object $next */
+                        return $next($transformed);
                     }
-
-                    /** @var callable(array<mixed>): object $next */
-                    return $next($transformed);
-                })
+                )
                 ->mapper()
                 ->map($class::class, [
                     'first_name' => 'John',

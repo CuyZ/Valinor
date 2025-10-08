@@ -126,6 +126,18 @@ final class ClassStringType implements StringType, CompositeType
         return true;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if (! $other instanceof self) {
+            return $generics;
+        }
+
+        $selfTypes = UnionType::from(...$this->subTypes);
+        $otherTypes = UnionType::from(...$other->subTypes);
+
+        return $selfTypes->inferGenericsFrom($otherTypes, $generics);
+    }
+
     public function canCast(mixed $value): bool
     {
         return (is_string($value) || $value instanceof Stringable)

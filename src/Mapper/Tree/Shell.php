@@ -42,6 +42,7 @@ final class Shell
         public bool $allowPermissiveTypes,
         /** @var list<string> */
         public array $allowedSuperfluousKeys,
+        public bool $shouldApplyConverters,
         private NodeBuilder $nodeBuilder,
         private TypeDumper $typeDumper,
         private ObjectTrace $objectTrace, // Helps detecting circular dependencies
@@ -163,6 +164,24 @@ final class Shell
     {
         $self = clone $this;
         $self->allowSuperfluousKeys = true;
+
+        return $self;
+    }
+
+    public function shouldApplyConverters(): self
+    {
+        // @infection-ignore-all / We don't want to test the clone behavior
+        $self = clone $this;
+        $self->shouldApplyConverters = true;
+
+        return $self;
+    }
+
+    public function shouldNotApplyConverters(): self
+    {
+        // @infection-ignore-all / We don't want to test the clone behavior
+        $self = clone $this;
+        $self->shouldApplyConverters = false;
 
         return $self;
     }

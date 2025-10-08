@@ -43,6 +43,7 @@ final class ObjectNodeBuilder implements NodeBuilder
             return $this->interfaceNodeBuilder->build($shell);
         }
 
+        $shell = $shell->shouldApplyConverters();
         $objectBuilders = $this->objectBuilderFactory->for($class);
 
         foreach ($objectBuilders as $objectBuilder) {

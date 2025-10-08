@@ -34,6 +34,11 @@ final class NullType implements Type
             || $other instanceof MixedType;
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function nativeType(): Type
     {
         return $this;

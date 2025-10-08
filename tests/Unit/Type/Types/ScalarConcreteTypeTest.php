@@ -129,24 +129,24 @@ final class ScalarConcreteTypeTest extends TestCase
         self::assertTrue($this->scalarType->matches(new MixedType()));
     }
 
-    public function test_matches_native_float_type(): void
+    public function test_does_not_match_native_float_type(): void
     {
-        self::assertTrue($this->scalarType->matches(new NativeFloatType()));
+        self::assertFalse($this->scalarType->matches(new NativeFloatType()));
     }
 
-    public function test_matches_native_integer_type(): void
+    public function test_does_not_match_native_integer_type(): void
     {
-        self::assertTrue($this->scalarType->matches(new NativeIntegerType()));
+        self::assertFalse($this->scalarType->matches(new NativeIntegerType()));
     }
 
-    public function test_matches_native_string_type(): void
+    public function test_does_not_match_native_string_type(): void
     {
-        self::assertTrue($this->scalarType->matches(new NativeStringType()));
+        self::assertFalse($this->scalarType->matches(new NativeStringType()));
     }
 
-    public function test_matches_native_boolean_type(): void
+    public function test_does_not_match_native_boolean_type(): void
     {
-        self::assertTrue($this->scalarType->matches(new NativeBooleanType()));
+        self::assertFalse($this->scalarType->matches(new NativeBooleanType()));
     }
 
     public function test_matches_union_type_containing_scalar_type(): void

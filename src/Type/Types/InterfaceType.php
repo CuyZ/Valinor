@@ -59,6 +59,21 @@ final class InterfaceType implements ObjectType, ObjectWithGenericType
         return is_a($this->interfaceName, $other->className(), true);
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        if (! $other instanceof self) {
+            return $generics;
+        }
+
+        foreach ($this->generics as $key => $classGenerics) {
+            if (isset($other->generics[$key])) {
+                $generics = $classGenerics->inferGenericsFrom($other->generics[$key], $generics);
+            }
+        }
+
+        return $generics;
+    }
+
     public function traverse(): array
     {
         return $this->generics;

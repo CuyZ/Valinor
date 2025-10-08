@@ -48,6 +48,11 @@ final class BooleanValueType implements BooleanType, FixedType
         return $other->accepts($this->value);
     }
 
+    public function inferGenericsFrom(Type $other, Generics $generics): Generics
+    {
+        return $generics;
+    }
+
     public function canCast(mixed $value): bool
     {
         if ($value === $this->value) {
