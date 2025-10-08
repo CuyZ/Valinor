@@ -1,0 +1,50 @@
+name: Mutation tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  mutation:
+    name: Mutation tests
+    runs-on: ubuntu-latest
+    env:
+      php-version: '8.2'
+      php-extensions: ds,yaml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for the `git diff` used below for Infection
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php-version }}
+          extensions: ${{ env.php-extensions }}
+          ini-values: zend.assertions=1
+          coverage: pcov
+
+      - uses: "ramsey/composer-install@v2"
+
+      - name: Creating var directory
+        run: mkdir -p var/cache
+
+      - name: Cache Mutation results
+        uses: actions/cache@v4
+        with:
+          path: var/cache
+          key: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
+          restore-keys: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
+
+      - name: Running mutation tests
+        if: github.ref == 'refs/heads/master'
+        run: php vendor/bin/infection --threads=$(nproc) --with-uncovered
+        env:
+          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
+
+      - name: Running mutation tests
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --depth=1 origin $GITHUB_BASE_REF
+          php vendor/bin/infection --threads=$(nproc) --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --with-uncovered --min-msi=100 --show-mutations --verbose
