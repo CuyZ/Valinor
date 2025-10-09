@@ -59,8 +59,9 @@ jobs:
             --log-verbosity=all \
             --debug
 
-      -   uses: "actions/upload-artifact@v4"
-          if: github.event_name == 'pull_request' && always()
-          with:
-              name: "infection-log"
-              path: "var/infection/infection.log"
+      - name: Upload mutation log in artifact
+        uses: "actions/upload-artifact@v4"
+        if: github.event_name == 'pull_request' && always()
+        with:
+          name: "infection-log"
+          path: "var/infection/infection.log"
