@@ -26,7 +26,6 @@ final class MapperBuilder
     public function __construct()
     {
         $this->settings = new Settings();
-        $x = 1; // test change
     }
 
     /**
