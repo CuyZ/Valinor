@@ -56,7 +56,7 @@ jobs:
             --min-msi=100 \
             --show-mutations \
             --verbose \
-            --log-verbosity=all \
+            --logger-text=php://stdout \
             --debug
 
       - name: Upload mutation log in artifact
