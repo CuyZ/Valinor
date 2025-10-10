@@ -19,8 +19,8 @@ use Throwable;
 
 use function array_map;
 use function array_shift;
-use function is_float;
-use function is_infinite;
+use function func_get_arg;
+use function func_num_args;
 
 /** @internal */
 final class ValueConverterNodeBuilder implements NodeBuilder
@@ -101,9 +101,9 @@ final class ValueConverterNodeBuilder implements NodeBuilder
             $arguments = [$shell->value()];
 
             if ($converter->parameters->count() > 1) {
-                $arguments[] = function (mixed $value = INF) use ($stack, $shell) {
-                    if (! is_float($value) || ! is_infinite($value)) {
-                        $shell = $shell->withValue($value);
+                $arguments[] = function () use ($stack, $shell) {
+                    if (func_num_args() > 0) {
+                        $shell = $shell->withValue(func_get_arg(0));
                     }
 
                     return $this->unstack($stack, $shell);
