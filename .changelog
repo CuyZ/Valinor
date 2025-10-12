@@ -6,7 +6,12 @@ return [
             'label' => 'Other',
             'description' => 'Other miscellaneous changes',
         ],
+        'chore' => [
+            'label' => 'Internal',
+            'description' => 'Codebase internal changes',
+        ],
     ],
+    'ignoreTypes' => ['build', 'ci', 'docs', 'perf', 'refactor', 'revert', 'style', 'test'],
     'path' => 'docs/pages/changelog.md',
     'releaseCommitMessageFormat' => 'release: new version {{currentTag}}',
     'tagPrefix' => '',
