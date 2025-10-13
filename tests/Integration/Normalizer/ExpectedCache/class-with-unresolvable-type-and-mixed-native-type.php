@@ -13,10 +13,10 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithunresolvabletypeandmixednativetype_b20b7aa697cba45f8001418603f28c69($value, $references);
+        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithunresolvabletypeandmixednativetype_21415243($value, $references);
     }
 
-    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithunresolvabletypeandmixednativetype_b20b7aa697cba45f8001418603f28c69(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithUnresolvableTypeAndMixedNativeType $value, WeakMap $references): array
+    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithunresolvabletypeandmixednativetype_21415243(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithUnresolvableTypeAndMixedNativeType $value, WeakMap $references): array
     {
         if (isset($references[$value])) {
             throw new CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization($value);
@@ -58,12 +58,12 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             return $value->getName();
         }
         if (\is_iterable($value) && ! $value instanceof Generator) {
-            return $this->transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6($value, $references);
+            return $this->transform_iterable_mixed_bf66259c($value, $references);
         }
         return $this->delegate->transform($value);
     }
 
-    private function transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_mixed_bf66259c(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
             return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);

@@ -13,7 +13,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_iterable_stdclass_8fe5e53a83cbf2f3b41ad249eab32395($value, $references);
+        return $this->transform_iterable_stdclass_738f02a0($value, $references);
     }
 
     private function transform_mixed(mixed $value, WeakMap $references): mixed
@@ -43,12 +43,12 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             return $value->getName();
         }
         if (\is_iterable($value) && ! $value instanceof Generator) {
-            return $this->transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6($value, $references);
+            return $this->transform_iterable_mixed_bf66259c($value, $references);
         }
         return $this->delegate->transform($value);
     }
 
-    private function transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_mixed_bf66259c(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
             return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);
@@ -69,7 +69,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return \array_map(fn (mixed $value) => $this->transform_mixed($value, $references), (array)$value);
     }
 
-    private function transform_unsure_stdclass_8fe5e53a83cbf2f3b41ad249eab32395(mixed $value, WeakMap $references): mixed
+    private function transform_unsure_stdclass_738f02a0(mixed $value, WeakMap $references): mixed
     {
         if (! ($value instanceof stdClass)) {
             return $this->transform_mixed($value, $references);
@@ -77,14 +77,14 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return $this->transform_stdclass($value, $references);
     }
 
-    private function transform_iterable_stdclass_8fe5e53a83cbf2f3b41ad249eab32395(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_stdclass_738f02a0(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
-            return \array_map(fn (mixed $item) => $this->transform_unsure_stdclass_8fe5e53a83cbf2f3b41ad249eab32395($item, $references), $value);
+            return \array_map(fn (mixed $item) => $this->transform_unsure_stdclass_738f02a0($item, $references), $value);
         }
         return (function () use ($value, $references) {
             foreach ($value as $key => $item) {
-                yield $key => $this->transform_unsure_stdclass_8fe5e53a83cbf2f3b41ad249eab32395($item, $references);
+                yield $key => $this->transform_unsure_stdclass_738f02a0($item, $references);
             }
         })();
     }

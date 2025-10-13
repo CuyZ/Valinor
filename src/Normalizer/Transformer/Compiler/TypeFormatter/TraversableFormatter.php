@@ -109,6 +109,6 @@ final class TraversableFormatter implements TypeFormatter
     {
         $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->subType->toString()));
 
-        return "transform_iterable_{$slug}_" . hash('xxh128', $this->subType->toString());
+        return "transform_iterable_{$slug}_" . hash('crc32', $this->subType->toString());
     }
 }

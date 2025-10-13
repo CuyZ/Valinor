@@ -13,10 +13,10 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithunsealedshapedarray_8ddd6ae4828a3f796a5a41d74f786c00($value, $references);
+        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithunsealedshapedarray_58858794($value, $references);
     }
 
-    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithunsealedshapedarray_8ddd6ae4828a3f796a5a41d74f786c00(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithUnsealedShapedArray $value, WeakMap $references): array
+    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithunsealedshapedarray_58858794(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithUnsealedShapedArray $value, WeakMap $references): array
     {
         if (isset($references[$value])) {
             throw new CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization($value);
@@ -27,7 +27,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'shapedArray' => $value->shapedArray,
         ];
         $transformed = [];
-        $transformed['shapedArray'] = $this->transform_shaped_array_6e221ad90986e9902ef7a23f87c2f63a($values['shapedArray'], $references);
+        $transformed['shapedArray'] = $this->transform_shaped_array_5d47d611($values['shapedArray'], $references);
         return $transformed;
     }
 
@@ -58,12 +58,12 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             return $value->getName();
         }
         if (\is_iterable($value) && ! $value instanceof Generator) {
-            return $this->transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6($value, $references);
+            return $this->transform_iterable_mixed_bf66259c($value, $references);
         }
         return $this->delegate->transform($value);
     }
 
-    private function transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_mixed_bf66259c(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
             return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);
@@ -75,7 +75,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         })();
     }
 
-    private function transform_unsure_string_3be84d23fb1096447c64fce6e12d003c(mixed $value, WeakMap $references): mixed
+    private function transform_unsure_string_6a11bcce(mixed $value, WeakMap $references): mixed
     {
         if (! (\is_string($value))) {
             return $this->transform_mixed($value, $references);
@@ -83,7 +83,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return $value;
     }
 
-    private function transform_unsure_int_7617cc4b435dae7c97211c6082923b47(mixed $value, WeakMap $references): mixed
+    private function transform_unsure_int_c53673f7(mixed $value, WeakMap $references): mixed
     {
         if (! (\is_int($value))) {
             return $this->transform_mixed($value, $references);
@@ -91,14 +91,14 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return $value;
     }
 
-    private function transform_shaped_array_6e221ad90986e9902ef7a23f87c2f63a(array $value, WeakMap $references): array
+    private function transform_shaped_array_5d47d611(array $value, WeakMap $references): array
     {
         $result = [];
         foreach ($value as $key => $item) {
             $result[$key] = match ($key) {
-                'someString' => $this->transform_unsure_string_3be84d23fb1096447c64fce6e12d003c($item, $references),
-                'someInt' => $this->transform_unsure_int_7617cc4b435dae7c97211c6082923b47($item, $references),
-                default => $this->transform_unsure_string_3be84d23fb1096447c64fce6e12d003c($item, $references),
+                'someString' => $this->transform_unsure_string_6a11bcce($item, $references),
+                'someInt' => $this->transform_unsure_int_c53673f7($item, $references),
+                default => $this->transform_unsure_string_6a11bcce($item, $references),
             };
         }
         return $result;
