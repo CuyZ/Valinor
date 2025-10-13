@@ -21,7 +21,7 @@ use function strtolower;
 final class AliasSpecification implements TypeParserSpecification
 {
     public function __construct(
-        /** @var ReflectionClass<object>|ReflectionFunction */
+        /** @var ReflectionClass<covariant object>|ReflectionFunction */
         private Reflector $reflection,
     ) {}
 

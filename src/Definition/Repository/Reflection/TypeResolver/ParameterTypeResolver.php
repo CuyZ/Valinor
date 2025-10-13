@@ -67,7 +67,7 @@ final class ParameterTypeResolver
             $parameterName = $tokens[$dollarSignKey + 1] ?? null;
 
             if ($parameterName === $reflection->name) {
-                return $annotation->splice($dollarSignKey);
+                return $annotation->raw();
             }
         }
 

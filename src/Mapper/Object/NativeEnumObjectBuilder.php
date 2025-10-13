@@ -39,6 +39,7 @@ class NativeEnumObjectBuilder implements ObjectBuilder
 
     public function buildObject(array $arguments): object
     {
+        // @phpstan-ignore offsetAccess.invalidOffset (we know the `value` offset exists)
         return $this->enum->cases()[$arguments['value']];
     }
 

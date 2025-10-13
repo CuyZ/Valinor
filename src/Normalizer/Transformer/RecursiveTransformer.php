@@ -179,6 +179,7 @@ final class RecursiveTransformer implements Transformer
                     $method = $attribute->class->methods->get('normalizeKey');
 
                     if ($method->parameters->count() === 0 || $method->parameters->at(0)->type->accepts($key)) {
+                        /** @var string $key */
                         $key = $attribute->instantiate()->normalizeKey($key); // @phpstan-ignore-line / We know the method exists
                     }
                 }

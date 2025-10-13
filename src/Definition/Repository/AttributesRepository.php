@@ -16,7 +16,7 @@ use Reflector;
 interface AttributesRepository
 {
     /**
-     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
+     * @param ReflectionClass<covariant object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
      * @return list<AttributeDefinition>
      */
     public function for(Reflector $reflection): array;

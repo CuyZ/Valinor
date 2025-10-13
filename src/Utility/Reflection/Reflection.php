@@ -18,7 +18,7 @@ use function spl_object_hash;
 /** @internal */
 final class Reflection
 {
-    /** @var array<class-string, ReflectionClass<object>> */
+    /** @var array<class-string, ReflectionClass<covariant object>> */
     private static array $classReflection = [];
 
     /** @var array<string, ReflectionFunction> */
@@ -53,7 +53,7 @@ final class Reflection
 
     /**
      * @param class-string $className
-     * @return ReflectionClass<object>
+     * @return ReflectionClass<covariant object>
      */
     public static function class(string $className): ReflectionClass
     {
