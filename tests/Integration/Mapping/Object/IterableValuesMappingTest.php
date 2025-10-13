@@ -19,8 +19,8 @@ final class IterableValuesMappingTest extends IntegrationTestCase
             'integers' => [42, 404, 1337],
             'strings' => ['foo', 'bar', 'baz'],
             'iterableWithDefaultKeyType' => [42 => 'foo', 'some-key' => 'bar'],
-            'iterableWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'],
-            'iterableWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'],
+            'iterableWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'], // @phpstan-ignore array.invalidKey (we test with a float array-key on purpose)
+            'iterableWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'], // @phpstan-ignore array.invalidKey (we test with a float array-key on purpose)
             'objects' => [
                 'foo' => 'foo',
                 'bar' => 'bar',

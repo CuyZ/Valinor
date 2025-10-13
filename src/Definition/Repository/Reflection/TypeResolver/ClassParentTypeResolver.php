@@ -37,7 +37,7 @@ final class ClassParentTypeResolver
 
         $reflection = Reflection::class($child->className());
 
-        /** @var ReflectionClass<object> $parentReflection */
+        /** @var ReflectionClass<covariant object> $parentReflection */
         $parentReflection = $reflection->getParentClass();
 
         $extendedClass = $this->extractParentTypeFromDocBlock($reflection);
@@ -69,7 +69,7 @@ final class ClassParentTypeResolver
     }
 
     /**
-     * @param ReflectionClass<object> $reflection
+     * @param ReflectionClass<covariant object> $reflection
      * @return list<non-empty-string>
      */
     private function extractParentTypeFromDocBlock(ReflectionClass $reflection): array
@@ -83,7 +83,7 @@ final class ClassParentTypeResolver
     }
 
     /**
-     * @param ReflectionClass<object> $class
+     * @param ReflectionClass<covariant object> $class
      */
     private function fillParentGenericsWithUnresolvableTypes(ReflectionClass $class, UnresolvableType $unresolvableType): NativeClassType
     {

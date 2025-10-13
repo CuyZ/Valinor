@@ -63,7 +63,7 @@ final class Annotations
     }
 
     /**
-     * @param ReflectionClass<object>|ReflectionFunctionAbstract $reflection
+     * @param ReflectionClass<covariant object>|ReflectionFunctionAbstract $reflection
      * @return list<TokenizedAnnotation>
      */
     public static function forTemplates(ReflectionClass|ReflectionFunctionAbstract $reflection): array

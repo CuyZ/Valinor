@@ -37,7 +37,7 @@ final class FakeClassDefinition
     }
 
     /**
-     * @param ReflectionClass<object> $reflection
+     * @param ReflectionClass<covariant object> $reflection
      */
     public static function fromReflection(ReflectionClass $reflection): ClassDefinition
     {

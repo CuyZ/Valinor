@@ -16,7 +16,7 @@ use ReflectionFunctionAbstract;
 final class TemplateResolver
 {
     /**
-     * @param ReflectionClass<object>|ReflectionFunctionAbstract $reflection
+     * @param ReflectionClass<covariant object>|ReflectionFunctionAbstract $reflection
      * @return array<non-empty-string, GenericType>
      */
     public function templatesFromDocBlock(ReflectionClass|ReflectionFunctionAbstract $reflection, string $signature, TypeParser $typeParser): array

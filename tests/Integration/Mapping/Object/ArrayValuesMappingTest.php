@@ -22,8 +22,8 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
             'integers' => [42, 404, 1337],
             'strings' => ['foo', 'bar', 'baz'],
             'arrayWithDefaultKeyType' => [42 => 'foo', 'some-key' => 'bar'],
-            'arrayWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'],
-            'arrayWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'],
+            'arrayWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'], // @phpstan-ignore array.invalidKey (we test with a float array-key on purpose)
+            'arrayWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'], // @phpstan-ignore array.invalidKey (we test with a float array-key on purpose)
             'simpleArray' => [42 => 'foo', 'some-key' => 'bar'],
             'objects' => [
                 'foo' => 'foo',
@@ -37,8 +37,8 @@ final class ArrayValuesMappingTest extends IntegrationTestCase
             ],
             'nonEmptyArraysOfStrings' => ['foo', 'bar', 'baz'],
             'nonEmptyArrayWithDefaultKeyType' => [42 => 'foo', 'some-key' => 'bar'],
-            'nonEmptyArrayWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'],
-            'nonEmptyArrayWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'],
+            'nonEmptyArrayWithIntegerKeyType' => [1337 => 'foo', 42.0 => 'bar', '404' => 'baz'], // @phpstan-ignore array.invalidKey (we test with a float array-key on purpose)
+            'nonEmptyArrayWithStringKeyType' => [1337 => 'foo', 42.0 => 'bar', 'some-key' => 'baz'], // @phpstan-ignore array.invalidKey (we test with a float array-key on purpose)
         ];
 
         foreach ([ArrayValues::class, ArrayValuesWithConstructor::class] as $class) {

@@ -25,7 +25,7 @@ require_once __DIR__ . '/Fixtures/FunctionWithGroupedImportStatements.php';
 final class PhpParserTest extends TestCase
 {
     /**
-     * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
+     * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
      * @param array<string, string> $expectedMap
      */
     #[DataProvider('use_statements_data_provider')]

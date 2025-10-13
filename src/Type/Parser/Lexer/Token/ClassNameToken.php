@@ -29,7 +29,7 @@ use function explode;
 /** @internal */
 final class ClassNameToken implements TraversingToken
 {
-    /** @var ReflectionClass<object> */
+    /** @var ReflectionClass<covariant object> */
     private ReflectionClass $reflection;
 
     private bool $mustCheckTemplates = false;

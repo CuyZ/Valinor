@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
+use function array_splice;
 use function implode;
-use function trim;
 
 /** @internal */
 final class TokenizedAnnotation
@@ -25,18 +25,15 @@ final class TokenizedAnnotation
         return $this->name;
     }
 
-    public function splice(int $length): string
-    {
-        return implode('', array_splice($this->tokens, 0, $length));
-    }
-
     /**
      * @return non-empty-string
      */
     public function allAfter(int $offset): string
     {
+        $tokens = $this->tokens;
+
         /** @var non-empty-string */
-        return implode('', array_splice($this->tokens, $offset));
+        return implode('', array_splice($tokens, $offset));
     }
 
     /**

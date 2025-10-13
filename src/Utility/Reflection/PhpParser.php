@@ -21,7 +21,7 @@ final class PhpParser
     private static array $statements = [];
 
     /**
-     * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
+     * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
      * @return array<string, string>
      */
     public static function parseUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
@@ -44,7 +44,7 @@ final class PhpParser
     }
 
     /**
-     * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
+     * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
      * @return array<string, string>
      */
     private static function fetchUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
@@ -67,7 +67,7 @@ final class PhpParser
     }
 
     /**
-     * @param ReflectionClass<object>|ReflectionFunction|ReflectionMethod $reflection
+     * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
      */    private static function getFileContent(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): ?string
     {
         $filename = $reflection->getFileName();

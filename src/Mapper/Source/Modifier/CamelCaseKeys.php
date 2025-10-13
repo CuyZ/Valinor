@@ -8,6 +8,7 @@ use IteratorAggregate;
 use Traversable;
 
 use function is_iterable;
+use function is_string;
 
 /**
  * @api
@@ -35,6 +36,8 @@ final class CamelCaseKeys implements IteratorAggregate
         $result = [];
 
         foreach ($source as $key => $value) {
+            assert(is_string($key) || is_int($key));
+
             if (is_iterable($value)) {
                 $value = $this->replace($value);
             }

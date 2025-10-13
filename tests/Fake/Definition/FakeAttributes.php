@@ -16,7 +16,7 @@ use ReflectionAttribute;
 final class FakeAttributes
 {
     /**
-     * @param ReflectionClass<object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
+     * @param ReflectionClass<covariant object>|ReflectionProperty|ReflectionMethod|ReflectionFunction|ReflectionParameter $reflection
      */
     public static function fromReflection(Reflector $reflection): Attributes
     {
