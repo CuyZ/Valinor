@@ -9,6 +9,7 @@ Below are listed the changelogs for all released versions of the library.
 
 ## Version 2
 
+- [`2.2.2` — 13th of October 2025](changelog/version-2.2.2.md)
 - [`2.2.1` — 13th of October 2025](changelog/version-2.2.1.md)
 - [`2.2.0` — 29th of September 2025](changelog/version-2.2.0.md)
 - [`2.1.2` — 28th of August 2025](changelog/version-2.1.2.md)
