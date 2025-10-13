@@ -15,6 +15,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
 use Throwable;
 
+use function array_key_exists;
 use function assert;
 use function count;
 
@@ -62,6 +63,15 @@ final class ObjectNodeBuilder implements NodeBuilder
 
             try {
                 $values = $argumentsValues->transform($valuesNode->value());
+
+                // HOTFIX: https://github.com/CuyZ/Valinor/issues/727
+                // We should find a better way to handle this, and add non-regression tests
+                // @infection-ignore-all
+                foreach ($arguments as $argument) {
+                    if (! array_key_exists($argument->name(), $values) && ! $argument->isRequired()) {
+                        $values[$argument->name()] = $argument->defaultValue();
+                    }
+                }
 
                 $object = $objectBuilder->buildObject($values);
             } catch (UserlandError|Message $exception) {
