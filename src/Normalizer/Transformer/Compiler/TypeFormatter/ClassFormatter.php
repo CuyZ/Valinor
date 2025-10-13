@@ -207,6 +207,6 @@ final class ClassFormatter implements TypeFormatter
     {
         $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->class->type->toString()));
 
-        return "transform_object_{$slug}_" . hash('xxh128', $this->class->type->toString());
+        return "transform_object_{$slug}_" . hash('crc32', $this->class->type->toString());
     }
 }

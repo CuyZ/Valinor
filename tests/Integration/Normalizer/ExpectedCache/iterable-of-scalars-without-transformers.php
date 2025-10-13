@@ -13,7 +13,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_iterable_string_3be84d23fb1096447c64fce6e12d003c($value, $references);
+        return $this->transform_iterable_string_6a11bcce($value, $references);
     }
 
     private function transform_mixed(mixed $value, WeakMap $references): mixed
@@ -43,12 +43,12 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             return $value->getName();
         }
         if (\is_iterable($value) && ! $value instanceof Generator) {
-            return $this->transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6($value, $references);
+            return $this->transform_iterable_mixed_bf66259c($value, $references);
         }
         return $this->delegate->transform($value);
     }
 
-    private function transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_mixed_bf66259c(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
             return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);
@@ -60,7 +60,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         })();
     }
 
-    private function transform_unsure_string_3be84d23fb1096447c64fce6e12d003c(mixed $value, WeakMap $references): mixed
+    private function transform_unsure_string_6a11bcce(mixed $value, WeakMap $references): mixed
     {
         if (! (\is_string($value))) {
             return $this->transform_mixed($value, $references);
@@ -68,14 +68,14 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return $value;
     }
 
-    private function transform_iterable_string_3be84d23fb1096447c64fce6e12d003c(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_string_6a11bcce(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
-            return \array_map(fn (mixed $item) => $this->transform_unsure_string_3be84d23fb1096447c64fce6e12d003c($item, $references), $value);
+            return \array_map(fn (mixed $item) => $this->transform_unsure_string_6a11bcce($item, $references), $value);
         }
         return (function () use ($value, $references) {
             foreach ($value as $key => $item) {
-                yield $key => $this->transform_unsure_string_3be84d23fb1096447c64fce6e12d003c($item, $references);
+                yield $key => $this->transform_unsure_string_6a11bcce($item, $references);
             }
         })();
     }

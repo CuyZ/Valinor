@@ -73,6 +73,6 @@ final class UnsureTypeFormatter implements TypeFormatter
     {
         $slug = preg_replace('/[^a-z0-9]+/', '_', strtolower($this->unsureType->toString()));
 
-        return "transform_unsure_{$slug}_" . hash('xxh128', $this->unsureType->toString());
+        return "transform_unsure_{$slug}_" . hash('crc32', $this->unsureType->toString());
     }
 }

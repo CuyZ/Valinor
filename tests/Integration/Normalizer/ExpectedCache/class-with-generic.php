@@ -13,10 +13,10 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_02e4435eef61644851bf0e1f138c4c61($value, $references);
+        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_1292a3d8($value, $references);
     }
 
-    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_02e4435eef61644851bf0e1f138c4c61(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithGeneric $value, WeakMap $references): array
+    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_1292a3d8(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithGeneric $value, WeakMap $references): array
     {
         if (isset($references[$value])) {
             throw new CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization($value);
@@ -27,7 +27,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'value' => $value->value,
         ];
         $transformed = [];
-        $transformed['value'] = $this->transform_unsure_t_of_string_01a0c1224a31bfe672d329efa0903033($values['value'], $references);
+        $transformed['value'] = $this->transform_unsure_t_of_string_674cb654($values['value'], $references);
         return $transformed;
     }
 
@@ -58,12 +58,12 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             return $value->getName();
         }
         if (\is_iterable($value) && ! $value instanceof Generator) {
-            return $this->transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6($value, $references);
+            return $this->transform_iterable_mixed_bf66259c($value, $references);
         }
         return $this->delegate->transform($value);
     }
 
-    private function transform_iterable_mixed_070660c7e72aa3e14a93c1039279afb6(iterable $value, WeakMap $references): iterable
+    private function transform_iterable_mixed_bf66259c(iterable $value, WeakMap $references): iterable
     {
         if (\is_array($value)) {
             return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);
@@ -75,7 +75,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         })();
     }
 
-    private function transform_unsure_t_of_string_01a0c1224a31bfe672d329efa0903033(mixed $value, WeakMap $references): mixed
+    private function transform_unsure_t_of_string_674cb654(mixed $value, WeakMap $references): mixed
     {
         if (! (\is_string($value))) {
             return $this->transform_mixed($value, $references);

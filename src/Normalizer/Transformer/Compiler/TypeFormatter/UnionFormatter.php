@@ -78,6 +78,6 @@ final class UnionFormatter implements TypeFormatter
      */
     private function methodName(): string
     {
-        return 'transform_union_' . hash('xxh128', $this->type->toString());
+        return 'transform_union_' . hash('crc32', $this->type->toString());
     }
 }

@@ -97,6 +97,6 @@ final class ShapedArrayFormatter implements TypeFormatter
      */
     private function methodName(): string
     {
-        return 'transform_shaped_array_' . hash('xxh128', $this->type->toString());
+        return 'transform_shaped_array_' . hash('crc32', $this->type->toString());
     }
 }
