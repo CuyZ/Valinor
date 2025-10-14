@@ -29,7 +29,7 @@ final class ReflectionPropertyDefinitionBuilder
         $type = $propertyTypeResolver->resolveTypeFor($reflection);
         $nativeType = $propertyTypeResolver->resolveNativeTypeFor($reflection);
         $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
-        $defaultValue = $reflection->getDefaultValue();
+        $defaultValue = $hasDefaultValue ? $reflection->getDefaultValue() : null;
         $isPublic = $reflection->isPublic();
 
         if ($type instanceof UnresolvableType) {
