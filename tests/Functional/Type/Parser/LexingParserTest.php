@@ -641,6 +641,12 @@ final class LexingParserTest extends TestCase
             'type' => ShapedArrayType::class,
         ];
 
+        yield 'Empty shaped array' => [
+            'raw' => 'array{}',
+            'transformed' => 'array{}',
+            'type' => ShapedArrayType::class,
+        ];
+
         yield 'Shaped array with single quote key' => [
             'raw' => "array{'foo': string}",
             'transformed' => "array{'foo': string}",
@@ -1329,14 +1335,6 @@ final class LexingParserTest extends TestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertSame('Invalid types in intersection `DateTimeInterface&int`, each element must be a class name or an interface name but found `int`.', $type->message());
-    }
-
-    public function test_shaped_array_empty_elements_throws_exception(): void
-    {
-        $type = $this->parser->parse('array{}');
-
-        self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Shaped array must define one or more elements, for instance `array{foo: string}`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_throws_exception(): void
