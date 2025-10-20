@@ -28,14 +28,22 @@ use function usort;
 /** @internal */
 final class TypeDumper
 {
+    /** @var array<string, string> */
+    private array $dumpedTypes = [];
+
     public function __construct(
-        private readonly ClassDefinitionRepository $classDefinitionRepository,
-        private readonly ObjectBuilderFactory $objectBuilderFactory,
+        private ClassDefinitionRepository $classDefinitionRepository,
+        private ObjectBuilderFactory $objectBuilderFactory,
         private InterfaceInferringContainer $interfaceInferringContainer,
         private FunctionsContainer $constructors,
     ) {}
 
     public function dump(Type $type): string
+    {
+        return $this->dumpedTypes[$type->toString()] ??= $this->dumpAndQuote($type);
+    }
+
+    private function dumpAndQuote(Type $type): string
     {
         $context = $this->doDump($type, new TypeDumpContext());
 
