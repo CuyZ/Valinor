@@ -28,13 +28,15 @@ use function count;
 final class Arguments implements IteratorAggregate, Countable
 {
     /** @var array<string, Argument> */
-    private array $arguments = [];
+    private readonly array $arguments;
 
     public function __construct(Argument ...$arguments)
     {
+        $args = [];
         foreach ($arguments as $argument) {
-            $this->arguments[$argument->name()] = $argument;
+            $args[$argument->name()] = $argument;
         }
+        $this->arguments = $args;
     }
 
     public static function fromParameters(Parameters $parameters): self
@@ -76,16 +78,17 @@ final class Arguments implements IteratorAggregate, Countable
 
     public function toShapedArray(): ShapedArrayType
     {
+        $shapedArrayElements = [];
+        foreach ($this->arguments as $i => $argument) {
+            $shapedArrayElements[$i] = new ShapedArrayElement(
+                key: new StringValueType($argument->name()),
+                type: $argument->type(),
+                optional: ! $argument->isRequired(),
+                attributes: $argument->attributes(),
+            );
+        }
         return new ShapedArrayType(
-            elements: array_map(
-                static fn (Argument $argument) => new ShapedArrayElement(
-                    key: new StringValueType($argument->name()),
-                    type: $argument->type(),
-                    optional: ! $argument->isRequired(),
-                    attributes: $argument->attributes(),
-                ),
-                $this->arguments,
-            ),
+            elements: $shapedArrayElements,
             isUnsealed: false,
             unsealedType: null,
         );
