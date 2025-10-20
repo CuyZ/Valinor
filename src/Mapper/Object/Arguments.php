@@ -30,6 +30,8 @@ final class Arguments implements IteratorAggregate, Countable
     /** @var array<string, Argument> */
     private readonly array $arguments;
 
+    private ShapedArrayType $shapedArray;
+
     public function __construct(Argument ...$arguments)
     {
         $args = [];
@@ -78,17 +80,16 @@ final class Arguments implements IteratorAggregate, Countable
 
     public function toShapedArray(): ShapedArrayType
     {
-        $shapedArrayElements = [];
-        foreach ($this->arguments as $i => $argument) {
-            $shapedArrayElements[$i] = new ShapedArrayElement(
-                key: new StringValueType($argument->name()),
-                type: $argument->type(),
-                optional: ! $argument->isRequired(),
-                attributes: $argument->attributes(),
-            );
-        }
-        return new ShapedArrayType(
-            elements: $shapedArrayElements,
+        return $this->shapedArray ??= new ShapedArrayType(
+            elements: array_map(
+                static fn (Argument $argument) => new ShapedArrayElement(
+                    key: new StringValueType($argument->name()),
+                    type: $argument->type(),
+                    optional: ! $argument->isRequired(),
+                    attributes: $argument->attributes(),
+                ),
+                $this->arguments,
+            ),
             isUnsealed: false,
             unsealedType: null,
         );
