@@ -10,6 +10,8 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
+use function array_shift;
+
 /** @internal */
 final class ClassGenericResolver
 {

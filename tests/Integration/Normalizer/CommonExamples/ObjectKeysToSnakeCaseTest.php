@@ -7,6 +7,10 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function lcfirst;
+use function preg_replace;
+use function strtolower;
+
 final class ObjectKeysToSnakeCaseTest extends IntegrationTestCase
 {
     public function test_object_keys_are_converted_to_snake_case(): void

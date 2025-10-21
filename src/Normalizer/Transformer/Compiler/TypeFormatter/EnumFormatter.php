@@ -11,6 +11,8 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Types\EnumType;
 
+use function is_a;
+
 /** @internal */
 final class EnumFormatter implements TypeFormatter
 {

@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 use IteratorAggregate;
 use Traversable;
 
+use function array_diff_key;
 use function array_keys;
 use function array_map;
 use function array_values;

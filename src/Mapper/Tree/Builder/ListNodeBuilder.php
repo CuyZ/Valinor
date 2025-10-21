@@ -12,6 +12,7 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 
+use function array_map;
 use function assert;
 use function is_int;
 use function is_iterable;

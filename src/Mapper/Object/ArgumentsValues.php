@@ -11,6 +11,8 @@ use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use function array_key_exists;
 use function count;
 use function is_array;
+use function is_iterable;
+use function iterator_to_array;
 
 /** @internal */
 final class ArgumentsValues

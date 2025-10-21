@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+use function implode;
+
 /** @internal */
 final class MatchNode extends Node
 {

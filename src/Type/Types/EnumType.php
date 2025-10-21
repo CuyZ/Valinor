@@ -15,7 +15,12 @@ use CuyZ\Valinor\Type\Type;
 use UnitEnum;
 
 use function array_keys;
+use function array_map;
+use function explode;
+use function implode;
 use function in_array;
+use function is_string;
+use function ltrim;
 
 /** @internal */
 final class EnumType implements ClassType

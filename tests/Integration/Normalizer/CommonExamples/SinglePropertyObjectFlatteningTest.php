@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function count;
 use function current;
 use function is_array;
 

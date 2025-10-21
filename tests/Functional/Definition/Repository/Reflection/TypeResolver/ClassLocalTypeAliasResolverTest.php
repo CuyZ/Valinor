@@ -13,6 +13,9 @@ use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
+use function sort;
+
 final class ClassLocalTypeAliasResolverTest extends TestCase
 {
     private ClassLocalTypeAliasResolver $resolver;

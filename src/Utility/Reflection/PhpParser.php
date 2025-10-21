@@ -9,6 +9,8 @@ use ReflectionFunction;
 use ReflectionMethod;
 use SplFileObject;
 
+use function is_file;
+
 /**
  * @internal
  *

@@ -9,6 +9,8 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Utility\ValueDumper;
 use RuntimeException;
 
+use function count;
+
 /** @internal */
 final class TypeTreeMapperError extends RuntimeException implements MappingError
 {

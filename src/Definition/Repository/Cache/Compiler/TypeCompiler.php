@@ -47,6 +47,7 @@ use UnitEnum;
 use function array_keys;
 use function array_map;
 use function implode;
+use function str_ends_with;
 use function var_export;
 
 /** @internal */

@@ -12,6 +12,11 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
+use function filter_var;
+use function is_bool;
+use function is_int;
+
 /** @internal */
 final class NonPositiveIntegerType implements IntegerType
 {

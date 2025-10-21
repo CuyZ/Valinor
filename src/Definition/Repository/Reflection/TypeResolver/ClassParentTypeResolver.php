@@ -17,6 +17,8 @@ use ReflectionClass;
 
 use function array_map;
 use function array_values;
+use function assert;
+use function count;
 
 /** @internal */
 final class ClassParentTypeResolver

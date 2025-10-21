@@ -15,6 +15,7 @@ use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 
+use function count;
 use function implode;
 use function method_exists;
 

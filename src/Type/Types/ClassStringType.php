@@ -18,9 +18,11 @@ use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use Stringable;
 
+use function array_filter;
 use function array_map;
 use function assert;
 use function implode;
+use function is_a;
 use function is_string;
 
 /** @internal */

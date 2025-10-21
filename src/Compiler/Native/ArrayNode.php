@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+use function implode;
 use function var_export;
 
 /** @internal */

@@ -9,6 +9,9 @@ use CuyZ\Valinor\Utility\String\StringFormatterError;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 
+use function ini_get;
+use function ini_set;
+
 final class StringFormatterTest extends TestCase
 {
     #[RequiresPhpExtension('intl')]

@@ -6,6 +6,8 @@ namespace CuyZ\Valinor\Utility\Reflection;
 
 use PhpToken;
 
+use function count;
+
 /** @internal */
 final class NamespaceFinder
 {

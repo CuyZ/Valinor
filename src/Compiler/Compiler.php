@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Compiler;
 
+use function array_shift;
 use function str_repeat;
 use function str_replace;
 

@@ -17,6 +17,8 @@ use function is_null;
 use function is_scalar;
 use function json_encode;
 
+use function str_repeat;
+
 use const JSON_FORCE_OBJECT;
 
 /** @internal */

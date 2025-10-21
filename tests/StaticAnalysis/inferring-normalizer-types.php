@@ -2,9 +2,9 @@
 
 namespace CuyZ\Valinor\Tests\StaticAnalysis;
 
-use CuyZ\Valinor\NormalizerBuilder;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
+use CuyZ\Valinor\NormalizerBuilder;
 
 use function PHPStan\Testing\assertType;
 

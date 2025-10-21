@@ -9,15 +9,21 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidArrayKey;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
-use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 use LogicException;
 
+use function array_filter;
+use function array_map;
+use function array_shift;
+use function array_values;
+use function count;
+use function implode;
 use function in_array;
 use function is_int;
 

@@ -31,6 +31,9 @@ use Traversable;
 
 use function array_merge;
 
+use function extension_loaded;
+use function json_decode;
+
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_TAG;
 use const JSON_THROW_ON_ERROR;

@@ -10,6 +10,8 @@ use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
 
+use function is_callable;
+
 /** @api */
 final class NormalizerBuilder
 {

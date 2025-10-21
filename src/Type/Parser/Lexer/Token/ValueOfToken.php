@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use BackedEnum;
-use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;

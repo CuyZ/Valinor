@@ -8,6 +8,8 @@ use CuyZ\Valinor\Utility\String\StringCutter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+use function substr;
+
 final class StringCutterTest extends TestCase
 {
     #[DataProvider('mb_strcut_polyfill_data_provider')]

@@ -12,9 +12,9 @@ use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\ObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Exception\ObjectImplementationCallbackError;
+use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\ObjectType;
-use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
@@ -22,7 +22,15 @@ use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\TypeHelper;
 
+use function array_map;
+use function array_reduce;
+use function array_shift;
 use function count;
+use function hash;
+use function is_string;
+use function ksort;
+use function serialize;
+use function sprintf;
 use function usort;
 
 /** @internal */

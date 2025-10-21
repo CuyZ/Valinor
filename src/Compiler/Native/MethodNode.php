@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
 use function array_map;
+use function implode;
 
 /** @internal */
 final class MethodNode extends Node

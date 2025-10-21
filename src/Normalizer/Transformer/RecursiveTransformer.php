@@ -21,10 +21,13 @@ use UnitEnum;
 use WeakMap;
 
 use function array_map;
+use function array_shift;
+use function call_user_func;
 use function get_object_vars;
 use function is_array;
 use function is_iterable;
 use function is_object;
+use function is_scalar;
 
 /**  @internal */
 final class RecursiveTransformer implements Transformer

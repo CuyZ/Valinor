@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
+use function array_filter;
+use function array_map;
 use function array_splice;
 use function implode;
 

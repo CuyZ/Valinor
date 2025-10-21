@@ -3,6 +3,7 @@
 namespace SimpleNamespace;
 
 use CuyZ\Valinor\MapperBuilder;
+use RuntimeException;
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
@@ -19,7 +20,7 @@ return (new MapperBuilder())
         static fn (string $type): string => match ($type) {
             'one' => ImplementationOne::class,
             'two' => ImplementationTwo::class,
-            default => throw new \RuntimeException(),
+            default => throw new RuntimeException(),
         },
     )
     ->mapper()

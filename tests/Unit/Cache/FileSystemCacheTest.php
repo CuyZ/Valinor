@@ -13,6 +13,7 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
+use function count;
 use function file_put_contents;
 use function umask;
 

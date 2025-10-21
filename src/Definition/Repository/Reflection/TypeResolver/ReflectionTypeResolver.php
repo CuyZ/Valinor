@@ -12,6 +12,7 @@ use ReflectionNamedType;
 use ReflectionType;
 use ReflectionUnionType;
 
+use function implode;
 use function trim;
 
 /** @internal */

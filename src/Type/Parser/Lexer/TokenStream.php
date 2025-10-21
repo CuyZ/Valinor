@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\TraversingToken;
 use CuyZ\Valinor\Type\Type;
 
 use function assert;
+use function count;
 
 /** @internal */
 final class TokenStream

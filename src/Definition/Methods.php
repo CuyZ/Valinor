@@ -8,6 +8,8 @@ use Countable;
 use IteratorAggregate;
 use Traversable;
 
+use function count;
+
 /**
  * @internal
  *

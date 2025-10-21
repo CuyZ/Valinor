@@ -13,6 +13,8 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use WeakMap;
 
+use function hash;
+
 /** @internal */
 final class UnionFormatter implements TypeFormatter
 {

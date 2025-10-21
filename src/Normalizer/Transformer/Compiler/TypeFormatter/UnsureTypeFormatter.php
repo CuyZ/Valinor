@@ -11,6 +11,11 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
+use WeakMap;
+
+use function hash;
+use function preg_replace;
+use function strtolower;
 
 /** @internal */
 final class UnsureTypeFormatter implements TypeFormatter
@@ -49,7 +54,7 @@ final class UnsureTypeFormatter implements TypeFormatter
             Node::method($methodName)
                 ->witParameters(
                     Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('references', \WeakMap::class),
+                    Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')
                 ->withBody(

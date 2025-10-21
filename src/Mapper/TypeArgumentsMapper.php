@@ -14,6 +14,9 @@ use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 
+use function array_map;
+use function count;
+
 /** @internal */
 final class TypeArgumentsMapper implements ArgumentsMapper
 {

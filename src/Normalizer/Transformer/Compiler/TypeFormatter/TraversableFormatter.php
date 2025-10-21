@@ -11,6 +11,10 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
+use function hash;
+use function preg_replace;
+use function strtolower;
+
 /** @internal */
 final class TraversableFormatter implements TypeFormatter
 {

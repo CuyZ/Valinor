@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Constant;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use RuntimeException;
 
+use function str_contains;
+
 /** @internal */
 final class ClassConstantCaseNotFound extends RuntimeException implements InvalidType
 {

@@ -13,6 +13,10 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\ReversedValuesForIntegerRange;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\SameValueForIntegerRange;
 use CuyZ\Valinor\Type\Type;
 
+use function assert;
+use function filter_var;
+use function is_bool;
+use function is_int;
 use function is_string;
 use function ltrim;
 use function preg_match;

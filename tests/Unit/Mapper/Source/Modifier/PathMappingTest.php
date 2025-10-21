@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
 use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
 use PHPUnit\Framework\TestCase;
 
+use function iterator_to_array;
+
 final class PathMappingTest extends TestCase
 {
     public function test_root_path_is_mapped(): void

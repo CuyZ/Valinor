@@ -12,9 +12,15 @@ use ReflectionProperty;
 
 use function array_filter;
 use function array_merge;
+use function array_pop;
+use function array_shift;
+use function array_unshift;
 use function array_values;
 use function current;
+use function end;
 use function in_array;
+use function preg_replace;
+use function str_starts_with;
 use function trim;
 
 /** @internal */

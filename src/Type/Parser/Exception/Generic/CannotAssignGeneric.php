@@ -10,6 +10,7 @@ use RuntimeException;
 
 use function array_map;
 use function array_slice;
+use function count;
 use function implode;
 
 /** @internal */

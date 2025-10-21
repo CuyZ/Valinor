@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 use function fopen;
 use function rewind;
+use function stream_get_contents;
 
 final class StreamNormalizerTest extends IntegrationTestCase
 {

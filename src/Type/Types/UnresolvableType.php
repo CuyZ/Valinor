@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\ValueDumper;
 use LogicException;
 
+use function array_map;
 use function implode;
 use function lcfirst;
 

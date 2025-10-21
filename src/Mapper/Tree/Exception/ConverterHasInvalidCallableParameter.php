@@ -7,9 +7,10 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Type\Type;
+use LogicException;
 
 /** @internal */
-final class ConverterHasInvalidCallableParameter extends \LogicException
+final class ConverterHasInvalidCallableParameter extends LogicException
 {
     public function __construct(MethodDefinition|FunctionDefinition $method, Type $parameterType)
     {

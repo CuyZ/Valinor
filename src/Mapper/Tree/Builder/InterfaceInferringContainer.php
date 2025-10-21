@@ -20,6 +20,8 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use Exception;
 
 use function assert;
+use function count;
+use function is_string;
 
 /** @internal */
 final class InterfaceInferringContainer

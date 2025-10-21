@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\TypeHelper;
 
+use function assert;
 use function count;
 use function krsort;
 use function reset;
