@@ -269,10 +269,11 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
     public function toString(): string
     {
-        if ($this->signature !== null) {
-            return $this->signature;
-        }
+        return $this->signature ??= $this->buildSignature();
+    }
 
+    private function buildSignature(): string
+    {
         $signature = 'array{';
         $signature .= implode(', ', array_map(static fn (ShapedArrayElement $element) => $element->toString(), $this->elements));
 
@@ -286,6 +287,6 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
         $signature .= '}';
 
-        return $this->signature = $signature;
+        return $signature;
     }
 }
