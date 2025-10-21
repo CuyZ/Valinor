@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 
 use function array_filter;
+use function array_map;
 use function implode;
 
 /** @internal */

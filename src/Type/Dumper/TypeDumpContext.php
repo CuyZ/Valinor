@@ -6,6 +6,10 @@ namespace CuyZ\Valinor\Type\Dumper;
 
 use CuyZ\Valinor\Type\ObjectType;
 
+use function array_pop;
+use function in_array;
+use function strlen;
+
 /** @internal */
 final class TypeDumpContext
 {

@@ -7,6 +7,9 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+use function array_map;
+use function implode;
+
 /** @internal */
 final class ShortClosureNode extends Node
 {

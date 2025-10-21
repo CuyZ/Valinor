@@ -10,6 +10,8 @@ use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+use function strtoupper;
+
 final class NormalizerBuilderTest extends TestCase
 {
     private NormalizerBuilder $normalizerBuilder;

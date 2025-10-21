@@ -11,6 +11,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use CuyZ\Valinor\Type\Types\MixedType;
 use stdClass;
+use WeakMap;
 
 /** @internal */
 final class StdClassFormatter implements TypeFormatter
@@ -29,7 +30,7 @@ final class StdClassFormatter implements TypeFormatter
             Node::method('transform_stdclass')
                 ->witParameters(
                     Node::parameterDeclaration('value', stdClass::class),
-                    Node::parameterDeclaration('references', \WeakMap::class),
+                    Node::parameterDeclaration('references', WeakMap::class),
                 )
                 ->withReturnType('mixed')
                 ->withBody(

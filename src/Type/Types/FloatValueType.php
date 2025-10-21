@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 
 use function assert;
+use function is_numeric;
 
 /** @internal */
 final class FloatValueType implements FloatType, FixedType

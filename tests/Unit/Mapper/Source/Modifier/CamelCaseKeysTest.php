@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
 use CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys;
 use PHPUnit\Framework\TestCase;
 
+use function iterator_to_array;
+
 final class CamelCaseKeysTest extends TestCase
 {
     public function test_replace_space(): void

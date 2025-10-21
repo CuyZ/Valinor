@@ -28,6 +28,7 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
+use function array_map;
 use function implode;
 
 /** @internal */

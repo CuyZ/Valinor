@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function realpath;
+use function reset;
 
 final class CompiledClassDefinitionRepositoryTest extends TestCase
 {

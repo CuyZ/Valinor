@@ -7,8 +7,13 @@ namespace CuyZ\Valinor\Mapper\Source\Modifier;
 use IteratorAggregate;
 use Traversable;
 
+use function assert;
+use function is_int;
 use function is_iterable;
 use function is_string;
+use function lcfirst;
+use function str_replace;
+use function ucwords;
 
 /**
  * @api

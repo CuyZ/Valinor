@@ -24,7 +24,10 @@ use ReflectionClassConstant;
 use function array_map;
 use function array_values;
 use function count;
+use function current;
 use function explode;
+use function preg_match;
+use function reset;
 
 /** @internal */
 final class ClassNameToken implements TraversingToken

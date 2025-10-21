@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 
+use function array_is_list;
 use function function_exists;
 use function is_array;
 

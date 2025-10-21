@@ -12,6 +12,7 @@ use Exception;
 
 use function array_map;
 use function array_shift;
+use function array_values;
 
 /** @internal */
 final class FunctionObjectBuilder implements ObjectBuilder

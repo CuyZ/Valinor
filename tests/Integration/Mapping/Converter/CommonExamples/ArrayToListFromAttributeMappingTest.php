@@ -9,6 +9,8 @@ use CuyZ\Valinor\Mapper\AsConverter;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function array_values;
+
 final class ArrayToListFromAttributeMappingTest extends IntegrationTestCase
 {
     public function test_can_use_array_to_list_converter_attribute(): void

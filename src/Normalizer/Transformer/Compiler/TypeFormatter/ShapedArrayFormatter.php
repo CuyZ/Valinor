@@ -13,6 +13,8 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use WeakMap;
 
+use function hash;
+
 /** @internal */
 final class ShapedArrayFormatter implements TypeFormatter
 {

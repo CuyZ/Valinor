@@ -2,6 +2,7 @@
 
 namespace CuyZ\Valinor\Type\Parser\Lexer;
 
+use function array_filter;
 use function array_map;
 use function array_values;
 use function implode;

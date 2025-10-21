@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Converter;
 
+use Attribute;
+use Closure;
 use CuyZ\Valinor\Mapper\AsConverter;
 
-#[\Attribute, AsConverter]
+#[Attribute, AsConverter]
 final class ConverterWithCallable
 {
     public function __construct(
-        private \Closure $callback,
+        private Closure $callback,
     ) {}
 
     /**

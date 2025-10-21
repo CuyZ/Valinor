@@ -6,6 +6,10 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
+use function is_object;
+use function serialize;
+use function var_export;
+
 /** @internal */
 final class ParameterDefinitionCompiler
 {

@@ -10,6 +10,7 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
+use function count;
 use function implode;
 use function is_callable;
 

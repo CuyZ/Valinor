@@ -12,6 +12,11 @@ use CuyZ\Valinor\Utility\Reflection\Annotations;
 use ReflectionClass;
 use ReflectionFunctionAbstract;
 
+use function array_key_exists;
+use function current;
+use function key;
+use function next;
+
 /** @internal */
 final class TemplateResolver
 {

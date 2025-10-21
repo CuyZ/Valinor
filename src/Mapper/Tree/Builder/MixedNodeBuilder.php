@@ -8,6 +8,8 @@ use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapToPermissiveType;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\MixedType;
 
+use function assert;
+
 /** @internal */
 final class MixedNodeBuilder implements NodeBuilder
 {

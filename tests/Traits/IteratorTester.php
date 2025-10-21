@@ -6,6 +6,9 @@ namespace CuyZ\Valinor\Tests\Traits;
 
 use PHPUnit\Framework\TestCase;
 
+use function array_keys;
+use function count;
+
 /**
  * @mixin TestCase
  */

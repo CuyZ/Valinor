@@ -13,6 +13,8 @@ use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+use function iterator_to_array;
+
 final class AttributesTest extends TestCase
 {
     public function test_empty_attributes_is_empty_and_remains_the_same_instance(): void

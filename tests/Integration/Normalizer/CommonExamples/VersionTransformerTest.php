@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer\CommonExamples;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function version_compare;
+
 final class VersionTransformerTest extends IntegrationTestCase
 {
     public function test_version_transformer_works_properly(): void

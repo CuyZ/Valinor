@@ -7,6 +7,11 @@ namespace CuyZ\Valinor\Normalizer;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 
+use function array_map;
+use function is_array;
+use function is_iterable;
+use function iterator_to_array;
+
 /**
  * @api
  *

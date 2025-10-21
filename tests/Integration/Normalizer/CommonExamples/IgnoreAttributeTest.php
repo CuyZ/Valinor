@@ -8,6 +8,8 @@ use Attribute;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function array_filter;
+
 final class IgnoreAttributeTest extends IntegrationTestCase
 {
     public function test_ignore_attribute_works_properly(): void

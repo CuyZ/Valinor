@@ -9,6 +9,9 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
+use function array_map;
+use function implode;
+
 /** @internal */
 final class InvalidShapedArrayUnsealedType extends RuntimeException implements InvalidType
 {

@@ -11,6 +11,8 @@ use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use PHPUnit\Framework\TestCase;
 
+use function realpath;
+
 final class TypeFilesWatcherTest extends TestCase
 {
     public function test_files_to_watch_are_fetched_properly(): void

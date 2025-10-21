@@ -22,6 +22,7 @@ return (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setCacheFile('var/cache/.php_cs.cache')
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
+    ->setRiskyAllowed(true)
     ->setRules([
         '@PSR1' => true,
         '@PSR12' => true,
@@ -33,5 +34,23 @@ return (new PhpCsFixer\Config())
         'no_superfluous_phpdoc_tags' => [
             'allow_mixed' => true,
             'remove_inheritdoc' => true,
+        ],
+        'global_namespace_import' => [
+            'import_classes' => true,
+            'import_constants' => true,
+            'import_functions' => true,
+        ],
+        'native_function_invocation' => [
+            'include' => [
+                '@internal',
+            ],
+        ],
+        'ordered_imports' => [
+            'imports_order' => [
+                'class',
+                'function',
+                'const',
+            ],
+            'sort_algorithm' => 'alpha',
         ],
     ]);

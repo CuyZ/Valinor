@@ -6,6 +6,8 @@ namespace CuyZ\Valinor\Normalizer\Formatter\Exception;
 
 use RuntimeException;
 
+use function get_debug_type;
+
 /** @internal */
 final class CannotFormatInvalidTypeToJson extends RuntimeException
 {

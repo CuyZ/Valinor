@@ -6,11 +6,13 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\CombiningType;
-use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
+use function implode;
+use function is_a;
 
 /** @internal */
 final class InterfaceType implements ObjectType, ObjectWithGenericType

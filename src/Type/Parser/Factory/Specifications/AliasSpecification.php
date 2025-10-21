@@ -14,6 +14,7 @@ use Reflector;
 
 use function array_shift;
 use function explode;
+use function implode;
 use function in_array;
 use function strtolower;
 

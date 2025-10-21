@@ -3,8 +3,8 @@
 namespace CuyZ\Valinor\Mapper\Object;
 
 use BackedEnum;
-use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\UnionType;
 
 /** @internal */

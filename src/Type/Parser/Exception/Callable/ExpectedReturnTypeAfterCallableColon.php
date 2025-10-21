@@ -8,6 +8,9 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+use function array_map;
+use function implode;
+
 /** @internal */
 final class ExpectedReturnTypeAfterCallableColon extends RuntimeException implements InvalidType
 {

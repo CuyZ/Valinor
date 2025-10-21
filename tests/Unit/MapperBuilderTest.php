@@ -12,6 +12,8 @@ use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+use function strtoupper;
+
 final class MapperBuilderTest extends TestCase
 {
     private MapperBuilder $mapperBuilder;

@@ -9,6 +9,8 @@ use CuyZ\Valinor\Mapper\AsConverter;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function filter_var;
+
 final class CastToIntFromAttributeMappingTest extends IntegrationTestCase
 {
     public function test_can_use_cast_to_int_converter_attribute(): void

@@ -11,6 +11,9 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
+use function time;
+use function unlink;
+
 final class FileWatchingCacheTest extends TestCase
 {
     private vfsStreamDirectory $files;

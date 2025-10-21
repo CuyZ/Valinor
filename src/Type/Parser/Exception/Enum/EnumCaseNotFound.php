@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Enum;
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use RuntimeException;
 
+use function str_contains;
+
 /** @internal */
 final class EnumCaseNotFound extends RuntimeException implements InvalidType
 {

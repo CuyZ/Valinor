@@ -6,12 +6,14 @@ namespace CuyZ\Valinor\Type\Types;
 
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Type\ClassType;
-use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
+use function implode;
 use function is_a;
+use function ltrim;
 
 /** @internal */
 final class NativeClassType implements ClassType, ObjectWithGenericType

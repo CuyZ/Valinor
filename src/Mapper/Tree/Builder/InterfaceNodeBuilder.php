@@ -20,6 +20,8 @@ use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Utility\Polyfill;
 use Throwable;
 
+use function assert;
+
 /** @internal */
 final class InterfaceNodeBuilder implements NodeBuilder
 {

@@ -8,6 +8,8 @@ use Attribute;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
+use function strtoupper;
+
 final class UppercaseFromAttributeTest extends IntegrationTestCase
 {
     public function test_uppercase_attribute_works_properly(): void

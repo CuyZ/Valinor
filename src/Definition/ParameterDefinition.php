@@ -8,6 +8,8 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Utility\TypeHelper;
 
+use function assert;
+
 /** @internal */
 final class ParameterDefinition
 {

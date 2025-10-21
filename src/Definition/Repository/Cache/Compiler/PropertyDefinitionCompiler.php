@@ -6,6 +6,8 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\PropertyDefinition;
 
+use function var_export;
+
 /** @internal */
 final class PropertyDefinitionCompiler
 {

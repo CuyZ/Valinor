@@ -18,8 +18,10 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\ValueDumper;
 
+use function array_map;
 use function assert;
 use function implode;
+use function is_int;
 
 /** @internal */
 final class Shell

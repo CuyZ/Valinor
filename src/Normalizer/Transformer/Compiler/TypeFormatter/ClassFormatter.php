@@ -18,6 +18,11 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use WeakMap;
 
+use function hash;
+use function preg_replace;
+use function str_contains;
+use function strtolower;
+
 /** @internal */
 final class ClassFormatter implements TypeFormatter
 {

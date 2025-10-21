@@ -10,10 +10,13 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 
+use function array_diff;
 use function array_key_exists;
+use function array_keys;
 use function assert;
 use function is_array;
 use function is_iterable;
+use function iterator_to_array;
 
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder

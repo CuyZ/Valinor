@@ -14,6 +14,8 @@ use Psalm\Type\Atomic\TDependentGetClass;
 use Psalm\Type\Atomic\TLiteralString;
 use Psalm\Type\Union;
 
+use function count;
+
 final class TreeMapperPsalmPlugin implements MethodReturnTypeProviderInterface
 {
     public static function getClassLikeNames(): array

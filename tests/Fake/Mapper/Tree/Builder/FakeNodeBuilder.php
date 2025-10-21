@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\Node;
+use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 
 final class FakeNodeBuilder implements NodeBuilder

@@ -11,6 +11,7 @@ use Traversable;
 
 use function array_map;
 use function array_values;
+use function count;
 
 /**
  * @internal

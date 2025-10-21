@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Mapper\Tree\Message\Formatter;
 use CuyZ\Valinor\Mapper\Tree\Message\DefaultMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 
+use function array_replace_recursive;
+
 /** @api */
 final class TranslationMessageFormatter implements MessageFormatter
 {

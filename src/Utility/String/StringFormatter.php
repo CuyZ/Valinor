@@ -8,6 +8,7 @@ use IntlException;
 use MessageFormatter;
 
 use function class_exists;
+use function intl_get_error_message;
 use function preg_match;
 use function preg_quote;
 use function preg_replace;

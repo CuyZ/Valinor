@@ -10,6 +10,8 @@ use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
 use PHPUnit\Framework\TestCase;
 
+use function reset;
+
 final class CompiledFunctionDefinitionRepositoryTest extends TestCase
 {
     public function test_function_is_saved_in_cache(): void

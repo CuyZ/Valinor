@@ -12,6 +12,10 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function assert;
+use function filter_var;
+use function is_bool;
+use function is_int;
 use function is_string;
 use function ltrim;
 

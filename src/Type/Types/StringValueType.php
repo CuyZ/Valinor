@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
 use Stringable;
 
+use function assert;
 use function is_numeric;
 use function is_string;
 use function str_starts_with;

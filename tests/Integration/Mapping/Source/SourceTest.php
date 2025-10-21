@@ -12,6 +12,8 @@ use IteratorAggregate;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Traversable;
 
+use function extension_loaded;
+
 final class SourceTest extends IntegrationTestCase
 {
     /**

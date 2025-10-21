@@ -39,6 +39,9 @@ use stdClass;
 use Traversable;
 use UnitEnum;
 
+use function array_reverse;
+use function is_a;
+
 /** @internal */
 final class TransformerDefinitionBuilder
 {

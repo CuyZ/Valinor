@@ -11,9 +11,9 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\Generics;
-use CuyZ\Valinor\Type\Types\NativeClassType;
-use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use stdClass;
 

@@ -8,8 +8,13 @@ use CuyZ\Valinor\Normalizer\Formatter\JsonFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Transformer;
 use RuntimeException;
 
+use function fclose;
+use function fopen;
+
 use function get_debug_type;
 use function is_resource;
+use function rewind;
+use function stream_get_contents;
 
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_AMP;

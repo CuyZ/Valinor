@@ -11,8 +11,11 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\TypeHelper;
 
+use function array_intersect_key;
+use function array_keys;
 use function array_merge;
 use function count;
+use function krsort;
 use function usort;
 
 /** @internal */

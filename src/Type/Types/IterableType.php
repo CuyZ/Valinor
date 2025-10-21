@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 use Generator;
 
+use function function_exists;
 use function is_iterable;
 
 /** @internal */

@@ -10,6 +10,7 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
+use function preg_match;
 use function str_contains;
 use function str_starts_with;
 

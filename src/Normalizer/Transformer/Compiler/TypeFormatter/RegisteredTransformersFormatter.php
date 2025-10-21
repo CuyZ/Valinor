@@ -14,6 +14,13 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
+use function array_keys;
+use function array_map;
+use function preg_replace;
+use function serialize;
+use function sha1;
+use function strtolower;
+
 /** @internal */
 final class RegisteredTransformersFormatter implements TypeFormatter
 {

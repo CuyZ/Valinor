@@ -9,6 +9,9 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Type;
 use RuntimeException;
 
+use function array_map;
+use function implode;
+
 /** @internal */
 final class UnexpectedTokenAfterCallableClosingParenthesis extends RuntimeException implements InvalidType
 {

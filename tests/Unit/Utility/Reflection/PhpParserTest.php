@@ -10,12 +10,14 @@ use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassInSingleNamespace;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Bar;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Foo;
 use CuyZ\Valinor\Utility\Reflection\PhpParser;
+use DateTimeImmutable;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
+use stdClass;
 
 require_once __DIR__ . '/Fixtures/TwoClassesInDifferentNamespaces.php';
 require_once __DIR__ . '/Fixtures/FunctionInRootNamespace.php';
@@ -29,7 +31,7 @@ final class PhpParserTest extends TestCase
      * @param array<string, string> $expectedMap
      */
     #[DataProvider('use_statements_data_provider')]
-    public function test_parse_use_statements(\ReflectionClass|\ReflectionFunction|\ReflectionMethod $reflection, array $expectedMap): void
+    public function test_parse_use_statements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection, array $expectedMap): void
     {
         $actualMap = PhpParser::parseUseStatements($reflection);
 
@@ -39,7 +41,7 @@ final class PhpParserTest extends TestCase
     public static function use_statements_data_provider(): Generator
     {
         yield 'no use statements' => [
-            new ReflectionClass(\stdClass::class),
+            new ReflectionClass(stdClass::class),
             []
         ];
 
@@ -48,8 +50,8 @@ final class PhpParserTest extends TestCase
             [
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -60,8 +62,8 @@ final class PhpParserTest extends TestCase
                 'classbalias' => ClassB::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -72,8 +74,8 @@ final class PhpParserTest extends TestCase
                 'classaalias' => ClassA::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -84,8 +86,8 @@ final class PhpParserTest extends TestCase
                 'classbalias' => ClassB::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -96,8 +98,8 @@ final class PhpParserTest extends TestCase
                 'classaalias' => ClassA::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -106,8 +108,8 @@ final class PhpParserTest extends TestCase
             [
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -118,8 +120,8 @@ final class PhpParserTest extends TestCase
                 'classbalias' => ClassB::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
@@ -130,16 +132,16 @@ final class PhpParserTest extends TestCase
                 'classaalias' => ClassA::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
-                'datetimeimmutable' => \DateTimeImmutable::class,
-                'stdclassalias' => \stdClass::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
             ]
         ];
 
         yield 'function in root namespace' => [
             new ReflectionFunction('function_in_root_namespace'),
             [
-                'fooalias' => Foo::class,
                 'baralias' => Bar::class,
+                'fooalias' => Foo::class,
             ]
         ];
 

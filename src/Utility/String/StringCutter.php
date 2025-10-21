@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility\String;
 
+use function assert;
+use function function_exists;
+use function mb_strcut;
+use function ord;
+use function strlen;
 use function substr;
 
 /** @internal */

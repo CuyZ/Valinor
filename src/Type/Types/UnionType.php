@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Type;
 
 use function array_filter;
 use function array_map;
+use function array_shift;
 use function array_values;
 use function implode;
 

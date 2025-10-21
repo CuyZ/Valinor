@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Dumper;
 use CuyZ\Valinor\Type\Dumper\TypeDumpContext;
 use PHPUnit\Framework\TestCase;
 
+use function str_repeat;
+
 final class TypeDumpContextTest extends TestCase
 {
     public function test_max_length(): void

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
 use LogicException;
 
+use function array_map;
 use function implode;
 
 /** @internal */

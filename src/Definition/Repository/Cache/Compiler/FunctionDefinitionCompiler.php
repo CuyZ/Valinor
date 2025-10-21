@@ -7,6 +7,9 @@ namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 
+use function array_map;
+use function implode;
+use function iterator_to_array;
 use function var_export;
 
 /** @internal */

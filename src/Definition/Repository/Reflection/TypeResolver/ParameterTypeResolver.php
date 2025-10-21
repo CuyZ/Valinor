@@ -11,6 +11,8 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Annotations;
 use ReflectionParameter;
 
+use function array_search;
+
 /** @internal */
 final class ParameterTypeResolver
 {

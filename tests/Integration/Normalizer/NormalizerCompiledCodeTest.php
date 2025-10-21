@@ -18,7 +18,10 @@ use stdClass;
 use Symfony\Component\Filesystem\Filesystem;
 use Traversable;
 
+use function bin2hex;
 use function glob;
+use function random_bytes;
+use function sys_get_temp_dir;
 
 final class NormalizerCompiledCodeTest extends TestCase
 {

@@ -7,6 +7,10 @@ namespace CuyZ\Valinor\Utility\Reflection;
 use LogicException;
 use PhpToken;
 
+use function count;
+use function explode;
+use function strtolower;
+
 /**
  * @internal
  *

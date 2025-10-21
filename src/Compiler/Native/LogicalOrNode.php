@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Compiler\Native;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 
+use function array_shift;
+
 /** @internal */
 final class LogicalOrNode extends Node
 {
