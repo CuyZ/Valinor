@@ -29,6 +29,8 @@ use function is_array;
 /** @internal */
 final class ShapedArrayType implements CompositeType, DumpableType
 {
+    private ?string $signature = null;
+
     public function __construct(
         /** @var array<ShapedArrayElement> */
         public readonly array $elements,
@@ -267,6 +269,10 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
     public function toString(): string
     {
+        if ($this->signature !== null) {
+            return $this->signature;
+        }
+
         $signature = 'array{';
         $signature .= implode(', ', array_map(static fn (ShapedArrayElement $element) => $element->toString(), $this->elements));
 
@@ -280,6 +286,6 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
         $signature .= '}';
 
-        return $signature;
+        return $this->signature = $signature;
     }
 }
