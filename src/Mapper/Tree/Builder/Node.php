@@ -27,7 +27,7 @@ final class Node
      */
     public static function new(mixed $value, int $childrenCount): self
     {
-        return new self(value: $value, childrenCount: $childrenCount);
+        return new self($value, childrenCount: $childrenCount);
     }
 
     public static function error(Shell $shell, Message $error): self
@@ -42,7 +42,7 @@ final class Node
             $shell->dumpValue(),
         );
 
-        return new self(value: null, messages: [$nodeMessage]);
+        return new self(null, messages: [$nodeMessage]);
     }
 
     /**
@@ -56,7 +56,7 @@ final class Node
             $messages = array_merge($messages, $node->messages);
         }
 
-        return new self(value: null, messages: $messages);
+        return new self(null, messages: $messages);
     }
 
     /**
@@ -85,7 +85,7 @@ final class Node
     public function appendMessage(NodeMessage $message): self
     {
         return new self(
-            value: null,
+            null,
             messages: [...$this->messages, $message],
         );
     }
