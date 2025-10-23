@@ -10,6 +10,8 @@ use RuntimeException;
 use function is_object;
 
 /**
+ * @todo update examples with attributes
+ *
  * This class represents an HTTP request that can be given to the mapper to have
  * custom mapping rules applied, based on the request's method and data.
  *
@@ -87,12 +89,11 @@ use function is_object;
  */
 final class HttpRequest
 {
+    /**
+     * @todo because we don't need the "method" (`GET`, …), we could simplify
+     *       this class by removing all withers?
+     */
     private function __construct(
-        /**
-         * Method of the request, for instance `GET`, `POST`, `PUT`, `DELETE`…
-         */
-        public readonly string $method,
-
         /**
          * Route parameters that were extracted by the router.
          *
@@ -122,9 +123,9 @@ final class HttpRequest
         public readonly ?object $requestObject = null,
     ) {}
 
-    public static function new(string $method): self
+    public static function new(): self
     {
-        return new self($method);
+        return new self();
     }
 
     public static function fromPsr(ServerRequestInterface $request): self
@@ -133,7 +134,7 @@ final class HttpRequest
             throw new RuntimeException("Request's parsed body must be an array."); // @todo move to own exception class
         }
 
-        return new self($request->getMethod(), [], $request->getQueryParams(), $request->getParsedBody() ?? [], $request);
+        return new self([], $request->getQueryParams(), $request->getParsedBody() ?? [], $request);
     }
 
     /**
@@ -141,7 +142,7 @@ final class HttpRequest
      */
     public function withRouteParameters(array $routeParameters): self
     {
-        return new self($this->method, $routeParameters, $this->queryParameters, $this->bodyValues, $this->requestObject);
+        return new self($routeParameters, $this->queryParameters, $this->bodyValues, $this->requestObject);
     }
 
     /**
@@ -149,7 +150,7 @@ final class HttpRequest
      */
     public function withQueryParameters(array $queryParameters): self
     {
-        return new self($this->method, $this->routeParameters, $queryParameters, $this->bodyValues, $this->requestObject);
+        return new self($this->routeParameters, $queryParameters, $this->bodyValues, $this->requestObject);
     }
 
     /**
@@ -157,11 +158,11 @@ final class HttpRequest
      */
     public function withBodyValues(array $bodyValues): self
     {
-        return new self($this->method, $this->routeParameters, $this->queryParameters, $bodyValues, $this->requestObject);
+        return new self($this->routeParameters, $this->queryParameters, $bodyValues, $this->requestObject);
     }
 
     public function withRequestObject(object $request): self
     {
-        return new self($this->method, $this->routeParameters, $this->queryParameters, $this->bodyValues, $request);
+        return new self($this->routeParameters, $this->queryParameters, $this->bodyValues, $request);
     }
 }
