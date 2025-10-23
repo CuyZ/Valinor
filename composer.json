@@ -29,7 +29,8 @@
         "vimeo/psalm": "^6.0",
         "mikey179/vfsstream": "^1.6.10",
         "rector/rector": "^2.0",
-        "phpbench/phpbench": "^1.3"
+        "phpbench/phpbench": "^1.3",
+        "psr/http-message": "^2.0"
     },
     "autoload": {
         "psr-4": {
