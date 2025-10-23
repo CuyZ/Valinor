@@ -70,8 +70,8 @@ final class ShapedArrayMappingTest extends IntegrationTestCase
             $this->mapperBuilder()->mapper()->map('array{foo: string, bar: int}', $source);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[unexpected_keys] Unexpected key(s) `fiz`, expected `foo`, `bar`.',
                 'foo' => '[invalid_string] Value 404 is not a valid string.',
+                'fiz' => '[unexpected_key] Unexpected key `fiz`.',
             ]);
         }
     }

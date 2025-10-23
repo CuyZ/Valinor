@@ -82,14 +82,6 @@ final class Node
         return $this->messages;
     }
 
-    public function appendMessage(NodeMessage $message): self
-    {
-        return new self(
-            null,
-            messages: [...$this->messages, $message],
-        );
-    }
-
     /**
      * @return non-negative-int
      */

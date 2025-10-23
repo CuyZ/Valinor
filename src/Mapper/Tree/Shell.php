@@ -18,6 +18,7 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\ValueDumper;
 
+use function array_fill_keys;
 use function array_map;
 use function assert;
 use function implode;
@@ -42,7 +43,7 @@ final class Shell
         public bool $allowUndefinedValues,
         public bool $allowSuperfluousKeys,
         public bool $allowPermissiveTypes,
-        /** @var list<string> */
+        /** @var array<string, null> */
         public array $allowedSuperfluousKeys,
         public bool $shouldApplyConverters,
         private NodeBuilder $nodeBuilder,
@@ -157,7 +158,7 @@ final class Shell
     {
         // @infection-ignore-all / We don't want to test the clone behavior
         $self = clone $this;
-        $self->allowedSuperfluousKeys = $allowedSuperfluousKeys;
+        $self->allowedSuperfluousKeys = array_fill_keys($allowedSuperfluousKeys, null);
 
         return $self;
     }
@@ -192,7 +193,7 @@ final class Shell
     {
         if ($this->type instanceof UnionType) {
             return implode(', ', array_map(
-                fn (Type $type) => $this->typeDumper->dump($type),
+                $this->typeDumper->dump(...),
                 $this->type->types(),
             ));
         }

@@ -180,8 +180,9 @@ final class ArgumentsMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => '[unexpected_keys] Unexpected key(s) `foo`, `bar`, expected `value`.',
                 'value' => '[missing_value] Cannot be empty and must be filled with a value matching `array{foo: string, bar: int}`.',
+                'foo' => '[unexpected_key] Unexpected key `foo`.',
+                'bar' => '[unexpected_key] Unexpected key `bar`.',
             ]);
         }
     }

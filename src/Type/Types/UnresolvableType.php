@@ -192,6 +192,11 @@ final class UnresolvableType implements VacantType
         throw new LogicException();
     }
 
+    public static function forSuperfluousValue(string $key): self
+    {
+        return new self('*none*', "Unexpected key `$key`.");
+    }
+
     public function message(): string
     {
         return $this->message;
