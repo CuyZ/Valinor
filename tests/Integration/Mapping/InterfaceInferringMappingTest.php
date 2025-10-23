@@ -420,7 +420,7 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                 ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[unexpected_keys] Unexpected key(s) `superfluousValue`, expected `valueA`.",
+                'superfluousValue' => '[unexpected_key] Unexpected key `superfluousValue`.',
             ]);
         }
     }

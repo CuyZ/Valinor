@@ -66,8 +66,10 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             ]);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[unexpected_keys] Unexpected key(s) `unexpectedValueA`, `unexpectedValueB`, `42`, expected `stringA`, `stringB`.",
-                'stringA' => '[invalid_string] Value 42 is not a valid string.'
+                'stringA' => '[invalid_string] Value 42 is not a valid string.',
+                'unexpectedValueA' => '[unexpected_key] Unexpected key `unexpectedValueA`.',
+                'unexpectedValueB' => '[unexpected_key] Unexpected key `unexpectedValueB`.',
+                '42' => '[unexpected_key] Unexpected key `42`.',
             ]);
         }
     }
@@ -83,7 +85,8 @@ final class ObjectValuesMappingTest extends IntegrationTestCase
             ]));
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                '*root*' => "[unexpected_keys] Unexpected key(s) `unexpectedValue`, `42`, expected `stringA`, `stringB`.",
+                'unexpectedValue' => '[unexpected_key] Unexpected key `unexpectedValue`.',
+                '42' => "[unexpected_key] Unexpected key `42`.",
             ]);
         }
     }

@@ -86,8 +86,8 @@ interface DefaultMessage
         'Value {source_value} does not match any of the following formats: {formats}.' => [
             'en' => 'Value {source_value} does not match any of the following formats: {formats}.',
         ],
-        'Unexpected key(s) {keys}, expected {expected_keys}.' => [
-            'en' => 'Unexpected key(s) {keys}, expected {expected_keys}.',
+        'Unexpected key {key}.' => [
+            'en' => 'Unexpected key {key}.',
         ],
     ];
 }
