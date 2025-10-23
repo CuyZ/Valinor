@@ -13,7 +13,6 @@ final class HttpRequestTest extends TestCase
     public function test_can_create_http_request_from_psr_request(): void
     {
         $psrRequest = new FakePsrRequest(
-            method: 'POST',
             queryParams: [
                 'someQuery' => 'someValue',
                 'anotherQuery' => 'anotherValue',
@@ -26,7 +25,6 @@ final class HttpRequestTest extends TestCase
 
         $httpRequest = HttpRequest::fromPsr($psrRequest);
 
-        self::assertSame('POST', $httpRequest->method);
         self::assertSame(['someQuery' => 'someValue', 'anotherQuery' => 'anotherValue'], $httpRequest->queryParameters);
         self::assertSame(['someBody' => 'someValue', 'anotherBody' => 'anotherValue'], $httpRequest->bodyValues);
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
+use CuyZ\Valinor\Mapper\Http\FromBody;
+use CuyZ\Valinor\Mapper\Http\FromQuery;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Fake\Mapper\Source\FakePsrRequest;
@@ -14,10 +16,10 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 {
     public function test_can_map_get_http_request_with_single_query_parameter(): void
     {
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withQueryParameters(['someQueryParameter' => 'foo']);
 
-        $controller = fn (string $someQueryParameter) => [];
+        $controller = fn (#[FromQuery] string $someQueryParameter) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()
@@ -28,13 +30,16 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_can_map_get_http_request_with_several_query_parameters(): void
     {
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withQueryParameters([
                 'someQueryParameter' => 'foo',
                 'anotherQueryParameter' => 42,
             ]);
 
-        $controller = fn (string $someQueryParameter, int $anotherQueryParameter) => [];
+        $controller = fn (
+            #[FromQuery] string $someQueryParameter,
+            #[FromQuery] int $anotherQueryParameter,
+        ) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()
@@ -48,7 +53,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_can_map_get_http_request_with_several_route_parameters_and_several_query_parameters(): void
     {
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withRouteParameters([
                 'someRouteParameter' => 'foo',
                 'anotherRouteParameter' => 42,
@@ -61,8 +66,8 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         $controller = fn (
             string $someRouteParameter,
             int $anotherRouteParameter,
-            string $someQueryParameter,
-            int $anotherQueryParameter,
+            #[FromQuery] string $someQueryParameter,
+            #[FromQuery] int $anotherQueryParameter,
         ) => [];
 
         $result = $this->mapperBuilder()
@@ -79,10 +84,10 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_can_map_post_http_request_with_single_body_value(): void
     {
-        $request = HttpRequest::new('POST')
+        $request = HttpRequest::new()
             ->withBodyValues(['someBodyValue' => 'foo']);
 
-        $controller = fn (string $someBodyValue) => [];
+        $controller = fn (#[FromBody] string $someBodyValue) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()
@@ -93,13 +98,16 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_can_map_post_http_request_with_several_body_values(): void
     {
-        $request = HttpRequest::new('POST')
+        $request = HttpRequest::new()
             ->withBodyValues([
                 'someBodyValue' => 'foo',
                 'anotherBodyValue' => 42,
             ]);
 
-        $controller = fn (string $someBodyValue, int $anotherBodyValue) => [];
+        $controller = fn (
+            #[FromBody] string $someBodyValue,
+            #[FromBody] int $anotherBodyValue,
+        ) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()
@@ -113,7 +121,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_can_map_post_http_request_with_several_route_parameters_and_several_body_values(): void
     {
-        $request = HttpRequest::new('POST')
+        $request = HttpRequest::new()
             ->withRouteParameters([
                 'someRouteParameter' => 'foo',
                 'anotherRouteParameter' => 42,
@@ -126,8 +134,8 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         $controller = fn (
             string $someRouteParameter,
             int $anotherRouteParameter,
-            string $someBodyValue,
-            int $anotherBodyValue,
+            #[FromBody] string $someBodyValue,
+            #[FromBody] int $anotherBodyValue,
         ) => [];
 
         $result = $this->mapperBuilder()
@@ -142,30 +150,40 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
-    public function test_can_map_post_http_request_with_several_body_values_and_a_query_parameter(): void
+    public function test_can_map_post_http_request_with_several_body_values_and_several_query_parameters(): void
     {
-        $request = HttpRequest::new('POST')
-            ->withQueryParameters(['someQueryParameter' => 'foo'])
+        $request = HttpRequest::new()
+            ->withQueryParameters([
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => 42,
+            ])
             ->withBodyValues([
-                'someBodyValue' => 'foo',
-                'anotherBodyValue' => 42,
+                'someBodyValue' => 'bar',
+                'anotherBodyValue' => 1337,
             ]);
 
-        $controller = fn (string $someBodyValue, int $anotherBodyValue) => [];
+        $controller = fn (
+            #[FromQuery] string $someQueryParameter,
+            #[FromQuery] int $anotherQueryParameter,
+            #[FromBody] string $someBodyValue,
+            #[FromBody] int $anotherBodyValue,
+        ) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()
             ->mapArguments($controller, $request);
 
         self::assertSame([
-            'someBodyValue' => 'foo',
-            'anotherBodyValue' => 42,
+            'someQueryParameter' => 'foo',
+            'anotherQueryParameter' => 42,
+            'someBodyValue' => 'bar',
+            'anotherBodyValue' => 1337,
         ], $result);
     }
 
     public function test_mapping_route_parameters_enables_scalar_value_casting(): void
     {
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withRouteParameters([
                 'someRouteParameter' => '42',
             ]);
@@ -181,12 +199,12 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_mapping_query_parameters_enables_scalar_value_casting(): void
     {
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withQueryParameters([
                 'someQueryParameter' => '42',
             ]);
 
-        $controller = fn (int $someQueryParameter) => [];
+        $controller = fn (#[FromQuery] int $someQueryParameter) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()
@@ -197,7 +215,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_detects_colliding_route_parameters_and_query_parameters(): void
     {
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withRouteParameters(['someParameter' => 'foo'])
             ->withQueryParameters(['someParameter' => 'bar']);
 
@@ -216,7 +234,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
     public function test_detects_colliding_route_parameters_and_body_values(): void
     {
-        $request = HttpRequest::new('POST')
+        $request = HttpRequest::new()
             ->withRouteParameters(['someParameter' => 'foo'])
             ->withBodyValues(['someParameter' => 'bar']);
 
@@ -237,11 +255,11 @@ final class HttpRequestMappingTest extends IntegrationTestCase
     {
         $originalRequest = new FakePsrRequest();
 
-        $request = HttpRequest::new('GET')
+        $request = HttpRequest::new()
             ->withQueryParameters(['someQueryParameter' => 'foo'])
             ->withRequestObject($originalRequest);
 
-        $controller = fn (ServerRequestInterface $request, string $someQueryParameter) => [];
+        $controller = fn (ServerRequestInterface $request, #[FromQuery] string $someQueryParameter) => [];
 
         $result = $this->mapperBuilder()
             ->argumentsMapper()

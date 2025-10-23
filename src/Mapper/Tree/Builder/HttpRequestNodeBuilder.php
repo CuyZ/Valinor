@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Mapper\Http\FromBody;
+use CuyZ\Valinor\Mapper\Http\FromQuery;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedHttpRequestValue;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -13,7 +15,6 @@ use RuntimeException;
 
 use function array_key_exists;
 use function assert;
-use function in_array;
 use function is_a;
 
 /** @internal */
@@ -30,12 +31,9 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             throw new RuntimeException('Cannot map to unsealed shaped array'); // @todo move to own exception class
         }
 
-        // Here is the most opinionated part of the algorithm: we chose what
-        // part of the request is used to map to the desired shaped array.
-        // If the request is supposed to have a body, we use the body values,
-        // otherwise we use the query parameters.
-        $requestHasBody = in_array($request->method, ['POST', 'PUT', 'PATCH'], true);
-        $requestValues = $requestHasBody ? $request->bodyValues : $request->queryParameters;
+        $route = $request->routeParameters;
+        $body = $request->bodyValues;
+        $query = $request->queryParameters;
 
         $children = [];
         $errors = [];
@@ -43,9 +41,9 @@ final class HttpRequestNodeBuilder implements NodeBuilder
         // First phase: we loop through all the shaped array elements and try
         // to find corresponding values in the request in the following order:
         // 1. The element is a request object, we assign the request directly.
-        // 2. The element is a route parameter, we assign the parameter value.
-        // 3. The element is a value from the request's query parameters *or*
-        //    the request's body values, we assign it.
+        // 2. The element is a route parameter, we assign the route value.
+        // 3. The element is a query parameter, we assign the query value.
+        // 4. The element is a body value, we assign the body value.
         foreach ($shell->type->elements as $key => $element) {
             $child = $shell
                 ->child((string)$key, $element->type())
@@ -53,21 +51,22 @@ final class HttpRequestNodeBuilder implements NodeBuilder
 
             if ($request->requestObject && is_a($request->requestObject, $child->type->toString(), true)) {
                 $child = $child->withValue($request->requestObject);
-            } elseif (array_key_exists($key, $request->routeParameters)) {
+            } elseif (array_key_exists($key, $route)) {
                 $child = $child
-                    ->withValue($request->routeParameters[$key])
+                    ->withValue($route[$key])
                     ->allowScalarValueCasting();
-            } elseif (isset($requestValues[$key])) {
-                // If the request does not have a body, we work with the query
-                // parameters that contain only string values, thus we need to
-                // make sure these values can be cast properly when needed.
-                if (! $requestHasBody) {
-                    $child = $child->allowScalarValueCasting();
-                }
+            } elseif (array_key_exists($key, $query) && $element->attributes()->has(FromQuery::class)) {
+                $child = $child
+                    ->withValue($query[$key])
+                    ->allowScalarValueCasting();
 
-                $child = $child->withValue($requestValues[$key]);
+                unset($query[$key]);
+            } elseif (array_key_exists($key, $body) && $element->attributes()->has(FromBody::class)) {
+                $child = $child->withValue($body[$key]);
 
-                unset($requestValues[$key]);
+                unset($body[$key]);
+            } else {
+                throw new RuntimeException("Element `$key` cannot be mapped"); // @todo move to own exception class
             }
 
             $child = $child->build();
@@ -80,10 +79,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
         }
 
         // Second phase: if the superfluous keys are not allowed, we add an
-        // error for each remaining key in the request's values.
+        // error for each remaining key in the query and body.
         if (! $shell->allowSuperfluousKeys) {
-            foreach ($requestValues as $key => $value) {
-                $error = $requestHasBody ? UnexpectedHttpRequestValue::forRequestBodyValue($key) : UnexpectedHttpRequestValue::forRequestQueryParameter($key);
+            foreach ($body + $query as $key => $value) {
+                $error = isset($body[$key]) ? UnexpectedHttpRequestValue::forRequestBodyValue($key) : UnexpectedHttpRequestValue::forRequestQueryParameter($key);
 
                 $errors[] = $shell
                     ->child((string)$key, UnresolvableType::forSuperfluousValue((string)$key))
