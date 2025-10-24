@@ -89,5 +89,11 @@ interface DefaultMessage
         'Unexpected key {key}.' => [
             'en' => 'Unexpected key {key}.',
         ],
+        'Unexpected body value {key}.' => [
+            'en' => 'Unexpected body value {key}.',
+        ],
+        'Unexpected query parameter {key}.' => [
+            'en' => 'Unexpected query parameter {key}.',
+        ],
     ];
 }

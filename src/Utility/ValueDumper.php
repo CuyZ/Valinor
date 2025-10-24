@@ -36,6 +36,7 @@ final class ValueDumper
 
     private static function doDump(mixed $value, bool $goDeeper = true): string
     {
+        // @todo handle HttpRequest
         if ($value === null) {
             return 'null';
         }
