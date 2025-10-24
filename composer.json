@@ -47,12 +47,12 @@
             "@putenv XDEBUG_MODE=off",
             "phpunit",
             "phpstan",
+            "php-cs-fixer fix --dry-run",
+            "rector --dry-run",
             "psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml",
             "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
-            "php-cs-fixer fix --dry-run",
-            "rector --dry-run",
             "@check-todo"
         ],
         "check-todo": [
