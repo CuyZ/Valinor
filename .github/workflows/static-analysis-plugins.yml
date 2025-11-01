@@ -47,6 +47,14 @@ jobs:
         with:
           working-directory: "qa/StaticAnalysis/phpstan/v2"
 
+      - uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "qa/StaticAnalysis/phpunit/v10"
+
+      - uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "qa/StaticAnalysis/phpunit/v11"
+
       - name: Running Psalm v6 (without plugin installed)
         run: cd qa/StaticAnalysis/psalm/v6 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-without-plugin.xml --no-cache
 
@@ -70,3 +78,15 @@ jobs:
 
       - name: Running PHPStan v1 (with extension installed)
         run: cd qa/StaticAnalysis/phpstan/v1 && php vendor/bin/phpstan --configuration=../../../../tests/StaticAnalysis/PHPStan/v1/phpstan-with-extension.neon.dist
+
+      - name: Running PHPUnit v11 (without extension installed)
+        run: cd qa/StaticAnalysis/phpunit/v11 && php vendor/bin/phpunit --configuration=../../../../tests/StaticAnalysis/PHPUnit/phpunit-without-extension.dist.xml --bootstrap vendor/autoload.php
+
+      - name: Running PHPUnit v11 (with extension installed)
+        run: cd qa/StaticAnalysis/phpunit/v11 && php vendor/bin/phpunit --configuration=../../../../tests/StaticAnalysis/PHPUnit/phpunit-with-extension.dist.xml --bootstrap vendor/autoload.php
+
+      - name: Running PHPUnit v10 (without extension installed)
+        run: cd qa/StaticAnalysis/phpunit/v10 && php vendor/bin/phpunit --configuration=../../../../tests/StaticAnalysis/PHPUnit/phpunit-without-extension.dist.xml --bootstrap vendor/autoload.php
+
+      - name: Running PHPUnit v10 (with extension installed)
+        run: cd qa/StaticAnalysis/phpunit/v10 && php vendor/bin/phpunit --configuration=../../../../tests/StaticAnalysis/PHPUnit/phpunit-with-extension.dist.xml --bootstrap vendor/autoload.php
