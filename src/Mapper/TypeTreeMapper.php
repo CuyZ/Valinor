@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper;
 
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
+use CuyZ\Valinor\Mapper\Exception\MappingLogicalException;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
-use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\RootNodeBuilder;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -30,7 +30,7 @@ final class TypeTreeMapper implements TreeMapper
 
         try {
             $node = $this->nodeBuilder->build($source, $type);
-        } catch (UnresolvableShellType $exception) {
+        } catch (MappingLogicalException $exception) {
             throw new TypeErrorDuringMapping($type, $exception);
         }
 
