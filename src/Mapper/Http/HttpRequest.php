@@ -37,13 +37,15 @@ use function is_object;
  *         \My\App\AuthorId $authorId,
  *
  *         // Both come from query parameters
+ *         #[\CuyZ\Valinor\Mapper\Http\FromQuery]
  *         \My\App\Status $status,
+ *         #[\CuyZ\Valinor\Mapper\Http\FromQuery]
  *         \My\App\Sort $sort,
  *     ): ResponseInterface { … }
  * }
  *
  * // GET /api/authors/42/articles?status=published&sort=date-desc
- * $request = \CuyZ\Valinor\Mapper\Source\HttpRequest::new('GET')
+ * $request = \CuyZ\Valinor\Mapper\Http\HttpRequest::new('GET')
  *     ->withRouteParameters(['authorId' => 42])
  *     ->withQueryParameters([
  *         'status' => 'published',
@@ -67,13 +69,15 @@ use function is_object;
  *         \My\App\PostId $postId,
  *
  *         // Both come from body payload
+ *         #[\CuyZ\Valinor\Mapper\Http\FromBody]
  *         \My\App\Email $author,
+ *         #[\CuyZ\Valinor\Mapper\Http\FromBody]
  *         \My\App\Comment $content,
  *     ): ResponseInterface { … }
  * }
  *
  * // POST /api/posts/1337/comments
- * $request = \CuyZ\Valinor\Mapper\Source\HttpRequest::new('POST')
+ * $request = \CuyZ\Valinor\Mapper\Http\HttpRequest::new('POST')
  *     ->withRouteParameters(['postId' => 1337])
  *     ->withBodyValues([
  *         'author' => 'jane.doe@example.com',

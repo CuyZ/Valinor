@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
+use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
+use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
 use CuyZ\Valinor\Mapper\Http\FromBody;
 use CuyZ\Valinor\Mapper\Http\FromQuery;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
@@ -14,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class HttpRequestMappingTest extends IntegrationTestCase
 {
-    public function test_can_map_get_http_request_with_single_query_parameter(): void
+    public function test_can_map_http_request_with_single_query_parameter(): void
     {
         $request = HttpRequest::new()
             ->withQueryParameters(['someQueryParameter' => 'foo']);
@@ -28,7 +30,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame(['someQueryParameter' => 'foo'], $result);
     }
 
-    public function test_can_map_get_http_request_with_several_query_parameters(): void
+    public function test_can_map_http_request_with_several_query_parameters(): void
     {
         $request = HttpRequest::new()
             ->withQueryParameters([
@@ -51,7 +53,35 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
-    public function test_can_map_get_http_request_with_several_route_parameters_and_several_query_parameters(): void
+    public function test_can_map_all_query_parameters_to_single_property(): void
+    {
+        $request = HttpRequest::new()
+            ->withQueryParameters([
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => 42,
+            ]);
+
+        $controller =
+            /**
+             * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
+             */
+            fn (
+                #[FromQuery(mapAll: true)] array $query,
+            ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'query' => [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => 42,
+            ],
+        ], $result);
+    }
+
+    public function test_can_map_http_request_with_several_route_parameters_and_several_query_parameters(): void
     {
         $request = HttpRequest::new()
             ->withRouteParameters([
@@ -82,7 +112,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
-    public function test_can_map_post_http_request_with_single_body_value(): void
+    public function test_can_map_http_request_with_single_body_value(): void
     {
         $request = HttpRequest::new()
             ->withBodyValues(['someBodyValue' => 'foo']);
@@ -96,7 +126,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame(['someBodyValue' => 'foo'], $result);
     }
 
-    public function test_can_map_post_http_request_with_several_body_values(): void
+    public function test_can_map_http_request_with_several_body_values(): void
     {
         $request = HttpRequest::new()
             ->withBodyValues([
@@ -119,7 +149,35 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
-    public function test_can_map_post_http_request_with_several_route_parameters_and_several_body_values(): void
+    public function test_can_map_all_body_parameters_to_single_property(): void
+    {
+        $request = HttpRequest::new()
+            ->withBodyValues([
+                'someBodyValue' => 'foo',
+                'anotherBodyValue' => 42,
+            ]);
+
+        $controller =
+            /**
+             * @param array{someBodyValue: string, anotherBodyValue: int} $body
+             */
+            fn (
+                #[FromBody(mapAll: true)] array $body,
+            ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'body' => [
+                'someBodyValue' => 'foo',
+                'anotherBodyValue' => 42,
+            ],
+        ], $result);
+    }
+
+    public function test_can_map_http_request_with_several_route_parameters_and_several_body_values(): void
     {
         $request = HttpRequest::new()
             ->withRouteParameters([
@@ -150,7 +208,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
-    public function test_can_map_post_http_request_with_several_body_values_and_several_query_parameters(): void
+    public function test_can_map_http_request_with_several_body_values_and_several_query_parameters(): void
     {
         $request = HttpRequest::new()
             ->withQueryParameters([
@@ -269,5 +327,86 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             'request' => $originalRequest,
             'someQueryParameter' => 'foo',
         ], $result);
+    }
+
+    public function test_from_query_map_all_attribute_alongside_other_from_query_attributes_throws_exception(): void
+    {
+        $request = HttpRequest::new()
+            ->withQueryParameters([
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => 42,
+            ]);
+
+        $controller =
+            /**
+             * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
+             */
+            fn (
+                #[FromQuery] string $someQueryParameter,
+                #[FromQuery(mapAll: true)] array $query,
+            ) => [];
+
+        $this->expectException(TypeErrorDuringArgumentsMapping::class);
+        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: cannot use `#\[FromQuery\(mapAll: true\)\]` alongside other `#\[FromQuery\]` attributes./');
+
+        $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+    }
+
+    public function test_from_body_map_all_attribute_alongside_other_from_body_attributes_throws_exception(): void
+    {
+        $request = HttpRequest::new()
+            ->withBodyValues([
+                'someBodyValue' => 'foo',
+                'anotherBodyValue' => 42,
+            ]);
+
+        $controller =
+            /**
+             * @param array{someBodyValue: string, anotherBodyValue: int} $body
+             */
+            fn (
+                #[FromBody] string $someBodyValue,
+                #[FromBody(mapAll: true)] array $body,
+            ) => [];
+
+        $this->expectException(TypeErrorDuringArgumentsMapping::class);
+        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: cannot use `#\[FromBody\(mapAll: true\)\]` alongside other `#\[FromBody\]` attributes./');
+
+        $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+    }
+
+    public function test_mapping_http_request_to_unsealed_shaped_array_throws_exception(): void
+    {
+        $this->expectException(TypeErrorDuringMapping::class);
+        $this->expectExceptionMessage('Error while trying to map to `array{foo: string, ...}`: mapping an HTTP request to an unsealed shaped array is not supported.');
+
+        $this->mapperBuilder()
+            ->mapper()
+            ->map('array{foo: string, ...}', HttpRequest::new());
+    }
+
+    public function test_mapping_http_request_to_invalid_element_throws_exception(): void
+    {
+        $request = HttpRequest::new()
+            ->withRouteParameters(['someRouteParameter' => 'foo'])
+            ->withQueryParameters(['someQueryParameter' => 'foo']);
+
+        $controller =
+            fn (
+                string $someRouteParameter,
+                #[FromQuery] string $someQueryParameter,
+                string $invalidParameter,
+            ) => [];
+
+        $this->expectException(TypeErrorDuringArgumentsMapping::class);
+        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: element `invalidParameter` is not bound to a route parameter and is not tagged with a `#\[FromQuery\]` nor a `#\[FromBody\]` attribute./');
+
+        $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
     }
 }

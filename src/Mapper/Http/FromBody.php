@@ -12,4 +12,9 @@ use Attribute;
  * @api
  */
 #[Attribute(Attribute::TARGET_PARAMETER | Attribute::TARGET_PROPERTY)]
-final class FromBody {}
+final class FromBody
+{
+    public function __construct(
+        public readonly bool $mapAll = false,
+    ) {}
+}

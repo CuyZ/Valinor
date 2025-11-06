@@ -10,6 +10,7 @@ use Traversable;
 
 use function array_filter;
 use function array_map;
+use function assert;
 use function count;
 use function is_a;
 
@@ -65,6 +66,19 @@ final class Attributes implements IteratorAggregate, Countable
         return new self(
             ...array_filter($this->attributes, $callback)
         );
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public function firstOf(string $className): AttributeDefinition
+    {
+        assert($this->has($className));
+
+        return array_filter(
+            $this->attributes,
+            static fn (AttributeDefinition $attribute) => is_a($attribute->class->type->className(), $className, true),
+        )[0];
     }
 
     public function merge(self $other): self
