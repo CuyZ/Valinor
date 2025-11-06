@@ -80,7 +80,9 @@ final class FileSystemCache implements Cache
 
             @chmod($filename, 0666 & ~umask());
         } finally {
-            @unlink($tmpFilename);
+            if (file_exists($tmpFilename)) {
+                unlink($tmpFilename);
+            }
         }
     }
 
