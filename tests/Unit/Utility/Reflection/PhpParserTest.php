@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasA\ClassA;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasB\ClassB;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassInSingleNamespace;
+use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassWithImport;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Bar;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Foo;
 use CuyZ\Valinor\Utility\Reflection\PhpParser;
@@ -34,7 +35,6 @@ final class PhpParserTest extends TestCase
     public function test_parse_use_statements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection, array $expectedMap): void
     {
         $actualMap = PhpParser::parseUseStatements($reflection);
-
         self::assertSame($expectedMap, $actualMap);
     }
 
@@ -163,6 +163,14 @@ final class PhpParserTest extends TestCase
                 'anotherfooalias' => Foo::class,
                 'anotherbaralias' => Bar::class,
             ],
+        ];
+
+        yield 'one namespace, class that imports a file with a closure, that uses phpdoc with relative class name' => [
+            new ReflectionFunction((new ClassWithImport())->closure),
+            [
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+            ]
         ];
     }
 }
