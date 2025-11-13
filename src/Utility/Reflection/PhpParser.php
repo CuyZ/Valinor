@@ -53,11 +53,17 @@ final class PhpParser
     {
         $content = self::getFileContent($reflection);
 
+        if ($reflection instanceof ReflectionMethod) {
+            $namespaceName = $reflection->getDeclaringClass()->getNamespaceName();
+        } else {
+            $namespaceName = $reflection->getNamespaceName();
+        }
+
         if ($content === null) {
             return [];
         }
 
-        return (new TokenParser($content))->parseUseStatements($reflection->getNamespaceName());
+        return (new TokenParser($content))->parseUseStatements($namespaceName);
     }
 
     /**
