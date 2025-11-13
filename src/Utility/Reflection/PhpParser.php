@@ -51,21 +51,13 @@ final class PhpParser
      */
     private static function fetchUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
     {
-        if ($reflection instanceof ReflectionMethod) {
-            $namespaceName = $reflection->getDeclaringClass()->getNamespaceName();
-        } elseif ($reflection instanceof ReflectionFunction && $reflection->getClosureScopeClass()) {
-            $namespaceName = $reflection->getClosureScopeClass()->getNamespaceName();
-        } else {
-            $namespaceName = $reflection->getNamespaceName();
-        }
-
         $content = self::getFileContent($reflection);
 
         if ($content === null) {
             return [];
         }
 
-        return (new TokenParser($content))->parseUseStatements($namespaceName);
+        return (new TokenParser($content))->parseUseStatements($reflection->getNamespaceName());
     }
 
     /**
