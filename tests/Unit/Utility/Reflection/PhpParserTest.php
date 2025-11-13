@@ -40,68 +40,68 @@ final class PhpParserTest extends TestCase
 
     public static function use_statements_data_provider(): Generator
     {
-        //        yield 'no use statements' => [
-        //            new ReflectionClass(stdClass::class),
-        //            []
-        //        ];
-        //
-        //        yield 'one namespace' => [
-        //            new ReflectionClass(ClassInSingleNamespace::class),
-        //            [
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'multiple namespaces, class A' => [
-        //            new ReflectionClass(ClassA::class),
-        //            [
-        //                'classb' => ClassB::class,
-        //                'classbalias' => ClassB::class,
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'multiple namespaces, class B' => [
-        //            new ReflectionClass(ClassB::class),
-        //            [
-        //                'classa' => ClassA::class,
-        //                'classaalias' => ClassA::class,
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'multiple namespaces, function A' => [
-        //            new ReflectionFunction('\CuyZ\Valinor\Tests\Fixtures\WithAliasA\functionA'),
-        //            [
-        //                'classb' => ClassB::class,
-        //                'classbalias' => ClassB::class,
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'multiple namespaces, function B' => [
-        //            new ReflectionFunction('\CuyZ\Valinor\Tests\Fixtures\WithAliasB\functionB'),
-        //            [
-        //                'classa' => ClassA::class,
-        //                'classaalias' => ClassA::class,
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
+        yield 'no use statements' => [
+            new ReflectionClass(stdClass::class),
+            []
+        ];
+
+        yield 'one namespace' => [
+            new ReflectionClass(ClassInSingleNamespace::class),
+            [
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'multiple namespaces, class A' => [
+            new ReflectionClass(ClassA::class),
+            [
+                'classb' => ClassB::class,
+                'classbalias' => ClassB::class,
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'multiple namespaces, class B' => [
+            new ReflectionClass(ClassB::class),
+            [
+                'classa' => ClassA::class,
+                'classaalias' => ClassA::class,
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'multiple namespaces, function A' => [
+            new ReflectionFunction('\CuyZ\Valinor\Tests\Fixtures\WithAliasA\functionA'),
+            [
+                'classb' => ClassB::class,
+                'classbalias' => ClassB::class,
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'multiple namespaces, function B' => [
+            new ReflectionFunction('\CuyZ\Valinor\Tests\Fixtures\WithAliasB\functionB'),
+            [
+                'classa' => ClassA::class,
+                'classaalias' => ClassA::class,
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
 
         yield 'one namespace, method' => [
             new ReflectionMethod(ClassInSingleNamespace::class, '__construct'),
@@ -113,57 +113,57 @@ final class PhpParserTest extends TestCase
             ]
         ];
 
-        //        yield 'multiple namespaces, class A method' => [
-        //            new ReflectionMethod(ClassA::class, '__construct'),
-        //            [
-        //                'classb' => ClassB::class,
-        //                'classbalias' => ClassB::class,
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'multiple namespaces, class B method' => [
-        //            new ReflectionMethod(ClassB::class, '__construct'),
-        //            [
-        //                'classa' => ClassA::class,
-        //                'classaalias' => ClassA::class,
-        //                'baralias' => Bar::class,
-        //                'foo' => Foo::class,
-        //                'datetimeimmutable' => DateTimeImmutable::class,
-        //                'stdclassalias' => stdClass::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'function in root namespace' => [
-        //            new ReflectionFunction('function_in_root_namespace'),
-        //            [
-        //                'baralias' => Bar::class,
-        //                'fooalias' => Foo::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'one namespace, one use statement, two import statements' => [
-        //            new ReflectionFunction('CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_with_several_import_statements_in_same_use_statement'),
-        //            [
-        //                'fooalias' => Foo::class,
-        //                'baralias' => Bar::class,
-        //                'anotherfooalias' => Foo::class,
-        //                'anotherbaralias' => Bar::class,
-        //            ]
-        //        ];
-        //
-        //        yield 'one namespace, one use statement, two grouped import statements' => [
-        //            new ReflectionFunction('\CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_with_grouped_import_statements'),
-        //            [
-        //                'fooalias' => Foo::class,
-        //                'baralias' => Bar::class,
-        //                'anotherfooalias' => Foo::class,
-        //                'anotherbaralias' => Bar::class,
-        //            ],
-        //        ];
+        yield 'multiple namespaces, class A method' => [
+            new ReflectionMethod(ClassA::class, '__construct'),
+            [
+                'classb' => ClassB::class,
+                'classbalias' => ClassB::class,
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'multiple namespaces, class B method' => [
+            new ReflectionMethod(ClassB::class, '__construct'),
+            [
+                'classa' => ClassA::class,
+                'classaalias' => ClassA::class,
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'function in root namespace' => [
+            new ReflectionFunction('function_in_root_namespace'),
+            [
+                'baralias' => Bar::class,
+                'fooalias' => Foo::class,
+            ]
+        ];
+
+        yield 'one namespace, one use statement, two import statements' => [
+            new ReflectionFunction('CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_with_several_import_statements_in_same_use_statement'),
+            [
+                'fooalias' => Foo::class,
+                'baralias' => Bar::class,
+                'anotherfooalias' => Foo::class,
+                'anotherbaralias' => Bar::class,
+            ]
+        ];
+
+        yield 'one namespace, one use statement, two grouped import statements' => [
+            new ReflectionFunction('\CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_with_grouped_import_statements'),
+            [
+                'fooalias' => Foo::class,
+                'baralias' => Bar::class,
+                'anotherfooalias' => Foo::class,
+                'anotherbaralias' => Bar::class,
+            ],
+        ];
 
         yield 'one namespace, class that imports a file with a closure, that uses phpdoc with relative class name' => [
             new ReflectionFunction((new ClassWithImport())->closure),

@@ -34,11 +34,6 @@ final class TokenParser
         $this->numTokens = count($this->tokens);
     }
 
-    public function reset(): void
-    {
-        $this->pointer = 0;
-    }
-
     public function getNamespace(ReflectionFunction $function): string
     {
         $currentNamespace = '';
@@ -51,7 +46,7 @@ final class TokenParser
                 break;
             }
         }
-        $this->reset();
+        $this->pointer = 0;
         return $currentNamespace;
     }
 
