@@ -7,7 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures;
 use Closure;
 use RuntimeException;
 
-final readonly class ClassWithImport
+final class ClassWithImport
 {
     public Closure $closure;
     public function __construct(
