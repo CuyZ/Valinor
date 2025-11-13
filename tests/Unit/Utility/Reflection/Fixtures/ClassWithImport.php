@@ -22,6 +22,3 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures {
     }
 
 }
-namespace CuyZ\Valinor\Tests\Demo {
-    class Demo {}
-}

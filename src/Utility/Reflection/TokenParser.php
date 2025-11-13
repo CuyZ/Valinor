@@ -37,16 +37,26 @@ final class TokenParser
     public function getNamespace(ReflectionFunction $function): string
     {
         $currentNamespace = '';
+        $namespacesOnLine = [];
+        $line = 0;
         while ($token = $this->next()) {
+            if ($token->line > $line) {
+                $namespacesOnLine = [];
+                $line = $token->line;
+            }
             if ($token->is(T_NAMESPACE)) {
                 $currentNamespace = $this->parseNamespace();
+                $namespacesOnLine[] = $currentNamespace;
             }
-            // This is crude, it'll fail if you put a whole file with multiple namespaces and function definitions on 1 line
+
             if ($token->line >= $function->getStartLine()) {
                 break;
             }
         }
         $this->pointer = 0;
+        if (count($namespacesOnLine) > 1) {
+            throw new \RuntimeException('Multiple namespaces found on same line: ' . implode(', ', $namespacesOnLine));
+        }
         return $currentNamespace;
     }
 
@@ -142,7 +152,10 @@ final class TokenParser
         while ($token = $this->next()) {
             if ($token->is([T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED, T_STRING])) {
                 return (string)$token;
+            } elseif ($token->is('{')) {
+                return "";
             }
+
         }
 
         /** @infection-ignore-all */
