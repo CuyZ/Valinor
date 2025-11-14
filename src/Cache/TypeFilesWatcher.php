@@ -41,7 +41,7 @@ final class TypeFilesWatcher
      *
      * Example of returned value:
      *
-     * ```php
+     * ```
      * [
      *     // An entity representing a user
      *     '/root/path/src/Domain/User/User.php',

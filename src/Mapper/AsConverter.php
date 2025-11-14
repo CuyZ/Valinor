@@ -10,18 +10,16 @@ use Attribute;
  * This attribute can be used to automatically register a converter attribute.
  *
  * When there is no control over the transformer attribute class, the following
- * method can be used: @see \CuyZ\Valinor\MapperBuilder::registerConverter()
+ * method can be used: {@see \CuyZ\Valinor\MapperBuilder::registerConverter()}
  *
- * ```php
+ * ```
  * namespace My\App;
  *
  * #[\CuyZ\Valinor\Mapper\AsConverter]
  * #[\Attribute(\Attribute::TARGET_PROPERTY)]
  * final class CastToBool
  * {
- *     /**
- *      * @param callable(mixed): bool $next
- *      * /
+ *     // @param callable(mixed): bool $next
  *     public function map(string $value, callable $next): bool
  *     {
  *         $value = match ($value) {
@@ -56,7 +54,7 @@ use Attribute;
  * Attribute converters can also be used on function parameters when mapping
  * arguments:
  *
- * ```php
+ * ```
  * function someFunction(string $name, #[\My\App\CastToBool] bool $isActive) {
  *     // …
  * };

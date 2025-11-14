@@ -46,7 +46,7 @@ final class ArgumentsValues
      *
      * Example:
      *
-     * ```php
+     * ```
      * final readonly class User
      * {
      *     public function __construct(

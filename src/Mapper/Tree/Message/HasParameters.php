@@ -8,7 +8,7 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
  * This interface can be implemented by a message to provide parameters that can
  * be used as placeholders in the message's body.
  *
- * ```php
+ * ```
  * use CuyZ\Valinor\Mapper\Tree\Message\Message;
  * use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
  *

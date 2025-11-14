@@ -18,7 +18,7 @@ use CuyZ\Valinor\MapperBuilder;
  * Note that the first parameter of the constructor has to be a string otherwise
  * an exception will be thrown on mapping.
  *
- * ```php
+ * ```
  * interface SomeInterfaceWithStaticConstructor
  * {
  *     public static function from(string $value): self;
