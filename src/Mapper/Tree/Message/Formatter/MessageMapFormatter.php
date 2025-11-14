@@ -27,7 +27,7 @@ use function is_string;
  *
  * See usage examples below:
  *
- * ```php
+ * ```
  * $formatter = (new MessageMapFormatter([
  *     // Will match if the given message has this exact code
  *     'some_code' => 'New content / code: {message_code}',
