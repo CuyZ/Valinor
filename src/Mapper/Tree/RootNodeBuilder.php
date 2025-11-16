@@ -38,7 +38,6 @@ final class RootNodeBuilder
             shouldApplyConverters: true,
             nodeBuilder: $this->nodeBuilder,
             typeDumper: $this->typeDumper,
-            objectTrace: new ObjectTrace(),
             // @infection-ignore-all
             childrenCount: 0,
         );
