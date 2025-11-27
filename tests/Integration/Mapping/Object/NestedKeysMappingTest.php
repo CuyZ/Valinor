@@ -192,6 +192,74 @@ final class NestedKeysMappingTest extends IntegrationTestCase
         self::assertNull($result->id->type);
         self::assertSame('data', $result->extra);
     }
+
+    public function test_nested_keys_not_detected_when_no_params_provided(): void
+    {
+        // This test kills the LogicalAnd → LogicalOr mutation
+        // An object with all optional params where none are provided should NOT trigger nested keys detection
+        $source = [
+            'data' => 'value',
+        ];
+
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(WrapperWithAllOptional::class, $source);
+            self::fail('Should have thrown MappingError');
+        } catch (MappingError $error) {
+            // Expected: 'data' should be an object, not a string
+            // If mutation escapes (|| instead of &&), it would try to map empty object
+            self::assertStringContainsString('data', $error->getMessage());
+        }
+    }
+
+    public function test_property_key_not_included_in_consumed_keys(): void
+    {
+        // This test kills the ArrayItemRemoval mutation on line 164
+        // When mapping 'id' => {id: string, taxonomy: string},
+        // consumed_keys should be ['taxonomy'] NOT ['id', 'taxonomy']
+        $source = [
+            'id' => 'uuid-123',
+            'taxonomy' => 'products',
+            'name' => 'Test',
+        ];
+
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(ItemWithName::class, $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        // If the mutation escapes, 'id' would be in consumed_keys,
+        // causing 'id' to be missing from parent, leading to error
+        self::assertSame('uuid-123', $result->id->id);
+        self::assertSame('products', $result->id->taxonomy);
+        self::assertSame('Test', $result->name);
+    }
+
+    public function test_already_array_value_not_processed_as_nested_keys(): void
+    {
+        // This test kills the ReturnRemoval mutation on line 126
+        // When value is already an array, it should return early
+        // and NOT continue to nested keys detection logic
+        $source = [
+            'data' => [
+                'x' => 'value-x',
+                'y' => 'value-y',
+                'z' => 'extra',  // This key doesn't exist in DataObject constructor
+            ]
+        ];
+
+        try {
+            $result = $this->mapperBuilder()
+                ->allowSuperfluousKeys()
+                ->mapper()
+                ->map(WrapperWithData::class, $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('value-x', $result->data->x);
+        self::assertSame('value-y', $result->data->y);
+    }
 }
 
 final readonly class OrderId
@@ -345,5 +413,51 @@ final class EntityWithOptional
     public function __construct(
         public RefWithOptional $id,
         public string $extra
+    ) {}
+}
+
+final class AllOptionalRef
+{
+    public function __construct(
+        public ?string $a = null,
+        public ?string $b = null
+    ) {}
+}
+
+final class WrapperWithAllOptional
+{
+    public function __construct(
+        public AllOptionalRef $data
+    ) {}
+}
+
+final class RefWithId
+{
+    public function __construct(
+        public string $id,
+        public string $taxonomy
+    ) {}
+}
+
+final class ItemWithName
+{
+    public function __construct(
+        public RefWithId $id,
+        public string $name
+    ) {}
+}
+
+final class DataObject
+{
+    public function __construct(
+        public string $x,
+        public string $y
+    ) {}
+}
+
+final class WrapperWithData
+{
+    public function __construct(
+        public DataObject $data
     ) {}
 }
