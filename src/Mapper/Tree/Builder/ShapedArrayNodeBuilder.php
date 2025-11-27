@@ -12,6 +12,8 @@ use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
+use Throwable;
+
 use function array_diff;
 use function array_diff_key;
 use function array_key_exists;
@@ -111,7 +113,6 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
     }
 
     /**
-     * @param int|string $key
      * @param array<mixed> $parentValue
      * @return array{value: mixed, consumed_keys: list<string>}
      */
@@ -152,7 +153,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
                     ];
                 }
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return ['value' => $parentValue[$key], 'consumed_keys' => []];
         }
 
