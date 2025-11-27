@@ -146,9 +146,15 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
                     }
                 }
 
-                if ($hasAllRequired && !array_diff($parentKeys, $paramNames)) {
+                if ($hasAllRequired) {
+                    // Extract only the keys needed for this nested object
+                    $nestedValue = [];
+                    foreach ($paramNames as $paramName) {
+                        $nestedValue[$paramName] = $parentValue[$paramName];
+                    }
+
                     return [
-                        'value' => $parentValue,
+                        'value' => $nestedValue,
                         'consumed_keys' => array_values(array_diff($paramNames, [$key]))
                     ];
                 }

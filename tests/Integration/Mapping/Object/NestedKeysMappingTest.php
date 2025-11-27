@@ -151,6 +151,29 @@ final class NestedKeysMappingTest extends IntegrationTestCase
         self::assertSame('123', $result->nested->data->id);
         self::assertSame('test', $result->nested->data->name);
     }
+
+    public function test_nested_object_with_parent_having_additional_properties(): void
+    {
+        $source = [
+            'id' => '8027af91-85df-4a2e-a2d5-67c74cf3f21a',
+            'taxonomy' => 'services',
+            'title' => 'Test Item',
+            'description' => 'A test item with nested ref',
+            'active' => true,
+        ];
+
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(CatalogItem::class, $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('8027af91-85df-4a2e-a2d5-67c74cf3f21a', $result->id->id);
+        self::assertSame('services', $result->id->taxonomy);
+        self::assertSame('Test Item', $result->title);
+        self::assertSame('A test item with nested ref', $result->description);
+        self::assertTrue($result->active);
+    }
 }
 
 final readonly class OrderId
@@ -270,5 +293,23 @@ final class Level1
 {
     public function __construct(
         public Level2 $nested
+    ) {}
+}
+
+final class ItemRef
+{
+    public function __construct(
+        public string $id,
+        public string $taxonomy
+    ) {}
+}
+
+final class CatalogItem
+{
+    public function __construct(
+        public ItemRef $id,
+        public string $title,
+        public string $description,
+        public bool $active
     ) {}
 }
