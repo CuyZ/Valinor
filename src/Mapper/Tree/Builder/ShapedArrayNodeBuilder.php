@@ -138,15 +138,19 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
                 $paramNames = [];
                 $hasAllRequired = true;
+                $hasAtLeastOneParam = false;
 
                 foreach ($method->parameters as $parameter) {
                     $paramNames[] = $parameter->name;
+                    if (array_key_exists($parameter->name, $parentValue)) {
+                        $hasAtLeastOneParam = true;
+                    }
                     if (!$parameter->isOptional && !array_key_exists($parameter->name, $parentValue)) {
                         $hasAllRequired = false;
                     }
                 }
 
-                if ($hasAllRequired) {
+                if ($hasAllRequired && $hasAtLeastOneParam) {
                     // Extract only the keys needed for this nested object
                     $nestedValue = [];
                     foreach ($paramNames as $paramName) {

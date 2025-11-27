@@ -174,6 +174,24 @@ final class NestedKeysMappingTest extends IntegrationTestCase
         self::assertSame('A test item with nested ref', $result->description);
         self::assertTrue($result->active);
     }
+
+    public function test_nested_object_with_optional_param_and_parent_additional_properties(): void
+    {
+        $source = [
+            'id' => '123',
+            'extra' => 'data',
+        ];
+
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(EntityWithOptional::class, $source);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('123', $result->id->id);
+        self::assertNull($result->id->type);
+        self::assertSame('data', $result->extra);
+    }
 }
 
 final readonly class OrderId
@@ -311,5 +329,21 @@ final class CatalogItem
         public string $title,
         public string $description,
         public bool $active
+    ) {}
+}
+
+final class RefWithOptional
+{
+    public function __construct(
+        public string $id,
+        public ?string $type = null
+    ) {}
+}
+
+final class EntityWithOptional
+{
+    public function __construct(
+        public RefWithOptional $id,
+        public string $extra
     ) {}
 }
