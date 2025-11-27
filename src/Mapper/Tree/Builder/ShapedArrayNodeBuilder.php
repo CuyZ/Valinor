@@ -150,7 +150,9 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
                     // Extract only the keys needed for this nested object
                     $nestedValue = [];
                     foreach ($paramNames as $paramName) {
-                        $nestedValue[$paramName] = $parentValue[$paramName];
+                        if (array_key_exists($paramName, $parentValue)) {
+                            $nestedValue[$paramName] = $parentValue[$paramName];
+                        }
                     }
 
                     return [
