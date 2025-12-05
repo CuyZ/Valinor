@@ -7,8 +7,6 @@ namespace CuyZ\Valinor\Utility\Reflection;
 use LogicException;
 use PhpToken;
 
-use ReflectionFunction;
-
 use function count;
 use function explode;
 use function strtolower;
@@ -34,32 +32,6 @@ final class TokenParser
         $this->numTokens = count($this->tokens);
     }
 
-    public function getNamespace(ReflectionFunction $function): string
-    {
-        $currentNamespace = '';
-        $namespacesOnLine = [];
-        $line = 0;
-        while ($token = $this->next()) {
-            if ($token->line > $line) {
-                $namespacesOnLine = [];
-                $line = $token->line;
-            }
-            if ($token->is(T_NAMESPACE)) {
-                $currentNamespace = $this->parseNamespace();
-                $namespacesOnLine[] = $currentNamespace;
-            }
-
-            if ($token->line >= $function->getStartLine()) {
-                break;
-            }
-        }
-        $this->pointer = 0;
-        if (count($namespacesOnLine) > 1) {
-            throw new \RuntimeException('Multiple namespaces found on same line: ' . implode(', ', $namespacesOnLine));
-        }
-        return $currentNamespace;
-    }
-
     /**
      * @return array<string, string>
      */
@@ -67,6 +39,7 @@ final class TokenParser
     {
         $currentNamespace = '';
         $statements = [];
+
         while ($token = $this->next()) {
             if ($currentNamespace === $namespaceName && $token->is(T_USE)) {
                 $statements = [...$statements, ...$this->parseUseStatement()];
@@ -155,7 +128,6 @@ final class TokenParser
             } elseif ($token->is('{')) {
                 return "";
             }
-
         }
 
         /** @infection-ignore-all */

@@ -35,6 +35,7 @@ final class PhpParserTest extends TestCase
     public function test_parse_use_statements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection, array $expectedMap): void
     {
         $actualMap = PhpParser::parseUseStatements($reflection);
+
         self::assertSame($expectedMap, $actualMap);
     }
 
