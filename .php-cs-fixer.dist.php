@@ -23,6 +23,7 @@ return (new PhpCsFixer\Config())
     ->setCacheFile('var/cache/.php_cs.cache')
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRiskyAllowed(true)
+    ->setUnsupportedPhpVersionAllowed(true)
     ->setRules([
         '@PSR1' => true,
         '@PSR12' => true,
