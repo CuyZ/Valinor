@@ -10,7 +10,7 @@ use Throwable;
 /**
  * Can be used to easily create an instance of (error) message.
  *
- * ```php
+ * ```
  * $message = MessageBuilder::newError('Some message with {some_parameter}.')
  *     ->withCode('some_code')
  *     ->withParameter('some_parameter', 'some_value')

@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Mapper\Tree;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Mapper\Tree\Builder\Node;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
@@ -48,7 +47,6 @@ final class Shell
         public bool $shouldApplyConverters,
         private NodeBuilder $nodeBuilder,
         private TypeDumper $typeDumper,
-        private ObjectTrace $objectTrace, // Helps detecting circular dependencies
         /** @var non-negative-int */
         private int $childrenCount,
     ) {
@@ -59,10 +57,6 @@ final class Shell
     {
         if ($this->type instanceof UnresolvableType) {
             throw new UnresolvableShellType($this->type);
-        }
-
-        if ($this->objectTrace->hasDetectedCircularDependency($this->type)) {
-            return $this->error(new InvalidNodeValue());
         }
 
         if (! $this->hasValue) {
@@ -87,7 +81,6 @@ final class Shell
         $self->hasValue = false;
         $self->value = null;
         $self->attributes = Attributes::empty();
-        $self->objectTrace = $this->objectTrace->markAsVisited($type);
         $self->childrenCount = 0;
 
         return $self;
@@ -115,7 +108,6 @@ final class Shell
     {
         $self = clone $this;
         $self->type = $newType;
-        $self->objectTrace = $this->objectTrace->markAsVisited($newType);
 
         $self->castFloatValue();
 

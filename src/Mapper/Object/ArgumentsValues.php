@@ -6,8 +6,12 @@ namespace CuyZ\Valinor\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
+use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\UnionType;
 
+use function array_filter;
 use function array_key_exists;
 use function count;
 use function is_array;
@@ -42,7 +46,7 @@ final class ArgumentsValues
      *
      * Example:
      *
-     * ```php
+     * ```
      * final readonly class User
      * {
      *     public function __construct(
@@ -91,6 +95,21 @@ final class ArgumentsValues
         // structure to allow the mapper to do its job. Note that the method
         // `transform()` below allows to get back the desired structure, with
         // the mapped value.
+        // If the target type is a union type, we purposely remove any subtype
+        // that references the class to prevent an infinite loop due to circular
+        // dependency.
+        if ($type instanceof UnionType) {
+            $subTypes = $type->types();
+            $filtered = array_filter(
+                $subTypes,
+                static fn (Type $subType) => ! $subType instanceof ObjectType || $subType->className() !== $shell->type->className() // @phpstan-ignore method.notFound (We know $shell->type is an ObjectType)
+            );
+
+            if ($filtered !== $subTypes) {
+                $type = UnionType::from(...$filtered);
+            }
+        }
+
         return new self(
             shell: $shell->withType($type)->withAttributes($attributes),
             singleArgumentName: $argument->name(),

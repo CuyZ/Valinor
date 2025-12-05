@@ -13,9 +13,10 @@ use Attribute;
  * of.
  *
  * This attribute is a convenient replacement to the usage of the constructor
- * registration method: @see \CuyZ\Valinor\MapperBuilder::registerConstructor()
+ * registration method:
+ * {@see \CuyZ\Valinor\MapperBuilder::registerConstructor()}
  *
- * ```php
+ * ```
  * final readonly class Email
  * {
  *     // When another constructor is registered for the class, the native
