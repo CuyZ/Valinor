@@ -57,20 +57,23 @@ final class PhpParser
             return [];
         }
 
+        $tokenParser = new TokenParser($content);
+
         if ($reflection instanceof ReflectionMethod) {
             $namespaceName = $reflection->getDeclaringClass()->getNamespaceName();
-        } elseif ($reflection instanceof ReflectionFunction && $reflection->isStatic() && $reflection->getClosureScopeClass()) {
-            $namespaceName = $reflection->getClosureScopeClass()->getNamespaceName();
+        } elseif ($reflection instanceof ReflectionFunction) {
+            $namespaceName = $tokenParser->getNamespace();
         } else {
             $namespaceName = $reflection->getNamespaceName();
         }
 
-        return (new TokenParser($content))->parseUseStatements($namespaceName);
+        return $tokenParser->parseUseStatements($namespaceName);
     }
 
     /**
      * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
-     */    private static function getFileContent(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): ?string
+     */
+    private static function getFileContent(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): ?string
     {
         $filename = $reflection->getFileName();
         $startLine = $reflection->getStartLine();
