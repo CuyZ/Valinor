@@ -149,6 +149,18 @@ final class AliasSpecificationTest extends TestCase
 
         self::assertSame(SimpleObject\SimpleObject::class, $newToken->symbol());
     }
+
+    public function test_object_with_partial_namespace_alias_matching_class_name_are_checked_in_function_bind_to(): void
+    {
+        $function = (fn () => 42)->bindTo(null, null);
+
+        $specification = new AliasSpecification(new ReflectionFunction($function));
+
+        $token = new FakeToken('SimpleObject\SimpleObject');
+        $newToken = $specification->manipulateToken($token);
+
+        self::assertSame(SimpleObject\SimpleObject::class, $newToken->symbol());
+    }
 }
 
 final class ClassWithAlias
