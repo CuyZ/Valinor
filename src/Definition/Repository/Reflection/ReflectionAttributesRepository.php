@@ -37,7 +37,7 @@ final class ReflectionAttributesRepository implements AttributesRepository
         $attributes = [];
 
         foreach ($reflection->getAttributes() as $key => $attribute) {
-            if (! $this->attributeIsAllowed($attribute) || ! $this->attributeCanBeInstantiated($attribute)) {
+            if (! $this->attributeCanBeInstantiated($attribute) || ! $this->attributeIsAllowed($attribute)) {
                 continue;
             }
 

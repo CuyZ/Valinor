@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Utility;
 
 use BackedEnum;
+use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Utility\String\StringCutter;
 use DateTimeInterface;
 use Generator;
@@ -36,7 +37,6 @@ final class ValueDumper
 
     private static function doDump(mixed $value, bool $goDeeper = true): string
     {
-        // @todo handle HttpRequest
         if ($value === null) {
             return 'null';
         }
@@ -96,6 +96,28 @@ final class ValueDumper
             }
 
             return "$type{" . implode(', ', $values) . '}';
+        }
+
+        if ($value instanceof HttpRequest) {
+            $items = [];
+
+            if ($value->routeParameters !== []) {
+                $items[] = 'route: ' . self::doDump($value->routeParameters);
+            }
+
+            if ($value->queryParameters !== []) {
+                $items[] = 'query: ' . self::doDump($value->queryParameters);
+            }
+
+            if ($value->bodyValues !== []) {
+                $items[] = 'body: ' . self::doDump($value->bodyValues);
+            }
+
+            if ($items === []) {
+                return 'HttpRequest (empty)';
+            }
+
+            return 'HttpRequest{' . implode(', ', $items) . '}';
         }
 
         if (is_object($value)) {

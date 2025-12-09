@@ -8,6 +8,7 @@ use Closure;
 use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Mapper\Http\FromBody;
 use CuyZ\Valinor\Mapper\Http\FromQuery;
+use CuyZ\Valinor\Mapper\Http\FromRoute;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Mapper\Object\DynamicConstructor;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
@@ -92,8 +93,9 @@ final class Settings
         return [
             Constructor::class,
             DynamicConstructor::class,
-            FromQuery::class,
             FromBody::class,
+            FromQuery::class,
+            FromRoute::class,
             ...array_keys($this->mapperConverterAttributes),
             ...array_keys($this->normalizerTransformerAttributes),
         ];

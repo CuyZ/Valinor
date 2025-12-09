@@ -6,11 +6,13 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Http\FromBody;
 use CuyZ\Valinor\Mapper\Http\FromQuery;
+use CuyZ\Valinor\Mapper\Http\FromRoute;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapHttpRequestElement;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapHttpRequestToUnsealedShapedArray;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotUseBothFromBodyAttributes;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotUseBothFromQueryAttributes;
+use CuyZ\Valinor\Mapper\Tree\Exception\InappropriateRouteParameter;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedHttpRequestValue;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
@@ -38,8 +40,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
         $body = $request->bodyValues;
         $query = $request->queryParameters;
 
-        $fromQueryAttributes = [];
-        $fromBodyAttributes = [];
+        $fromQueryMapAll = false;
+        $fromQueryMapSingle = false;
+        $fromBodyMapAll = false;
+        $fromBodyMapSingle = false;
 
         $children = [];
         $errors = [];
@@ -57,7 +61,11 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 ->child((string)$key, $element->type())
                 ->withAttributes($attributes);
 
-            if (array_key_exists($key, $route)) {
+            if ($attributes->has(FromRoute::class)) {
+                if (! array_key_exists($key, $route)) {
+                    throw new InappropriateRouteParameter($key);
+                }
+
                 $child = $child
                     ->withValue($route[$key])
                     ->allowScalarValueCasting();
@@ -67,12 +75,12 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $attribute = $attributes->firstOf(FromQuery::class)->instantiate();
 
                 if ($attribute->mapAll) {
-                    $fromQueryAttributes['mapAll'] = true;
+                    $fromQueryMapAll = true;
 
                     $child = $child->withValue($query);
                     $query = [];
                 } elseif (array_key_exists($key, $query)) {
-                    $fromQueryAttributes['mapSingle'] = true;
+                    $fromQueryMapSingle = true;
 
                     $child = $child->withValue($query[$key]);
                     unset($query[$key]);
@@ -82,12 +90,12 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $attribute = $attributes->firstOf(FromBody::class)->instantiate();
 
                 if ($attribute->mapAll) {
-                    $fromBodyAttributes['mapAll'] = true;
+                    $fromBodyMapAll = true;
 
                     $child = $child->withValue($body);
                     $body = [];
                 } elseif (array_key_exists($key, $body)) {
-                    $fromBodyAttributes['mapSingle'] = true;
+                    $fromBodyMapSingle = true;
 
                     $child = $child->withValue($body[$key]);
                     unset($body[$key]);
@@ -107,11 +115,11 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             }
         }
 
-        if (isset($fromQueryAttributes['mapAll']) && isset($fromQueryAttributes['mapSingle'])) {
+        if ($fromQueryMapAll && $fromQueryMapSingle) {
             throw new CannotUseBothFromQueryAttributes();
         }
 
-        if (isset($fromBodyAttributes['mapAll']) && isset($fromBodyAttributes['mapSingle'])) {
+        if ($fromBodyMapAll && $fromBodyMapSingle) {
             throw new CannotUseBothFromBodyAttributes();
         }
 

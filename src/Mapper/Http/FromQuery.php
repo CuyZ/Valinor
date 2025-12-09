@@ -7,7 +7,13 @@ namespace CuyZ\Valinor\Mapper\Http;
 use Attribute;
 
 /**
- * @todo add doc
+ * Marks a parameter or property to be mapped from query parameters of an HTTP
+ * request.
+ *
+ * By default, each parameter marked with this attribute will be mapped from a
+ * single query parameter with the same name:
+ *
+ * For more information, {@see \CuyZ\Valinor\Mapper\Http\HttpRequest}.
  *
  * @api
  */

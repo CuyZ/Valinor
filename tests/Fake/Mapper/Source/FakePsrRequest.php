@@ -14,8 +14,8 @@ class FakePsrRequest implements ServerRequestInterface
         private string $method = 'GET',
         /** @var array<mixed> */
         private array $queryParams = [],
-        /** @var array<mixed> */
-        private array $parsedBody = [],
+        /** @var array<mixed>|object */
+        private array|object $parsedBody = [],
     ) {}
 
     public function getProtocolVersion(): string
@@ -306,9 +306,9 @@ class FakePsrRequest implements ServerRequestInterface
     }
 
     /**
-     * @return array<mixed>
+     * @return array<mixed>|object
      */
-    public function getParsedBody(): array
+    public function getParsedBody(): array|object
     {
         return $this->parsedBody;
     }

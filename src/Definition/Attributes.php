@@ -13,6 +13,7 @@ use function array_map;
 use function assert;
 use function count;
 use function is_a;
+use function reset;
 
 /**
  * @internal
@@ -64,7 +65,7 @@ final class Attributes implements IteratorAggregate, Countable
     public function filter(callable $callback): self
     {
         return new self(
-            ...array_filter($this->attributes, $callback)
+            ...array_filter($this->attributes, $callback),
         );
     }
 
@@ -75,10 +76,13 @@ final class Attributes implements IteratorAggregate, Countable
     {
         assert($this->has($className));
 
-        return array_filter(
+        $filtered = array_filter(
             $this->attributes,
             static fn (AttributeDefinition $attribute) => is_a($attribute->class->type->className(), $className, true),
-        )[0];
+        );
+
+        /** @var AttributeDefinition */
+        return reset($filtered);
     }
 
     public function merge(self $other): self
