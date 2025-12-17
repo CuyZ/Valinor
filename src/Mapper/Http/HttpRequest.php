@@ -150,6 +150,7 @@ use function is_object;
  */
 final class HttpRequest
 {
+    /** @pure */
     public function __construct(
         /**
          * Route parameters that were extracted by the router.
@@ -181,6 +182,7 @@ final class HttpRequest
     ) {}
 
     /**
+     * @pure
      * @param array<mixed> $routeParameters
      */
     public static function fromPsr(ServerRequestInterface $request, array $routeParameters = []): self
