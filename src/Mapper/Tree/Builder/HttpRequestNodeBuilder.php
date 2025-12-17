@@ -61,28 +61,28 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 ->child((string)$key, $element->type())
                 ->withAttributes($attributes);
 
+            $value = $this;
+
             if ($attributes->has(FromRoute::class)) {
                 if (! array_key_exists($key, $route)) {
                     throw new InappropriateRouteParameter($key);
                 }
 
-                $child = $child
-                    ->withValue($route[$key])
-                    ->allowScalarValueCasting();
+                $child = $child->allowScalarValueCasting();
+                $value = $route[$key];
             } elseif ($attributes->has(FromQuery::class)) {
                 $child = $child->allowScalarValueCasting();
+
                 /** @var FromQuery $attribute */
                 $attribute = $attributes->firstOf(FromQuery::class)->instantiate();
 
                 if ($attribute->mapAll) {
                     $fromQueryMapAll = true;
-
-                    $child = $child->withValue($query);
+                    $value = $query;
                     $query = [];
                 } elseif (array_key_exists($key, $query)) {
                     $fromQueryMapSingle = true;
-
-                    $child = $child->withValue($query[$key]);
+                    $value = $query[$key];
                     unset($query[$key]);
                 }
             } elseif ($attributes->has(FromBody::class)) {
@@ -91,19 +91,23 @@ final class HttpRequestNodeBuilder implements NodeBuilder
 
                 if ($attribute->mapAll) {
                     $fromBodyMapAll = true;
-
-                    $child = $child->withValue($body);
+                    $value = $body;
                     $body = [];
                 } elseif (array_key_exists($key, $body)) {
                     $fromBodyMapSingle = true;
-
-                    $child = $child->withValue($body[$key]);
+                    $value = $body[$key];
                     unset($body[$key]);
                 }
             } elseif ($request->requestObject && is_a($request->requestObject, $child->type->toString(), true)) {
-                $child = $child->withValue($request->requestObject);
+                $value = $request->requestObject;
             } else {
                 throw new CannotMapHttpRequestElement($key);
+            }
+
+            if ($value !== $this) {
+                $child = $child->withValue($value);
+            } elseif ($element->isOptional()) {
+                continue;
             }
 
             $child = $child->build();

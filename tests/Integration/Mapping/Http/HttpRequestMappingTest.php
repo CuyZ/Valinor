@@ -284,6 +284,26 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame(['someQueryParameter' => 42], $result);
     }
 
+    public function test_optional_parameter_does_not_block_mapping(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => '42',
+            ],
+        );
+
+        $controller = fn (
+            #[FromQuery] int $someQueryParameter,
+            #[FromQuery] int $someOptionalParameter = 1337,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => 42], $result);
+    }
+
     public function test_detects_colliding_route_parameters_and_query_parameters(): void
     {
         $request = new HttpRequest(
