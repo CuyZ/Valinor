@@ -72,6 +72,17 @@ final class AttributesTest extends TestCase
         self::assertSame($attributeB, $filteredAttributes->toArray()[0]);
     }
 
+    public function test_first_of_returns_correct_attribute(): void
+    {
+        $attributeA = FakeAttributeDefinition::new(self::class);
+        $attributeB = FakeAttributeDefinition::new(DateTimeImmutable::class);
+
+        $attributes = new Attributes($attributeA, $attributeB);
+        $firstAttribute = $attributes->firstOf(DateTimeImmutable::class);
+
+        self::assertSame($attributeB, $firstAttribute);
+    }
+
     public function test_merge_attributes_merges_attributes(): void
     {
         $attributeA = FakeAttributeDefinition::new();

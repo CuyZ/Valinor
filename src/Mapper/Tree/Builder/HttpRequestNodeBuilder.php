@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Mapper\Http\FromBody;
+use CuyZ\Valinor\Mapper\Http\FromQuery;
+use CuyZ\Valinor\Mapper\Http\FromRoute;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapHttpRequestElement;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapHttpRequestToUnsealedShapedArray;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotUseBothFromBodyAttributes;
+use CuyZ\Valinor\Mapper\Tree\Exception\CannotUseBothFromQueryAttributes;
+use CuyZ\Valinor\Mapper\Tree\Exception\InappropriateRouteParameter;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedHttpRequestValue;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
-use RuntimeException;
 
 use function array_key_exists;
 use function assert;
-use function in_array;
 use function is_a;
 
 /** @internal */
@@ -27,47 +33,81 @@ final class HttpRequestNodeBuilder implements NodeBuilder
         assert($shell->type instanceof ShapedArrayType);
 
         if ($shell->type->isUnsealed) {
-            throw new RuntimeException('Cannot map to unsealed shaped array'); // @todo move to own exception class
+            throw new CannotMapHttpRequestToUnsealedShapedArray();
         }
 
-        // Here is the most opinionated part of the algorithm: we chose what
-        // part of the request is used to map to the desired shaped array.
-        // If the request is supposed to have a body, we use the body values,
-        // otherwise we use the query parameters.
-        $requestHasBody = in_array($request->method, ['POST', 'PUT', 'PATCH'], true);
-        $requestValues = $requestHasBody ? $request->bodyValues : $request->queryParameters;
+        $route = $request->routeParameters;
+        $body = $request->bodyValues;
+        $query = $request->queryParameters;
+
+        $fromQueryMapAll = false;
+        $fromQueryMapSingle = false;
+        $fromBodyMapAll = false;
+        $fromBodyMapSingle = false;
 
         $children = [];
         $errors = [];
 
         // First phase: we loop through all the shaped array elements and try
         // to find corresponding values in the request in the following order:
-        // 1. The element is a request object, we assign the request directly.
-        // 2. The element is a route parameter, we assign the parameter value.
-        // 3. The element is a value from the request's query parameters *or*
-        //    the request's body values, we assign it.
+        // 1. The element is a route parameter, we assign the route value.
+        // 2. The element is a query parameter, we assign the query value.
+        // 3. The element is a body value, we assign the body value.
+        // 4. The element is a request object, we assign the request directly.
         foreach ($shell->type->elements as $key => $element) {
+            $attributes = $element->attributes();
+
             $child = $shell
                 ->child((string)$key, $element->type())
-                ->withAttributes($element->attributes());
+                ->withAttributes($attributes);
 
-            if ($request->requestObject && is_a($request->requestObject, $child->type->toString(), true)) {
-                $child = $child->withValue($request->requestObject);
-            } elseif (array_key_exists($key, $request->routeParameters)) {
-                $child = $child
-                    ->withValue($request->routeParameters[$key])
-                    ->allowScalarValueCasting();
-            } elseif (isset($requestValues[$key])) {
-                // If the request does not have a body, we work with the query
-                // parameters that contain only string values, thus we need to
-                // make sure these values can be cast properly when needed.
-                if (! $requestHasBody) {
-                    $child = $child->allowScalarValueCasting();
+            $value = $this;
+
+            if ($attributes->has(FromRoute::class)) {
+                if (! array_key_exists($key, $route)) {
+                    throw new InappropriateRouteParameter($key);
                 }
 
-                $child = $child->withValue($requestValues[$key]);
+                $child = $child->allowScalarValueCasting();
+                $value = $route[$key];
+            } elseif ($attributes->has(FromQuery::class)) {
+                $child = $child->allowScalarValueCasting();
 
-                unset($requestValues[$key]);
+                /** @var FromQuery $attribute */
+                $attribute = $attributes->firstOf(FromQuery::class)->instantiate();
+
+                if ($attribute->mapAll) {
+                    $fromQueryMapAll = true;
+                    $value = $query;
+                    $query = [];
+                } elseif (array_key_exists($key, $query)) {
+                    $fromQueryMapSingle = true;
+                    $value = $query[$key];
+                    unset($query[$key]);
+                }
+            } elseif ($attributes->has(FromBody::class)) {
+                /** @var FromBody $attribute */
+                $attribute = $attributes->firstOf(FromBody::class)->instantiate();
+
+                if ($attribute->mapAll) {
+                    $fromBodyMapAll = true;
+                    $value = $body;
+                    $body = [];
+                } elseif (array_key_exists($key, $body)) {
+                    $fromBodyMapSingle = true;
+                    $value = $body[$key];
+                    unset($body[$key]);
+                }
+            } elseif ($request->requestObject && is_a($request->requestObject, $child->type->toString(), true)) {
+                $value = $request->requestObject;
+            } else {
+                throw new CannotMapHttpRequestElement($key);
+            }
+
+            if ($value !== $this) {
+                $child = $child->withValue($value);
+            } elseif ($element->isOptional()) {
+                continue;
             }
 
             $child = $child->build();
@@ -79,11 +119,19 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             }
         }
 
+        if ($fromQueryMapAll && $fromQueryMapSingle) {
+            throw new CannotUseBothFromQueryAttributes();
+        }
+
+        if ($fromBodyMapAll && $fromBodyMapSingle) {
+            throw new CannotUseBothFromBodyAttributes();
+        }
+
         // Second phase: if the superfluous keys are not allowed, we add an
-        // error for each remaining key in the request's values.
+        // error for each remaining key in the query and body.
         if (! $shell->allowSuperfluousKeys) {
-            foreach ($requestValues as $key => $value) {
-                $error = $requestHasBody ? UnexpectedHttpRequestValue::forRequestBodyValue($key) : UnexpectedHttpRequestValue::forRequestQueryParameter($key);
+            foreach ($body + $query as $key => $value) {
+                $error = isset($body[$key]) ? UnexpectedHttpRequestValue::forRequestBodyValue($key) : UnexpectedHttpRequestValue::forRequestQueryParameter($key);
 
                 $errors[] = $shell
                     ->child((string)$key, UnresolvableType::forSuperfluousValue((string)$key))
