@@ -1,7 +1,7 @@
 {
     "name": "cuyz/valinor",
     "type": "library",
-    "description": "Library that helps to map any input into a strongly-typed value object structure.",
+    "description": "Dependency free PHP library that helps to map any input into a strongly-typed structure.",
     "keywords": [
         "object", "tree", "mapper", "mapping", "hydrator", "array", "conversion", "json", "yaml"
     ],
@@ -15,8 +15,7 @@
         }
     ],
     "require": {
-        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
-        "composer-runtime-api": "^2.0"
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5",

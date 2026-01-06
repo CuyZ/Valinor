@@ -18,8 +18,6 @@ use function strstr;
  */
 final class KeySanitizerCache implements Cache
 {
-    private static string $version;
-
     public function __construct(
         /** @var Cache<EntryType> */
         private Cache $delegate,
@@ -46,12 +44,10 @@ final class KeySanitizerCache implements Cache
      */
     private function sanitize(string $key): string
     {
-        // @infection-ignore-all
-        self::$version ??= PHP_VERSION . '/' . Package::version();
-
         $firstPart = strstr($key, "\0", before_needle: true);
-
         // @infection-ignore-all
-        return $firstPart . hash('xxh128', $key . $this->settings->hash() . self::$version);
+        $hash = hash('xxh128', $key . $this->settings->hash() . PHP_VERSION . Package::VERSION);
+
+        return $firstPart . $hash;
     }
 }
