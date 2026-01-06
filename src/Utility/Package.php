@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility;
 
-use Composer\InstalledVersions;
-
 /** @internal */
 final class Package
 {
-    private static string $version;
-
-    public static function version(): string
-    {
-        /** @infection-ignore-all */
-        return self::$version ??= InstalledVersions::getVersion('cuyz/valinor') ?? 'unknown';
-    }
+    /**
+     * This must be updated manually whenever a new release is published.
+     *
+     * PHP8.3 const type
+     */
+    public const VERSION = '2.3.1';
 }
