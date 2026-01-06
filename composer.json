@@ -47,7 +47,7 @@
             "@putenv XDEBUG_MODE=off",
             "phpunit",
             "phpstan",
-            "php-cs-fixer fix --dry-run",
+            "php-cs-fixer check --diff",
             "rector --dry-run",
             "psalm --config=tests/StaticAnalysis/psalm-without-plugin.xml",
             "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
@@ -60,7 +60,7 @@
         ],
         "fix": [
             "@putenv XDEBUG_MODE=off",
-            "php-cs-fixer fix",
+            "php-cs-fixer fix --diff",
             "rector"
         ],
         "test": [
