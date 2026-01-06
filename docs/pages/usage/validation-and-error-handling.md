@@ -58,7 +58,7 @@ To help identifying an error, a unique code can be provided by implementing the
 interface `CuyZ\Valinor\Mapper\Tree\Message\HasCode`.
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(private string $value)
     {
@@ -117,7 +117,7 @@ The utility class `\CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder` can be used
 to build a message.
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(private string $value)
     {
@@ -154,7 +154,7 @@ should never be allowed. Therefore, only an exhaustive list of carefully chosen
 exceptions should be filtered.
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(private string $value)
     {

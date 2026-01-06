@@ -404,7 +404,7 @@ final class Flatten
     }
 }
 
-final class User
+final readonly class User
 {
     public function __construct(
         public string $name,

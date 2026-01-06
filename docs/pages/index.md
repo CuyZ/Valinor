@@ -55,11 +55,11 @@ native PHP, but it requires a lot a boilerplate code.
 Below is a simple example of doing that without a mapper:
 
 ```php
-final class Person
+final readonly class Person
 {
-    public readonly string $name;
+    public string $name;
     
-    public readonly DateTimeInterface $birthDate;
+    public DateTimeInterface $birthDate;
 }
 
 $data = $client->request('GET', 'https://example.com/person/42')->toArray();

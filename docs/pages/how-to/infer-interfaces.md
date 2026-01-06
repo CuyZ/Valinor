@@ -42,18 +42,18 @@ $mapper->map(SomeInterface::class, [
 
 interface SomeInterface {}
 
-final class FirstImplementation implements SomeInterface
+final readonly class FirstImplementation implements SomeInterface
 {
-    public readonly UuidInterface $uuid;
+    public UuidInterface $uuid;
 
-    public readonly string $someString;
+    public string $someString;
 }
 
-final class SecondImplementation implements SomeInterface
+final readonly class SecondImplementation implements SomeInterface
 {
-    public readonly UuidInterface $uuid;
+    public UuidInterface $uuid;
 
-    public readonly int $someInt;
+    public int $someInt;
 }
 ```
 
@@ -64,14 +64,14 @@ The same mechanics can be applied to infer abstract or parent classes.
 Example with an abstract class:
 
 ```php
-abstract class SomeAbstractClass
+abstract readonly class SomeAbstractClass
 {
     public string $foo;
 
     public string $bar;
 }
 
-final class SomeChildClass extends SomeAbstractClass
+final readonly class SomeChildClass extends SomeAbstractClass
 {
     public string $baz;
 }
@@ -97,14 +97,14 @@ assert($result->baz === 'baz');
 Example with inheritance:
 
 ```php
-class SomeParentClass
+readonly class SomeParentClass
 {
     public string $foo;
 
     public string $bar;
 }
 
-final class SomeChildClass extends SomeParentClass
+final readonly class SomeChildClass extends SomeParentClass
 {
     public string $baz;
 }

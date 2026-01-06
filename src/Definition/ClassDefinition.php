@@ -7,16 +7,16 @@ namespace CuyZ\Valinor\Definition;
 use CuyZ\Valinor\Type\ObjectType;
 
 /** @internal */
-final class ClassDefinition
+final readonly class ClassDefinition
 {
     public function __construct(
         /** @var class-string */
-        public readonly string $name,
-        public readonly ObjectType $type,
-        public readonly Attributes $attributes,
-        public readonly Properties $properties,
-        public readonly Methods $methods,
-        public readonly bool $isFinal,
-        public readonly bool $isAbstract,
+        public string $name,
+        public ObjectType $type,
+        public Attributes $attributes,
+        public Properties $properties,
+        public Methods $methods,
+        public bool $isFinal,
+        public bool $isAbstract,
     ) {}
 }

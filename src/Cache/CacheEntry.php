@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Cache;
 
 /** @internal */
-final class CacheEntry
+final readonly class CacheEntry
 {
     public function __construct(
-        public readonly string $code,
+        public string $code,
         /** @var list<non-empty-string> */
-        public readonly array $filesToWatch = [],
+        public array $filesToWatch = [],
     ) {}
 }

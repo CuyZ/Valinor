@@ -7,55 +7,55 @@ to handle most of the type annotations that are accepted by [PHPStan] and
 ## Scalar
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
-        private bool $boolean,
+        public bool $boolean,
 
-        private float $float,
+        public float $float,
 
-        private int $integer,
+        public int $integer,
 
         /** @var positive-int */
-        private int $positiveInteger,
+        public int $positiveInteger,
 
         /** @var negative-int */
-        private int $negativeInteger,
+        public int $negativeInteger,
 
         /** @var non-positive-int */
-        private int $nonPositiveInteger,
+        public int $nonPositiveInteger,
 
         /** @var non-negative-int */
-        private int $nonNegativeInteger,
+        public int $nonNegativeInteger,
 
         /** @var int<-42, 1337> */
-        private int $integerRange,
+        public int $integerRange,
 
         /** @var int<min, 0> */
-        private int $integerRangeWithMinRange,
+        public int $integerRangeWithMinRange,
 
         /** @var int<0, max> */
-        private int $integerRangeWithMaxRange,
+        public int $integerRangeWithMaxRange,
 
-        private string $string,
+        public string $string,
         
         /** @var non-empty-string */
-        private string $nonEmptyString,
+        public string $nonEmptyString,
         
         /** @var numeric-string */
-        private string $numericString,
+        public string $numericString,
 
         /** @var class-string */
-        private string $classString,
+        public string $classString,
 
         /** @var class-string<SomeInterface> */
-        private string $classStringOfAnInterface,
+        public string $classStringOfAnInterface,
         
         /** @var value-of<SomeEnum> */
-        private string $valueOfEnum,
+        public string $valueOfEnum,
         
         /** @var scalar */
-        private bool|string|int|float $scalar,
+        public bool|string|int|float $scalar,
     ) {}
 }
 ```
@@ -63,29 +63,29 @@ final class SomeClass
 ## Object
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
-        private SomeClass $class,
+        public SomeClass $class,
 
-        private DateTimeInterface $interface,
+        public DateTimeInterface $interface,
 
         /** @var SomeInterface&AnotherInterface */
-        private object $intersection,
+        public object $intersection,
 
         /** @var SomeCollection<SomeClass> */
-        private SomeCollection $classWithGeneric,
+        public SomeCollection $classWithGeneric,
     ) {}
 }
 
 /**
  * @template T of object 
  */
-final class SomeCollection
+final readonly class SomeCollection
 {
     public function __construct(
         /** @var array<T> */
-        private array $objects,
+        public array $objects,
     ) {}
 }
 ```
@@ -93,62 +93,62 @@ final class SomeCollection
 ## Array & lists
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
         /** @var string[] */
-        private array $simpleArray,
+        public array $simpleArray,
 
         /** @var array<string> */
-        private array $arrayOfStrings,
+        public array $arrayOfStrings,
 
         /** @var array<string, SomeClass> */
-        private array $arrayOfClassWithStringKeys,
+        public array $arrayOfClassWithStringKeys,
 
         /** @var array<int, SomeClass> */
-        private array $arrayOfClassWithIntegerKeys,
+        public array $arrayOfClassWithIntegerKeys,
 
         /** @var array<non-empty-string, string> */
-        private array $arrayOfClassWithNonEmptyStringKeys,
+        public array $arrayOfClassWithNonEmptyStringKeys,
         
         /** @var array<'foo'|'bar', string> */
-        private array $arrayOfClassWithStringValueKeys,
+        public array $arrayOfClassWithStringValueKeys,
         
         /** @var array<42|1337, string> */
-        private array $arrayOfClassWithIntegerValueKeys,
+        public array $arrayOfClassWithIntegerValueKeys,
         
         /** @var array<positive-int, string> */
-        private array $arrayOfClassWithPositiveIntegerValueKeys,
+        public array $arrayOfClassWithPositiveIntegerValueKeys,
 
         /** @var non-empty-array<string> */
-        private array $nonEmptyArrayOfStrings,
+        public array $nonEmptyArrayOfStrings,
 
         /** @var non-empty-array<string, SomeClass> */
-        private array $nonEmptyArrayWithStringKeys,
+        public array $nonEmptyArrayWithStringKeys,
         
         /** @var list<string> */
-        private array $listOfStrings,
+        public array $listOfStrings,
         
         /** @var non-empty-list<string> */
-        private array $nonEmptyListOfStrings,
+        public array $nonEmptyListOfStrings,
 
         /** @var array{foo: string, bar: int} */
-        private array $shapedArray,
+        public array $shapedArray,
 
         /** @var array{foo: string, bar?: int} */
-        private array $shapedArrayWithOptionalElement,
+        public array $shapedArrayWithOptionalElement,
 
         /** @var array{string, bar: int} */
-        private array $shapedArrayWithUndefinedKey,
+        public array $shapedArrayWithUndefinedKey,
 
         /** @var array{foo: string, ...} */
-        private array $unsealedShapedArray,
+        public array $unsealedShapedArray,
         
         /** @var array{foo: string, ...array<string>} */
-        private array $unsealedShapedArrayWithExplicitType,
+        public array $unsealedShapedArrayWithExplicitType,
         
         /** @var array{foo: string, ...array<int, string>} */
-        private array $unsealedShapedArrayWithExplicitKeyAndType,
+        public array $unsealedShapedArrayWithExplicitKeyAndType,
     ) {}
 }
 ```
@@ -156,31 +156,31 @@ final class SomeClass
 ## Union
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
-        private int|string $simpleUnion,
+        public int|string $simpleUnion,
         
         /** @var class-string<SomeInterface|AnotherInterface> */
-        private string $unionOfClassString,
+        public string $unionOfClassString,
         
         /** @var array<SomeInterface|AnotherInterface> */
-        private array $unionInsideArray,
+        public array $unionInsideArray,
         
         /** @var int|true */
-        private int|bool $unionWithLiteralTrueType,
+        public int|bool $unionWithLiteralTrueType,
         
         /** @var int|false */
-        private int|bool $unionWithLiteralFalseType,
+        public int|bool $unionWithLiteralFalseType,
         
         /** @var 404.42|1337.42 */
-        private float $unionOfFloatValues,
+        public float $unionOfFloatValues,
         
         /** @var 42|1337 */
-        private int $unionOfIntegerValues,
+        public int $unionOfIntegerValues,
         
         /** @var 'foo'|'bar' */
-        private string $unionOfStringValues,
+        public string $unionOfStringValues,
     ) {}
 }
 ```
@@ -188,7 +188,7 @@ final class SomeClass
 ## Class constants
 
 ```php
-final class SomeClassWithConstants
+final readonly class SomeClassWithConstants
 {
     public const FOO = 1337;
     
@@ -197,14 +197,14 @@ final class SomeClassWithConstants
     public const BAZ = 'baz';
 }
 
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
         /** @var SomeClassWithConstants::FOO|SomeClassWithConstants::BAR */
-        private int|string $oneOfTwoCasesOfConstants,
+        public int|string $oneOfTwoCasesOfConstants,
         
         /** @param SomeClassWithConstants::BA* (matches `bar` or  `baz`) */
-        private string $casesOfConstantsMatchingPattern,
+        public string $casesOfConstantsMatchingPattern,
     ) {}
 }
 ```
@@ -219,16 +219,16 @@ enum SomeEnum
     case BAZ;
 }
 
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
-        private SomeEnum $enum,
+        public SomeEnum $enum,
 
         /** @var SomeEnum::FOO|SomeEnum::BAR */
-        private SomeEnum $oneOfTwoCasesOfEnum,
+        public SomeEnum $oneOfTwoCasesOfEnum,
 
         /** @var SomeEnum::BA* (matches BAR or BAZ) */
-        private SomeEnum $casesOfEnumMatchingPattern,
+        public SomeEnum $casesOfEnumMatchingPattern,
     ) {}
 }
 ```

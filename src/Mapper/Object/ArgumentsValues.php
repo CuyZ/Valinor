@@ -19,10 +19,10 @@ use function is_iterable;
 use function iterator_to_array;
 
 /** @internal */
-final class ArgumentsValues
+final readonly class ArgumentsValues
 {
     public function __construct(
-        public readonly Shell $shell,
+        public Shell $shell,
         private string|null $singleArgumentName = null,
     ) {}
 

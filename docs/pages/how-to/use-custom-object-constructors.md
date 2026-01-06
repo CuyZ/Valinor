@@ -96,7 +96,7 @@ constructor.
     ->mapper()
     ->map(Color::class, [/* … */]);
 
-final class Color
+final readonly class Color
 {
     /**
      * @param int<0, 255> $red
@@ -104,9 +104,9 @@ final class Color
      * @param int<0, 255> $blue
      */
     public function __construct(
-        public readonly int $red,
-        public readonly int $green,
-        public readonly int $blue
+        public int $red,
+        public int $green,
+        public int $blue
     ) {}
 
     /**
@@ -246,7 +246,7 @@ interface InterfaceWithStaticConstructor
     public static function from(string $value): self;
 }
 
-final class ClassWithInheritedStaticConstructor implements InterfaceWithStaticConstructor
+final readonly class ClassWithInheritedStaticConstructor implements InterfaceWithStaticConstructor
 {
     private function __construct(private SomeValueObject $value) {}
 

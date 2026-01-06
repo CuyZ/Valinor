@@ -64,17 +64,8 @@ final class IterableType implements CompositeTraversableType, DumpableType
             return $condition;
         }
 
-        // @infection-ignore-all
-        $iteratorToArray = PHP_VERSION_ID >= 8_02_00
-            ? Node::functionCall('iterator_to_array', [$node])
-            : Node::ternary(
-                condition: Node::functionCall('is_array', [$node]),
-                ifTrue: $node,
-                ifFalse: Node::functionCall('iterator_to_array', [$node]),
-            );
-
         return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-            $iteratorToArray,
+            Node::functionCall('iterator_to_array', [$node]),
             Node::shortClosure(
                 Node::logicalAnd(
                     $this->keyType->compiledAccept(Node::variable('key'))->wrap(),

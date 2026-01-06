@@ -21,8 +21,6 @@ use ReflectionFunction;
 use ReflectionParameter;
 
 use function array_map;
-use function str_ends_with;
-use function str_starts_with;
 
 /** @internal */
 final class ReflectionFunctionDefinitionRepository implements FunctionDefinitionRepository
@@ -68,8 +66,6 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         $class = $reflection->getClosureScopeClass();
         $returnType = $returnTypeResolver->resolveReturnTypeFor($reflection);
         $nativeReturnType = $returnTypeResolver->resolveNativeReturnTypeFor($reflection);
-        // PHP8.2 use `ReflectionFunction::isAnonymous()`
-        $isClosure = $name === '{closure}' || str_ends_with($name, '\\{closure}') || str_starts_with($name, '{closure:');
 
         if ($returnType instanceof UnresolvableType) {
             $returnType = $returnType->forFunctionReturnType($signature);
@@ -84,7 +80,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
             $reflection->getFileName() ?: null,
             $class?->name,
             $reflection->getClosureThis() === null,
-            $isClosure,
+            $reflection->isAnonymous(),
             new Parameters(...$parameters),
             $returnType,
         ))->forCallable($function);
@@ -95,8 +91,7 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
      */
     private function signature(ReflectionFunction $reflection): string
     {
-        // PHP8.2 use `ReflectionFunction::isAnonymous()`
-        if ($reflection->name === '{closure}' || str_ends_with($reflection->name, '\\{closure}') || str_starts_with($reflection->name, '{closure:')) {
+        if ($reflection->isAnonymous()) {
             $startLine = $reflection->getStartLine();
             $endLine = $reflection->getEndLine();
 

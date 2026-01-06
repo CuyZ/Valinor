@@ -41,23 +41,23 @@ the input in a value object will help.
 A schema representing the needed structure must be provided, using classes.
 
 ```php
-final class Thread
+final readonly class Thread
 {
     public function __construct(
-        public readonly int $id,
-        public readonly string $content,
-        public readonly DateTimeInterface $date,
+        public int $id,
+        public string $content,
+        public DateTimeInterface $date,
         /** @var Answer[] */
-        public readonly array $answers, 
+        public array $answers, 
     ) {}
 }
 
-final class Answer
+final readonly class Answer
 {
     public function __construct(
-        public readonly string $user,
-        public readonly string $message,
-        public readonly DateTimeInterface $date,
+        public string $user,
+        public string $message,
+        public DateTimeInterface $date,
     ) {}
 }
 ```
