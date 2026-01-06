@@ -6,12 +6,10 @@ namespace CuyZ\Valinor\Tests\Functional\Definition\Repository\Reflection\TypeRes
 
 use Countable;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativeDisjunctiveNormalFormType;
-use CuyZ\Valinor\Tests\Fixture\Object\ObjectWithPropertyWithNativePhp82StandaloneTypes;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
+use DateTime;
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use ReflectionType;
@@ -95,49 +93,49 @@ final class ReflectionTypeResolverTest extends TestCase
             )->getType(),
             'expectedType' => 'Countable&Iterator',
         ];
-    }
 
-    // PHP8.2 move to data provider
-    #[RequiresPhp('>=8.2')]
-    public function test_disjunctive_normal_form_type_is_resolved_properly(): void
-    {
-        $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativeDisjunctiveNormalFormType::class, 'someProperty'))->getType();
+        yield 'disjunctive normal form type type' => [
+            'reflectionType' => (new ReflectionProperty(
+                new class () {
+                    public (Countable&Iterator)|(Countable&DateTime) $someProperty;
+                },
+                'someProperty'
+            )
+            )->getType(),
+            'expectedType' => 'Countable&Iterator|Countable&DateTime',
+        ];
 
-        $type = $this->resolver->resolveNativeType($reflectionType);
+        yield 'native null type' => [
+            'reflectionType' => (new ReflectionProperty(
+                new class () {
+                    public null $someProperty = null;
+                },
+                'someProperty'
+            )
+            )->getType(),
+            'expectedType' => 'null',
+        ];
 
-        self::assertSame('Countable&Iterator|Countable&DateTime', $type->toString());
-    }
+        yield 'native true type' => [
+            'reflectionType' => (new ReflectionProperty(
+                new class () {
+                    public true $someProperty;
+                },
+                'someProperty'
+            )
+            )->getType(),
+            'expectedType' => 'true',
+        ];
 
-    // PHP8.2 move to data provider
-    #[RequiresPhp('>=8.2')]
-    public function test_native_null_type_is_resolved_properly(): void
-    {
-        $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativePhp82StandaloneTypes::class, 'nativeNull'))->getType();
-
-        $type = $this->resolver->resolveNativeType($reflectionType);
-
-        self::assertSame('null', $type->toString());
-    }
-
-    // PHP8.2 move to data provider
-    #[RequiresPhp('>=8.2')]
-    public function test_native_true_type_is_resolved_properly(): void
-    {
-        $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativePhp82StandaloneTypes::class, 'nativeTrue'))->getType();
-
-        $type = $this->resolver->resolveNativeType($reflectionType);
-
-        self::assertSame('true', $type->toString());
-    }
-
-    // PHP8.2 move to data provider
-    #[RequiresPhp('>=8.2')]
-    public function test_native_false_type_is_resolved_properly(): void
-    {
-        $reflectionType = (new ReflectionProperty(ObjectWithPropertyWithNativePhp82StandaloneTypes::class, 'nativeFalse'))->getType();
-
-        $type = $this->resolver->resolveNativeType($reflectionType);
-
-        self::assertSame('false', $type->toString());
+        yield 'native false type' => [
+            'reflectionType' => (new ReflectionProperty(
+                new class () {
+                    public false $someProperty;
+                },
+                'someProperty'
+            )
+            )->getType(),
+            'expectedType' => 'false',
+        ];
     }
 }

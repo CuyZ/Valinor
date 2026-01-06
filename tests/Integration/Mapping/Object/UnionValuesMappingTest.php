@@ -214,9 +214,6 @@ class NativeUnionValues
 class NativeUnionValuesWithConstructor extends NativeUnionValues
 {
     /**
-     * PHP8.2 native `true` and `false`
-     * @param int|true $intOrLiteralTrue
-     * @param int|false $intOrLiteralFalse
      * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithStringValue
      * @param ObjectWithConstants::CONST_WITH_STRING_VALUE_A|ObjectWithConstants::CONST_WITH_INTEGER_VALUE_A $constantWithIntegerValue
      */
@@ -227,8 +224,8 @@ class NativeUnionValuesWithConstructor extends NativeUnionValues
         bool|float|int|string $scalarWithString = 'Schwifty!',
         string|null $nullableWithString = 'Schwifty!',
         string|null $nullableWithNull = 'Schwifty!',
-        int|bool $intOrLiteralTrue = 42,
-        int|bool $intOrLiteralFalse = 42,
+        int|true $intOrLiteralTrue = 42,
+        int|false $intOrLiteralFalse = 42,
         DateTimeInterface|null $dateTimeOrNull = null,
         null|DateTimeInterface $nullOrDateTime = null,
         string|int $constantWithStringValue = 1653398288,

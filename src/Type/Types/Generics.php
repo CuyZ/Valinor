@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Type\Types;
 use CuyZ\Valinor\Type\Type;
 
 /** @internal */
-final class Generics
+final readonly class Generics
 {
     public function __construct(
         /** @var array<non-empty-string, Type> */
-        public readonly array $items = [],
+        public array $items = [],
     ) {}
 
     public function with(GenericType $generic, Type $type): self

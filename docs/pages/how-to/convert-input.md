@@ -90,7 +90,7 @@ final class CastToBool
     }
 }
 
-final class User
+final readonly class User
 {
     public string $name;
     

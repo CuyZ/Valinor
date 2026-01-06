@@ -26,10 +26,10 @@ use function count;
  *
  * @implements IteratorAggregate<Argument>
  */
-final class Arguments implements IteratorAggregate, Countable
+final readonly class Arguments implements IteratorAggregate, Countable
 {
     /** @var array<string, Argument> */
-    private readonly array $arguments;
+    private array $arguments;
 
     private ShapedArrayType $shapedArray;
 
@@ -40,6 +40,19 @@ final class Arguments implements IteratorAggregate, Countable
             $args[$argument->name()] = $argument;
         }
         $this->arguments = $args;
+        $this->shapedArray = new ShapedArrayType(
+            elements: array_map(
+                static fn (Argument $argument) => new ShapedArrayElement(
+                    key: new StringValueType($argument->name()),
+                    type: $argument->type(),
+                    optional: ! $argument->isRequired(),
+                    attributes: $argument->attributes(),
+                ),
+                $this->arguments,
+            ),
+            isUnsealed: false,
+            unsealedType: null,
+        );
     }
 
     public static function fromParameters(Parameters $parameters): self
@@ -81,19 +94,7 @@ final class Arguments implements IteratorAggregate, Countable
 
     public function toShapedArray(): ShapedArrayType
     {
-        return $this->shapedArray ??= new ShapedArrayType(
-            elements: array_map(
-                static fn (Argument $argument) => new ShapedArrayElement(
-                    key: new StringValueType($argument->name()),
-                    type: $argument->type(),
-                    optional: ! $argument->isRequired(),
-                    attributes: $argument->attributes(),
-                ),
-                $this->arguments,
-            ),
-            isUnsealed: false,
-            unsealedType: null,
-        );
+        return $this->shapedArray;
     }
 
     /**

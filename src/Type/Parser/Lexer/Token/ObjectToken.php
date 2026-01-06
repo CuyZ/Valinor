@@ -9,10 +9,10 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 /** @internal */
-final class ObjectToken implements TraversingToken
+final readonly class ObjectToken implements TraversingToken
 {
     public function __construct(
-        public readonly TraversingToken $subToken,
+        public TraversingToken $subToken,
     ) {}
 
     /**

@@ -10,10 +10,6 @@ $finder = PhpCsFixer\Finder::create()->in([
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
     ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php');
 
-if (PHP_VERSION_ID < 8_02_00) {
-    $finder = $finder->notPath('Fixture/Object/ObjectWithPropertyWithNativeDisjunctiveNormalFormType.php');
-}
-
 if (PHP_VERSION_ID < 8_05_00) {
     $finder = $finder->notPath('Integration/Normalizer/TemporaryPHP85/ClassWithPropertyTransformerWithCallable.php');
 }
