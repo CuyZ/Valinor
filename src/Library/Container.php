@@ -97,7 +97,7 @@ final class Container
                 $builder = new TypeNodeBuilder(
                     new ArrayNodeBuilder(),
                     new ListNodeBuilder(),
-                    new ShapedArrayNodeBuilder(),
+                    new ShapedArrayNodeBuilder($this->get(ClassDefinitionRepository::class)),
                     new ScalarNodeBuilder(),
                     new UnionNodeBuilder(),
                     new NullNodeBuilder(),
