@@ -101,11 +101,5 @@ interface DefaultMessage
         'Key must follow the kebab-case format.' => [
             'en' => 'Key must follow the kebab-case format.',
         ],
-        'Unexpected body value {key}.' => [
-            'en' => 'Unexpected body value {key}.',
-        ],
-        'Unexpected query parameter {key}.' => [
-            'en' => 'Unexpected query parameter {key}.',
-        ],
     ];
 }

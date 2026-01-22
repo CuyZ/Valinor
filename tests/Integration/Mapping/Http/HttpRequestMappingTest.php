@@ -11,7 +11,6 @@ use CuyZ\Valinor\Mapper\Http\FromQuery;
 use CuyZ\Valinor\Mapper\Http\FromRoute;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\MappingError;
-use CuyZ\Valinor\Mapper\Tree\Exception\InappropriateRouteParameter;
 use CuyZ\Valinor\Tests\Fake\Mapper\Source\FakePsrRequest;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -250,11 +249,144 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
+    public function test_can_map_http_request_with_default_route_values(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: [
+                'someRouteParameter' => 'foo',
+                'anotherRouteParameter' => 42,
+            ],
+        );
+
+        $controller = fn (
+            #[FromRoute] string $someRouteParameter,
+            #[FromRoute] int $anotherRouteParameter = 999,
+            #[FromRoute] string $yetAnotherRouteParameter = 'foo',
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'someRouteParameter' => 'foo',
+            'anotherRouteParameter' => 42,
+        ], $result);
+    }
+
+    public function test_can_map_http_request_with_default_query_values(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => 'bar',
+                'anotherQueryParameter' => 404,
+            ],
+        );
+
+        $controller = fn (
+            #[FromQuery] string $someQueryParameter,
+            #[FromQuery] int $anotherQueryParameter = 999,
+            #[FromQuery] string $yetAnotherQueryParameter = 'bar',
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'someQueryParameter' => 'bar',
+            'anotherQueryParameter' => 404,
+        ], $result);
+    }
+
+    public function test_can_map_http_request_with_default_body_values(): void
+    {
+        $request = new HttpRequest(
+            bodyValues: [
+                'someBodyValue' => 'baz',
+                'anotherBodyValue' => 1337,
+            ],
+        );
+
+        $controller = fn (
+            #[FromBody] string $someBodyValue,
+            #[FromBody] int $anotherBodyValue = 999,
+            #[FromBody] string $yetAnotherBodyValue = 'fiz',
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'someBodyValue' => 'baz',
+            'anotherBodyValue' => 1337,
+        ], $result);
+    }
+
+    public function test_map_http_request_respects_parameter_orders_even_when_attributes_are_disordered(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: [
+                'someRouteParameter' => 'foo',
+                'anotherRouteParameter' => 42,
+            ],
+            queryParameters: [
+                'someQueryParameter' => 'bar',
+                'anotherQueryParameter' => 404,
+            ],
+            bodyValues: [
+                'someBodyValue' => 'baz',
+                'anotherBodyValue' => 1337,
+            ],
+        );
+
+        $controller = fn (
+            #[FromRoute] string $someRouteParameter,
+            #[FromQuery] string $someQueryParameter,
+            #[FromBody] string $someBodyValue,
+            #[FromRoute] int $anotherRouteParameter,
+            #[FromQuery] int $anotherQueryParameter,
+            #[FromBody] int $anotherBodyValue,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'someRouteParameter' => 'foo',
+            'someQueryParameter' => 'bar',
+            'someBodyValue' => 'baz',
+            'anotherRouteParameter' => 42,
+            'anotherQueryParameter' => 404,
+            'anotherBodyValue' => 1337,
+        ], $result);
+    }
+
     public function test_mapping_route_parameters_enables_scalar_value_casting(): void
     {
         $request = new HttpRequest(
             routeParameters: [
                 'someRouteParameter' => '42',
+            ],
+        );
+
+        $controller = fn (#[FromRoute] int $someRouteParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someRouteParameter' => 42], $result);
+    }
+
+    public function test_mapping_route_parameters_allows_superflous_keys(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: [
+                'someRouteParameter' => '42',
+                'extraParameter' => 'foo'
             ],
         );
 
@@ -299,7 +431,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
                 ->mapArguments($controller, $request);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'someParameter' => '[unexpected_http_request_query_parameter] Unexpected query parameter `someParameter`.',
+                'someParameter' => '[unexpected_key] Unexpected key `someParameter`.',
             ]);
         }
     }
@@ -319,7 +451,27 @@ final class HttpRequestMappingTest extends IntegrationTestCase
                 ->mapArguments($controller, $request);
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'someParameter' => '[unexpected_http_request_body_value] Unexpected body value `someParameter`.',
+                'someParameter' => '[unexpected_key] Unexpected key `someParameter`.',
+            ]);
+        }
+    }
+
+    public function test_detects_colliding_query_parameters_and_body_values(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['someParameter' => 'foo'],
+            bodyValues: ['someParameter' => 'bar'],
+        );
+
+        $controller = fn (#[FromBody] string $someParameter) => [];
+
+        try {
+            $this->mapperBuilder()
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'someParameter' => '[unexpected_key] Unexpected key `someParameter`.',
             ]);
         }
     }
@@ -364,18 +516,33 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame('foo', $result->someRouteParameter);
     }
 
-    public function test_inappropriate_route_parameter_throws_exception(): void
+    public function test_mapping_http_request_with_invalid_value_returns_errors(): void
     {
-        $request = new HttpRequest();
+        $request = new HttpRequest(
+            routeParameters: ['someRouteParameter' => 'not-an-int'],
+            queryParameters: ['someQueryParameter' => 'not-an-int'],
+            bodyValues: ['someBodyValue' => 'not-an-int'],
+        );
 
-        $controller = fn (#[FromRoute] string $inappropriateRouteParameter) => [];
+        $controller = fn (
+            #[FromRoute] int $someRouteParameter,
+            #[FromQuery] int $someQueryParameter,
+            #[FromBody] int $someBodyValue,
+        ) => [];
 
-        $this->expectException(InappropriateRouteParameter::class);
-        $this->expectExceptionMessage("Route parameter `inappropriateRouteParameter` was not provided in HTTP request.\nThis is a logic error meaning either the router forgot to bind the route parameter, or there is an inappropriate `#[FromRoute]` parameter.");
+        try {
+            $this->mapperBuilder()
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
 
-        $this->mapperBuilder()
-            ->argumentsMapper()
-            ->mapArguments($controller, $request);
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'someRouteParameter' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+                'someQueryParameter' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+                'someBodyValue' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+            ]);
+        }
     }
 
     public function test_from_query_map_all_attribute_alongside_other_from_query_attributes_throws_exception(): void
@@ -455,7 +622,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ) => [];
 
         $this->expectException(TypeErrorDuringArgumentsMapping::class);
-        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: element `invalidParameter` is not bound to a route parameter and is not tagged with a `#\[FromQuery\]` nor a `#\[FromBody\]` attribute./');
+        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: element `invalidParameter` is not tagged with any of `#\[FromRoute\]`, `#\[FromQuery\]` or `#\[FromBody\]` attribute./');
 
         $this->mapperBuilder()
             ->argumentsMapper()

@@ -12,6 +12,6 @@ final class CannotMapHttpRequestElement extends LogicException implements Mappin
 {
     public function __construct(string $element)
     {
-        parent::__construct("Element `$element` is not bound to a route parameter and is not tagged with a `#[FromQuery]` nor a `#[FromBody]` attribute.");
+        parent::__construct("Element `$element` is not tagged with any of `#[FromRoute]`, `#[FromQuery]` or `#[FromBody]` attribute.");
     }
 }

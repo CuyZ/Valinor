@@ -100,7 +100,7 @@ final class Container
                 $builder = new TypeNodeBuilder(
                     new ArrayNodeBuilder(),
                     new ListNodeBuilder(),
-                    new ShapedArrayNodeBuilder(new HttpRequestNodeBuilder()),
+                    new ShapedArrayNodeBuilder(),
                     new ScalarNodeBuilder(),
                     new UnionNodeBuilder(),
                     new NullNodeBuilder(),
@@ -121,13 +121,7 @@ final class Container
                     ),
                 );
 
-                $builder = new ValueConverterNodeBuilder(
-                    $builder,
-                    $this->get(ConverterContainer::class),
-                    $this->get(ClassDefinitionRepository::class),
-                    $this->get(FunctionDefinitionRepository::class),
-                    $settings->exceptionFilter,
-                );
+                $builder = new HttpRequestNodeBuilder($builder);
 
                 if ($settings->keyConverters !== []) {
                     $builder = new KeyConverterNodeBuilder(
@@ -140,7 +134,13 @@ final class Container
                     );
                 }
 
-                return $builder;
+                return new ValueConverterNodeBuilder(
+                    $builder,
+                    $this->get(ConverterContainer::class),
+                    $this->get(ClassDefinitionRepository::class),
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->exceptionFilter,
+                );
             },
 
             ConverterContainer::class => fn () => new ConverterContainer(

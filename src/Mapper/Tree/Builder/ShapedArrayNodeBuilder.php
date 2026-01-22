@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedKeyInSource;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -21,20 +20,12 @@ use function iterator_to_array;
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
 {
-    public function __construct(
-        private HttpRequestNodeBuilder $httpRequestNodeBuilder,
-    ) {}
-
     public function build(Shell $shell): Node
     {
         $type = $shell->type;
         $value = $shell->value();
 
         assert($type instanceof ShapedArrayType);
-
-        if ($value instanceof HttpRequest) {
-            return $this->httpRequestNodeBuilder->build($shell);
-        }
 
         if (! is_iterable($value)) {
             return $shell->error(new SourceMustBeIterable($value));
