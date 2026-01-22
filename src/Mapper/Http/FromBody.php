@@ -13,7 +13,7 @@ use Attribute;
  * By default, each parameter marked with this attribute will be mapped from a
  * single body value with the same name.
  *
- * For more information, {@see \CuyZ\Valinor\Mapper\Http\HttpRequest}.
+ * For more information, {@see HttpRequest}.
  *
  * @api
  */

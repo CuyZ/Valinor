@@ -10,7 +10,7 @@ use Attribute;
  * Marks a parameter or property to be mapped from route values of an HTTP
  * request.
  *
- * For more information, {@see \CuyZ\Valinor\Mapper\Http\HttpRequest}.
+ * For more information, {@see HttpRequest}.
  *
  * @api
  */
