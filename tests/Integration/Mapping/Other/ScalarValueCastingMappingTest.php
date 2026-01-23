@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
 final class ScalarValueCastingMappingTest extends IntegrationTestCase
@@ -49,5 +50,54 @@ final class ScalarValueCastingMappingTest extends IntegrationTestCase
         } catch (MappingError $error) {
             $this->mappingFail($error);
         }
+    }
+
+    #[DataProvider('integer_values_are_casted_properly_data_provider')]
+    public function test_integer_values_are_casted_properly(string $type, mixed $value, mixed $expected): void
+    {
+        try {
+            $result = $this
+                ->mapperBuilder()
+                ->allowScalarValueCasting()
+                ->mapper()
+                ->map($type, $value);
+
+            self::assertSame($expected, $result);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
+    public static function integer_values_are_casted_properly_data_provider(): iterable
+    {
+        yield 'int with very large integer from string' => [
+            'type' => 'int',
+            'value' => (string)(PHP_INT_MAX - 1),
+            'expected' => PHP_INT_MAX - 1,
+        ];
+
+        yield 'non negative int with very large integer from string' => [
+            'type' => 'non-negative-int',
+            'value' => (string)(PHP_INT_MAX - 1),
+            'expected' => PHP_INT_MAX - 1,
+        ];
+
+        yield 'positive int with very large integer from string' => [
+            'type' => 'positive-int',
+            'value' => (string)(PHP_INT_MAX - 1),
+            'expected' => PHP_INT_MAX - 1,
+        ];
+
+        yield 'integer range with very large integer from string' => [
+            'type' => 'int<0, max>',
+            'value' => (string)(PHP_INT_MAX - 1),
+            'expected' => PHP_INT_MAX - 1,
+        ];
+
+        yield 'integer value with very large integer from string' => [
+            'type' => (string)(PHP_INT_MAX - 1),
+            'value' => (string)(PHP_INT_MAX - 1),
+            'expected' => PHP_INT_MAX - 1,
+        ];
     }
 }
