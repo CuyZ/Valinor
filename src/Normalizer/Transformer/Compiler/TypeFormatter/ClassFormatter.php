@@ -67,28 +67,28 @@ final class ClassFormatter implements TypeFormatter
         $shouldUseTransformedNodes = false;
 
         foreach ($this->class->properties as $property) {
-            $propertyDefinition = $definitionBuilder->for($property->type);
+            $propertyType = $property->type instanceof UnresolvableType ? $property->nativeType : $property->type;
+
+            $propertyDefinition = $definitionBuilder->for($propertyType);
 
             if (! $property->nativeType instanceof MixedType) {
                 $propertyDefinition = $propertyDefinition->markAsSure();
             }
 
-            if (! $property->type instanceof UnresolvableType) {
-                $propertyDefinition = $propertyDefinition->withTransformerAttributes(
-                    $property->attributes
-                        ->filter(TransformerContainer::filterTransformerAttributes(...))
-                        ->filter(static function (AttributeDefinition $attribute) use ($property): bool {
-                            $transformerType = $attribute->class->methods->get('normalize')->parameters->at(0)->type;
+            $propertyDefinition = $propertyDefinition->withTransformerAttributes(
+                $property->attributes
+                    ->filter(TransformerContainer::filterTransformerAttributes(...))
+                    ->filter(static function (AttributeDefinition $attribute) use ($propertyType): bool {
+                        $transformerType = $attribute->class->methods->get('normalize')->parameters->at(0)->type;
 
-                            // We filter out transformer attributes that don't
-                            // match the property type because they will never
-                            // be called anyway.
-                            return $transformerType->matches($property->type)
-                                || $property->type->matches($transformerType);
-                        })
-                        ->toArray(),
-                );
-            }
+                        // We filter out transformer attributes that don't
+                        // match the property type because they will never
+                        // be called anyway.
+                        return $transformerType->matches($propertyType)
+                            || $propertyType->matches($transformerType);
+                    })
+                    ->toArray(),
+            );
 
             $typeFormatter = $propertyDefinition->typeFormatter();
 
@@ -124,7 +124,6 @@ final class ClassFormatter implements TypeFormatter
             $shouldUseTransformedNodes = $shouldUseTransformedNodes
                 || $propertyDefinition->hasTransformers()
                 || $keyTransformerAttributes !== []
-                || $property->type instanceof UnresolvableType
                 || ! $property->nativeType instanceof ScalarType;
         }
 
