@@ -12,5 +12,5 @@ final class Package
      *
      * PHP8.3 const type
      */
-    public const VERSION = '2.3.1';
+    public const VERSION = '2.3.2';
 }
