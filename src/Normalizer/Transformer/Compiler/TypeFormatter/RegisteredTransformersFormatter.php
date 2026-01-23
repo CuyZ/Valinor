@@ -81,19 +81,29 @@ final class RegisteredTransformersFormatter implements TypeFormatter
             ),
 
             ...array_map(
-                fn (AttributeDefinition $attribute) => Node::variable('next')->assign(
-                    Node::shortClosure(
-                        return: (new NewAttributeNode($attribute))
-                            ->wrap()
-                            ->callMethod(
-                                method: 'normalize',
-                                arguments: [
-                                    Node::variable('value'),
-                                    Node::variable('next'),
-                                ],
-                            ),
-                    ),
-                )->asExpression(),
+                function (AttributeDefinition $attribute) {
+                    $node = Node::variable('next')->assign(
+                        Node::shortClosure(
+                            return: (new NewAttributeNode($attribute))
+                                ->wrap()
+                                ->callMethod(
+                                    method: 'normalize',
+                                    arguments: [
+                                        Node::variable('value'),
+                                        Node::variable('next'),
+                                    ],
+                                ),
+                        ),
+                    )->asExpression();
+
+                    $transformerType = $attribute->class->methods->get('normalize')->parameters->at(0)->type;
+
+                    if (! $this->type->matches($transformerType)) {
+                        return Node::if($transformerType->compiledAccept(Node::variable('value')), $node);
+                    }
+
+                    return $node;
+                },
                 $this->transformerAttributes,
             ),
 

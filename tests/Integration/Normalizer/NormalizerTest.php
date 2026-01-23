@@ -1131,6 +1131,36 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'object constructed with date with transformer attribute with nullable date' => [
+            'input' => new class (new DateTimeImmutable('1971-11-08')) {
+                public function __construct(
+                    #[DateTimeFormatTransformer('Y-m-d')]
+                    public null|DateTimeImmutable $value
+                ) {}
+            },
+            'expected array' => ['value' => '1971-11-08'],
+            'expected json' => '{"value":"1971-11-08"}',
+            'transformers' => [],
+            'transformerAttributes' => [
+                DateTimeFormatTransformer::class,
+            ],
+        ];
+
+        yield 'object constructed with null with transformer attribute with nullable date' => [
+            'input' => new class (null) {
+                public function __construct(
+                    #[DateTimeFormatTransformer('Y-m-d')]
+                    public null|DateTimeImmutable $value
+                ) {}
+            },
+            'expected array' => ['value' => null],
+            'expected json' => '{"value":null}',
+            'transformers' => [],
+            'transformerAttributes' => [
+                DateTimeFormatTransformer::class,
+            ],
+        ];
+
         yield 'object with key transformer attributes on property' => [
             'input' => new class () {
                 public function __construct(
@@ -2095,6 +2125,19 @@ final class AddPrefixToPropertyKeyBis
     public function normalizeKey(string $key): string
     {
         return $this->prefix . $key;
+    }
+}
+
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+final readonly class DateTimeFormatTransformer
+{
+    public function __construct(
+        private string $format,
+    ) {}
+
+    public function normalize(DateTimeImmutable $date): string
+    {
+        return $date->format($this->format);
     }
 }
 
