@@ -27,51 +27,14 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'value' => $value->value,
         ];
         $transformed = [];
-        $transformed['value'] = $this->transform_mixed($values['value'], $references);
+        $transformed['value'] = $this->transform_string_c80acf3f0352152a3298abfbddc6f6c62c5da4b6($values['value'], $references);
         return $transformed;
     }
 
-    private function transform_mixed(mixed $value, WeakMap $references): mixed
+    private function transform_string_c80acf3f0352152a3298abfbddc6f6c62c5da4b6(mixed $value, WeakMap $references): mixed
     {
-        if (\is_bool($value)) {
-            return $value;
-        }
-        if (\is_float($value)) {
-            return $value;
-        }
-        if (\is_int($value)) {
-            return $value;
-        }
-        if (\is_string($value)) {
-            return $value;
-        }
-        if ($value === NULL) {
-            return NULL;
-        }
-        if ($value instanceof UnitEnum) {
-            return $value instanceof BackedEnum ? $value->value : $value->name;
-        }
-        if ($value instanceof DateTime) {
-            return $value->format('Y-m-d\\TH:i:s.uP');
-        }
-        if ($value instanceof DateTimeZone) {
-            return $value->getName();
-        }
-        if (\is_iterable($value) && ! $value instanceof Generator) {
-            return $this->transform_iterable_mixed_bf66259c($value, $references);
-        }
-        return $this->delegate->transform($value);
-    }
-
-    private function transform_iterable_mixed_bf66259c(iterable $value, WeakMap $references): iterable
-    {
-        if (\is_array($value)) {
-            return \array_map(fn (mixed $item) => $this->transform_mixed($item, $references), $value);
-        }
-        return (function () use ($value, $references) {
-            foreach ($value as $key => $item) {
-                yield $key => $this->transform_mixed($item, $references);
-            }
-        })();
+        $next = fn () => $value;
+        $next = fn () => (new CuyZ\Valinor\Tests\Integration\Normalizer\PrependToStringAttribute())->normalize($value, $next);
+        return $next();
     }
 };
