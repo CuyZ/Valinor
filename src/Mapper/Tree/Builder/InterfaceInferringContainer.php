@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use Exception;
 
@@ -120,38 +121,34 @@ final class InterfaceInferringContainer
      */
     private function implementationsByReturnSignature(string $name, FunctionDefinition $function): array
     {
-        $returnType = $function->returnType;
-
-        if (! $returnType instanceof ClassStringType && ! $returnType instanceof UnionType) {
-            if (count($function->parameters) > 0) {
-                return [];
-            }
-
-            $class = $this->call($name, []);
-            $classType = $this->typeParser->parse($class);
-
-            return [$classType->toString() => $classType];
-        }
-
-        $types = $returnType instanceof UnionType
-            ? $returnType->types()
-            : [$returnType];
-
         $classes = [];
 
+        $types = $function->returnType instanceof UnionType
+            ? $function->returnType->types()
+            : [$function->returnType];
+
         foreach ($types as $type) {
-            if (! $type instanceof ClassStringType) {
-                return [];
-            }
+            if ($type instanceof ClassStringType) {
+                foreach ($type->subTypes() as $classType) {
+                    $classes[$classType->toString()] = $classType;
+                }
+            } elseif ($type instanceof StringValueType) {
+                $classType = $this->typeParser->parse($type->value());
 
-            $subTypes = $type->subTypes();
+                if (! $classType instanceof ClassType) {
+                    return [];
+                }
 
-            if ($subTypes === []) {
-                return [];
-            }
-
-            foreach ($subTypes as $classType) {
                 $classes[$classType->toString()] = $classType;
+            } else {
+                if (count($function->parameters) > 0) {
+                    return [];
+                }
+
+                $class = $this->call($name, []);
+                $classType = $this->typeParser->parse($class);
+
+                return [$classType->toString() => $classType];
             }
         }
 

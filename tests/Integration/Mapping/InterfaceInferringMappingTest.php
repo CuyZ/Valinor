@@ -123,6 +123,44 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
         self::assertInstanceOf(SomeClassThatInheritsInterfaceA::class, $result);
     }
 
+    public function test_infer_interface_withclass_name_works_properly(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(
+                    SomeInterface::class,
+                    /** @return '\CuyZ\Valinor\Tests\Integration\Mapping\SomeClassWithGenericA<string>' */
+                    fn (): string => SomeClassWithGenericA::class . '<string>'
+                )
+                ->mapper()
+                ->map(SomeInterface::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassWithGenericA::class, $result);
+        self::assertSame('foo', $result->value);
+    }
+
+    public function test_infer_interface_with_union_of_class_names_works_properly(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(
+                    SomeInterface::class,
+                    /** @return '\CuyZ\Valinor\Tests\Integration\Mapping\SomeClassWithGenericA<string>'|'\CuyZ\Valinor\Tests\Integration\Mapping\SomeClassWithGenericB<int>' */
+                    fn (): string => SomeClassWithGenericA::class . '<string>'
+                )
+                ->mapper()
+                ->map(SomeInterface::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassWithGenericA::class, $result);
+        self::assertSame('foo', $result->value);
+    }
+
     public function test_infer_interface_with_single_argument_works_properly(): void
     {
         try {
@@ -334,6 +372,21 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
             ->map(SomeInterface::class, []);
     }
 
+    public function test_invalid_string_type_object_implementation_registration_throws_exception(): void
+    {
+        $this->expectException(MissingObjectImplementationRegistration::class);
+        $this->expectExceptionMessage('No implementation of `' . SomeInterface::class . "` found with return type `'invalid-string-type'` of");
+
+        $this->mapperBuilder()
+            ->infer(
+                SomeInterface::class,
+                /** @return 'invalid-string-type' */
+                fn () => SomeClassThatInheritsInterfaceA::class
+            )
+            ->mapper()
+            ->map(SomeInterface::class, []);
+    }
+
     public function test_object_implementation_not_registered_throws_exception(): void
     {
         $this->expectException(ObjectImplementationNotRegistered::class);
@@ -439,3 +492,17 @@ final class SomeClassThatInheritsInterfaceB implements SomeInterface
 }
 
 final class SomeClassThatInheritsInterfaceC implements SomeInterface {}
+
+/**
+ * @template T
+ */
+final class SomeClassWithGenericA implements SomeInterface
+{
+    /** @var T */
+    public mixed $value;
+}
+
+/**
+ * @template T
+ */
+final class SomeClassWithGenericB implements SomeInterface {}
