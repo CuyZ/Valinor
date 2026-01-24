@@ -19,7 +19,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5",
-        "infection/infection": "^0.31",
+        "infection/infection": "^0.32",
         "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
@@ -67,7 +67,7 @@
             "phpunit"
         ],
         "mutation": [
-            "infection --threads=max --git-diff-lines --with-uncovered --min-msi=100"
+            "infection --threads=max --git-diff-lines --min-msi=100 --with-timeouts --with-uncovered --show-mutations"
         ],
         "doc": [
             "Composer\\Config::disableProcessTimeout",
