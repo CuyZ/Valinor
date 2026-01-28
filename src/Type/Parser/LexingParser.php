@@ -20,7 +20,7 @@ class LexingParser implements TypeParser
     {
         try {
             $tokens = array_map(
-                fn (string $symbol) => $this->lexer->tokenize($symbol),
+                $this->lexer->tokenize(...),
                 (new TokensExtractor($raw))->filtered()
             );
 

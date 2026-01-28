@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Object;
 
 use Countable;
-use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Properties;
-use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -58,7 +56,7 @@ final readonly class Arguments implements IteratorAggregate, Countable
     public static function fromParameters(Parameters $parameters): self
     {
         return new self(...array_map(
-            fn (ParameterDefinition $parameter) => Argument::fromParameter($parameter),
+            Argument::fromParameter(...),
             [...$parameters],
         ));
     }
@@ -66,7 +64,7 @@ final readonly class Arguments implements IteratorAggregate, Countable
     public static function fromProperties(Properties $properties): self
     {
         return new self(...array_map(
-            fn (PropertyDefinition $property) => Argument::fromProperty($property),
+            Argument::fromProperty(...),
             [...$properties],
         ));
     }

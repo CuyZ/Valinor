@@ -3,3 +3,4 @@ var
 vendor
 phpstan.neon
 .phpbench
+.phpunit.result.cache

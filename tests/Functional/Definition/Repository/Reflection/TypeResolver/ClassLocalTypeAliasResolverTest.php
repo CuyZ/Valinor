@@ -57,7 +57,7 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                  */
                 new class () {}
             )::class,
-            [
+            'expectedAliases' => [
                 'PhpStanNonEmptyStringAlias' => 'non-empty-string',
             ]
         ];
@@ -69,7 +69,7 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                  */
                 new class () {}
             )::class,
-            [
+            'expectedAliases' => [
                 'PhpStanNonEmptyStringAlias' => 'non-empty-string',
             ]
         ];
@@ -81,7 +81,7 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                  */
                 new class () {}
             )::class,
-            [
+            'expectedAliases' => [
                 'PsalmNonEmptyStringAlias' => 'non-empty-string',
             ]
         ];
@@ -93,7 +93,7 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                  */
                 new class () {}
             )::class,
-            [
+            'expectedAliases' => [
                 'PsalmNonEmptyStringAlias' => 'non-empty-string',
             ]
         ];
@@ -106,7 +106,7 @@ final class ClassLocalTypeAliasResolverTest extends TestCase
                  */
                 new class () {}
             )::class,
-            [
+            'expectedAliases' => [
                 'SomeType' => 'int<42, 1337>',
             ]
         ];

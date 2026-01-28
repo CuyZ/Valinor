@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\MethodDefinition;
-use CuyZ\Valinor\Definition\ParameterDefinition;
 
 use function array_map;
 use function implode;
@@ -33,7 +32,7 @@ final class MethodDefinitionCompiler
         $attributes = $this->attributesCompiler->compile($method->attributes);
 
         $parameters = array_map(
-            fn (ParameterDefinition $parameter) => $this->parameterCompiler->compile($parameter),
+            $this->parameterCompiler->compile(...),
             iterator_to_array($method->parameters)
         );
 

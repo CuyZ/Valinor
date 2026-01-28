@@ -22,7 +22,9 @@ final class ConverterWithCallable
     public static function get(): callable
     {
         return
-            #[ConverterWithCallable(static function () { return ['foo' => 'bar']; })]
+            #[ConverterWithCallable(static function () {
+                return ['foo' => 'bar'];
+            })]
             function (string $foo) {};
     }
 

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Cache\Compiler;
 
 use CuyZ\Valinor\Definition\ClassDefinition;
-use CuyZ\Valinor\Definition\MethodDefinition;
-use CuyZ\Valinor\Definition\PropertyDefinition;
 
 use function array_map;
 use function implode;
@@ -39,14 +37,14 @@ final class ClassDefinitionCompiler
         $type = $this->typeCompiler->compile($value->type);
 
         $properties = array_map(
-            fn (PropertyDefinition $property) => $this->propertyCompiler->compile($property),
+            $this->propertyCompiler->compile(...),
             iterator_to_array($value->properties)
         );
 
         $properties = implode(', ', $properties);
 
         $methods = array_map(
-            fn (MethodDefinition $method) => $this->methodCompiler->compile($method),
+            $this->methodCompiler->compile(...),
             iterator_to_array($value->methods)
         );
 
