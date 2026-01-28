@@ -10,7 +10,6 @@ use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use ReflectionMethod;
-use ReflectionParameter;
 
 use function array_map;
 
@@ -49,7 +48,7 @@ final class FakeMethodDefinition
         }
 
         $parameters = array_map(
-            static fn (ReflectionParameter $reflection) => FakeParameterDefinition::fromReflection($reflection),
+            FakeParameterDefinition::fromReflection(...),
             $reflection->getParameters()
         );
 

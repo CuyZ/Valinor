@@ -77,7 +77,7 @@ final class TypeFilesWatcher
         $files = array_unique($files);
 
         // Filtering the empty/invalid file names
-        $files = array_filter($files, fn ($value) => is_string($value));
+        $files = array_filter($files, is_string(...));
 
         /** @var list<non-empty-string> */
         return array_values($files);

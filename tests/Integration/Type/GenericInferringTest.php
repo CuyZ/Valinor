@@ -81,8 +81,8 @@ final class GenericInferringTest extends FunctionalTestCase
         foreach ($scalars as $scalar) {
             yield "from $scalar" => [
                 'generics' => ['T' => 'scalar'],
-                'typeA' => 'T',
-                'typeB' => $scalar,
+                'rawTypeA' => 'T',
+                'rawTypeB' => $scalar,
                 'expectedGenerics' => [
                     'T' => $scalar,
                 ],
@@ -91,8 +91,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from array key' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'array<T, string>',
-            'typeB' => 'array<int, string>',
+            'rawTypeA' => 'array<T, string>',
+            'rawTypeB' => 'array<int, string>',
             'expectedGenerics' => [
                 'T' => 'int',
             ],
@@ -100,8 +100,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from array key with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'array<T|string, string>',
-            'typeB' => 'array<int|non-empty-string, string>',
+            'rawTypeA' => 'array<T|string, string>',
+            'rawTypeB' => 'array<int|non-empty-string, string>',
             'expectedGenerics' => [
                 'T' => 'int',
             ],
@@ -109,8 +109,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from array subtype' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'array<int, T>',
-            'typeB' => 'array<int, string>',
+            'rawTypeA' => 'array<int, T>',
+            'rawTypeB' => 'array<int, string>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -118,8 +118,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from array subtype with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'array<int, T|int>',
-            'typeB' => 'array<int, string|positive-int>',
+            'rawTypeA' => 'array<int, T|int>',
+            'rawTypeB' => 'array<int, string|positive-int>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -127,8 +127,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from non-empty-array key' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'non-empty-array<T, string>',
-            'typeB' => 'non-empty-array<int, string>',
+            'rawTypeA' => 'non-empty-array<T, string>',
+            'rawTypeB' => 'non-empty-array<int, string>',
             'expectedGenerics' => [
                 'T' => 'int',
             ],
@@ -136,8 +136,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from non-empty-array key with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'non-empty-array<T|string, string>',
-            'typeB' => 'non-empty-array<int|non-empty-string, string>',
+            'rawTypeA' => 'non-empty-array<T|string, string>',
+            'rawTypeB' => 'non-empty-array<int|non-empty-string, string>',
             'expectedGenerics' => [
                 'T' => 'int',
             ],
@@ -145,8 +145,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from non-empty-array subtype' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'non-empty-array<int, T>',
-            'typeB' => 'non-empty-array<int, string>',
+            'rawTypeA' => 'non-empty-array<int, T>',
+            'rawTypeB' => 'non-empty-array<int, string>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -154,8 +154,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from non-empty-array subtype with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'non-empty-array<int, T|int>',
-            'typeB' => 'non-empty-array<int, string|positive-int>',
+            'rawTypeA' => 'non-empty-array<int, T|int>',
+            'rawTypeB' => 'non-empty-array<int, string|positive-int>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -163,8 +163,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from iterable key' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'iterable<T, string>',
-            'typeB' => 'iterable<int, string>',
+            'rawTypeA' => 'iterable<T, string>',
+            'rawTypeB' => 'iterable<int, string>',
             'expectedGenerics' => [
                 'T' => 'int',
             ],
@@ -172,8 +172,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from iterable key with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'iterable<T|string, string>',
-            'typeB' => 'iterable<int|non-empty-string, string>',
+            'rawTypeA' => 'iterable<T|string, string>',
+            'rawTypeB' => 'iterable<int|non-empty-string, string>',
             'expectedGenerics' => [
                 'T' => 'int',
             ],
@@ -181,8 +181,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from iterable subtype' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'iterable<int, T>',
-            'typeB' => 'iterable<int, string>',
+            'rawTypeA' => 'iterable<int, T>',
+            'rawTypeB' => 'iterable<int, string>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -190,8 +190,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from iterable subtype with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'iterable<int, T|int>',
-            'typeB' => 'iterable<int, string|positive-int>',
+            'rawTypeA' => 'iterable<int, T|int>',
+            'rawTypeB' => 'iterable<int, string|positive-int>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -199,8 +199,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from list subtype' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'list<T>',
-            'typeB' => 'list<string>',
+            'rawTypeA' => 'list<T>',
+            'rawTypeB' => 'list<string>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -208,8 +208,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from list subtype with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'list<T|int>',
-            'typeB' => 'list<string|positive-int>',
+            'rawTypeA' => 'list<T|int>',
+            'rawTypeB' => 'list<string|positive-int>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -217,8 +217,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from non-empty-list subtype' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'non-empty-list<T>',
-            'typeB' => 'non-empty-list<string>',
+            'rawTypeA' => 'non-empty-list<T>',
+            'rawTypeB' => 'non-empty-list<string>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -226,8 +226,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from non-empty-list subtype with union' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'non-empty-list<T|int>',
-            'typeB' => 'non-empty-list<string|positive-int>',
+            'rawTypeA' => 'non-empty-list<T|int>',
+            'rawTypeB' => 'non-empty-list<string|positive-int>',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -235,8 +235,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from array shape element' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'array{foo: T, bar: int}',
-            'typeB' => 'array{foo: string, bar: 42|43}',
+            'rawTypeA' => 'array{foo: T, bar: int}',
+            'rawTypeB' => 'array{foo: string, bar: 42|43}',
             'expectedGenerics' => [
                 'T' => 'string',
             ],
@@ -244,8 +244,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from array shape elements' => [
             'generics' => ['T' => 'scalar'],
-            'typeA' => 'array{foo: T, bar: int, baz: T}',
-            'typeB' => 'array{foo: string, baz: int}',
+            'rawTypeA' => 'array{foo: T, bar: int, baz: T}',
+            'rawTypeB' => 'array{foo: string, baz: int}',
             'expectedGenerics' => [
                 'T' => 'string|int',
             ],
@@ -256,8 +256,8 @@ final class GenericInferringTest extends FunctionalTestCase
                 'T1' => 'scalar',
                 'T2' => 'scalar',
             ],
-            'typeA' => ObjectWithGenerics::class . '<T1, T2>',
-            'typeB' => ObjectWithGenerics::class . '<string, int>',
+            'rawTypeA' => ObjectWithGenerics::class . '<T1, T2>',
+            'rawTypeB' => ObjectWithGenerics::class . '<string, int>',
             'expectedGenerics' => [
                 'T1' => 'string',
                 'T2' => 'int',
@@ -269,8 +269,8 @@ final class GenericInferringTest extends FunctionalTestCase
                 'T1' => 'scalar',
                 'T2' => 'scalar',
             ],
-            'typeA' => InterfaceWithGenerics::class . '<T1, T2>',
-            'typeB' => InterfaceWithGenerics::class . '<string, int>',
+            'rawTypeA' => InterfaceWithGenerics::class . '<T1, T2>',
+            'rawTypeB' => InterfaceWithGenerics::class . '<string, int>',
             'expectedGenerics' => [
                 'T1' => 'string',
                 'T2' => 'int',
@@ -279,8 +279,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from enum' => [
             'generics' => ['T' => 'mixed'],
-            'typeA' => 'string|T',
-            'typeB' => BackedStringEnum::class . '::BA*|string',
+            'rawTypeA' => 'string|T',
+            'rawTypeB' => BackedStringEnum::class . '::BA*|string',
             'expectedGenerics' => [
                 'T' => BackedStringEnum::class . '::BA*',
             ],
@@ -288,8 +288,8 @@ final class GenericInferringTest extends FunctionalTestCase
 
         yield 'from class string' => [
             'generics' => ['T' => 'object'],
-            'typeA' => 'class-string<T>',
-            'typeB' => 'class-string<stdClass|DateTimeInterface>',
+            'rawTypeA' => 'class-string<T>',
+            'rawTypeB' => 'class-string<stdClass|DateTimeInterface>',
             'expectedGenerics' => [
                 'T' => 'stdClass|DateTimeInterface',
             ],
@@ -300,8 +300,8 @@ final class GenericInferringTest extends FunctionalTestCase
                 'T1' => 'scalar',
                 'T2' => 'scalar',
             ],
-            'typeA' => 'T1|T2|string',
-            'typeB' => 'bool|non-empty-string|float',
+            'rawTypeA' => 'T1|T2|string',
+            'rawTypeB' => 'bool|non-empty-string|float',
             'expectedGenerics' => [
                 'T1' => 'bool|float',
                 'T2' => 'bool|float',
@@ -313,8 +313,8 @@ final class GenericInferringTest extends FunctionalTestCase
                 'T1' => 'scalar',
                 'T2' => 'scalar',
             ],
-            'typeA' => 'T1|T2|string',
-            'typeB' => 'bool',
+            'rawTypeA' => 'T1|T2|string',
+            'rawTypeB' => 'bool',
             'expectedGenerics' => [
                 'T1' => 'bool',
                 'T2' => 'bool',
@@ -326,8 +326,8 @@ final class GenericInferringTest extends FunctionalTestCase
                 'T1' => 'object',
                 'T2' => 'object',
             ],
-            'typeA' => 'class-string<T1>|class-string<T2>|float',
-            'typeB' => 'class-string<stdClass>|float|class-string<DateTimeInterface>',
+            'rawTypeA' => 'class-string<T1>|class-string<T2>|float',
+            'rawTypeB' => 'class-string<stdClass>|float|class-string<DateTimeInterface>',
             'expectedGenerics' => [
                 'T1' => 'stdClass|DateTimeInterface',
                 'T2' => 'stdClass|DateTimeInterface',

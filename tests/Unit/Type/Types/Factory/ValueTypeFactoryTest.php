@@ -26,52 +26,52 @@ final class ValueTypeFactoryTest extends TestCase
     {
         yield 'true' => [
             'value' => true,
-            'type' => 'true',
+            'expectedType' => 'true',
         ];
         yield 'false' => [
             'value' => false,
-            'type' => 'false',
+            'expectedType' => 'false',
         ];
         yield 'float' => [
             'value' => 1337.42,
-            'type' => '1337.42',
+            'expectedType' => '1337.42',
         ];
         yield 'integer' => [
             'value' => 1337,
-            'type' => '1337',
+            'expectedType' => '1337',
         ];
         yield 'string value' => [
             'value' => 'foo bar',
-            'type' => "'foo bar'",
+            'expectedType' => "'foo bar'",
         ];
         yield 'string value with class name' => [
             'value' => stdClass::class,
-            'type' => 'class-string<stdClass>',
+            'expectedType' => 'class-string<stdClass>',
         ];
         yield 'string value with single quote' => [
             'value' => "What's up",
-            'type' => '"What\'s up"',
+            'expectedType' => '"What\'s up"',
         ];
         yield 'string value with double quote' => [
             'value' => 'This is "some" test',
-            'type' => "'This is \"some\" test'",
+            'expectedType' => "'This is \"some\" test'",
         ];
         yield 'string value with both quote' => [
             'value' => 'This \'is\' "some" test',
-            'type' => "'This \'is\' \"some\" test'",
+            'expectedType' => "'This \'is\' \"some\" test'",
         ];
         yield 'array of scalar' => [
             'value' => ['foo' => 'bar', 'baz' => 'fiz'],
-            'type' => "array{foo: 'bar', baz: 'fiz'}",
+            'expectedType' => "array{foo: 'bar', baz: 'fiz'}",
         ];
         yield 'nested array of scalar' => [
             'value' => ['foo' => ['foo' => 'bar', 'baz' => 'fiz']],
-            'type' => "array{foo: array{foo: 'bar', baz: 'fiz'}}",
+            'expectedType' => "array{foo: array{foo: 'bar', baz: 'fiz'}}",
         ];
 
         yield 'enum' => [
-            'symbol' => PureEnum::FOO,
-            'token' => PureEnum::class . '::FOO',
+            'value' => PureEnum::FOO,
+            'expectedType' => PureEnum::class . '::FOO',
         ];
     }
 
