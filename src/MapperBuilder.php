@@ -8,6 +8,7 @@ use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
+use CuyZ\Valinor\Mapper\Configurator\MapperBuilderConfigurator;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
 use Throwable;
@@ -26,6 +27,53 @@ final class MapperBuilder
     public function __construct()
     {
         $this->settings = new Settings();
+    }
+
+    /**
+     * Allows applying one or more configurators to the builder, enabling
+     * reusable and shareable configuration logic.
+     *
+     * This is useful when the same mapping configuration needs to be applied in
+     * multiple places across an application, or when configuration logic needs
+     * to be distributed as a package.
+     *
+     * ```
+     * use CuyZ\Valinor\MapperBuilder;
+     * use CuyZ\Valinor\Mapper\Configurator\MapperBuilderConfigurator;
+     *
+     * final class ApplicationMappingConfigurator implements MapperBuilderConfigurator
+     * {
+     *     public function configureMapperBuilder(MapperBuilder $builder): MapperBuilder
+     *     {
+     *         return $builder
+     *             ->allowScalarValueCasting()
+     *             ->allowSuperfluousKeys()
+     *             ->registerConstructor(
+     *                 \App\Domain\CustomerId::fromString(...),
+     *             );
+     *     }
+     * }
+     *
+     * // The same configurator can be reused across multiple mapper instances
+     * $result = (new MapperBuilder())
+     *     ->configureWith(new ApplicationMappingConfigurator())
+     *     ->mapper()
+     *     ->map(SomeClass::class, [
+     *         // …
+     *     ]);
+     * ```
+     *
+     * @pure
+     */
+    public function configureWith(MapperBuilderConfigurator ...$configurators): self
+    {
+        $self = $this;
+
+        foreach ($configurators as $configurator) {
+            $self = $configurator->configureMapperBuilder($self);
+        }
+
+        return $self;
     }
 
     /**
