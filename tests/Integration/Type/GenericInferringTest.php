@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Type;
 
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
-use CuyZ\Valinor\Tests\Functional\FunctionalTestCase;
+use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\ObjectSpecification;
 use CuyZ\Valinor\Type\Parser\Lexer\NativeLexer;
 use CuyZ\Valinor\Type\Parser\Lexer\SpecificationsLexer;
@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_map;
 
-final class GenericInferringTest extends FunctionalTestCase
+final class GenericInferringTest extends IntegrationTestCase
 {
     /**
      * @param array<non-empty-string, non-empty-string> $generics

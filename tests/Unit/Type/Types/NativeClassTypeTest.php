@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -15,10 +16,9 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use DateTime;
 use DateTimeInterface;
 use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class NativeClassTypeTest extends TestCase
+final class NativeClassTypeTest extends UnitTestCase
 {
     public function test_signature_can_be_retrieved(): void
     {

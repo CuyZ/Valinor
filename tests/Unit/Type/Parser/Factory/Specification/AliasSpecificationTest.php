@@ -7,16 +7,16 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Factory\Specification;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\Token\FakeToken;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture as SimpleObject;
 use CuyZ\Valinor\Tests\Unit\Type\Parser\Factory\Specification as PathAlias;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Factory\Specifications\AliasSpecification;
 use DateTimeInterface as SecondClassAlias;
 use ObjectWithNameMatchingRootNamespace\ObjectWithNameMatchingRootNamespace;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
 use stdClass;
 use stdClass as FirstClassAlias;
 
-final class AliasSpecificationTest extends TestCase
+final class AliasSpecificationTest extends UnitTestCase
 {
     public function test_resolve_unsupported_type_in_class_returns_same_type(): void
     {

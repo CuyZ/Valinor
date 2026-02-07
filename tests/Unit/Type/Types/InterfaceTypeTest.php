@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\IntersectionType;
@@ -19,10 +20,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Iterator;
 use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class InterfaceTypeTest extends TestCase
+final class InterfaceTypeTest extends UnitTestCase
 {
     public function test_signature_can_be_retrieved(): void
     {

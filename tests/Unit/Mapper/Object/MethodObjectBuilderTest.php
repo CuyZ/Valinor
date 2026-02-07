@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use RuntimeException;
 use stdClass;
 
-final class MethodObjectBuilderTest extends TestCase
+final class MethodObjectBuilderTest extends UnitTestCase
 {
     public function test_signature_is_method_signature(): void
     {

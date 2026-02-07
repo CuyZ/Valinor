@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Utility;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -12,10 +13,9 @@ use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Utility\TypeHelper;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class TypeHelperTest extends TestCase
+final class TypeHelperTest extends UnitTestCase
 {
     public function test_types_have_correct_priorities(): void
     {

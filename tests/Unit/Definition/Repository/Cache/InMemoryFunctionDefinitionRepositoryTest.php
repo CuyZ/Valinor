@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Cache;
 use CuyZ\Valinor\Definition\Repository\Cache\InMemoryFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class InMemoryFunctionDefinitionRepositoryTest extends TestCase
+final class InMemoryFunctionDefinitionRepositoryTest extends UnitTestCase
 {
     public function test_delegate_result_is_cached_in_memory(): void
     {

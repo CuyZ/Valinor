@@ -6,11 +6,11 @@ namespace CuyZ\Valinor\Tests\Unit\Library;
 
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use stdClass;
 use Throwable;
 
-final class SettingsTest extends TestCase
+final class SettingsTest extends UnitTestCase
 {
     /**
      * This test is here to detect if the default settings have changed,

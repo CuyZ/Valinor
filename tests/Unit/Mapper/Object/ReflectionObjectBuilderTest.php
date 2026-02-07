@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 
 use CuyZ\Valinor\Mapper\Object\ReflectionObjectBuilder;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use ReflectionClass;
 
-final class ReflectionObjectBuilderTest extends TestCase
+final class ReflectionObjectBuilderTest extends UnitTestCase
 {
     public function test_build_object_without_constructor_returns_correct_object(): void
     {

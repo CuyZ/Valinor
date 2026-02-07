@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Dumper;
 
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Dumper\TypeDumpContext;
-use PHPUnit\Framework\TestCase;
 
 use function str_repeat;
 
-final class TypeDumpContextTest extends TestCase
+final class TypeDumpContextTest extends UnitTestCase
 {
     public function test_max_length(): void
     {

@@ -8,13 +8,13 @@ use ArrayObject;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\ValueDumper;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class ValueDumperTest extends TestCase
+final class ValueDumperTest extends UnitTestCase
 {
     #[DataProvider('dump_value_returns_correct_signature_data_provider')]
     public function test_dump_value_returns_correct_signature(mixed $value, string $expected): void

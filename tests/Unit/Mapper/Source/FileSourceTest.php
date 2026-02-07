@@ -7,16 +7,16 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Source;
 use CuyZ\Valinor\Mapper\Source\Exception\FileExtensionNotHandled;
 use CuyZ\Valinor\Mapper\Source\Exception\UnableToReadFile;
 use CuyZ\Valinor\Mapper\Source\FileSource;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use SplFileObject;
 
 use function function_exists;
 use function iterator_to_array;
 
-final class FileSourceTest extends TestCase
+final class FileSourceTest extends UnitTestCase
 {
     private vfsStreamDirectory $files;
 

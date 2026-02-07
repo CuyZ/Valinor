@@ -8,9 +8,9 @@ use CuyZ\Valinor\Mapper\Tree\Message\Formatter\MessageMapFormatter;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class MessageMapFormatterTest extends TestCase
+final class MessageMapFormatterTest extends UnitTestCase
 {
     public function test_format_finds_code_returns_formatted_content(): void
     {

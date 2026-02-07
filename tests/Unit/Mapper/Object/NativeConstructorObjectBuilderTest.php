@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use ReflectionClass;
 use RuntimeException;
 
-final class NativeConstructorObjectBuilderTest extends TestCase
+final class NativeConstructorObjectBuilderTest extends UnitTestCase
 {
     public function test_arguments_instance_stays_the_same(): void
     {

@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Unit\Definition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\PropertyDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class PropertyDefinitionTest extends TestCase
+final class PropertyDefinitionTest extends UnitTestCase
 {
     public function test_property_data_can_be_retrieved(): void
     {

@@ -10,9 +10,9 @@ use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributeDefinition;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeParameterDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class MethodDefinitionTest extends TestCase
+final class MethodDefinitionTest extends UnitTestCase
 {
     public function test_method_data_can_be_retrieved(): void
     {

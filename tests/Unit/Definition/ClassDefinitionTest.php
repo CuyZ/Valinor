@@ -11,11 +11,11 @@ use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeMethodDefinition;
 use CuyZ\Valinor\Tests\Fake\Definition\FakePropertyDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\NativeClassType;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class ClassDefinitionTest extends TestCase
+final class ClassDefinitionTest extends UnitTestCase
 {
     public function test_class_data_can_be_retrieved(): void
     {

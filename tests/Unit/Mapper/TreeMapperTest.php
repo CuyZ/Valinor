@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper;
 
 use CuyZ\Valinor\Mapper\Exception\InvalidMappingTypeSignature;
 use CuyZ\Valinor\Mapper\TreeMapper;
-use CuyZ\Valinor\Tests\Functional\FunctionalTestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class TreeMapperTest extends FunctionalTestCase
+final class TreeMapperTest extends UnitTestCase
 {
     public function test_invalid_mapping_type_signature_throws_exception(): void
     {

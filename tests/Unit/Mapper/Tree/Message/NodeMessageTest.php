@@ -9,10 +9,10 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
-use PHPUnit\Framework\TestCase;
 
-final class NodeMessageTest extends TestCase
+final class NodeMessageTest extends UnitTestCase
 {
     public function test_node_properties_can_be_accessed(): void
     {

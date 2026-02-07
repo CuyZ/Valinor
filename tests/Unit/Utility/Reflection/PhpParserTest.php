@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
+use Closure;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasA\ClassA;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasB\ClassB;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassInSingleNamespace;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassWithImport;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Bar;
@@ -14,7 +16,6 @@ use CuyZ\Valinor\Utility\Reflection\PhpParser;
 use DateTimeImmutable;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -25,7 +26,7 @@ require_once __DIR__ . '/Fixtures/FunctionInRootNamespace.php';
 require_once __DIR__ . '/Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php';
 require_once __DIR__ . '/Fixtures/FunctionWithGroupedImportStatements.php';
 
-final class PhpParserTest extends TestCase
+final class PhpParserTest extends UnitTestCase
 {
     /**
      * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
@@ -173,5 +174,29 @@ final class PhpParserTest extends TestCase
                 'foo' => Foo::class,
             ]
         ];
+    }
+
+    public function test_can_parse_namespace_for_closure_with_one_level_namespace(): void
+    {
+        /** @var Closure $function */
+        $function = require_once 'Fixtures/closure-with-one-level-namespace.php';
+
+        $reflection = new ReflectionFunction($function);
+
+        $namespace = PhpParser::parseNamespace($reflection);
+
+        self::assertSame('OneLevelNamespace', $namespace);
+    }
+
+    public function test_can_parse_namespace_for_closure_with_qualified_namespace(): void
+    {
+        /** @var Closure $function */
+        $function = require_once 'Fixtures/closure-with-qualified-namespace.php';
+
+        $reflection = new ReflectionFunction($function);
+
+        $namespace = PhpParser::parseNamespace($reflection);
+
+        self::assertSame('Root\QualifiedNamespace', $namespace);
     }
 }

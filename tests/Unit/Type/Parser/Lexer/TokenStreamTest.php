@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer;
 
 use AssertionError;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\Token\FakeToken;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
-use PHPUnit\Framework\TestCase;
 
-final class TokenStreamTest extends TestCase
+final class TokenStreamTest extends UnitTestCase
 {
     public function test_read_when_not_checking_if_stream_is_done_is_asserted(): void
     {

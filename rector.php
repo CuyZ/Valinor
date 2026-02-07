@@ -39,7 +39,7 @@ return static function (RectorConfig $config): void {
         // PHP8.5 remove
         ClosureToArrowFunctionRector::class => [
             __DIR__ . '/tests/Integration/Mapping/Converter/ConverterWithCallable.php',
-            __DIR__ . '/tests/Functional/Definition/Repository/Reflection/ClassWithAttributeWithClosure.php',
+            __DIR__ . '/tests/Unit/Definition/Repository/Reflection/ClassWithAttributeWithClosure.php',
             __DIR__ . '/tests/Integration/Normalizer/TemporaryPHP85/ClassWithPropertyTransformerWithCallable.php',
             __DIR__ . '/tests/Integration/Normalizer/TemporaryPHP85/ClassWithTransformerWithCallable.php',
         ]

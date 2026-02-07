@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\Source\Modifier\Mapping;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
-final class MappingTest extends TestCase
+final class MappingTest extends UnitTestCase
 {
     /**
      * @param array<string> $keys

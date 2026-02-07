@@ -8,11 +8,11 @@ use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\KeySanitizerCache;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function array_key_first;
 
-final class KeySanitizerCacheTest extends TestCase
+final class KeySanitizerCacheTest extends UnitTestCase
 {
     public function test_set_value_sets_value_in_delegate_with_changed_key(): void
     {
