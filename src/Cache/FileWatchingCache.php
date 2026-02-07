@@ -68,7 +68,11 @@ final class FileWatchingCache implements Cache
 
         $this->timestamps[$key] = [];
 
-        foreach ($entry->filesToWatch as $fileName) {
+        if ($entry->filesToWatch === null) {
+            return;
+        }
+
+        foreach (($entry->filesToWatch)() as $fileName) {
             $time = @filemtime($fileName);
 
             if (false === $time) {

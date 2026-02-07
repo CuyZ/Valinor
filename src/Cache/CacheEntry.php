@@ -9,7 +9,7 @@ final readonly class CacheEntry
 {
     public function __construct(
         public string $code,
-        /** @var list<non-empty-string> */
-        public array $filesToWatch = [],
+        /** @var null|callable(): list<non-empty-string> */
+        public mixed $filesToWatch = null,
     ) {}
 }

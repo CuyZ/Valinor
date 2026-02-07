@@ -12,4 +12,9 @@ final class SomeClassToTestTypeFilesWatcherA
     public array $value1;
 
     public DateTimeInterface|SomeClassToTestTypeFilesWatcherD $value2;
+
+    public function map(SomeClassToTestTypeFilesWatcherE $param): SomeClassToTestTypeFilesWatcherF
+    {
+        return new SomeClassToTestTypeFilesWatcherF();
+    }
 }
