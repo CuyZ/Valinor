@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\Source\Modifier\PathMapping;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function iterator_to_array;
 
-final class PathMappingTest extends TestCase
+final class PathMappingTest extends UnitTestCase
 {
     public function test_root_path_is_mapped(): void
     {

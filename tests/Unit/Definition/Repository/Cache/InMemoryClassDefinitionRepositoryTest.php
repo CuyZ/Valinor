@@ -8,9 +8,9 @@ use CuyZ\Valinor\Definition\Repository\Cache\InMemoryClassDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class InMemoryClassDefinitionRepositoryTest extends TestCase
+final class InMemoryClassDefinitionRepositoryTest extends UnitTestCase
 {
     public function test_delegate_result_is_cached_in_memory(): void
     {

@@ -8,19 +8,17 @@ use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeParameterDefinition;
-use CuyZ\Valinor\Tests\Traits\IteratorTester;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
-use PHPUnit\Framework\TestCase;
 
 use function array_values;
+use function iterator_to_array;
 
-final class ParametersTest extends TestCase
+final class ParametersTest extends UnitTestCase
 {
-    use IteratorTester;
-
     public function test_parameter_can_be_found(): void
     {
         $parameter = FakeParameterDefinition::new();
@@ -92,6 +90,6 @@ final class ParametersTest extends TestCase
 
         $parameters = new Parameters(...array_values($parametersInstances));
 
-        $this->checkIterable($parameters, $parametersInstances);
+        self::assertSame($parametersInstances, iterator_to_array($parameters));
     }
 }

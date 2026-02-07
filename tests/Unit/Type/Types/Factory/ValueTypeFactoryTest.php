@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types\Factory;
 
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\Factory\CannotBuildTypeFromValue;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use DateTime;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class ValueTypeFactoryTest extends TestCase
+final class ValueTypeFactoryTest extends UnitTestCase
 {
     #[DataProvider('type_from_value_returns_expected_type_data_provider')]
     public function test_type_from_value_returns_expected_type(mixed $value, string $expectedType): void

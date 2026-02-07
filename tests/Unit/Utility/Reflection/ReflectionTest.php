@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class ReflectionTest extends TestCase
+final class ReflectionTest extends UnitTestCase
 {
     public function test_get_class_reflection_returns_class_reflection(): void
     {

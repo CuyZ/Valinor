@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class ConverterContainerTest extends TestCase
+final class ConverterContainerTest extends UnitTestCase
 {
     public function test_container_checks_converters_only_once(): void
     {

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\StringValueType;
-use PHPUnit\Framework\TestCase;
 
-final class ShapedArrayElementTest extends TestCase
+final class ShapedArrayElementTest extends UnitTestCase
 {
     public function test_element_properties_can_be_retrieved(): void
     {

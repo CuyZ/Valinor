@@ -8,6 +8,7 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntersectionType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -15,10 +16,9 @@ use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class IntersectionTypeTest extends TestCase
+final class IntersectionTypeTest extends UnitTestCase
 {
     public function test_types_can_be_retrieved(): void
     {

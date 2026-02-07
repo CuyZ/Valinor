@@ -15,16 +15,16 @@ use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeClassDefinitionRepository;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
 use CuyZ\Valinor\Tests\Fixture\Object\Inheritance\ChildObject;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use DateTime;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function realpath;
 use function reset;
 
-final class CompiledClassDefinitionRepositoryTest extends TestCase
+final class CompiledClassDefinitionRepositoryTest extends UnitTestCase
 {
     public function test_class_is_saved_in_cache(): void
     {

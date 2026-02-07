@@ -6,13 +6,13 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use LogicException;
-use PHPUnit\Framework\TestCase;
 
-final class UnresolvableTypeTest extends TestCase
+final class UnresolvableTypeTest extends UnitTestCase
 {
     public function test_call_unresolvable_type_accepts_throws_exception(): void
     {

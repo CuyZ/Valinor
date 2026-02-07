@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Source;
 use CuyZ\Valinor\Mapper\Source\Exception\InvalidJson;
 use CuyZ\Valinor\Mapper\Source\Exception\SourceNotIterable;
 use CuyZ\Valinor\Mapper\Source\JsonSource;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function iterator_to_array;
 
-final class JsonSourceTest extends TestCase
+final class JsonSourceTest extends UnitTestCase
 {
     public function test_valid_json_is_parsed_correctly(): void
     {

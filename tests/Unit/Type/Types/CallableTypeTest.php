@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\CallableType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -17,10 +18,9 @@ use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class CallableTypeTest extends TestCase
+final class CallableTypeTest extends UnitTestCase
 {
     private CallableType $callableType;
 

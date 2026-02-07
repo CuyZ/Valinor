@@ -8,6 +8,7 @@ use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -15,10 +16,9 @@ use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class BooleanValueTypeTest extends TestCase
+final class BooleanValueTypeTest extends UnitTestCase
 {
     public function test_named_constructors_return_singleton_instances(): void
     {

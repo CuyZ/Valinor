@@ -6,15 +6,13 @@ namespace CuyZ\Valinor\Tests\Unit\Definition;
 
 use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeMethodDefinition;
-use CuyZ\Valinor\Tests\Traits\IteratorTester;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function array_values;
+use function iterator_to_array;
 
-final class MethodsTest extends TestCase
+final class MethodsTest extends UnitTestCase
 {
-    use IteratorTester;
-
     public function test_method_can_be_found(): void
     {
         $method = FakeMethodDefinition::new();
@@ -57,6 +55,6 @@ final class MethodsTest extends TestCase
 
         $methods = new Methods(...array_values($methodsInstances));
 
-        $this->checkIterable($methods, $methodsInstances);
+        self::assertSame($methodsInstances, iterator_to_array($methods));
     }
 }

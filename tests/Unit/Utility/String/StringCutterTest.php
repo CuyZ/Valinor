@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\String;
 
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\String\StringCutter;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 use function substr;
 
-final class StringCutterTest extends TestCase
+final class StringCutterTest extends UnitTestCase
 {
     #[DataProvider('mb_strcut_polyfill_data_provider')]
     public function test_mb_strcut_polyfill(string $base, int $length, string $expected): void

@@ -9,16 +9,16 @@ use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
 use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
 use CuyZ\Valinor\Cache\FileSystemCache;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\TestCase;
 
 use function count;
 use function file_put_contents;
 use function mkdir;
 use function umask;
 
-final class FileSystemCacheTest extends TestCase
+final class FileSystemCacheTest extends UnitTestCase
 {
     private vfsStreamDirectory $files;
 

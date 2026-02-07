@@ -7,13 +7,13 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Source;
 use CuyZ\Valinor\Mapper\Source\Exception\InvalidYaml;
 use CuyZ\Valinor\Mapper\Source\Exception\SourceNotIterable;
 use CuyZ\Valinor\Mapper\Source\YamlSource;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
-use PHPUnit\Framework\TestCase;
 
 use function iterator_to_array;
 
 #[RequiresPhpExtension('yaml')]
-final class YamlSourceTest extends TestCase
+final class YamlSourceTest extends UnitTestCase
 {
     public function test_valid_yaml_is_parsed_correctly(): void
     {

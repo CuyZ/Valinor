@@ -11,12 +11,12 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepos
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use PHPUnit\Framework\TestCase;
 
 use function reset;
 
-final class CompiledFunctionDefinitionRepositoryTest extends TestCase
+final class CompiledFunctionDefinitionRepositoryTest extends UnitTestCase
 {
     public function test_function_is_saved_in_cache(): void
     {

@@ -39,17 +39,11 @@ jobs:
       - name: Running unit tests
         run: php vendor/bin/phpunit --testsuite=unit
 
-      - name: Running functional tests
-        run: php vendor/bin/phpunit --testsuite=functional
-
       - name: Running integration tests
         run: php vendor/bin/phpunit --testsuite=integration
 
       - name: Running unit tests (no mb_strcut)
         run: php -d disable_functions=mb_strcut vendor/bin/phpunit --testsuite=unit
-
-      - name: Running functional tests (no mb_strcut)
-        run: php -d disable_functions=mb_strcut vendor/bin/phpunit --testsuite=functional
 
       - name: Running integration tests (no mb_strcut)
         run: php -d disable_functions=mb_strcut vendor/bin/phpunit --testsuite=integration

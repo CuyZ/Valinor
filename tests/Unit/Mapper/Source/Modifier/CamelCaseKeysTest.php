@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Source\Modifier;
 
 use CuyZ\Valinor\Mapper\Source\Modifier\CamelCaseKeys;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function iterator_to_array;
 
-final class CamelCaseKeysTest extends TestCase
+final class CamelCaseKeysTest extends UnitTestCase
 {
     public function test_replace_space(): void
     {

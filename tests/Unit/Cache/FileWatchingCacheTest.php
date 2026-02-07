@@ -7,14 +7,14 @@ namespace CuyZ\Valinor\Tests\Unit\Cache;
 use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\TestCase;
 
 use function time;
 use function unlink;
 
-final class FileWatchingCacheTest extends TestCase
+final class FileWatchingCacheTest extends UnitTestCase
 {
     private vfsStreamDirectory $files;
 

@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object\Factory;
 use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fake\Mapper\Object\Factory\FakeObjectBuilderFactory;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class InMemoryObjectBuilderFactoryTest extends TestCase
+final class InMemoryObjectBuilderFactoryTest extends UnitTestCase
 {
     public function test_delegate_result_is_cached_in_memory(): void
     {
