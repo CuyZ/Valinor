@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Definition\Repository\Cache;
 
 use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\CacheEntry;
+use CuyZ\Valinor\Cache\TypeFilesWatcher;
 use CuyZ\Valinor\Definition\FunctionDefinition;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
@@ -18,6 +19,7 @@ final class CompiledFunctionDefinitionRepository implements FunctionDefinitionRe
         private FunctionDefinitionRepository $delegate,
         /** @var Cache<FunctionDefinition> */
         private Cache $cache,
+        private TypeFilesWatcher $filesWatcher,
         private FunctionDefinitionCompiler $compiler,
     ) {}
 
@@ -37,7 +39,7 @@ final class CompiledFunctionDefinitionRepository implements FunctionDefinitionRe
         $definition = $this->delegate->for($function);
 
         $code = 'fn () => ' . $this->compiler->compile($definition);
-        $filesToWatch = $definition->fileName ? [$definition->fileName] : [];
+        $filesToWatch = fn () => $this->filesWatcher->for($function);
 
         $this->cache->set($key, new CacheEntry($code, $filesToWatch));
 

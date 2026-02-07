@@ -41,7 +41,7 @@ final class FileWatchingCacheTest extends TestCase
 
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [
+            filesToWatch: fn () => [
                 $fileA->url(),
                 $fileB->url(),
                 $fileC->url(),
@@ -72,7 +72,7 @@ final class FileWatchingCacheTest extends TestCase
 
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [
+            filesToWatch: fn () => [
                 $fileA->url(),
                 $fileB->url(),
                 $fileC->url(),
@@ -101,7 +101,7 @@ final class FileWatchingCacheTest extends TestCase
 
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [
+            filesToWatch: fn () => [
                 'not/existing/file',
                 $file->url(),
             ],
@@ -116,7 +116,7 @@ final class FileWatchingCacheTest extends TestCase
     {
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [],
+            filesToWatch: fn () => [],
         );
 
         $this->cache->set('foo', $cacheEntry);
@@ -141,7 +141,7 @@ final class FileWatchingCacheTest extends TestCase
         $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
         $this->cache->set('bar', new CacheEntry('fn () => "bar"'));
 
-        self::assertSame(4, $this->delegateCache->countEntries());
+        self::assertSame(2, $this->delegateCache->countEntries());
 
         $this->cache->clear();
 

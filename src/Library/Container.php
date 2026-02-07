@@ -206,6 +206,7 @@ final class Container
                     $repository = new CompiledClassDefinitionRepository(
                         $repository,
                         $this->get(Cache::class),
+                        $this->get(TypeFilesWatcher::class),
                         new ClassDefinitionCompiler(),
                     );
                 }
@@ -226,6 +227,7 @@ final class Container
                     $repository = new CompiledFunctionDefinitionRepository(
                         $repository,
                         $this->get(Cache::class),
+                        $this->get(TypeFilesWatcher::class),
                         new FunctionDefinitionCompiler(),
                     );
                 }
@@ -256,10 +258,22 @@ final class Container
 
             Cache::class => fn () => new KeySanitizerCache($settings->cache, $settings),
 
-            TypeFilesWatcher::class => fn () => new TypeFilesWatcher(
-                $settings,
-                $this->get(ClassDefinitionRepository::class),
-            ),
+            TypeFilesWatcher::class => function () use ($settings) {
+                $classDefinitionRepository = new ReflectionClassDefinitionRepository(
+                    $this->get(TypeParserFactory::class),
+                    $settings->allowedAttributes(),
+                );
+
+                $functionDefinitionRepository = new ReflectionFunctionDefinitionRepository(
+                    $this->get(TypeParserFactory::class),
+                    new ReflectionAttributesRepository(
+                        $classDefinitionRepository,
+                        $settings->allowedAttributes(),
+                    ),
+                );
+
+                return new TypeFilesWatcher($settings, $classDefinitionRepository, $functionDefinitionRepository);
+            },
         ];
     }
 
