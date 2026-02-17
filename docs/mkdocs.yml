@@ -92,6 +92,7 @@ nav:
       - Customize error messages: how-to/customize-error-messages.md
       - Import JSON, YAML, etc.: how-to/import-formatted-source.md
       - Use mapper configurators: how-to/use-mapper-configurators.md
+      - Use provided configurators: how-to/use-provided-mapper-configurators.md
       - Common converters examples: how-to/common-converters-examples.md
   - Serialization:
       - Normalizing data: serialization/normalizer.md
