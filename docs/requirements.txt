@@ -1,10 +1,13 @@
-mkdocs==1.5.3
-mkdocs-material==9.4.3
-mkdocs-material-extensions==1.2
+mkdocs==1.6.1
+mkdocs-material==9.7.1
+mkdocs-material-extensions==1.3.1
 
-mike==2.0.0
+mike==2.1.3
 
 # Markdown extensions
-markdown==3.3.7
-Pygments==2.16.1
-pymdown-extensions==10.3
+markdown==3.10.2
+Pygments==2.19.2
+pymdown-extensions==10.21
+
+# @see https://github.com/mkdocs/mkdocs/issues/4032
+click==8.2.1
