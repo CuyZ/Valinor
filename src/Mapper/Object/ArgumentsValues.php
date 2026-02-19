@@ -86,7 +86,7 @@ final readonly class ArgumentsValues
             }
         }
 
-        if ($shell->value() === [] && ! $isTraversableAndAllowsStringKeys) {
+        if ($shell->value() === [] && ! $type instanceof CompositeTraversableType) {
             return new self($shell->withType($arguments->toShapedArray()));
         }
 
