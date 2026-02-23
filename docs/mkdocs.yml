@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
 site_name: Valinor
-site_url: https://valinor.cuyz.io/
+site_url: https://valinor-php.dev/
 repo_url: https://github.com/CuyZ/Valinor
 repo_name: CuyZ/Valinor
 edit_uri: edit/master/docs/pages/

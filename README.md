@@ -36,7 +36,7 @@ structure.
 composer require cuyz/valinor
 ```
 
-**📔 Read more on the [online documentation](https://valinor.cuyz.io)**
+**📔 Read more on the [online documentation](https://valinor-php.dev)**
 
 ## Example
 
@@ -86,7 +86,7 @@ try {
 
 ## Documentation
 
-The full documentation is available on [valinor.cuyz.io].
+The full documentation is available on [valinor-php.dev].
 
 ## Credits & thank you
 
@@ -126,4 +126,4 @@ gains when using this library.
 
 [blackfire-logo]: docs/pages/img/blackfire-logo.svg "Blackfire logo"
 
-[valinor.cuyz.io]: https://valinor.cuyz.io
+[valinor-php.dev]: https://valinor-php.dev
