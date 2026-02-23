@@ -27,6 +27,7 @@ final class MapperBuilderTest extends UnitTestCase
             $mapperBuilder->allowSuperfluousKeys(),
             $mapperBuilder->allowPermissiveTypes(),
             $mapperBuilder->registerConverter(fn (string $value) => $value),
+            $mapperBuilder->registerKeyConverter(fn (string $value) => $value),
             $mapperBuilder->filterExceptions(fn () => new FakeErrorMessage()),
             $mapperBuilder->withCache(new FakeCache()),
             $mapperBuilder->supportDateFormats('Y-m-d'),
