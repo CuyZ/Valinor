@@ -249,10 +249,12 @@ final class HttpRequest
      */
     public static function fromPsr(ServerRequestInterface $request, array $routeParameters = []): self
     {
-        if (is_object($request->getParsedBody())) {
-            throw new PsrRequestParsedBodyIsObject($request->getParsedBody());
+        $body = $request->getParsedBody();
+
+        if (is_object($body)) {
+            throw new PsrRequestParsedBodyIsObject($body);
         }
 
-        return new self($routeParameters, $request->getQueryParams(), $request->getParsedBody() ?? [], $request);
+        return new self($routeParameters, $request->getQueryParams(), $body ?? [], $request);
     }
 }
