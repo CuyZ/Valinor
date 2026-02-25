@@ -35,6 +35,8 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
+use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterContainer;
+use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
@@ -118,13 +120,26 @@ final class Container
                     ),
                 );
 
-                return new ValueConverterNodeBuilder(
+                $builder = new ValueConverterNodeBuilder(
                     $builder,
                     $this->get(ConverterContainer::class),
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(FunctionDefinitionRepository::class),
                     $settings->exceptionFilter,
                 );
+
+                if ($settings->keyConverters !== []) {
+                    $builder = new KeyConverterNodeBuilder(
+                        $builder,
+                        new KeyConverterContainer(
+                            $this->get(FunctionDefinitionRepository::class),
+                            $settings->keyConverters,
+                        ),
+                        $settings->exceptionFilter,
+                    );
+                }
+
+                return $builder;
             },
 
             ConverterContainer::class => fn () => new ConverterContainer(

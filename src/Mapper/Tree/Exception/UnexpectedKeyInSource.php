@@ -6,24 +6,13 @@ namespace CuyZ\Valinor\Mapper\Tree\Exception;
 
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
-use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 
 /** @internal */
-final class UnexpectedKeyInSource implements ErrorMessage, HasCode, HasParameters
+final class UnexpectedKeyInSource implements ErrorMessage, HasCode
 {
-    private string $body = 'Unexpected key {key}.';
+    private string $body = 'Unexpected key `{node_name}`.';
 
     private string $code = 'unexpected_key';
-
-    /** @var array<string, string> */
-    private array $parameters;
-
-    public function __construct(string $key)
-    {
-        $this->parameters = [
-            'key' => "`$key`",
-        ];
-    }
 
     public function body(): string
     {
@@ -33,10 +22,5 @@ final class UnexpectedKeyInSource implements ErrorMessage, HasCode, HasParameter
     public function code(): string
     {
         return $this->code;
-    }
-
-    public function parameters(): array
-    {
-        return $this->parameters;
     }
 }
