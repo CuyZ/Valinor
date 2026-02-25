@@ -27,7 +27,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'value' => $value->value,
         ];
         $transformed = [];
-        $transformed['value'] = $this->transform_mixed($values['value'], $references);
+        $transformed['value'] = $this->transform_mixed_81119e8ac7b14bb88fa09fcfa886afe87aa69fa1($values['value'], $references);
         return $transformed;
     }
 
@@ -73,5 +73,14 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
                 yield $key => $this->transform_mixed($item, $references);
             }
         })();
+    }
+
+    private function transform_mixed_81119e8ac7b14bb88fa09fcfa886afe87aa69fa1(mixed $value, WeakMap $references): mixed
+    {
+        $next = fn () => $this->transform_mixed($value, $references);
+        if (\is_string($value)) {
+            $next = fn () => (new CuyZ\Valinor\Tests\Integration\Normalizer\PrependToStringAttribute())->normalize($value, $next);
+        }
+        return $next();
     }
 };

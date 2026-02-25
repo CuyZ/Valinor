@@ -86,7 +86,7 @@ final class JsonNormalizer implements Normalizer
      *
      * This can be achieved by passing these flags to this method:
      *
-     * ```php
+     * ```
      * $normalizer = (new \CuyZ\Valinor\NormalizerBuilder())
      *     ->normalizer(\CuyZ\Valinor\Normalizer\Format::json())
      *     ->withOptions(\JSON_PRESERVE_ZERO_FRACTION);
@@ -138,7 +138,7 @@ final class JsonNormalizer implements Normalizer
      * memory-efficient when using generators — for instance when querying a
      * database:
      *
-     * ```php
+     * ```
      * // In this example, we assume that the result of the query below is a
      * // generator, every entry will be yielded one by one, instead of
      * // everything being loaded in memory at once.

@@ -4,22 +4,186 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Cache\Compiler;
 
+use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\AttributesCompiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\ClassDefinitionCompiler;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\Exception\TypeCannotBeCompiled;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\TypeCompiler;
+use CuyZ\Valinor\Tests\Fake\Definition\FakeAttributeDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
+use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\ArrayType;
+use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\CallableType;
+use CuyZ\Valinor\Type\Types\ClassStringType;
+use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\FloatValueType;
+use CuyZ\Valinor\Type\Types\GenericType;
+use CuyZ\Valinor\Type\Types\IntegerRangeType;
+use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\InterfaceType;
+use CuyZ\Valinor\Type\Types\IntersectionType;
+use CuyZ\Valinor\Type\Types\IterableType;
+use CuyZ\Valinor\Type\Types\ListType;
+use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
+use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
+use CuyZ\Valinor\Type\Types\NonEmptyListType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
+use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\NumericStringType;
+use CuyZ\Valinor\Type\Types\PositiveIntegerType;
+use CuyZ\Valinor\Type\Types\ShapedArrayElement;
+use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\UndefinedObjectType;
+use CuyZ\Valinor\Type\Types\UnionType;
+use CuyZ\Valinor\Type\Types\UnresolvableType;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+use Error;
+use PHPUnit\Framework\Attributes\DataProvider;
+use stdClass;
 
-final class TypeCompilerTest extends TestCase
+final class TypeCompilerTest extends UnitTestCase
 {
-    private TypeCompiler $typeCompiler;
-
-    protected function setUp(): void
+    #[DataProvider('type_is_compiled_correctly_data_provider')]
+    public function test_type_is_compiled_correctly(Type $type): void
     {
-        parent::setUp();
+        $compiledType = $this->compile($type);
 
-        $this->typeCompiler = new TypeCompiler(new AttributesCompiler(new ClassDefinitionCompiler()));
+        self::assertInstanceOf($type::class, $compiledType);
+        self::assertSame($type->toString(), $compiledType->toString());
+    }
+
+    public static function type_is_compiled_correctly_data_provider(): iterable
+    {
+        yield [NullType::get()];
+        yield [BooleanValueType::true()];
+        yield [BooleanValueType::false()];
+        yield [NativeBooleanType::get()];
+        yield [NativeFloatType::get()];
+        yield [new FloatValueType(1337.42)];
+        yield [new FloatValueType(-1337.42)];
+        yield [NativeIntegerType::get()];
+        yield [PositiveIntegerType::get()];
+        yield [NegativeIntegerType::get()];
+        yield [NonPositiveIntegerType::get()];
+        yield [NonNegativeIntegerType::get()];
+        yield [new IntegerValueType(1337)];
+        yield [new IntegerValueType(-1337)];
+        yield [new IntegerRangeType(42, 1337)];
+        yield [new IntegerRangeType(-1337, -42)];
+        yield [new IntegerRangeType(PHP_INT_MIN, PHP_INT_MAX)];
+        yield [NativeStringType::get()];
+        yield [NonEmptyStringType::get()];
+        yield [NumericStringType::get()];
+        yield [UndefinedObjectType::get()];
+        yield [MixedType::get()];
+        yield [new InterfaceType(DateTimeInterface::class, [NativeStringType::get()])];
+        yield [new NativeClassType(stdClass::class, [NativeStringType::get()])];
+        yield [new IntersectionType(new InterfaceType(DateTimeInterface::class), new NativeClassType(DateTime::class))];
+        yield [EnumType::native(PureEnum::class)];
+        yield [EnumType::fromPattern(PureEnum::class, 'BA*')];
+        yield [new UnionType(NativeStringType::get(), NativeIntegerType::get(), NativeFloatType::get())];
+        yield [ArrayType::native()];
+        yield [new ArrayType(ArrayKeyType::default(), NativeFloatType::get())];
+        yield [new ArrayType(ArrayKeyType::integer(), NativeIntegerType::get())];
+        yield [new ArrayType(ArrayKeyType::string(), NativeStringType::get())];
+        yield [new ArrayType(new ArrayKeyType([new IntegerValueType(42), new StringValueType('foo')]), NativeStringType::get())];
+        yield [NonEmptyArrayType::native()];
+        yield [new NonEmptyArrayType(ArrayKeyType::default(), NativeFloatType::get())];
+        yield [new NonEmptyArrayType(ArrayKeyType::integer(), NativeIntegerType::get())];
+        yield [new NonEmptyArrayType(ArrayKeyType::string(), NativeStringType::get())];
+        yield [ListType::native()];
+        yield [new ListType(NativeFloatType::get())];
+        yield [new ListType(NativeIntegerType::get())];
+        yield [new ListType(NativeStringType::get())];
+        yield [NonEmptyListType::native()];
+        yield [new NonEmptyListType(NativeFloatType::get())];
+        yield [new NonEmptyListType(NativeIntegerType::get())];
+        yield [new NonEmptyListType(NativeStringType::get())];
+        yield [new ShapedArrayType(
+            elements: [
+                new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+                new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
+            ],
+            isUnsealed: false,
+            unsealedType: null,
+        )];
+        yield [new ShapedArrayType(
+            elements: [
+                new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+                new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true),
+            ],
+            isUnsealed: true,
+            unsealedType: null,
+        )];
+        yield [new ShapedArrayType(
+            elements: [
+                new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
+                new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true),
+            ],
+            isUnsealed: true,
+            unsealedType: new ArrayType(ArrayKeyType::default(), NativeFloatType::get()),
+        )];
+        yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];
+        yield [new IterableType(ArrayKeyType::integer(), NativeIntegerType::get())];
+        yield [new IterableType(ArrayKeyType::string(), NativeStringType::get())];
+        yield [new ClassStringType()];
+        yield [new ClassStringType([new NativeClassType(stdClass::class)])];
+        yield [new ClassStringType([new InterfaceType(DateTimeInterface::class)])];
+        yield [new CallableType([new NativeStringType(), new NativeIntegerType()], NativeBooleanType::get())];
+        yield [new GenericType('SomeGeneric', new NativeStringType())];
+        yield [new UnresolvableType('some-type', 'some message')];
+    }
+
+    public function test_shaped_array_elements_attributes_are_compiled_properly(): void
+    {
+        $type = new ShapedArrayType([
+            new ShapedArrayElement(
+                new IntegerValueType(1337),
+                NativeIntegerType::get(),
+                true,
+                new Attributes(
+                    FakeAttributeDefinition::new(DateTime::class),
+                    FakeAttributeDefinition::new(DateTimeImmutable::class),
+                ),
+            ),
+        ]);
+
+        $compiledType = $this->compile($type);
+
+        self::assertInstanceOf(ShapedArrayType::class, $compiledType);
+
+        self::assertTrue($compiledType->elements[0]->attributes()->has(DateTime::class));
+        self::assertTrue($compiledType->elements[0]->attributes()->has(DateTimeImmutable::class));
+    }
+
+    public function test_default_array_key_types_are_compiled_properly(): void
+    {
+        $defaults = [
+            ArrayKeyType::default(),
+            ArrayKeyType::string(),
+            ArrayKeyType::integer(),
+        ];
+
+        foreach ($defaults as $default) {
+            $compiledType = $this->compile($default);
+
+            self::assertSame($default, $compiledType);
+        }
     }
 
     public function test_invalid_compiled_type_throws_exception(): void
@@ -27,6 +191,23 @@ final class TypeCompilerTest extends TestCase
         $this->expectException(TypeCannotBeCompiled::class);
         $this->expectExceptionMessage('The type `' . FakeType::class . '` cannot be compiled.');
 
-        $this->typeCompiler->compile(new FakeType());
+        $this->typeCompiler()->compile(new FakeType());
+    }
+
+    private function compile(Type $type): Type
+    {
+        $code = $this->typeCompiler()->compile($type);
+
+        try {
+            /** @var Type */
+            return eval("return $code;");
+        } catch (Error $exception) {
+            self::fail($exception->getMessage());
+        }
+    }
+
+    private function typeCompiler(): TypeCompiler
+    {
+        return new TypeCompiler(new AttributesCompiler(new ClassDefinitionCompiler()));
     }
 }

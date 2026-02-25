@@ -213,10 +213,8 @@ final class ValueConverterMappingTest extends IntegrationTestCase
                  * @template T of array-key
                  * @param iterable<T, string> $value
                  * @return array<T, non-empty-string>
-                 *
-                 * PHP8.1 remove / @phpstan-ignore greaterOrEqual.alwaysTrue
                  */
-                fn (iterable $value) => array_map(fn ($v) => "$v!", PHP_VERSION_ID >= 8_02_00 ? iterator_to_array($value) : $value), // @phpstan-ignore-line (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                fn (iterable $value) => array_map(fn ($v) => "$v!", iterator_to_array($value)), // @phpstan-ignore-line (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
             ]],
         ];
 
@@ -229,10 +227,8 @@ final class ValueConverterMappingTest extends IntegrationTestCase
                  * @template T
                  * @param iterable<int, T> $value
                  * @return array<int, T>
-                 *
-                 * PHP8.1 remove / @phpstan-ignore greaterOrEqual.alwaysTrue
                  */
-                fn (iterable $value) => array_map(fn ($v) => "$v!", PHP_VERSION_ID >= 8_02_00 ? iterator_to_array($value) : $value), // @phpstan-ignore-line (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                fn (iterable $value) => array_map(fn ($v) => "$v!", iterator_to_array($value)), // @phpstan-ignore-line (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
             ]],
         ];
 

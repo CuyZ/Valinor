@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Mapper\Tree\Builder\Node;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class NodeTest extends TestCase
+final class NodeTest extends UnitTestCase
 {
     public function test_new_node_has_correct_values(): void
     {

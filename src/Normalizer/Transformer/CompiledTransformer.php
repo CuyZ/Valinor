@@ -71,7 +71,7 @@ final class CompiledTransformer implements Transformer
         }
 
         $code = $this->compileFor($type);
-        $filesToWatch = $this->typeFilesWatcher->for($type);
+        $filesToWatch = fn () => $this->typeFilesWatcher->for($type);
 
         $this->cache->set($key, new CacheEntry($code, $filesToWatch));
 

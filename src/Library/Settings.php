@@ -65,6 +65,9 @@ final class Settings
     /** @var array<int, list<callable>> */
     public array $mapperConverters = [];
 
+    /** @var list<callable(string): string> */
+    public array $keyConverters = [];
+
     /** @var array<class-string, null> */
     public array $mapperConverterAttributes = [];
 
@@ -168,6 +171,7 @@ final class Settings
             ...$this->customConstructors,
             ...array_merge(...$this->mapperConverters),
             ...array_merge(...$this->normalizerTransformers),
+            ...$this->keyConverters,
         ]);
     }
 }

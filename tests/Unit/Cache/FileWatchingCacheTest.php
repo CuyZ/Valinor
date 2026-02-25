@@ -7,14 +7,14 @@ namespace CuyZ\Valinor\Tests\Unit\Cache;
 use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\FileWatchingCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\TestCase;
 
 use function time;
 use function unlink;
 
-final class FileWatchingCacheTest extends TestCase
+final class FileWatchingCacheTest extends UnitTestCase
 {
     private vfsStreamDirectory $files;
 
@@ -41,7 +41,7 @@ final class FileWatchingCacheTest extends TestCase
 
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [
+            filesToWatch: fn () => [
                 $fileA->url(),
                 $fileB->url(),
                 $fileC->url(),
@@ -72,7 +72,7 @@ final class FileWatchingCacheTest extends TestCase
 
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [
+            filesToWatch: fn () => [
                 $fileA->url(),
                 $fileB->url(),
                 $fileC->url(),
@@ -101,7 +101,7 @@ final class FileWatchingCacheTest extends TestCase
 
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [
+            filesToWatch: fn () => [
                 'not/existing/file',
                 $file->url(),
             ],
@@ -116,7 +116,7 @@ final class FileWatchingCacheTest extends TestCase
     {
         $cacheEntry = new CacheEntry(
             code: 'fn () => "foo"',
-            filesToWatch: [],
+            filesToWatch: fn () => [],
         );
 
         $this->cache->set('foo', $cacheEntry);
@@ -141,7 +141,7 @@ final class FileWatchingCacheTest extends TestCase
         $this->cache->set('foo', new CacheEntry('fn () => "foo"'));
         $this->cache->set('bar', new CacheEntry('fn () => "bar"'));
 
-        self::assertSame(4, $this->delegateCache->countEntries());
+        self::assertSame(2, $this->delegateCache->countEntries());
 
         $this->cache->clear();
 

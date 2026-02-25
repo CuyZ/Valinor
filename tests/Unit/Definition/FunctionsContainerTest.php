@@ -6,11 +6,11 @@ namespace CuyZ\Valinor\Tests\Unit\Definition;
 
 use CuyZ\Valinor\Definition\FunctionsContainer;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function iterator_to_array;
 
-final class FunctionsContainerTest extends TestCase
+final class FunctionsContainerTest extends UnitTestCase
 {
     public function test_keys_are_kept_when_iterating(): void
     {

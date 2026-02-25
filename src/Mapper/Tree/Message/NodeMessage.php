@@ -62,7 +62,7 @@ final class NodeMessage implements Message, HasCode, Stringable
      *
      * Example:
      *
-     * ```php
+     * ```
      * $message = $message->withBody('new message for value: {source_value}');
      * ```
      *

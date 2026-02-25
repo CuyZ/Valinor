@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Unit\Definition;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Definition\ParameterDefinition;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class ParameterDefinitionTest extends TestCase
+final class ParameterDefinitionTest extends UnitTestCase
 {
     public function test_parameter_data_can_be_retrieved(): void
     {

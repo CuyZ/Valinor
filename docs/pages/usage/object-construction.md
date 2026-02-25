@@ -23,16 +23,16 @@ This can be useful when the application has control over the format of the
 source given to the mapper, in order to lessen the structure of input.
 
 ```php
-final class Identifier
+final readonly class Identifier
 {
-    public readonly string $value;
+    public string $value;
 }
 
-final class SomeClass
+final readonly class SomeClass
 {
-    public readonly Identifier $identifier;
+    public Identifier $identifier;
 
-    public readonly string $description;
+    public string $description;
 }
 
 $mapper = (new \CuyZ\Valinor\MapperBuilder())->mapper();

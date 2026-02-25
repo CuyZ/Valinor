@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Lexer\Token;
 
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
-use PHPUnit\Framework\TestCase;
 
-final class ListTokenTest extends TestCase
+final class ListTokenTest extends UnitTestCase
 {
     public function test_tokens_are_memoized(): void
     {

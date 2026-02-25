@@ -6,10 +6,10 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Parser;
 
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fake\Type\Parser\FakeTypeParser;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\CachedParser;
-use PHPUnit\Framework\TestCase;
 
-final class CachedParserTest extends TestCase
+final class CachedParserTest extends UnitTestCase
 {
     public function test_parsed_type_is_cached(): void
     {

@@ -6,15 +6,13 @@ namespace CuyZ\Valinor\Tests\Unit\Definition;
 
 use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Tests\Fake\Definition\FakePropertyDefinition;
-use CuyZ\Valinor\Tests\Traits\IteratorTester;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function array_values;
+use function iterator_to_array;
 
-final class PropertiesTest extends TestCase
+final class PropertiesTest extends UnitTestCase
 {
-    use IteratorTester;
-
     public function test_property_can_be_found(): void
     {
         $property = FakePropertyDefinition::new();
@@ -47,6 +45,6 @@ final class PropertiesTest extends TestCase
 
         $properties = new Properties(...array_values($propertiesInstances));
 
-        $this->checkIterable($properties, $propertiesInstances);
+        self::assertSame($propertiesInstances, iterator_to_array($properties));
     }
 }

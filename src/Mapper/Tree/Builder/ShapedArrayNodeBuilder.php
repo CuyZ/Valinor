@@ -92,9 +92,9 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
             foreach ($diff as $key => $val) {
                 $errors[] = $shell
-                    ->child((string)$key, UnresolvableType::forSuperfluousValue((string)$key))
+                    ->child((string)$key, UnresolvableType::forSuperfluousValue())
                     ->withValue($val)
-                    ->error(new UnexpectedKeyInSource((string)$key));
+                    ->error(new UnexpectedKeyInSource());
             }
         }
 

@@ -57,8 +57,8 @@ final class PositiveIntegerType implements IntegerType
 
     public function canCast(mixed $value): bool
     {
-        if (is_string($value)) {
-            $value = ltrim($value, '0');
+        if (is_string($value) && $value !== '') {
+            $value = ltrim($value, '0') ?: '0';
         }
 
         return ! is_bool($value)

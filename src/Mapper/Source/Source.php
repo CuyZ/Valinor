@@ -65,7 +65,12 @@ final class Source implements IteratorAggregate
         return new Source(new FileSource($file));
     }
 
-    /** @pure */
+    /**
+     * @deprecated This modifier will be removed in version 3.0.
+     *              Use the configurator {@see ConvertKeysToCamelCase} instead.
+     *
+     * @pure
+     */
     public function camelCaseKeys(): Source
     {
         return new Source(new CamelCaseKeys($this));

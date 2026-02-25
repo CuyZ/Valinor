@@ -7,18 +7,18 @@ namespace CuyZ\Valinor\Definition;
 use CuyZ\Valinor\Type\Type;
 
 /** @internal */
-final class PropertyDefinition
+final readonly class PropertyDefinition
 {
     public function __construct(
         /** @var non-empty-string */
-        public readonly string $name,
+        public string $name,
         /** @var non-empty-string */
-        public readonly string $signature,
-        public readonly Type $type,
-        public readonly Type $nativeType,
-        public readonly bool $hasDefaultValue,
-        public readonly mixed $defaultValue,
-        public readonly bool $isPublic,
-        public readonly Attributes $attributes
+        public string $signature,
+        public Type $type,
+        public Type $nativeType,
+        public bool $hasDefaultValue,
+        public mixed $defaultValue,
+        public bool $isPublic,
+        public Attributes $attributes
     ) {}
 }

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
 site_name: Valinor
-site_url: https://valinor.cuyz.io/
+site_url: https://valinor-php.dev/
 repo_url: https://github.com/CuyZ/Valinor
 repo_name: CuyZ/Valinor
 edit_uri: edit/master/docs/pages/
@@ -87,16 +87,19 @@ nav:
       - Use custom object constructors: how-to/use-custom-object-constructors.md
       - Deal with dates: how-to/deal-with-dates.md
       - Convert input during mapping: how-to/convert-input.md
-      - Common converters examples: how-to/common-converters-examples.md
-      - Import formatted source: how-to/import-formatted-source.md
       - Infer interfaces: how-to/infer-interfaces.md
       - Map arguments of a callable: how-to/map-arguments-of-a-callable.md
       - Customize error messages: how-to/customize-error-messages.md
+      - Import JSON, YAML, etc.: how-to/import-formatted-source.md
+      - Use mapper configurators: how-to/use-mapper-configurators.md
+      - Use provided configurators: how-to/use-provided-mapper-configurators.md
+      - Common converters examples: how-to/common-converters-examples.md
   - Serialization:
       - Normalizing data: serialization/normalizer.md
       - Extending the normalizer: serialization/extending-normalizer.md
       - Common transformers examples: serialization/common-transformers-examples.md
       - Normalizing to JSON: serialization/normalizing-json.md
+      - Using normalizer configurators: serialization/use-normalizer-configurators.md
   - Other:
       - Performance & caching: other/performance-and-caching.md
       - App & framework integration: other/app-and-framework-integration.md

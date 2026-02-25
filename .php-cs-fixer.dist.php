@@ -10,10 +10,6 @@ $finder = PhpCsFixer\Finder::create()->in([
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
     ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php');
 
-if (PHP_VERSION_ID < 8_02_00) {
-    $finder = $finder->notPath('Fixture/Object/ObjectWithPropertyWithNativeDisjunctiveNormalFormType.php');
-}
-
 if (PHP_VERSION_ID < 8_05_00) {
     $finder = $finder->notPath('Integration/Normalizer/TemporaryPHP85/ClassWithPropertyTransformerWithCallable.php');
 }
@@ -23,6 +19,7 @@ return (new PhpCsFixer\Config())
     ->setCacheFile('var/cache/.php_cs.cache')
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRiskyAllowed(true)
+    ->setUnsupportedPhpVersionAllowed(true)
     ->setRules([
         '@PSR1' => true,
         '@PSR12' => true,

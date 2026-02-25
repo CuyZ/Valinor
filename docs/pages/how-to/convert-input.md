@@ -90,7 +90,7 @@ final class CastToBool
     }
 }
 
-final class User
+final readonly class User
 {
     public string $name;
     
@@ -161,61 +161,167 @@ final class SomeOtherAttribute implements \My\App\SomeAttributeInterface {}
     ->map(…);
 ```
 
+## Converting source keys
+
+When the input data uses different key names than the PHP codebase, key
+converters can be used to tell the mapper how to match source keys to object
+properties or shaped array elements.
+
+Unlike value converters, key converters do not transform the input data itself,
+they only remap keys.
+
+!!! note
+
+    Error messages will reference the *original* source key names, so the end
+    user sees the key that was actually sent.
+
+```php
+$mapper = (new \CuyZ\Valinor\MapperBuilder())
+    ->registerKeyConverter(static function (string $key): string {
+        // Strips the `billing_` prefix from source keys
+        if (str_starts_with($key, 'billing_')) {
+            return substr($key, 8);
+        }
+
+        return $key;
+    })
+    ->mapper();
+
+final readonly class BillingAddress
+{
+    public function __construct(
+        public string $street,
+        public string $city,
+        public string $country,
+    ) {}
+}
+
+$source = [
+    'billing_street' => '221B Baker Street',
+    'billing_city' => 'London',
+    'billing_country' => 'UK',
+];
+
+// Works with classes
+$mapper->map(BillingAddress::class, $source);
+
+// Also works with shaped arrays
+$mapper->map('array{street: string, city: string, country: string}', $source);
+```
+
+### Chaining key converters
+
+Multiple key converters can be registered and are applied as a pipeline; each
+one transforms the result of the previous one, in registration order:
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerKeyConverter(static function (string $key): string {
+        // Strip the "billing_" prefix
+        if (str_starts_with($key, 'billing_')) {
+            return substr($key, 8);
+        }
+
+        return $key;
+    })
+    ->registerKeyConverter(
+        // Replace hyphens with underscores
+        static fn (string $key): string => str_replace('-', '_', $key),
+    )
+    ->mapper()
+    ->map('array{zip_code: string, country_name: string}', [
+        'billing_zip-code' => '62701',
+        'billing_country-name' => 'United Kingdom',
+    ]);
+```
+
 ## Converters error handling
 
-When a converter fails to convert the input, it may throw an exception. When
-this happens, the mapper will properly handle the exception only if it follows
-the rules defined in the [validation and error handling section].
+When a value converter or a key converter throws an exception, the mapper will
+properly handle it only if it follows the rules defined in the [validation and
+error handling section].
 
-Example:
+### Value converter errors
 
 ```php
 namespace My\App;
 
-final class CustomDateException extends \RuntimeException { }
+final class InvalidPriceException extends \RuntimeException { }
 
 #[\CuyZ\Valinor\Mapper\AsConverter]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class DateTimeFormat
+final class PriceInCents
 {
-    public function __construct(
-        /** @var non-empty-string */
-        private string $format,
-    ) {}
-
-    public function map(string $value): \DateTimeInterface
+    public function map(string $value): int
     {
-        $date = \DateTimeImmutable::createFromFormat($this->format, $value);
-
-        if ($date === false) {
-            throw new \My\App\CustomDateException("Invalid datetime value `$value`");
+        if (preg_match('/^\d+(\.\d{2})?$/', $value) !== 1) {
+            throw new \My\App\InvalidPriceException(
+                "Invalid price format `$value`"
+            );
         }
 
-        return $date;
+        return (int)round((float)$value * 100);
     }
 }
 
-final readonly class User
+final readonly class Product
 {
     public string $name;
 
-    #[\My\App\DateTimeFormat('Y-m-d')]
-    public \DateTimeInterface $birthdate;
+    #[\My\App\PriceInCents]
+    public int $priceInCents;
 }
 
 (new \CuyZ\Valinor\MapperBuilder())
     ->filterExceptions(function (\Throwable $error) {
-        if ($error instanceof \My\App\CustomDateException) {
+        if ($error instanceof \My\App\InvalidPriceException) {
             return \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder::from($error);
         }
 
         throw $error;
     })
     ->mapper()
-    ->map(\My\App\User::class, [
-        'name' => 'John Doe',
-        'birthdate' => '1971/11/08',
+    ->map(\My\App\Product::class, [
+        'name' => 'Widget',
+        'priceInCents' => 'not-a-price',
     ]);
+
+// Invalid price format `not-a-price`
+```
+
+### Key converter errors
+
+Key converters follow the same error handling rules. When a key converter throws
+an exception, it is caught and reported against the original source key.
+
+```php
+namespace My\App;
+
+final class ForbiddenKeyException extends \RuntimeException { }
+
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerKeyConverter(static function (string $key): string {
+        if (str_starts_with($key, '__')) {
+            throw new \My\App\ForbiddenKeyException(
+                "Key `$key` is not allowed"
+            );
+        }
+
+        return strtolower($key);
+    })
+    ->filterExceptions(function (\Throwable $error) {
+        if ($error instanceof \My\App\ForbiddenKeyException) {
+            return \CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder::from($error);
+        }
+
+        throw $error;
+    })
+    ->mapper()
+    ->map('array{name: string}', [
+        '__forbidden' => 'hello',
+    ]);
+    
+// Key `__forbidden` is not allowed
 ```
 
 [validation and error handling section]: ../usage/validation-and-error-handling.md

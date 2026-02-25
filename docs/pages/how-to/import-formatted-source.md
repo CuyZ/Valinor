@@ -49,31 +49,6 @@ mapping occurs.
     converters](../how-to/convert-input.md), which should be used instead
     whenever possible. Modifiers are still available for backward compatibility.
 
-### Camel case keys
-
-This modifier recursively forces all keys to be in camelCase format.
-
-```php
-final class SomeClass
-{
-    public readonly string $someValue;
-}
-
-$source = \CuyZ\Valinor\Mapper\Source\Source::array([
-        'some_value' => 'foo',
-        // …or…
-        'some-value' => 'foo',
-        // …or…
-        'some value' => 'foo',
-        // …will be replaced by `['someValue' => 'foo']`
-    ])
-    ->camelCaseKeys();
-
-(new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(SomeClass::class, $source);
-```
-
 ### Path mapping
 
 This modifier can be used to change paths in the source data using a dot
@@ -86,21 +61,21 @@ The source path uses the dot notation (eg `A.B.C`) and can contain one `*` for
 array paths (eg `A.B.*.C`).
 
 ```php
-final class Country
+final readonly class Country
 {
     /** @var non-empty-string */
-    public readonly string $name;
+    public string $name;
 
     /** @var list<City> */
-    public readonly array $cities;
+    public array $cities;
 }
 
-final class City
+final readonly class City
 {
     /** @var non-empty-string */
-    public readonly string $name;
+    public string $name;
 
-    public readonly DateTimeZone $timeZone;
+    public DateTimeZone $timeZone;
 }
 
 $source = \CuyZ\Valinor\Mapper\Source\Source::array([
@@ -145,7 +120,7 @@ The source is just an iterable, so it's easy to create a custom one.
 It can even be combined with the provided builder.
 
 ```php
-final class AcmeSource implements IteratorAggregate
+final readonly class AcmeSource implements IteratorAggregate
 {
     private iterable $source;
     

@@ -11,19 +11,19 @@ use CuyZ\Valinor\Utility\TypeHelper;
 use function assert;
 
 /** @internal */
-final class ParameterDefinition
+final readonly class ParameterDefinition
 {
     public function __construct(
         /** @var non-empty-string */
-        public readonly string $name,
+        public string $name,
         /** @var non-empty-string */
-        public readonly string $signature,
-        public readonly Type $type,
-        public readonly Type $nativeType,
-        public readonly bool $isOptional,
-        public readonly bool $isVariadic,
-        public readonly mixed $defaultValue,
-        public readonly Attributes $attributes
+        public string $signature,
+        public Type $type,
+        public Type $nativeType,
+        public bool $isOptional,
+        public bool $isVariadic,
+        public mixed $defaultValue,
+        public Attributes $attributes
     ) {}
 
     public function forCallable(callable $callable): self

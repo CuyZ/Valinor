@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\Reflection\Annotations;
-use PHPUnit\Framework\TestCase;
 
-final class AnnotationsTest extends TestCase
+final class AnnotationsTest extends UnitTestCase
 {
     public function test_local_alias_annotations_are_parsed_properly(): void
     {

@@ -24,7 +24,7 @@ final class TransformerDefinition
      *
      * For instance, in the following case we know that the value is a string:
      *
-     * ```php
+     * ```
      * final class SomeClass
      * {
      *     public string $value;
@@ -34,10 +34,10 @@ final class TransformerDefinition
      * However, in the following case, we cannot guarantee the type of the
      * value, as it may contain any value.
      *
-     * ```php
+     * ```
      *  final class SomeClass
      *  {
-     *      /** @var string *\
+     *      // @var string
      *      public $value;
      *  }
      *  ```

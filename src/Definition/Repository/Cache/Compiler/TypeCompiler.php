@@ -95,7 +95,7 @@ final class TypeCompiler
             case $type instanceof IntersectionType:
             case $type instanceof UnionType:
                 $subTypes = array_map(
-                    fn (Type $subType) => $this->compile($subType),
+                    $this->compile(...),
                     $type->types()
                 );
 
@@ -107,7 +107,7 @@ final class TypeCompiler
                     'int' => "$class::integer()",
                     default => (function () use ($type, $class) {
                         $types = array_map(
-                            fn (Type $subType) => $this->compile($subType),
+                            $this->compile(...),
                             $type->types,
                         );
 
@@ -173,7 +173,7 @@ final class TypeCompiler
                 return "new $class('{$type->className()}', [$generics])";
             case $type instanceof ClassStringType:
                 $subTypes = implode(', ', array_map(
-                    fn (Type $subType) => $this->compile($subType),
+                    $this->compile(...),
                     $type->subTypes(),
                 ));
 
@@ -193,7 +193,7 @@ final class TypeCompiler
             case $type instanceof CallableType:
                 $returnType = $this->compile($type->returnType);
                 $parameters = implode(', ', array_map(
-                    fn (Type $subType) => $this->compile($subType),
+                    $this->compile(...),
                     $type->parameters,
                 ));
 

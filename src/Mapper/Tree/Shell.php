@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Mapper\Tree;
 use CuyZ\Valinor\Definition\Attributes;
 use CuyZ\Valinor\Mapper\Tree\Builder\Node;
 use CuyZ\Valinor\Mapper\Tree\Builder\NodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Exception\InvalidNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\MissingNodeValue;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnresolvableShellType;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
@@ -48,9 +47,10 @@ final class Shell
         public bool $shouldApplyConverters,
         private NodeBuilder $nodeBuilder,
         private TypeDumper $typeDumper,
-        private ObjectTrace $objectTrace, // Helps detecting circular dependencies
         /** @var non-negative-int */
         private int $childrenCount,
+        /** @var array<array-key, array-key> */
+        private array $nameMap = [],
     ) {
         $this->castFloatValue();
     }
@@ -59,10 +59,6 @@ final class Shell
     {
         if ($this->type instanceof UnresolvableType) {
             throw new UnresolvableShellType($this->type);
-        }
-
-        if ($this->objectTrace->hasDetectedCircularDependency($this->type)) {
-            return $this->error(new InvalidNodeValue());
         }
 
         if (! $this->hasValue) {
@@ -81,14 +77,14 @@ final class Shell
         $this->childrenCount++;
 
         $self = clone $this;
-        $self->name = $name;
+        $self->name = $this->nameMap[$name] ?? $name;
         $self->type = $type;
-        $self->path = $this->name === '' ? $name : "$this->path.$name";
+        $self->path = $this->path === '*root*' ? $self->name : "$this->path.$self->name";
         $self->hasValue = false;
         $self->value = null;
         $self->attributes = Attributes::empty();
-        $self->objectTrace = $this->objectTrace->markAsVisited($type);
         $self->childrenCount = 0;
+        $self->nameMap = [];
 
         return $self;
     }
@@ -115,7 +111,6 @@ final class Shell
     {
         $self = clone $this;
         $self->type = $newType;
-        $self->objectTrace = $this->objectTrace->markAsVisited($newType);
 
         $self->castFloatValue();
 
@@ -147,6 +142,23 @@ final class Shell
         // @infection-ignore-all / We don't want to test the clone behavior
         $self = clone $this;
         $self->attributes = $this->attributes->merge($attributes);
+
+        return $self;
+    }
+
+    public function hasNameMap(): bool
+    {
+        return $this->nameMap !== [];
+    }
+
+    /**
+     * @param array<array-key, array-key> $nameMap
+     */
+    public function withNameMap(array $nameMap): self
+    {
+        // @infection-ignore-all / We don't want to test the clone behavior
+        $self = clone $this;
+        $self->nameMap = $nameMap;
 
         return $self;
     }

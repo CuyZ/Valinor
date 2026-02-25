@@ -113,7 +113,7 @@ final class ClassNameToken implements TraversingToken
             throw new ClassConstantCaseNotFound($this->reflection->name, $symbol);
         }
 
-        $cases = array_map(static fn ($value) => ValueTypeFactory::from($value), $cases);
+        $cases = array_map(ValueTypeFactory::from(...), $cases);
 
         if (count($cases) > 1) {
             return UnionType::from(...array_values($cases));

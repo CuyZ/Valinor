@@ -20,7 +20,7 @@ use function var_export;
  * environment, where source files are often modified by developers.
  *
  * It should decorate the original cache implementation and should be given to
- * the mapper builder: @see \CuyZ\Valinor\MapperBuilder::withCache
+ * the mapper builder: {@see \CuyZ\Valinor\MapperBuilder::withCache()}
  *
  * @api
  *
@@ -68,7 +68,11 @@ final class FileWatchingCache implements Cache
 
         $this->timestamps[$key] = [];
 
-        foreach ($entry->filesToWatch as $fileName) {
+        if ($entry->filesToWatch === null) {
+            return;
+        }
+
+        foreach (($entry->filesToWatch)() as $fileName) {
             $time = @filemtime($fileName);
 
             if (false === $time) {

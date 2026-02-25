@@ -40,7 +40,7 @@ final class TraversableFormatter implements TypeFormatter
      *
      * Generated code should look like:
      *
-     * ```php
+     * ```
      * if (is_array($value)) {
      *     return array_map(
      *         fn ($item) => $this->some_function($item),

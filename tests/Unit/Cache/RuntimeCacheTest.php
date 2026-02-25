@@ -7,9 +7,9 @@ namespace CuyZ\Valinor\Tests\Unit\Cache;
 use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\RuntimeCache;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class RuntimeCacheTest extends TestCase
+final class RuntimeCacheTest extends UnitTestCase
 {
     public function test_value_is_fetched_only_once_from_delegate(): void
     {

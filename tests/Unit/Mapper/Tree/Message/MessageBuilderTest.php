@@ -7,10 +7,10 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Message;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use Exception;
-use PHPUnit\Framework\TestCase;
 
-final class MessageBuilderTest extends TestCase
+final class MessageBuilderTest extends UnitTestCase
 {
     public function test_body_can_be_retrieved(): void
     {

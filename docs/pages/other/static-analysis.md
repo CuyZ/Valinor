@@ -39,11 +39,11 @@ examples of the kind of errors that would be reported.
 **Mapping to an array of classes**
 
 ```php
-final class SomeClass
+final readonly class SomeClass
 {
     public function __construct(
-        public readonly string $foo,
-        public readonly int $bar,
+        public string $foo,
+        public int $bar,
     ) {}
 }
 

@@ -7,25 +7,15 @@ namespace CuyZ\Valinor\Tests\Unit;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\NormalizerBuilder;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function strtoupper;
 
-final class NormalizerBuilderTest extends TestCase
+final class NormalizerBuilderTest extends UnitTestCase
 {
-    private NormalizerBuilder $normalizerBuilder;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->normalizerBuilder = new NormalizerBuilder();
-    }
-
     public function test_builder_methods_return_clone_of_builder_instance(): void
     {
-        $builderA = $this->normalizerBuilder;
+        $builderA = new NormalizerBuilder();
         $builderB = $builderA->withCache(new FakeCache());
         $builderC = $builderA->registerTransformer(fn (stdClass $object) => 'foo');
 
@@ -35,20 +25,24 @@ final class NormalizerBuilderTest extends TestCase
 
     public function test_normalizer_instance_is_the_same(): void
     {
+        $normalizerBuilder = new NormalizerBuilder();
+
         self::assertSame(
-            $this->normalizerBuilder->normalizer(Format::array()),
-            $this->normalizerBuilder->normalizer(Format::array()),
+            $normalizerBuilder->normalizer(Format::array()),
+            $normalizerBuilder->normalizer(Format::array()),
         );
     }
 
     public function test_settings_are_cloned_when_configuring_normalizer_builder(): void
     {
-        $resultA = $this->normalizerBuilder
+        $normalizerBuilder = new NormalizerBuilder();
+
+        $resultA = $normalizerBuilder
             ->registerTransformer(fn (string $value) => strtoupper($value))
             ->normalizer(Format::array())
             ->normalize('foo');
 
-        $resultB = $this->normalizerBuilder
+        $resultB = $normalizerBuilder
             ->registerTransformer(fn (string $value) => $value . '!')
             ->normalizer(Format::array())
             ->normalize('foo');

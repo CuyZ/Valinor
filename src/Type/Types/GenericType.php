@@ -9,12 +9,12 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 
 /** @internal */
-final class GenericType implements VacantType
+final readonly class GenericType implements VacantType
 {
     public function __construct(
         /** @var non-empty-string */
-        public readonly string $symbol,
-        public readonly Type $innerType,
+        public string $symbol,
+        public Type $innerType,
     ) {}
 
     public function accepts(mixed $value): bool

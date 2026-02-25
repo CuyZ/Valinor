@@ -11,7 +11,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
  *
  * Example:
  *
- * ```php
+ * ```
  * // Customize the body of messages that have a certain code.
  * $formatter = new CallbackMessageFormatter(
  *     fn (NodeMessage $message) => match ($message->code()) {

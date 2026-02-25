@@ -4,21 +4,30 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Cache;
 
+use CuyZ\Valinor\Cache\TypeFilesWatcher;
 use CuyZ\Valinor\Definition\Repository\Cache\CompiledFunctionDefinitionRepository;
 use CuyZ\Valinor\Definition\Repository\Cache\Compiler\FunctionDefinitionCompiler;
+use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionClassDefinitionRepository;
+use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Tests\Fake\Cache\FakeCache;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
+use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 
 use function reset;
 
-final class CompiledFunctionDefinitionRepositoryTest extends TestCase
+final class CompiledFunctionDefinitionRepositoryTest extends UnitTestCase
 {
     public function test_function_is_saved_in_cache(): void
     {
         $repository = new CompiledFunctionDefinitionRepository(
             new FakeFunctionDefinitionRepository(),
             $cache = new FakeCache(),
+            new TypeFilesWatcher(
+                new Settings(),
+                new ReflectionClassDefinitionRepository(new TypeParserFactory(), []),
+                new FakeFunctionDefinitionRepository(),
+            ),
             new FunctionDefinitionCompiler(),
         );
 
@@ -38,6 +47,11 @@ final class CompiledFunctionDefinitionRepositoryTest extends TestCase
         $repository = new CompiledFunctionDefinitionRepository(
             new FakeFunctionDefinitionRepository(),
             $cache = new FakeCache(),
+            new TypeFilesWatcher(
+                new Settings(),
+                new ReflectionClassDefinitionRepository(new TypeParserFactory(), []),
+                new FakeFunctionDefinitionRepository(),
+            ),
             new FunctionDefinitionCompiler(),
         );
 
@@ -50,6 +64,6 @@ final class CompiledFunctionDefinitionRepositoryTest extends TestCase
         self::assertCount(1, $cacheEntries);
         self::assertSame([
             'foo/bar'
-        ], reset($cacheEntries)->filesToWatch);
+        ], (reset($cacheEntries)->filesToWatch)()); // @phpstan-ignore callable.nonCallable
     }
 }

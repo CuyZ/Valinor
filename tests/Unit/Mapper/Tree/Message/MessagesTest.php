@@ -8,11 +8,11 @@ use CuyZ\Valinor\Mapper\Tree\Message\Messages;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeErrorMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\FakeNodeMessage;
 use CuyZ\Valinor\Tests\Fake\Mapper\Tree\Message\Formatter\FakeMessageFormatter;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
 use function count;
 
-final class MessagesTest extends TestCase
+final class MessagesTest extends UnitTestCase
 {
     public function test_iterator_yield_correct_messages(): void
     {

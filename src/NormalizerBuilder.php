@@ -7,6 +7,7 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Normalizer\Configurator\NormalizerBuilderConfigurator;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
 
@@ -25,6 +26,56 @@ final class NormalizerBuilder
     }
 
     /**
+     * Allows applying one or more configurators to the builder, enabling
+     * reusable and shareable configuration logic.
+     *
+     * This is useful when the same normalization configuration needs to be
+     * applied in multiple places across an application, or when configuration
+     * logic needs to be distributed as a package.
+     *
+     * ```
+     * use CuyZ\Valinor\NormalizerBuilder;
+     * use CuyZ\Valinor\Normalizer\Configurator\NormalizerBuilderConfigurator;
+     * use CuyZ\Valinor\Normalizer\Format;
+     *
+     * final class ApiResponseConfigurator implements NormalizerBuilderConfigurator
+     * {
+     *     public function configureNormalizerBuilder(NormalizerBuilder $builder): NormalizerBuilder
+     *     {
+     *         return $builder
+     *             ->registerTransformer(
+     *                 fn (DateTimeInterface $date) => $date->format('Y-m-d')
+     *             )
+     *             ->registerTransformer(
+     *                 fn (\App\Domain\Money $money) => [
+     *                     'amount' => $money->amount,
+     *                     'currency' => $money->currency->value,
+     *                 ]
+     *             );
+     *     }
+     * }
+     *
+     * // The same configurator can be reused across multiple normalizers
+     * $json = (new NormalizerBuilder())
+     *     ->configureWith(new ApiResponseConfigurator())
+     *     ->normalizer(Format::json())
+     *     ->normalize($someObject);
+     * ```
+     *
+     * @pure
+     */
+    public function configureWith(NormalizerBuilderConfigurator ...$configurators): self
+    {
+        $self = $this;
+
+        foreach ($configurators as $configurator) {
+            $self = $configurator->configureNormalizerBuilder($self);
+        }
+
+        return $self;
+    }
+
+    /**
      * Inject a cache implementation that will be in charge of caching heavy
      * data used by the normalizer. It is *strongly* recommended to use it when
      * the application runs in a production environment.
@@ -38,7 +89,7 @@ final class NormalizerBuilder
      * a PHP file is modified by a developer — preventing the library not
      * behaving as expected when the signature of a property or a method changes.
      *
-     * ```php
+     * ```
      * $cache = new \CuyZ\Valinor\Cache\FileSystemCache('path/to/cache-dir');
      *
      * if ($isApplicationInDevelopmentEnvironment) {
@@ -83,11 +134,11 @@ final class NormalizerBuilder
      * An attribute on a property or a class can act as a transformer if:
      *  1. It defines a `normalize` or `normalizeKey` method.
      *  2. It is registered using either the `registerTransformer()` method or
-     *     the following attribute: @see \CuyZ\Valinor\Normalizer\AsTransformer
+     *     the attribute: {@see \CuyZ\Valinor\Normalizer\AsTransformer}
      *
      * Example:
      *
-     * ```php
+     * ```
      * (new \CuyZ\Valinor\NormalizerBuilder())
      *
      *     // The type of the first parameter of the transformer will determine
@@ -118,8 +169,8 @@ final class NormalizerBuilder
      *     ->normalize('Hello world'); // HELLO WORLD?!
      * ```
      *
-     * The transformer *must* be pure, its output must be deterministic.
-     * @see https://en.wikipedia.org/wiki/Pure_function
+     * The transformer *must* be pure, its output must be deterministic:
+     * {@see https://en.wikipedia.org/wiki/Pure_function}
      *
      * @pure
      * @param pure-callable|class-string $transformer

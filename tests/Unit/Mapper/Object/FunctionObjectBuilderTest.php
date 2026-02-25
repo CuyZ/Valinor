@@ -7,11 +7,11 @@ namespace CuyZ\Valinor\Tests\Unit\Mapper\Object;
 use CuyZ\Valinor\Definition\FunctionObject;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
 use CuyZ\Valinor\Tests\Fake\Definition\FakeFunctionDefinition;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\NativeClassType;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class FunctionObjectBuilderTest extends TestCase
+final class FunctionObjectBuilderTest extends UnitTestCase
 {
     public function test_arguments_instance_stays_the_same(): void
     {

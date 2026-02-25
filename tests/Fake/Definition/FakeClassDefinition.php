@@ -10,8 +10,6 @@ use CuyZ\Valinor\Definition\Methods;
 use CuyZ\Valinor\Definition\Properties;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use ReflectionClass;
-use ReflectionMethod;
-use ReflectionProperty;
 use stdClass;
 
 use function array_map;
@@ -42,12 +40,12 @@ final class FakeClassDefinition
     public static function fromReflection(ReflectionClass $reflection): ClassDefinition
     {
         $properties = array_map(
-            static fn (ReflectionProperty $reflection) => FakePropertyDefinition::fromReflection($reflection),
+            FakePropertyDefinition::fromReflection(...),
             $reflection->getProperties()
         );
 
         $methods = array_map(
-            static fn (ReflectionMethod $reflection) => FakeMethodDefinition::fromReflection($reflection),
+            FakeMethodDefinition::fromReflection(...),
             $reflection->getMethods()
         );
 

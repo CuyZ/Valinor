@@ -18,11 +18,11 @@ use function iterator_to_array;
  *
  * Message formatters can be added and will be applied on all messages.
  *
- * ```php
+ * ```
  * try {
  *     return (new \CuyZ\Valinor\MapperBuilder())
  *         ->mapper()
- *         ->map(SomeClass::class, [/* … * /]);
+ *         ->map(SomeClass::class, [ … ]);
  * } catch (\CuyZ\Valinor\Mapper\MappingError $error) {
  *     // Get a flattened list of all messages detected during mapping
  *     $messages = $error->messages();

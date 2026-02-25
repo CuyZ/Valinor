@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\String;
 
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\String\StringFormatter;
 use CuyZ\Valinor\Utility\String\StringFormatterError;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
-use PHPUnit\Framework\TestCase;
 
 use function ini_get;
 use function ini_set;
 
-final class StringFormatterTest extends TestCase
+final class StringFormatterTest extends UnitTestCase
 {
     #[RequiresPhpExtension('intl')]
     public function test_wrong_intl_format_throws_exception(): void

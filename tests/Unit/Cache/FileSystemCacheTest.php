@@ -9,15 +9,16 @@ use CuyZ\Valinor\Cache\Exception\CacheDirectoryNotWritable;
 use CuyZ\Valinor\Cache\Exception\CompiledPhpCacheFileNotWritten;
 use CuyZ\Valinor\Cache\Exception\CorruptedCompiledPhpCacheFile;
 use CuyZ\Valinor\Cache\FileSystemCache;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\TestCase;
 
 use function count;
 use function file_put_contents;
+use function mkdir;
 use function umask;
 
-final class FileSystemCacheTest extends TestCase
+final class FileSystemCacheTest extends UnitTestCase
 {
     private vfsStreamDirectory $files;
 
@@ -157,5 +158,26 @@ final class FileSystemCacheTest extends TestCase
         self::assertDirectoryExists($this->files->url());
         self::assertFileExists($externalFile);
         self::assertSame(1, count($this->files->getChildren()));
+    }
+
+    public function test_clear_when_cache_directory_does_not_exist_returns_early(): void
+    {
+        $nonExistentDir = vfsStream::url('non-existent-dir');
+        $cache = new FileSystemCache($nonExistentDir);
+
+        $cache->clear();
+
+        self::assertDirectoryDoesNotExist($nonExistentDir);
+    }
+
+    public function test_clear_entries_when_subdirectory_exists_does_not_remove_root_directory(): void
+    {
+        $subdirectory = $this->files->url() . '/custom-subdirectory';
+        mkdir($subdirectory);
+
+        $this->cache->clear();
+
+        self::assertDirectoryExists($this->files->url());
+        self::assertDirectoryExists($subdirectory);
     }
 }

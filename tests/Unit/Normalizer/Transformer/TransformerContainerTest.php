@@ -6,9 +6,9 @@ namespace CuyZ\Valinor\Tests\Unit\Normalizer\Transformer;
 
 use CuyZ\Valinor\Normalizer\Transformer\TransformerContainer;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
-use PHPUnit\Framework\TestCase;
+use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 
-final class TransformerContainerTest extends TestCase
+final class TransformerContainerTest extends UnitTestCase
 {
     public function test_container_checks_transformers_only_once(): void
     {
