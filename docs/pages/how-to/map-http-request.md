@@ -140,7 +140,7 @@ use CuyZ\Valinor\Mapper\Http\FromRoute;
 final readonly class ArticleFilters
 {
     public function __construct(
-        /** @var non-empsey-string */
+        /** @var non-empty-string */
         public string $status,
         /** @var positive-int */
         public int $page = 1,
