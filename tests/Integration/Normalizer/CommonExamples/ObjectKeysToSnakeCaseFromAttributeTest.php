@@ -22,12 +22,14 @@ final class ObjectKeysToSnakeCaseFromAttributeTest extends IntegrationTestCase
             ->normalize(new #[SnakeCaseProperties] class () {
                 public function __construct(
                     public string $userName = 'John Doe',
+                    public string $LastName = 'Doe',
                     public string $emailAddress = 'john.doe@example.com',
                 ) {}
             });
 
         self::assertSame([
             'user_name' => 'John Doe',
+            'last_name' => 'Doe',
             'email_address' => 'john.doe@example.com',
         ], $result);
     }
