@@ -119,6 +119,18 @@ final class SingleNodeMappingTest extends IntegrationTestCase
         yield 'Single constructor array parameter with array containing entry with same key as parameter name' => [
             SingleConstructorArrayParameter::class, ['value' => 'foo', 'otherValue' => 'bar'],
         ];
+        yield 'Single list property with empty array' => [
+            SingleListProperty::class, [],
+        ];
+        yield 'Single list property with filled array' => [
+            SingleListProperty::class, ['foo', '42.404', '1337'],
+        ];
+        yield 'Single constructor list parameter with empty array' => [
+            SingleConstructorListParameter::class, [],
+        ];
+        yield 'Single constructor list parameter with filled array' => [
+            SingleConstructorListParameter::class, ['foo', '42.404', '1337'],
+        ];
         yield 'Single union property with self type' => [
             SingleUnionPropertyWithSelfType::class, 'foo',
         ];
@@ -170,6 +182,23 @@ class SingleConstructorArrayParameter extends SingleArrayProperty
 {
     /**
      * @param array<string> $value
+     */
+    public function __construct(array $value)
+    {
+        $this->value = $value;
+    }
+}
+
+class SingleListProperty
+{
+    /** @var list<string> */
+    public array $value;
+}
+
+class SingleConstructorListParameter extends SingleListProperty
+{
+    /**
+     * @param list<string> $value
      */
     public function __construct(array $value)
     {

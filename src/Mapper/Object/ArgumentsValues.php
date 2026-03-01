@@ -8,7 +8,6 @@ use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
 use function array_filter;
@@ -77,16 +76,13 @@ final readonly class ArgumentsValues
         $type = $argument->type();
         $attributes = $argument->attributes();
 
-        $isTraversableAndAllowsStringKeys = $type instanceof CompositeTraversableType
-            && $type->keyType() !== ArrayKeyType::integer();
-
         if (is_array($shell->value()) && array_key_exists($name, $shell->value())) {
-            if (! $isTraversableAndAllowsStringKeys || $shell->allowSuperfluousKeys || count($shell->value()) === 1) {
+            if (! $type instanceof CompositeTraversableType || $shell->allowSuperfluousKeys || count($shell->value()) === 1) {
                 return new self($shell->withType($arguments->toShapedArray()));
             }
         }
 
-        if ($shell->value() === [] && ! $isTraversableAndAllowsStringKeys) {
+        if ($shell->value() === [] && ! $type instanceof CompositeTraversableType) {
             return new self($shell->withType($arguments->toShapedArray()));
         }
 
