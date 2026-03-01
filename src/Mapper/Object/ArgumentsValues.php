@@ -77,11 +77,8 @@ final readonly class ArgumentsValues
         $type = $argument->type();
         $attributes = $argument->attributes();
 
-        $isTraversableAndAllowsStringKeys = $type instanceof CompositeTraversableType
-            && $type->keyType() !== ArrayKeyType::integer();
-
         if (is_array($shell->value()) && array_key_exists($name, $shell->value())) {
-            if (! $isTraversableAndAllowsStringKeys || $shell->allowSuperfluousKeys || count($shell->value()) === 1) {
+            if (! $type instanceof CompositeTraversableType || $shell->allowSuperfluousKeys || count($shell->value()) === 1) {
                 return new self($shell->withType($arguments->toShapedArray()));
             }
         }
