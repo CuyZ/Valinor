@@ -7,6 +7,7 @@ namespace CuyZ\Valinor;
 use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
+use CuyZ\Valinor\Normalizer\Configurator\NormalizerBuilderConfigurator;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Normalizer\Normalizer;
 
@@ -22,6 +23,56 @@ final class NormalizerBuilder
     public function __construct()
     {
         $this->settings = new Settings();
+    }
+
+    /**
+     * Allows applying one or more configurators to the builder, enabling
+     * reusable and shareable configuration logic.
+     *
+     * This is useful when the same normalization configuration needs to be
+     * applied in multiple places across an application, or when configuration
+     * logic needs to be distributed as a package.
+     *
+     * ```
+     * use CuyZ\Valinor\NormalizerBuilder;
+     * use CuyZ\Valinor\Normalizer\Configurator\NormalizerBuilderConfigurator;
+     * use CuyZ\Valinor\Normalizer\Format;
+     *
+     * final class ApiResponseConfigurator implements NormalizerBuilderConfigurator
+     * {
+     *     public function configureNormalizerBuilder(NormalizerBuilder $builder): NormalizerBuilder
+     *     {
+     *         return $builder
+     *             ->registerTransformer(
+     *                 fn (DateTimeInterface $date) => $date->format('Y-m-d')
+     *             )
+     *             ->registerTransformer(
+     *                 fn (\App\Domain\Money $money) => [
+     *                     'amount' => $money->amount,
+     *                     'currency' => $money->currency->value,
+     *                 ]
+     *             );
+     *     }
+     * }
+     *
+     * // The same configurator can be reused across multiple normalizers
+     * $json = (new NormalizerBuilder())
+     *     ->configureWith(new ApiResponseConfigurator())
+     *     ->normalizer(Format::json())
+     *     ->normalize($someObject);
+     * ```
+     *
+     * @pure
+     */
+    public function configureWith(NormalizerBuilderConfigurator ...$configurators): self
+    {
+        $self = $this;
+
+        foreach ($configurators as $configurator) {
+            $self = $configurator->configureNormalizerBuilder($self);
+        }
+
+        return $self;
     }
 
     /**

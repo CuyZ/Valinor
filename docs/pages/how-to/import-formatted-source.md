@@ -49,31 +49,6 @@ mapping occurs.
     converters](../how-to/convert-input.md), which should be used instead
     whenever possible. Modifiers are still available for backward compatibility.
 
-### Camel case keys
-
-This modifier recursively forces all keys to be in camelCase format.
-
-```php
-final readonly class SomeClass
-{
-    public string $someValue;
-}
-
-$source = \CuyZ\Valinor\Mapper\Source\Source::array([
-        'some_value' => 'foo',
-        // …or…
-        'some-value' => 'foo',
-        // …or…
-        'some value' => 'foo',
-        // …will be replaced by `['someValue' => 'foo']`
-    ])
-    ->camelCaseKeys();
-
-(new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(SomeClass::class, $source);
-```
-
 ### Path mapping
 
 This modifier can be used to change paths in the source data using a dot
