@@ -60,7 +60,7 @@ final class FileSystemCache implements Cache
         $tmpDir = $this->cacheDir . DIRECTORY_SEPARATOR . '.valinor.tmp';
         $filename = $this->cacheDir . DIRECTORY_SEPARATOR . $key . '.php';
 
-        if (! is_dir($tmpDir) && ! @mkdir($tmpDir, 0777, true)) {
+        if (! is_dir($tmpDir) && ! @mkdir($tmpDir, 0777, true) && ! is_dir($tmpDir)) {
             throw new CacheDirectoryNotWritable($this->cacheDir);
         }
 
