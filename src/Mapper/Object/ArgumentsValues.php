@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Object;
 
+use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\ObjectType;
@@ -65,6 +66,10 @@ final readonly class ArgumentsValues
             $shell = $shell->withValue([]);
         } elseif (is_iterable($shell->value()) && ! is_array($shell->value())) {
             $shell = $shell->withValue(iterator_to_array($shell->value()));
+        }
+
+        if ($shell->value() instanceof HttpRequest) {
+            return new self($shell->withType($arguments->toShapedArray()));
         }
 
         if (count($arguments) !== 1) {
