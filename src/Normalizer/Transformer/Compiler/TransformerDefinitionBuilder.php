@@ -72,7 +72,7 @@ final class TransformerDefinitionBuilder
         }
 
         if ($type instanceof MixedType) {
-            $definition = $definition->markAsSure();
+            return $definition->markAsSure();
         }
 
         return $definition;

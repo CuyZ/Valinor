@@ -37,10 +37,12 @@ final class ReflectionAttributesRepository implements AttributesRepository
         $attributes = [];
 
         foreach ($reflection->getAttributes() as $key => $attribute) {
-            if (! $this->attributeIsAllowed($attribute) || ! $this->attributeCanBeInstantiated($attribute)) {
+            if (! $this->attributeIsAllowed($attribute)) {
                 continue;
             }
-
+            if (! $this->attributeCanBeInstantiated($attribute)) {
+                continue;
+            }
             $arguments = $attribute->getArguments();
 
             if (! self::containOnlyScalar($arguments)) {
@@ -78,9 +80,10 @@ final class ReflectionAttributesRepository implements AttributesRepository
                 return true;
             }
         }
-
-        return Reflection::class($attribute->getName())->getAttributes(AsConverter::class) !== []
-            || Reflection::class($attribute->getName())->getAttributes(AsTransformer::class) !== [];
+        if (Reflection::class($attribute->getName())->getAttributes(AsConverter::class) !== []) {
+            return true;
+        }
+        return Reflection::class($attribute->getName())->getAttributes(AsTransformer::class) !== [];
     }
 
     /**

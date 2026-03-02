@@ -40,11 +40,9 @@ final class ValueNode extends Node
                 }
             }
 
-            $compiler = $compiler->write(']');
-        } else {
-            $compiler = $compiler->write(var_export($value, true));
+            return $compiler->write(']');
         }
 
-        return $compiler;
+        return $compiler->write(var_export($value, true));
     }
 }

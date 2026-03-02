@@ -196,16 +196,15 @@ final class ArrayToken implements TraversingToken
                 if ($elements === []) {
                     throw new ShapedArrayWithoutElementsWithSealedType($unsealedType);
                 }
-
                 if ($stream->done()) {
                     throw new ShapedArrayClosingBracketMissing($elements, $unsealedType);
-                } elseif (! $stream->next() instanceof ClosingCurlyBracketToken) {
-                    $unexpected = [];
+                }
 
+                if (! $stream->next() instanceof ClosingCurlyBracketToken) {
+                    $unexpected = [];
                     while (! $stream->done() && ! $stream->next() instanceof ClosingCurlyBracketToken) {
                         $unexpected[] = $stream->forward();
                     }
-
                     throw new ShapedArrayUnexpectedTokenAfterSealedType($elements, $unsealedType, $unexpected);
                 }
 

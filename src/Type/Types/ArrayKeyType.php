@@ -91,7 +91,8 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
             // cast to an integer, even if the actual key is a string.
             if (is_int($value) && $type instanceof NativeStringType) {
                 return true;
-            } elseif ($type->accepts($value)) {
+            }
+            if ($type->accepts($value)) {
                 return true;
             }
         }

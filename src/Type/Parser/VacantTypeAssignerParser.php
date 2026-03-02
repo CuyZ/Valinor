@@ -35,7 +35,7 @@ final class VacantTypeAssignerParser implements TypeParser
         $type = $this->delegate->parse($raw);
 
         if ($this->vacantTypes !== []) {
-            $type = TypeHelper::assignVacantTypes($type, $this->vacantTypes);
+            return TypeHelper::assignVacantTypes($type, $this->vacantTypes);
         }
 
         return $type;

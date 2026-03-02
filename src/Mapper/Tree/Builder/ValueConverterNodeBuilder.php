@@ -98,8 +98,10 @@ final class ValueConverterNodeBuilder implements NodeBuilder
 
             $firstParameterType = $converter->parameters->at(0)->type;
             $returnType = $converter->returnType;
-
-            if ($firstParameterType instanceof UnresolvableType || $returnType instanceof UnresolvableType) {
+            if ($firstParameterType instanceof UnresolvableType) {
+                continue;
+            }
+            if ($returnType instanceof UnresolvableType) {
                 continue;
             }
 

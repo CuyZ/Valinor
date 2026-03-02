@@ -184,21 +184,18 @@ final class TypeDumper
 
             if ($context->isTooLong()) {
                 return $context->write('array{…}');
-            } else {
-                $arguments = $arguments->toArray();
-                $context = $context->write('array{');
-
-                while ($argument = array_shift($arguments)) {
-                    $context = $context->write(sprintf('%s%s: ', $argument->name(), $argument->isRequired() ? '' : '?'));
-                    $context = $this->doDump($argument->type(), $context);
-
-                    if ($arguments !== []) {
-                        $context = $context->write(', ');
-                    }
-                }
-
-                $context = $context->write('}');
             }
+            $arguments = $arguments->toArray();
+            $context = $context->write('array{');
+            while ($argument = array_shift($arguments)) {
+                $context = $context->write(sprintf('%s%s: ', $argument->name(), $argument->isRequired() ? '' : '?'));
+                $context = $this->doDump($argument->type(), $context);
+
+                if ($arguments !== []) {
+                    $context = $context->write(', ');
+                }
+            }
+            $context = $context->write('}');
 
             if ($argumentsList !== []) {
                 $context = $context->write('|');

@@ -19,6 +19,7 @@ return RectorConfig::configure()
     // @see https://github.com/rectorphp/rector/issues/7341
     ->withCache(__DIR__ . '/var/cache/rector', FileCacheStorage::class)
     ->withPhpSets(php82: true)
+    ->withPreparedSets(earlyReturn: true)
     ->withParallel()
     ->withSkip([
         ClassPropertyAssignToConstructorPromotionRector::class,

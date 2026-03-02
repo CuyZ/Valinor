@@ -66,7 +66,7 @@ final class ReflectionParameterDefinitionBuilder
         $class = $reflection->getDeclaringClass();
 
         if ($class) {
-            $signature = $class->name . '::' . $signature;
+            return $class->name . '::' . $signature;
         }
 
         return $signature;
