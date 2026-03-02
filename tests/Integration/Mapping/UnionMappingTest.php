@@ -445,20 +445,20 @@ final class UnionMappingTest extends IntegrationTestCase
 
 interface SomeInterfaceForObjectWithOneStringValue {}
 
-final class SomeObjectWithOneStringValue implements SomeInterfaceForObjectWithOneStringValue
+final readonly class SomeObjectWithOneStringValue implements SomeInterfaceForObjectWithOneStringValue
 {
-    public function __construct(public readonly string $string) {}
+    public function __construct(public string $string) {}
 }
 
-final class AnotherObjectWithOneStringValue
+final readonly class AnotherObjectWithOneStringValue
 {
-    public function __construct(public readonly string $string) {}
+    public function __construct(public string $string) {}
 }
 
-final class SomeObjectWithOneStringValueAndOneIntValue
+final readonly class SomeObjectWithOneStringValueAndOneIntValue
 {
     public function __construct(
-        public readonly string $string,
-        public readonly int $integer,
+        public string $string,
+        public int $integer,
     ) {}
 }
