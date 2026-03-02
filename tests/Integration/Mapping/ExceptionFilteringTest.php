@@ -75,7 +75,7 @@ final class ExceptionFilteringTest extends IntegrationTestCase
     }
 }
 
-final class ClassThatThrowsExceptionIfInvalidValue
+final readonly class ClassThatThrowsExceptionIfInvalidValue
 {
     public function __construct(string $value)
     {
