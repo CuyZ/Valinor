@@ -211,7 +211,7 @@ use function is_object;
  *
  * @api
  */
-final class HttpRequest
+final readonly class HttpRequest
 {
     /** @pure */
     public function __construct(
@@ -220,28 +220,28 @@ final class HttpRequest
          *
          * @var array<mixed>
          */
-        public readonly array $routeParameters = [],
+        public array $routeParameters = [],
 
         /**
          * Query parameters that were extracted from the request URI.
          *
          * @var array<mixed>
          */
-        public readonly array $queryParameters = [],
+        public array $queryParameters = [],
 
         /**
          * Body values that were extracted from the request content.
          *
          * @var array<mixed>
          */
-        public readonly array $bodyValues = [],
+        public array $bodyValues = [],
 
         /**
          * Original request object coming, for instance, from a library or a
          * framework. If it is given, then this object will automatically be
          * mapped to any target parameter matching its type.
          */
-        public readonly ?object $requestObject = null,
+        public ?object $requestObject = null,
     ) {}
 
     /**

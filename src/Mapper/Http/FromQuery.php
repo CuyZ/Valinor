@@ -18,9 +18,9 @@ use Attribute;
  * @api
  */
 #[Attribute(Attribute::TARGET_PARAMETER | Attribute::TARGET_PROPERTY)]
-final class FromQuery
+final readonly class FromQuery
 {
     public function __construct(
-        public readonly bool $mapAll = false,
+        public bool $mapAll = false,
     ) {}
 }
