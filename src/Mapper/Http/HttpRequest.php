@@ -245,6 +245,7 @@ final readonly class HttpRequest
     ) {}
 
     /**
+     * @pure
      * @param array<mixed> $routeParameters
      */
     public static function fromPsr(ServerRequestInterface $request, array $routeParameters = []): self
