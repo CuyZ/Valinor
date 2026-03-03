@@ -43,13 +43,12 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             throw new CannotMapHttpRequestToUnsealedShapedArray();
         }
 
-        $routeParameters = $request->routeParameters;
-        $queryParameters = $request->queryParameters;
-        $bodyValues = $request->bodyValues;
-
         $routeElements = [];
         $queryElements = [];
         $bodyElements = [];
+
+        $mapAllQueryKey = null;
+        $mapAllBodyKey = null;
 
         $values = [];
 
@@ -65,11 +64,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $attribute = $attributes->firstOf(FromQuery::class)->instantiate();
 
                 if ($attribute->mapAll) {
-                    if (count($queryElements) > 1) {
-                        throw new CannotUseBothFromQueryAttributes();
-                    }
-
-                    $queryParameters = [$key => $request->queryParameters];
+                    $mapAllQueryKey = $key;
                 }
             } elseif ($attributes->has(FromBody::class)) {
                 $bodyElements[$key] = $element;
@@ -78,11 +73,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $attribute = $attributes->firstOf(FromBody::class)->instantiate();
 
                 if ($attribute->mapAll) {
-                    if (count($bodyElements) > 1) {
-                        throw new CannotUseBothFromBodyAttributes();
-                    }
-
-                    $bodyValues = [$key => $request->bodyValues];
+                    $mapAllBodyKey = $key;
                 }
             } elseif ($request->requestObject && is_a($request->requestObject, $element->type()->toString(), true)) {
                 $values[$key] = $request->requestObject;
@@ -93,37 +84,76 @@ final class HttpRequestNodeBuilder implements NodeBuilder
 
         $errors = [];
 
-        $items = [
-            // Route parameters
-            $shell
-                ->withType(new ShapedArrayType($routeElements))
-                ->withValue($routeParameters)
-                // Allows converting string values to integers, for example.
-                ->allowScalarValueCasting()
-                // Some given route parameters might be optional.
-                ->allowSuperfluousKeys(),
+        // -----------------//
+        // Route parameters //
+        // -----------------//
+        $routeNode = $shell
+            ->withType(new ShapedArrayType($routeElements))
+            ->withValue($request->routeParameters)
+            // Allows converting string values to integers, for example.
+            ->allowScalarValueCasting()
+            // Some given route parameters might be optional.
+            ->allowSuperfluousKeys()
+            ->build();
 
-            // Query parameters
-            $shell
-                ->withType(new ShapedArrayType($queryElements))
-                ->withValue($queryParameters)
-                // Allows converting string values to integers, for example.
-                ->allowScalarValueCasting(),
+        if ($routeNode->isValid()) {
+            $values += $routeNode->value(); // @phpstan-ignore assignOp.invalid (we know value is an array)
+        } else {
+            $errors[] = $routeNode;
+        }
 
-            // Body values
-            $shell
-                ->withType(new ShapedArrayType($bodyElements))
-                ->withValue($bodyValues),
-        ];
-
-        foreach ($items as $item) {
-            $childNode = $item->build();
-
-            if ($childNode->isValid()) {
-                $values += $childNode->value(); // @phpstan-ignore assignOp.invalid (we know value is an array)
-            } else {
-                $errors[] = $childNode;
+        // -----------------//
+        // Query parameters //
+        // -----------------//
+        if ($mapAllQueryKey !== null) {
+            if (count($queryElements) > 1) {
+                throw new CannotUseBothFromQueryAttributes();
             }
+
+            $queryType = $queryElements[$mapAllQueryKey]->type();
+        } else {
+            $queryType = new ShapedArrayType($queryElements);
+        }
+
+        $queryNode = $shell
+            ->withType($queryType)
+            ->withValue($request->queryParameters)
+            // Allows converting string values to integers, for example.
+            ->allowScalarValueCasting()
+            ->build();
+
+        if (! $queryNode->isValid()) {
+            $errors[] = $queryNode;
+        } elseif ($mapAllQueryKey !== null) {
+            $values[$mapAllQueryKey] = $queryNode->value();
+        } else {
+            $values += $queryNode->value(); // @phpstan-ignore assignOp.invalid (we know value is an array)
+        }
+
+        // ------------//
+        // Body values //
+        // ------------//
+        if ($mapAllBodyKey !== null) {
+            $bodyType = $bodyElements[$mapAllBodyKey]->type();
+        } else {
+            $bodyType = new ShapedArrayType($bodyElements);
+        }
+
+        $bodyNode = $shell
+            ->withType($bodyType)
+            ->withValue($request->bodyValues)
+            ->build();
+
+        if (! $bodyNode->isValid()) {
+            $errors[] = $bodyNode;
+        } elseif ($mapAllBodyKey !== null) {
+            if (count($bodyElements) > 1) {
+                throw new CannotUseBothFromBodyAttributes();
+            }
+
+            $values[$mapAllBodyKey] = $bodyNode->value();
+        } else {
+            $values += $bodyNode->value(); // @phpstan-ignore assignOp.invalid (we know value is an array)
         }
 
         if ($errors !== []) {

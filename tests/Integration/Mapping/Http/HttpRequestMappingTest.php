@@ -545,6 +545,48 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_mapping_http_request_with_map_all_with_invalid_value_returns_flattened_errors(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['route' => 'not-an-int'],
+            queryParameters: [
+                'someQueryValue' => 'not-an-int',
+                'anotherQueryValue' => 'still-not-an-int',
+            ],
+            bodyValues: [
+                'someBodyValue' => 'not-an-int',
+                'anotherBodyValue' => 'still-not-an-int',
+            ],
+        );
+
+        $controller =
+            /**
+             * @param array{someQueryValue: int, anotherQueryValue: int} $query
+             * @param array{someBodyValue: int, anotherBodyValue: int} $body
+             */
+            fn (
+                #[FromRoute] int $route,
+                #[FromQuery(mapAll: true)] array $query,
+                #[FromBody(mapAll: true)] array $body,
+            ) => [];
+
+        try {
+            $this->mapperBuilder()
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
+
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'route' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+                'someQueryValue' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+                'anotherQueryValue' => "[invalid_integer] Value 'still-not-an-int' is not a valid integer.",
+                'someBodyValue' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+                'anotherBodyValue' => "[invalid_integer] Value 'still-not-an-int' is not a valid integer.",
+            ]);
+        }
+    }
+
     public function test_from_query_map_all_attribute_alongside_other_from_query_attributes_throws_exception(): void
     {
         $request = new HttpRequest(
