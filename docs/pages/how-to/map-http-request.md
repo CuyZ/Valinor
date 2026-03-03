@@ -21,7 +21,7 @@ Route and query parameter values coming from an HTTP request are typically
 strings. The mapper automatically handles scalar value casting for these
 parameters: a string `"42"` will be properly mapped to an `int` parameter.
 
-!!! hint
+!!! tip
 
     The [Valinor Symfony Bundle] provides a native integration with Symfony's
     HTTP Foundation component.
@@ -162,6 +162,33 @@ final class ListArticles
 ```
 
 The same approach works with `#[FromBody(mapAll: true)]` for body values.
+
+!!! tip
+
+    A shaped array can be used alongside `mapAll` to map all values to a single
+    parameter:
+
+    ```php
+    use CuyZ\Valinor\Mapper\Http\FromQuery;
+    use CuyZ\Valinor\Mapper\Http\FromRoute;
+    
+    final class ListArticles
+    {
+        /**
+         * GET /api/authors/{authorId}/articles?status=X&&page=X&limit=X
+         *
+         * @param array{
+         *     status: non-empty-string,
+         *     page?: positive-int, 
+         *     limit?: int<10, 100>,
+         * } $filters
+         */
+        public function __invoke(
+            #[FromRoute] string $authorId,
+            #[FromQuery(mapAll: true)] array $filters,
+        ): ResponseInterface { … }
+    }
+    ```
 
 ## Mapping to an object
 
