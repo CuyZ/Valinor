@@ -33,6 +33,7 @@ use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
+use CuyZ\Valinor\Mapper\Tree\Builder\HttpRequestNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterContainer;
@@ -120,13 +121,7 @@ final class Container
                     ),
                 );
 
-                $builder = new ValueConverterNodeBuilder(
-                    $builder,
-                    $this->get(ConverterContainer::class),
-                    $this->get(ClassDefinitionRepository::class),
-                    $this->get(FunctionDefinitionRepository::class),
-                    $settings->exceptionFilter,
-                );
+                $builder = new HttpRequestNodeBuilder($builder);
 
                 if ($settings->keyConverters !== []) {
                     $builder = new KeyConverterNodeBuilder(
@@ -139,7 +134,13 @@ final class Container
                     );
                 }
 
-                return $builder;
+                return new ValueConverterNodeBuilder(
+                    $builder,
+                    $this->get(ConverterContainer::class),
+                    $this->get(ClassDefinitionRepository::class),
+                    $this->get(FunctionDefinitionRepository::class),
+                    $settings->exceptionFilter,
+                );
             },
 
             ConverterContainer::class => fn () => new ConverterContainer(

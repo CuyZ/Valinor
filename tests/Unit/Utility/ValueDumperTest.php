@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Utility;
 
 use ArrayObject;
+use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedIntegerEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\BackedStringEnum;
 use CuyZ\Valinor\Tests\Fixture\Enum\PureEnum;
@@ -51,6 +52,18 @@ final class ValueDumperTest extends UnitTestCase
                 yield 'foo';
                 yield 'bar';
             })(), "object(Generator)"],
+            'empty http request' => [
+                new HttpRequest(),
+                'HttpRequest (empty)',
+            ],
+            'http request with values' => [
+                new HttpRequest(
+                    routeParameters: ['routeParameter' => 'foo'],
+                    queryParameters: ['queryParameter' => 'bar'],
+                    bodyValues: ['bodyValue' => 'baz'],
+                ),
+                "HttpRequest{route: array{routeParameter: 'foo'}, query: array{queryParameter: 'bar'}, body: array{bodyValue: 'baz'}}",
+            ],
         ];
     }
 }

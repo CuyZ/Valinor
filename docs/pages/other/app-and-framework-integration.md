@@ -48,6 +48,37 @@ $container->addSharedService('mapper', $mapper);
 $container->addSharedService('normalizer_json', $jsonNormalizer);
 ```
 
+### HTTP request mapping
+
+The library can [map HTTP requests] to controller action parameters using the
+arguments mapper. An integration should wire this into the framework's routing
+layer so that controller arguments are resolved automatically.
+
+The general approach is:
+
+1. Build an `HttpRequest` from the framework's native request object,
+2. Use the arguments mapper to resolve the controller's parameters,
+3. Call the controller with the resolved arguments.
+
+```php
+use CuyZ\Valinor\Mapper\Http\HttpRequest;
+
+// In a controller argument resolver / middleware:
+$argumentsMapper = $mapperBuilder->argumentsMapper();
+
+// Build an `HttpRequest` from the framework's request and router output.
+// If the framework uses PSR-7, the factory method can be used directly:
+$request = HttpRequest::fromPsr($psrRequest, $routeParameters);
+
+// Resolve the controller's parameters
+$arguments = $argumentsMapper->mapArguments($controller, $request);
+
+// Call the controller
+$response = $controller(...$arguments);
+```
+
+[map HTTP requests]: ../how-to/map-http-request.md
+
 ### Registering a cache
 
 As mentioned above, caching is important to allow the mapper to perform well.

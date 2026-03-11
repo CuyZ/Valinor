@@ -9,13 +9,11 @@ use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\Exception\MappingLogicalException;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
 use CuyZ\Valinor\Mapper\Tree\RootNodeBuilder;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 
 use function array_map;
-use function count;
 
 /** @internal */
 final class TypeArgumentsMapper implements ArgumentsMapper
@@ -48,22 +46,11 @@ final class TypeArgumentsMapper implements ArgumentsMapper
             throw new TypeErrorDuringArgumentsMapping($function, $exception);
         }
 
-        if ($node->isValid()) {
-            /** @var array<string, mixed> */
-            return $node->value();
+        if (! $node->isValid()) {
+            throw new ArgumentsMapperError($source, $type->toString(), $function->signature, $node->messages());
         }
 
-        // Transforms the source value if there is only one object argument, to
-        // ensure the source can contain flattened values.
-        if (count($elements) === 1 && $function->parameters->at(0)->type instanceof ObjectType) {
-            $node = $this->nodeBuilder->build($source, $function->parameters->at(0)->type, $function->attributes);
-
-            if ($node->isValid()) {
-                /** @var array<string, mixed> */
-                return [$function->parameters->at(0)->name => $node->value()];
-            }
-        }
-
-        throw new ArgumentsMapperError($source, $type->toString(), $function->signature, $node->messages());
+        /** @var array<string, mixed> */
+        return $node->value();
     }
 }
