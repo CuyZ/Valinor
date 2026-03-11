@@ -121,18 +121,17 @@ final class Container
                     ),
                 );
 
-                $builder = new HttpRequestNodeBuilder($builder);
-
                 if ($settings->keyConverters !== []) {
                     $builder = new KeyConverterNodeBuilder(
                         $builder,
-                        new KeyConverterContainer(
-                            $this->get(FunctionDefinitionRepository::class),
-                            $settings->keyConverters,
-                        ),
-                        $settings->exceptionFilter,
+                        $this->get(KeyConverterContainer::class),
                     );
                 }
+
+                $builder = new HttpRequestNodeBuilder(
+                    $builder,
+                    $this->get(KeyConverterContainer::class),
+                );
 
                 return new ValueConverterNodeBuilder(
                     $builder,
@@ -146,6 +145,12 @@ final class Container
             ConverterContainer::class => fn () => new ConverterContainer(
                 $this->get(FunctionDefinitionRepository::class),
                 $settings->convertersSortedByPriority(),
+            ),
+
+            KeyConverterContainer::class => fn () => new KeyConverterContainer(
+                $this->get(FunctionDefinitionRepository::class),
+                $settings->keyConverters,
+                $settings->exceptionFilter,
             ),
 
             InterfaceInferringContainer::class => fn () => new InterfaceInferringContainer(

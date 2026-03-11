@@ -18,6 +18,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\ValueDumper;
 
 use function array_fill_keys;
+use function array_key_exists;
 use function array_map;
 use function assert;
 use function implode;
@@ -51,6 +52,8 @@ final class Shell
         private int $childrenCount,
         /** @var array<array-key, array-key> */
         private array $nameMap = [],
+        /** @var array<string, null> */
+        private array $childrenWithScalarValueCasting = [],
     ) {
         $this->castFloatValue();
     }
@@ -85,6 +88,10 @@ final class Shell
         $self->attributes = Attributes::empty();
         $self->childrenCount = 0;
         $self->nameMap = [];
+
+        if (array_key_exists($name, $this->childrenWithScalarValueCasting)) {
+            $self->allowScalarValueCasting = true;
+        }
 
         return $self;
     }
@@ -188,6 +195,17 @@ final class Shell
         // @infection-ignore-all / We don't want to test the clone behavior
         $self = clone $this;
         $self->allowScalarValueCasting = true;
+
+        return $self;
+    }
+
+    /**
+     * @param list<string> $childrenWithScalarValueCasting
+     */
+    public function allowScalarValueCastingForChildren(array $childrenWithScalarValueCasting): self
+    {
+        $self = clone $this;
+        $self->childrenWithScalarValueCasting = array_fill_keys($childrenWithScalarValueCasting, null);
 
         return $self;
     }

@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Definition\FunctionDefinition;
-use CuyZ\Valinor\Definition\MethodDefinition;
 use CuyZ\Valinor\Definition\Repository\FunctionDefinitionRepository;
 use CuyZ\Valinor\Mapper\Tree\Exception\KeyConverterHasInvalidStringParameter;
 use CuyZ\Valinor\Mapper\Tree\Exception\KeyConverterHasNoParameter;
 use CuyZ\Valinor\Mapper\Tree\Exception\KeyConverterHasTooManyParameters;
+use CuyZ\Valinor\Mapper\Tree\Exception\KeysCollision;
+use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
+use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Type\StringType;
+use Exception;
+use Throwable;
 
 /** @internal */
 final class KeyConverterContainer
@@ -21,39 +24,74 @@ final class KeyConverterContainer
         private FunctionDefinitionRepository $functionDefinitionRepository,
         /** @var non-empty-list<callable(string): string> */
         private array $converters,
+        /** @var callable(Throwable): ErrorMessage */
+        private mixed $exceptionFilter,
     ) {}
 
-    /**
-     * @return non-empty-list<callable(string): string>
-     */
-    public function converters(): array
+    public function hasConverters(): bool
     {
-        if (! $this->convertersCallablesWereChecked) {
-            $this->convertersCallablesWereChecked = true;
+        return $this->converters !== [];
+    }
 
-            foreach ($this->converters as $converter) {
-                $function = $this->functionDefinitionRepository->for($converter);
+    public function convert(array $values): array
+    {
+        $this->checkConverterCallables();
 
-                self::checkConverter($function);
+        $newValue = [];
+        $nameMap = [];
+        $errors = [];
+
+        foreach ($values as $key => $value) {
+            $convertedKey = (string)$key;
+
+            try {
+                foreach ($this->converters as $converter) {
+                    $convertedKey = $converter($convertedKey);
+                }
+
+                if (array_key_exists($convertedKey, $nameMap)) {
+                    $errors[$key] = new KeysCollision($nameMap[$convertedKey], $convertedKey);
+                } else {
+                    $newValue[$convertedKey] = $value;
+
+                    if ($convertedKey !== (string)$key) {
+                        $nameMap[$convertedKey] = (string)$key;
+                    }
+                }
+            } catch (Exception $exception) {
+                if (! $exception instanceof Message) {
+                    $exception = ($this->exceptionFilter)($exception);
+                }
+
+                $errors[$key] = $exception;
             }
         }
 
-        return $this->converters;
+        return [$newValue, $nameMap, $errors];
     }
 
-    private static function checkConverter(MethodDefinition|FunctionDefinition $method): void
+    private function checkConverterCallables(): void
     {
-        if ($method->parameters->count() === 0) {
-            throw new KeyConverterHasNoParameter($method);
+        if ($this->convertersCallablesWereChecked) {
+            return;
         }
 
-        if ($method->parameters->count() > 1) {
-            throw new KeyConverterHasTooManyParameters($method);
-        }
+        $this->convertersCallablesWereChecked = true;
 
-        if (! $method->parameters->at(0)->nativeType instanceof StringType) {
-            throw new KeyConverterHasInvalidStringParameter($method, $method->parameters->at(0)->nativeType);
+        foreach ($this->converters as $converter) {
+            $function = $this->functionDefinitionRepository->for($converter);
+
+            if ($function->parameters->count() === 0) {
+                throw new KeyConverterHasNoParameter($function);
+            }
+
+            if ($function->parameters->count() > 1) {
+                throw new KeyConverterHasTooManyParameters($function);
+            }
+
+            if (! $function->parameters->at(0)->nativeType instanceof StringType) {
+                throw new KeyConverterHasInvalidStringParameter($function, $function->parameters->at(0)->nativeType);
+            }
         }
     }
-
 }
