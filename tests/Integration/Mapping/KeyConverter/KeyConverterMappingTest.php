@@ -258,19 +258,20 @@ final class KeyConverterMappingTest extends IntegrationTestCase
         self::assertSame('hello', $result->key_0);
     }
 
-    public function test_duplicate_converted_keys_uses_last_source_key(): void
+    public function test_key_collision_is_caught_in_mapping_error(): void
     {
-        // Both 'FOO' and 'foo' convert to 'foo'. Last one wins.
         try {
-            $result = $this->mapperBuilder()
+            $this->mapperBuilder()
                 ->registerKeyConverter(fn (string $key): string => strtolower($key))
                 ->mapper()
                 ->map('array{foo: string}', ['FOO' => 'first', 'foo' => 'second']);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
-        }
 
-        self::assertSame('second', $result['foo']);
+            self::fail('Expected MappingError');
+        } catch (MappingError $error) {
+            $this->assertMappingErrors($error, [
+                'foo' => '[keys_collision] Collision between keys `FOO` and `foo`.',
+            ]);
+        }
     }
 
     public function test_key_converter_with_no_parameter_throws_exception(): void

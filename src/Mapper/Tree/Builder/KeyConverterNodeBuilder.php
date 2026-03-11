@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Mapper\Tree\Exception\KeysCollision;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
@@ -13,6 +14,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use Exception;
 use Throwable;
 
+use function array_key_exists;
 use function is_array;
 use function is_iterable;
 use function iterator_to_array;
@@ -54,6 +56,15 @@ final class KeyConverterNodeBuilder implements NodeBuilder
                 foreach ($this->keyConverterContainer->converters() as $converter) {
                     $convertedKey = $converter($convertedKey);
                 }
+
+                if (array_key_exists($convertedKey, $keyMap)) {
+                    $errors[$key] = $shell
+                        ->child((string)$key, UnresolvableType::forInvalidKey())
+                        ->error(new KeysCollision($keyMap[$convertedKey], $convertedKey));
+                } else {
+                    $newValue[$convertedKey] = $val;
+                    $keyMap[$convertedKey] = (string)$key;
+                }
             } catch (Exception $exception) {
                 if (! $exception instanceof Message) {
                     $exception = ($this->exceptionFilter)($exception);
@@ -64,9 +75,6 @@ final class KeyConverterNodeBuilder implements NodeBuilder
                     ->withValue($val)
                     ->error($exception);
             }
-
-            $newValue[$convertedKey] = $val;
-            $keyMap[$convertedKey] = (string)$key;
         }
 
         if ($errors !== []) {

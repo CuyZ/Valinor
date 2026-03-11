@@ -101,5 +101,8 @@ interface DefaultMessage
         'Key must follow the kebab-case format.' => [
             'en' => 'Key must follow the kebab-case format.',
         ],
+        'Collision between keys `{key}` and `{duplicate_key}`.' => [
+            'en' => 'Collision between keys `{key}` and `{duplicate_key}`.',
+        ],
     ];
 }
