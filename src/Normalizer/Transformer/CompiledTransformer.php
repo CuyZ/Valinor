@@ -9,7 +9,6 @@ use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Cache\CacheEntry;
 use CuyZ\Valinor\Cache\TypeFilesWatcher;
 use CuyZ\Valinor\Compiler\Compiler;
-use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Exception\TypeUnhandledByNormalizer;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerRootNode;
@@ -35,6 +34,7 @@ use UnitEnum;
 
 use function array_is_list;
 use function assert;
+use function CuyZ\Valinor\Compiler\{param, shortClosure};
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -86,11 +86,13 @@ final class CompiledTransformer implements Transformer
     {
         $rootNode = new TransformerRootNode($this->definitionBuilder, $type);
 
-        $node = Node::shortClosure($rootNode)
-            ->witParameters(
-                Node::parameterDeclaration('transformers', 'array'),
-                Node::parameterDeclaration('delegate', Transformer::class),
-            );
+        $node = shortClosure(
+            return: $rootNode,
+            parameters: [
+                param('transformers', 'array'),
+                param('delegate', Transformer::class),
+            ],
+        );
 
         return (new Compiler())->compile($node)->code();
     }

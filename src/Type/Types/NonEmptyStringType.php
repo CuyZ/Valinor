@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -14,6 +13,7 @@ use CuyZ\Valinor\Utility\IsSingleton;
 use Stringable;
 
 use function assert;
+use function CuyZ\Valinor\Compiler\{call, value};
 use function is_numeric;
 use function is_string;
 
@@ -27,9 +27,9 @@ final class NonEmptyStringType implements StringType
         return is_string($value) && $value !== '';
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_string', [$node])->and($node->different(Node::value('')));
+        return call('is_string', [$node])->and($node->different(value('')));
     }
 
     public function matches(Type $other): bool

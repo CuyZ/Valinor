@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -23,6 +22,7 @@ use function array_map;
 use function array_shift;
 use function array_values;
 use function count;
+use function CuyZ\Valinor\Compiler\{call, logicalOr};
 use function implode;
 use function in_array;
 use function is_int;
@@ -99,7 +99,7 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
         return false;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         $conditions = [];
 
@@ -107,13 +107,13 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
             $condition = $type->compiledAccept($node);
 
             if ($type instanceof NativeStringType) {
-                $condition = $condition->or(Node::functionCall('is_int', [$node]));
+                $condition = $condition->or(call('is_int', [$node]));
             }
 
             $conditions[] = $condition;
         }
 
-        return Node::logicalOr(...$conditions);
+        return logicalOr(...$conditions);
     }
 
     public function matches(Type $other): bool

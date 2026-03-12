@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Type;
 use WeakMap;
 
+use function CuyZ\Valinor\Compiler\{call, closure, forEach_, if_, param, return_, shortClosure, this, variable, yield_};
 use function hash;
 use function preg_replace;
 use function strtolower;
@@ -22,13 +22,13 @@ final class TraversableFormatter implements TypeFormatter
         private Type $subType,
     ) {}
 
-    public function formatValueNode(ComplianceNode $valueNode): Node
+    public function formatValueNode(Node $valueNode): Node
     {
-        return Node::this()->callMethod(
+        return this()->callMethod(
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('references'),
+                variable('references'),
             ],
         );
     }
@@ -67,42 +67,46 @@ final class TraversableFormatter implements TypeFormatter
 
         $class = $subDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
-        return $class->withMethods(
-            Node::method($methodName)
-                ->witParameters(
-                    Node::parameterDeclaration('value', 'iterable'),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('iterable')
-                ->withBody(
-                    Node::if(
-                        condition: Node::functionCall('is_array', [Node::variable('value')]),
-                        body: Node::return(
-                            Node::functionCall(
-                                name: 'array_map',
-                                arguments: [
-                                    Node::shortClosure(
-                                        return: $subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
-                                    )->witParameters(Node::parameterDeclaration('item', 'mixed')),
-                                    Node::variable('value')
-                                ],
-                            ),
-                        )
-                    ),
-                    Node::return(
-                        Node::closure(
-                            Node::forEach(
-                                value: Node::variable('value'),
-                                key: 'key',
-                                item: 'item',
-                                body: Node::yield(
-                                    key: Node::variable('key'),
-                                    value: $subDefinition->typeFormatter()->formatValueNode(Node::variable('item')),
-                                )->asExpression(),
-                            )
-                        )->uses('value', 'references')->wrap()->call(),
+        return $class->withMethod(
+            name: $methodName,
+            parameters: [
+                param('value', 'iterable'),
+                param('references', WeakMap::class),
+            ],
+            returnType: 'iterable',
+            body: [
+                if_(
+                    condition: call('is_array', [variable('value')]),
+                    body: return_(
+                        call(
+                            name: 'array_map',
+                            arguments: [
+                                shortClosure(
+                                    return: $subDefinition->typeFormatter()->formatValueNode(variable('item')),
+                                    parameters: [param('item', 'mixed')],
+                                ),
+                                variable('value'),
+                            ],
+                        ),
                     ),
                 ),
+                return_(
+                    closure(
+                        body: [
+                            forEach_(
+                                value: variable('value'),
+                                key: 'key',
+                                item: 'item',
+                                body: yield_(
+                                    key: variable('key'),
+                                    value: $subDefinition->typeFormatter()->formatValueNode(variable('item')),
+                                )->asStatement(),
+                            ),
+                        ],
+                        uses: ['value', 'references'],
+                    )->wrap()->call(),
+                ),
+            ],
         );
     }
 

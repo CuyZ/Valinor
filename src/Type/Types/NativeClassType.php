@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\ObjectWithGenericType;
@@ -42,7 +42,7 @@ final class NativeClassType implements ClassType, ObjectWithGenericType
         return $value instanceof $this->className;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         return $node->instanceOf($this->className);
     }

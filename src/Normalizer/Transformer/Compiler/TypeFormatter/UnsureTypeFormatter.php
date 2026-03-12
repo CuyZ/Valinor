@@ -6,13 +6,13 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
 use WeakMap;
 
+use function CuyZ\Valinor\Compiler\{if_, negate, param, return_, this, variable};
 use function hash;
 use function preg_replace;
 use function strtolower;
@@ -25,13 +25,13 @@ final class UnsureTypeFormatter implements TypeFormatter
         private Type $unsureType,
     ) {}
 
-    public function formatValueNode(ComplianceNode $valueNode): Node
+    public function formatValueNode(Node $valueNode): Node
     {
-        return Node::this()->callMethod(
+        return this()->callMethod(
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('references'),
+                variable('references'),
             ],
         );
     }
@@ -50,24 +50,24 @@ final class UnsureTypeFormatter implements TypeFormatter
 
         $class = $defaultDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
-        return $class->withMethods(
-            Node::method($methodName)
-                ->witParameters(
-                    Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('mixed')
-                ->withBody(
-                    Node::if(
-                        condition: Node::negate(
-                            (new TypeAcceptNode(Node::variable('value'), $this->unsureType->nativeType()))->wrap(),
-                        ),
-                        body: Node::return($defaultDefinition->typeFormatter()->formatValueNode(Node::variable('value'))),
+        return $class->withMethod(
+            name: $methodName,
+            parameters: [
+                param('value', 'mixed'),
+                param('references', WeakMap::class),
+            ],
+            returnType: 'mixed',
+            body: [
+                if_(
+                    condition: negate(
+                        (new TypeAcceptNode(variable('value'), $this->unsureType->nativeType()))->wrap(),
                     ),
-                    Node::return(
-                        $this->delegate->formatValueNode(Node::variable('value')),
-                    ),
+                    body: return_($defaultDefinition->typeFormatter()->formatValueNode(variable('value'))),
                 ),
+                return_(
+                    $this->delegate->formatValueNode(variable('value')),
+                ),
+            ],
         );
     }
 
