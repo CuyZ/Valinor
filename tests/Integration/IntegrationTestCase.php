@@ -72,7 +72,7 @@ abstract class IntegrationTestCase extends TestCase
         $builder = new MapperBuilder();
 
         if (isset($this->cacheToInject)) {
-            $builder = $builder->withCache($this->cacheToInject);
+            return $builder->withCache($this->cacheToInject);
         }
 
         return $builder;
@@ -89,7 +89,7 @@ abstract class IntegrationTestCase extends TestCase
         $builder = new NormalizerBuilder();
 
         if (isset($this->cacheToInject)) {
-            $builder = $builder->withCache($this->cacheToInject);
+            return $builder->withCache($this->cacheToInject);
         }
 
         return $builder;

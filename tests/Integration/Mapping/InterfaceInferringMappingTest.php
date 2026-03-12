@@ -161,7 +161,8 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
                     function (string $type, int $key): string {
                         if ($type === 'classA' && $key === 42) {
                             return SomeClassThatInheritsInterfaceA::class;
-                        } elseif ($type === 'classB' && $key === 1337) {
+                        }
+                        if ($type === 'classB' && $key === 1337) {
                             return SomeClassThatInheritsInterfaceB::class;
                         }
 

@@ -129,7 +129,7 @@ final class Container
                 );
 
                 if ($settings->keyConverters !== []) {
-                    $builder = new KeyConverterNodeBuilder(
+                    return new KeyConverterNodeBuilder(
                         $builder,
                         new KeyConverterContainer(
                             $this->get(FunctionDefinitionRepository::class),

@@ -139,7 +139,8 @@ final class TokenParser
         while ($token = $this->next()) {
             if ($token->is([T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED, T_STRING])) {
                 return (string)$token;
-            } elseif ($token->is('{')) {
+            }
+            if ($token->is('{')) {
                 return "";
             }
         }

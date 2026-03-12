@@ -30,7 +30,7 @@ final class ObjectSpecification implements TypeParserSpecification
         }
 
         if ($this->mustCheckTemplates && $token instanceof ObjectToken && $token->subToken instanceof ClassNameToken) {
-            $token = new ObjectToken($token->subToken->mustCheckTemplates());
+            return new ObjectToken($token->subToken->mustCheckTemplates());
         }
 
         return $token;

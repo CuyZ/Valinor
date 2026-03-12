@@ -80,12 +80,13 @@ final class ClassFormatter implements TypeFormatter
                     ->filter(TransformerContainer::filterTransformerAttributes(...))
                     ->filter(static function (AttributeDefinition $attribute) use ($propertyType): bool {
                         $transformerType = $attribute->class->methods->get('normalize')->parameters->at(0)->type;
-
                         // We filter out transformer attributes that don't
                         // match the property type because they will never
                         // be called anyway.
-                        return $transformerType->matches($propertyType)
-                            || $propertyType->matches($transformerType);
+                        if ($transformerType->matches($propertyType)) {
+                            return true;
+                        }
+                        return $propertyType->matches($transformerType);
                     })
                     ->toArray(),
             );

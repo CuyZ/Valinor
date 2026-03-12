@@ -43,10 +43,11 @@ final class ClassParentTypeResolver
         $parentReflection = $reflection->getParentClass();
 
         $extendedClass = $this->extractParentTypeFromDocBlock($reflection);
-
         if (count($extendedClass) > 1) {
             return $this->fillParentGenericsWithUnresolvableTypes($parentReflection, UnresolvableType::forSeveralExtendTagsFound($reflection->name));
-        } elseif (count($extendedClass) === 0) {
+        }
+
+        if (count($extendedClass) === 0) {
             $extendedClass = $parentReflection->name;
         } else {
             $extendedClass = $extendedClass[0];
