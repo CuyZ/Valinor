@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Types\Generics;
 
 /** @internal */
@@ -19,7 +19,7 @@ interface Type
     /**
      * Compiled version of the `accepts` method.
      */
-    public function compiledAccept(ComplianceNode $node): ComplianceNode;
+    public function compiledAccept(Node $node): Node;
 
     /**
      * Should return `true` if the given type is strictly compatible with this

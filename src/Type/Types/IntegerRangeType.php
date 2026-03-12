@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -14,6 +13,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\SameValueForIntegerRange;
 use CuyZ\Valinor\Type\Type;
 
 use function assert;
+use function CuyZ\Valinor\Compiler\{call, value};
 use function filter_var;
 use function is_bool;
 use function is_int;
@@ -49,11 +49,11 @@ final class IntegerRangeType implements IntegerType
             && $value <= $this->max;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_int', [$node])
-            ->and($node->isGreaterOrEqualsTo(Node::value($this->min)))
-            ->and($node->isLessOrEqualsTo(Node::value($this->max)));
+        return call('is_int', [$node])
+            ->and($node->isGreaterOrEqualsTo(value($this->min)))
+            ->and($node->isLessOrEqualsTo(value($this->max)));
     }
 
     public function matches(Type $other): bool

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\DumpableType;
@@ -12,7 +11,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 
 use function array_is_list;
-use function function_exists;
+use function CuyZ\Valinor\Compiler\{call, logicalAnd, param, shortClosure, value, variable};
 use function is_array;
 
 /** @internal */
@@ -51,24 +50,23 @@ final class NonEmptyListType implements CompositeTraversableType, DumpableType
         );
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        $condition = Node::logicalAnd(
-            $node->different(Node::value([])),
-            Node::functionCall('is_array', [$node]),
-            Node::functionCall('array_is_list', [$node]),
+        $condition = logicalAnd(
+            $node->different(value([])),
+            call('is_array', [$node]),
+            call('array_is_list', [$node]),
         );
 
         if ($this === self::native()) {
             return $condition;
         }
 
-        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
+        return $condition->and(call(Polyfill::array_all_name(), [
             $node,
-            Node::shortClosure(
-                $this->subType->compiledAccept(Node::variable('item'))->wrap()
-            )->witParameters(
-                Node::parameterDeclaration('item', 'mixed'),
+            shortClosure(
+                return: $this->subType->compiledAccept(variable('item'))->wrap(),
+                parameters: [param('item', 'mixed')],
             ),
         ]));
     }

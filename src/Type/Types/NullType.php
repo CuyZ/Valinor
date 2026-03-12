@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
+
+use function CuyZ\Valinor\Compiler\value;
 
 /** @internal */
 final class NullType implements Type
@@ -19,9 +20,9 @@ final class NullType implements Type
         return $value === null;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return $node->equals(Node::value(null));
+        return $node->equals(value(null));
     }
 
     public function matches(Type $other): bool

@@ -34,7 +34,10 @@
     "autoload": {
         "psr-4": {
             "CuyZ\\Valinor\\": "src"
-        }
+        },
+        "files": [
+            "src/Compiler/node-functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

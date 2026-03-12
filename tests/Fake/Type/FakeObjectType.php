@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Fake\Type;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Generics;
 use stdClass;
+
+use function CuyZ\Valinor\Compiler\value;
 
 final class FakeObjectType implements ObjectType
 {
@@ -52,10 +53,10 @@ final class FakeObjectType implements ObjectType
         return isset($this->accepted) && $value instanceof $this->accepted;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         if (! isset($this->accepted)) {
-            return Node::value(false);
+            return value(false);
         }
 
         return $node->instanceOf($this->accepted);

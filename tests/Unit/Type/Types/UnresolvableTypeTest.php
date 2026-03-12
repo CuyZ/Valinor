@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use LogicException;
+
+use function CuyZ\Valinor\Compiler\value;
 
 final class UnresolvableTypeTest extends UnitTestCase
 {
@@ -29,7 +30,7 @@ final class UnresolvableTypeTest extends UnitTestCase
 
         $this->expectException(LogicException::class);
 
-        $type->compiledAccept(Node::value(true));
+        $type->compiledAccept(value(true));
     }
 
     public function test_call_unresolvable_type_matches_throws_exception(): void

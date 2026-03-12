@@ -7,7 +7,6 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
@@ -16,6 +15,7 @@ use WeakMap;
 
 use function array_keys;
 use function array_map;
+use function CuyZ\Valinor\Compiler\{if_, param, return_, shortClosure, this, value, variable};
 use function preg_replace;
 use function serialize;
 use function sha1;
@@ -33,13 +33,13 @@ final class RegisteredTransformersFormatter implements TypeFormatter
         private array $transformerAttributes = [],
     ) {}
 
-    public function formatValueNode(ComplianceNode $valueNode): Node
+    public function formatValueNode(Node $valueNode): Node
     {
-        return Node::this()->callMethod(
+        return this()->callMethod(
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('references'),
+                variable('references'),
             ],
         );
     }
@@ -55,26 +55,26 @@ final class RegisteredTransformersFormatter implements TypeFormatter
         $class = $this->delegate->manipulateTransformerClass($class, $definitionBuilder);
 
         $nodes = [
-            Node::variable('next')->assign(
-                Node::shortClosure(
-                    $this->delegate->formatValueNode(Node::variable('value')),
+            variable('next')->assign(
+                shortClosure(
+                    $this->delegate->formatValueNode(variable('value')),
                 ),
-            )->asExpression(),
+            )->asStatement(),
 
             ...array_map(
-                fn (int $key, Type $transformerType) => Node::if(
-                    condition: new TypeAcceptNode(Node::variable('value'), $transformerType),
-                    body: Node::variable('next')->assign(
-                        Node::shortClosure(
-                            return: Node::this()
+                fn (int $key, Type $transformerType) => if_(
+                    condition: new TypeAcceptNode(variable('value'), $transformerType),
+                    body: variable('next')->assign(
+                        shortClosure(
+                            return: this()
                                 ->access('transformers')
-                                ->key(Node::value($key))
+                                ->key(value($key))
                                 ->call(arguments: [
-                                    Node::variable('value'),
-                                    Node::variable('next'),
+                                    variable('value'),
+                                    variable('next'),
                                 ]),
                         ),
-                    )->asExpression(),
+                    )->asStatement(),
                 ),
                 array_keys($this->transformerTypes),
                 $this->transformerTypes,
@@ -82,24 +82,24 @@ final class RegisteredTransformersFormatter implements TypeFormatter
 
             ...array_map(
                 function (AttributeDefinition $attribute) {
-                    $node = Node::variable('next')->assign(
-                        Node::shortClosure(
+                    $node = variable('next')->assign(
+                        shortClosure(
                             return: (new NewAttributeNode($attribute))
                                 ->wrap()
                                 ->callMethod(
                                     method: 'normalize',
                                     arguments: [
-                                        Node::variable('value'),
-                                        Node::variable('next'),
+                                        variable('value'),
+                                        variable('next'),
                                     ],
                                 ),
                         ),
-                    )->asExpression();
+                    )->asStatement();
 
                     $transformerType = $attribute->class->methods->get('normalize')->parameters->at(0)->type;
 
                     if (! $this->type->matches($transformerType)) {
-                        return Node::if($transformerType->compiledAccept(Node::variable('value')), $node);
+                        return if_($transformerType->compiledAccept(variable('value')), $node);
                     }
 
                     return $node;
@@ -107,19 +107,19 @@ final class RegisteredTransformersFormatter implements TypeFormatter
                 $this->transformerAttributes,
             ),
 
-            Node::return(
-                Node::variable('next')->call(),
+            return_(
+                variable('next')->call(),
             ),
         ];
 
-        return $class->withMethods(
-            Node::method($methodName)
-                ->witParameters(
-                    Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('mixed')
-                ->withBody(...$nodes),
+        return $class->withMethod(
+            name: $methodName,
+            parameters: [
+                param('value', 'mixed'),
+                param('references', WeakMap::class),
+            ],
+            returnType: 'mixed',
+            body: $nodes,
         );
     }
 
