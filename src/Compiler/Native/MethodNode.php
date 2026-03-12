@@ -13,78 +13,17 @@ use function implode;
 /** @internal */
 final class MethodNode extends Node
 {
-    /** @var 'public'|'private' */
-    private string $visibility = 'private';
-
-    /** @var non-empty-string */
-    private string $name;
-
-    private string $returnType;
-
-    /** @var array<ParameterDeclarationNode> */
-    private array $parameters = [];
-
-    /** @var array<Node> */
-    private array $nodes = [];
-
-    /**
-     * @param non-empty-string $name
-     */
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public static function constructor(): self
-    {
-        return new self('__construct');
-    }
-
-    /**
-     * @return non-empty-string
-     */
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function witParameters(ParameterDeclarationNode ...$parameters): self
-    {
-        $self = clone $this;
-        $self->parameters = $parameters;
-
-        return $self;
-    }
-
-    /**
-     * @param 'public'|'private' $visibility
-     */
-    public function withVisibility(string $visibility): self
-    {
-        $self = clone $this;
-        $self->visibility = $visibility;
-
-        return $self;
-    }
-
-    /**
-     * @param non-empty-string $type
-     */
-    public function withReturnType(string $type): self
-    {
-        $self = clone $this;
-        $self->returnType = $type;
-
-        return $self;
-    }
-
-    public function withBody(Node ...$nodes): self
-    {
-        $self = clone $this;
-        $self->nodes = $nodes;
-
-        return $self;
-    }
+    public function __construct(
+        /** @var non-empty-string */
+        private string $name,
+        /** @var 'public'|'private' */
+        private string $visibility = 'private',
+        /** @var list<ParameterDeclarationNode> */
+        private array $parameters = [],
+        private ?string $returnType = null,
+        /** @var list<Node> */
+        private array $nodes = [],
+    ) {}
 
     public function compile(Compiler $compiler): Compiler
     {

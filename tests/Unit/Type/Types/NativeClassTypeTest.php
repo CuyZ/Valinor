@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
-use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
@@ -17,6 +16,8 @@ use DateTime;
 use DateTimeInterface;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
+
+use function CuyZ\Valinor\Compiler\variable;
 
 final class NativeClassTypeTest extends UnitTestCase
 {
@@ -136,6 +137,6 @@ final class NativeClassTypeTest extends UnitTestCase
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */
-        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
+        return eval('return ' . $type->compiledAccept(variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

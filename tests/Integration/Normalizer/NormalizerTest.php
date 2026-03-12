@@ -1089,6 +1089,14 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [AttributeWithObjectInConstructor::class],
         ];
 
+        yield 'object with attribute on property with object in constructor' => [
+            'input' => new SomeClassWithPropertyWithAttributeWithObjectInConstructor(),
+            'expectedArray' => ['value' => 'bar'],
+            'expectedJson' => '{"value":"bar"}',
+            'transformers' => [],
+            'transformerAttributes' => [AttributeWithObjectInConstructor::class],
+        ];
+
         yield 'object with attribute on class with array in constructor' => [
             'input' => new SomeClassWithAttributeWithArrayInConstructor(),
             'expectedArray' => 'baz',
@@ -2229,7 +2237,7 @@ enum SomeEnumWithTransformerAttribute: string
     case BAR = 'bar';
 }
 
-#[Attribute(Attribute::TARGET_CLASS)]
+#[Attribute]
 final class AttributeWithObjectInConstructor
 {
     /**
@@ -2246,6 +2254,14 @@ final class AttributeWithObjectInConstructor
 
 #[AttributeWithObjectInConstructor(new BasicObject('bar'))]
 final class SomeClassWithAttributeWithObjectInConstructor {}
+
+final class SomeClassWithPropertyWithAttributeWithObjectInConstructor
+{
+    public function __construct(
+        #[AttributeWithObjectInConstructor(new BasicObject('bar'))]
+        public stdClass $value = new stdClass(),
+    ) {}
+}
 
 #[Attribute(Attribute::TARGET_CLASS)]
 final class AttributeWithArrayInConstructor

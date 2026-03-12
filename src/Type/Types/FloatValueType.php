@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -13,6 +12,7 @@ use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 
 use function assert;
+use function CuyZ\Valinor\Compiler\value;
 use function is_numeric;
 
 /** @internal */
@@ -25,9 +25,9 @@ final class FloatValueType implements FloatType, FixedType
         return $value === $this->value;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return $node->equals(Node::value($this->value));
+        return $node->equals(value($this->value));
     }
 
     public function matches(Type $other): bool
