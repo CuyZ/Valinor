@@ -648,26 +648,4 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ->mapper()
             ->map('array{foo: string, ...}', new HttpRequest());
     }
-
-    public function test_mapping_http_request_to_invalid_element_throws_exception(): void
-    {
-        $request = new HttpRequest(
-            routeParameters: ['someRouteParameter' => 'foo'],
-            queryParameters: ['someQueryParameter' => 'foo'],
-        );
-
-        $controller =
-            fn (
-                #[FromRoute] string $someRouteParameter,
-                #[FromQuery] string $someQueryParameter,
-                string $invalidParameter,
-            ) => [];
-
-        $this->expectException(TypeErrorDuringArgumentsMapping::class);
-        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: element `invalidParameter` is not tagged with any of `#\[FromRoute\]`, `#\[FromQuery\]` or `#\[FromBody\]` attribute./');
-
-        $this->mapperBuilder()
-            ->argumentsMapper()
-            ->mapArguments($controller, $request);
-    }
 }

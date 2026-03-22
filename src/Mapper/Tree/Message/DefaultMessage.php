@@ -104,5 +104,8 @@ interface DefaultMessage
         'Collision between keys `{key}` and `{duplicate_key}`.' => [
             'en' => 'Collision between keys `{key}` and `{duplicate_key}`.',
         ],
+        'Key `{key}` was found in several HTTP request sources. It must be sent in only one of route, query or body.' => [
+            'en' => 'Key `{key}` was found in several HTTP request sources. It must be sent in only one of route, query or body.',
+        ],
     ];
 }

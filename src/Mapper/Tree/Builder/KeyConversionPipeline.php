@@ -15,14 +15,16 @@ use CuyZ\Valinor\Type\StringType;
 use Exception;
 use Throwable;
 
+use function array_key_exists;
+
 /** @internal */
-final class KeyConverterContainer
+final class KeyConversionPipeline
 {
     private bool $convertersCallablesWereChecked = false;
 
     public function __construct(
         private FunctionDefinitionRepository $functionDefinitionRepository,
-        /** @var non-empty-list<callable(string): string> */
+        /** @var list<callable(string): string> */
         private array $converters,
         /** @var callable(Throwable): ErrorMessage */
         private mixed $exceptionFilter,
@@ -33,6 +35,14 @@ final class KeyConverterContainer
         return $this->converters !== [];
     }
 
+    /**
+     * @param array<mixed> $values
+     * @return array{
+     *     0: array<mixed>,
+     *     1: array<string, string>,
+     *     2: array<string, Message>,
+     * }
+     */
     public function convert(array $values): array
     {
         $this->checkConverterCallables();
@@ -50,7 +60,7 @@ final class KeyConverterContainer
                 }
 
                 if (array_key_exists($convertedKey, $nameMap)) {
-                    $errors[$key] = new KeysCollision($nameMap[$convertedKey], $convertedKey);
+                    $errors[(string)$key] = new KeysCollision($nameMap[$convertedKey], $convertedKey);
                 } else {
                     $newValue[$convertedKey] = $value;
 
@@ -63,7 +73,7 @@ final class KeyConverterContainer
                     $exception = ($this->exceptionFilter)($exception);
                 }
 
-                $errors[$key] = $exception;
+                $errors[(string)$key] = $exception;
             }
         }
 

@@ -11,10 +11,7 @@ use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotMapHttpRequestToUnsealedShapedArray;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotUseBothFromBodyAttributes;
 use CuyZ\Valinor\Mapper\Tree\Exception\CannotUseBothFromQueryAttributes;
-use CuyZ\Valinor\Mapper\Tree\Exception\KeysCollision;
-use CuyZ\Valinor\Mapper\Tree\Exception\MissingHttpBodyValue;
-use CuyZ\Valinor\Mapper\Tree\Exception\MissingHttpQueryValue;
-use CuyZ\Valinor\Mapper\Tree\Exception\MissingHttpRouteValue;
+use CuyZ\Valinor\Mapper\Tree\Exception\HttpRequestKeyCollision;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -23,18 +20,20 @@ use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 
+/** @internal */
 final class HttpRequestNodeBuilder implements NodeBuilder
 {
     public function __construct(
         private NodeBuilder $delegate,
-        private KeyConverterContainer $keyConverterContainer,
+        private KeyConversionPipeline $keyConverterContainer,
     ) {}
 
     public function build(Shell $shell): Node
     {
         $request = $shell->value();
+        $type = $shell->type;
 
-        if (! $shell->type instanceof ShapedArrayType) {
+        if (! $type instanceof ShapedArrayType) {
             return $this->delegate->build($shell);
         }
 
@@ -42,9 +41,12 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell);
         }
 
-        if ($shell->type->isUnsealed) {
+        if ($type->isUnsealed) {
             throw new CannotMapHttpRequestToUnsealedShapedArray();
         }
+
+        // @todo explain
+        $shell = $shell->allowSuperfluousKeys();
 
         $route = $request->routeParameters;
         $query = $request->queryParameters;
@@ -60,16 +62,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             [$body, $bodyNameMap, $bodyErrors] = $this->keyConverterContainer->convert($request->bodyValues);
 
             foreach ([...$routeErrors, ...$queryErrors, ...$bodyErrors] as $key => $error) {
-                $errors[] = $shell->child((string)$key, UnresolvableType::forInvalidKey())->error($error);
+                $errors[] = $shell->child($key, UnresolvableType::forInvalidKey())->error($error);
             }
 
             $shell = $shell->withNameMap([...$routeNameMap, ...$queryNameMap, ...$bodyNameMap]);
-        }
-
-        $collisions = array_intersect_key($route, $query) + array_intersect_key($route, $body) + array_intersect_key($query, $body);
-
-        foreach (array_keys($collisions) as $key) {
-            $errors[] = $shell->child($key, UnresolvableType::forInvalidKey())->error(new KeysCollision($key, $key)); // @todo double $key
         }
 
         if ($errors !== []) {
@@ -77,6 +73,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
         }
 
         $elements = [];
+        $checkCollision = [];
         $result = [];
 
         $queryAttributes = 0;
@@ -84,19 +81,14 @@ final class HttpRequestNodeBuilder implements NodeBuilder
         $queryMapAll = false;
         $bodyMapAll = false;
 
-        foreach ($shell->type->elements as $key => $element) {
+        foreach ($type->elements as $key => $element) {
             $attributes = $element->attributes();
 
             if ($attributes->has(FromRoute::class)) {
-                // This element must be resolved exclusively from route params.
-                if (array_key_exists($key, $query) || array_key_exists($key, $body)) {
-                    // The value must *NEVER* come from query or body.
-                    unset($query[$key], $body[$key]);
+                // The value must *NEVER* come from query or body.
+                unset($query[$key], $body[$key]);
 
-                    $errors[] = $shell->child($key, $element->type())->error(new MissingHttpRouteValue($key));
-                } else {
-                    $elements[$key] = $element;
-                }
+                $elements[$key] = $element;
             } elseif ($attributes->has(FromQuery::class)) {
                 /** @var FromQuery $attribute */
                 $attribute = $attributes->firstOf(FromQuery::class)->instantiate();
@@ -115,12 +107,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                     } else {
                         $errors[] = $node;
                     }
-                } elseif (array_key_exists($key, $route) || array_key_exists($key, $body)) {
+                } else {
                     // The value must *NEVER* come from route or body.
                     unset($route[$key], $body[$key]);
 
-                    $errors[] = $shell->child($key, $element->type())->error(new MissingHttpQueryValue($key));
-                } else {
                     $elements[$key] = $element;
                 }
 
@@ -148,12 +138,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                     } else {
                         $errors[] = $node;
                     }
-                } elseif (array_key_exists($key, $route) || array_key_exists($key, $query)) {
+                } else {
                     // The value must *NEVER* come from route or query.
                     unset($route[$key], $query[$key]);
 
-                    $errors[] = $shell->child($key, $element->type())->error(new MissingHttpBodyValue($key));
-                } else {
                     $elements[$key] = $element;
                 }
 
@@ -166,12 +154,25 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             } elseif ($request->requestObject && $element->type()->accepts($request->requestObject)) {
                 $result[$key] = $request->requestObject;
             } else {
+                $checkCollision[] = $key;
                 $elements[$key] = $element;
             }
         }
 
-        // Route values may contain extra values, we won't block these.
-        $shell = $shell->withAllowedSuperfluousKeys(array_keys($route));
+        if ($checkCollision !== []) {
+            $collisionErrors = [];
+            $collisions = array_intersect_key($route, $query) + array_intersect_key($route, $body) + array_intersect_key($query, $body);
+
+            foreach ($checkCollision as $key) {
+                if (array_key_exists($key, $collisions)) {
+                    $collisionErrors[] = $shell->child($key, UnresolvableType::forInvalidKey())->error(new HttpRequestKeyCollision($key));
+                }
+            }
+
+            if ($collisionErrors !== []) {
+                return $shell->errors($collisionErrors);
+            }
+        }
 
         if (! $shell->allowScalarValueCasting) {
             // Route and query values are all string values, so we enable scalar
@@ -194,6 +195,6 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             return $shell->errors($errors);
         }
 
-        return $shell->node($result + $node->value());
+        return $shell->node($result + $node->value()); // @phpstan-ignore binaryOp.invalid (we know the node value is an array)
     }
 }

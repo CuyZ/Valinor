@@ -190,15 +190,6 @@ final class Shell
         return $self;
     }
 
-    public function allowScalarValueCasting(): self
-    {
-        // @infection-ignore-all / We don't want to test the clone behavior
-        $self = clone $this;
-        $self->allowScalarValueCasting = true;
-
-        return $self;
-    }
-
     /**
      * @param list<string> $childrenWithScalarValueCasting
      */

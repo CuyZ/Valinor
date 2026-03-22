@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Exception\KeysCollision;
-use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
-use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
-use Exception;
-use Throwable;
 
-use function array_key_exists;
 use function is_array;
 use function is_iterable;
 use function iterator_to_array;
@@ -24,7 +18,7 @@ final class KeyConverterNodeBuilder implements NodeBuilder
 {
     public function __construct(
         private NodeBuilder $delegate,
-        private KeyConverterContainer $keyConverterContainer,
+        private KeyConversionPipeline $keyConverterContainer,
     ) {}
 
     public function build(Shell $shell): Node
@@ -49,7 +43,7 @@ final class KeyConverterNodeBuilder implements NodeBuilder
 
         foreach ($keyErrors as $key => $error) {
             $errors[] = $shell
-                ->child((string)$key, UnresolvableType::forInvalidKey())
+                ->child($key, UnresolvableType::forInvalidKey())
                 ->error($error);
         }
 

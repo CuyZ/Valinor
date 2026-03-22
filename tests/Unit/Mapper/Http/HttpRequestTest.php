@@ -40,6 +40,6 @@ final class HttpRequestTest extends TestCase
             parsedBody: new stdClass()
         );
 
-        HttpRequest::fromPsr($psrRequest);
+        HttpRequest::fromPsr($psrRequest); // @phpstan-ignore staticMethod.resultUnused
     }
 }

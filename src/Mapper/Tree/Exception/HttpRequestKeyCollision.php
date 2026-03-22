@@ -8,21 +8,21 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\HasCode;
 use CuyZ\Valinor\Mapper\Tree\Message\HasParameters;
 
-final class MissingHttpRouteValue implements ErrorMessage, HasCode, HasParameters
+/** @internal */
+final class HttpRequestKeyCollision implements ErrorMessage, HasCode, HasParameters
 {
     public function __construct(
-        private string|int $key,
-
+        private string $key,
     ) {}
-
-    public function code(): string
-    {
-        return 'missing_http_route_value';
-    }
 
     public function body(): string
     {
-        return 'The route parameter `{key}` is missing.';
+        return 'Key `{key}` was found in several HTTP request sources. It must be sent in only one of route, query or body.';
+    }
+
+    public function code(): string
+    {
+        return 'key_collision';
     }
 
     public function parameters(): array

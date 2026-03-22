@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Mapper\Tree\Builder;
 
-use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterContainer;
+use CuyZ\Valinor\Mapper\Tree\Builder\KeyConversionPipeline;
 use CuyZ\Valinor\Tests\Fake\Definition\Repository\FakeFunctionDefinitionRepository;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
+use Throwable;
 
 final class KeyConverterContainerTest extends UnitTestCase
 {
@@ -14,13 +15,17 @@ final class KeyConverterContainerTest extends UnitTestCase
     {
         $functionDefinitionRepository = new FakeFunctionDefinitionRepository();
 
-        $container = new KeyConverterContainer($functionDefinitionRepository, [
-            fn (string $key): string => $key,
-            fn (string $key): string => $key,
-        ]);
+        $container = new KeyConversionPipeline(
+            $functionDefinitionRepository,
+            [
+                fn (string $key): string => $key,
+                fn (string $key): string => $key,
+            ],
+            static fn (Throwable $error) => throw $error,
+        );
 
-        $container->converters();
-        $container->converters();
+        $container->convert([]);
+        $container->convert([]);
 
         self::assertSame(2, $functionDefinitionRepository->callCount);
     }

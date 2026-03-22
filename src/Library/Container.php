@@ -36,7 +36,7 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\HttpRequestNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterContainer;
+use CuyZ\Valinor\Mapper\Tree\Builder\KeyConversionPipeline;
 use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
@@ -124,13 +124,13 @@ final class Container
                 if ($settings->keyConverters !== []) {
                     $builder = new KeyConverterNodeBuilder(
                         $builder,
-                        $this->get(KeyConverterContainer::class),
+                        $this->get(KeyConversionPipeline::class),
                     );
                 }
 
                 $builder = new HttpRequestNodeBuilder(
                     $builder,
-                    $this->get(KeyConverterContainer::class),
+                    $this->get(KeyConversionPipeline::class),
                 );
 
                 return new ValueConverterNodeBuilder(
@@ -147,7 +147,7 @@ final class Container
                 $settings->convertersSortedByPriority(),
             ),
 
-            KeyConverterContainer::class => fn () => new KeyConverterContainer(
+            KeyConversionPipeline::class => fn () => new KeyConversionPipeline(
                 $this->get(FunctionDefinitionRepository::class),
                 $settings->keyConverters,
                 $settings->exceptionFilter,
