@@ -22,11 +22,18 @@ use function is_object;
  * );
  * ```
  *
- * The following rules apply:
+ * Parameters can be mapped from route, query and body values.
  *
- * - Route parameters must be marked with `#[FromRoute]` attribute.
- * - Query parameters must be marked with `#[FromQuery]` attribute.
- * - Body values must be marked with `#[FromBody]` attribute.
+ * Three attributes are available to explicitly bind a parameter to a single
+ * source, ensuring the value is never resolved from the wrong source:
+ *
+ * - `#[FromRoute]` — for parameters extracted from the URL path by a router
+ * - `#[FromQuery]` — for query string parameters
+ * - `#[FromBody]` — for request body values
+ *
+ * Those attributes can be omitted entirely if the parameter is not bound to a
+ * specific source, in which case a collision error is raised if the same key is
+ * found in more than one source.
  *
  * This gives controllers a clean, type-safe signature without coupling to a
  * framework's request object, while benefiting from the library's validation
@@ -39,8 +46,8 @@ use function is_object;
  * strings. The mapper automatically handles scalar value casting for these
  * parameters: a string `"42"` will be properly mapped to an `int` parameter.
  *
- * Example of a GET request
- * ========================
+ * Mapping a request using attributes
+ * ==================================
  *
  * ```
  * use CuyZ\Valinor\Mapper\Http\FromQuery;
@@ -87,9 +94,12 @@ use function is_object;
  * $response = $controller(...$arguments);
  * ```
  *
- * Example of a POST request
- * =========================
+ * Mapping a request without using attributes
+ * ==========================================
  *
+ * When it is unnecessary to distinguish which source a parameter comes from,
+ * the attribute can be omitted entirely — the mapper will resolve each
+ * parameter from whichever source contains the matching key.
  * ```
  * use CuyZ\Valinor\Mapper\Http\FromBody;
  * use CuyZ\Valinor\Mapper\Http\FromRoute;
@@ -101,16 +111,14 @@ use function is_object;
  *     /**
  *      * POST /api/posts/{postId}/comments
  *      *
+ *      * @param positive-int $postId
  *      * @param non-empty-string $author
  *      * @param non-empty-string $content
  *      * /
  *     public function __invoke(
- *         // Comes from the route
- *         #[FromRoute] int $postId,
- *
- *         // Both come from body payload
- *         #[FromBody] string $author,
- *         #[FromBody] string $content,
+ *         int $postId,
+ *         string $author,
+ *         string $content,
  *     ): ResponseInterface { … }
  * }
  *
@@ -130,7 +138,7 @@ use function is_object;
  *     ->mapArguments($controller, $request);
  *
  * $response = $controller(...$arguments);
-  * ```
+ * ```
  *
  * Flattening query/body parameters
  * ================================

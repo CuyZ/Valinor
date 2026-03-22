@@ -195,6 +195,7 @@ final class Shell
      */
     public function allowScalarValueCastingForChildren(array $childrenWithScalarValueCasting): self
     {
+        // @infection-ignore-all / We don't want to test the clone behavior
         $self = clone $this;
         $self->childrenWithScalarValueCasting = array_fill_keys($childrenWithScalarValueCasting, null);
 

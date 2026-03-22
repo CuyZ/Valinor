@@ -21,6 +21,14 @@ use Attribute;
 final readonly class FromBody
 {
     public function __construct(
+        /**
+         * When set to `true`, the entire body values are mapped to this single
+         * parameter.
+         *
+         * This is particularly useful when a lot of values are expected, and it
+         * is preferred to map them to an object instead of individual
+         * parameters.
+         */
         public bool $mapAll = false,
     ) {}
 }

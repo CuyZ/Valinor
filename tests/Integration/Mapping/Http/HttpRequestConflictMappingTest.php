@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
+use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
@@ -100,6 +101,29 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
                 'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+            ]);
+        }
+    }
+
+    public function test_key_converter_detects_collision_between_converted_route_and_query(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['user_id' => '42'],
+            queryParameters: ['userId' => 'override'],
+        );
+
+        $controller = fn (string $userId) => [];
+
+        try {
+            $this->mapperBuilder()
+                ->configureWith(new ConvertKeysToCamelCase())
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
+
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'user_id' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }

@@ -1,14 +1,19 @@
 # Mapping an HTTP request
 
 This library provides a way to map an HTTP request to controller action
-parameters or object properties, using PHP attributes to declare which part of
-the request each parameter comes from.
+parameters or object properties. Parameters can be mapped from route, query and
+body values.
 
-Three attributes are available:
+Three attributes are available to explicitly bind a parameter to a single
+source, ensuring the value is never resolved from the wrong source:
 
 - `#[FromRoute]` — for parameters extracted from the URL path by a router
 - `#[FromQuery]` — for query string parameters
 - `#[FromBody]` — for request body values
+
+Those attributes can be omitted entirely if the parameter is not bound to a
+specific source, in which case a collision error is raised if the same key is
+found in more than one source.
 
 This gives controllers a clean, type-safe signature without coupling to a
 framework's request object, while benefiting from the library's validation and
@@ -28,7 +33,7 @@ parameters: a string `"42"` will be properly mapped to an `int` parameter.
 
     [Valinor Symfony Bundle]: https://github.com/CuyZ/Valinor-Bundle
 
-## GET request example
+## Mapping a request using attributes
 
 Consider an API that lists articles for a given author. The author identifier
 comes from the URL path, while filtering and pagination come from the query
@@ -78,15 +83,13 @@ $arguments = (new MapperBuilder())
 $response = $controller(...$arguments);
 ```
 
-## POST request example
+## Mapping a request without using attributes
 
-For a request that carries a body payload, the `#[FromBody]` attribute is used.
-Below is an example of a controller that handles posting a comment on an
-article.
+When it is unnecessary to distinguish which source a parameter comes from, the
+attribute can be omitted entirely — the mapper will resolve each parameter from
+whichever source contains the matching key.
 
 ```php
-use CuyZ\Valinor\Mapper\Http\FromBody;
-use CuyZ\Valinor\Mapper\Http\FromRoute;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\MapperBuilder;
 
@@ -94,17 +97,15 @@ final class PostComment
 {
     /**
      * POST /api/posts/{postId}/comments
-     * 
+     *
+     * @param positive-int $postId
      * @param non-empty-string $author
      * @param non-empty-string $content
      */
     public function __invoke(
-        // Comes from the route
-        #[FromRoute] int $postId,
-
-        // Both come from body payload
-        #[FromBody] string $author,
-        #[FromBody] string $content,
+        int $postId,
+        string $author,
+        string $content,
     ): ResponseInterface { … }
 }
 
@@ -125,6 +126,11 @@ $arguments = (new MapperBuilder())
 
 $response = $controller(...$arguments);
 ```
+
+!!! note
+
+    If the same key is found in more than one source for a parameter that has no
+    attribute, a collision error is raised.
 
 ## Mapping all parameters at once
 
@@ -205,6 +211,7 @@ use CuyZ\Valinor\MapperBuilder;
 final readonly class PostComment
 {
     public function __construct(
+        /** @var positive-int */
         #[FromRoute] public int $postId,
         /** @var non-empty-string */
         #[FromBody] public string $author,

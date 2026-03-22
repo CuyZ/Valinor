@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
+use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\RestrictKeysToSnakeCase;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
 use CuyZ\Valinor\Mapper\Http\FromBody;
@@ -647,5 +649,74 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         $this->mapperBuilder()
             ->mapper()
             ->map('array{foo: string, ...}', new HttpRequest());
+    }
+
+    public function test_can_map_request_object_alongside_parameters(): void
+    {
+        $originalRequest = new FakePsrRequest();
+
+        $request = new HttpRequest(
+            routeParameters: ['name' => 'John'],
+            requestObject: $originalRequest,
+        );
+
+        $controller = fn (ServerRequestInterface $request, string $name) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'request' => $originalRequest,
+            'name' => 'John',
+        ], $result);
+    }
+
+    public function test_can_map_http_request_with_key_converter(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['route_param' => 'foo'],
+            queryParameters: ['query_param' => 'bar'],
+            bodyValues: ['body_param' => 'baz'],
+        );
+
+        $controller = fn (
+            #[FromRoute] string $routeParam,
+            #[FromQuery] string $queryParam,
+            #[FromBody] string $bodyParam,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->configureWith(new ConvertKeysToCamelCase())
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'routeParam' => 'foo',
+            'queryParam' => 'bar',
+            'bodyParam' => 'baz',
+        ], $result);
+    }
+
+    public function test_key_converter_restriction_error_for_route_parameter_is_reported(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['invalidKey' => 'value'],
+        );
+
+        $controller = fn (#[FromRoute] string $invalidKey) => [];
+
+        try {
+            $this->mapperBuilder()
+                ->configureWith(new RestrictKeysToSnakeCase())
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
+
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'invalidKey' => "[invalid_key_case] Key must follow the snake_case format.",
+            ]);
+        }
     }
 }
