@@ -29,6 +29,6 @@ final readonly class FromQuery
          * is preferred to map them to an object instead of individual
          * parameters.
          */
-        public bool $mapAll = false,
+        public bool $asRoot = false,
     ) {}
 }

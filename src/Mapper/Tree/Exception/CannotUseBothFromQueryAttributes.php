@@ -10,5 +10,5 @@ use LogicException;
 /** @internal */
 final class CannotUseBothFromQueryAttributes extends LogicException implements MappingLogicalException
 {
-    protected $message = 'Cannot use `#[FromQuery(mapAll: true)]` alongside other `#[FromQuery]` attributes.';
+    protected $message = 'Cannot use `#[FromQuery(asRoot: true)]` alongside other `#[FromQuery]` attributes.';
 }

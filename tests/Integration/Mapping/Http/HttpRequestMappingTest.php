@@ -72,7 +72,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
              * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
              */
             fn (
-                #[FromQuery(mapAll: true)] array $query,
+                #[FromQuery(asRoot: true)] array $query,
             ) => [];
 
         $result = $this->mapperBuilder()
@@ -172,7 +172,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
              * @param array{someBodyValue: string, anotherBodyValue: int} $body
              */
             fn (
-                #[FromBody(mapAll: true)] array $body,
+                #[FromBody(asRoot: true)] array $body,
             ) => [];
 
         $result = $this->mapperBuilder()
@@ -568,8 +568,8 @@ final class HttpRequestMappingTest extends IntegrationTestCase
              */
             fn (
                 #[FromRoute] int $route,
-                #[FromQuery(mapAll: true)] array $query,
-                #[FromBody(mapAll: true)] array $body,
+                #[FromQuery(asRoot: true)] array $query,
+                #[FromBody(asRoot: true)] array $body,
             ) => [];
 
         try {
@@ -604,11 +604,11 @@ final class HttpRequestMappingTest extends IntegrationTestCase
              */
             fn (
                 #[FromQuery] string $someQueryParameter,
-                #[FromQuery(mapAll: true)] array $query,
+                #[FromQuery(asRoot: true)] array $query,
             ) => [];
 
         $this->expectException(TypeErrorDuringArgumentsMapping::class);
-        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: cannot use `#\[FromQuery\(mapAll: true\)\]` alongside other `#\[FromQuery\]` attributes./');
+        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: cannot use `#\[FromQuery\(asRoot: true\)\]` alongside other `#\[FromQuery\]` attributes./');
 
         $this->mapperBuilder()
             ->argumentsMapper()
@@ -630,11 +630,11 @@ final class HttpRequestMappingTest extends IntegrationTestCase
              */
             fn (
                 #[FromBody] string $someBodyValue,
-                #[FromBody(mapAll: true)] array $body,
+                #[FromBody(asRoot: true)] array $body,
             ) => [];
 
         $this->expectException(TypeErrorDuringArgumentsMapping::class);
-        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: cannot use `#\[FromBody\(mapAll: true\)\]` alongside other `#\[FromBody\]` attributes./');
+        $this->expectExceptionMessageMatches('/Could not map arguments of `.*`: cannot use `#\[FromBody\(asRoot: true\)\]` alongside other `#\[FromBody\]` attributes./');
 
         $this->mapperBuilder()
             ->argumentsMapper()

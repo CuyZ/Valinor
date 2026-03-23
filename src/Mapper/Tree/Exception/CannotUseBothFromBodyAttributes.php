@@ -10,5 +10,5 @@ use LogicException;
 /** @internal */
 final class CannotUseBothFromBodyAttributes extends LogicException implements MappingLogicalException
 {
-    protected $message = 'Cannot use `#[FromBody(mapAll: true)]` alongside other `#[FromBody]` attributes.';
+    protected $message = 'Cannot use `#[FromBody(asRoot: true)]` alongside other `#[FromBody]` attributes.';
 }

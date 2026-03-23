@@ -144,7 +144,7 @@ use function is_object;
  * ================================
  *
  * Instead of mapping individual query parameters or body values to separate
- * parameters, the `mapAll` parameter can be used to map all of them at once to
+ * parameters, the `asRoot` parameter can be used to map all of them at once to
  * a single parameter. This is useful when working with complex data structures
  * or when the number of parameters is large.
  *
@@ -169,12 +169,12 @@ use function is_object;
  *     // GET /api/authors/{authorId}/articles?status=X&sort=X&page=X&limit=X
  *     public function __invoke(
  *         #[FromRoute] string $authorId,
- *         #[FromQuery(mapAll: true)] ArticleFilters $filters,
+ *         #[FromQuery(asRoot: true)] ArticleFilters $filters,
  *     ): ResponseInterface { … }
  * }
  * ```
  *
- * The same approach works with `#[FromBody(mapAll: true)]` for body values.
+ * The same approach works with `#[FromBody(asRoot: true)]` for body values.
  *
  * Mapping to an object
  * ====================

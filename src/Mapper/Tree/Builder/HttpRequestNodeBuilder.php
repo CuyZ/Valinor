@@ -80,8 +80,8 @@ final class HttpRequestNodeBuilder implements NodeBuilder
 
         $queryAttributes = 0;
         $bodyAttributes = 0;
-        $queryMapAll = false;
-        $bodyMapAll = false;
+        $queryasRoot = false;
+        $bodyasRoot = false;
 
         foreach ($type->elements as $key => $element) {
             $attributes = $element->attributes();
@@ -96,10 +96,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $attribute = $attributes->firstOf(FromQuery::class)->instantiate();
 
                 // This element must be resolved exclusively from query
-                // parameters. When `mapAll` is true, the entire query array is
+                // parameters. When `asRoot` is true, the entire query array is
                 // mapped to this single element.
-                if ($attribute->mapAll) {
-                    $queryMapAll = true;
+                if ($attribute->asRoot) {
+                    $queryasRoot = true;
 
                     $node = $shell->withType($element->type())->withValue($query)->build();
                     $query = [];
@@ -119,7 +119,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $queryAttributes++;
 
                 // No other `#[FromQuery]` element is allowed alongside.
-                if ($queryMapAll && $queryAttributes > 1) {
+                if ($queryasRoot && $queryAttributes > 1) {
                     throw new CannotUseBothFromQueryAttributes();
                 }
             } elseif ($attributes->has(FromBody::class)) {
@@ -127,10 +127,10 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $attribute = $attributes->firstOf(FromBody::class)->instantiate();
 
                 // This element must be resolved exclusively from body values.
-                // When `mapAll` is true, the entire body array is mapped to
+                // When `asRoot` is true, the entire body array is mapped to
                 // this single element.
-                if ($attribute->mapAll) {
-                    $bodyMapAll = true;
+                if ($attribute->asRoot) {
+                    $bodyasRoot = true;
 
                     $node = $shell->withType($element->type())->withValue($body)->build();
                     $body = [];
@@ -150,7 +150,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
                 $bodyAttributes++;
 
                 // No other `#[FromBody]` element is allowed alongside.
-                if ($bodyMapAll && $bodyAttributes > 1) {
+                if ($bodyasRoot && $bodyAttributes > 1) {
                     throw new CannotUseBothFromBodyAttributes();
                 }
             } elseif ($request->requestObject && $element->type()->accepts($request->requestObject)) {
@@ -182,7 +182,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             $shell = $shell->allowScalarValueCastingForChildren(array_keys($route + $query));
         }
 
-        // Build the remaining elements (those not handled by `mapAll` or
+        // Build the remaining elements (those not handled by `asRoot` or
         // request object injection) using the merged values from all sources.
         $node = $shell
             ->withType(new ShapedArrayType($elements))

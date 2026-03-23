@@ -135,7 +135,7 @@ $response = $controller(...$arguments);
 ## Mapping all parameters at once
 
 Instead of mapping individual query parameters or body values to separate
-parameters, the `mapAll` option can be used to map all of them at once to a
+parameters, the `asRoot` option can be used to map all of them at once to a
 single parameter. This is useful when working with complex data structures or
 when the number of parameters is large.
 
@@ -162,16 +162,16 @@ final class ListArticles
      */
     public function __invoke(
         #[FromRoute] string $authorId,
-        #[FromQuery(mapAll: true)] ArticleFilters $filters,
+        #[FromQuery(asRoot: true)] ArticleFilters $filters,
     ): ResponseInterface { … }
 }
 ```
 
-The same approach works with `#[FromBody(mapAll: true)]` for body values.
+The same approach works with `#[FromBody(asRoot: true)]` for body values.
 
 !!! tip
 
-    A shaped array can be used alongside `mapAll` to map all values to a single
+    A shaped array can be used alongside `asRoot` to map all values to a single
     parameter:
 
     ```php
@@ -191,7 +191,7 @@ The same approach works with `#[FromBody(mapAll: true)]` for body values.
          */
         public function __invoke(
             #[FromRoute] string $authorId,
-            #[FromQuery(mapAll: true)] array $filters,
+            #[FromQuery(asRoot: true)] array $filters,
         ): ResponseInterface { … }
     }
     ```
