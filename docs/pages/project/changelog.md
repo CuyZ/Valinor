@@ -9,6 +9,7 @@ Below are listed the changelogs for all released versions of the library.
 
 ## Version 2
 
+- [`2.4.0` — 23rd of March 2026](changelog/version-2.4.0.md)
 - [`2.3.2` — 23rd of January 2026](changelog/version-2.3.2.md)
 - [`2.3.1` — 21st of October 2025](changelog/version-2.3.1.md)
 - [`2.3.0` — 21st of October 2025](changelog/version-2.3.0.md)
