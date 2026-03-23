@@ -33,9 +33,10 @@ use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
+use CuyZ\Valinor\Mapper\Tree\Builder\HttpRequestNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterContainer;
+use CuyZ\Valinor\Mapper\Tree\Builder\KeyConversionPipeline;
 use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
@@ -120,31 +121,36 @@ final class Container
                     ),
                 );
 
-                $builder = new ValueConverterNodeBuilder(
+                if ($settings->keyConverters !== []) {
+                    $builder = new KeyConverterNodeBuilder(
+                        $builder,
+                        $this->get(KeyConversionPipeline::class),
+                    );
+                }
+
+                $builder = new HttpRequestNodeBuilder(
+                    $builder,
+                    $this->get(KeyConversionPipeline::class),
+                );
+
+                return new ValueConverterNodeBuilder(
                     $builder,
                     $this->get(ConverterContainer::class),
                     $this->get(ClassDefinitionRepository::class),
                     $this->get(FunctionDefinitionRepository::class),
                     $settings->exceptionFilter,
                 );
-
-                if ($settings->keyConverters !== []) {
-                    $builder = new KeyConverterNodeBuilder(
-                        $builder,
-                        new KeyConverterContainer(
-                            $this->get(FunctionDefinitionRepository::class),
-                            $settings->keyConverters,
-                        ),
-                        $settings->exceptionFilter,
-                    );
-                }
-
-                return $builder;
             },
 
             ConverterContainer::class => fn () => new ConverterContainer(
                 $this->get(FunctionDefinitionRepository::class),
                 $settings->convertersSortedByPriority(),
+            ),
+
+            KeyConversionPipeline::class => fn () => new KeyConversionPipeline(
+                $this->get(FunctionDefinitionRepository::class),
+                $settings->keyConverters,
+                $settings->exceptionFilter,
             ),
 
             InterfaceInferringContainer::class => fn () => new InterfaceInferringContainer(

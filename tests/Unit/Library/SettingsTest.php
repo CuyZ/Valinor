@@ -21,7 +21,7 @@ final class SettingsTest extends UnitTestCase
     {
         $settings = new Settings();
 
-        self::assertSame('9d463a6dbb306e97747b5f2c5930b639', $settings->hash());
+        self::assertSame('aceb8aff2e8e7b7ad9147a8457303cda', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -44,6 +44,6 @@ final class SettingsTest extends UnitTestCase
         $settings->normalizerTransformers[] = [fn (mixed $value): mixed => $value];
         $settings->normalizerTransformerAttributes[stdClass::class] = null;
 
-        self::assertSame('82a94b1cb67095c55c5720d125de90b1', $settings->hash());
+        self::assertSame('fe40aed24a83948952b6c92807570c1c', $settings->hash());
     }
 }

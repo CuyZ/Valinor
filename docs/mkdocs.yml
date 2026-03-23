@@ -88,6 +88,7 @@ nav:
       - Deal with dates: how-to/deal-with-dates.md
       - Convert input during mapping: how-to/convert-input.md
       - Infer interfaces: how-to/infer-interfaces.md
+      - Map an HTTP request: how-to/map-http-request.md
       - Map arguments of a callable: how-to/map-arguments-of-a-callable.md
       - Customize error messages: how-to/customize-error-messages.md
       - Import JSON, YAML, etc.: how-to/import-formatted-source.md
