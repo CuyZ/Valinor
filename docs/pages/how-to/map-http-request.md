@@ -31,7 +31,14 @@ parameters: a string `"42"` will be properly mapped to an `int` parameter.
     The [Valinor Symfony Bundle] provides a native integration with Symfony's
     HTTP Foundation component.
 
+    ---
+
+    The [Mezzio integration package] automatically configures the mapper, which
+    allows PSR-15 request handlers to easily map PSR-7 requests into domain
+    objects.
+
     [Valinor Symfony Bundle]: https://github.com/CuyZ/Valinor-Bundle
+    [Mezzio integration package]: https://docs.mezzio.dev/mezzio-valinor/
 
 ## Mapping a request using attributes
 

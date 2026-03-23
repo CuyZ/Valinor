@@ -3,10 +3,6 @@
 This library is framework-agnostic, but using it in an application that relies
 on a framework is still possible.
 
-For Symfony applications, check out the [chapter below](#symfony-bundle). For
-other frameworks, check out the [custom integration
-chapter](#custom-integration).
-
 ## Symfony bundle
 
 A bundle is available to automatically integrate this library into a Symfony
@@ -18,6 +14,18 @@ composer require cuyz/valinor-bundle
 
 The documentation of this bundle can be found
 [on the GitHub repository](https://github.com/CuyZ/Valinor-Bundle/#readme).
+
+## Mezzio integration
+
+An official integration with Laminas' Mezzio framework allows this library to be
+used to very easily map HTTP requests to domain objects.
+
+```bash
+composer require mezzio/mezzio-valinor
+```
+
+The documentation of this package can be found at
+https://docs.mezzio.dev/mezzio-valinor/
 
 ## Custom integration
 
