@@ -13,11 +13,10 @@ use Safe\DateTimeImmutable;
 final class ConvertDateTimeTest extends IntegrationTestCase
 {
     /**
-     * @param non-empty-string $expectedValue
      * @param non-empty-string $format
      */
     #[DataProvider('date_time_data_provider')]
-    public function test_date_time_converts_values(string $expectedValue, string $format, object $value): void
+    public function test_date_time_converts_values(mixed $expectedValue, string $format, object $value): void
     {
         $result = $this->normalizerBuilder()
             ->configureWith(new ConvertDateTime($format))
@@ -47,6 +46,17 @@ final class ConvertDateTimeTest extends IntegrationTestCase
             'expectedValue' => '05.11.1955 21:10:14',
             'format' => 'd.m.Y H:i:s',
             'value' => $date,
+        ];
+
+        yield 'object with attribute' => [
+            'expectedValue' => ['date' => '05.11.1955 21:10:14'],
+            'format' => DateTimeInterface::ATOM, // Will be overridden by the attribute below
+            'value' => new class () {
+                public function __construct(
+                    #[ConvertDateTime('d.m.Y H:i:s')]
+                    public DateTimeInterface $date = new DateTimeImmutable('1955-11-05T21:10:14', new DateTimeZone('UTC')),
+                ) {}
+            },
         ];
     }
 }
