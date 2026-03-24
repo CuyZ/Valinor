@@ -173,7 +173,7 @@ final class NormalizerBuilder
      * {@see https://en.wikipedia.org/wiki/Pure_function}
      *
      * @pure
-     * @param pure-callable|class-string $transformer
+     * @param pure-callable|pure-Closure|class-string $transformer
      */
     public function registerTransformer(callable|string $transformer, int $priority = 0): self
     {
