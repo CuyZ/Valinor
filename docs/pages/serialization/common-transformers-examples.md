@@ -23,80 +23,9 @@ third-party libraries or applications.
 
 ## Customizing dates format
 
-By default, dates will be formatted using the RFC 3339 format, but it may be
-needed to use another format. 
+See [date time configurator chapter].
 
-This can be done on all dates, using a global transformer, as shown in the
-example below:
-
-<details>
-<summary>Show code example — Global date format</summary>
-
-```php
-(new \CuyZ\Valinor\NormalizerBuilder())
-    ->registerTransformer(
-        fn (\DateTimeInterface $date) => $date->format('Y/m/d')
-    )
-    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
-    ->normalize(
-        new \My\App\Event(
-            eventName: 'Release of legendary album',
-            date: new \DateTimeImmutable('1971-11-08'),
-        )
-    );
-
-// [
-//     'eventName' => 'Release of legendary album',
-//     'date' => '1971/11/08',
-// ]
-```
-</details>
-
-For a more granular control, an attribute can be used to target a specific
-property, as shown in the example below:
-
-<details>
-<summary>Show code example — Date format attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Normalizer\AsTransformer]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class DateTimeFormat
-{
-    public function __construct(private string $format) {}
-
-    public function normalize(\DateTimeInterface $date): string
-    {
-        return $date->format($this->format);
-    }
-}
-
-final readonly class Event
-{
-    public function __construct(
-        public string $eventName,
-        #[\My\App\DateTimeFormat('Y/m/d')]
-        public \DateTimeInterface $date,
-    ) {}
-}
-
-(new \CuyZ\Valinor\NormalizerBuilder())
-    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
-    ->normalize(
-        new \My\App\Event(
-            eventName: 'Release of legendary album',
-            date: new \DateTimeImmutable('1971-11-08'),
-        )
-    );
-
-// [
-//     'eventName' => 'Release of legendary album',
-//     'date' => '1971/11/08',
-// ]
-```
-</details>
+[date time configurator chapter]: use-provided-normalizer-configurators.md#specifying-date-time-normalization-format
 
 ## Transforming property name to “snake_case”
 
