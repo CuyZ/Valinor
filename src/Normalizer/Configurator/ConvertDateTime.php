@@ -10,7 +10,13 @@ use CuyZ\Valinor\NormalizerBuilder;
 use DateTimeInterface;
 
 /**
- * Convert a `DateTimeInterface` to a string using the given format.
+ * Converts a `DateTimeInterface` to a string using the given format.
+ *
+ * This class can be used either as a configurator for global usage or as an
+ * attribute to target a specific property.
+ *
+ * Global usage as a configurator
+ * ------------------------------
  *
  *  ```
  *  use CuyZ\Valinor\Normalizer\Configurator\ConvertDateTime;
@@ -18,7 +24,8 @@ use DateTimeInterface;
  *  use CuyZ\Valinor\NormalizerBuilder;
  *
  *  $userAsArray = (new NormalizerBuilder())
- *      ->configureWith(new ConvertDateTime(\DateTimeInterface::ATOM))
+ *      // All `DateTimeInterface` will be converted to this format
+ *      ->configureWith(new ConvertDateTime(DATE_ATOM))
  *      ->normalizer(Format::array())
  *      ->normalize($user);
  *
@@ -28,7 +35,8 @@ use DateTimeInterface;
  *  // ]
  *  ```
  *
- * This class can also be used as an attribute:
+ * Local usage as an attribute
+ * ---------------------------
  *
  * ```
  * use CuyZ\Valinor\Normalizer\Configurator\ConvertDateTime;
@@ -40,7 +48,7 @@ use DateTimeInterface;
  *     public function __construct(
  *         public string $name,
  *
- *         #[ConvertDateTime(\DateTimeInterface::ATOM)]
+ *         #[ConvertDateTime(DATE_ATOM)]
  *         public DateTimeInterface $createdAt,
  *     ) {}
  * }
@@ -61,10 +69,10 @@ use DateTimeInterface;
 #[AsTransformer]
 final readonly class ConvertDateTime implements NormalizerBuilderConfigurator
 {
-    /**
-     * @param non-empty-string $format
-     */
-    public function __construct(private string $format) {}
+    public function __construct(
+        /** @var non-empty-string */
+        private string $format
+    ) {}
 
     public function configureNormalizerBuilder(NormalizerBuilder $builder): NormalizerBuilder
     {

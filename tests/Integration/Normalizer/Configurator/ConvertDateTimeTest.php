@@ -32,13 +32,13 @@ final class ConvertDateTimeTest extends IntegrationTestCase
 
         yield 'to ATOM format' => [
             'expectedValue' => '1955-11-05T21:10:14+00:00',
-            'format' => DateTimeInterface::ATOM,
+            'format' => DATE_ATOM,
             'value' => $date,
         ];
 
         yield 'to RFC1036 format' => [
             'expectedValue' => 'Sat, 05 Nov 55 21:10:14 +0000',
-            'format' => DateTimeInterface::RFC1036,
+            'format' => DATE_RFC1036,
             'value' => $date,
         ];
 
@@ -50,7 +50,7 @@ final class ConvertDateTimeTest extends IntegrationTestCase
 
         yield 'object with attribute' => [
             'expectedValue' => ['date' => '05.11.1955 21:10:14'],
-            'format' => DateTimeInterface::ATOM, // Will be overridden by the attribute below
+            'format' => DATE_ATOM, // Will be overridden by the attribute below
             'value' => new class () {
                 public function __construct(
                     #[ConvertDateTime('d.m.Y H:i:s')]
