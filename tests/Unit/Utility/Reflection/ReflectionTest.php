@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
+use Closure;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use stdClass;
@@ -35,5 +36,17 @@ final class ReflectionTest extends UnitTestCase
         $functionReflectionB = Reflection::function($function);
 
         self::assertSame($functionReflectionA, $functionReflectionB);
+    }
+
+    public function test_function_reflection_cache_does_not_grow_with_different_closure_instances(): void
+    {
+        $function = fn () => 42;
+
+        // Closure::fromCallable creates new instances, simulating what happens
+        // when the mapper processes multiple values through the same converter.
+        $reflectionA = Reflection::function(Closure::fromCallable($function));
+        $reflectionB = Reflection::function(Closure::fromCallable($function));
+
+        self::assertSame($reflectionA, $reflectionB);
     }
 }
