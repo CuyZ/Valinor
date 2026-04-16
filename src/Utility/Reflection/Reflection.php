@@ -13,7 +13,6 @@ use function class_exists;
 use function enum_exists;
 use function interface_exists;
 use function ltrim;
-use function spl_object_hash;
 
 /** @internal */
 final class Reflection
@@ -63,7 +62,16 @@ final class Reflection
     public static function function(callable $function): ReflectionFunction
     {
         $closure = Closure::fromCallable($function);
+        $reflection = new ReflectionFunction($closure);
 
-        return self::$functionReflection[spl_object_hash($closure)] ??= new ReflectionFunction($closure);
+        // @infection-ignore-all / We don't need to test the cache key strategy
+        $fileName = $reflection->getFileName();
+
+        // @infection-ignore-all / Built-in functions have no file; use the function name as key instead.
+        $key = $fileName !== false
+            ? $fileName . ':' . $reflection->getStartLine()
+            : $reflection->getName();
+
+        return self::$functionReflection[$key] ??= $reflection;
     }
 }
