@@ -44,7 +44,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'userId' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }
@@ -72,7 +72,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'userId' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }
@@ -100,7 +100,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'userId' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }
@@ -123,7 +123,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'user_id' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'user_id' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }

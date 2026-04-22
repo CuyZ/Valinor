@@ -36,7 +36,6 @@ use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\HttpRequestNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\KeyConversionPipeline;
 use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
@@ -101,6 +100,7 @@ final class Container
                     new ArrayNodeBuilder(),
                     new ListNodeBuilder(),
                     new ShapedArrayNodeBuilder(),
+                    new HttpRequestNodeBuilder(),
                     new ScalarNodeBuilder(),
                     new UnionNodeBuilder(),
                     new NullNodeBuilder(),
@@ -124,14 +124,11 @@ final class Container
                 if ($settings->keyConverters !== []) {
                     $builder = new KeyConverterNodeBuilder(
                         $builder,
-                        $this->get(KeyConversionPipeline::class),
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->keyConverters,
+                        $settings->exceptionFilter,
                     );
                 }
-
-                $builder = new HttpRequestNodeBuilder(
-                    $builder,
-                    $this->get(KeyConversionPipeline::class),
-                );
 
                 return new ValueConverterNodeBuilder(
                     $builder,
@@ -145,12 +142,6 @@ final class Container
             ConverterContainer::class => fn () => new ConverterContainer(
                 $this->get(FunctionDefinitionRepository::class),
                 $settings->convertersSortedByPriority(),
-            ),
-
-            KeyConversionPipeline::class => fn () => new KeyConversionPipeline(
-                $this->get(FunctionDefinitionRepository::class),
-                $settings->keyConverters,
-                $settings->exceptionFilter,
             ),
 
             InterfaceInferringContainer::class => fn () => new InterfaceInferringContainer(
