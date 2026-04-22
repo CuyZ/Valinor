@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
+use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\EnumType;
@@ -27,6 +28,7 @@ final class TypeNodeBuilder implements NodeBuilder
         private ArrayNodeBuilder $arrayNodeBuilder,
         private ListNodeBuilder $listNodeBuilder,
         private ShapedArrayNodeBuilder $shapedArrayNodeBuilder,
+        private HttpRequestNodeBuilder $httpRequestNodeBuilder,
         private ScalarNodeBuilder $scalarNodeBuilder,
         private UnionNodeBuilder $unionNodeBuilder,
         private NullNodeBuilder $nullNodeBuilder,
@@ -47,9 +49,14 @@ final class TypeNodeBuilder implements NodeBuilder
             NonEmptyArrayType::class,
             IterableType::class => $this->arrayNodeBuilder,
 
-            // ShapedArray / ShapedList
-            ShapedArrayType::class,
+            // ShapedList
             ShapedListType::class => $this->shapedArrayNodeBuilder,
+
+            // ShapedArray
+            ShapedArrayType::class => match (true) {
+                $shell->value() instanceof HttpRequest => $this->httpRequestNodeBuilder,
+                default => $this->shapedArrayNodeBuilder,
+            },
 
             // Union
             UnionType::class => $this->unionNodeBuilder,

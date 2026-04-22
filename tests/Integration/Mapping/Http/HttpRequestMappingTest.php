@@ -383,7 +383,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame(['someRouteParameter' => 42], $result);
     }
 
-    public function test_mapping_route_parameters_allows_superflous_keys(): void
+    public function test_mapping_route_parameters_allows_superfluous_keys(): void
     {
         $request = new HttpRequest(
             routeParameters: [
@@ -516,6 +516,120 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ->map($class, $request);
 
         self::assertSame('foo', $result->someRouteParameter);
+    }
+
+    public function test_route_parameter_from_attribute_cannot_come_from_query(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromRoute] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            queryParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_route_parameter_from_attribute_cannot_come_from_body(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromRoute] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            bodyValues: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_query_parameter_from_attribute_cannot_come_from_route(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromQuery] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            routeParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_query_parameter_from_attribute_cannot_come_from_body(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromQuery] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            bodyValues: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_body_value_from_attribute_cannot_come_from_route(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromBody] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            routeParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_body_value_from_attribute_cannot_come_from_query(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromBody] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            queryParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
     }
 
     public function test_mapping_http_request_with_invalid_value_returns_errors(): void

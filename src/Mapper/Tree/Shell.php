@@ -50,6 +50,8 @@ final class Shell
         public int $childrenCount,
         /** @var array<array-key, array-key> */
         private array $nameMap = [],
+        /** @var array<string, string> */
+        private array $pathMap = [],
         /** @var array<string, null> */
         private array $childrenWithScalarValueCasting = [],
     ) {}
@@ -78,7 +80,8 @@ final class Shell
         $self = clone $this;
         $self->name = $this->nameMap[$name] ?? $name;
         $self->type = $type;
-        $self->path = $this->path === '*root*' ? $self->name : "$this->path.$self->name";
+        $self->path = $this->pathMap["$this->path.$name"]
+            ?? ($this->path === '*root*' ? $self->name : "$this->path.$self->name");
         $self->hasValue = false;
         $self->value = null;
         $self->attributes = Attributes::empty();
@@ -158,6 +161,18 @@ final class Shell
         // @infection-ignore-all / We don't want to test the clone behavior
         $self = clone $this;
         $self->nameMap = $nameMap;
+
+        return $self;
+    }
+
+    /**
+     * @param array<string, string> $pathMap
+     */
+    public function withPathMap(array $pathMap): self
+    {
+        // @infection-ignore-all / We don't want to test the clone behavior
+        $self = clone $this;
+        $self->pathMap = [...$this->pathMap, ...$pathMap];
 
         return $self;
     }

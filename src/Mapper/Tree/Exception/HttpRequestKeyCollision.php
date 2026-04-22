@@ -22,7 +22,7 @@ final class HttpRequestKeyCollision implements ErrorMessage, HasCode, HasParamet
 
     public function code(): string
     {
-        return 'key_collision';
+        return 'http_request_keys_collision';
     }
 
     public function parameters(): array
