@@ -1,0 +1,15 @@
+{
+    "require-dev": {
+        "vimeo/psalm": "^7.0@beta"
+    },
+    "autoload": {
+        "psr-4": {
+            "CuyZ\\Valinor\\": "../../../../src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CuyZ\\Valinor\\QA\\": "../../../../qa"
+        }
+    }
+}
