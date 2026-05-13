@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Parser\Lexer\Token;
 
 use BackedEnum;
+use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfIncorrectSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Magic\ValueOfMissingSubType;
@@ -13,6 +14,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
+use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
@@ -42,25 +44,42 @@ final class ValueOfToken implements TraversingToken
             throw new ValueOfClosingBracketMissing($subType);
         }
 
-        if (! $subType instanceof EnumType) {
-            throw new ValueOfIncorrectSubType($subType);
+        if ($subType instanceof EnumType) {
+            if (! is_a($subType->className(), BackedEnum::class, true)) {
+                throw new ValueOfIncorrectSubType($subType);
+            }
+
+            $cases = array_map(
+                // @phpstan-ignore-next-line / We know it's a BackedEnum
+                fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
+                array_values($subType->cases()),
+            );
+
+            if (count($cases) > 1) {
+                return UnionType::from(...$cases);
+            }
+
+            return $cases[0];
         }
 
-        if (! is_a($subType->className(), BackedEnum::class, true)) {
-            throw new ValueOfIncorrectSubType($subType);
+        if ($subType instanceof ShapedArrayType) {
+            $types = array_map(
+                fn ($element) => $element->type(),
+                array_values($subType->elements),
+            );
+
+            if (count($types) > 1) {
+                return UnionType::from(...$types);
+            }
+
+            return $types[0];
         }
 
-        $cases = array_map(
-            // @phpstan-ignore-next-line / We know it's a BackedEnum
-            fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
-            array_values($subType->cases()),
-        );
-
-        if (count($cases) > 1) {
-            return UnionType::from(...$cases);
+        if ($subType instanceof CompositeTraversableType) {
+            return $subType->subType();
         }
 
-        return $cases[0];
+        throw new ValueOfIncorrectSubType($subType);
     }
 
     public function symbol(): string

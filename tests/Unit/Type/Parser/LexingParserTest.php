@@ -33,6 +33,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
@@ -1047,6 +1048,30 @@ final class LexingParserTest extends UnitTestCase
             'type' => UnionType::class,
         ];
 
+        yield 'value-of<array>' => [
+            'raw' => 'value-of<array>',
+            'transformed' => 'mixed',
+            'type' => MixedType::class,
+        ];
+
+        yield 'value-of<array<string, int>>' => [
+            'raw' => 'value-of<array<string, int>>',
+            'transformed' => 'int',
+            'type' => NativeIntegerType::class,
+        ];
+
+        yield 'value-of<list<string>>' => [
+            'raw' => 'value-of<list<string>>',
+            'transformed' => 'string',
+            'type' => NativeStringType::class,
+        ];
+
+        yield 'value-of<array{foo: string, bar: int}>' => [
+            'raw' => 'value-of<array{foo: string, bar: int}>',
+            'transformed' => 'string|int',
+            'type' => UnionType::class,
+        ];
+
         yield 'key-of<PureEnum>' => [
             'raw' => "key-of<" . PureEnum::class . ">",
             'transformed' => "'FOO'|'BAR'|'BAZ'",
@@ -1678,7 +1703,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('value-of<string>');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.', $type->message());
+        self::assertSame('Invalid subtype `value-of<string>`, it should be a `BackedEnum`, `array`, `list` or `iterable`.', $type->message());
     }
 
     public function test_value_of_unit_enum_type_throws_exception(): void
@@ -1688,7 +1713,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse("value-of<$enumName>");
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.", $type->message());
+        self::assertSame("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`, `array`, `list` or `iterable`.", $type->message());
     }
 
     public function test_key_of_enum_missing_opening_bracket_throws_exception(): void

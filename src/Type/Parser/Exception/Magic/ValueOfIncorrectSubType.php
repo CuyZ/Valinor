@@ -13,6 +13,6 @@ final class ValueOfIncorrectSubType extends RuntimeException implements InvalidT
 {
     public function __construct(Type $type)
     {
-        parent::__construct("Invalid subtype `value-of<{$type->toString()}>`, it should be a `BackedEnum`.");
+        parent::__construct("Invalid subtype `value-of<{$type->toString()}>`, it should be a `BackedEnum`, `array`, `list` or `iterable`.");
     }
 }

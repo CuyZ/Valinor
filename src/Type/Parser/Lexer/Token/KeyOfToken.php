@@ -12,8 +12,9 @@ use CuyZ\Valinor\Type\Parser\Exception\Magic\KeyOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
-use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
+use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 use UnitEnum;
@@ -21,6 +22,7 @@ use UnitEnum;
 use function array_map;
 use function array_values;
 use function count;
+use function str_contains;
 
 /** @internal */
 final class KeyOfToken implements TraversingToken
@@ -45,7 +47,7 @@ final class KeyOfToken implements TraversingToken
 
         if ($subType instanceof EnumType) {
             $keys = array_map(
-                fn (UnitEnum $case) => ValueTypeFactory::from($case->name),
+                fn (UnitEnum $case) => StringValueType::from("'{$case->name}'"),
                 array_values($subType->cases()),
             );
 
@@ -57,10 +59,10 @@ final class KeyOfToken implements TraversingToken
         }
 
         if ($subType instanceof ShapedArrayType) {
-            $keys = [];
-            foreach ($subType->elements as $element) {
-                $keys[] = $element->key();
-            }
+            $keys = array_map(
+                fn ($element) => $this->quoteStringKey($element->key()),
+                array_values($subType->elements),
+            );
 
             if (count($keys) > 1) {
                 return UnionType::from(...$keys);
@@ -74,6 +76,21 @@ final class KeyOfToken implements TraversingToken
         }
 
         throw new KeyOfIncorrectSubType($subType);
+    }
+
+    private function quoteStringKey(StringValueType|IntegerValueType $key): StringValueType|IntegerValueType
+    {
+        if (!$key instanceof StringValueType) {
+            return $key;
+        }
+
+        $value = $key->value();
+
+        if (str_contains($value, "'")) {
+            return StringValueType::from('"' . $value . '"');
+        }
+
+        return StringValueType::from("'$value'");
     }
 
     public function symbol(): string
