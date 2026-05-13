@@ -1072,6 +1072,12 @@ final class LexingParserTest extends UnitTestCase
             'type' => UnionType::class,
         ];
 
+        yield 'value-of applied to class array constant' => [
+            'raw' => 'value-of<' . ObjectWithConstants::class . '::CONST_WITH_ARRAY_VALUE_A>',
+            'transformed' => "'some string value'|1653398288|1337.42",
+            'type' => UnionType::class,
+        ];
+
         yield 'key-of<PureEnum>' => [
             'raw' => "key-of<" . PureEnum::class . ">",
             'transformed' => "'FOO'|'BAR'|'BAZ'",
@@ -1111,6 +1117,12 @@ final class LexingParserTest extends UnitTestCase
         yield 'key-of<array{foo: string, bar: int}>' => [
             'raw' => "key-of<array{foo: string, bar: int}>",
             'transformed' => "'foo'|'bar'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of applied to class array constant' => [
+            'raw' => 'key-of<' . ObjectWithConstants::class . '::CONST_WITH_ARRAY_VALUE_A>',
+            'transformed' => "'string'|'integer'|'float'",
             'type' => UnionType::class,
         ];
 
