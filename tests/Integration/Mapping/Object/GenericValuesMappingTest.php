@@ -11,6 +11,36 @@ use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectA
 
 final class GenericValuesMappingTest extends IntegrationTestCase
 {
+    public function test_covariant_template_values_are_mapped_properly(): void
+    {
+        foreach ([
+            CovariantGenericObject::class,
+            PhpstanCovariantGenericObject::class,
+            PsalmCovariantGenericObject::class,
+        ] as $class) {
+            try {
+                /** @var CovariantGenericObject<string> $result */
+                $result = $this->mapperBuilder()->mapper()->map("$class<string>", 'foo');
+            } catch (MappingError $error) {
+                $this->mappingFail($error);
+            }
+
+            self::assertSame('foo', $result->value);
+        }
+    }
+
+    public function test_covariant_template_with_constraint_values_are_mapped_properly(): void
+    {
+        try {
+            /** @var CovariantGenericObjectWithConstraint<string> $result */
+            $result = $this->mapperBuilder()->mapper()->map(CovariantGenericObjectWithConstraint::class . '<string>', 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->value);
+    }
+
     public function test_values_are_mapped_properly(): void
     {
         $source = [
@@ -228,4 +258,48 @@ class GenericValuesWithConstructor extends GenericValues
         $this->genericWithSpecifiedTypeWithIntegerValue = $genericWithSpecifiedTypeWithIntegerValue;
         $this->genericWithSpecifiedTypeWithStringValue = $genericWithSpecifiedTypeWithStringValue;
     }
+}
+
+/**
+ * @template-covariant T
+ */
+final readonly class CovariantGenericObject
+{
+    /** @param T $value */
+    public function __construct(
+        public mixed $value,
+    ) {}
+}
+
+/**
+ * @phpstan-template-covariant T
+ */
+final readonly class PhpstanCovariantGenericObject
+{
+    /** @param T $value */
+    public function __construct(
+        public mixed $value,
+    ) {}
+}
+
+/**
+ * @psalm-template-covariant T
+ */
+final readonly class PsalmCovariantGenericObject
+{
+    /** @param T $value */
+    public function __construct(
+        public mixed $value,
+    ) {}
+}
+
+/**
+ * @template-covariant T of string|int
+ */
+final readonly class CovariantGenericObjectWithConstraint
+{
+    /** @param T $value */
+    public function __construct(
+        public mixed $value,
+    ) {}
 }
