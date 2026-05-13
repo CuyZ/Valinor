@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\CallableType;
@@ -1046,6 +1047,48 @@ final class LexingParserTest extends UnitTestCase
             'type' => UnionType::class,
         ];
 
+        yield 'key-of<PureEnum>' => [
+            'raw' => "key-of<" . PureEnum::class . ">",
+            'transformed' => "'FOO'|'BAR'|'BAZ'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<BackedStringEnum>' => [
+            'raw' => "key-of<" . BackedStringEnum::class . ">",
+            'transformed' => "'FOO'|'BAR'|'BAZ'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<BackedIntegerEnum>' => [
+            'raw' => "key-of<" . BackedIntegerEnum::class . ">",
+            'transformed' => "'FOO'|'BAR'|'BAZ'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<array>' => [
+            'raw' => 'key-of<array>',
+            'transformed' => 'array-key',
+            'type' => ArrayKeyType::class,
+        ];
+
+        yield 'key-of<array<string, int>>' => [
+            'raw' => 'key-of<array<string, int>>',
+            'transformed' => 'string',
+            'type' => ArrayKeyType::class,
+        ];
+
+        yield 'key-of<list<string>>' => [
+            'raw' => 'key-of<list<string>>',
+            'transformed' => 'int',
+            'type' => ArrayKeyType::class,
+        ];
+
+        yield 'key-of<array{foo: string, bar: int}>' => [
+            'raw' => "key-of<array{foo: string, bar: int}>",
+            'transformed' => "'foo'|'bar'",
+            'type' => UnionType::class,
+        ];
+
         yield 'Scalar' => [
             'raw' => 'scalar',
             'transformed' => 'scalar',
@@ -1646,6 +1689,40 @@ final class LexingParserTest extends UnitTestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertSame("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.", $type->message());
+    }
+
+    public function test_key_of_enum_missing_opening_bracket_throws_exception(): void
+    {
+        $type = $this->parse('key-of');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The opening bracket is missing for `key-of<...>`.', $type->message());
+    }
+
+    public function test_key_of_enum_missing_subtype_throws_exception(): void
+    {
+        $type = $this->parse("key-of<");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `key-of<`.', $type->message());
+    }
+
+    public function test_key_of_enum_missing_closing_bracket_throws_exception(): void
+    {
+        $enumName = BackedStringEnum::class;
+
+        $type = $this->parse("key-of<$enumName");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("The closing bracket is missing for `key-of<$enumName>`.", $type->message());
+    }
+
+    public function test_key_of_incorrect_type_throws_exception(): void
+    {
+        $type = $this->parse('key-of<string>');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("Invalid subtype `key-of<string>`, it should be an `Enum`, `array`, `list` or `iterable`.", $type->message());
     }
 
     public function test_nullable_type_missing_right_type_throws_exception(): void

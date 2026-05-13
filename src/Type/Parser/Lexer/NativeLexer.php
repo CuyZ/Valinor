@@ -29,6 +29,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\Token;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TripleDotsToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\TypeToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\KeyOfToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ValueOfToken;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
@@ -84,6 +85,7 @@ final class NativeLexer implements TypeLexer
             'class-string' => ClassStringToken::get(),
             'callable' => CallableToken::get(),
             'value-of' => ValueOfToken::get(),
+            'key-of' => KeyOfToken::get(),
 
             'null' => new TypeToken(NullType::get()),
             'true' => new TypeToken(BooleanValueType::true()),
