@@ -20,6 +20,7 @@ use function array_values;
 use function assert;
 use function count;
 use function is_array;
+use function is_int;
 use function is_iterable;
 use function iterator_to_array;
 
@@ -80,17 +81,26 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
                 $elementType = $unsealedType instanceof VacantType
                     ? MixedType::get()
                     : $unsealedType->subType();
-                $offset = count($type->elements);
+                $expectedKey = count($type->elements);
 
-                foreach (array_values($value) as $i => $val) {
-                    $actualKey = $offset + $i;
+                foreach ($value as $key => $val) {
+                    if (! is_int($key) || $key !== $expectedKey) {
+                        $errors[] = $shell
+                            ->child((string)$key, UnresolvableType::forSuperfluousValue())
+                            ->withValue($val)
+                            ->error(new UnexpectedKeyInSource());
+                        continue;
+                    }
+
+                    $expectedKey++;
+
                     $child = $shell
-                        ->child((string)$actualKey, $elementType)
+                        ->child((string)$key, $elementType)
                         ->withValue($val)
                         ->build();
 
                     if ($child->isValid()) {
-                        $children[$actualKey] = $child->value();
+                        $children[$key] = $child->value();
                     } else {
                         $errors[] = $child;
                     }

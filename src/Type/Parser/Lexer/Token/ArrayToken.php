@@ -12,6 +12,7 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ArrayMissingSubType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayCommaMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayDuplicateSplat;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayUnexpectedTokenAfterSealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSealedType;
@@ -173,6 +174,9 @@ final class ArrayToken implements TraversingToken
             $optional = false;
 
             if ($stream->next() instanceof TripleDotsToken) {
+                if ($isUnsealed) {
+                    throw new ShapedArrayDuplicateSplat($elements);
+                }
                 $isUnsealed = true;
                 $stream->forward();
             }
@@ -185,6 +189,9 @@ final class ArrayToken implements TraversingToken
 
             if ($isUnsealed && ($keyToken instanceof ClosingCurlyBracketToken || $keyToken instanceof CommaToken)) {
                 $stream->forward();
+                if ($keyToken instanceof CommaToken && ! $stream->done() && $stream->next() instanceof TripleDotsToken) {
+                    throw new ShapedArrayDuplicateSplat($elements);
+                }
                 break;
             } elseif ($isUnsealed && $keyToken instanceof OpeningBracketToken) {
                 $type = $this->parseShorthandUnsealedArrayType($stream);
@@ -206,6 +213,10 @@ final class ArrayToken implements TraversingToken
 
                     while (! $stream->done() && ! $stream->next() instanceof ClosingCurlyBracketToken) {
                         $unexpected[] = $stream->forward();
+                    }
+
+                    if (isset($unexpected[0], $unexpected[1]) && $unexpected[0] instanceof CommaToken && $unexpected[1] instanceof TripleDotsToken) {
+                        throw new ShapedArrayDuplicateSplat($elements);
                     }
 
                     throw new ShapedArrayUnexpectedTokenAfterSealedType($elements, $unsealedType, $unexpected);
