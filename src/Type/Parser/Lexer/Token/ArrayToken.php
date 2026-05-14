@@ -215,7 +215,7 @@ final class ArrayToken implements TraversingToken
                         $unexpected[] = $stream->forward();
                     }
 
-                    if (isset($unexpected[0], $unexpected[1]) && $unexpected[0] instanceof CommaToken && $unexpected[1] instanceof TripleDotsToken) {
+                    if (($unexpected[0] ?? null) instanceof CommaToken && ($unexpected[1] ?? null) instanceof TripleDotsToken) {
                         throw new ShapedArrayDuplicateSplat($elements);
                     }
 

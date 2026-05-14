@@ -23,7 +23,6 @@ use function array_slice;
 use function array_values;
 use function assert;
 use function count;
-use function function_exists;
 use function implode;
 use function is_array;
 
@@ -135,14 +134,17 @@ final class ShapedListType implements CompositeType, DumpableType
 
             $elementCount = count($this->elements);
 
-            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-                Node::functionCall('array_slice', [$node, Node::value($elementCount)]),
-                Node::shortClosure(
-                    $unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
-                )->witParameters(
-                    Node::parameterDeclaration('item', 'mixed'),
-                ),
-            ]);
+            $conditions[] = Node::class(Polyfill::class)->callStaticMethod(
+                'array_all',
+                [
+                    Node::functionCall('array_slice', [$node, Node::value($elementCount)]),
+                    Node::shortClosure(
+                        $unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
+                    )->witParameters(
+                        Node::parameterDeclaration('item', 'mixed'),
+                    ),
+                ],
+            );
         } else {
             $conditions[] = Node::functionCall('count', [$node])->isLessOrEqualsTo(Node::value(count($this->elements)));
         }

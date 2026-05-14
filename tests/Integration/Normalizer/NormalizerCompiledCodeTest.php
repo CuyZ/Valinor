@@ -70,6 +70,32 @@ final class NormalizerCompiledCodeTest extends TestCase
         (new Filesystem())->remove($directory);
     }
 
+    public function test_shaped_list_values_are_normalized_by_position(): void
+    {
+        $directory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
+
+        $cache = new FileSystemCache($directory);
+
+        $normalizer = (new NormalizerBuilder())
+            ->withCache($cache)
+            ->normalizer(Format::array());
+
+        self::assertSame(
+            [
+                'values' => ['foo', 42],
+                'otherValues' => ['bar', 404],
+            ],
+            $normalizer->normalize(new ClassWithTwoShapedLists(
+                // @phpstan-ignore-next-line argument.type (deliberately checking runtime normalization of non-list keys)
+                values: [2 => 'foo', 5 => 42],
+                // @phpstan-ignore-next-line argument.type (deliberately checking runtime normalization of non-list keys)
+                otherValues: [8 => 'bar', 13 => 404],
+            )),
+        );
+
+        (new Filesystem())->remove($directory);
+    }
+
     public static function compiled_code_is_correct_data_provider(): iterable
     {
         yield 'iterable of scalars without transformers' => [
@@ -217,6 +243,16 @@ final class ClassWithShapedList
     public function __construct(
         /** @var list{string, int} */
         public array $values,
+    ) {}
+}
+
+final class ClassWithTwoShapedLists
+{
+    public function __construct(
+        /** @var list{string, int} */
+        public array $values,
+        /** @var list{string, int} */
+        public array $otherValues,
     ) {}
 }
 

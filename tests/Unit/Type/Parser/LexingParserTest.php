@@ -743,6 +743,24 @@ final class LexingParserTest extends UnitTestCase
             'type' => ShapedListType::class,
         ];
 
+        yield 'Empty shaped list' => [
+            'raw' => 'list{}',
+            'transformed' => 'list{}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list without elements' => [
+            'raw' => 'list{...}',
+            'transformed' => 'list{...}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list with trailing comma' => [
+            'raw' => 'list{string, ...,}',
+            'transformed' => 'list{string, ...}',
+            'type' => ShapedListType::class,
+        ];
+
         yield 'Iterable type' => [
             'raw' => 'iterable',
             'transformed' => 'iterable',
@@ -1441,6 +1459,14 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('A shaped list can only have one splat element in `list{int, ..., ...}`.', $type->message());
     }
 
+    public function test_shaped_list_with_duplicate_splat_without_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{..., ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped list can only have one splat element in `list{..., ...}`.', $type->message());
+    }
+
     public function test_shaped_list_with_duplicate_shorthand_splat_throws_exception(): void
     {
         $type = $this->parse('list{int, ...<float>, ...string}');
@@ -1481,6 +1507,158 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('A colon symbol is missing in shaped list signature `list{0?`.', $type->message());
     }
 
+    public function test_shaped_list_colon_token_missing_after_optional_marker_with_previous_optional_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int, 2? float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A colon symbol is missing in shaped list signature `list{0: string, 1?: int, 2?`.', $type->message());
+    }
+
+    public function test_shaped_list_comma_missing_throws_exception(): void
+    {
+        $type = $this->parse('list{string int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Comma missing in shaped list signature `list{string`.', $type->message());
+    }
+
+    public function test_shaped_list_comma_missing_with_optional_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Comma missing in shaped list signature `list{0: string, 1?: int`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_element_throws_exception(): void
+    {
+        $type = $this->parse('list{string');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped list signature `list{string`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_optional_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped list signature `list{0: string, 1?: int`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_bare_splat_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped list signature `list{string, ...`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_shorthand_splat_opening_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped list signature `list{string, ...`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_shorthand_splat_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped list signature `list{string, ...list<float>`.', $type->message());
+    }
+
+    public function test_shaped_list_shorthand_splat_without_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{...<float>}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing elements in shaped array signature `array{...list<float>}`.', $type->message());
+    }
+
+    public function test_shaped_list_shorthand_splat_with_unexpected_token_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float> int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `int` after sealed type in shaped array signature `array{0: string, ...list<float>int`, expected a `}`.', $type->message());
+    }
+
+    public function test_shaped_list_shorthand_splat_with_unexpected_token_after_comma_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float>, int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,int` after sealed type in shaped array signature `array{0: string, ...list<float>,int`, expected a `}`.', $type->message());
+    }
+
+    public function test_shaped_list_typed_splat_without_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{...float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing elements in shaped array signature `array{...float}`.', $type->message());
+    }
+
+    public function test_shaped_list_typed_splat_with_unexpected_token_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...float int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `int` after sealed type in shaped array signature `array{0: string, ...floatint`, expected a `}`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_element_type_throws_exception(): void
+    {
+        $type = $this->parse('list{0:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in shaped list signature `list{0:`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_optional_element_type_throws_exception(): void
+    {
+        $type = $this->parse('list{0?:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in shaped list signature `list{0?:`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_element_type_after_optional_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int, 2:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in shaped list signature `list{0: string, 1?: int, 2:`.', $type->message());
+    }
+
+    public function test_shaped_list_string_key_throws_exception(): void
+    {
+        $type = $this->parse('list{foo: string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Key `foo` is not valid for a list element; expected sequential integer key `0` in shaped list `list{foo:...}`.', $type->message());
+    }
+
+    public function test_shaped_list_negative_key_throws_exception(): void
+    {
+        $type = $this->parse('list{-1: string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Key `-1` is not valid for a list element; expected sequential integer key `0` in shaped list `list{-1:...}`.', $type->message());
+    }
+
+    public function test_shaped_list_skipped_key_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 2: int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Key `2` is not valid for a list element; expected sequential integer key `1` in shaped list `list{string, 2:...}`.', $type->message());
+    }
+
     public function test_shaped_array_with_duplicate_bare_splat_throws_exception(): void
     {
         $type = $this->parse('array{0: int, ..., ...}');
@@ -1503,6 +1681,14 @@ final class LexingParserTest extends UnitTestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertSame('A shaped array can only have one splat element in `array{0: int, ..., ...}`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_with_unexpected_token_after_comma_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<int>, string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,string` after sealed type in shaped array signature `array{0: int, ...array<int>,string`, expected a `}`.', $type->message());
     }
 
     public function test_invalid_iterable_key_throws_exception(): void

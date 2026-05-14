@@ -94,7 +94,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     private function transform_shaped_list_9a5d81a1(array $value, WeakMap $references): array
     {
         $result = [];
-        foreach ($value as $key => $item) {
+        foreach (\array_values($value) as $key => $item) {
             $result[$key] = match ($key) {
                 0 => $this->transform_unsure_string_6a11bcce($item, $references),
                 1 => $this->transform_unsure_int_c53673f7($item, $references),

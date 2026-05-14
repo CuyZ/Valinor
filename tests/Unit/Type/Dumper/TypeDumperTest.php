@@ -23,6 +23,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -135,6 +136,26 @@ final class TypeDumperTest extends UnitTestCase
                 ),
             ]),
             'expected' => '`array{classWithTwoProperties: array{foo: string, bar: int}, integer?: int}`',
+        ];
+
+        yield 'shaped list with optional element' => [
+            'type' => ShapedListType::from(
+                elements: [
+                    new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+                    new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
+                ],
+                isUnsealed: true,
+                unsealedType: new ListType(new NativeStringType()),
+            ),
+            'expected' => '`list{0: string, 1?: int, ...list<string>}`',
+        ];
+
+        yield 'unsealed shaped list without elements' => [
+            'type' => ShapedListType::from(
+                elements: [],
+                isUnsealed: true,
+            ),
+            'expected' => '`list{...}`',
         ];
 
         yield 'union of classes' => [

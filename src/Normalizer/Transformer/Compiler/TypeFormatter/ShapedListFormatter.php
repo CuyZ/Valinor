@@ -71,7 +71,7 @@ final class ShapedListFormatter implements TypeFormatter
                 ->withBody(
                     Node::variable('result')->assign(Node::array())->asExpression(),
                     Node::forEach(
-                        value: Node::variable('value'),
+                        value: Node::functionCall('array_values', [Node::variable('value')]),
                         key: 'key',
                         item: 'item',
                         body: Node::variable('result')->key(Node::variable('key'))->assign(
