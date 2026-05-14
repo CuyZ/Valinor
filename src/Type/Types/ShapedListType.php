@@ -143,6 +143,8 @@ final class ShapedListType implements CompositeType, DumpableType
                     Node::parameterDeclaration('item', 'mixed'),
                 ),
             ]);
+        } else {
+            $conditions[] = Node::functionCall('count', [$node])->isLessOrEqualsTo(Node::value(count($this->elements)));
         }
 
         return Node::logicalAnd(...$conditions);

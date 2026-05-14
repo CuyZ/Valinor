@@ -69,10 +69,25 @@ final class ShapedListTypeTest extends UnitTestCase
         );
     }
 
+    public function test_invalid_unsealed_type_with_optional_elements_throws_exact_exception_message(): void
+    {
+        $this->expectException(InvalidShapedListUnsealedType::class);
+        $this->expectExceptionMessage('Invalid unsealed type in shaped list `list{0: string, 1?: int, ...array<string>}`, it should be a valid list but `array<string>` was given.');
+
+        ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+                new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
+            ],
+            isUnsealed: true,
+            unsealedType: new ArrayType(ArrayKeyType::default(), new NativeStringType()),
+        );
+    }
+
     public function test_mandatory_after_optional_throws_exception(): void
     {
         $this->expectException(ShapedListMandatoryAfterOptionalElement::class);
-        $this->expectExceptionMessage('Mandatory element at position 1 cannot follow an optional element');
+        $this->expectExceptionMessage('Mandatory element at position 1 cannot follow an optional element in shaped list `list{0?: string, 1: int}`.');
 
         ShapedListType::from(
             elements: [
@@ -94,6 +109,27 @@ final class ShapedListTypeTest extends UnitTestCase
             ],
             isUnsealed: false,
         );
+    }
+
+    public function test_invalid_explicit_key_with_preceding_optional_throws_exact_exception_message(): void
+    {
+        $this->expectException(ShapedListInvalidKey::class);
+        $this->expectExceptionMessage('Key `2` is not valid for a list element; expected sequential integer key `1` in shaped list `list{0?: string, 2:...}`.');
+
+        ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType(), true),
+                new ShapedArrayElement(new IntegerValueType(2), new NativeIntegerType()),
+            ],
+            isUnsealed: false,
+        );
+    }
+
+    public function test_default_is_sealed(): void
+    {
+        $type = new ShapedListType(elements: []);
+        self::assertFalse($type->isUnsealed);
+        self::assertSame('list{}', $type->toString());
     }
 
     public function test_string_value_is_correct(): void
@@ -183,6 +219,7 @@ final class ShapedListTypeTest extends UnitTestCase
         );
 
         self::assertFalse($type->accepts($value));
+        self::assertFalse($this->compiledAccept($type, $value));
     }
 
     #[TestWith([[42]])]
@@ -241,6 +278,63 @@ final class ShapedListTypeTest extends UnitTestCase
     public function test_matches_mixed_type(): void
     {
         self::assertTrue($this->type->matches(MixedType::get()));
+    }
+
+    public function test_unsealed_matches_sealed_shaped_list(): void
+    {
+        $sealedOther = ShapedListType::from(
+            elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
+            isUnsealed: false,
+        );
+
+        self::assertTrue($this->type->matches($sealedOther));
+    }
+
+    public function test_sealed_does_not_match_unsealed_shaped_list(): void
+    {
+        $sealedType = ShapedListType::from(
+            elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
+            isUnsealed: false,
+        );
+
+        $unsealedOther = ShapedListType::from(
+            elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
+            isUnsealed: true,
+        );
+
+        self::assertFalse($sealedType->matches($unsealedOther));
+    }
+
+    public function test_does_not_match_unsealed_shaped_list_with_incompatible_unsealed_type(): void
+    {
+        $incompatibleUnsealed = ShapedListType::from(
+            elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
+            isUnsealed: true,
+            unsealedType: new ListType(new NativeIntegerType()),
+        );
+
+        self::assertFalse($this->type->matches($incompatibleUnsealed));
+    }
+
+    public function test_does_not_match_shaped_list_where_first_element_matches_but_second_does_not(): void
+    {
+        $type = ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+                new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
+            ],
+            isUnsealed: false,
+        );
+
+        $other = ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+                new ShapedArrayElement(new IntegerValueType(1), new NativeFloatType()),
+            ],
+            isUnsealed: false,
+        );
+
+        self::assertFalse($type->matches($other));
     }
 
     public function test_does_not_match_string_keyed_array_type(): void

@@ -1321,6 +1321,62 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('A shaped list can only have one splat element in `list{int, ..., ...}`.', $type->message());
     }
 
+    public function test_shaped_list_with_duplicate_splat_with_optional_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{0: int, 1?: string, ...float, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped list can only have one splat element in `list{0: int, 1?: string, ..., ...}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_shorthand_splat_with_two_unexpected_tokens_throws_exception(): void
+    {
+        $type = $this->parse('list{int, ...<float>, ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped list can only have one splat element in `list{int, ..., ...}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_mixed_keys_with_optional_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int, float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot mix explicit and implicit keys in shaped list `list{0: string, 1?: int}`.', $type->message());
+    }
+
+    public function test_shaped_list_colon_token_missing_after_optional_marker_throws_exception(): void
+    {
+        $type = $this->parse('list{0? int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A colon symbol is missing in shaped list signature `list{0?`.', $type->message());
+    }
+
+    public function test_shaped_array_with_duplicate_bare_splat_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ..., ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped array can only have one splat element in `array{0: int, ..., ...}`.', $type->message());
+    }
+
+    public function test_shaped_array_with_duplicate_typed_splat_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...int, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped array can only have one splat element in `array{0: int, ..., ...}`.', $type->message());
+    }
+
+    public function test_shaped_array_with_duplicate_shorthand_splat_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<int>, ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped array can only have one splat element in `array{0: int, ..., ...}`.', $type->message());
+    }
+
     public function test_invalid_iterable_key_throws_exception(): void
     {
         $type = $this->parse('iterable<float, string>');

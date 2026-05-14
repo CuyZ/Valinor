@@ -122,6 +122,11 @@ final class NormalizerCompiledCodeTest extends TestCase
             'expectedFile' => __DIR__ . '/ExpectedCache/class-with-unsealed-shaped-array.php',
         ];
 
+        yield 'class with shaped list' => [
+            'input' => new ClassWithShapedList(['foo', 42]),
+            'expectedFile' => __DIR__ . '/ExpectedCache/class-with-shaped-list.php',
+        ];
+
         yield 'class with union' => [
             'input' => new ClassWithUnion('foo'),
             'expectedFile' => __DIR__ . '/ExpectedCache/class-with-union.php',
@@ -204,6 +209,14 @@ final class ClassWithUnsealedShapedArray
     public function __construct(
         /** @var array{someString: string, someInt: int, ...array<int, string>} */
         public array $shapedArray,
+    ) {}
+}
+
+final class ClassWithShapedList
+{
+    public function __construct(
+        /** @var list{string, int} */
+        public array $values,
     ) {}
 }
 
