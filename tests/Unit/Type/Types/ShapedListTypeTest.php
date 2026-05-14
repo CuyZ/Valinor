@@ -85,6 +85,20 @@ final class ShapedListTypeTest extends UnitTestCase
         );
     }
 
+    public function test_invalid_unsealed_type_with_required_elements_throws_exact_exception_message(): void
+    {
+        $this->expectException(InvalidShapedListUnsealedType::class);
+        $this->expectExceptionMessage('Invalid unsealed type in shaped list `list{string, ...array<string>}`, it should be a valid list but `array<string>` was given.');
+
+        ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+            ],
+            isUnsealed: true,
+            unsealedType: new ArrayType(ArrayKeyType::default(), new NativeStringType()),
+        );
+    }
+
     public function test_mandatory_after_optional_throws_exception(): void
     {
         $this->expectException(ShapedListMandatoryAfterOptionalElement::class);
@@ -94,6 +108,21 @@ final class ShapedListTypeTest extends UnitTestCase
             elements: [
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType(), true),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), false),
+            ],
+            isUnsealed: false,
+        );
+    }
+
+    public function test_mandatory_after_optional_with_required_prefix_throws_exact_exception_message(): void
+    {
+        $this->expectException(ShapedListMandatoryAfterOptionalElement::class);
+        $this->expectExceptionMessage('Mandatory element at position 2 cannot follow an optional element in shaped list `list{0: string, 1?: int, 2: float}`.');
+
+        ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+                new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
+                new ShapedArrayElement(new IntegerValueType(2), new NativeFloatType(), false),
             ],
             isUnsealed: false,
         );
@@ -373,6 +402,16 @@ final class ShapedListTypeTest extends UnitTestCase
     public function test_does_not_match_string_keyed_array_type(): void
     {
         self::assertFalse($this->type->matches(new ArrayType(ArrayKeyType::string(), MixedType::get())));
+    }
+
+    public function test_sealed_list_does_not_match_string_keyed_array_type(): void
+    {
+        $type = ShapedListType::from(
+            elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
+            isUnsealed: false,
+        );
+
+        self::assertFalse($type->matches(new ArrayType(ArrayKeyType::string(), new NativeStringType())));
     }
 
     public function test_does_not_match_fake_type(): void

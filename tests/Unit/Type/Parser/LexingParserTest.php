@@ -755,9 +755,27 @@ final class LexingParserTest extends UnitTestCase
             'type' => ShapedListType::class,
         ];
 
+        yield 'Unsealed shaped list without elements followed by description' => [
+            'raw' => 'list{...} lorem ipsum',
+            'transformed' => 'list{...}',
+            'type' => ShapedListType::class,
+        ];
+
         yield 'Unsealed shaped list with trailing comma' => [
             'raw' => 'list{string, ...,}',
             'transformed' => 'list{string, ...}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list with shorthand generic type followed by description' => [
+            'raw' => 'list{string, ...<float>} lorem ipsum',
+            'transformed' => 'list{string, ...list<float>}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list with list type followed by description' => [
+            'raw' => 'list{string, ...list<float>} lorem ipsum',
+            'transformed' => 'list{string, ...list<float>}',
             'type' => ShapedListType::class,
         ];
 
@@ -1515,6 +1533,14 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('A colon symbol is missing in shaped list signature `list{0: string, 1?: int, 2?`.', $type->message());
     }
 
+    public function test_shaped_list_colon_token_missing_after_required_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1? int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A colon symbol is missing in shaped list signature `list{string, 1?`.', $type->message());
+    }
+
     public function test_shaped_list_comma_missing_throws_exception(): void
     {
         $type = $this->parse('list{string int}');
@@ -1633,6 +1659,14 @@ final class LexingParserTest extends UnitTestCase
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertSame('Missing element type in shaped list signature `list{0: string, 1?: int, 2:`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_element_type_after_required_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in shaped list signature `list{string, 1:`.', $type->message());
     }
 
     public function test_shaped_list_string_key_throws_exception(): void

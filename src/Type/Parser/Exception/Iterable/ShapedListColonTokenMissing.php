@@ -9,7 +9,6 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
-use function array_filter;
 use function array_map;
 use function implode;
 
@@ -21,7 +20,7 @@ final class ShapedListColonTokenMissing extends RuntimeException implements Inva
      */
     public function __construct(array $elements, Type $type)
     {
-        $hasOptional = array_filter($elements, fn (ShapedArrayElement $element) => $element->isOptional()) !== [];
+        $hasOptional = self::hasOptionalElement($elements);
         $parts = array_map(
             static fn (ShapedArrayElement $element) => $hasOptional
                 ? $element->key()->value() . ($element->isOptional() ? '?: ' : ': ') . $element->type()->toString()
@@ -38,5 +37,19 @@ final class ShapedListColonTokenMissing extends RuntimeException implements Inva
         $signature .= "{$type->toString()}?";
 
         parent::__construct("A colon symbol is missing in shaped list signature `$signature`.");
+    }
+
+    /**
+     * @param array<ShapedArrayElement> $elements
+     */
+    private static function hasOptionalElement(array $elements): bool
+    {
+        foreach ($elements as $element) {
+            if ($element->isOptional()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

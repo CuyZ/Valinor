@@ -9,7 +9,6 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
-use function array_filter;
 use function array_map;
 use function implode;
 
@@ -18,7 +17,7 @@ final class InvalidShapedListUnsealedType extends RuntimeException implements In
 {
     public function __construct(Type $unsealedType, ShapedArrayElement ...$elements)
     {
-        $hasOptional = array_filter($elements, fn (ShapedArrayElement $element) => $element->isOptional()) !== [];
+        $hasOptional = self::hasOptionalElement($elements);
         $parts = array_map(
             static fn (ShapedArrayElement $element) => $hasOptional
                 ? $element->key()->value() . ($element->isOptional() ? '?: ' : ': ') . $element->type()->toString()
@@ -31,5 +30,19 @@ final class InvalidShapedListUnsealedType extends RuntimeException implements In
         parent::__construct(
             "Invalid unsealed type in shaped list `$signature`, it should be a valid list but `{$unsealedType->toString()}` was given.",
         );
+    }
+
+    /**
+     * @param array<ShapedArrayElement> $elements
+     */
+    private static function hasOptionalElement(array $elements): bool
+    {
+        foreach ($elements as $element) {
+            if ($element->isOptional()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -8,7 +8,6 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
-use function array_filter;
 use function array_map;
 use function implode;
 
@@ -17,7 +16,7 @@ final class ShapedListMandatoryAfterOptionalElement extends RuntimeException imp
 {
     public function __construct(int $index, ShapedArrayElement ...$elements)
     {
-        $hasOptional = array_filter($elements, fn (ShapedArrayElement $element) => $element->isOptional()) !== [];
+        $hasOptional = self::hasOptionalElement($elements);
         $parts = array_map(
             static fn (ShapedArrayElement $element) => $hasOptional
                 ? $element->key()->value() . ($element->isOptional() ? '?: ' : ': ') . $element->type()->toString()
@@ -30,5 +29,19 @@ final class ShapedListMandatoryAfterOptionalElement extends RuntimeException imp
         parent::__construct(
             "Mandatory element at position $index cannot follow an optional element in shaped list `$signature`.",
         );
+    }
+
+    /**
+     * @param array<ShapedArrayElement> $elements
+     */
+    private static function hasOptionalElement(array $elements): bool
+    {
+        foreach ($elements as $element) {
+            if ($element->isOptional()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

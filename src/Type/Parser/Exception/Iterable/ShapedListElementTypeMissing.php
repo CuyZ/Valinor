@@ -9,7 +9,6 @@ use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
-use function array_filter;
 use function array_map;
 use function implode;
 
@@ -21,7 +20,12 @@ final class ShapedListElementTypeMissing extends RuntimeException implements Inv
      */
     public function __construct(array $elements, IntegerValueType $key, bool $optional)
     {
-        $hasOptional = $optional || array_filter($elements, fn (ShapedArrayElement $element) => $element->isOptional()) !== [];
+        $hasOptional = $optional;
+
+        if (! $hasOptional) {
+            $hasOptional = self::hasOptionalElement($elements);
+        }
+
         $parts = array_map(
             static fn (ShapedArrayElement $element) => $hasOptional
                 ? $element->key()->value() . ($element->isOptional() ? '?: ' : ': ') . $element->type()->toString()
@@ -44,5 +48,19 @@ final class ShapedListElementTypeMissing extends RuntimeException implements Inv
         $signature .= ':';
 
         parent::__construct("Missing element type in shaped list signature `$signature`.");
+    }
+
+    /**
+     * @param array<ShapedArrayElement> $elements
+     */
+    private static function hasOptionalElement(array $elements): bool
+    {
+        foreach ($elements as $element) {
+            if ($element->isOptional()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

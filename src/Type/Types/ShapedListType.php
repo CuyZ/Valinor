@@ -256,7 +256,7 @@ final class ShapedListType implements CompositeType, DumpableType
 
     public function dumpParts(): iterable
     {
-        $elements = array_values($this->elements);
+        $elements = $this->elements;
         $hasOptional = $this->hasOptionalElements();
 
         yield 'list{';

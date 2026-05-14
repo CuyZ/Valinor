@@ -37,10 +37,6 @@ final class ShapedListFormatter implements TypeFormatter
     {
         $methodName = $this->methodName();
 
-        if ($class->hasMethod($methodName)) {
-            return $class;
-        }
-
         $unsealedType = $this->type->isUnsealed ? $this->type->unsealedType() : null;
 
         if ($unsealedType !== null && ! $unsealedType instanceof VacantType) {
