@@ -73,6 +73,32 @@ final class ArrayValueOfMappingTest extends IntegrationTestCase
             ]);
         }
     }
+
+    public function test_can_map_value_of_shaped_list(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map('value-of<list{string, int}>', 'hello');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('hello', $result);
+    }
+
+    public function test_value_of_shaped_list_mapping_error(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map('value-of<list{string, int}>', true);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[cannot_resolve_type_from_union] Value true does not match any of `string`, `int`.",
+            ]);
+        }
+    }
 }
 
 enum SomeStringEnumForValueOfArray: string

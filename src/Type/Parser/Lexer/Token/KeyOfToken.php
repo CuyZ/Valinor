@@ -14,6 +14,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
@@ -61,6 +62,19 @@ final class KeyOfToken implements TraversingToken
         if ($subType instanceof ShapedArrayType) {
             $keys = array_map(
                 fn ($element) => $this->quoteStringKey($element->key()),
+                array_values($subType->elements),
+            );
+
+            if (count($keys) > 1) {
+                return UnionType::from(...$keys);
+            }
+
+            return $keys[0];
+        }
+
+        if ($subType instanceof ShapedListType) {
+            $keys = array_map(
+                fn ($element) => $element->key(),
                 array_values($subType->elements),
             );
 

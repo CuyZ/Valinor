@@ -1187,6 +1187,30 @@ final class LexingParserTest extends UnitTestCase
             'type' => UnionType::class,
         ];
 
+        yield 'key-of<list{string, int}>' => [
+            'raw' => 'key-of<list{string, int}>',
+            'transformed' => '0|1',
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<list{string}>' => [
+            'raw' => 'key-of<list{string}>',
+            'transformed' => '0',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'value-of<list{string, int}>' => [
+            'raw' => 'value-of<list{string, int}>',
+            'transformed' => 'string|int',
+            'type' => UnionType::class,
+        ];
+
+        yield 'value-of<list{string}>' => [
+            'raw' => 'value-of<list{string}>',
+            'transformed' => 'string',
+            'type' => NativeStringType::class,
+        ];
+
         yield 'Scalar' => [
             'raw' => 'scalar',
             'transformed' => 'scalar',
