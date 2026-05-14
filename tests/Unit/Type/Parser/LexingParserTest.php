@@ -1289,6 +1289,38 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('The closing bracket is missing for `non-empty-list<string>`.', $type->message());
     }
 
+    public function test_shaped_list_with_explicit_key_after_implicit_throws_exception(): void
+    {
+        $type = $this->parse('list{string, 1: int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot mix explicit and implicit keys in shaped list `list{string}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_implicit_key_after_explicit_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot mix explicit and implicit keys in shaped list `list{string}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_splat_throws_exception(): void
+    {
+        $type = $this->parse('list{int, ...float, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped list can only have one splat element in `list{int, ..., ...}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_shorthand_splat_throws_exception(): void
+    {
+        $type = $this->parse('list{int, ...<float>, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('A shaped list can only have one splat element in `list{int, ..., ...}`.', $type->message());
+    }
+
     public function test_invalid_iterable_key_throws_exception(): void
     {
         $type = $this->parse('iterable<float, string>');

@@ -11,8 +11,10 @@ use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedArrayWithoutElementsWithSe
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListClosingBracketMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListColonTokenMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListCommaMissing;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListDuplicateSplat;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListElementTypeMissing;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListInvalidKey;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListMixedKeys;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
@@ -85,6 +87,7 @@ final class ListToken implements TraversingToken
         $index = 0;
         $isUnsealed = false;
         $unsealedType = null;
+        $hasExplicitKeys = null;
 
         while (! $stream->done()) {
             if ($stream->next() instanceof ClosingCurlyBracketToken) {
@@ -106,6 +109,9 @@ final class ListToken implements TraversingToken
             }
 
             if ($stream->next() instanceof TripleDotsToken) {
+                if ($isUnsealed) {
+                    throw new ShapedListDuplicateSplat($elements);
+                }
                 $isUnsealed = true;
                 $stream->forward();
             }
@@ -147,6 +153,10 @@ final class ListToken implements TraversingToken
                         $unexpected[] = $stream->forward();
                     }
 
+                    if (isset($unexpected[0], $unexpected[1]) && $unexpected[0] instanceof CommaToken && $unexpected[1] instanceof TripleDotsToken) {
+                        throw new ShapedListDuplicateSplat($elements);
+                    }
+
                     throw new ShapedArrayUnexpectedTokenAfterSealedType($elements, $unsealedType, $unexpected);
                 }
 
@@ -177,6 +187,10 @@ final class ListToken implements TraversingToken
                         $unexpected[] = $stream->forward();
                     }
 
+                    if (isset($unexpected[0], $unexpected[1]) && $unexpected[0] instanceof CommaToken && $unexpected[1] instanceof TripleDotsToken) {
+                        throw new ShapedListDuplicateSplat($elements);
+                    }
+
                     throw new ShapedArrayUnexpectedTokenAfterSealedType($elements, $unsealedType, $unexpected);
                 }
 
@@ -184,6 +198,7 @@ final class ListToken implements TraversingToken
             }
 
             $optional = false;
+            $isExplicit = false;
 
             // Optional explicit key: `1?: type`
             if (! $stream->done() && $stream->next() instanceof NullableToken) {
@@ -199,6 +214,7 @@ final class ListToken implements TraversingToken
             // Required or optional explicit key: `0: type` or `1?: type`
             if (! $stream->done() && $stream->next() instanceof ColonToken) {
                 $stream->forward(); // consume `:`
+                $isExplicit = true;
 
                 if (! $type instanceof IntegerValueType || $type->value() < 0 || $type->value() !== $index) {
                     throw new ShapedListInvalidKey($type, $index, ...$elements);
@@ -210,6 +226,14 @@ final class ListToken implements TraversingToken
 
                 $type = $stream->read();
             }
+
+            if ($isExplicit && $hasExplicitKeys === false) {
+                throw new ShapedListMixedKeys($elements);
+            } elseif (! $isExplicit && $hasExplicitKeys === true) {
+                throw new ShapedListMixedKeys($elements);
+            }
+
+            $hasExplicitKeys = $isExplicit;
 
             $elements[] = new ShapedArrayElement(new IntegerValueType($index++), $type, $optional);
 
