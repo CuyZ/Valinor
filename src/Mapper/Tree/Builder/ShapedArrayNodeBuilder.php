@@ -14,9 +14,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Type\VacantType;
 
 use function array_diff_key;
-use function array_is_list;
 use function array_key_exists;
-use function array_values;
 use function assert;
 use function count;
 use function is_array;
@@ -40,10 +38,6 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         if (! is_array($value)) {
             $value = iterator_to_array($value);
-        }
-
-        if ($type instanceof ShapedListType && ! array_is_list($value)) {
-            $value = array_values($value);
         }
 
         $children = [];

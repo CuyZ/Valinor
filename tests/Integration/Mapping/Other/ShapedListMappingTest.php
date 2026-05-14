@@ -82,16 +82,21 @@ final class ShapedListMappingTest extends IntegrationTestCase
         self::assertTrue($result[2]);
     }
 
-    public function test_non_sequential_source_is_reindexed(): void
+    public function test_non_sequential_source_throws_mapping_error(): void
     {
         try {
-            $result = $this->mapperBuilder()->mapper()->map('list{string, int}', [5 => 'foo', 99 => 42]);
-        } catch (MappingError $error) {
-            $this->mappingFail($error);
+            $this->mapperBuilder()->mapper()->map('list{string, int}', [5 => 'foo', 99 => 42]);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '0' => "[invalid_string] Value *missing* is not a valid string.",
+                '1' => "[invalid_integer] Value *missing* is not a valid integer.",
+                '5' => "[unexpected_key] Unexpected key `5`.",
+                '99' => "[unexpected_key] Unexpected key `99`.",
+            ]);
+            return;
         }
 
-        self::assertSame('foo', $result[0]);
-        self::assertSame(42, $result[1]);
+        self::fail('Expected a MappingError to be thrown for non-sequential source.');
     }
 
     public function test_missing_required_element_throws_error(): void
