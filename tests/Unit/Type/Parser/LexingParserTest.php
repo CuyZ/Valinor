@@ -779,6 +779,18 @@ final class LexingParserTest extends UnitTestCase
             'type' => ShapedListType::class,
         ];
 
+        yield 'Union after unsealed shaped list with shorthand generic type' => [
+            'raw' => 'list{string, ...<float>}|null',
+            'transformed' => 'list{string, ...list<float>}|null',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union after unsealed shaped list with list type' => [
+            'raw' => 'list{string, ...list<float>}|null',
+            'transformed' => 'list{string, ...list<float>}|null',
+            'type' => UnionType::class,
+        ];
+
         yield 'Iterable type' => [
             'raw' => 'iterable',
             'transformed' => 'iterable',
@@ -1592,6 +1604,14 @@ final class LexingParserTest extends UnitTestCase
     public function test_shaped_list_missing_shorthand_splat_closing_bracket_throws_exception(): void
     {
         $type = $this->parse('list{string, ...<float');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in shaped list signature `list{string, ...list<float>`.', $type->message());
+    }
+
+    public function test_shaped_list_invalid_shorthand_splat_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float int}');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
         self::assertSame('Missing closing curly bracket in shaped list signature `list{string, ...list<float>`.', $type->message());
