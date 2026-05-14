@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\TypeHelper;
 
@@ -58,7 +59,7 @@ final class UnionNodeBuilder implements NodeBuilder
 
             $all[] = $node;
 
-            if ($subType instanceof InterfaceType || $subType instanceof ClassType || $subType instanceof ShapedArrayType) {
+            if ($subType instanceof InterfaceType || $subType instanceof ClassType || $subType instanceof ShapedArrayType || $subType instanceof ShapedListType) {
                 $structs[] = $node;
             } elseif ($subType instanceof ScalarType) {
                 $scalars[] = [

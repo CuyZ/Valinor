@@ -38,6 +38,7 @@ use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -115,6 +116,7 @@ final class TypeCompiler
                     })(),
                 };
             case $type instanceof ShapedArrayType:
+            case $type instanceof ShapedListType:
                 $elements = [];
 
                 foreach ($type->elements as $key => $element) {

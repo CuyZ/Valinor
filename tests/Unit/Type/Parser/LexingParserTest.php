@@ -43,6 +43,7 @@ use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -702,6 +703,42 @@ final class LexingParserTest extends UnitTestCase
             'raw' => 'array{foo: string, ...,}',
             'transformed' => 'array{foo: string, ...}',
             'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Unsealed shaped array with shorthand generic type' => [
+            'raw' => 'array{foo: string, ...<int>}',
+            'transformed' => 'array{foo: string, ...array<int>}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Unsealed shaped array with shorthand generic key and value type' => [
+            'raw' => 'array{foo: string, ...<string, int>}',
+            'transformed' => 'array{foo: string, ...array<string, int>}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped list' => [
+            'raw' => 'list{string, int}',
+            'transformed' => 'list{string, int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list with explicit keys' => [
+            'raw' => 'list{0: string, 1: int}',
+            'transformed' => 'list{string, int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list with optional element using explicit key' => [
+            'raw' => 'list{0: string, 1?: int}',
+            'transformed' => 'list{0: string, 1?: int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list unsealed with shorthand generic type' => [
+            'raw' => 'list{string, ...<float>}',
+            'transformed' => 'list{string, ...list<float>}',
+            'type' => ShapedListType::class,
         ];
 
         yield 'Iterable type' => [

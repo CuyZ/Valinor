@@ -186,6 +186,8 @@ final class ArrayToken implements TraversingToken
             if ($isUnsealed && ($keyToken instanceof ClosingCurlyBracketToken || $keyToken instanceof CommaToken)) {
                 $stream->forward();
                 break;
+            } elseif ($isUnsealed && $keyToken instanceof OpeningBracketToken) {
+                $type = $this->parseShorthandUnsealedArrayType($stream);
             } else {
                 $type = $stream->read();
             }
@@ -264,5 +266,50 @@ final class ArrayToken implements TraversingToken
         }
 
         return ShapedArrayType::from($elements, $isUnsealed, $unsealedType);
+    }
+
+    private function parseShorthandUnsealedArrayType(TokenStream $stream): ArrayType|UnresolvableType
+    {
+        $stream->forward(); // consume `<`
+
+        if ($stream->done()) {
+            throw new ArrayClosingBracketMissing(ArrayType::native());
+        }
+
+        $firstType = $stream->read();
+
+        if (! $stream->done() && $stream->next() instanceof CommaToken) {
+            $stream->forward(); // consume `,`
+
+            if ($stream->done()) {
+                throw new ArrayClosingBracketMissing(ArrayType::native());
+            }
+
+            $valueType = $stream->read();
+
+            $keyTypes = $firstType instanceof UnionType ? $firstType->types() : [$firstType];
+
+            try {
+                $keyType = ArrayKeyType::from($keyTypes);
+            } catch (InvalidType $exception) {
+                $subTypes = implode('|', array_map(static fn (Type $type) => $type->toString(), $keyTypes));
+
+                if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
+                    throw new ArrayClosingBracketMissing(ArrayType::native());
+                }
+
+                return (new UnresolvableType($subTypes, $exception->getMessage()))->forArrayType('array', $keyTypes, $valueType);
+            }
+
+            $arrayType = new ArrayType($keyType, $valueType);
+        } else {
+            $arrayType = new ArrayType(ArrayKeyType::default(), $firstType);
+        }
+
+        if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
+            throw new ArrayClosingBracketMissing($arrayType);
+        }
+
+        return $arrayType;
     }
 }

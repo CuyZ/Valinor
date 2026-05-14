@@ -7,12 +7,18 @@ namespace CuyZ\Valinor\Mapper\Tree\Builder;
 use CuyZ\Valinor\Mapper\Tree\Exception\SourceMustBeIterable;
 use CuyZ\Valinor\Mapper\Tree\Exception\UnexpectedKeyInSource;
 use CuyZ\Valinor\Mapper\Tree\Shell;
+use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Type\VacantType;
 
 use function array_diff_key;
+use function array_is_list;
 use function array_key_exists;
+use function array_values;
 use function assert;
+use function count;
 use function is_array;
 use function is_iterable;
 use function iterator_to_array;
@@ -25,7 +31,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         $type = $shell->type;
         $value = $shell->value();
 
-        assert($type instanceof ShapedArrayType);
+        assert($type instanceof ShapedArrayType || $type instanceof ShapedListType);
 
         if (! is_iterable($value)) {
             return $shell->error(new SourceMustBeIterable($value));
@@ -33,6 +39,10 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         if (! is_array($value)) {
             $value = iterator_to_array($value);
+        }
+
+        if ($type instanceof ShapedListType && ! array_is_list($value)) {
+            $value = array_values($value);
         }
 
         $children = [];
@@ -62,19 +72,41 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             unset($value[$key]);
         }
 
-        // Second phase: if the shaped array is unsealed, we take the remaining
-        // values from the source and try to build them.
+        // Second phase: if the shaped array/list is unsealed, we take the
+        // remaining values from the source and try to build them.
         if ($type->isUnsealed) {
-            $unsealedNode = $shell
-                ->withType($type->unsealedType())
-                ->withValue($value)
-                ->build();
+            if ($type instanceof ShapedListType) {
+                $unsealedType = $type->unsealedType();
+                $elementType = $unsealedType instanceof VacantType
+                    ? MixedType::get()
+                    : $unsealedType->subType();
+                $offset = count($type->elements);
 
-            if ($unsealedNode->isValid()) {
-                // @phpstan-ignore assignOp.invalid (we know value is an array)
-                $children += $unsealedNode->value();
+                foreach (array_values($value) as $i => $val) {
+                    $actualKey = $offset + $i;
+                    $child = $shell
+                        ->child((string)$actualKey, $elementType)
+                        ->withValue($val)
+                        ->build();
+
+                    if ($child->isValid()) {
+                        $children[$actualKey] = $child->value();
+                    } else {
+                        $errors[] = $child;
+                    }
+                }
             } else {
-                $errors[] = $unsealedNode;
+                $unsealedNode = $shell
+                    ->withType($type->unsealedType())
+                    ->withValue($value)
+                    ->build();
+
+                if ($unsealedNode->isValid()) {
+                    // @phpstan-ignore assignOp.invalid (we know value is an array)
+                    $children += $unsealedNode->value();
+                } else {
+                    $errors[] = $unsealedNode;
+                }
             }
         } elseif (! $shell->allowSuperfluousKeys) {
             // Third phase: the superfluous keys are not allowed, so we add an
