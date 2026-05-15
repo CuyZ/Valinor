@@ -433,6 +433,54 @@ final class ShapedListTypeTest extends UnitTestCase
         self::assertSame([], $generics->items);
     }
 
+    public function test_infers_generics_from_matching_shaped_list_elements(): void
+    {
+        $type = ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new GenericType('T', new NativeStringType())),
+                new ShapedArrayElement(new IntegerValueType(1), new GenericType('U', new NativeIntegerType())),
+            ],
+            isUnsealed: false,
+        );
+
+        $other = ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
+                new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
+            ],
+            isUnsealed: false,
+        );
+
+        $generics = $type->inferGenericsFrom($other, new Generics());
+
+        self::assertSame(['T', 'U'], array_keys($generics->items));
+        self::assertSame('string', $generics->items['T']->toString());
+        self::assertSame('int', $generics->items['U']->toString());
+    }
+
+    public function test_infer_generics_skips_missing_keys_and_keeps_later_matches(): void
+    {
+        $type = ShapedListType::from(
+            elements: [
+                new ShapedArrayElement(new IntegerValueType(0), new GenericType('T', new NativeStringType())),
+                new ShapedArrayElement(new IntegerValueType(1), new GenericType('U', new NativeIntegerType())),
+            ],
+            isUnsealed: false,
+        );
+
+        $other = new ShapedListType(
+            elements: [
+                1 => new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
+            ],
+            isUnsealed: false,
+        );
+
+        $generics = $type->inferGenericsFrom($other, new Generics());
+
+        self::assertSame(['U'], array_keys($generics->items));
+        self::assertSame('int', $generics->items['U']->toString());
+    }
+
     public function test_native_type_is_list(): void
     {
         self::assertSame('list', $this->type->nativeType()->toString());
