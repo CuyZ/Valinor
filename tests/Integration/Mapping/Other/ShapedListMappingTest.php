@@ -133,6 +133,31 @@ final class ShapedListMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_unsealed_list_keeps_processing_after_unexpected_extra_key(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map(
+                'list{string, ...list<float>}',
+                [
+                    0 => 'foo',
+                    5 => 'unexpected',
+                    1 => 'not-a-float',
+                    99 => 'still-unexpected',
+                    2 => 2.5,
+                ],
+            );
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '5' => '[unexpected_key] Unexpected key `5`.',
+                '1' => "[invalid_float] Value 'not-a-float' is not a valid float.",
+                '99' => '[unexpected_key] Unexpected key `99`.',
+            ]);
+            return;
+        }
+
+        self::fail('Expected a MappingError to be thrown for invalid unsealed list extras.');
+    }
+
     public function test_mapping_into_object_with_shaped_list_property(): void
     {
         try {
