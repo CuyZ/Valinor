@@ -28,6 +28,8 @@ use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
+use function array_keys;
+
 final class ShapedListTypeTest extends UnitTestCase
 {
     /** @var ShapedArrayElement[] */
