@@ -174,9 +174,6 @@ final class ArrayToken implements TraversingToken
             $optional = false;
 
             if ($stream->next() instanceof TripleDotsToken) {
-                if ($isUnsealed) {
-                    throw new ShapedArrayDuplicateSplat($elements);
-                }
                 $isUnsealed = true;
                 $stream->forward();
             }
