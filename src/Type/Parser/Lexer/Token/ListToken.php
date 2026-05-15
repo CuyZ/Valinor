@@ -186,9 +186,7 @@ final class ListToken implements TraversingToken
                     throw new ShapedArrayWithoutElementsWithSealedType($unsealedType);
                 }
 
-                if ($stream->done()) {
-                    throw new ShapedListClosingBracketMissing($elements, $unsealedType);
-                } elseif (! $stream->next() instanceof ClosingCurlyBracketToken) {
+                if (! $stream->next() instanceof ClosingCurlyBracketToken) {
                     $unexpected = [];
 
                     while (! $stream->done() && ! $stream->next() instanceof ClosingCurlyBracketToken) {
