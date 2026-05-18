@@ -53,12 +53,12 @@ final class PhpParser
     {
         if ($reflection instanceof ReflectionMethod) {
             $traits = $reflection->getDeclaringClass()->getTraits();
-        } else if ($reflection instanceof ReflectionClass) {
+        } elseif ($reflection instanceof ReflectionClass) {
             $traits = $reflection->getTraits();
         } else {
             $traits = [];
         }
-        
+
         $accumulated = [];
 
         foreach ($traits as $trait) {
