@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 use Closure;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasA\ClassA;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasB\ClassB;
+use CuyZ\Valinor\Tests\Integration\Normalizer\SomeClassWithTwoAttributesOnClass;
 use CuyZ\Valinor\Tests\Unit\Definition\Repository\Cache\Compiler\ClassWithAttributeWithClosure;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassInSingleNamespace;
@@ -66,6 +67,7 @@ final class PhpParserTest extends UnitTestCase
                 'foo' => Foo::class,
                 'datetimeimmutable' => DateTimeImmutable::class,
                 'stdclassalias' => stdClass::class,
+                'test2' => SomeClassWithTwoAttributesOnClass::class,
                 'test' => ClassWithAttributeWithClosure::class,
             ]
         ];
