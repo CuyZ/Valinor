@@ -76,8 +76,11 @@ final class Annotations
     {
         return (new self($reflection->getDocComment()))->filteredByPriority(
             '@phpstan-template',
+            '@phpstan-template-covariant',
             '@psalm-template',
+            '@psalm-template-covariant',
             '@template',
+            '@template-covariant',
         );
     }
 
