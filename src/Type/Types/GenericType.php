@@ -15,6 +15,7 @@ final readonly class GenericType implements VacantType
         /** @var non-empty-string */
         public string $symbol,
         public Type $innerType,
+        public bool $covariant = false,
     ) {}
 
     public function accepts(mixed $value): bool
