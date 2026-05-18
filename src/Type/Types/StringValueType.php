@@ -17,6 +17,7 @@ use Stringable;
 use function assert;
 use function is_numeric;
 use function is_string;
+use function str_replace;
 use function str_starts_with;
 use function substr;
 
@@ -37,6 +38,15 @@ final class StringValueType implements StringType, FixedType
         $instance->quoteChar = $value[0];
 
         return $instance;
+    }
+
+    public function forceQuoteChar(): self
+    {
+        if (isset($this->quoteChar)) {
+            return $this;
+        }
+
+        return self::from("'" . str_replace("'", "\\'", $this->value) . "'");
     }
 
     public function accepts(mixed $value): bool
