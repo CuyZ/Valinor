@@ -68,6 +68,7 @@ final class PhpParser
         $content = self::getFileContent($reflection);
 
         if ($content === null) {
+            // @infection-ignore-all will likely never be `null`
             return $accumulated;
         }
 
