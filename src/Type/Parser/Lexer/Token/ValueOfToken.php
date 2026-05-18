@@ -45,11 +45,7 @@ final class ValueOfToken implements TraversingToken
             throw new ValueOfClosingBracketMissing($subType);
         }
 
-        if ($subType instanceof EnumType) {
-            if (! is_a($subType->className(), BackedEnum::class, true)) {
-                throw new ValueOfIncorrectSubType($subType);
-            }
-
+        if ($subType instanceof EnumType && is_a($subType->className(), BackedEnum::class, true)) {
             $cases = array_map(
                 // @phpstan-ignore-next-line / We know it's a BackedEnum
                 fn (BackedEnum $case) => ValueTypeFactory::from($case->value),

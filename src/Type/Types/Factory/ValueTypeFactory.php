@@ -22,8 +22,6 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
-use function str_contains;
-use function str_replace;
 
 /** @internal */
 final class ValueTypeFactory
@@ -51,15 +49,7 @@ final class ValueTypeFactory
                 return new ClassStringType([new NativeClassType($value)]);
             }
 
-            if (str_contains($value, "'") && str_contains($value, '"')) {
-                $value = "'" . str_replace("'", "\'", $value) . "'";
-            } elseif (str_contains($value, "'")) {
-                $value = '"' . $value . '"';
-            } else {
-                $value = "'" . $value . "'";
-            }
-
-            return StringValueType::from($value);
+            return StringValueType::quoted($value);
         }
 
         if (is_array($value)) {

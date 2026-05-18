@@ -12,7 +12,6 @@ use CuyZ\Valinor\Type\Parser\Exception\Magic\KeyOfOpeningBracketMissing;
 use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
-use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -23,7 +22,6 @@ use UnitEnum;
 use function array_map;
 use function array_values;
 use function count;
-use function str_contains;
 
 /** @internal */
 final class KeyOfToken implements TraversingToken
@@ -32,7 +30,7 @@ final class KeyOfToken implements TraversingToken
 
     public function traverse(TokenStream $stream): Type
     {
-        if ($stream->done() || !$stream->forward() instanceof OpeningBracketToken) {
+        if ($stream->done() || ! $stream->forward() instanceof OpeningBracketToken) {
             throw new KeyOfOpeningBracketMissing();
         }
 
@@ -42,13 +40,13 @@ final class KeyOfToken implements TraversingToken
 
         $subType = $stream->read();
 
-        if ($stream->done() || !$stream->forward() instanceof ClosingBracketToken) {
+        if ($stream->done() || ! $stream->forward() instanceof ClosingBracketToken) {
             throw new KeyOfClosingBracketMissing($subType);
         }
 
         if ($subType instanceof EnumType) {
             $keys = array_map(
-                fn (UnitEnum $case) => StringValueType::from("'{$case->name}'"),
+                fn (UnitEnum $case) => StringValueType::quoted("'$case->name'"),
                 array_values($subType->cases()),
             );
 
@@ -61,7 +59,13 @@ final class KeyOfToken implements TraversingToken
 
         if ($subType instanceof ShapedArrayType) {
             $keys = array_map(
-                fn ($element) => $this->quoteStringKey($element->key()),
+                static function ($element) {
+                    if ($element->key() instanceof StringValueType) {
+                        return StringValueType::quoted($element->key()->value());
+                    }
+
+                    return $element->key();
+                },
                 array_values($subType->elements),
             );
 
@@ -90,21 +94,6 @@ final class KeyOfToken implements TraversingToken
         }
 
         throw new KeyOfIncorrectSubType($subType);
-    }
-
-    private function quoteStringKey(StringValueType|IntegerValueType $key): StringValueType|IntegerValueType
-    {
-        if (!$key instanceof StringValueType) {
-            return $key;
-        }
-
-        $value = $key->value();
-
-        if (str_contains($value, "'")) {
-            return StringValueType::from('"' . $value . '"');
-        }
-
-        return StringValueType::from("'$value'");
     }
 
     public function symbol(): string

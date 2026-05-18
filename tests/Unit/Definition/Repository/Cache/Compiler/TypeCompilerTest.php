@@ -89,6 +89,9 @@ final class TypeCompilerTest extends UnitTestCase
         yield [NativeStringType::get()];
         yield [NonEmptyStringType::get()];
         yield [NumericStringType::get()];
+        yield [StringValueType::quoted('foo')];
+        yield [StringValueType::quoted("'foo'")];
+        yield [StringValueType::quoted('"foo"')];
         yield [UndefinedObjectType::get()];
         yield [MixedType::get()];
         yield [new InterfaceType(DateTimeInterface::class, [NativeStringType::get()])];

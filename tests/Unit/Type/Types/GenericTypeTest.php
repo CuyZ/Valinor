@@ -73,6 +73,29 @@ final class GenericTypeTest extends UnitTestCase
         self::assertSame('string', $genericType->nativeType()->toString());
     }
 
+    public function test_covariant_flag_is_false_by_default(): void
+    {
+        $genericType = new GenericType('T', new NativeStringType());
+
+        self::assertFalse($genericType->covariant);
+    }
+
+    public function test_covariant_flag_can_be_set(): void
+    {
+        $genericType = new GenericType('T', new NativeStringType(), covariant: true);
+
+        self::assertTrue($genericType->covariant);
+    }
+
+    public function test_covariant_string_value_is_correct(): void
+    {
+        $genericTypeOfMixed = new GenericType('T', new MixedType(), covariant: true);
+        $genericTypeOfString = new GenericType('T', new NativeStringType(), covariant: true);
+
+        self::assertSame('T', $genericTypeOfMixed->toString());
+        self::assertSame('T of string', $genericTypeOfString->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */
