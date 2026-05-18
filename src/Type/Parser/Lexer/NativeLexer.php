@@ -18,6 +18,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\FloatValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntersectionToken;
+use CuyZ\Valinor\Type\Parser\Lexer\Token\KeyOfToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
@@ -84,6 +85,7 @@ final class NativeLexer implements TypeLexer
             'class-string' => ClassStringToken::get(),
             'callable' => CallableToken::get(),
             'value-of' => ValueOfToken::get(),
+            'key-of' => KeyOfToken::get(),
 
             'null' => new TypeToken(NullType::get()),
             'true' => new TypeToken(BooleanValueType::true()),

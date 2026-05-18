@@ -17,6 +17,9 @@ use Stringable;
 use function assert;
 use function is_numeric;
 use function is_string;
+use function str_contains;
+use function str_ends_with;
+use function str_replace;
 use function str_starts_with;
 use function substr;
 
@@ -27,11 +30,15 @@ final class StringValueType implements StringType, FixedType
 
     public function __construct(private string $value) {}
 
-    public static function from(string $value): self
+    public static function quoted(string $value): self
     {
-        if (! str_starts_with($value, '"') && ! str_starts_with($value, "'")) {
-            return new self($value);
-        }
+        $value = match(true) {
+            str_starts_with($value, '"') && str_ends_with($value, '"') => $value,
+            str_starts_with($value, "'") && str_ends_with($value, "'") => $value,
+            str_contains($value, "'") && str_contains($value, '"') => "'" . str_replace("'", "\'", $value) . "'",
+            str_contains($value, "'") => '"' . $value . '"',
+            default => "'" . $value . "'",
+        };
 
         $instance = new self(substr($value, 1, -1));
         $instance->quoteChar = $value[0];
@@ -70,6 +77,11 @@ final class StringValueType implements StringType, FixedType
         assert($this->canCast($value));
 
         return $this->value;
+    }
+
+    public function hasQuoteChar(): bool
+    {
+        return isset($this->quoteChar);
     }
 
     public function value(): string

@@ -86,7 +86,11 @@ final class TypeCompiler
             case $type instanceof StringValueType:
                 $value = var_export($type->toString(), true);
 
-                return "$class::from($value)";
+                if (! $type->hasQuoteChar()) {
+                    return "new $class($value)";
+                }
+
+                return "$class::quoted($value)";
             case $type instanceof IntegerValueType:
             case $type instanceof FloatValueType:
                 $value = var_export($type->value(), true);
