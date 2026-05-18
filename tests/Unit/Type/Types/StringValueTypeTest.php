@@ -40,8 +40,8 @@ final class StringValueTypeTest extends UnitTestCase
     public function test_accepts_correct_values(mixed $value): void
     {
         $type = new StringValueType('Schwifty!');
-        $typeSingleQuote = StringValueType::from("'Schwifty!'");
-        $typeDoubleQuote = StringValueType::from('"Schwifty!"');
+        $typeSingleQuote = StringValueType::quoted("'Schwifty!'");
+        $typeDoubleQuote = StringValueType::quoted('"Schwifty!"');
 
         self::assertTrue($type->accepts($value));
         self::assertTrue($typeSingleQuote->accepts($value));
@@ -125,8 +125,8 @@ final class StringValueTypeTest extends UnitTestCase
     public function test_string_value_is_correct(): void
     {
         $type = new StringValueType('Schwifty!');
-        $typeSingleQuote = StringValueType::from("'Schwifty!'");
-        $typeDoubleQuote = StringValueType::from('"Schwifty!"');
+        $typeSingleQuote = StringValueType::quoted("'Schwifty!'");
+        $typeDoubleQuote = StringValueType::quoted('"Schwifty!"');
 
         self::assertSame('Schwifty!', $type->toString());
         self::assertSame("'Schwifty!'", $typeSingleQuote->toString());
@@ -137,12 +137,25 @@ final class StringValueTypeTest extends UnitTestCase
     {
         $typeA = new StringValueType('Schwifty!');
         $typeB = new StringValueType('Schwifty!');
-        $typeC = StringValueType::from("'Schwifty!'");
-        $typeD = StringValueType::from('"Schwifty!"');
+        $typeC = StringValueType::quoted("'Schwifty!'");
+        $typeD = StringValueType::quoted('"Schwifty!"');
 
         self::assertTrue($typeA->matches($typeB));
         self::assertTrue($typeA->matches($typeC));
         self::assertTrue($typeA->matches($typeD));
+    }
+
+    public function test_starts_or_ends_with_quote(): void
+    {
+        $startsWithSimpleQuote = StringValueType::quoted("'Schwifty!");
+        $endsWithSimpleQuote = StringValueType::quoted("Schwifty!'");
+        $startsWithDoubleQuote = StringValueType::quoted('"Schwifty!');
+        $endsWithDoubleQuote = StringValueType::quoted('Schwifty!"');
+
+        self::assertSame('"\'Schwifty!"', $startsWithSimpleQuote->toString());
+        self::assertSame('"Schwifty!\'"', $endsWithSimpleQuote->toString());
+        self::assertSame("'\"Schwifty!'", $startsWithDoubleQuote->toString());
+        self::assertSame("'Schwifty!\"'", $endsWithDoubleQuote->toString());
     }
 
     public function test_does_not_match_same_type_with_different_value(): void

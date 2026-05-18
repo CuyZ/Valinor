@@ -45,7 +45,7 @@ final class KeyOfToken implements TraversingToken
 
         if ($subType instanceof EnumType) {
             $keys = array_map(
-                fn (UnitEnum $case) => StringValueType::from("'{$case->name}'"),
+                fn (UnitEnum $case) => StringValueType::quoted("'$case->name'"),
                 array_values($subType->cases()),
             );
 
@@ -60,7 +60,7 @@ final class KeyOfToken implements TraversingToken
             $keys = array_map(
                 static function ($element) {
                     if ($element->key() instanceof StringValueType) {
-                        return $element->key()->forceQuoteChar();
+                        return StringValueType::quoted($element->key()->value());
                     }
 
                     return $element->key();
