@@ -9,6 +9,7 @@ use CuyZ\Valinor\Tests\Fixtures\WithAliasA\ClassA;
 use CuyZ\Valinor\Tests\Fixtures\WithAliasB\ClassB;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassInSingleNamespace;
+use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassUsingTraits;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassWithImport;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Bar;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Foo;
@@ -49,6 +50,16 @@ final class PhpParserTest extends UnitTestCase
 
         yield 'one namespace' => [
             new ReflectionClass(ClassInSingleNamespace::class),
+            [
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+                'datetimeimmutable' => DateTimeImmutable::class,
+                'stdclassalias' => stdClass::class,
+            ]
+        ];
+
+        yield 'one namespace with trait' => [
+            new ReflectionClass(ClassUsingTraits::class),
             [
                 'baralias' => Bar::class,
                 'foo' => Foo::class,

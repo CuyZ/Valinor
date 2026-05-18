@@ -51,10 +51,24 @@ final class PhpParser
      */
     private static function fetchUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
     {
+        if ($reflection instanceof ReflectionMethod) {
+            $traits = $reflection->getDeclaringClass()->getTraits();
+        } else if ($reflection instanceof ReflectionClass) {
+            $traits = $reflection->getTraits();
+        } else {
+            $traits = [];
+        }
+        
+        $accumulated = [];
+
+        foreach ($traits as $trait) {
+            $accumulated += self::fetchUseStatements($trait);
+        }
+
         $content = self::getFileContent($reflection);
 
         if ($content === null) {
-            return [];
+            return $accumulated;
         }
 
         $tokenParser = new TokenParser($content);
@@ -67,7 +81,7 @@ final class PhpParser
             $namespaceName = $reflection->getNamespaceName();
         }
 
-        return $tokenParser->parseUseStatements($namespaceName);
+        return $accumulated + $tokenParser->parseUseStatements($namespaceName);
     }
 
     /**
