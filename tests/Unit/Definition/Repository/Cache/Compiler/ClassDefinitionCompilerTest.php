@@ -23,7 +23,7 @@ final class ClassDefinitionCompilerTest extends UnitTestCase
     public function test_class_definition_is_compiled_correctly(): void
     {
         $object =
-            new class () {
+            new /** @property string $v */ class () {
                 public string $property = 'Some property default value';
 
                 #[Constructor]
@@ -65,6 +65,19 @@ final class ClassDefinitionCompilerTest extends UnitTestCase
         self::assertTrue($property->hasDefaultValue);
         self::assertSame('Some property default value', $property->defaultValue);
         self::assertTrue($property->isPublic);
+
+        $magicProperties = $class->magicProperties;
+
+        self::assertTrue($magicProperties->has('v'));
+
+        $mp = $magicProperties->get('v');
+
+        self::assertSame('v', $mp->name);
+        self::assertSame($className . '::$v', $mp->signature);
+        self::assertSame(NativeStringType::get(), $mp->type);
+        self::assertFalse($mp->hasDefaultValue);
+        self::assertSame(null, $mp->defaultValue);
+        self::assertTrue($mp->isPublic);
 
         $method = $class->methods->get('method');
 
