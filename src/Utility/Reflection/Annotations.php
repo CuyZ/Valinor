@@ -191,6 +191,7 @@ final class Annotations
     }
 
     /**
+     * @param ReflectionClass<covariant object> $reflection
      * @return array<string, string>
      */
     public static function magicProperties(ReflectionClass $reflection): array
@@ -203,7 +204,7 @@ final class Annotations
         preg_match_all($expression, $docComment, $matches);
 
         foreach ($matches[2] as $key => $name) {
-            $types[(string)$name] = $matches[1][$key];
+            $types[$name] = $matches[1][$key];
         }
 
         return $types;
