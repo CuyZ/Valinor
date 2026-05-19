@@ -141,7 +141,6 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $result = [];
             $className = $type->className();
             foreach (Annotations::magicProperties($reflection) as $name => $propertyType) {
-                $name = $name;
                 $signature = "$className::\$$name";
                 $type = $typeResolver->resolveType(null, $propertyType);
                 $hasDefaultValue = false;
