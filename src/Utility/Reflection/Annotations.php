@@ -19,6 +19,7 @@ use function array_values;
 use function current;
 use function end;
 use function in_array;
+use function preg_match_all;
 use function preg_replace;
 use function str_starts_with;
 use function trim;
@@ -35,7 +36,7 @@ final class Annotations
             return;
         }
 
-        $docBlock = $this->sanitizeDocComment($docBlock);
+        $docBlock = self::sanitizeDocComment($docBlock);
 
         $tokens = (new TokensExtractor($docBlock))->all();
 
@@ -182,11 +183,30 @@ final class Annotations
         return $result;
     }
 
-    private function sanitizeDocComment(string $value): string
+    private static function sanitizeDocComment(string $value): string
     {
         $value = preg_replace('#^\s*/\*\*([^/]+)\*/\s*$#', '$1', $value);
 
         return preg_replace('/^\s*\*\s*(\S*)/mU', '$1', $value); // @phpstan-ignore-line / We know the regex is correct
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function magicProperties(ReflectionClass $reflection): array
+    {
+        $types = [];
+        $docComment = self::sanitizeDocComment($reflection->__toString());
+
+        $expression = '/@property\s+(?<type>.+)\s+\$([a-zA-Z_0-9]+)/u';
+
+        preg_match_all($expression, $docComment, $matches);
+
+        foreach ($matches[2] as $key => $name) {
+            $types[(string)$name] = $matches[1][$key];
+        }
+
+        return $types;
     }
 
     /**
