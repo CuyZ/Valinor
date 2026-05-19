@@ -204,7 +204,6 @@ final class Annotations
         preg_match_all($expression, $docComment, $matches);
 
         foreach ($matches[2] as $key => $name) {
-            assert($name !== '');
             $types[$name] = $matches[1][$key];
         }
 
