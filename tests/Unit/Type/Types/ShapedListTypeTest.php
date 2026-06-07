@@ -133,7 +133,7 @@ final class ShapedListTypeTest extends UnitTestCase
     public function test_invalid_explicit_key_throws_exception(): void
     {
         $this->expectException(ShapedListInvalidKey::class);
-        $this->expectExceptionMessage('Key `2` is not valid for a list element; expected sequential integer key `0`');
+        $this->expectExceptionMessage('Key `2` is not valid for a list element, expected sequential integer key `0`.');
 
         ShapedListType::from(
             elements: [
@@ -146,7 +146,7 @@ final class ShapedListTypeTest extends UnitTestCase
     public function test_invalid_explicit_key_with_preceding_optional_throws_exact_exception_message(): void
     {
         $this->expectException(ShapedListInvalidKey::class);
-        $this->expectExceptionMessage('Key `2` is not valid for a list element; expected sequential integer key `1` in shaped list `list{0?: string, 2:...}`.');
+        $this->expectExceptionMessage('Key `2` is not valid for a list element, expected sequential integer key `1`.');
 
         ShapedListType::from(
             elements: [

@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\DumpableType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\InvalidShapedListUnsealedType;
 use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListInvalidKey;
+use CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListMandatoryAfterOptionalElement;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\Polyfill;
@@ -39,7 +40,7 @@ final class ShapedListType implements CompositeType, DumpableType
     ) {}
 
     /**
-     * @param array<ShapedArrayElement> $elements
+     * @param list<ShapedArrayElement> $elements
      */
     public static function from(
         array $elements,
@@ -55,11 +56,11 @@ final class ShapedListType implements CompositeType, DumpableType
 
         foreach ($elements as $index => $element) {
             if ($element->key()->value() !== $index) {
-                throw new ShapedListInvalidKey($element->key(), $index, ...array_slice($elements, 0, $index));
+                throw new ShapedListInvalidKey($element->key(), $index);
             }
 
             if ($seenOptional && ! $element->isOptional()) {
-                throw new \CuyZ\Valinor\Type\Parser\Exception\Iterable\ShapedListMandatoryAfterOptionalElement($index, ...$elements);
+                throw new ShapedListMandatoryAfterOptionalElement($index, ...$elements);
             }
 
             if ($element->isOptional()) {
@@ -132,12 +133,10 @@ final class ShapedListType implements CompositeType, DumpableType
                 return Node::value(false);
             }
 
-            $elementCount = count($this->elements);
-
             $conditions[] = Node::class(Polyfill::class)->callStaticMethod(
                 'array_all',
                 [
-                    Node::functionCall('array_slice', [$node, Node::value($elementCount)]),
+                    Node::functionCall('array_slice', [$node, Node::value(count($this->elements))]),
                     Node::shortClosure(
                         $unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
                     )->witParameters(
@@ -325,12 +324,9 @@ final class ShapedListType implements CompositeType, DumpableType
 
     private function hasOptionalElements(): bool
     {
-        foreach ($this->elements as $element) {
-            if ($element->isOptional()) {
-                return true;
-            }
-        }
-
-        return false;
+        return Polyfill::array_any(
+            $this->elements,
+            static fn (ShapedArrayElement $element) => $element->isOptional(),
+        );
     }
 }

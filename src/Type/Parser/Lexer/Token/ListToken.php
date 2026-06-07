@@ -95,7 +95,7 @@ final class ListToken implements TraversingToken
                 break;
             }
 
-            if (! empty($elements) && ! $stream->forward() instanceof CommaToken) {
+            if ($elements !== [] && ! $stream->forward() instanceof CommaToken) {
                 throw new ShapedListCommaMissing($elements);
             }
 
@@ -227,7 +227,7 @@ final class ListToken implements TraversingToken
                 $isExplicit = true;
 
                 if (! $type instanceof IntegerValueType || $type->value() < 0 || $type->value() !== $index) {
-                    throw new ShapedListInvalidKey($type, $index, ...$elements);
+                    throw new ShapedListInvalidKey($type, $index);
                 }
 
                 if ($stream->done()) {
