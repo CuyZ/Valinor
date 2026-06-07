@@ -37,7 +37,7 @@ final class ShapedListFormatter implements TypeFormatter
     {
         $methodName = $this->methodName();
 
-        $unsealedType = $this->type->isUnsealed ? $this->type->unsealedType() : null;
+        $unsealedType = $this->type->isUnsealed() ? $this->type->unsealedType() : null;
 
         if ($unsealedType !== null && ! $unsealedType instanceof VacantType) {
             $defaultDefinition = $definitionBuilder->for($unsealedType->subType());

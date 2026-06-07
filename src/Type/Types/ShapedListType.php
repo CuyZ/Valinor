@@ -35,7 +35,6 @@ final class ShapedListType implements CompositeType, DumpableType
     public function __construct(
         /** @var array<ShapedArrayElement> */
         public readonly array $elements,
-        public readonly bool $isUnsealed = false,
         public readonly ListType|VacantType|null $unsealedType = null,
     ) {}
 
@@ -44,7 +43,6 @@ final class ShapedListType implements CompositeType, DumpableType
      */
     public static function from(
         array $elements,
-        bool $isUnsealed,
         Type|null $unsealedType = null,
     ): self {
         if ($unsealedType && ! $unsealedType instanceof ListType && ! $unsealedType instanceof VacantType) {
@@ -70,17 +68,17 @@ final class ShapedListType implements CompositeType, DumpableType
             $sortedElements[$index] = $element;
         }
 
-        return new self($sortedElements, $isUnsealed, $unsealedType);
+        return new self($sortedElements, $unsealedType);
     }
 
-    public function hasUnsealedType(): bool
+    public function isUnsealed(): bool
     {
         return $this->unsealedType !== null;
     }
 
     public function unsealedType(): ListType|VacantType
     {
-        assert($this->isUnsealed);
+        assert($this->unsealedType !== null);
 
         return $this->unsealedType ?? ListType::native();
     }
@@ -101,7 +99,7 @@ final class ShapedListType implements CompositeType, DumpableType
             }
         }
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             $extra = array_slice($value, count($this->elements));
 
             return $this->unsealedType()->accepts($extra);
@@ -126,10 +124,8 @@ final class ShapedListType implements CompositeType, DumpableType
             }, array_values($this->elements)),
         ];
 
-        if ($this->isUnsealed) {
-            $unsealedType = $this->unsealedType();
-
-            if ($unsealedType instanceof VacantType) {
+        if ($this->unsealedType) {
+            if ($this->unsealedType instanceof VacantType) {
                 return Node::value(false);
             }
 
@@ -138,7 +134,7 @@ final class ShapedListType implements CompositeType, DumpableType
                 [
                     Node::functionCall('array_slice', [$node, Node::value(count($this->elements))]),
                     Node::shortClosure(
-                        $unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
+                        $this->unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
                     )->witParameters(
                         Node::parameterDeclaration('item', 'mixed'),
                     ),
@@ -172,9 +168,9 @@ final class ShapedListType implements CompositeType, DumpableType
                 }
             }
 
-            if ($other->isUnsealed) {
-                return $this->isUnsealed
-                    && $this->unsealedType()->matches($other->unsealedType());
+            if ($other->unsealedType) {
+                return $this->unsealedType
+                    && $this->unsealedType->matches($other->unsealedType);
             }
 
             return true;
@@ -193,7 +189,7 @@ final class ShapedListType implements CompositeType, DumpableType
                 }
             }
 
-            if ($this->isUnsealed && ! $this->unsealedType()->matches($other)) {
+            if ($this->unsealedType && ! $this->unsealedType->matches($other)) {
                 return false;
             }
 
@@ -245,7 +241,7 @@ final class ShapedListType implements CompositeType, DumpableType
 
         $unsealedType = $this->unsealedType ? $callback($this->unsealedType) : null;
 
-        return new self($elements, $this->isUnsealed, $unsealedType);
+        return new self($elements, $unsealedType);
     }
 
     public function nativeType(): ListType
@@ -272,14 +268,14 @@ final class ShapedListType implements CompositeType, DumpableType
             }
         }
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             if ($this->elements !== []) {
                 yield ', ...';
             } else {
                 yield '...';
             }
 
-            if ($this->unsealedType !== null) {
+            if ($this->unsealedType !== ListType::native()) {
                 yield $this->unsealedType;
             }
         }
@@ -305,14 +301,14 @@ final class ShapedListType implements CompositeType, DumpableType
 
         $signature = 'list{' . implode(', ', $parts);
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             if ($this->elements !== []) {
                 $signature .= ', ...';
             } else {
                 $signature .= '...';
             }
 
-            if ($this->unsealedType) {
+            if ($this->unsealedType !== ListType::native()) {
                 $signature .= $this->unsealedType->toString();
             }
         }

@@ -48,8 +48,6 @@ final readonly class Arguments implements IteratorAggregate, Countable
                 ),
                 $this->arguments,
             ),
-            isUnsealed: false,
-            unsealedType: null,
         );
     }
 

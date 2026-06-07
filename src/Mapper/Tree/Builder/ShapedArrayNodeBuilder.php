@@ -69,7 +69,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         // Second phase: if the shaped array/list is unsealed, we take the
         // remaining values from the source and try to build them.
-        if ($type->isUnsealed) {
+        if ($type->isUnsealed()) {
             if ($type instanceof ShapedListType) {
                 $unsealedType = $type->unsealedType();
                 $elementType = $unsealedType instanceof VacantType

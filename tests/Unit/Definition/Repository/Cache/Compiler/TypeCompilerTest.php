@@ -122,23 +122,18 @@ final class TypeCompilerTest extends UnitTestCase
                 new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
                 new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true)
             ],
-            isUnsealed: false,
-            unsealedType: null,
         )];
         yield [new ShapedArrayType(
             elements: [
                 new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
                 new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true),
             ],
-            isUnsealed: true,
-            unsealedType: null,
         )];
         yield [new ShapedArrayType(
             elements: [
                 new ShapedArrayElement(new StringValueType('foo'), NativeStringType::get()),
                 new ShapedArrayElement(new IntegerValueType(1337), NativeIntegerType::get(), true),
             ],
-            isUnsealed: true,
             unsealedType: new ArrayType(ArrayKeyType::default(), NativeFloatType::get()),
         )];
         yield [new IterableType(ArrayKeyType::default(), NativeFloatType::get())];

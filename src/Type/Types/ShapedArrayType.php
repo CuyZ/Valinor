@@ -37,7 +37,6 @@ final class ShapedArrayType implements CompositeType, DumpableType
     public function __construct(
         /** @var array<ShapedArrayElement> */
         public readonly array $elements,
-        public readonly bool $isUnsealed = false,
         public readonly ArrayType|VacantType|null $unsealedType = null,
     ) {}
 
@@ -46,7 +45,6 @@ final class ShapedArrayType implements CompositeType, DumpableType
      */
     public static function from(
         array $elements,
-        bool $isUnsealed,
         Type|null $unsealedType = null,
     ): self {
         if ($unsealedType && ! $unsealedType instanceof ArrayType && ! $unsealedType instanceof VacantType) {
@@ -69,19 +67,19 @@ final class ShapedArrayType implements CompositeType, DumpableType
             $sortedElements[$key] = $element;
         }
 
-        return new self($sortedElements, $isUnsealed, $unsealedType);
+        return new self($sortedElements, $unsealedType);
     }
 
-    public function hasUnsealedType(): bool
+    public function isUnsealed(): bool
     {
         return $this->unsealedType !== null;
     }
 
     public function unsealedType(): ArrayType|VacantType
     {
-        assert($this->isUnsealed);
+        assert($this->unsealedType !== null);
 
-        return $this->unsealedType ?? ArrayType::native();
+        return $this->unsealedType;
     }
 
     public function accepts(mixed $value): bool
@@ -100,8 +98,8 @@ final class ShapedArrayType implements CompositeType, DumpableType
             }
         }
 
-        if ($this->isUnsealed) {
-            return $this->unsealedType()->accepts(array_diff_key($value, $elements));
+        if ($this->unsealedType) {
+            return $this->unsealedType->accepts(array_diff_key($value, $elements));
         }
 
         return count($value) <= count($elements);
@@ -122,7 +120,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
             }, array_values($this->elements)),
         ];
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             $unsealedType = $this->unsealedType();
 
             if ($unsealedType instanceof VacantType) {
@@ -169,9 +167,9 @@ final class ShapedArrayType implements CompositeType, DumpableType
                 }
             }
 
-            if ($other->isUnsealed) {
-                return $this->isUnsealed
-                    && $this->unsealedType()->matches($other->unsealedType());
+            if ($other->unsealedType) {
+                return $this->unsealedType
+                    && $this->unsealedType->matches($other->unsealedType);
             }
 
             return true;
@@ -191,7 +189,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
                 }
             }
 
-            if ($this->isUnsealed && ! $this->unsealedType()->matches($other)) {
+            if ($this->unsealedType && ! $this->unsealedType->matches($other)) {
                 return false;
             }
 
@@ -243,7 +241,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
         $unsealedType = $this->unsealedType ? $callback($this->unsealedType) : null;
 
-        return new self($elements, $this->isUnsealed, $unsealedType);
+        return new self($elements, $unsealedType);
     }
 
     public function nativeType(): ArrayType
@@ -267,6 +265,18 @@ final class ShapedArrayType implements CompositeType, DumpableType
             }
         }
 
+        if ($this->unsealedType) {
+            if ($this->elements !== []) {
+                yield ', ...';
+            } else {
+                yield '...';
+            }
+
+            if ($this->unsealedType !== ArrayType::native()) {
+                yield $this->unsealedType;
+            }
+        }
+
         yield '}';
     }
 
@@ -280,10 +290,10 @@ final class ShapedArrayType implements CompositeType, DumpableType
         $signature = 'array{';
         $signature .= implode(', ', array_map(static fn (ShapedArrayElement $element) => $element->toString(), $this->elements));
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             $signature .= ', ...';
 
-            if ($this->unsealedType) {
+            if ($this->unsealedType !== ArrayType::native()) {
                 $signature .= $this->unsealedType->toString();
             }
         }

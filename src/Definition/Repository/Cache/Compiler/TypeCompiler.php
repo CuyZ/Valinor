@@ -133,10 +133,9 @@ final class TypeCompiler
                 }
 
                 $elements = implode(', ', $elements);
-                $isUnsealed = var_export($type->isUnsealed, true);
-                $unsealedType = $type->hasUnsealedType() ? $this->compile($type->unsealedType()) : 'null';
+                $unsealedType = $type->isUnsealed() ? $this->compile($type->unsealedType()) : 'null';
 
-                return "new $class([$elements], $isUnsealed, $unsealedType)";
+                return "new $class([$elements], $unsealedType)";
             case $type instanceof ArrayType:
             case $type instanceof NonEmptyArrayType:
                 if ($type->toString() === 'array' || $type->toString() === 'non-empty-array') {

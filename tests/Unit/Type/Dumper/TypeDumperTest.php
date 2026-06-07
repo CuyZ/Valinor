@@ -138,13 +138,30 @@ final class TypeDumperTest extends UnitTestCase
             'expected' => '`array{classWithTwoProperties: array{foo: string, bar: int}, integer?: int}`',
         ];
 
+        yield 'unsealed shaped array' => [
+            'type' => ShapedArrayType::from(
+                elements: [
+                    new ShapedArrayElement(new StringValueType('foo'), new NativeStringType()),
+                ],
+                unsealedType: new ArrayType(ArrayKeyType::string(), new NativeIntegerType()),
+            ),
+            'expected' => '`array{foo: string, ...array<string, int>}`',
+        ];
+
+        yield 'unsealed shaped array without elements' => [
+            'type' => ShapedArrayType::from(
+                elements: [],
+                unsealedType: ArrayType::native(),
+            ),
+            'expected' => '`array{...}`',
+        ];
+
         yield 'shaped list with optional element' => [
             'type' => ShapedListType::from(
                 elements: [
                     new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                     new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
                 ],
-                isUnsealed: true,
                 unsealedType: new ListType(new NativeStringType()),
             ),
             'expected' => '`list{0: string, 1?: int, ...list<string>}`',
@@ -153,7 +170,7 @@ final class TypeDumperTest extends UnitTestCase
         yield 'unsealed shaped list without elements' => [
             'type' => ShapedListType::from(
                 elements: [],
-                isUnsealed: true,
+                unsealedType: ListType::native(),
             ),
             'expected' => '`list{...}`',
         ];

@@ -49,7 +49,7 @@ final class ShapedListTypeTest extends UnitTestCase
         ];
         $this->unsealedType = new ListType(new NativeFloatType());
 
-        $this->type = new ShapedListType(elements: $this->elements, isUnsealed: true, unsealedType: $this->unsealedType);
+        $this->type = new ShapedListType(elements: $this->elements, unsealedType: $this->unsealedType);
     }
 
     public function test_shape_properties_can_be_retrieved(): void
@@ -67,7 +67,6 @@ final class ShapedListTypeTest extends UnitTestCase
             elements: [
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
             ],
-            isUnsealed: true,
             unsealedType: new ArrayType(ArrayKeyType::default(), new NativeStringType()),
         );
     }
@@ -82,7 +81,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
             ],
-            isUnsealed: true,
             unsealedType: new ArrayType(ArrayKeyType::default(), new NativeStringType()),
         );
     }
@@ -96,7 +94,6 @@ final class ShapedListTypeTest extends UnitTestCase
             elements: [
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
             ],
-            isUnsealed: true,
             unsealedType: new ArrayType(ArrayKeyType::default(), new NativeStringType()),
         );
     }
@@ -111,7 +108,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType(), true),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), false),
             ],
-            isUnsealed: false,
         );
     }
 
@@ -126,7 +122,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
                 new ShapedArrayElement(new IntegerValueType(2), new NativeFloatType(), false),
             ],
-            isUnsealed: false,
         );
     }
 
@@ -139,7 +134,6 @@ final class ShapedListTypeTest extends UnitTestCase
             elements: [
                 new ShapedArrayElement(new IntegerValueType(2), new NativeStringType()),
             ],
-            isUnsealed: false,
         );
     }
 
@@ -153,14 +147,12 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType(), true),
                 new ShapedArrayElement(new IntegerValueType(2), new NativeIntegerType()),
             ],
-            isUnsealed: false,
         );
     }
 
     public function test_default_is_sealed(): void
     {
         $type = new ShapedListType(elements: []);
-        self::assertFalse($type->isUnsealed);
         self::assertSame('list{}', $type->toString());
     }
 
@@ -176,14 +168,13 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
             ],
-            isUnsealed: false,
         );
         self::assertSame('list{string, int}', $type->toString());
     }
 
     public function test_string_value_for_empty_sealed_list(): void
     {
-        $type = new ShapedListType(elements: [], isUnsealed: false);
+        $type = new ShapedListType(elements: []);
         self::assertSame('list{}', $type->toString());
     }
 
@@ -191,7 +182,7 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: true,
+            unsealedType: ListType::native(),
         );
         self::assertSame('list{string, ...}', $type->toString());
     }
@@ -206,7 +197,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
             ],
-            isUnsealed: false,
         );
 
         self::assertTrue($type->accepts($value));
@@ -247,7 +237,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
             ],
-            isUnsealed: false,
         );
 
         self::assertFalse($type->accepts($value));
@@ -268,7 +257,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType(), true)],
-            isUnsealed: false,
         );
 
         self::assertFalse($type->accepts([1 => 'foo']));
@@ -279,7 +267,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: true,
             unsealedType: new GenericType('T', new NativeStringType()),
         );
 
@@ -294,13 +281,11 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType(), true),
             ],
-            isUnsealed: true,
             unsealedType: new ListType(new NativeFloatType()),
         );
 
         $otherB = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: true,
         );
 
         self::assertTrue($this->type->matches($otherA));
@@ -311,7 +296,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: false,
         );
 
         self::assertTrue($type->matches(ListType::native()));
@@ -322,7 +306,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeIntegerType())],
-            isUnsealed: false,
         );
 
         self::assertFalse($type->matches(new ListType(new NativeStringType())));
@@ -332,7 +315,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: true,
             unsealedType: new ListType(new NativeIntegerType()),
         );
 
@@ -348,7 +330,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $sealedOther = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: false,
         );
 
         self::assertTrue($this->type->matches($sealedOther));
@@ -358,12 +339,11 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $sealedType = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: false,
         );
 
         $unsealedOther = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: true,
+            unsealedType: ListType::native(),
         );
 
         self::assertFalse($sealedType->matches($unsealedOther));
@@ -373,7 +353,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $incompatibleUnsealed = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: true,
             unsealedType: new ListType(new NativeIntegerType()),
         );
 
@@ -387,7 +366,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
             ],
-            isUnsealed: false,
         );
 
         $other = ShapedListType::from(
@@ -395,7 +373,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeFloatType()),
             ],
-            isUnsealed: false,
         );
 
         self::assertFalse($type->matches($other));
@@ -410,7 +387,6 @@ final class ShapedListTypeTest extends UnitTestCase
     {
         $type = ShapedListType::from(
             elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-            isUnsealed: false,
         );
 
         self::assertFalse($type->matches(new ArrayType(ArrayKeyType::string(), new NativeStringType())));
@@ -442,7 +418,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new GenericType('T', new NativeStringType())),
                 new ShapedArrayElement(new IntegerValueType(1), new GenericType('U', new NativeIntegerType())),
             ],
-            isUnsealed: false,
         );
 
         $other = ShapedListType::from(
@@ -450,7 +425,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
             ],
-            isUnsealed: false,
         );
 
         $generics = $type->inferGenericsFrom($other, new Generics());
@@ -467,14 +441,12 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new GenericType('T', new NativeStringType())),
                 new ShapedArrayElement(new IntegerValueType(1), new GenericType('U', new NativeIntegerType())),
             ],
-            isUnsealed: false,
         );
 
         $other = new ShapedListType(
             elements: [
                 1 => new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
             ],
-            isUnsealed: false,
         );
 
         $generics = $type->inferGenericsFrom($other, new Generics());
@@ -504,7 +476,6 @@ final class ShapedListTypeTest extends UnitTestCase
                 new ShapedArrayElement(new IntegerValueType(0), new NativeStringType()),
                 new ShapedArrayElement(new IntegerValueType(1), new NativeIntegerType()),
             ],
-            isUnsealed: false,
         );
 
         $replaced = $sealed->replace(static fn () => new NativeFloatType());
