@@ -57,7 +57,7 @@ final class KeyOfToken implements TraversingToken
             return $keys[0];
         }
 
-        if ($subType instanceof ShapedArrayType) {
+        if ($subType instanceof ShapedArrayType || $subType instanceof ShapedListType) {
             $keys = array_map(
                 static function ($element) {
                     if ($element->key() instanceof StringValueType) {
@@ -66,19 +66,6 @@ final class KeyOfToken implements TraversingToken
 
                     return $element->key();
                 },
-                array_values($subType->elements),
-            );
-
-            if (count($keys) > 1) {
-                return UnionType::from(...$keys);
-            }
-
-            return $keys[0];
-        }
-
-        if ($subType instanceof ShapedListType) {
-            $keys = array_map(
-                fn ($element) => $element->key(),
                 array_values($subType->elements),
             );
 
