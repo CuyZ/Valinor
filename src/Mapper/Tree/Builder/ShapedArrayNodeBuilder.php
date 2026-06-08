@@ -46,14 +46,18 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         // First phase: we loop through all the shaped array elements and try
         // to find corresponding value in the source value to build them.
         foreach ($type->elements as $key => $element) {
+            $hasValue = array_key_exists($key, $value);
+
+            if (! $hasValue && $element->isOptional()) {
+                continue;
+            }
+
             $child = $shell
                 ->child((string)$key, $element->type())
                 ->withAttributes($element->attributes());
 
-            if (array_key_exists($key, $value)) {
+            if ($hasValue) {
                 $child = $child->withValue($value[$key]);
-            } elseif ($element->isOptional()) {
-                continue;
             }
 
             $child = $child->build();
