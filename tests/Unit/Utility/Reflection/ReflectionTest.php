@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Utility\Reflection;
 
-use Closure;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use stdClass;
@@ -28,25 +27,23 @@ final class ReflectionTest extends UnitTestCase
         self::assertSame($classReflectionA, $classReflectionB);
     }
 
-    public function test_function_reflection_is_created_only_once(): void
+    public function test_get_function_reflection_returns_function_reflection(): void
     {
-        $function = fn () => 42;
+        $reflection = Reflection::function('strlen');
 
-        $functionReflectionA = Reflection::function($function);
-        $functionReflectionB = Reflection::function($function);
-
-        self::assertSame($functionReflectionA, $functionReflectionB);
+        self::assertSame('strlen', $reflection->getName());
     }
 
-    public function test_function_reflection_cache_does_not_grow_with_different_closure_instances(): void
+    public function test_function_reflection_is_created_for_each_call(): void
     {
         $function = fn () => 42;
 
-        // Closure::fromCallable creates new instances, simulating what happens
-        // when the mapper processes multiple values through the same converter.
-        $reflectionA = Reflection::function(Closure::fromCallable($function));
-        $reflectionB = Reflection::function(Closure::fromCallable($function));
-
-        self::assertSame($reflectionA, $reflectionB);
+        // Unlike class reflections, function reflections are intentionally not
+        // memoized. The previous cache keyed on `spl_object_hash()`, which is
+        // distinct for every closure instance, so it grew without bound.
+        self::assertNotSame(
+            Reflection::function($function),
+            Reflection::function($function),
+        );
     }
 }

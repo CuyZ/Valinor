@@ -20,9 +20,6 @@ final class Reflection
     /** @var array<class-string, ReflectionClass<covariant object>> */
     private static array $classReflection = [];
 
-    /** @var array<string, ReflectionFunction> */
-    private static array $functionReflection = [];
-
     /** @var array<string, bool> */
     private static array $classOrInterfaceExists = [];
 
@@ -61,17 +58,6 @@ final class Reflection
 
     public static function function(callable $function): ReflectionFunction
     {
-        $closure = Closure::fromCallable($function);
-        $reflection = new ReflectionFunction($closure);
-
-        // @infection-ignore-all / We don't need to test the cache key strategy
-        $fileName = $reflection->getFileName();
-
-        // @infection-ignore-all / Built-in functions have no file; use the function name as key instead.
-        $key = $fileName !== false
-            ? $fileName . ':' . $reflection->getStartLine()
-            : $reflection->getName();
-
-        return self::$functionReflection[$key] ??= $reflection;
+        return new ReflectionFunction(Closure::fromCallable($function));
     }
 }
