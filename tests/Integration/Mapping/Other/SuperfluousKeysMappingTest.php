@@ -55,6 +55,38 @@ final class SuperfluousKeysMappingTest extends IntegrationTestCase
         self::assertSame('fiz', $object->fiz);
     }
 
+    public function test_union_candidate_with_most_matching_arguments_is_mapped(): void
+    {
+        try {
+            $result = $this->mapper->map(UnionOfRangeAndPrice::class, [
+                ['name' => 'foo', 'price' => 42.0],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        $object = $result->objects[0];
+
+        self::assertInstanceOf(SomePriceObject::class, $object);
+        self::assertSame(42.0, $object->price);
+    }
+
+    public function test_absent_optional_argument_does_not_cause_union_collision(): void
+    {
+        try {
+            $result = $this->mapper->map(UnionOfDescriptionAndPrice::class, [
+                ['name' => 'foo', 'price' => 42.0],
+            ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        $object = $result->objects[0];
+
+        self::assertInstanceOf(SomePriceObject::class, $object);
+        self::assertSame(42.0, $object->price);
+    }
+
     public function test_single_property_node_can_be_mapped_with_superfluous_key(): void
     {
         try {
@@ -143,6 +175,43 @@ final class SomeBarAndFizObject
     public string $bar;
 
     public string $fiz;
+}
+
+final class UnionOfRangeAndPrice
+{
+    /** @var array<SomeRangeObject|SomePriceObject> */
+    public array $objects;
+}
+
+final class SomeRangeObject
+{
+    public function __construct(
+        public string $name,
+        public ?float $minimum = null,
+        public ?float $maximum = null,
+    ) {}
+}
+
+final class SomePriceObject
+{
+    public function __construct(
+        public string $name,
+        public ?float $price = null,
+    ) {}
+}
+
+final class UnionOfDescriptionAndPrice
+{
+    /** @var array<SomeDescriptionObject|SomePriceObject> */
+    public array $objects;
+}
+
+final class SomeDescriptionObject
+{
+    public function __construct(
+        public string $name,
+        public ?string $description = null,
+    ) {}
 }
 
 final class ObjectWithSingleListProperty
