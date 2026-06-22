@@ -22,7 +22,7 @@ final class StringValueToken implements TraversingToken
             throw new MissingClosingQuoteChar($this->value);
         }
 
-        return StringValueType::from($this->value);
+        return StringValueType::quoted($this->value);
     }
 
     public function symbol(): string

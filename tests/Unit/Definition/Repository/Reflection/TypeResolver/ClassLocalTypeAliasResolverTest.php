@@ -99,6 +99,20 @@ final class ClassLocalTypeAliasResolverTest extends UnitTestCase
                 'SomeType' => 'int<42, 1337>',
             ]
         ];
+
+        yield 'local alias can reference previous local alias' => [
+            'className' => (
+                /**
+                 * @phpstan-type AddressType = 'foo'|'bar'
+                 * @phpstan-type Address = array{types: list<AddressType>}
+                 */
+                new class () {}
+            )::class,
+            'expectedAliases' => [
+                'AddressType' => "'foo'|'bar'",
+                'Address' => "array{types: list<'foo'|'bar'>}",
+            ],
+        ];
     }
 
     public function test_can_resolve_local_types_for_enum(): void

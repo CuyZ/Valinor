@@ -149,6 +149,30 @@ final readonly class SomeClass
         
         /** @var array{foo: string, ...array<int, string>} */
         public array $unsealedShapedArrayWithExplicitKeyAndType,
+
+        /** @var array{foo: string, ...<string>} */
+        public array $unsealedShapedArrayWithShorthandType,
+
+        /** @var array{foo: string, ...<int, string>} */
+        public array $unsealedShapedArrayWithShorthandKeyAndType,
+
+        /** @var list{string, int, float} */
+        public array $shapedList,
+
+        /** @var list{0: string, 1: int} */
+        public array $shapedListWithExplicitKeys,
+
+        /** @var list{0: string, 1?: int} */
+        public array $shapedListWithOptionalElement,
+
+        /** @var list{string, int, ...} */
+        public array $unsealedShapedList,
+
+        /** @var list{string, int, ...list<float>} */
+        public array $unsealedShapedListWithExplicitType,
+
+        /** @var list{string, ...<float>} */
+        public array $unsealedShapedListWithShorthandType,
     ) {}
 }
 ```
@@ -229,6 +253,102 @@ final readonly class SomeClass
 
         /** @var SomeEnum::BA* (matches BAR or BAZ) */
         public SomeEnum $casesOfEnumMatchingPattern,
+    ) {}
+}
+```
+
+## key-of / value-of
+
+The `key-of<T>` and `value-of<T>` types extract the key or value types from
+enums, arrays, lists, and shaped arrays, including array constants. They are
+compatible with the same syntax as accepted by [PHPStan] and [Psalm].
+
+### key-of
+
+```php
+enum SomePureEnum
+{
+    case FOO;
+    case BAR;
+}
+
+enum SomeBackedEnum: string
+{
+    case FOO = 'foo';
+    case BAR = 'bar';
+}
+
+final readonly class SomeClassWithConstants
+{
+    public const SOME_ARRAY = ['foo' => 1, 'bar' => 2];
+}
+
+final readonly class SomeClass
+{
+    public function __construct(
+        // Accepts 'FOO' or 'BAR' (the case names of the enum)
+        /** @var key-of<SomePureEnum> */
+        public string $pureEnumKey,
+
+        // Also works with backed enums — still yields the case *names*
+        /** @var key-of<SomeBackedEnum> */
+        public string $backedEnumKey,
+
+        // Accepts 'foo' or 'bar' (the keys of the shaped array)
+        /** @var key-of<array{foo: string, bar: int}> */
+        public string $shapedArrayKey,
+
+        // Accepts the key type of the array (string here)
+        /** @var key-of<array<string, int>> */
+        public string $arrayKey,
+
+        // Accepts the key type of the list (always int)
+        /** @var key-of<list<string>> */
+        public int $listKey,
+
+        // Accepts 'foo' or 'bar' (the keys of the class constant array)
+        /** @var key-of<SomeClassWithConstants::SOME_ARRAY> */
+        public string $constantArrayKey,
+    ) {}
+}
+```
+
+### value-of
+
+```php
+enum SomeBackedStringEnum: string
+{
+    case FOO = 'foo';
+    case BAR = 'bar';
+}
+
+final readonly class SomeClassWithConstants
+{
+    public const SOME_ARRAY = ['foo' => 1, 'bar' => 2];
+}
+
+final readonly class SomeClass
+{
+    public function __construct(
+        // Accepts 'foo' or 'bar' (the backed values of the enum)
+        /** @var value-of<SomeBackedStringEnum> */
+        public string $enumValue,
+
+        // Accepts string or int (the union of value types in the shaped array)
+        /** @var value-of<array{foo: string, bar: int}> */
+        public string|int $shapedArrayValue,
+
+        // Accepts the value type of the array (SomeOtherClass here)
+        /** @var value-of<array<string, SomeOtherClass>> */
+        public SomeOtherClass $arrayValue,
+
+        // Accepts the element type of the list (string here)
+        /** @var value-of<list<string>> */
+        public string $listValue,
+
+        // Accepts 1 or 2 (the values of the class constant array)
+        /** @var value-of<SomeClassWithConstants::SOME_ARRAY> */
+        public int $constantArrayValue,
     ) {}
 }
 ```

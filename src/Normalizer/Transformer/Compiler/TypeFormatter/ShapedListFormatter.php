@@ -8,18 +8,18 @@ use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
 use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
-use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\MixedType;
-use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
+use CuyZ\Valinor\Type\VacantType;
 use WeakMap;
 
 use function hash;
 
 /** @internal */
-final class ShapedArrayFormatter implements TypeFormatter
+final class ShapedListFormatter implements TypeFormatter
 {
     public function __construct(
-        private ShapedArrayType $type,
+        private ShapedListType $type,
     ) {}
 
     public function formatValueNode(ComplianceNode $valueNode): Node
@@ -37,12 +37,10 @@ final class ShapedArrayFormatter implements TypeFormatter
     {
         $methodName = $this->methodName();
 
-        if ($class->hasMethod($methodName)) {
-            return $class;
-        }
+        $unsealedType = $this->type->isUnsealed() ? $this->type->unsealedType() : null;
 
-        if ($this->type->isUnsealed() && $this->type->unsealedType() instanceof ArrayType) {
-            $defaultDefinition = $definitionBuilder->for($this->type->unsealedType()->subType());
+        if ($unsealedType !== null && ! $unsealedType instanceof VacantType) {
+            $defaultDefinition = $definitionBuilder->for($unsealedType->subType());
         } else {
             $defaultDefinition = $definitionBuilder->for(MixedType::get());
         }
@@ -69,7 +67,7 @@ final class ShapedArrayFormatter implements TypeFormatter
                 ->withBody(
                     Node::variable('result')->assign(Node::array())->asExpression(),
                     Node::forEach(
-                        value: Node::variable('value'),
+                        value: Node::functionCall('array_values', [Node::variable('value')]),
                         key: 'key',
                         item: 'item',
                         body: Node::variable('result')->key(Node::variable('key'))->assign(
@@ -99,6 +97,6 @@ final class ShapedArrayFormatter implements TypeFormatter
      */
     private function methodName(): string
     {
-        return 'transform_shaped_array_' . hash('crc32', $this->type->toString());
+        return 'transform_shaped_list_' . hash('crc32', $this->type->toString());
     }
 }

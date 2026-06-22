@@ -15,6 +15,7 @@ use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\MixedFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\NullFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\ScalarFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\ShapedArrayFormatter;
+use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\ShapedListFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\StdClassFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TraversableFormatter;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter\TypeFormatter;
@@ -32,6 +33,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use DateTimeInterface;
 use DateTimeZone;
@@ -122,6 +124,7 @@ final class TransformerDefinitionBuilder
             $type instanceof NullType => new NullFormatter(),
             $type instanceof ScalarType => new ScalarFormatter(),
             $type instanceof ShapedArrayType => new ShapedArrayFormatter($type),
+            $type instanceof ShapedListType => new ShapedListFormatter($type),
             $type instanceof UnionType => new UnionFormatter($type),
             $type instanceof CompositeTraversableType => new TraversableFormatter($type->subType()),
             $type instanceof GenericType => $this->typeFormatter($type->innerType),

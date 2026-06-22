@@ -425,7 +425,7 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         $type = $this->getClass(new NativeClassType($class))->properties->get('value')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: the type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
+        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: the type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: missing closing curly bracket in `array{foo: string`\.$/', $type->message());
     }
 
     public function test_template_with_invalid_value_for_property_subtype_returns_unresolvable_type(): void
