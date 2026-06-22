@@ -1043,6 +1043,12 @@ final class LexingParserTest extends UnitTestCase
             'type' => IntegerValueType::class,
         ];
 
+        yield 'Class constant with null value' => [
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_NULL_VALUE',
+            'transformed' => 'null',
+            'type' => NullType::class,
+        ];
+
         yield 'Class constant with float value' => [
             'raw' => ObjectWithConstants::class . '::CONST_WITH_FLOAT_VALUE_A',
             'transformed' => '1337.42',
