@@ -149,6 +149,30 @@ final readonly class SomeClass
         
         /** @var array{foo: string, ...array<int, string>} */
         public array $unsealedShapedArrayWithExplicitKeyAndType,
+
+        /** @var array{foo: string, ...<string>} */
+        public array $unsealedShapedArrayWithShorthandType,
+
+        /** @var array{foo: string, ...<int, string>} */
+        public array $unsealedShapedArrayWithShorthandKeyAndType,
+
+        /** @var list{string, int, float} */
+        public array $shapedList,
+
+        /** @var list{0: string, 1: int} */
+        public array $shapedListWithExplicitKeys,
+
+        /** @var list{0: string, 1?: int} */
+        public array $shapedListWithOptionalElement,
+
+        /** @var list{string, int, ...} */
+        public array $unsealedShapedList,
+
+        /** @var list{string, int, ...list<float>} */
+        public array $unsealedShapedListWithExplicitType,
+
+        /** @var list{string, ...<float>} */
+        public array $unsealedShapedListWithShorthandType,
     ) {}
 }
 ```

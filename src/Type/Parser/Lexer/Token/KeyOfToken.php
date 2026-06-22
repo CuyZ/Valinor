@@ -13,6 +13,7 @@ use CuyZ\Valinor\Type\Parser\Lexer\TokenStream;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
@@ -56,7 +57,7 @@ final class KeyOfToken implements TraversingToken
             return $keys[0];
         }
 
-        if ($subType instanceof ShapedArrayType) {
+        if ($subType instanceof ShapedArrayType || $subType instanceof ShapedListType) {
             $keys = array_map(
                 static function ($element) {
                     if ($element->key() instanceof StringValueType) {

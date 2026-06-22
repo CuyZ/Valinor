@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
@@ -58,7 +59,7 @@ final class ValueOfToken implements TraversingToken
             return $cases[0];
         }
 
-        if ($subType instanceof ShapedArrayType) {
+        if ($subType instanceof ShapedArrayType || $subType instanceof ShapedListType) {
             $types = array_map(
                 fn ($element) => $element->type(),
                 array_values($subType->elements),

@@ -86,6 +86,32 @@ final class KeyOfMappingTest extends IntegrationTestCase
             ]);
         }
     }
+
+    public function test_can_map_key_of_shaped_list(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map('key-of<list{string, int}>', 0);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(0, $result);
+    }
+
+    public function test_key_of_shaped_list_mapping_error(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map('key-of<list{string, int}>', 5);
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => '[cannot_resolve_type_from_union] Value 5 does not match any of 0, 1.',
+            ]);
+        }
+    }
 }
 
 enum SomeEnumForKeyOf
