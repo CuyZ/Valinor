@@ -93,10 +93,10 @@ final class ConstantValuesMappingTest extends IntegrationTestCase
 class ClassWithConstantValues
 {
     /** @var ObjectWithConstants::* */
-    public mixed $anyConstantWithStringValue;
+    public mixed $anyConstantWithStringValue = null;
 
     /** @var ObjectWithConstants::* */
-    public mixed $anyConstantWithIntegerValue;
+    public mixed $anyConstantWithIntegerValue = null;
 
     /** @var ObjectWithConstants::CONST_WITH_STRING_* */
     public string $constantStringValue;
