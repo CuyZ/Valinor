@@ -20,6 +20,8 @@ class ObjectWithConstants
 
     final public const CONST_WITH_INTEGER_VALUE_B = 1653398289;
 
+    final public const CONST_WITH_NULL_VALUE = null;
+
     final public const CONST_WITH_FLOAT_VALUE_A = 1337.42;
 
     final public const CONST_WITH_FLOAT_VALUE_B = 404.512;
