@@ -13,16 +13,12 @@ use function class_exists;
 use function enum_exists;
 use function interface_exists;
 use function ltrim;
-use function spl_object_hash;
 
 /** @internal */
 final class Reflection
 {
     /** @var array<class-string, ReflectionClass<covariant object>> */
     private static array $classReflection = [];
-
-    /** @var array<string, ReflectionFunction> */
-    private static array $functionReflection = [];
 
     /** @var array<string, bool> */
     private static array $classOrInterfaceExists = [];
@@ -62,8 +58,6 @@ final class Reflection
 
     public static function function(callable $function): ReflectionFunction
     {
-        $closure = Closure::fromCallable($function);
-
-        return self::$functionReflection[spl_object_hash($closure)] ??= new ReflectionFunction($closure);
+        return new ReflectionFunction(Closure::fromCallable($function));
     }
 }
