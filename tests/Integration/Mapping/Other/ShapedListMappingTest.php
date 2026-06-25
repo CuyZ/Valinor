@@ -22,6 +22,25 @@ final class ShapedListMappingTest extends IntegrationTestCase
         self::assertSame(1337.404, $result[2]);
     }
 
+    public function test_mapping_from_iterable_to_shaped_list_works_properly(): void
+    {
+        $iterator = (static function () {
+            yield 'foo';
+            yield 42;
+            yield 1337.404;
+        })();
+
+        try {
+            $result = $this->mapperBuilder()->mapper()->map('list{string, int, float}', $iterator);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result[0]);
+        self::assertSame(42, $result[1]);
+        self::assertSame(1337.404, $result[2]);
+    }
+
     public function test_optional_element_can_be_absent(): void
     {
         try {

@@ -13,15 +13,16 @@ use CuyZ\Valinor\Mapper\Tree\Exception\KeysCollision;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
-use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 
 use Exception;
 use Throwable;
 
 use function array_key_exists;
+use function assert;
 use function is_array;
 use function is_iterable;
 use function iterator_to_array;
@@ -42,9 +43,11 @@ final class KeyConverterNodeBuilder implements NodeBuilder
 
     public function build(Shell $shell): Node
     {
-        if (! $this->shouldConvertKeys($shell)) {
+        if ($shell->hasNameMap()) {
             return $this->delegate->build($shell);
         }
+
+        assert($shell->type instanceof ShapedArrayType || $shell->type instanceof ShapedListType);
 
         $this->checkConverterCallables();
 
@@ -151,17 +154,5 @@ final class KeyConverterNodeBuilder implements NodeBuilder
                 throw new KeyConverterHasInvalidStringParameter($function, $function->parameters->at(0)->nativeType);
             }
         }
-    }
-
-    private function shouldConvertKeys(Shell $shell): bool
-    {
-        // Keys were already converted by a previous pass through this builder,
-        // so we skip to avoid double-transformation.
-        if ($shell->hasNameMap()) {
-            return false;
-        }
-
-        return $shell->type instanceof ShapedArrayType
-            || $shell->type instanceof ObjectType;
     }
 }

@@ -99,13 +99,19 @@ final class Container
                 $builder = new TypeNodeBuilder(
                     new ArrayNodeBuilder(),
                     new ListNodeBuilder(),
-                    new ShapedArrayNodeBuilder(),
-                    new HttpRequestNodeBuilder(),
                     new ScalarNodeBuilder(),
                     new UnionNodeBuilder(),
                     new NullNodeBuilder(),
                     new MixedNodeBuilder(),
                     new UndefinedObjectNodeBuilder(),
+                    new KeyConverterNodeBuilder(
+                        new ShapedArrayNodeBuilder(
+                            new HttpRequestNodeBuilder(),
+                        ),
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->keyConverters,
+                        $settings->exceptionFilter,
+                    ),
                     new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
@@ -120,15 +126,6 @@ final class Container
                         $settings->exceptionFilter,
                     ),
                 );
-
-                if ($settings->keyConverters !== []) {
-                    $builder = new KeyConverterNodeBuilder(
-                        $builder,
-                        $this->get(FunctionDefinitionRepository::class),
-                        $settings->keyConverters,
-                        $settings->exceptionFilter,
-                    );
-                }
 
                 return new ValueConverterNodeBuilder(
                     $builder,
