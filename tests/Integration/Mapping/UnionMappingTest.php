@@ -59,6 +59,33 @@ final class UnionMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_bare_value_for_single_argument_referencing_the_class_does_not_recurse(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(SomeObjectWithSelfReferencingUnionArgument::class, ['foo', 'bar']);
+
+            self::assertSame(['foo', 'bar'], $result->value);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
+    public function test_array_value_for_single_argument_referencing_the_class_keeps_self_reference(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(SomeObjectWithStringOrSelfReferencingUnionArgument::class, ['value' => ['value' => 'foo']]);
+
+            self::assertInstanceOf(SomeObjectWithStringOrSelfReferencingUnionArgument::class, $result->value);
+            self::assertSame('foo', $result->value->value);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
     public static function union_mapping_works_properly_data_provider(): iterable
     {
         yield 'nullable scalar' => [
@@ -520,6 +547,23 @@ final readonly class SomeObjectWithOneStringValueAndOneIntValue
     public function __construct(
         public string $string,
         public int $integer,
+    ) {}
+}
+
+final class SomeObjectWithSelfReferencingUnionArgument
+{
+    /**
+     * @param list<string>|self $value
+     */
+    public function __construct(
+        public array|self $value,
+    ) {}
+}
+
+final class SomeObjectWithStringOrSelfReferencingUnionArgument
+{
+    public function __construct(
+        public string|self $value,
     ) {}
 }
 

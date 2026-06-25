@@ -61,6 +61,23 @@ final class Polyfill
     }
 
     /**
+     * PHP8.5 use native function `array_first` instead.
+     *
+     * @infection-ignore-all
+     * @template T
+     * @param array<T> $array
+     * @return ($array is non-empty-array<T> ? T : null)
+     */
+    public static function array_first(array $array): mixed
+    {
+        foreach ($array as $value) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
      * @return non-empty-string
      */
     public static function array_all_name(): string

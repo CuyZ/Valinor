@@ -518,6 +518,30 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame('foo', $result->someRouteParameter);
     }
 
+    public function test_mapping_http_request_to_shaped_list_returns_error(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map('list{string}', new HttpRequest(bodyValues: ['a' => 'x']));
+
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[value_is_not_iterable] Value HttpRequest{body: array{a: 'x'}} does not match `list{string}`.",
+            ]);
+        }
+    }
+
+    public function test_can_map_http_request_to_union_of_shaped_array_and_shaped_list(): void
+    {
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map('array{a: string}|list{string}', new HttpRequest(bodyValues: ['a' => 'x']));
+
+        self::assertSame(['a' => 'x'], $result);
+    }
+
     public function test_route_parameter_from_attribute_cannot_come_from_query(): void
     {
         $class = (new class () {

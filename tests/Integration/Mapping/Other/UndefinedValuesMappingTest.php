@@ -60,6 +60,28 @@ final class UndefinedValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_non_null_value_for_interface_with_single_argument_is_kept_when_undefined_values_are_allowed(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(
+                    SomeInterfaceForClassWithSingleArgument::class,
+                    /** @return class-string<SomeClassWithSingleArgumentA>|class-string<SomeClassWithSingleArgumentB> */
+                    fn (string $type) => $type === 'a'
+                        ? SomeClassWithSingleArgumentA::class
+                        : SomeClassWithSingleArgumentB::class,
+                )
+                ->allowUndefinedValues()
+                ->mapper()
+                ->map(SomeInterfaceForClassWithSingleArgument::class, 'a');
+
+            self::assertInstanceOf(SomeClassWithSingleArgumentA::class, $result);
+            self::assertSame('a', $result->type);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
     public function test_missing_value_for_nullable_property_fills_it_with_null(): void
     {
         $class = new class () {
@@ -147,3 +169,15 @@ final class UndefinedValuesMappingTest extends IntegrationTestCase
 interface SomeInterfaceForClassWithNoProperties {}
 
 final class SomeClassWithNoProperties implements SomeInterfaceForClassWithNoProperties {}
+
+interface SomeInterfaceForClassWithSingleArgument {}
+
+final class SomeClassWithSingleArgumentA implements SomeInterfaceForClassWithSingleArgument
+{
+    public function __construct(public string $type) {}
+}
+
+final class SomeClassWithSingleArgumentB implements SomeInterfaceForClassWithSingleArgument
+{
+    public function __construct(public string $type) {}
+}

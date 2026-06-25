@@ -276,6 +276,21 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
             ->map(DateTimeInterface::class, []);
     }
 
+    public function test_infer_interface_with_self_referencing_parameter_union_does_not_recurse(): void
+    {
+        $this->expectException(ResolvedImplementationIsNotAccepted::class);
+        $this->expectExceptionMessage('Invalid implementation type `' . SomeInterface::class . '`, expected a subtype of `' . SomeInterface::class . '`.');
+
+        $this->mapperBuilder()
+            ->infer(
+                SomeInterface::class,
+                /** @return class-string<SomeInterface> */
+                fn (SomeInterface|string $value) => SomeClassThatInheritsInterfaceA::class
+            )
+            ->mapper()
+            ->map(SomeInterface::class, 'foo');
+    }
+
     public function test_object_implementation_callback_error_throws_exception(): void
     {
         $exception = new DomainException('some error message', 1653990051);

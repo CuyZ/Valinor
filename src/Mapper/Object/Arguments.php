@@ -7,17 +7,23 @@ namespace CuyZ\Valinor\Mapper\Object;
 use Countable;
 use CuyZ\Valinor\Definition\Parameters;
 use CuyZ\Valinor\Definition\Properties;
+use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use IteratorAggregate;
 use Traversable;
 
 use function array_diff_key;
+use function array_filter;
+use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_values;
 use function count;
+use function is_array;
 
 /**
  * @internal
@@ -78,6 +84,43 @@ final readonly class Arguments implements IteratorAggregate, Countable
     public function names(): array
     {
         return array_keys($this->arguments);
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public function withoutSelfReferencingSingleArgument(mixed $value, string $className): self
+    {
+        if (count($this->arguments) !== 1) {
+            return $this;
+        }
+
+        $argument = $this->at(0);
+
+        if (is_array($value) && array_key_exists($argument->name(), $value)) {
+            return $this;
+        }
+
+        $type = $argument->type();
+
+        if (! $type instanceof UnionType) {
+            return $this;
+        }
+
+        $subTypes = $type->types();
+        $filtered = array_filter(
+            $subTypes,
+            static fn (Type $subType) => ! $subType instanceof ObjectType || $subType->className() !== $className,
+        );
+
+        if ($filtered === $subTypes) {
+            // @infection-ignore-all / No subtype was removed, so rebuilding the
+            // union below would yield an equivalent type wrapped in equivalent
+            // arguments; this early return only avoids that redundant work.
+            return $this;
+        }
+
+        return new self($argument->withType(UnionType::from(...$filtered)));
     }
 
     public function merge(self $other): self
