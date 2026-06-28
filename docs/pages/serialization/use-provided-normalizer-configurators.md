@@ -67,10 +67,11 @@ $userAsArray = (new NormalizerBuilder())
 Several configurators convert the keys of normalized objects to a different
 naming convention than the one used in the PHP codebase.
 
-| Configurator               | Result        |
-|----------------------------|---------------|
-| `NormalizeKeysToCamelCase` | `firstName`   |
-| `NormalizeKeysToSnakeCase` | `first_name`  |
+| Configurator                | Result        |
+|-----------------------------|---------------|
+| `NormalizeKeysToSnakeCase`  | `first_name`  |
+| `NormalizeKeysToCamelCase`  | `firstName`   |
+| `NormalizeKeysToPascalCase` | `FirstName`   |
 
 Each of these classes can be used either as a configurator for global usage or
 as an attribute to target a specific class.
