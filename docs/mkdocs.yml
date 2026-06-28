@@ -68,7 +68,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets:
       auto_append:
-        - docs/includes/links.md
+        - includes/links.md
   - pymdownx.superfences
   - pymdownx.details
   - pymdownx.tabbed:
