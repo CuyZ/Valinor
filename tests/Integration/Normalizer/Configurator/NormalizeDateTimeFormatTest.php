@@ -5,10 +5,10 @@ namespace CuyZ\Valinor\Tests\Integration\Normalizer\Configurator;
 use CuyZ\Valinor\Normalizer\Configurator\NormalizeDateTimeFormat;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Safe\DateTimeImmutable;
 
 final class NormalizeDateTimeFormatTest extends IntegrationTestCase
 {
