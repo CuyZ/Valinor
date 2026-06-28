@@ -4,209 +4,140 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Compiler;
 
-use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ArrayNode;
-use CuyZ\Valinor\Compiler\Native\ClassNameNode;
-use CuyZ\Valinor\Compiler\Native\ClassNode;
-use CuyZ\Valinor\Compiler\Native\ClosureNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
-use CuyZ\Valinor\Compiler\Native\ExpressionNode;
-use CuyZ\Valinor\Compiler\Native\ForEachNode;
-use CuyZ\Valinor\Compiler\Native\FunctionCallNode;
-use CuyZ\Valinor\Compiler\Native\IfNode;
+use CuyZ\Valinor\Compiler\Native\ArrayKeyAccessNode;
+use CuyZ\Valinor\Compiler\Native\AssignNode;
+use CuyZ\Valinor\Compiler\Native\CallNode;
+use CuyZ\Valinor\Compiler\Native\ClassConstantNode;
+use CuyZ\Valinor\Compiler\Native\DifferentNode;
+use CuyZ\Valinor\Compiler\Native\EqualsNode;
+use CuyZ\Valinor\Compiler\Native\GreaterOrEqualsToNode;
+use CuyZ\Valinor\Compiler\Native\GreaterThanNode;
+use CuyZ\Valinor\Compiler\Native\InstanceOfNode;
+use CuyZ\Valinor\Compiler\Native\LessOrEqualsToNode;
+use CuyZ\Valinor\Compiler\Native\LessThanNode;
 use CuyZ\Valinor\Compiler\Native\LogicalAndNode;
 use CuyZ\Valinor\Compiler\Native\LogicalOrNode;
-use CuyZ\Valinor\Compiler\Native\MatchNode;
-use CuyZ\Valinor\Compiler\Native\MethodNode;
-use CuyZ\Valinor\Compiler\Native\NegateNode;
-use CuyZ\Valinor\Compiler\Native\NewClassNode;
-use CuyZ\Valinor\Compiler\Native\ParameterDeclarationNode;
-use CuyZ\Valinor\Compiler\Native\PropertyDeclarationNode;
-use CuyZ\Valinor\Compiler\Native\PropertyNode;
-use CuyZ\Valinor\Compiler\Native\ReturnNode;
-use CuyZ\Valinor\Compiler\Native\ShortClosureNode;
-use CuyZ\Valinor\Compiler\Native\TernaryNode;
-use CuyZ\Valinor\Compiler\Native\ThrowNode;
-use CuyZ\Valinor\Compiler\Native\ValueNode;
-use CuyZ\Valinor\Compiler\Native\VariableNode;
+use CuyZ\Valinor\Compiler\Native\MethodCallNode;
+use CuyZ\Valinor\Compiler\Native\StatementNode;
+use CuyZ\Valinor\Compiler\Native\StaticMethodCallNode;
+use CuyZ\Valinor\Compiler\Native\VariableAccessNode;
 use CuyZ\Valinor\Compiler\Native\WrapNode;
-use CuyZ\Valinor\Compiler\Native\YieldNode;
 
 /** @internal */
 abstract class Node
 {
     abstract public function compile(Compiler $compiler): Compiler;
 
-    public function asExpression(): ExpressionNode
-    {
-        return new ExpressionNode($this);
-    }
-
-    public function wrap(): ComplianceNode
-    {
-        return new ComplianceNode(new WrapNode($this));
-    }
-
     /**
-     * @param array<Node> $assignments
+     * @param non-empty-string $value
      */
-    public static function array(array $assignments = []): ArrayNode
+    public function access(string $value): self
     {
-        return new ArrayNode($assignments);
-    }
-
-    public static function anonymousClass(): AnonymousClassNode
-    {
-        return new AnonymousClassNode();
+        return new VariableAccessNode($this, $value);
     }
 
     /**
-     * @param class-string $name
+     * @no-named-arguments
      */
-    public static function class(string $name): ClassNode
+    public function and(self ...$nodes): self
     {
-        return new ClassNode($name);
+        return new LogicalAndNode($this, ...$nodes);
+    }
+
+    public function asClassConstant(): self
+    {
+        return new ClassConstantNode($this);
+    }
+
+    public function asStatement(): self
+    {
+        return new StatementNode($this);
+    }
+
+    public function key(self $key): self
+    {
+        return new ArrayKeyAccessNode($this, $key);
+    }
+
+    public function assign(self $value): self
+    {
+        return new AssignNode($this, $value);
     }
 
     /**
-     * @param class-string $className
-     */
-    public static function className(string $className): ClassNameNode
-    {
-        return new ClassNameNode($className);
-    }
-
-    public static function closure(Node ...$nodes): ClosureNode
-    {
-        return new ClosureNode(...$nodes);
-    }
-
-    /**
-     * @param non-empty-string $key
-     * @param non-empty-string $item
-     */
-    public static function forEach(Node $value, string $key, string $item, Node $body): ForEachNode
-    {
-        return new ForEachNode($value, $key, $item, $body);
-    }
-
-    /**
-     * @param non-empty-string $name
      * @param array<Node> $arguments
      */
-    public static function functionCall(string $name, array $arguments = []): ComplianceNode
+    public function call(array $arguments = []): self
     {
-        return new ComplianceNode(new FunctionCallNode($name, $arguments));
+        return new CallNode($this, $arguments);
     }
 
-    public static function if(Node $condition, Node $body): IfNode
+    /**
+     * @param non-empty-string $method
+     * @param array<Node> $arguments
+     */
+    public function callMethod(string $method, array $arguments = []): self
     {
-        return new IfNode($condition, $body);
+        return new MethodCallNode($this, $method, $arguments);
+    }
+
+    /**
+     * @param non-empty-string $method
+     * @param array<Node> $arguments
+     */
+    public function callStaticMethod(string $method, array $arguments = []): self
+    {
+        return new StaticMethodCallNode($this, $method, $arguments);
+    }
+
+    public function different(self $right): self
+    {
+        return new DifferentNode($this, $right);
+    }
+
+    public function equals(self $right): self
+    {
+        return new EqualsNode($this, $right);
     }
 
     /**
      * @no-named-arguments
      */
-    public static function logicalAnd(Node ...$nodes): ComplianceNode
+    public function or(self ...$nodes): self
     {
-        return new ComplianceNode(new LogicalAndNode(...$nodes));
-    }
-
-    /**
-     * @no-named-arguments
-     */
-    public static function logicalOr(Node ...$nodes): ComplianceNode
-    {
-        return new ComplianceNode(new LogicalOrNode(...$nodes));
-    }
-
-    public static function match(Node $value): MatchNode
-    {
-        return new MatchNode($value);
-    }
-
-    /**
-     * @param non-empty-string $name
-     */
-    public static function method(string $name): MethodNode
-    {
-        return new MethodNode($name);
-    }
-
-    public static function negate(Node $node): NegateNode
-    {
-        return new NegateNode($node);
+        return new LogicalOrNode($this, ...$nodes);
     }
 
     /**
      * @param class-string $className
      */
-    public static function newClass(string $className, Node ...$arguments): NewClassNode
+    public function instanceOf(string $className): self
     {
-        return new NewClassNode($className, ...$arguments);
+        return new InstanceOfNode($this, $className);
     }
 
-    /**
-     * @param non-empty-string $name
-     */
-    public static function parameterDeclaration(string $name, string $type): ParameterDeclarationNode
+    public function isLessThan(self $right): self
     {
-        return new ParameterDeclarationNode($name, $type);
+        return new LessThanNode($this, $right);
     }
 
-    public static function property(string $name): ComplianceNode
+    public function isLessOrEqualsTo(self $right): self
     {
-        return new ComplianceNode(new PropertyNode($name));
+        return new LessOrEqualsToNode($this, $right);
     }
 
-    /**
-     * @param non-empty-string $name
-     */
-    public static function propertyDeclaration(string $name, string $type): PropertyDeclarationNode
+    public function isGreaterThan(self $right): self
     {
-        return new PropertyDeclarationNode($name, $type);
+        return new GreaterThanNode($this, $right);
     }
 
-    public static function return(Node $node): ReturnNode
+    public function isGreaterOrEqualsTo(self $right): self
     {
-        return new ReturnNode($node);
+        return new GreaterOrEqualsToNode($this, $right);
     }
 
-    public static function shortClosure(Node $return): ShortClosureNode
+    public function wrap(): self
     {
-        return new ShortClosureNode($return);
-    }
-
-    public static function ternary(Node $condition, Node $ifTrue, Node $ifFalse): TernaryNode
-    {
-        return new TernaryNode($condition, $ifTrue, $ifFalse);
-    }
-
-    public static function this(): ComplianceNode
-    {
-        return self::variable('this');
-    }
-
-    public static function throw(Node $node): ThrowNode
-    {
-        return new ThrowNode($node);
-    }
-
-    /**
-     * @param array<mixed>|bool|float|int|string|null $value
-     */
-    public static function value(array|bool|float|int|string|null $value): ComplianceNode
-    {
-        return new ComplianceNode(new ValueNode($value));
-    }
-
-    public static function variable(string $name): ComplianceNode
-    {
-        return new ComplianceNode(new VariableNode($name));
-    }
-
-    public static function yield(Node $key, Node $value): YieldNode
-    {
-        return new YieldNode($key, $value);
+        return new WrapNode($this);
     }
 }

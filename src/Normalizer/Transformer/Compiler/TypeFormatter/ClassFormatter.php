@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\NewAttributeNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Definition\AttributeDefinition;
 use CuyZ\Valinor\Definition\ClassDefinition;
@@ -18,6 +17,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use WeakMap;
 
+use function CuyZ\Valinor\Compiler\{array_, call, clone_, if_, newClass, param, return_, shortClosure, this, throw_, value, variable};
 use function hash;
 use function preg_replace;
 use function str_contains;
@@ -30,13 +30,13 @@ final class ClassFormatter implements TypeFormatter
         private ClassDefinition $class,
     ) {}
 
-    public function formatValueNode(ComplianceNode $valueNode): Node
+    public function formatValueNode(Node $valueNode): Node
     {
-        return Node::this()->callMethod(
+        return this()->callMethod(
             method: $this->methodName(),
             arguments: [
                 $valueNode,
-                Node::variable('references'),
+                variable('references'),
             ],
         );
     }
@@ -51,17 +51,17 @@ final class ClassFormatter implements TypeFormatter
 
         // This is a placeholder method to avoid circular references coming from
         // the class properties.
-        $class = $class->withMethods(Node::method($methodName));
+        $class = $class->withMethod($methodName);
 
-        $valuesNode = $this->valuesNode(Node::variable('value'));
+        $valuesNode = $this->valuesNode(variable('value'));
 
         $nodes = [
             ...$this->checkCircularObjectReference(),
-            Node::variable('values')->assign($valuesNode)->asExpression(),
+            variable('values')->assign($valuesNode)->asStatement(),
         ];
 
         $transformedNodes = [
-            Node::variable('transformed')->assign(Node::array())->asExpression(),
+            variable('transformed')->assign(value([]))->asStatement(),
         ];
 
         $shouldUseTransformedNodes = false;
@@ -97,27 +97,27 @@ final class ClassFormatter implements TypeFormatter
                 ->toArray();
 
             if ($keyTransformerAttributes === []) {
-                $key = Node::value($property->name);
+                $key = value($property->name);
             } else {
-                $transformedNodes[] = Node::variable('key')->assign(Node::value($property->name))->asExpression();
+                $transformedNodes[] = variable('key')->assign(value($property->name))->asStatement();
 
                 foreach ($keyTransformerAttributes as $attribute) {
-                    $transformedNodes[] = Node::variable('key')->assign(
+                    $transformedNodes[] = variable('key')->assign(
                         (new NewAttributeNode($attribute))->wrap()->callMethod(
                             method: 'normalizeKey',
-                            arguments: [Node::variable('key')],
+                            arguments: [variable('key')],
                         ),
-                    )->asExpression();
+                    )->asStatement();
                 }
 
-                $key = Node::variable('key');
+                $key = variable('key');
             }
 
-            $transformedNodes[] = Node::variable('transformed')
+            $transformedNodes[] = variable('transformed')
                 ->key($key)
                 ->assign($typeFormatter->formatValueNode(
-                    Node::variable('values')->key(Node::value($property->name)),
-                ))->asExpression();
+                    variable('values')->key(value($property->name)),
+                ))->asStatement();
 
             $class = $typeFormatter->manipulateTransformerClass($class, $definitionBuilder);
 
@@ -131,20 +131,20 @@ final class ClassFormatter implements TypeFormatter
             $nodes = [
                 ...$nodes,
                 ...$transformedNodes,
-                Node::return(Node::variable('transformed'))
+                return_(variable('transformed'))
             ];
         } else {
-            $nodes[] = Node::return(Node::variable('values'));
+            $nodes[] = return_(variable('values'));
         }
 
-        return $class->withMethods(
-            Node::method($methodName)
-                ->witParameters(
-                    Node::parameterDeclaration('value', str_contains($this->class->name, '@anonymous') ? 'object' : $this->class->name),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('array')
-                ->withBody(...$nodes),
+        return $class->withMethod(
+            name: $methodName,
+            parameters: [
+                param('value', str_contains($this->class->name, '@anonymous') ? 'object' : $this->class->name),
+                param('references', WeakMap::class),
+            ],
+            returnType: 'array',
+            body: $nodes,
         );
     }
 
@@ -154,14 +154,14 @@ final class ClassFormatter implements TypeFormatter
     private function checkCircularObjectReference(): array
     {
         return [
-            Node::if(
-                condition: Node::functionCall('isset', [Node::variable('references')->key(Node::variable('value'))]),
-                body: Node::throw(
-                    Node::newClass(CircularReferenceFoundDuringNormalization::class, Node::variable('value')),
-                )->asExpression(),
+            if_(
+                condition: call('isset', [variable('references')->key(variable('value'))]),
+                body: throw_(
+                    newClass(CircularReferenceFoundDuringNormalization::class, variable('value')),
+                )->asStatement(),
             ),
-            Node::variable('references')->assign(Node::variable('references')->clone())->asExpression(),
-            Node::variable('references')->key(Node::variable('value'))->assign(Node::variable('value'))->asExpression(),
+            variable('references')->assign(clone_(variable('references')))->asStatement(),
+            variable('references')->key(variable('value'))->assign(variable('value'))->asStatement(),
         ];
     }
 
@@ -186,7 +186,7 @@ final class ClassFormatter implements TypeFormatter
      * (fn () => get_object_vars($this))->call($value)
      * ```
      */
-    private function valuesNode(ComplianceNode $valueNode): Node
+    private function valuesNode(Node $valueNode): Node
     {
         $allPropertiesArePublic = true;
         $assignments = [];
@@ -198,13 +198,13 @@ final class ClassFormatter implements TypeFormatter
         }
 
         if ($allPropertiesArePublic) {
-            return Node::array($assignments);
+            return array_($assignments);
         }
 
-        return Node::shortClosure(
-            return: Node::functionCall(
+        return shortClosure(
+            return: call(
                 name: 'get_object_vars',
-                arguments: [Node::this()],
+                arguments: [this()],
             ),
         )->wrap()->callMethod('call', [$valueNode]);
     }

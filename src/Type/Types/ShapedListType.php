@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
@@ -24,6 +23,7 @@ use function array_slice;
 use function array_values;
 use function assert;
 use function count;
+use function CuyZ\Valinor\Compiler\{call, logicalAnd, param, shortClosure, ternary, value, variable};
 use function implode;
 use function is_array;
 
@@ -108,43 +108,41 @@ final class ShapedListType implements CompositeType, DumpableType
         return count($value) <= count($this->elements);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         $conditions = [
-            Node::functionCall('is_array', [$node]),
-            Node::functionCall('array_is_list', [$node]),
+            call('is_array', [$node]),
+            call('array_is_list', [$node]),
             ...array_map(function (ShapedArrayElement $element) use ($node) {
-                $key = Node::value($element->key()->value());
+                $key = value($element->key()->value());
 
-                return Node::ternary(
-                    condition: Node::functionCall('array_key_exists', [$key, $node]),
+                return ternary(
+                    condition: call('array_key_exists', [$key, $node]),
                     ifTrue: $element->type()->compiledAccept($node->key($key)),
-                    ifFalse: Node::value($element->isOptional()),
+                    ifFalse: value($element->isOptional()),
                 )->wrap();
             }, array_values($this->elements)),
         ];
 
         if ($this->unsealedType) {
             if ($this->unsealedType instanceof VacantType) {
-                return Node::value(false);
+                return value(false);
             }
 
-            $conditions[] = Node::class(Polyfill::class)->callStaticMethod(
-                'array_all',
-                [
-                    Node::functionCall('array_slice', [$node, Node::value(count($this->elements))]),
-                    Node::shortClosure(
-                        $this->unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
-                    )->witParameters(
-                        Node::parameterDeclaration('item', 'mixed'),
-                    ),
-                ],
-            );
+            $conditions[] = call(Polyfill::array_all_name(), [
+                call('array_slice', [$node, value(count($this->elements))]),
+                shortClosure(
+                    $this->unsealedType->subType()->compiledAccept(variable('item'))->wrap(),
+                    parameters: [
+                        param('item', 'mixed'),
+                    ],
+                ),
+            ]);
         } else {
-            $conditions[] = Node::functionCall('count', [$node])->isLessOrEqualsTo(Node::value(count($this->elements)));
+            $conditions[] = call('count', [$node])->isLessOrEqualsTo(value(count($this->elements)));
         }
 
-        return Node::logicalAnd(...$conditions);
+        return logicalAnd(...$conditions);
     }
 
     public function matches(Type $other): bool

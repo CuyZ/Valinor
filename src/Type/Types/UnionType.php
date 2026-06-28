@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\DumpableType;
@@ -15,6 +14,7 @@ use function array_filter;
 use function array_map;
 use function array_shift;
 use function array_values;
+use function CuyZ\Valinor\Compiler\logicalOr;
 use function implode;
 
 /** @internal */
@@ -73,9 +73,9 @@ final class UnionType implements CombiningType, DumpableType
         return false;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::logicalOr(
+        return logicalOr(
             ...array_map(
                 fn (Type $type) => $type->compiledAccept($node),
                 $this->types,

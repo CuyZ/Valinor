@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -13,6 +12,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
 use function assert;
+use function CuyZ\Valinor\Compiler\call;
 use function is_float;
 use function is_numeric;
 
@@ -26,9 +26,9 @@ final class NativeFloatType implements FloatType
         return is_float($value);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_float', [$node]);
+        return call('is_float', [$node]);
     }
 
     public function matches(Type $other): bool

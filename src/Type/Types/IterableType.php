@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\DumpableType;
@@ -12,7 +11,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\Polyfill;
 use Generator;
 
-use function function_exists;
+use function CuyZ\Valinor\Compiler\{call, logicalAnd, negate, param, shortClosure, variable};
 use function is_iterable;
 
 /** @internal */
@@ -53,27 +52,28 @@ final class IterableType implements CompositeTraversableType, DumpableType
         return true;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        $condition = Node::logicalAnd(
-            Node::functionCall('is_iterable', [$node]),
-            Node::negate($node->instanceOf(Generator::class)),
+        $condition = logicalAnd(
+            call('is_iterable', [$node]),
+            negate($node->instanceOf(Generator::class)),
         );
 
         if ($this === self::native()) {
             return $condition;
         }
 
-        return $condition->and(Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-            Node::functionCall('iterator_to_array', [$node]),
-            Node::shortClosure(
-                Node::logicalAnd(
-                    $this->keyType->compiledAccept(Node::variable('key'))->wrap(),
-                    $this->subType->compiledAccept(Node::variable('item'))->wrap(),
+        return $condition->and(call(Polyfill::array_all_name(), [
+            call('iterator_to_array', [$node]),
+            shortClosure(
+                logicalAnd(
+                    $this->keyType->compiledAccept(variable('key'))->wrap(),
+                    $this->subType->compiledAccept(variable('item'))->wrap(),
                 ),
-            )->witParameters(
-                Node::parameterDeclaration('item', 'mixed'),
-                Node::parameterDeclaration('key', 'mixed'),
+                parameters: [
+                    param('item', 'mixed'),
+                    param('key', 'mixed'),
+                ],
             ),
         ]));
     }
