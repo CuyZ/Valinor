@@ -31,7 +31,7 @@ See [date time configurator chapter].
 
 See [snake_case configurator chapter].
 
-[snake_case configurator chapter]: use-provided-normalizer-configurators.md#converting-keys-to-snake_case
+[snake_case configurator chapter]: use-provided-normalizer-configurators.md#converting-key-case
 
 ## Ignoring properties
 
