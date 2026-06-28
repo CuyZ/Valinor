@@ -315,21 +315,21 @@ properties. Two families of configurators help with this:
 
 - [RestrictKeysTo*Case] configurators reject keys that do not match the
   expected format (e.g. `snake_case`, `camelCase`), raising a mapping error.
-- [ConvertKeysTo*Case] configurators convert input keys to the target format
-  before mapping (e.g. `first_name` → `firstName`).
+- [MapKeysTo*Case] configurators convert input keys to the target format before
+  mapping (e.g. `first_name` → `firstName`).
 
 They can be combined so that the restriction validates the original keys and the
 conversion remaps them. Both work with HTTP request mapping.
 
 ```php
-use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase;
 use CuyZ\Valinor\Mapper\Configurator\RestrictKeysToSnakeCase;
 use CuyZ\Valinor\MapperBuilder;
 
 $controllerArguments = (new MapperBuilder())
     ->configureWith(
         new RestrictKeysToSnakeCase(),
-        new ConvertKeysToCamelCase(),
+        new MapKeysToCamelCase(),
     )
     ->argumentsMapper()
     ->mapArguments($controller, $httpRequest);
@@ -339,7 +339,7 @@ Read the [common mapper configurators chapter] for the full list of available
 configurators and detailed usage.
 
 [RestrictKeysTo*Case]: use-provided-mapper-configurators.md#restricting-key-case
-[ConvertKeysTo*Case]: use-provided-mapper-configurators.md#converting-key-case
+[MapKeysTo*Case]: use-provided-mapper-configurators.md#converting-key-case
 [common mapper configurators chapter]: use-provided-mapper-configurators.md
 
 ## Error handling

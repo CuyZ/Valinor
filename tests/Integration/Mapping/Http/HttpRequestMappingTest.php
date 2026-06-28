@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
-use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase;
 use CuyZ\Valinor\Mapper\Configurator\RestrictKeysToSnakeCase;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
@@ -687,7 +687,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ) => [];
 
         $result = $this->mapperBuilder()
-            ->configureWith(new ConvertKeysToCamelCase())
+            ->configureWith(new MapKeysToCamelCase())
             ->argumentsMapper()
             ->mapArguments($controller, $request);
 
