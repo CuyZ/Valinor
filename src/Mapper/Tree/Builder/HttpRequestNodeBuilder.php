@@ -41,7 +41,7 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             return $this->delegate->build($shell);
         }
 
-        if ($type->isUnsealed) {
+        if ($type->isUnsealed()) {
             throw new CannotMapHttpRequestToUnsealedShapedArray();
         }
 

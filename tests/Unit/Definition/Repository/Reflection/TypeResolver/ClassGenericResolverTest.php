@@ -96,6 +96,86 @@ final class ClassGenericResolverTest extends UnitTestCase
         self::assertSame('some message', $generics['Template']->message());
     }
 
+    public function test_covariant_template_is_resolved(): void
+    {
+        $className =
+            /**
+             * @template-covariant T
+             */
+            (new class () {})::class;
+
+        $type = new NativeClassType($className, [NativeStringType::get()]);
+
+        $generics = $this->classGenericResolver()->resolveGenerics($type);
+
+        self::assertArrayHasKey('T', $generics);
+        self::assertSame('string', $generics['T']->toString());
+    }
+
+    public function test_phpstan_covariant_template_is_resolved(): void
+    {
+        $className =
+            /**
+             * @phpstan-template-covariant T
+             */
+            (new class () {})::class;
+
+        $type = new NativeClassType($className, [NativeStringType::get()]);
+
+        $generics = $this->classGenericResolver()->resolveGenerics($type);
+
+        self::assertArrayHasKey('T', $generics);
+        self::assertSame('string', $generics['T']->toString());
+    }
+
+    public function test_psalm_covariant_template_is_resolved(): void
+    {
+        $className =
+            /**
+             * @psalm-template-covariant T
+             */
+            (new class () {})::class;
+
+        $type = new NativeClassType($className, [NativeStringType::get()]);
+
+        $generics = $this->classGenericResolver()->resolveGenerics($type);
+
+        self::assertArrayHasKey('T', $generics);
+        self::assertSame('string', $generics['T']->toString());
+    }
+
+    public function test_covariant_template_with_constraint_is_resolved(): void
+    {
+        $className =
+            /**
+             * @template-covariant T of string
+             */
+            (new class () {})::class;
+
+        $type = new NativeClassType($className, [NativeStringType::get()]);
+
+        $generics = $this->classGenericResolver()->resolveGenerics($type);
+
+        self::assertArrayHasKey('T', $generics);
+        self::assertSame('string', $generics['T']->toString());
+    }
+
+    public function test_covariant_template_with_non_matching_type_sets_unresolvable_type_for_generic(): void
+    {
+        $className =
+            /**
+             * @template-covariant T of string
+             */
+            (new class () {})::class;
+
+        $type = new NativeClassType($className, [NativeBooleanType::get()]);
+
+        $generics = $this->classGenericResolver()->resolveGenerics($type);
+
+        self::assertInstanceOf(UnresolvableType::class, $generics['T']);
+        self::assertSame("The generic `bool` is not a subtype of `string` for the template `T` of the class `$className`.", $generics['T']->message());
+    }
+
     private function classGenericResolver(): ClassGenericResolver
     {
         return new ClassGenericResolver(

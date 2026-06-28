@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Mapper\Source\Modifier;
 
-use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase;
 use IteratorAggregate;
 use Traversable;
 
@@ -18,7 +18,7 @@ use function ucwords;
 
 /**
  * @deprecated This modifier will be removed in version 3.0.
- *             Use the configurator {@see ConvertKeysToCamelCase} instead.
+ *             Use the configurator {@see MapKeysToCamelCase} instead.
  *
  * @api
  * @implements IteratorAggregate<mixed>

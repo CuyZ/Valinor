@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Parser\TypeParser;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
 use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\CallableType;
@@ -32,6 +33,7 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
@@ -43,6 +45,7 @@ use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
@@ -704,6 +707,90 @@ final class LexingParserTest extends UnitTestCase
             'type' => ShapedArrayType::class,
         ];
 
+        yield 'Unsealed shaped array with shorthand generic type' => [
+            'raw' => 'array{foo: string, ...<int>}',
+            'transformed' => 'array{foo: string, ...array<int>}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Unsealed shaped array with shorthand generic key and value type' => [
+            'raw' => 'array{foo: string, ...<string, int>}',
+            'transformed' => 'array{foo: string, ...array<string, int>}',
+            'type' => ShapedArrayType::class,
+        ];
+
+        yield 'Shaped list' => [
+            'raw' => 'list{string, int}',
+            'transformed' => 'list{string, int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list with explicit keys' => [
+            'raw' => 'list{0: string, 1: int}',
+            'transformed' => 'list{string, int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list with optional element using explicit key' => [
+            'raw' => 'list{0: string, 1?: int}',
+            'transformed' => 'list{0: string, 1?: int}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Shaped list unsealed with shorthand generic type' => [
+            'raw' => 'list{string, ...<float>}',
+            'transformed' => 'list{string, ...list<float>}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Empty shaped list' => [
+            'raw' => 'list{}',
+            'transformed' => 'list{}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list without elements' => [
+            'raw' => 'list{...}',
+            'transformed' => 'list{...}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list without elements followed by description' => [
+            'raw' => 'list{...} lorem ipsum',
+            'transformed' => 'list{...}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list with trailing comma' => [
+            'raw' => 'list{string, ...,}',
+            'transformed' => 'list{string, ...}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list with shorthand generic type followed by description' => [
+            'raw' => 'list{string, ...<float>} lorem ipsum',
+            'transformed' => 'list{string, ...list<float>}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Unsealed shaped list with list type followed by description' => [
+            'raw' => 'list{string, ...list<float>} lorem ipsum',
+            'transformed' => 'list{string, ...list<float>}',
+            'type' => ShapedListType::class,
+        ];
+
+        yield 'Union after unsealed shaped list with shorthand generic type' => [
+            'raw' => 'list{string, ...<float>}|null',
+            'transformed' => 'list{string, ...list<float>}|null',
+            'type' => UnionType::class,
+        ];
+
+        yield 'Union after unsealed shaped list with list type' => [
+            'raw' => 'list{string, ...list<float>}|null',
+            'transformed' => 'list{string, ...list<float>}|null',
+            'type' => UnionType::class,
+        ];
+
         yield 'Iterable type' => [
             'raw' => 'iterable',
             'transformed' => 'iterable',
@@ -932,6 +1019,12 @@ final class LexingParserTest extends UnitTestCase
             'type' => UnionType::class,
         ];
 
+        yield 'Parenthesized union type' => [
+            'raw' => "('foo'|'bar')",
+            'transformed' => "'foo'|'bar'",
+            'type' => UnionType::class,
+        ];
+
         yield 'Intersection type' => [
             'raw' => 'stdClass&DateTimeInterface',
             'transformed' => 'stdClass&DateTimeInterface',
@@ -954,6 +1047,12 @@ final class LexingParserTest extends UnitTestCase
             'raw' => ObjectWithConstants::class . '::CONST_WITH_INTEGER_VALUE_A',
             'transformed' => '1653398288',
             'type' => IntegerValueType::class,
+        ];
+
+        yield 'Class constant with null value' => [
+            'raw' => ObjectWithConstants::class . '::CONST_WITH_NULL_VALUE',
+            'transformed' => 'null',
+            'type' => NullType::class,
         ];
 
         yield 'Class constant with float value' => [
@@ -1044,6 +1143,132 @@ final class LexingParserTest extends UnitTestCase
             'raw' => "value-of<" . BackedIntegerEnum::class . ">",
             'transformed' => "42|404|1337",
             'type' => UnionType::class,
+        ];
+
+        yield 'value-of<array>' => [
+            'raw' => 'value-of<array>',
+            'transformed' => 'mixed',
+            'type' => MixedType::class,
+        ];
+
+        yield 'value-of<array<string, int>>' => [
+            'raw' => 'value-of<array<string, int>>',
+            'transformed' => 'int',
+            'type' => NativeIntegerType::class,
+        ];
+
+        yield 'value-of<list<string>>' => [
+            'raw' => 'value-of<list<string>>',
+            'transformed' => 'string',
+            'type' => NativeStringType::class,
+        ];
+
+        yield 'value-of<array{foo: string, bar: int}>' => [
+            'raw' => 'value-of<array{foo: string, bar: int}>',
+            'transformed' => 'string|int',
+            'type' => UnionType::class,
+        ];
+
+        yield 'value-of<array{foo: string}>' => [
+            'raw' => 'value-of<array{foo: string}>',
+            'transformed' => 'string',
+            'type' => NativeStringType::class,
+        ];
+
+        yield 'value-of applied to class array constant' => [
+            'raw' => 'value-of<' . ObjectWithConstants::class . '::CONST_WITH_ARRAY_VALUE_A>',
+            'transformed' => "'some string value'|1653398288|1337.42",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<PureEnum>' => [
+            'raw' => "key-of<" . PureEnum::class . ">",
+            'transformed' => "'FOO'|'BAR'|'BAZ'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<BackedStringEnum>' => [
+            'raw' => "key-of<" . BackedStringEnum::class . ">",
+            'transformed' => "'FOO'|'BAR'|'BAZ'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<BackedIntegerEnum>' => [
+            'raw' => "key-of<" . BackedIntegerEnum::class . ">",
+            'transformed' => "'FOO'|'BAR'|'BAZ'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<array>' => [
+            'raw' => 'key-of<array>',
+            'transformed' => 'array-key',
+            'type' => ArrayKeyType::class,
+        ];
+
+        yield 'key-of<array<string, int>>' => [
+            'raw' => 'key-of<array<string, int>>',
+            'transformed' => 'string',
+            'type' => ArrayKeyType::class,
+        ];
+
+        yield 'key-of<list<string>>' => [
+            'raw' => 'key-of<list<string>>',
+            'transformed' => 'int',
+            'type' => ArrayKeyType::class,
+        ];
+
+        yield 'key-of<array{foo: string, bar: int}>' => [
+            'raw' => "key-of<array{foo: string, bar: int}>",
+            'transformed' => "'foo'|'bar'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<array{foo: string}>' => [
+            'raw' => "key-of<array{foo: string}>",
+            'transformed' => "'foo'",
+            'type' => StringValueType::class,
+        ];
+
+        yield 'key-of<array{0: string}>' => [
+            'raw' => "key-of<array{0: string}>",
+            'transformed' => "0",
+            'type' => IntegerValueType::class,
+        ];
+
+        yield "key-of shaped array with string key containing single quote" => [
+            'raw' => 'key-of<array{"it\'s": string}>',
+            'transformed' => '"it\'s"',
+            'type' => StringValueType::class,
+        ];
+
+        yield 'key-of applied to class array constant' => [
+            'raw' => 'key-of<' . ObjectWithConstants::class . '::CONST_WITH_ARRAY_VALUE_A>',
+            'transformed' => "'string'|'integer'|'float'",
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<list{string, int}>' => [
+            'raw' => 'key-of<list{string, int}>',
+            'transformed' => '0|1',
+            'type' => UnionType::class,
+        ];
+
+        yield 'key-of<list{string}>' => [
+            'raw' => 'key-of<list{string}>',
+            'transformed' => '0',
+            'type' => IntegerValueType::class,
+        ];
+
+        yield 'value-of<list{string, int}>' => [
+            'raw' => 'value-of<list{string, int}>',
+            'transformed' => 'string|int',
+            'type' => UnionType::class,
+        ];
+
+        yield 'value-of<list{string}>' => [
+            'raw' => 'value-of<list{string}>',
+            'transformed' => 'string',
+            'type' => NativeStringType::class,
         ];
 
         yield 'Scalar' => [
@@ -1252,6 +1477,366 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('The closing bracket is missing for `non-empty-list<string>`.', $type->message());
     }
 
+    public function test_shaped_list_with_explicit_key_after_implicit_throws_exception(): void
+    {
+        $type = $this->parse('list{string, 1: int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot mix explicit and implicit keys in shaped list `list{string}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_implicit_key_after_explicit_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot mix explicit and implicit keys in shaped list `list{string}`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_splat_throws_exception(): void
+    {
+        $type = $this->parse('list{int, ...float, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,...string` after sealed type in `list{int, ...float,...string`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_splat_without_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{..., ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `...` after sealed type in `list{, ...list...`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_shorthand_splat_throws_exception(): void
+    {
+        $type = $this->parse('list{int, ...<float>, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,...string` after sealed type in `list{int, ...list<float>,...string`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_splat_with_optional_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{0: int, 1?: string, ...float, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,...string` after sealed type in `list{0: int, 1?: string, ...float,...string`.', $type->message());
+    }
+
+    public function test_shaped_list_with_duplicate_shorthand_splat_with_two_unexpected_tokens_throws_exception(): void
+    {
+        $type = $this->parse('list{int, ...<float>, ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,...` after sealed type in `list{int, ...list<float>,...`.', $type->message());
+    }
+
+    public function test_shaped_list_with_mixed_keys_with_optional_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int, float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Cannot mix explicit and implicit keys in shaped list `list{0: string, 1?: int}`.', $type->message());
+    }
+
+    public function test_shaped_list_colon_token_missing_after_optional_marker_throws_exception(): void
+    {
+        $type = $this->parse('list{0? int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing colon in `list{0?`.', $type->message());
+    }
+
+    public function test_shaped_list_colon_token_missing_after_optional_marker_with_previous_optional_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int, 2? float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing colon in `list{0: string, 1?: int, 2?`.', $type->message());
+    }
+
+    public function test_shaped_list_colon_token_missing_after_required_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1? int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing colon in `list{string, 1?`.', $type->message());
+    }
+
+    public function test_shaped_list_comma_missing_throws_exception(): void
+    {
+        $type = $this->parse('list{string int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing comma in `list{string`.', $type->message());
+    }
+
+    public function test_shaped_list_comma_missing_with_optional_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing comma in `list{0: string, 1?: int`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_element_throws_exception(): void
+    {
+        $type = $this->parse('list{string');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_optional_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{0: string, 1?: int`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_bare_splat_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string, ...`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_trailing_comma_throws_exception(): void
+    {
+        $type = $this->parse('list{string,');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_shorthand_splat_opening_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string, ...`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_shorthand_splat_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `list<float>`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_closing_bracket_after_shorthand_splat_type_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float>');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string, ...list<float>`.', $type->message());
+    }
+
+    public function test_shaped_list_shorthand_splat_without_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{...<float>}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing elements in `list{...list<float>}`.', $type->message());
+    }
+
+    public function test_shaped_list_shorthand_splat_with_unexpected_token_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float> int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `int` after sealed type in `list{string, ...list<float>int`.', $type->message());
+    }
+
+    public function test_shaped_list_shorthand_splat_with_unexpected_token_after_comma_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...<float>, int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,int` after sealed type in `list{string, ...list<float>,int`.', $type->message());
+    }
+
+    public function test_shaped_list_typed_splat_without_elements_throws_exception(): void
+    {
+        $type = $this->parse('list{...float}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing elements in `list{...float}`.', $type->message());
+    }
+
+    public function test_shaped_list_typed_splat_missing_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...float');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string, float`.', $type->message());
+    }
+
+    public function test_shaped_list_typed_splat_with_unexpected_token_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...float int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `int` after sealed type in `list{string, ...floatint`.', $type->message());
+    }
+
+    public function test_shaped_list_typed_splat_with_nested_list_missing_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('list{string, ...list<float>');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `list{string, list<float>`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_element_type_throws_exception(): void
+    {
+        $type = $this->parse('list{0:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in `list{0:`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_optional_element_type_throws_exception(): void
+    {
+        $type = $this->parse('list{0?:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in `list{0?:`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_element_type_after_optional_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1?: int, 2:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in `list{0: string, 1?: int, 2:`.', $type->message());
+    }
+
+    public function test_shaped_list_missing_element_type_after_required_element_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 1:');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing element type in `list{string, 1:`.', $type->message());
+    }
+
+    public function test_shaped_list_string_key_throws_exception(): void
+    {
+        $type = $this->parse('list{foo: string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Key `foo` is not valid for a list element, expected sequential integer key `0`.', $type->message());
+    }
+
+    public function test_shaped_list_negative_key_throws_exception(): void
+    {
+        $type = $this->parse('list{-1: string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Key `-1` is not valid for a list element, expected sequential integer key `0`.', $type->message());
+    }
+
+    public function test_shaped_list_skipped_key_throws_exception(): void
+    {
+        $type = $this->parse('list{0: string, 2: int}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Key `2` is not valid for a list element, expected sequential integer key `1`.', $type->message());
+    }
+
+    public function test_shaped_array_with_duplicate_bare_splat_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ..., ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `...` after sealed type in `array{0: int, ...array...`.', $type->message());
+    }
+
+    public function test_shaped_array_with_duplicate_typed_splat_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...int, ...string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,...string` after sealed type in `array{0: int, ...int,...string`.', $type->message());
+    }
+
+    public function test_shaped_array_with_duplicate_shorthand_splat_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<int>, ...}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,...` after sealed type in `array{0: int, ...array<int>,...`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_missing_subtype_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `array<`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_missing_value_type_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<string,');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `array<string,`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_with_invalid_key_type_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<float, string>}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Invalid type `array<float, string>`: invalid array-key element(s) `float`, each element must be an integer or a string.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_with_invalid_key_type_missing_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<float, string');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The closing bracket is missing for `array<float, string>`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_missing_final_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<string, float>');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Missing closing curly bracket in `array{0: int, ...array<string, float>`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_missing_subtype_closing_bracket_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<string');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Expected comma or closing bracket after `array<string`.', $type->message());
+    }
+
+    public function test_shaped_array_shorthand_splat_with_unexpected_token_after_comma_throws_exception(): void
+    {
+        $type = $this->parse('array{0: int, ...<int>, string}');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected `,string` after sealed type in `array{0: int, ...array<int>,string`.', $type->message());
+    }
+
+    public function test_shaped_list_with_trailing_comma_can_be_followed_by_union(): void
+    {
+        $type = $this->parse('list{string,}|null');
+
+        self::assertInstanceOf(UnionType::class, $type);
+        self::assertSame('list{string}|null', $type->toString());
+    }
+
     public function test_invalid_iterable_key_throws_exception(): void
     {
         $type = $this->parse('iterable<float, string>');
@@ -1308,6 +1893,30 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame('Invalid types in intersection `int&DateTimeInterface`, each element must be a class name or an interface name but found `int`.', $type->message());
     }
 
+    public function test_missing_closing_parens(): void
+    {
+        $type = $this->parse("('foo'|'bar'");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("Expected closing parenthesis after `'foo'|'bar'`.", $type->message());
+    }
+
+    public function test_not_closing_parens(): void
+    {
+        $type = $this->parse("('foo'|'bar'(");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected token `(`, expected a valid type.', $type->message());
+    }
+
+    public function test_just_opening_parens(): void
+    {
+        $type = $this->parse("(");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('Unexpected token `(`, expected a valid type.', $type->message());
+    }
+
     public function test_invalid_right_intersection_member_throws_exception(): void
     {
         $type = $this->parse('DateTimeInterface&int');
@@ -1321,7 +1930,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{string');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: string`.', $type->message());
+        self::assertSame('Missing closing curly bracket in `array{0: string`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_after_other_element_throws_exception(): void
@@ -1329,7 +1938,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, foo: string');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int, foo: string`.', $type->message());
+        self::assertSame('Missing closing curly bracket in `array{0: int, foo: string`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_after_comma_throws_exception(): void
@@ -1337,7 +1946,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int,');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int`.', $type->message());
+        self::assertSame('Missing closing curly bracket in `array{0: int`.', $type->message());
     }
 
     public function test_shaped_array_colon_missing_throws_exception(): void
@@ -1345,7 +1954,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{string?');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('A colon symbol is missing in shaped array signature `array{string?`.', $type->message());
+        self::assertSame('Missing colon in `array{string?`.', $type->message());
     }
 
     public function test_shaped_array_colon_missing_after_other_element_throws_exception(): void
@@ -1353,7 +1962,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, foo?');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('A colon symbol is missing in shaped array signature `array{0: int, foo?`.', $type->message());
+        self::assertSame('Missing colon in `array{0: int, foo?`.', $type->message());
     }
 
     public function test_shaped_array_closing_bracket_missing_after_unfinished_element_throws_exception(): void
@@ -1361,7 +1970,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, foo?:');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing element type in shaped array signature `array{0: int, foo?:`.', $type->message());
+        self::assertSame('Missing element type in `array{0: int, foo?:`.', $type->message());
     }
 
     public function test_shaped_array_colon_expected_but_other_symbol_throws_exception(): void
@@ -1369,7 +1978,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, foo?;');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('A colon symbol is missing in shaped array signature `array{0: int, foo?`.', $type->message());
+        self::assertSame('Missing colon in `array{0: int, foo?`.', $type->message());
     }
 
     public function test_shaped_array_comma_expected_but_other_symbol_throws_exception(): void
@@ -1377,7 +1986,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, string]');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Comma missing in shaped array signature `array{0: int, 1: string`.', $type->message());
+        self::assertSame('Missing comma in `array{0: int, 1: string`.', $type->message());
     }
 
     public function test_unsealed_shaped_array_with_missing_closing_bracket_throws_exception(): void
@@ -1385,7 +1994,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, ...');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int, ...`.', $type->message());
+        self::assertSame('Missing closing curly bracket in `array{0: int, ...`.', $type->message());
     }
 
     public function test_shaped_array_with_unsealed_type_with_missing_closing_bracket_throws_exception(): void
@@ -1393,7 +2002,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, ...array');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing closing curly bracket in shaped array signature `array{0: int, ...array`.', $type->message());
+        self::assertSame('Missing closing curly bracket in `array{0: int, ...array`.', $type->message());
     }
 
     public function test_shaped_array_with_invalid_unsealed_type_throws_exception(): void
@@ -1409,7 +2018,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{int, ...array<string>int|string}');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Unexpected `int|string` after sealed type in shaped array signature `array{0: int, ...array<string>int|string`, expected a `}`.', $type->message());
+        self::assertSame('Unexpected `int|string` after sealed type in `array{0: int, ...array<string>int|string`.', $type->message());
     }
 
     public function test_unsealed_shaped_array_without_elements_throws_exception(): void
@@ -1417,7 +2026,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('array{...array<string>}');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Missing elements in shaped array signature `array{...array<string>}`.', $type->message());
+        self::assertSame('Missing elements in `array{...array<string>}`.', $type->message());
     }
 
     public function test_missing_min_value_for_integer_range_throws_exception(): void
@@ -1635,7 +2244,7 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse('value-of<string>');
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame('Invalid subtype `value-of<string>`, it should be a `BackedEnum`.', $type->message());
+        self::assertSame('Invalid subtype `value-of<string>`, it should be a `BackedEnum`, `array`, `list` or `iterable`.', $type->message());
     }
 
     public function test_value_of_unit_enum_type_throws_exception(): void
@@ -1645,7 +2254,41 @@ final class LexingParserTest extends UnitTestCase
         $type = $this->parse("value-of<$enumName>");
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertSame("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`.", $type->message());
+        self::assertSame("Invalid subtype `value-of<$enumName>`, it should be a `BackedEnum`, `array`, `list` or `iterable`.", $type->message());
+    }
+
+    public function test_key_of_enum_missing_opening_bracket_throws_exception(): void
+    {
+        $type = $this->parse('key-of');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The opening bracket is missing for `key-of<...>`.', $type->message());
+    }
+
+    public function test_key_of_enum_missing_subtype_throws_exception(): void
+    {
+        $type = $this->parse("key-of<");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame('The subtype is missing for `key-of<`.', $type->message());
+    }
+
+    public function test_key_of_enum_missing_closing_bracket_throws_exception(): void
+    {
+        $enumName = BackedStringEnum::class;
+
+        $type = $this->parse("key-of<$enumName");
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("The closing bracket is missing for `key-of<$enumName>`.", $type->message());
+    }
+
+    public function test_key_of_incorrect_type_throws_exception(): void
+    {
+        $type = $this->parse('key-of<string>');
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("Invalid subtype `key-of<string>`, it should be an `Enum`, `array`, `list` or `iterable`.", $type->message());
     }
 
     public function test_nullable_type_missing_right_type_throws_exception(): void

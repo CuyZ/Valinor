@@ -67,7 +67,7 @@ final class Source implements IteratorAggregate
 
     /**
      * @deprecated This modifier will be removed in version 3.0.
-     *              Use the configurator {@see ConvertKeysToCamelCase} instead.
+     *              Use the configurator {@see MapKeysToCamelCase} instead.
      *
      * @pure
      */

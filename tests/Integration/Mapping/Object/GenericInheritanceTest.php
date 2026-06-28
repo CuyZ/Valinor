@@ -65,6 +65,25 @@ final class GenericInheritanceTest extends IntegrationTestCase
         self::assertSame(1337, $object->valueB);
         self::assertSame('bar', $object->valueC);
     }
+
+    public function test_covariant_generic_types_are_inherited_properly(): void
+    {
+        try {
+            $object = $this->mapperBuilder()
+                ->mapper()
+                ->map(ChildClassWithCovariantInheritedGenericType::class, [
+                    'valueA' => 'foo',
+                    'valueB' => 1337,
+                    'valueC' => 'bar',
+                ]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $object->valueA);
+        self::assertSame(1337, $object->valueB);
+        self::assertSame('bar', $object->valueC);
+    }
 }
 
 /**
@@ -154,3 +173,40 @@ abstract class SecondParentClassWithPsalmAnnotations extends ParentClassWithPsal
  * @phpstan-ignore missingType.generics (It seems PHPStan doesn't support the `@psalm-extends` tag)
  */
 final class ChildClassWithPsalmAnnotations extends SecondParentClassWithPsalmAnnotations {}
+
+/**
+ * @template-covariant FirstTemplate Some comment
+ * @template-covariant SecondTemplate Some comment
+ */
+abstract class ParentClassWithCovariantGenericTypes
+{
+    /**
+     * @var FirstTemplate
+     * @phpstan-ignore generics.variance
+     */
+    public $valueA;
+
+    /**
+     * @var SecondTemplate
+     * @phpstan-ignore generics.variance
+     */
+    public $valueB;
+}
+
+/**
+ * @template-covariant FirstTemplate
+ * @extends ParentClassWithCovariantGenericTypes<FirstTemplate, int> Some comment
+ */
+abstract class SecondParentClassWithCovariantGenericTypes extends ParentClassWithCovariantGenericTypes
+{
+    /**
+     * @var FirstTemplate
+     * @phpstan-ignore generics.variance
+     */
+    public $valueC;
+}
+
+/**
+ * @extends SecondParentClassWithCovariantGenericTypes<string> Some comment
+ */
+final class ChildClassWithCovariantInheritedGenericType extends SecondParentClassWithCovariantGenericTypes {}

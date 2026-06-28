@@ -11,6 +11,7 @@ use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
 use CuyZ\Valinor\Type\Types\StringValueType;
@@ -22,14 +23,16 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
-use function str_contains;
-use function str_replace;
 
 /** @internal */
 final class ValueTypeFactory
 {
     public static function from(mixed $value): Type
     {
+        if ($value === null) {
+            return NullType::get();
+        }
+
         if (is_bool($value)) {
             return $value ? BooleanValueType::true() : BooleanValueType::false();
         }
@@ -51,15 +54,7 @@ final class ValueTypeFactory
                 return new ClassStringType([new NativeClassType($value)]);
             }
 
-            if (str_contains($value, "'") && str_contains($value, '"')) {
-                $value = "'" . str_replace("'", "\'", $value) . "'";
-            } elseif (str_contains($value, "'")) {
-                $value = '"' . $value . '"';
-            } else {
-                $value = "'" . $value . "'";
-            }
-
-            return StringValueType::from($value);
+            return StringValueType::quoted($value);
         }
 
         if (is_array($value)) {
