@@ -6,7 +6,7 @@ can be used to apply common normalization behaviors:
 [normalizer configurators]: ./use-normalizer-configurators.md
 
 - [Specifying date time normalization format](#specifying-date-time-normalization-format)
-- [Converting keys to “snake_case”](#converting-keys-to-snake_case)
+- [Converting key case](#converting-key-case)
 
 ## Specifying date time normalization format
 
@@ -62,21 +62,22 @@ $userAsArray = (new NormalizerBuilder())
 // ]
 ```
 
-## Converting keys to “snake_case”
+## Converting key case
 
-The `NormalizeKeysToSnakeCase` configurator converts the keys of normalized
-objects to `snake_case`. This allows producing output with a different naming
-convention than the one used in the PHP codebase.
+Several configurators convert the keys of normalized objects to a different
+naming convention than the one used in the PHP codebase.
 
-| Conversion                 |
-|----------------------------|
-| `firstName` → `first_name` |
-| `FirstName` → `first_name` |
+| Configurator               | Result        |
+|----------------------------|---------------|
+| `NormalizeKeysToCamelCase` | `firstName`   |
+| `NormalizeKeysToSnakeCase` | `first_name`  |
 
-This class can be used either as a configurator for global usage or as an
-attribute to target a specific class.
+Each of these classes can be used either as a configurator for global usage or
+as an attribute to target a specific class.
 
 ### Global usage as a configurator
+
+The keys of every normalized object are converted to the target case:
 
 ```php
 use CuyZ\Valinor\Normalizer\Configurator\NormalizeKeysToSnakeCase;
