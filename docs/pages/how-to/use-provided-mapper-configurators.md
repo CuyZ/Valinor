@@ -45,7 +45,7 @@ Two configurators are available to convert the keys of input data before mapping
 them to object properties or shaped array keys. This allows accepting data with
 a different naming convention than the one used in the PHP codebase.
 
-### `ConvertKeysToCamelCase`
+### `MapKeysToCamelCase`
 
 | Conversion                   |
 |------------------------------|
@@ -56,7 +56,7 @@ a different naming convention than the one used in the PHP codebase.
 ```php
 $user = (new \CuyZ\Valinor\MapperBuilder())
     ->configureWith(
-        new \CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase()
+        new \CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase()
     )
     ->mapper()
     ->map(\My\App\User::class, [
@@ -65,7 +65,7 @@ $user = (new \CuyZ\Valinor\MapperBuilder())
     ]);
 ```
 
-### `ConvertKeysToSnakeCase`
+### `MapKeysToSnakeCase`
 
 | Conversion                    |
 |-------------------------------|
@@ -76,7 +76,7 @@ $user = (new \CuyZ\Valinor\MapperBuilder())
 ```php
 $user = (new \CuyZ\Valinor\MapperBuilder())
     ->configureWith(
-        new \CuyZ\Valinor\Mapper\Configurator\ConvertKeysToSnakeCase()
+        new \CuyZ\Valinor\Mapper\Configurator\MapKeysToSnakeCase()
     )
     ->mapper()
     ->map(\My\App\User::class, [
@@ -94,7 +94,7 @@ input keys:
 $user = (new \CuyZ\Valinor\MapperBuilder())
     ->configureWith(
         new \CuyZ\Valinor\Mapper\Configurator\RestrictKeysToSnakeCase(),
-        new \CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase(),
+        new \CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase(),
     )
     ->mapper()
     ->map(\My\App\User::class, [
