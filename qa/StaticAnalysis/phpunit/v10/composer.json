@@ -1,0 +1,14 @@
+{
+    "require-dev": {
+        "phpunit/phpunit": "^10",
+        "symfony/console": "^7"
+    },
+    "autoload": {
+        "psr-4": {
+            "CuyZ\\Valinor\\": "../../../../src",
+            "CuyZ\\Valinor\\QA\\PHPUnit\\": "../../../PHPUnit",
+            "CuyZ\\Valinor\\Tests\\": "../../../../tests",
+            "Psr\\SimpleCache\\": "../../../../vendor/psr/simple-cache/src"
+        }
+    }
+}

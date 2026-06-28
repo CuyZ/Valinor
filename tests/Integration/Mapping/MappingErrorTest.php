@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\QA\PHPUnit\CollectValinorMappingErrors;
+use CuyZ\Valinor\QA\PHPUnit\MappingErrorsCollector;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 
 final class MappingErrorTest extends IntegrationTestCase
 {
+    use CollectValinorMappingErrors;
+
     public function test_single_tree_mapper_error_details_are_reported_in_exception_message(): void
     {
         $this->expectException(MappingError::class);
@@ -60,6 +64,28 @@ final class MappingErrorTest extends IntegrationTestCase
         } catch (MappingError $exception) {
             self::assertSame('array{foo: string}', $exception->type());
             self::assertSame(42, $exception->source());
+        }
+    }
+
+    public function test_phpunit_extension_collects_mapping_errors(): void
+    {
+        MappingErrorsCollector::getInstance()->clear();
+        self::assertFalse(MappingErrorsCollector::getInstance()->hasErrors());
+
+        try {
+            $this->mapperBuilder()->mapper()->map('string', ['foo']);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            // This is implemented by the CollectValinorMappingErrors trait.
+            $this->transformException($exception);
+
+            self::assertTrue(MappingErrorsCollector::getInstance()->hasErrors());
+            self::assertEquals([
+                self::class => [
+                    'test_phpunit_extension_collects_mapping_errors' => $exception->messages(),
+                ],
+            ], MappingErrorsCollector::getInstance()->getMappingErrorsPerClass());
         }
     }
 }
