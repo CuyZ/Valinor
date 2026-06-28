@@ -2,7 +2,7 @@
 
 namespace CuyZ\Valinor\Tests\Integration\Normalizer\Configurator;
 
-use CuyZ\Valinor\Normalizer\Configurator\ConvertDateTime;
+use CuyZ\Valinor\Normalizer\Configurator\NormalizeDateTimeFormat;
 use CuyZ\Valinor\Normalizer\Format;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use DateTimeInterface;
@@ -10,7 +10,7 @@ use DateTimeZone;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Safe\DateTimeImmutable;
 
-final class ConvertDateTimeTest extends IntegrationTestCase
+final class NormalizeDateTimeFormatTest extends IntegrationTestCase
 {
     /**
      * @param non-empty-string $format
@@ -19,7 +19,7 @@ final class ConvertDateTimeTest extends IntegrationTestCase
     public function test_date_time_converts_values(mixed $expectedValue, string $format, object $value): void
     {
         $result = $this->normalizerBuilder()
-            ->configureWith(new ConvertDateTime($format))
+            ->configureWith(new NormalizeDateTimeFormat($format))
             ->normalizer(Format::array())
             ->normalize($value);
 
@@ -53,7 +53,7 @@ final class ConvertDateTimeTest extends IntegrationTestCase
             'format' => DATE_ATOM, // Will be overridden by the attribute below
             'value' => new class () {
                 public function __construct(
-                    #[ConvertDateTime('d.m.Y H:i:s')]
+                    #[NormalizeDateTimeFormat('d.m.Y H:i:s')]
                     public DateTimeInterface $date = new DateTimeImmutable('1955-11-05T21:10:14', new DateTimeZone('UTC')),
                 ) {}
             },

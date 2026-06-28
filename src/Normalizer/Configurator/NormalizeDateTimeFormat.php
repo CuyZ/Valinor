@@ -10,7 +10,7 @@ use CuyZ\Valinor\NormalizerBuilder;
 use DateTimeInterface;
 
 /**
- * Converts a `DateTimeInterface` to a string using the given format.
+ * Normalizes a `DateTimeInterface` to a string using the given format.
  *
  * This class can be used either as a configurator for global usage or as an
  * attribute to target a specific property.
@@ -19,13 +19,13 @@ use DateTimeInterface;
  * ------------------------------
  *
  *  ```
- *  use CuyZ\Valinor\Normalizer\Configurator\ConvertDateTime;
+ *  use CuyZ\Valinor\Normalizer\Configurator\NormalizeDateTimeFormat;
  *  use CuyZ\Valinor\Normalizer\Format;
  *  use CuyZ\Valinor\NormalizerBuilder;
  *
  *  $userAsArray = (new NormalizerBuilder())
- *      // All `DateTimeInterface` will be converted to this format
- *      ->configureWith(new ConvertDateTime(DATE_ATOM))
+ *      // All `DateTimeInterface` will be normalized to this format
+ *      ->configureWith(new NormalizeDateTimeFormat(DATE_ATOM))
  *      ->normalizer(Format::array())
  *      ->normalize($user);
  *
@@ -39,7 +39,7 @@ use DateTimeInterface;
  * ---------------------------
  *
  * ```
- * use CuyZ\Valinor\Normalizer\Configurator\ConvertDateTime;
+ * use CuyZ\Valinor\Normalizer\Configurator\NormalizeDateTimeFormat;
  * use CuyZ\Valinor\Normalizer\Format;
  * use CuyZ\Valinor\NormalizerBuilder;
  *
@@ -48,7 +48,7 @@ use DateTimeInterface;
  *     public function __construct(
  *         public string $name,
  *
- *         #[ConvertDateTime(DATE_ATOM)]
+ *         #[NormalizeDateTimeFormat(DATE_ATOM)]
  *         public DateTimeInterface $createdAt,
  *     ) {}
  * }
@@ -67,7 +67,7 @@ use DateTimeInterface;
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 #[AsTransformer]
-final readonly class ConvertDateTime implements NormalizerBuilderConfigurator
+final readonly class NormalizeDateTimeFormat implements NormalizerBuilderConfigurator
 {
     public function __construct(
         /** @var non-empty-string */
