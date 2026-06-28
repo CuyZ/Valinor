@@ -14,6 +14,7 @@ use Psalm\Type\Atomic\TMixed;
 use Psalm\Type\Union;
 
 use function count;
+use function method_exists;
 use function reset;
 
 final class ArgumentsMapperPsalmPlugin implements MethodReturnTypeProviderInterface
@@ -70,6 +71,12 @@ final class ArgumentsMapperPsalmPlugin implements MethodReturnTypeProviderInterf
             $params[$param->name] = $param->type ?? new Union([new TMixed()]);
         }
 
-        return new Union([new TKeyedArray($params)]);
+        // TKeyedArray constructor is private in Psalm 7+
+        /** @var TKeyedArray */
+        $keyedArray = method_exists(TKeyedArray::class, 'make')
+            ? TKeyedArray::make($params)
+            : new TKeyedArray($params);
+
+        return new Union([$keyedArray]);
     }
 }
