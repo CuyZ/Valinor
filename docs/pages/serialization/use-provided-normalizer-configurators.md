@@ -72,6 +72,7 @@ naming convention than the one used in the PHP codebase.
 | `NormalizeKeysToSnakeCase`  | `first_name`  |
 | `NormalizeKeysToCamelCase`  | `firstName`   |
 | `NormalizeKeysToPascalCase` | `FirstName`   |
+| `NormalizeKeysToKebabCase`  | `first-name`  |
 
 Each of these classes can be used either as a configurator for global usage or
 as an attribute to target a specific class.
