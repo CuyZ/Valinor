@@ -12,6 +12,7 @@ use CuyZ\Valinor\Tests\Fake\Definition\FakeClassDefinition;
 use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\NativeClassType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use Error;
 use ReflectionClass;
@@ -23,21 +24,27 @@ final class ClassDefinitionCompilerTest extends UnitTestCase
     public function test_class_definition_is_compiled_correctly(): void
     {
         $object =
-            new class () {
-                public string $property = 'Some property default value';
+            new
+                /**
+                 * @property string $v
+                 * @property int $vInt
+                 */
+                class () {
+                    public string $property = 'Some property default value';
 
-                #[Constructor]
-                public static function method(string $parameter = 'Some parameter default value', string ...$variadic): string
-                {
-                    return $parameter . implode(' / ', $variadic);
-                }
+                    #[Constructor]
+                    public static function method(string $parameter = 'Some parameter default value', string ...$variadic): string
+                    {
+                        return $parameter . implode(' / ', $variadic);
+                    }
 
-                #[Constructor]
-                public static function methodWithDefaultObjectValue(StringableObject $object = new StringableObject('bar')): StringableObject
-                {
-                    return $object;
+                    #[Constructor]
+                    public static function methodWithDefaultObjectValue(StringableObject $object = new StringableObject('bar')): StringableObject
+                    {
+                        return $object;
+                    }
                 }
-            };
+        ;
 
         $className = $object::class;
 
@@ -65,6 +72,30 @@ final class ClassDefinitionCompilerTest extends UnitTestCase
         self::assertTrue($property->hasDefaultValue);
         self::assertSame('Some property default value', $property->defaultValue);
         self::assertTrue($property->isPublic);
+
+        $magicProperties = $class->magicProperties;
+
+        self::assertTrue($magicProperties->has('v'));
+
+        $mp = $magicProperties->get('v');
+
+        self::assertSame('v', $mp->name);
+        self::assertSame($className . '::$v', $mp->signature);
+        self::assertSame(NativeStringType::get(), $mp->type);
+        self::assertFalse($mp->hasDefaultValue);
+        self::assertSame(null, $mp->defaultValue);
+        self::assertTrue($mp->isPublic);
+
+        self::assertTrue($magicProperties->has('vInt'));
+
+        $mp = $magicProperties->get('vInt');
+
+        self::assertSame('vInt', $mp->name);
+        self::assertSame($className . '::$vInt', $mp->signature);
+        self::assertSame(NativeIntegerType::get(), $mp->type);
+        self::assertFalse($mp->hasDefaultValue);
+        self::assertSame(null, $mp->defaultValue);
+        self::assertTrue($mp->isPublic);
 
         $method = $class->methods->get('method');
 
