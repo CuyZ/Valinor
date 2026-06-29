@@ -8,6 +8,7 @@ can be used to apply common normalization behaviors:
 - [Specifying date time normalization format](#specifying-date-time-normalization-format)
 - [Converting key case](#converting-key-case)
 - [Renaming property keys](#renaming-property-keys)
+- [Flattening single property objects](#flattening-single-property-objects)
 
 ## Specifying date time normalization format
 
@@ -162,5 +163,75 @@ $addressAsArray = (new NormalizerBuilder())
 //     'street' => '221B Baker Street',
 //     'zipCode' => 'NW1 6XE',
 //     'town' => 'London',
+// ]
+```
+
+## Flattening single property objects
+
+When an object holds a single property, it may be useful to flatten it so that
+instead of `['someProperty' => 'value']` the normalized result is simply
+`'value'`.
+
+The `NormalizeToSingleValue` class can be used either as a configurator for
+global usage or as an attribute to target a specific class or property.
+
+### Global usage as a configurator
+
+When used as a configurator, every object with a single property is flattened:
+
+```php
+use CuyZ\Valinor\Normalizer\Configurator\NormalizeToSingleValue;
+use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\NormalizerBuilder;
+
+final readonly class Email
+{
+    public function __construct(
+        public string $email,
+    ) {}
+}
+
+$value = (new NormalizerBuilder())
+    ->configureWith(new NormalizeToSingleValue())
+    ->normalizer(Format::array())
+    ->normalize(new Email('john.doe@example.com'));
+
+// 'john.doe@example.com'
+```
+
+### Targeted usage as an attribute
+
+When used as an attribute, only the targeted class or property is flattened,
+leaving the rest of the output untouched:
+
+```php
+use CuyZ\Valinor\Normalizer\Configurator\NormalizeToSingleValue;
+use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\NormalizerBuilder;
+
+final readonly class Email
+{
+    public function __construct(
+        public string $email,
+    ) {}
+}
+
+final readonly class User
+{
+    public function __construct(
+        public string $name,
+
+        #[NormalizeToSingleValue]
+        public Email $email,
+    ) {}
+}
+
+$userAsArray = (new NormalizerBuilder())
+    ->normalizer(Format::array())
+    ->normalize(new User('John Doe', new Email('john.doe@example.com')));
+
+// [
+//     'name' => 'John Doe',
+//     'email' => 'john.doe@example.com',
 // ]
 ```
