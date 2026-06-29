@@ -71,6 +71,12 @@ sequential keys.
 // => [0 => 42, 1 => 1337]
 ```
 
+!!! note
+    This setting converts every associative array mapped to a list. To target a
+    single property instead, the
+    [`MapArrayToList` configurator](../how-to/use-provided-mapper-configurators.md#mapping-an-array-to-a-list)
+    can be applied as an attribute.
+
 ## Allowing undefined values
 
 Allows the mapper to accept undefined values (missing from the input), by 

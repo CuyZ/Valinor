@@ -21,7 +21,7 @@ final class SettingsTest extends UnitTestCase
     {
         $settings = new Settings();
 
-        self::assertSame('aceb8aff2e8e7b7ad9147a8457303cda', $settings->hash());
+        self::assertSame('99df53852bf86ae06d9629889ff3ce85', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -33,7 +33,6 @@ final class SettingsTest extends UnitTestCase
         $settings->cache = new FakeCache();
         $settings->supportedDateFormats = ['Y-m-d\\TH:i:sP'];
         $settings->allowScalarValueCasting = true;
-        $settings->allowNonSequentialList = true;
         $settings->allowUndefinedValues = true;
         $settings->allowSuperfluousKeys = true;
         $settings->allowPermissiveTypes = true;
@@ -44,6 +43,6 @@ final class SettingsTest extends UnitTestCase
         $settings->normalizerTransformers[] = [fn (mixed $value): mixed => $value];
         $settings->normalizerTransformerAttributes[stdClass::class] = null;
 
-        self::assertSame('fe40aed24a83948952b6c92807570c1c', $settings->hash());
+        self::assertSame('1e2b6163b65d1969382464d7d4d1b5ea', $settings->hash());
     }
 }

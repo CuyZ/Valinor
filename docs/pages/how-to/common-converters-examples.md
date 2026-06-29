@@ -117,51 +117,10 @@ final readonly class Product
 Global array to list conversion can be enabled with the mapper builder, see
 [`MapperBuilder::allowNonSequentialList()`](../usage/type-strictness-and-flexibility.md#allowing-non-sequential-lists).
 
-For a more granular control, an attribute can be used to target specific
-properties, as shown in the example below:
+For a more granular control, see [mapping an array to a list configurator
+chapter].
 
-<details>
-<summary>Show code example — Array to list attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Mapper\AsConverter]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class ArrayToList
-{
-    /**
-     * @template T
-     * @param non-empty-array<T> $value
-     * @return non-empty-list<T>
-     */
-    public function map(array $value): array
-    {
-        return array_values($value);
-    }
-}
-
-final readonly class Person
-{
-    public string $name;
-
-    /** @var list<non-empty-string> */
-    #[\My\App\ArrayToList] public array $pets;
-}
-
-$person = (new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(\My\App\Person::class, [
-        'name' => 'John Doe',
-        'pets' => [
-            'Dog' => 'Dog',
-            'Cat' => 'Cat',
-        ],
-    ]);
-
-$person->pets === [0 => 'Dog', 1 => 'Cat'];
-```
-</details>
+[mapping an array to a list configurator chapter]: use-provided-mapper-configurators.md#mapping-an-array-to-a-list
 
 ## Json decode
 

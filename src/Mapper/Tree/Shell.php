@@ -37,7 +37,6 @@ final class Shell
         private mixed $value,
         public Attributes $attributes,
         public bool $allowScalarValueCasting,
-        public bool $allowNonSequentialList,
         public bool $allowUndefinedValues,
         public bool $allowSuperfluousKeys,
         public bool $allowPermissiveTypes,

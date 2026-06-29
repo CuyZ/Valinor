@@ -54,8 +54,6 @@ final class Settings
 
     public bool $allowScalarValueCasting = false;
 
-    public bool $allowNonSequentialList = false;
-
     public bool $allowUndefinedValues = false;
 
     public bool $allowSuperfluousKeys = false;
@@ -146,7 +144,6 @@ final class Settings
             $this->nativeConstructors,
             $this->supportedDateFormats,
             $this->allowScalarValueCasting,
-            $this->allowNonSequentialList,
             $this->allowUndefinedValues,
             $this->allowSuperfluousKeys,
             $this->allowPermissiveTypes,

@@ -8,6 +8,7 @@ use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
+use CuyZ\Valinor\Mapper\Configurator\MapArrayToList;
 use CuyZ\Valinor\Mapper\Configurator\MapperBuilderConfigurator;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -385,8 +386,8 @@ final class MapperBuilder
     /**
      * By default, list types will only accept sequential keys starting from 0.
      *
-     * This setting allows the mapper to convert associative arrays to a list
-     * with sequential keys.
+     * This allows the mapper to convert associative arrays to a list with
+     * sequential keys.
      *
      * ```
      * (new \CuyZ\Valinor\MapperBuilder())
@@ -404,10 +405,7 @@ final class MapperBuilder
      */
     public function allowNonSequentialList(): self
     {
-        $clone = clone $this;
-        $clone->settings->allowNonSequentialList = true;
-
-        return $clone;
+        return $this->configureWith(new MapArrayToList());
     }
 
     /**

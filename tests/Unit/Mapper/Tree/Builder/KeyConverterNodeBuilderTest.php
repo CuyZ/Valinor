@@ -49,7 +49,6 @@ final class KeyConverterNodeBuilderTest extends UnitTestCase
             value: $value,
             attributes: Attributes::empty(),
             allowScalarValueCasting: false,
-            allowNonSequentialList: false,
             allowUndefinedValues: false,
             allowSuperfluousKeys: true,
             allowPermissiveTypes: false,
