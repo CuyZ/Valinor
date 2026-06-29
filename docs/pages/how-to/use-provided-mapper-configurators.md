@@ -218,3 +218,33 @@ $user = (new MapperBuilder())
         'age' => '42', // mapped to `42`
     ]);
 ```
+
+### `MapAsFloat`
+
+Converts a string representation of a number to a real `float`. Any value that
+is not a valid number representation is left untouched and handed over to the
+mapper.
+
+Applied to a single property with the `#[MapAsFloat]` attribute:
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapAsFloat;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class Product
+{
+    public function __construct(
+        public string $name,
+
+        #[MapAsFloat]
+        public float $price,
+    ) {}
+}
+
+$product = (new MapperBuilder())
+    ->mapper()
+    ->map(Product::class, [
+        'name' => 'Coffee',
+        'price' => '4.50', // mapped to `4.5`
+    ]);
+```
