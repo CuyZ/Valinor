@@ -11,6 +11,7 @@ used to apply common mapping behaviors:
 - [Casting scalar values](#casting-scalar-values)
 - [Mapping a date from a format](#mapping-a-date-from-a-format)
 - [Mapping an array to a list](#mapping-an-array-to-a-list)
+- [Decoding a JSON string](#decoding-a-json-string)
 
 ## Restricting key case
 
@@ -358,4 +359,38 @@ $products = (new MapperBuilder())
         'a' => 'Coffee',
         'b' => 'Tea',
     ]); // mapped to `['Coffee', 'Tea']`
+```
+
+## Decoding a JSON string
+
+The `MapFromJson` configurator decodes a JSON string and hands the result over
+to the mapper. This is useful when the input data carries a nested structure as
+an encoded JSON string, for instance a column stored in a database or a field in
+a form submission.
+
+The decoded value is then mapped against the targeted type, so the usual
+validation and error reporting still apply. An invalid JSON string raises a
+mapping error.
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapFromJson;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class User
+{
+    public function __construct(
+        public string $name,
+
+        /** @var list<string> */
+        #[MapFromJson]
+        public array $roles,
+    ) {}
+}
+
+$user = (new MapperBuilder())
+    ->mapper()
+    ->map(User::class, [
+        'name' => 'John Doe',
+        'roles' => '["admin", "editor"]', // mapped to `['admin', 'editor']`
+    ]);
 ```

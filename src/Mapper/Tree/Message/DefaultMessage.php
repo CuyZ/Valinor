@@ -89,6 +89,9 @@ interface DefaultMessage
         'Value {source_value} does not match the date format {format}.' => [
             'en' => 'Value {source_value} does not match the date format {format}.',
         ],
+        'Value {source_value} is not valid JSON.' => [
+            'en' => 'Value {source_value} is not valid JSON.',
+        ],
         'Unexpected key `{node_name}`.' => [
             'en' => 'Unexpected key `{node_name}`.',
         ],
