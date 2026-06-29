@@ -90,56 +90,9 @@ final readonly class User
 
 ## Renaming properties
 
-Properties' names can differ between the object and the data format.
+See [renaming property keys configurator chapter].
 
-In the example below, an attribute is added on properties that need to be
-renamed during normalization
-
-<details>
-<summary>Show code example — Rename property attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Normalizer\AsTransformer]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Rename
-{
-    public function __construct(private string $name) {}
-
-    public function normalizeKey(): string
-    {
-        return $this->name;
-    }
-}
-
-final readonly class Address
-{
-    public function __construct(
-        public string $street,
-        public string $zipCode,
-        #[\My\App\Rename('town')]
-        public string $city,
-    ) {}
-}
-
-(new \CuyZ\Valinor\NormalizerBuilder())
-    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
-    ->normalize(
-        new Address(
-            street: '221B Baker Street', 
-            zipCode: 'NW1 6XE', 
-            city: 'London', 
-        )
-    );
-
-// [
-//     'street' => '221B Baker Street',
-//     'zipCode' => 'NW1 6XE',
-//     'town' => 'London',
-// ]
-```
-</details>
+[renaming property keys configurator chapter]: use-provided-normalizer-configurators.md#renaming-property-keys
 
 ## Flattening single property objects
 

@@ -7,6 +7,7 @@ can be used to apply common normalization behaviors:
 
 - [Specifying date time normalization format](#specifying-date-time-normalization-format)
 - [Converting key case](#converting-key-case)
+- [Renaming property keys](#renaming-property-keys)
 
 ## Specifying date time normalization format
 
@@ -123,5 +124,43 @@ $userAsArray = (new NormalizerBuilder())
 // [
 //     'first_name' => 'John',
 //     'last_name' => 'Doe',
+// ]
+```
+
+## Renaming property keys
+
+The name of a property in the data format may differ from the one used in the
+PHP codebase. The `NormalizeKeyTo` attribute renames the key of a property
+during normalization.
+
+```php
+use CuyZ\Valinor\Normalizer\Configurator\NormalizeKeyTo;
+use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\NormalizerBuilder;
+
+final readonly class Address
+{
+    public function __construct(
+        public string $street,
+        public string $zipCode,
+        #[NormalizeKeyTo('town')]
+        public string $city,
+    ) {}
+}
+
+$addressAsArray = (new NormalizerBuilder())
+    ->normalizer(Format::array())
+    ->normalize(
+        new Address(
+            street: '221B Baker Street',
+            zipCode: 'NW1 6XE',
+            city: 'London', // Key will be renamed to 'town'
+        )
+    );
+
+// [
+//     'street' => '221B Baker Street',
+//     'zipCode' => 'NW1 6XE',
+//     'town' => 'London',
 // ]
 ```
