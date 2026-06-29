@@ -60,56 +60,10 @@ the mapper to handle the data correctly.
 Global datetime format customization can be enabled with the mapper builder, see
 [`MapperBuilder::supportDateFormats()`](deal-with-dates.md).
 
-For a more granular control, an attribute can be used to target specific
-properties, as shown in the example below:
+For a more granular control, see [mapping a date from a format configurator
+chapter].
 
-<details>
-<summary>Show code example — Custom datetime format attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Mapper\AsConverter]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class DateTimeFormat
-{
-    public function __construct(
-        /** @var non-empty-string */
-        private string $format,
-    ) {}
-
-    public function map(string $value): \DateTimeInterface
-    {
-        $date = \DateTimeImmutable::createFromFormat($this->format, $value);
-
-        if ($date === false) {
-            throw new \RuntimeException("Invalid datetime value `$value`");
-        }
-
-        return $date;
-    }
-}
-
-final readonly class User
-{
-    public string $name;
-
-    #[\My\App\DateTimeFormat('Y-m-d')]
-    public \DateTimeInterface $birthdate;
-
-    #[\My\App\DateTimeFormat('Y/m/d')]
-    public \DateTimeInterface $profileCreatedAt;
-}
-
-(new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(\My\App\User::class, [
-        'name' => 'John Doe',
-        'birthdate' => '1971-11-08',
-        'profileCreatedAt' => '2025/05/17',
-    ]);
-```
-</details>
+[mapping a date from a format configurator chapter]: use-provided-mapper-configurators.md#mapping-a-date-from-a-format
 
 ## Explode string to list
 

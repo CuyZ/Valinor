@@ -9,6 +9,7 @@ used to apply common mapping behaviors:
 - [Converting key case](#converting-key-case)
 - [Mapping a property from a specific key](#mapping-a-property-from-a-specific-key)
 - [Casting scalar values](#casting-scalar-values)
+- [Mapping a date from a format](#mapping-a-date-from-a-format)
 
 ## Restricting key case
 
@@ -276,5 +277,38 @@ $user = (new MapperBuilder())
     ->map(User::class, [
         'name' => 'John Doe',
         'id' => 42, // mapped to `'42'`
+    ]);
+```
+
+## Mapping a date from a format
+
+The `MapToDateTimeFromFormat` configurator parses the input string using the
+given date format before mapping. This is useful when the input data carries a
+date in a specific format that the mapper would not otherwise recognize.
+
+The format must follow the syntax supported by
+`DateTimeImmutable::createFromFormat()`. A value that does not match the given
+format raises a mapping error.
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapToDateTimeFromFormat;
+use CuyZ\Valinor\MapperBuilder;
+use DateTimeInterface;
+
+final readonly class Event
+{
+    public function __construct(
+        public string $name,
+
+        #[MapToDateTimeFromFormat('d/m/Y')]
+        public DateTimeInterface $date,
+    ) {}
+}
+
+$event = (new MapperBuilder())
+    ->mapper()
+    ->map(Event::class, [
+        'name' => 'Release of legendary album',
+        'date' => '08/11/1971', // mapped to a `DateTimeImmutable`
     ]);
 ```
