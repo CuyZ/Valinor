@@ -10,6 +10,7 @@ used to apply common mapping behaviors:
 - [Mapping a property from a specific key](#mapping-a-property-from-a-specific-key)
 - [Casting scalar values](#casting-scalar-values)
 - [Mapping a date from a format](#mapping-a-date-from-a-format)
+- [Mapping an array to a list](#mapping-an-array-to-a-list)
 
 ## Restricting key case
 
@@ -311,4 +312,50 @@ $event = (new MapperBuilder())
         'name' => 'Release of legendary album',
         'date' => '08/11/1971', // mapped to a `DateTimeImmutable`
     ]);
+```
+
+## Mapping an array to a list
+
+The `MapArrayToList` configurator discards the keys of an array and maps its
+values to a list before mapping. This is useful when the input data is an
+associative array, or a sparse list with missing or out-of-order indices, that
+should be handled as a sequential list.
+
+Applied to a single property with the `#[MapArrayToList]` attribute:
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapArrayToList;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class Basket
+{
+    public function __construct(
+        /** @var list<string> */
+        #[MapArrayToList]
+        public array $products,
+    ) {}
+}
+
+$basket = (new MapperBuilder())
+    ->mapper()
+    ->map(Basket::class, [
+        'a' => 'Coffee',
+        'b' => 'Tea',
+    ]); // mapped to `['Coffee', 'Tea']`
+```
+
+To enable the same behavior globally for every list, use the built-in
+[`allowNonSequentialList()`](../usage/type-strictness-and-flexibility.md#allowing-non-sequential-lists)
+setting:
+
+```php
+use CuyZ\Valinor\MapperBuilder;
+
+$products = (new MapperBuilder())
+    ->allowNonSequentialList()
+    ->mapper()
+    ->map('list<string>', [
+        'a' => 'Coffee',
+        'b' => 'Tea',
+    ]); // mapped to `['Coffee', 'Tea']`
 ```

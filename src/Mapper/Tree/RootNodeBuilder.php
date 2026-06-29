@@ -30,7 +30,6 @@ final class RootNodeBuilder
             value: $value,
             attributes: $attributes ?? Attributes::empty(),
             allowScalarValueCasting: $this->settings->allowScalarValueCasting,
-            allowNonSequentialList: $this->settings->allowNonSequentialList,
             allowUndefinedValues: $this->settings->allowUndefinedValues,
             allowSuperfluousKeys: $this->settings->allowSuperfluousKeys,
             allowPermissiveTypes: $this->settings->allowPermissiveTypes,
