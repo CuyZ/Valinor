@@ -8,6 +8,7 @@ used to apply common mapping behaviors:
 - [Restricting key case](#restricting-key-case)
 - [Converting key case](#converting-key-case)
 - [Mapping a property from a specific key](#mapping-a-property-from-a-specific-key)
+- [Casting scalar values](#casting-scalar-values)
 
 ## Restricting key case
 
@@ -145,3 +146,45 @@ accepted, the source is read only from the given key.
 
 For a global renaming, or to declare a custom key mapping attribute, see the
 [converting source keys chapter](convert-input.md#converting-source-keys).
+
+## Casting scalar values
+
+Several configurators convert a scalar value to a specific type before mapping.
+This is useful when the input data carries values in a different representation
+than the targeted type, for instance numbers or booleans encoded as strings in a
+form submission, a CSV file or a JSON payload.
+
+!!! note
+    Scalar value casting can also be enabled globally, see [documentation about
+    `MapperBuilder::allowScalarValueCasting()`](../usage/type-strictness-and-flexibility.md#allowing-scalar-value-casting).
+
+### `MapAsBool`
+
+Converts string and integer representations to a real `bool`. By default `1`,
+`'1'` and `'true'` are converted to `true`, and `0`, `'0'` and `'false'` to
+`false`. The accepted representations can be customized by giving the values that
+should be converted to `true` and `false`.
+
+Applied to a single property with the `#[MapAsBool]` attribute:
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapAsBool;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class User
+{
+    public function __construct(
+        public string $name,
+
+        #[MapAsBool(true: ['on', 'yes'], false: ['off', 'no'])]
+        public bool $isActive,
+    ) {}
+}
+
+$user = (new MapperBuilder())
+    ->mapper()
+    ->map(User::class, [
+        'name' => 'John Doe',
+        'isActive' => 'on', // mapped to `true`
+    ]);
+```

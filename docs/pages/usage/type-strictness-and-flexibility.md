@@ -44,6 +44,14 @@ With this setting enabled, scalar types will accept castable values:
     ]);
 ```
 
+!!! note
+    This setting relaxes strictness for every scalar value handled by the
+    mapper. For finer control, the [scalar casting configurators] cast a single
+    property, or every value of a given type, without loosening the rules for
+    all scalars at once.
+
+    [scalar casting configurators]: ../how-to/use-provided-mapper-configurators.md#casting-scalar-values
+
 ## Allowing non-sequential lists
 
 By default, list types will only accept sequential keys starting from 0.
