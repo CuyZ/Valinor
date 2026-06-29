@@ -188,3 +188,33 @@ $user = (new MapperBuilder())
         'isActive' => 'on', // mapped to `true`
     ]);
 ```
+
+### `MapAsInt`
+
+Converts a string representation of an integer to a real `int`. Any value that
+is not a valid integer representation is left untouched and handed over to the
+mapper.
+
+Applied to a single property with the `#[MapAsInt]` attribute:
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapAsInt;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class User
+{
+    public function __construct(
+        public string $name,
+
+        #[MapAsInt]
+        public int $age,
+    ) {}
+}
+
+$user = (new MapperBuilder())
+    ->mapper()
+    ->map(User::class, [
+        'name' => 'John Doe',
+        'age' => '42', // mapped to `42`
+    ]);
+```
