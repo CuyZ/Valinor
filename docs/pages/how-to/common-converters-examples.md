@@ -124,55 +124,6 @@ chapter].
 
 ## Json decode
 
-When working with data that can contain JSON strings, a converter can be used to
-decode it directly into the expected type.
+See [decoding a JSON string configurator chapter].
 
-<details>
-<summary>Show code example — Json decode attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Mapper\AsConverter]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class JsonDecode
-{
-     /**
-     * @template T
-     * @param callable(mixed): T $next
-     * @return T
-     */
-    public function map(string $value, callable $next): mixed
-    {
-        $decoded = json_decode($value, associative: true, flags: JSON_THROW_ON_ERROR);
-
-        return $next($decoded);
-    }
-}
-
-final readonly class UserProfile
-{
-    public string $username;
-
-    public string $email;
-
-    /** @var array<string, scalar> */
-    #[\My\App\JsonDecode] public array $preferences;
-
-    /** @var list<string> */
-    #[\My\App\JsonDecode] public array $tags;
-}
-
-$userProfile = (new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(\My\App\UserProfile::class, [
-        'username' => 'john_doe',
-        'email' => 'john.doe@example.com',
-        'preferences' => '{"theme": "dark", "notifications": true}',
-        'tags' => '["developer", "php", "api"]',
-    ]);
-
-$userProfile->preferences === ['theme' => 'dark', 'notifications' => true];
-$userProfile->tags === ['developer', 'php', 'api'];
-```
-</details>
+[decoding a JSON string configurator chapter]: use-provided-mapper-configurators.md#decoding-a-json-string
