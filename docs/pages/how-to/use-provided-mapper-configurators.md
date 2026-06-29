@@ -10,6 +10,7 @@ used to apply common mapping behaviors:
 - [Mapping a property from a specific key](#mapping-a-property-from-a-specific-key)
 - [Casting scalar values](#casting-scalar-values)
 - [Mapping a date from a format](#mapping-a-date-from-a-format)
+- [Exploding a string to a list](#exploding-a-string-to-a-list)
 - [Mapping an array to a list](#mapping-an-array-to-a-list)
 - [Decoding a JSON string](#decoding-a-json-string)
 
@@ -312,6 +313,39 @@ $event = (new MapperBuilder())
     ->map(Event::class, [
         'name' => 'Release of legendary album',
         'date' => '08/11/1971', // mapped to a `DateTimeImmutable`
+    ]);
+```
+
+## Exploding a string to a list
+
+The `MapExplodedStringToList` configurator explodes a string into a list using
+the given separator before mapping. This is useful when the input data carries a
+list as a single delimited string, for instance a comma-separated value coming
+from a CSV file or a query parameter.
+
+The resulting list is then mapped against the targeted type, so the items can be
+cast further, for instance to a `list<int>`.
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapExplodedStringToList;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class Product
+{
+    public function __construct(
+        public string $name,
+
+        /** @var list<string> */
+        #[MapExplodedStringToList(separator: ',')]
+        public array $sizes,
+    ) {}
+}
+
+$product = (new MapperBuilder())
+    ->mapper()
+    ->map(Product::class, [
+        'name' => 'T-Shirt',
+        'sizes' => 'XS,S,M,L,XL', // mapped to `['XS', 'S', 'M', 'L', 'XL']`
     ]);
 ```
 
