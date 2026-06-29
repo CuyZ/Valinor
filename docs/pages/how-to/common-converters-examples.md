@@ -67,50 +67,9 @@ chapter].
 
 ## Explode string to list
 
-When dealing with input data that is a string representation of an array, for
-instance a comma-separated list, a converter attribute can be used to convert
-the string into a list.
+See [exploding a string to a list configurator chapter].
 
-<details>
-<summary>Show code example — Explode attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Mapper\AsConverter]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Explode
-{
-    public function __construct(
-        /** @var non-empty-string */
-        private string $separator,
-    ) {}
-
-    /**
-     * @return list<string>
-     */
-    public function map(string $value): array
-    {
-        return explode($this->separator, $value);
-    }
-}
-
-final readonly class Product
-{
-    public string $name;
-
-    /** @var list<string> */
-    #[\My\App\Explode(separator: ',')] public array $size;
-}
-
-(new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(\My\App\Product::class, [
-        'name' => 'T-Shirt',
-        'size' => 'XS,S,M,L,XL',
-    ]);
-```
-</details>
+[exploding a string to a list configurator chapter]: use-provided-mapper-configurators.md#exploding-a-string-to-a-list
 
 ## Array to list
 
