@@ -248,3 +248,33 @@ $product = (new MapperBuilder())
         'price' => '4.50', // mapped to `4.5`
     ]);
 ```
+
+### `MapAsString`
+
+Converts an integer or a float to a `string`. This is useful when the input data
+carries numbers that must be handled as strings, for instance an identifier or a
+postal code.
+
+Applied to a single property with the `#[MapAsString]` attribute:
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapAsString;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class User
+{
+    public function __construct(
+        public string $name,
+
+        #[MapAsString]
+        public string $id,
+    ) {}
+}
+
+$user = (new MapperBuilder())
+    ->mapper()
+    ->map(User::class, [
+        'name' => 'John Doe',
+        'id' => 42, // mapped to `'42'`
+    ]);
+```

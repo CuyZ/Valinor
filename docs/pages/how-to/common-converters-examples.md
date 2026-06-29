@@ -45,77 +45,7 @@ the mapper to handle the data correctly.
 
 === "Casting to string"
 
-    If the input data should be a string, but is provided as an integer or a float,
-    a custom converter can handle the conversion.
-    
-    <details>
-    <summary>Show code example — Cast to string</summary>
-    
-    ```php
-    namespace My\App;
-
-    final readonly class User
-    {
-        public function __construct(
-            public string $id,
-            public string $name,
-        ) {}
-    }
-    
-    $user = (new \CuyZ\Valinor\MapperBuilder())
-        ->registerConverter(
-            fn (int|float $value): string => (string)$value
-        )
-        ->mapper()
-        ->map(\My\App\User::class, [
-            'id' => 1337, // Integer 1337 will be converted to string '1337'
-            'name' => 'John Doe',
-        ]);
-    
-    $user->id === '1337';
-    $user->name === 'John Doe';
-    ```
-    </details>
-    
-    For a more granular control, an attribute can be used to target specific
-    properties, as shown in the example below:
-    
-    <details>
-    <summary>Show code example — Cast to string attribute</summary>
-    
-    ```php
-    namespace My\App;
-    
-    #[\CuyZ\Valinor\Mapper\AsConverter]
-    #[\Attribute(\Attribute::TARGET_PROPERTY)]
-    final class CastToString
-    {
-        public function map(int|float $value): string
-        {
-            return (string)$value;
-        }
-    }
-    
-    final readonly class User
-    {
-        public function __construct(
-            #[\My\App\CastToString]
-            public string $id,
-            public string $name,
-        ) {}
-    }
-    
-    $user = (new \CuyZ\Valinor\MapperBuilder())
-        ->mapper()
-        ->map(\My\App\User::class, [
-            'id' => 1337, // Integer 1337 will be converted to string '1337'
-            'name' => 'John Doe',
-        ]);
-    
-    $user->id === '1337';
-    $user->name === 'John Doe';
-    ```
-    </details>
+    See the [`MapAsString`](use-provided-mapper-configurators.md#mapasstring) configurator.
 
 === "Casting to integer"
 
