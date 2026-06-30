@@ -9,6 +9,7 @@ can be used to apply common normalization behaviors:
 - [Converting key case](#converting-key-case)
 - [Renaming property keys](#renaming-property-keys)
 - [Flattening single property objects](#flattening-single-property-objects)
+- [Ignoring properties](#ignoring-properties)
 
 ## Specifying date time normalization format
 
@@ -234,4 +235,41 @@ $userAsArray = (new NormalizerBuilder())
 //     'name' => 'John Doe',
 //     'email' => 'john.doe@example.com',
 // ]
+```
+
+## Ignoring properties
+
+A property can be excluded from the normalized output, for instance to hide
+sensitive data such as a password, by marking it with the
+`IgnoreOnNormalization` attribute.
+
+!!! warning
+    For the attribute to take effect, an `IgnoreOnNormalization` instance
+    **must** also be registered on the builder via `configureWith()`. Without
+    it, the property value is replaced by a placeholder object that raises an
+    exception as soon as it is used (for instance when it is cast to a string
+    or encoded to JSON), pointing to the missing registration.
+
+```php
+use CuyZ\Valinor\Normalizer\Configurator\IgnoreOnNormalization;
+use CuyZ\Valinor\Normalizer\Format;
+use CuyZ\Valinor\NormalizerBuilder;
+
+final readonly class User
+{
+    public function __construct(
+        public string $name,
+
+        #[IgnoreOnNormalization]
+        public string $password,
+    ) {}
+}
+
+// Registering the configurator is required for the attribute to take effect.
+$userAsArray = (new NormalizerBuilder())
+    ->configureWith(new IgnoreOnNormalization())
+    ->normalizer(Format::array())
+    ->normalize(new User('John Doe', 's3cr3t'));
+
+// ['name' => 'John Doe']
 ```

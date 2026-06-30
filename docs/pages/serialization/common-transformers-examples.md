@@ -15,9 +15,9 @@ third-party libraries or applications.
 
 - [Customizing dates format](#customizing-dates-format)
 - [Transforming property name to “snake_case”](#transforming-property-name-to-snake_case)
-- [Ignoring properties](#ignoring-properties)
 - [Renaming properties](#renaming-properties)
 - [Flattening single property objects](#flattening-single-property-objects)
+- [Ignoring properties](#ignoring-properties)
 - [Transforming objects](#transforming-objects)
 - [Versioning API](#versioning-api)
 
@@ -33,61 +33,6 @@ See [snake_case configurator chapter].
 
 [snake_case configurator chapter]: use-provided-normalizer-configurators.md#converting-key-case
 
-## Ignoring properties
-
-Some objects might want to omit some properties during normalization, for
-instance, to hide sensitive data.
-
-In the example below, an attribute is added on a property that will replace the
-value with a custom object that is afterward removed by a global transformer. 
-
-<details>
-<summary>Show code example — Ignore property attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Normalizer\AsTransformer]
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class Ignore
-{
-    public function normalize(mixed $value): IgnoredValue
-    {
-        return new \My\App\IgnoredValue();
-    }
-}
-
-final class IgnoredValue
-{
-    public function __construct() {}
-}
-
-final readonly class User
-{
-    public function __construct(
-        public string $name,
-        #[\My\App\Ignore]
-        public string $password,
-    ) {}
-}
-
-(new \CuyZ\Valinor\NormalizerBuilder())
-    ->registerTransformer(
-        fn (object $value, callable $next) => array_filter(
-            $next(),
-            fn (mixed $value) => ! $value instanceof \My\App\IgnoredValue,
-        ),
-    )
-    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
-    ->normalize(new \My\App\User(
-        name: 'John Doe',
-        password: 's3cr3t-p4$$w0rd')
-    );
-
-// ['name' => 'John Doe']
-```
-</details>
-
 ## Renaming properties
 
 See [renaming property keys configurator chapter].
@@ -99,6 +44,12 @@ See [renaming property keys configurator chapter].
 See [flattening single property objects configurator chapter].
 
 [flattening single property objects configurator chapter]: use-provided-normalizer-configurators.md#flattening-single-property-objects
+
+## Ignoring properties
+
+See [ignoring properties configurator chapter].
+
+[ignoring properties configurator chapter]: use-provided-normalizer-configurators.md#ignoring-properties
 
 ## Transforming objects
 
