@@ -52,7 +52,14 @@ final class Settings
     /** @var non-empty-list<non-empty-string> */
     public array $supportedDateFormats = self::DEFAULT_SUPPORTED_DATETIME_FORMATS;
 
-    public bool $allowScalarValueCasting = false;
+    /** @var array{}|array{true: non-empty-list<non-empty-string|int>, false: non-empty-list<non-empty-string|int>} */
+    public array $allowCastingToBoolean = [];
+
+    public bool $allowCastingToInteger = false;
+
+    public bool $allowCastingToFloat = false;
+
+    public bool $allowCastingToString = false;
 
     public bool $allowUndefinedValues = false;
 
@@ -143,7 +150,10 @@ final class Settings
         return $this->hash ??= hash('xxh128', serialize([
             $this->nativeConstructors,
             $this->supportedDateFormats,
-            $this->allowScalarValueCasting,
+            $this->allowCastingToBoolean,
+            $this->allowCastingToInteger,
+            $this->allowCastingToFloat,
+            $this->allowCastingToString,
             $this->allowUndefinedValues,
             $this->allowSuperfluousKeys,
             $this->allowPermissiveTypes,

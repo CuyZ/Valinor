@@ -21,7 +21,7 @@ final class SettingsTest extends UnitTestCase
     {
         $settings = new Settings();
 
-        self::assertSame('99df53852bf86ae06d9629889ff3ce85', $settings->hash());
+        self::assertSame('e8506487186797525dedf7fce5d8f157', $settings->hash());
     }
 
     public function test_settings_hash(): void
@@ -32,7 +32,10 @@ final class SettingsTest extends UnitTestCase
         $settings->customConstructors[] = fn (): stdClass => new stdClass();
         $settings->cache = new FakeCache();
         $settings->supportedDateFormats = ['Y-m-d\\TH:i:sP'];
-        $settings->allowScalarValueCasting = true;
+        $settings->allowCastingToBoolean = ['true' => ['1', 'true'], 'false' => ['0', 'false']];
+        $settings->allowCastingToInteger = true;
+        $settings->allowCastingToFloat = true;
+        $settings->allowCastingToString = true;
         $settings->allowUndefinedValues = true;
         $settings->allowSuperfluousKeys = true;
         $settings->allowPermissiveTypes = true;
@@ -43,6 +46,6 @@ final class SettingsTest extends UnitTestCase
         $settings->normalizerTransformers[] = [fn (mixed $value): mixed => $value];
         $settings->normalizerTransformerAttributes[stdClass::class] = null;
 
-        self::assertSame('1e2b6163b65d1969382464d7d4d1b5ea', $settings->hash());
+        self::assertSame('8b67f7f64ae036f57572bdcbe284fb7a', $settings->hash());
     }
 }

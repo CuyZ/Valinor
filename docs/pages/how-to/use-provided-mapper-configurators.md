@@ -193,6 +193,17 @@ $user = (new MapperBuilder())
     ]);
 ```
 
+Or applied globally to convert every boolean value:
+
+```php
+use CuyZ\Valinor\MapperBuilder;
+
+$isActive = (new MapperBuilder())
+    ->allowCastingToBoolean()
+    ->mapper()
+    ->map('bool', 'true'); // mapped to `true`
+```
+
 ### `MapAsInt`
 
 Converts a string representation of an integer to a real `int`. Any value that
@@ -221,6 +232,17 @@ $user = (new MapperBuilder())
         'name' => 'John Doe',
         'age' => '42', // mapped to `42`
     ]);
+```
+
+Or applied globally to convert every integer value:
+
+```php
+use CuyZ\Valinor\MapperBuilder;
+
+$age = (new MapperBuilder())
+    ->allowCastingToInteger()
+    ->mapper()
+    ->map('int', '42'); // mapped to `42`
 ```
 
 ### `MapAsFloat`
@@ -253,6 +275,17 @@ $product = (new MapperBuilder())
     ]);
 ```
 
+Or applied globally to convert every float value:
+
+```php
+use CuyZ\Valinor\MapperBuilder;
+
+$price = (new MapperBuilder())
+    ->allowCastingToFloat()
+    ->mapper()
+    ->map('float', '4.50'); // mapped to `4.5`
+```
+
 ### `MapAsString`
 
 Converts an integer or a float to a `string`. This is useful when the input data
@@ -281,6 +314,17 @@ $user = (new MapperBuilder())
         'name' => 'John Doe',
         'id' => 42, // mapped to `'42'`
     ]);
+```
+
+Or applied globally to convert every string value:
+
+```php
+use CuyZ\Valinor\MapperBuilder;
+
+$id = (new MapperBuilder())
+    ->allowCastingToString()
+    ->mapper()
+    ->map('string', 42); // mapped to `'42'`
 ```
 
 ## Mapping a date from a format

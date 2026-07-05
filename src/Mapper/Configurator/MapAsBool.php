@@ -22,7 +22,34 @@ use function in_array;
  * Any other value is left untouched and handed over to the mapper, which will
  * raise an error if it cannot be mapped to a boolean.
  *
- * The conversion is applied as an attribute to target a specific property:
+ * This conversion can be applied globally, or as an attribute to target a
+ * specific property.
+ *
+ * Global usage
+ * ------------
+ *
+ * ```
+ * use CuyZ\Valinor\MapperBuilder;
+ *
+ * final readonly class User
+ * {
+ *     public function __construct(
+ *         public string $name,
+ *         public bool $isActive,
+ *     ) {}
+ * }
+ *
+ * $user = (new MapperBuilder())
+ *     ->allowCastingToBoolean()
+ *     ->mapper()
+ *     ->map(User::class, [
+ *         'name' => 'John Doe',
+ *         'isActive' => 'true', // mapped to `true`
+ *     ]);
+ * ```
+ *
+ * Local usage as an attribute
+ * ---------------------------
  *
  * ```
  * use CuyZ\Valinor\MapperBuilder;
@@ -70,15 +97,24 @@ final class MapAsBool
 
     /**
      * @template T of bool
-     * @param callable(bool|int|string): T $next
+     * @param callable(mixed): T $next
      * @return T
      */
     public function map(string|int $value, callable $next): mixed
     {
-        return $next(match (true) {
-            in_array($value, $this->true, true) => true,
-            in_array($value, $this->false, true) => false,
+        return $next(self::convert($value, $this->true, $this->false));
+    }
+
+    /**
+     * @param non-empty-list<non-empty-string|int> $true
+     * @param non-empty-list<non-empty-string|int> $false
+     */
+    public static function convert(mixed $value, array $true, array $false): mixed
+    {
+        return match (true) {
+            in_array($value, $true, true) => true,
+            in_array($value, $false, true) => false,
             default => $value,
-        });
+        };
     }
 }

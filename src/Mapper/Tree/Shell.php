@@ -36,7 +36,11 @@ final class Shell
         private bool $hasValue,
         private mixed $value,
         public Attributes $attributes,
-        public bool $allowScalarValueCasting,
+        /** @var array{}|array{true: non-empty-list<non-empty-string|int>, false: non-empty-list<non-empty-string|int>} */
+        public array $allowCastingToBoolean,
+        public bool $allowCastingToInteger,
+        public bool $allowCastingToFloat,
+        public bool $allowCastingToString,
         public bool $allowUndefinedValues,
         public bool $allowSuperfluousKeys,
         public bool $allowPermissiveTypes,
@@ -93,7 +97,13 @@ final class Shell
         }
 
         if (array_key_exists($name, $this->childrenWithScalarValueCasting)) {
-            $self->allowScalarValueCasting = true;
+            if ($self->allowCastingToBoolean === []) {
+                $self->allowCastingToBoolean = ['true' => [1, '1', 'true'], 'false' => [0, '0', 'false']];
+            }
+
+            $self->allowCastingToInteger = true;
+            $self->allowCastingToFloat = true;
+            $self->allowCastingToString = true;
         }
 
         return $self;

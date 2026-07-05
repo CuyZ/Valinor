@@ -7,9 +7,7 @@ namespace CuyZ\Valinor\Mapper\Configurator;
 use Attribute;
 use CuyZ\Valinor\Mapper\AsConverter;
 
-use function filter_var;
-
-use const FILTER_VALIDATE_FLOAT;
+use function is_numeric;
 
 /**
  * Converts a string representation of a number to a real `float` before
@@ -20,7 +18,34 @@ use const FILTER_VALIDATE_FLOAT;
  * handed over to the mapper, which will raise an error if it cannot be mapped
  * to a float.
  *
- * The conversion is applied as an attribute to target a specific property:
+ * This conversion can be applied globally, or as an attribute to target a
+ * specific property.
+ *
+ * Global usage
+ * ------------
+ *
+ * ```
+ * use CuyZ\Valinor\MapperBuilder;
+ *
+ * final readonly class Product
+ * {
+ *     public function __construct(
+ *         public string $name,
+ *         public float $price,
+ *     ) {}
+ * }
+ *
+ * $product = (new MapperBuilder())
+ *     ->allowCastingToFloat()
+ *     ->mapper()
+ *     ->map(Product::class, [
+ *         'name' => 'Coffee',
+ *         'price' => '4.50', // mapped to `4.5`
+ *     ]);
+ * ```
+ *
+ * Local usage as an attribute
+ * ---------------------------
  *
  * ```
  * use CuyZ\Valinor\MapperBuilder;
@@ -52,13 +77,20 @@ final class MapAsFloat
 {
     /**
      * @template T of float
-     * @param callable(string|float): T $next
+     * @param callable(mixed): T $next
      * @return T
      */
     public function map(string $value, callable $next): mixed
     {
-        $float = filter_var($value, FILTER_VALIDATE_FLOAT);
+        return $next(self::convert($value));
+    }
 
-        return $next($float === false ? $value : $float);
+    public static function convert(mixed $value): mixed
+    {
+        if (! is_numeric($value)) {
+            return $value;
+        }
+
+        return (float)$value;
     }
 }

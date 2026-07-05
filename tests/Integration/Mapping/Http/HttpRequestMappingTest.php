@@ -17,6 +17,7 @@ use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\SeveralAttributesMapToSameKey;
 use CuyZ\Valinor\Tests\Fake\Mapper\Source\FakePsrRequest;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Psr\Http\Message\ServerRequestInterface;
 
 final class HttpRequestMappingTest extends IntegrationTestCase
@@ -418,6 +419,65 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ->mapArguments($controller, $request);
 
         self::assertSame(['someQueryParameter' => 42], $result);
+    }
+
+    public function test_mapping_query_parameter_casts_value_to_float(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => '1.5',
+            ],
+        );
+
+        $controller = fn (#[FromQuery] float $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => 1.5], $result);
+    }
+
+    public function test_mapping_query_parameter_casts_non_string_value_to_string(): void
+    {
+        // Query values are not necessarily strings; a non-string value (here an
+        // integer) is cast to string for a string parameter.
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => 42,
+            ],
+        );
+
+        $controller = fn (#[FromQuery] string $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => '42'], $result);
+    }
+
+    #[TestWith([1, true])]
+    #[TestWith(['1', true])]
+    #[TestWith(['true', true])]
+    #[TestWith([0, false])]
+    #[TestWith(['0', false])]
+    #[TestWith(['false', false])]
+    public function test_mapping_query_parameter_casts_value_to_boolean(mixed $value, bool $expected): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => $value,
+            ],
+        );
+
+        $controller = fn (#[FromQuery] bool $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => $expected], $result);
     }
 
     public function test_detects_colliding_route_parameters_and_query_parameters(): void
