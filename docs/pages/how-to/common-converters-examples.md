@@ -22,108 +22,12 @@ third-party libraries or applications.
 
 ## Renaming keys
 
-Keys coming from the input may differ from the target object properties and
-need to be renamed before mapping the values to the object.
+For a global renaming, see [converting source keys chapter]. To rename the key
+of a single property, see [mapping a property from a specific key configurator
+chapter].
 
-With the following converter example, keys will be globally renamed:
-
-<details>
-<summary>Show code example — Keys renaming</summary>
-
-```php
-namespace My\App;
-
-final readonly class Location
-{
-    public string $city;
-    public string $zipCode;
-}
-
-(new \CuyZ\Valinor\MapperBuilder())
-    ->registerConverter(
-        /**
-         * @template T of object
-         * @param array<mixed> $value
-         * @param callable(array<mixed>): T $next
-         * @return T
-         */
-        function (array $value, callable $next): object {
-            $mapping = [
-                'town' => 'city',
-                'postalCode' => 'zipCode',
-            ];
-
-            $renamed = [];
-
-            foreach ($value as $key => $item) {
-                $renamed[$mapping[$key] ?? $key] = $item;
-            }
-
-            return $next($renamed);
-        }
-    )
-    ->mapper()
-    ->map(\My\App\Location::class, [
-        'town' => 'Lyon', // `town` will be renamed to `city`
-        'postalCode' => '69000', // `postalCode` will be renamed to `zipCode`
-    ]);
-```
-</details>
-
-For a more granular control, an attribute can be used to target specific
-objects, as shown in the example below:
-
-<details>
-<summary>Show code example — Keys renaming attribute</summary>
-
-```php
-namespace My\App;
-
-#[\CuyZ\Valinor\Mapper\AsConverter]
-#[\Attribute(\Attribute::TARGET_CLASS)]
-final class RenameKeys
-{
-    public function __construct(
-        /** @var non-empty-array<non-empty-string, non-empty-string> */
-        private array $mapping,
-    ) {}
-
-    /**
-     * @template T of object
-     * @param array<mixed> $value
-     * @param callable(array<mixed>): T $next
-     * @return T
-     */
-    public function map(array $value, callable $next): object
-    {
-        $renamed = [];
-
-        foreach ($value as $key => $item) {
-            $renamed[$this->mapping[$key] ?? $key] = $item;
-        }
-
-        return $next($renamed);
-    }
-}
-
-#[\My\App\RenameKeys([
-    'town' => 'city',
-    'postalCode' => 'zipCode',
-])]
-final readonly class Location
-{
-    public string $city;
-    public string $zipCode;
-}
-
-(new \CuyZ\Valinor\MapperBuilder())
-    ->mapper()
-    ->map(\My\App\Location::class, [
-        'town' => 'Lyon', // `town` will be renamed to `city`
-        'postalCode' => '69000', // `postalCode` will be renamed to `zipCode`
-    ]);
-```
-</details>
+[converting source keys chapter]: convert-input.md#converting-source-keys
+[mapping a property from a specific key configurator chapter]: use-provided-mapper-configurators.md#mapping-a-property-from-a-specific-key
 
 ## Casting scalar values
 

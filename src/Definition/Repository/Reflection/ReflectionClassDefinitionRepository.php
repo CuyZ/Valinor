@@ -217,6 +217,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     private function shouldMethodBeIncluded(ReflectionMethod $method): bool
     {
         return $method->name === 'map'
+            || $method->name === 'mapKey'
             || $method->name === 'normalize'
             || $method->name === 'normalizeKey'
             || $method->getAttributes(Constructor::class) !== [];
