@@ -45,6 +45,24 @@ final class UndefinedValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_null_value_for_single_property_class_uses_property_default(): void
+    {
+        $class = new class () {
+            public function __construct(public string $value = 'default') {}
+        };
+
+        try {
+            $result = $this->mapperBuilder()
+                ->allowUndefinedValues()
+                ->mapper()
+                ->map($class::class, null);
+
+            self::assertSame('default', $result->value);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+    }
+
     public function test_null_value_for_interface_with_no_properties_needed_fills_it_with_empty_array(): void
     {
         try {

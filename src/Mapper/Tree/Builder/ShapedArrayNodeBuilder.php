@@ -23,6 +23,7 @@ use function count;
 use function is_array;
 use function is_int;
 use function is_iterable;
+use function iterator_to_array;
 
 /** @internal */
 final class ShapedArrayNodeBuilder implements NodeBuilder
@@ -39,6 +40,19 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             return $this->httpRequestNodeBuilder->build($shell);
         }
 
+        if (! is_array($value) && is_iterable($value)) {
+            $value = iterator_to_array($value);
+            $shell = $shell->withValue($value);
+        }
+
+        // An undefined (null) source must become an empty array before the
+        // single-value wrapping below, otherwise a single-property target would
+        // wrap the null as `[key => null]` and lose the element's default value.
+        if ($value === null && $shell->allowUndefinedValues) {
+            $value = [];
+            $shell = $shell->withValue($value);
+        }
+
         if ($shell->wrapSingleValueIfNeeded) {
             $shell = $this->wrapSingleValueIfNeeded($shell);
             $value = $shell->value();
@@ -48,16 +62,10 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         assert($type instanceof ShapedArrayType || $type instanceof ShapedListType);
 
-        if ($value === null && $shell->allowUndefinedValues) {
-            $value = [];
-            $shell = $shell->withValue($value);
-        }
-
-        if (! is_iterable($value)) {
+        if (! is_array($value)) {
             return $shell->error(new SourceMustBeIterable($value));
         }
 
-        /** @var array<mixed> $value */
         $children = [];
         $errors = [];
         $absentOptionalElements = 0;

@@ -7,6 +7,7 @@ used to apply common mapping behaviors:
 
 - [Restricting key case](#restricting-key-case)
 - [Converting key case](#converting-key-case)
+- [Mapping a property from a specific key](#mapping-a-property-from-a-specific-key)
 
 ## Restricting key case
 
@@ -104,3 +105,43 @@ $user = (new \CuyZ\Valinor\MapperBuilder())
 ```
 
 [restriction configurator]: #restricting-key-case
+
+## Mapping a property from a specific key
+
+The `MapFromKey` attribute feeds a class property, or a constructor/method
+argument, from a specific source key instead of matching it against the property
+name. This is useful when the source data uses a key that differs from the name
+of the property it should be mapped to.
+
+```php
+use CuyZ\Valinor\Mapper\Configurator\MapFromKey;
+use CuyZ\Valinor\MapperBuilder;
+
+final readonly class Person
+{
+    public function __construct(
+        public string $name,
+
+        #[MapFromKey('zipCode')]
+        public string $postalCode,
+    ) {}
+}
+
+$person = (new MapperBuilder())
+    ->mapper()
+    ->map(Person::class, [
+        'name' => 'John Doe',
+        'zipCode' => '75001', // mapped to `$postalCode`
+    ]);
+```
+
+The given key is used as-is: it is **not** affected by the key converters
+registered with `registerKeyConverter()`, and the property name is no longer
+accepted, the source is read only from the given key.
+
+!!! note
+    Two properties cannot be mapped from the same source key; doing so is a
+    configuration error and throws an exception during mapping.
+
+For a global renaming, or to declare a custom key mapping attribute, see the
+[converting source keys chapter](convert-input.md#converting-source-keys).

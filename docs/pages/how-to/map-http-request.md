@@ -338,9 +338,28 @@ $controllerArguments = (new MapperBuilder())
 Read the [common mapper configurators chapter] for the full list of available
 configurators and detailed usage.
 
+!!! tip
+
+    A single parameter can be read from a specific key with the `#[MapFromKey]`
+    attribute, combined with `#[FromRoute]`, `#[FromQuery]` or `#[FromBody]`:
+
+    ```php
+    use CuyZ\Valinor\Mapper\Configurator\MapFromKey;
+    use CuyZ\Valinor\Mapper\Http\FromQuery;
+
+    $controller = function (
+        #[FromQuery] #[MapFromKey('zipCode')]
+        string $postalCode,
+    ): ResponseInterface { … };
+    ```
+
+    The key is read as-is, unaffected by the key case configurators above. See
+    [Converting source keys] for the full behaviour.
+
 [RestrictKeysTo*Case]: use-provided-mapper-configurators.md#restricting-key-case
 [MapKeysTo*Case]: use-provided-mapper-configurators.md#converting-key-case
 [common mapper configurators chapter]: use-provided-mapper-configurators.md
+[Converting source keys]: convert-input.md#converting-source-keys
 
 ## Error handling
 
