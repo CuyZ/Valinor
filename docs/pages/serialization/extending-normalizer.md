@@ -7,10 +7,6 @@ the `NormalizerBuilder`.
 A transformer can be a callable (function, closure or a class implementing the
 `__invoke()` method), or an attribute that can target a class or a property.
 
-!!! note
-    You can find common examples of transformers in the [next
-    chapter](common-transformers-examples.md).
-
 ## Callable transformers
 
 A callable transformer must declare at least one argument, for which the type
