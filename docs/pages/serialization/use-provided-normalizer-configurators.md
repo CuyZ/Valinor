@@ -273,3 +273,140 @@ $userAsArray = (new NormalizerBuilder())
 
 // ['name' => 'John Doe']
 ```
+
+## Custom transformer examples
+
+Unlike the configurators above, the following behaviors are **not** provided
+out-of-the-box: they illustrate real-life use-cases whose logic is specific to
+each application. They are shown here as inspiration and must be implemented
+with a custom transformer registered on the `NormalizerBuilder`, see the 
+[extending the normalizer chapter](extending-normalizer.md).
+
+### Transforming objects
+
+Some objects can have custom behaviors during normalization, for instance
+properties may need to be remapped. In the example below, a transformer will
+check if an object defines a `normalize` method and use it if it exists.
+
+<details>
+<summary>Show code example — Custom object normalization</summary>
+
+```php
+namespace My\App;
+
+final readonly class Address
+{
+    public function __construct(
+        public string $road,
+        public string $zipCode,
+        public string $town,
+    ) {}
+
+    public function normalize(): array
+    {
+        return [
+            'street' => $this->road,
+            'postalCode' => $this->zipCode,
+            'city' => $this->town,
+        ];
+    }
+}
+
+(new \CuyZ\Valinor\NormalizerBuilder())
+    ->registerTransformer(function (object $object, callable $next) {
+        return method_exists($object, 'normalize')
+            ? $object->normalize()
+            : $next();
+    })
+    ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+    ->normalize(
+        new \My\App\Address(
+            road: '221B Baker Street',
+            zipCode: 'NW1 6XE',
+            town: 'London',
+        ),
+    );
+
+// [
+//     'street' => '221B Baker Street',
+//     'postalCode' => 'NW1 6XE',
+//     'city' => 'London',
+// ]
+```
+</details>
+
+### Versioning API
+
+API versioning can be implemented with different strategies and algorithms. The
+example below shows how objects can implement an interface to specify their own
+specific versioning behavior.
+
+<details>
+<summary>Show code example — Versioning objects</summary>
+
+```php
+namespace My\App;
+
+interface HasVersionedNormalization
+{
+    public function normalizeWithVersion(string $version): mixed;
+}
+
+final readonly class Address implements \My\App\HasVersionedNormalization
+{
+    public function __construct(
+        public string $streetNumber,
+        public string $streetName,
+        public string $zipCode,
+        public string $city,
+    ) {}
+
+    public function normalizeWithVersion(string $version): array
+    {
+        return match (true) {
+            version_compare($version, '1.0.0', '<') => [
+                // Street number and name are merged in a single property
+                'street' => "$this->streetNumber, $this->streetName",
+                'zipCode' => $this->zipCode,
+                'city' => $this->city,
+            ],
+            default => get_object_vars($this),
+        };
+    }
+}
+
+function normalizeWithVersion(string $version): mixed
+{
+    return (new \CuyZ\Valinor\NormalizerBuilder())
+        ->registerTransformer(
+            fn (\My\App\HasVersionedNormalization $object) => $object->normalizeWithVersion($version)
+        )
+        ->normalizer(\CuyZ\Valinor\Normalizer\Format::array())
+        ->normalize(
+            new \My\App\Address(
+                streetNumber: '221B',
+                streetName: 'Baker Street',
+                zipCode: 'NW1 6XE',
+                city: 'London',
+            )
+        );
+}
+
+// Version can come for instance from HTTP request headers
+$result_v0_4 = normalizeWithVersion('0.4');
+$result_v1_8 = normalizeWithVersion('1.8');
+
+// $result_v0_4 === [
+//     'street' => '221B, Baker Street',
+//     'zipCode' => 'NW1 6XE',
+//     'city' => 'London',
+// ]
+// 
+// $result_v1_8 === [
+//     'streetNumber' => '221B',
+//     'streetName' => 'Baker Street',
+//     'zipCode' => 'NW1 6XE',
+//     'city' => 'London',
+// ]
+```
+</details>
