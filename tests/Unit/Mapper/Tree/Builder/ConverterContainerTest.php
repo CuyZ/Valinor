@@ -14,10 +14,13 @@ final class ConverterContainerTest extends UnitTestCase
     {
         $functionDefinitionRepository = new FakeFunctionDefinitionRepository();
 
-        $container = new ConverterContainer($functionDefinitionRepository, [
-            fn (string $value) => 'foo',
-            fn (string $value) => 'bar',
-        ]);
+        $container = new ConverterContainer(
+            $functionDefinitionRepository,
+            [
+                fn (string $value) => 'foo',
+                fn (string $value) => 'bar',
+            ],
+        );
 
         $container->converters();
         $container->converters();

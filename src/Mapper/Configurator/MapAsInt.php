@@ -8,6 +8,7 @@ use Attribute;
 use CuyZ\Valinor\Mapper\AsConverter;
 
 use function filter_var;
+use function is_bool;
 use function is_string;
 use function ltrim;
 
@@ -22,7 +23,34 @@ use const FILTER_VALIDATE_INT;
  * handed over to the mapper, which will raise an error if it cannot be mapped to
  * an integer.
  *
- * The conversion is applied as an attribute to target a specific property:
+ * This conversion can be applied globally, or as an attribute to target a
+ * specific property.
+ *
+ * Global usage
+ * ------------
+ *
+ * ```
+ * use CuyZ\Valinor\MapperBuilder;
+ *
+ * final readonly class User
+ * {
+ *     public function __construct(
+ *         public string $name,
+ *         public int $age,
+ *     ) {}
+ * }
+ *
+ * $user = (new MapperBuilder())
+ *     ->allowCastingToInteger()
+ *     ->mapper()
+ *     ->map(User::class, [
+ *         'name' => 'John Doe',
+ *         'age' => '42', // mapped to `42`
+ *     ]);
+ * ```
+ *
+ * Local usage as an attribute
+ * ---------------------------
  *
  * ```
  * use CuyZ\Valinor\MapperBuilder;
@@ -54,17 +82,32 @@ final class MapAsInt
 {
     /**
      * @template T of int
-     * @param callable(string|int|float): T $next
+     * @param callable(mixed): T $next
      * @return T
      */
     public function map(string|int|float $value, callable $next): mixed
     {
+        return $next(self::convert($value));
+    }
+
+    public static function convert(mixed $value): mixed
+    {
+        // Booleans are left untouched for the mapper to reject, otherwise
+        // `filter_var()` would coerce `true` to `1`.
+        if (is_bool($value)) {
+            return $value;
+        }
+
         // Leading zeros are stripped for string inputs so that values such as
         // "040" are recognized as integers.
         $normalized = is_string($value) && $value !== '' ? (ltrim($value, '0') ?: '0') : $value;
 
         $int = filter_var($normalized, FILTER_VALIDATE_INT);
 
-        return $next($int === false ? $value : $int);
+        if ($int === false) {
+            return $value;
+        }
+
+        return $int;
     }
 }

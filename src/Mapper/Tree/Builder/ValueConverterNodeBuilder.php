@@ -46,8 +46,10 @@ final class ValueConverterNodeBuilder implements NodeBuilder
             $attributes = $attributes->merge($class->attributes);
         }
 
+        $converters = $this->converterContainer->converters();
+
         // @infection-ignore-all (This is a performance optimization, we don't test this)
-        if ($attributes->count() === 0 && $this->converterContainer->converters() === []) {
+        if ($attributes->count() === 0 && $converters === []) {
             return $this->delegate->build($shell);
         }
 
@@ -60,7 +62,7 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         );
 
         if ($shell->shouldApplyConverters) {
-            $stack = [...$stack, ...$this->converterContainer->converters()];
+            $stack = [...$stack, ...$converters];
         }
 
         if ($stack === []) {
