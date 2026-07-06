@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\MixedType;
@@ -17,7 +15,6 @@ use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -50,60 +47,6 @@ final class ScalarConcreteTypeTest extends UnitTestCase
     {
         self::assertFalse($this->scalarType->accepts($value));
         self::assertFalse($this->compiledAccept($this->scalarType, $value));
-    }
-
-    public function test_can_cast_scalar_or_stringable_value(): void
-    {
-        self::assertTrue($this->scalarType->canCast('Schwifty!'));
-        self::assertTrue($this->scalarType->canCast(42.1337));
-        self::assertTrue($this->scalarType->canCast(404));
-        self::assertTrue($this->scalarType->canCast(new StringableObject()));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->scalarType->canCast(null));
-        self::assertFalse($this->scalarType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->scalarType->canCast(new stdClass()));
-    }
-
-    #[DataProvider('cast_value_returns_correct_result_data_provider')]
-    public function test_cast_value_returns_correct_result(mixed $value, bool|string|int|float $expected): void
-    {
-        self::assertSame($expected, $this->scalarType->cast($value));
-    }
-
-    public static function cast_value_returns_correct_result_data_provider(): array
-    {
-        return [
-            'Float from float' => [
-                'value' => 404.42,
-                'expected' => 404.42,
-            ],
-            'Integer from integer' => [
-                'value' => 42,
-                'expected' => 42,
-            ],
-            'String from Stringable object' => [
-                'value' => new StringableObject(),
-                'expected' => 'foo',
-            ],
-            'String from string' => [
-                'value' => 'bar',
-                'expected' => 'bar',
-            ],
-            'Boolean from boolean' => [
-                'value' => true,
-                'expected' => true,
-            ]
-        ];
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->scalarType->cast(new stdClass());
     }
 
     public function test_string_value_is_correct(): void

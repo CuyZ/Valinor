@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
@@ -13,7 +12,6 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -49,53 +47,6 @@ final class NativeFloatTypeTest extends UnitTestCase
     {
         self::assertFalse($this->floatType->accepts($value));
         self::assertFalse($this->compiledAccept($this->floatType, $value));
-    }
-
-    public function test_can_cast_float_value(): void
-    {
-        self::assertTrue($this->floatType->canCast(404));
-        self::assertTrue($this->floatType->canCast(42.1337));
-        self::assertTrue($this->floatType->canCast('42.1337'));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->floatType->canCast(null));
-        self::assertFalse($this->floatType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->floatType->canCast('Schwifty!'));
-        self::assertFalse($this->floatType->canCast(false));
-        self::assertFalse($this->floatType->canCast(new stdClass()));
-    }
-
-    #[DataProvider('cast_value_returns_correct_result_data_provider')]
-    public function test_cast_value_returns_correct_result(mixed $value, float $expected): void
-    {
-        self::assertSame($expected, $this->floatType->cast($value));
-    }
-
-    public static function cast_value_returns_correct_result_data_provider(): array
-    {
-        return [
-            'Float from integer' => [
-                'value' => 404,
-                'expected' => 404.00,
-            ],
-            'Float from string' => [
-                'value' => '42.1337',
-                'expected' => 42.1337,
-            ],
-            'Float from float' => [
-                'value' => 42.1337,
-                'expected' => 42.1337,
-            ],
-        ];
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->floatType->cast('foo');
     }
 
     public function test_string_value_is_correct(): void

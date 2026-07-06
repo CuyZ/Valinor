@@ -10,9 +10,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
-use Stringable;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\call;
 use function is_numeric;
 use function is_string;
@@ -52,22 +50,6 @@ final class NumericStringType implements StringType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        if ($value instanceof Stringable) {
-            $value = (string)$value;
-        }
-
-        return is_numeric($value);
-    }
-
-    public function cast(mixed $value): string
-    {
-        assert($this->canCast($value));
-
-        return (string)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
@@ -19,7 +18,6 @@ use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -73,64 +71,6 @@ final class IntegerRangeTypeTest extends UnitTestCase
     {
         self::assertFalse($this->type->accepts($value));
         self::assertFalse($this->compiledAccept($this->type, $value));
-    }
-
-    public function test_can_cast_integer_value(): void
-    {
-        self::assertTrue($this->type->canCast(-42));
-        self::assertTrue($this->type->canCast(42));
-        self::assertTrue($this->type->canCast('42'));
-        self::assertTrue($this->type->canCast('-42'));
-        self::assertTrue($this->type->canCast(42.00));
-        self::assertTrue($this->type->canCast(-42.00));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->type->canCast(null));
-        self::assertFalse($this->type->canCast(42.1337));
-        self::assertFalse($this->type->canCast(['foo' => 'bar']));
-        self::assertFalse($this->type->canCast('Schwifty!'));
-        self::assertFalse($this->type->canCast(false));
-        self::assertFalse($this->type->canCast(new stdClass()));
-    }
-
-    #[DataProvider('cast_value_returns_correct_result_data_provider')]
-    public function test_cast_value_returns_correct_result(mixed $value, int $expected): void
-    {
-        self::assertSame($expected, $this->type->cast($value));
-    }
-
-    public static function cast_value_returns_correct_result_data_provider(): array
-    {
-        return [
-            'Integer from float' => [
-                'value' => 42.00,
-                'expected' => 42,
-            ],
-            'Integer from string' => [
-                'value' => '42',
-                'expected' => 42,
-            ],
-            'Integer from integer' => [
-                'value' => 42,
-                'expected' => 42,
-            ],
-        ];
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->type->cast('foo');
-    }
-
-    public function test_cast_invalid_integer_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->type->cast(1337);
     }
 
     public function test_string_value_is_correct(): void

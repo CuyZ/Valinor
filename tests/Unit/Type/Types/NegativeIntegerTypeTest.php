@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
@@ -16,7 +15,6 @@ use CuyZ\Valinor\Type\Types\NegativeIntegerType;
 use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -55,69 +53,6 @@ final class NegativeIntegerTypeTest extends UnitTestCase
     {
         self::assertFalse($this->negativeIntegerType->accepts($value));
         self::assertFalse($this->compiledAccept($this->negativeIntegerType, $value));
-    }
-
-    public function test_can_cast_integer_value(): void
-    {
-        self::assertTrue($this->negativeIntegerType->canCast(-404));
-        self::assertTrue($this->negativeIntegerType->canCast('-404'));
-        self::assertTrue($this->negativeIntegerType->canCast(-404.00));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->negativeIntegerType->canCast(null));
-        self::assertFalse($this->negativeIntegerType->canCast(-42.1337));
-        self::assertFalse($this->negativeIntegerType->canCast(42.1337));
-        self::assertFalse($this->negativeIntegerType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->negativeIntegerType->canCast('Schwifty!'));
-        self::assertFalse($this->negativeIntegerType->canCast(false));
-        self::assertFalse($this->negativeIntegerType->canCast(new stdClass()));
-    }
-
-    #[DataProvider('cast_value_returns_correct_result_data_provider')]
-    public function test_cast_value_returns_correct_result(mixed $value, int $expected): void
-    {
-        self::assertSame($expected, $this->negativeIntegerType->cast($value));
-    }
-
-    public static function cast_value_returns_correct_result_data_provider(): array
-    {
-        return [
-            'Integer from float' => [
-                'value' => -404.00,
-                'expected' => -404,
-            ],
-            'Integer from string' => [
-                'value' => '-42',
-                'expected' => -42,
-            ],
-            'Integer from integer' => [
-                'value' => -1337,
-                'expected' => -1337,
-            ],
-        ];
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->negativeIntegerType->cast('foo');
-    }
-
-    public function test_cast_invalid_positive_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->negativeIntegerType->cast(1337);
-    }
-
-    public function test_cast_positive_value_with_zero_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->negativeIntegerType->cast(0);
     }
 
     public function test_string_value_is_correct(): void

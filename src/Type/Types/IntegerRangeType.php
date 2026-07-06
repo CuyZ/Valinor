@@ -12,13 +12,8 @@ use CuyZ\Valinor\Type\Parser\Exception\Scalar\ReversedValuesForIntegerRange;
 use CuyZ\Valinor\Type\Parser\Exception\Scalar\SameValueForIntegerRange;
 use CuyZ\Valinor\Type\Type;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\{call, value};
-use function filter_var;
-use function is_bool;
 use function is_int;
-use function is_string;
-use function ltrim;
 use function sprintf;
 
 /** @internal */
@@ -92,25 +87,6 @@ final class IntegerRangeType implements IntegerType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        if (is_string($value) && $value !== '') {
-            $value = ltrim($value, '0') ?: '0';
-        }
-
-        return ! is_bool($value)
-            && filter_var($value, FILTER_VALIDATE_INT) !== false
-            && $value >= $this->min
-            && $value <= $this->max;
-    }
-
-    public function cast(mixed $value): int
-    {
-        assert($this->canCast($value));
-
-        return (int)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

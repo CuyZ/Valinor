@@ -11,10 +11,8 @@ use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\call;
 use function is_float;
-use function is_numeric;
 
 /** @internal */
 final class NativeFloatType implements FloatType
@@ -45,18 +43,6 @@ final class NativeFloatType implements FloatType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return is_numeric($value);
-    }
-
-    public function cast(mixed $value): float
-    {
-        assert($this->canCast($value));
-
-        return (float)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

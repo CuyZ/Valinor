@@ -11,12 +11,8 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
-use Stringable;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\value;
-use function is_numeric;
-use function is_string;
 use function str_contains;
 use function str_ends_with;
 use function str_replace;
@@ -64,19 +60,6 @@ final class StringValueType implements StringType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return (is_string($value) || is_numeric($value) || $value instanceof Stringable)
-            && (string)$value === $this->value;
-    }
-
-    public function cast(mixed $value): string
-    {
-        assert($this->canCast($value));
-
-        return $this->value;
     }
 
     public function hasQuoteChar(): bool

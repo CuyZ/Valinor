@@ -10,9 +10,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
-use Stringable;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\call;
 use function is_scalar;
 
@@ -44,22 +42,6 @@ final class ScalarConcreteType implements ScalarType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return is_scalar($value) || $value instanceof Stringable;
-    }
-
-    public function cast(mixed $value): bool|string|int|float
-    {
-        assert($this->canCast($value));
-
-        if ($value instanceof Stringable) {
-            return (string)$value;
-        }
-
-        return $value; // @phpstan-ignore return.type (must be scalar)
     }
 
     public function errorMessage(): ErrorMessage

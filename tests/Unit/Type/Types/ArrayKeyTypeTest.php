@@ -6,11 +6,9 @@ namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
-use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
@@ -20,7 +18,6 @@ use CuyZ\Valinor\Type\Types\PositiveIntegerType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use LogicException;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -114,92 +111,6 @@ final class ArrayKeyTypeTest extends UnitTestCase
 
         self::assertFalse($type->accepts($value));
         self::assertFalse($this->compiledAccept($type, $value));
-    }
-
-    public function test_default_array_key_can_cast_numeric_and_string_value(): void
-    {
-        self::assertTrue(ArrayKeyType::default()->canCast(42.1337));
-        self::assertTrue(ArrayKeyType::default()->canCast(404));
-        self::assertTrue(ArrayKeyType::default()->canCast('foo'));
-        self::assertTrue(ArrayKeyType::default()->canCast(new StringableObject('foo')));
-    }
-
-    public function test_default_array_key_cannot_cast_other_values(): void
-    {
-        self::assertFalse(ArrayKeyType::default()->canCast(null));
-        self::assertFalse(ArrayKeyType::default()->canCast(['foo' => 'bar']));
-        self::assertFalse(ArrayKeyType::default()->canCast(false));
-        self::assertFalse(ArrayKeyType::default()->canCast(new stdClass()));
-    }
-
-    public function test_integer_array_key_can_cast_numeric_value(): void
-    {
-        self::assertTrue(ArrayKeyType::integer()->canCast(42));
-    }
-
-    public function test_integer_array_key_cannot_cast_other_values(): void
-    {
-        self::assertFalse(ArrayKeyType::integer()->canCast(null));
-        self::assertFalse(ArrayKeyType::integer()->canCast(42.1337));
-        self::assertFalse(ArrayKeyType::integer()->canCast(['foo' => 'bar']));
-        self::assertFalse(ArrayKeyType::integer()->canCast('Schwifty!'));
-        self::assertFalse(ArrayKeyType::integer()->canCast(false));
-        self::assertFalse(ArrayKeyType::integer()->canCast(new stdClass()));
-    }
-
-    public function test_string_array_key_can_cast_numeric_and_string_value(): void
-    {
-        self::assertTrue(ArrayKeyType::string()->canCast(42.1337));
-        self::assertTrue(ArrayKeyType::string()->canCast(404));
-        self::assertTrue(ArrayKeyType::string()->canCast('foo'));
-        self::assertTrue(ArrayKeyType::string()->canCast(new StringableObject('foo')));
-    }
-
-    public function test_string_array_key_cannot_cast_other_values(): void
-    {
-        self::assertFalse(ArrayKeyType::string()->canCast(null));
-        self::assertFalse(ArrayKeyType::string()->canCast(['foo' => 'bar']));
-        self::assertFalse(ArrayKeyType::string()->canCast(false));
-        self::assertFalse(ArrayKeyType::string()->canCast(new stdClass()));
-    }
-
-    public function test_array_key_with_generic_can_cast_numeric_and_string_value(): void
-    {
-        $arrayKeyWithGenericType = new ArrayKeyType([new GenericType('T', new MixedType()), new NativeIntegerType(), new NativeStringType()]);
-
-        self::assertTrue($arrayKeyWithGenericType->canCast(42.1337));
-        self::assertTrue($arrayKeyWithGenericType->canCast(404));
-        self::assertTrue($arrayKeyWithGenericType->canCast('foo'));
-        self::assertTrue($arrayKeyWithGenericType->canCast(new StringableObject('foo')));
-    }
-
-    public function test_cast_value_yields_correct_result(): void
-    {
-        self::assertSame(42, ArrayKeyType::default()->cast(42));
-        self::assertSame('42.1337', ArrayKeyType::default()->cast(42.1337));
-        self::assertSame('foo', ArrayKeyType::default()->cast('foo'));
-        self::assertSame('foo', ArrayKeyType::default()->cast(new StringableObject('foo')));
-
-        self::assertSame(42, ArrayKeyType::integer()->cast(42));
-
-        self::assertSame('42', ArrayKeyType::string()->cast(42));
-        self::assertSame('42.1337', ArrayKeyType::string()->cast(42.1337));
-        self::assertSame('foo', ArrayKeyType::string()->cast('foo'));
-        self::assertSame('foo', ArrayKeyType::string()->cast(new StringableObject('foo')));
-
-        $arrayKeyWithGenericType = new ArrayKeyType([new GenericType('T', new MixedType()), new NativeIntegerType(), new NativeStringType()]);
-
-        self::assertSame(42, $arrayKeyWithGenericType->cast(42));
-        self::assertSame('42.1337', $arrayKeyWithGenericType->cast(42.1337));
-        self::assertSame('foo', $arrayKeyWithGenericType->cast('foo'));
-        self::assertSame('foo', $arrayKeyWithGenericType->cast(new StringableObject('foo')));
-    }
-
-    public function test_cast_invalid_value_throw_exception(): void
-    {
-        $this->expectException(LogicException::class);
-
-        ArrayKeyType::default()->cast(new stdClass());
     }
 
     public function test_matches_each_others(): void
