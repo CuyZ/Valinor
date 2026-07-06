@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -15,7 +13,6 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -64,63 +61,6 @@ final class StringValueTypeTest extends UnitTestCase
     {
         self::assertFalse($this->type->accepts($value));
         self::assertFalse($this->compiledAccept($this->type, $value));
-    }
-
-    public function test_can_cast_stringable_value(): void
-    {
-        self::assertTrue($this->type->canCast('Schwifty!'));
-        self::assertTrue($this->type->canCast(new StringableObject('Schwifty!')));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->type->canCast(404));
-        self::assertFalse($this->type->canCast(42.1337));
-        self::assertFalse($this->type->canCast(null));
-        self::assertFalse($this->type->canCast(['foo' => 'bar']));
-        self::assertFalse($this->type->canCast(false));
-        self::assertFalse($this->type->canCast(new stdClass()));
-    }
-
-    #[DataProvider('cast_value_returns_correct_result_data_provider')]
-    public function test_cast_value_returns_correct_result(StringValueType $type, mixed $value, string $expected): void
-    {
-        self::assertSame($expected, $type->cast($value));
-    }
-
-    public static function cast_value_returns_correct_result_data_provider(): array
-    {
-        return [
-            'String from float' => [
-                'type' => new StringValueType('404.42'),
-                'value' => 404.42,
-                'expected' => '404.42',
-            ],
-            'String from integer' => [
-                'type' => new StringValueType('42'),
-                'value' => 42,
-                'expected' => '42',
-            ],
-            'String from object' => [
-                'type' => new StringValueType('foo'),
-                'value' => new StringableObject(),
-                'expected' => 'foo',
-            ],
-            'String from string' => [
-                'type' => new StringValueType('bar'),
-                'value' => 'bar',
-                'expected' => 'bar',
-            ],
-        ];
-    }
-
-    public function test_cast_another_string_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $typeA = new StringValueType('Schwifty!');
-
-        $typeA->cast(new StringableObject('Schwifty?'));
     }
 
     public function test_string_value_is_correct(): void

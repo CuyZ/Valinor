@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
@@ -53,44 +52,6 @@ final class FloatValueTypeTest extends UnitTestCase
     {
         self::assertFalse($this->floatValueType->accepts($value));
         self::assertFalse($this->compiledAccept($this->floatValueType, $value));
-    }
-
-    public function test_can_cast_float_value(): void
-    {
-        self::assertTrue($this->floatValueType->canCast(1337.42));
-        self::assertTrue($this->floatValueType->canCast('1337.42'));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->floatValueType->canCast(404));
-        self::assertFalse($this->floatValueType->canCast(42.1337));
-        self::assertFalse($this->floatValueType->canCast('42.1337'));
-        self::assertFalse($this->floatValueType->canCast(null));
-        self::assertFalse($this->floatValueType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->floatValueType->canCast('Schwifty!'));
-        self::assertFalse($this->floatValueType->canCast(false));
-        self::assertFalse($this->floatValueType->canCast(new stdClass()));
-    }
-
-    public function test_cast_value_returns_correct_result(): void
-    {
-        self::assertSame(1337.42, $this->floatValueType->cast('1337.42'));
-        self::assertSame(1337.42, $this->floatValueType->cast(1337.42));
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->floatValueType->cast('foo');
-    }
-
-    public function test_cast_another_float_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->floatValueType->cast('404.42');
     }
 
     public function test_string_value_is_correct(): void

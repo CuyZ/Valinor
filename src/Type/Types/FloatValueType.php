@@ -11,9 +11,7 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\value;
-use function is_numeric;
 
 /** @internal */
 final class FloatValueType implements FloatType, FixedType
@@ -38,18 +36,6 @@ final class FloatValueType implements FloatType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return is_numeric($value) && (float)$value === $this->value;
-    }
-
-    public function cast(mixed $value): float
-    {
-        assert($this->canCast($value));
-
-        return (float)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

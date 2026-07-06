@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeObjectType;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -99,82 +97,6 @@ final class ClassStringTypeTest extends UnitTestCase
         self::assertFalse($this->compiledAccept($basicClassStringType, $value));
         self::assertFalse($this->compiledAccept($objectClassStringType, $value));
         self::assertFalse($this->compiledAccept($unionClassStringType, $value));
-    }
-
-    public function test_can_cast_stringable_value(): void
-    {
-        self::assertTrue((new ClassStringType())->canCast(stdClass::class));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        $classStringType = new ClassStringType();
-
-        self::assertFalse($classStringType->canCast(null));
-        self::assertFalse($classStringType->canCast(42.1337));
-        self::assertFalse($classStringType->canCast(404));
-        self::assertFalse((new ClassStringType())->canCast('foo'));
-        self::assertFalse($classStringType->canCast(true));
-        self::assertFalse($classStringType->canCast(['foo' => 'bar']));
-        self::assertFalse($classStringType->canCast(new stdClass()));
-    }
-
-    public function test_cast_class_string_returns_class_string(): void
-    {
-        $result = (new ClassStringType())->cast(stdClass::class);
-
-        self::assertSame(stdClass::class, $result);
-    }
-
-    public function test_cast_stringable_object_returns_class_string(): void
-    {
-        $result = (new ClassStringType())->cast(new StringableObject(stdClass::class));
-
-        self::assertSame(stdClass::class, $result);
-    }
-
-    public function test_cast_to_sub_class_returns_sub_class(): void
-    {
-        $objectType = new FakeObjectType(DateTimeInterface::class);
-        $result = (new ClassStringType([$objectType]))->cast(DateTime::class);
-
-        self::assertSame(DateTime::class, $result);
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        (new ClassStringType())->cast(42);
-    }
-
-    public function test_cast_invalid_class_string_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $classStringObject = new StringableObject('foo');
-
-        (new ClassStringType())->cast($classStringObject);
-    }
-
-    public function test_cast_invalid_class_string_of_object_type_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $objectType = new FakeObjectType();
-        $classStringObject = new StringableObject(DateTimeInterface::class);
-
-        (new ClassStringType([$objectType]))->cast($classStringObject);
-    }
-
-    public function test_cast_invalid_class_string_of_union_type_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $types = [new FakeObjectType(DateTime::class), new FakeObjectType(stdClass::class)];
-        $classStringObject = new StringableObject(DateTimeInterface::class);
-
-        (new ClassStringType($types))->cast($classStringObject);
     }
 
     public function test_string_value_is_correct(): void

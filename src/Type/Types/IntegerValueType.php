@@ -11,12 +11,7 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\value;
-use function filter_var;
-use function is_bool;
-use function is_string;
-use function ltrim;
 
 /** @internal */
 final class IntegerValueType implements IntegerType, FixedType
@@ -41,24 +36,6 @@ final class IntegerValueType implements IntegerType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        if (is_string($value) && $value !== '') {
-            $value = ltrim($value, '0') ?: '0';
-        }
-
-        return ! is_bool($value)
-            && filter_var($value, FILTER_VALIDATE_INT) !== false
-            && (int)$value === $this->value; // @phpstan-ignore-line;
-    }
-
-    public function cast(mixed $value): int
-    {
-        assert($this->canCast($value));
-
-        return (int)$value; // @phpstan-ignore-line;
     }
 
     public function errorMessage(): ErrorMessage

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
@@ -69,90 +68,6 @@ final class BooleanValueTypeTest extends UnitTestCase
 
         self::assertFalse($this->compiledAccept($trueType, $value));
         self::assertFalse($this->compiledAccept($falseType, $value));
-    }
-
-    public function test_can_cast_boolean_value(): void
-    {
-        self::assertTrue(BooleanValueType::true()->canCast(true));
-        self::assertTrue(BooleanValueType::false()->canCast(false));
-    }
-
-    public function test_can_cast_string_integer_value(): void
-    {
-        self::assertTrue(BooleanValueType::true()->canCast('1'));
-        self::assertTrue(BooleanValueType::false()->canCast('0'));
-    }
-
-    public function test_can_cast_integer_value(): void
-    {
-        self::assertTrue(BooleanValueType::true()->canCast(1));
-        self::assertTrue(BooleanValueType::false()->canCast(0));
-    }
-
-    public function test_can_cast_string_value(): void
-    {
-        self::assertTrue(BooleanValueType::true()->canCast('true'));
-        self::assertTrue(BooleanValueType::false()->canCast('false'));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse(BooleanValueType::true()->canCast(null));
-        self::assertFalse(BooleanValueType::true()->canCast(false));
-        self::assertFalse(BooleanValueType::true()->canCast(42.1337));
-        self::assertFalse(BooleanValueType::true()->canCast(404));
-        self::assertFalse(BooleanValueType::true()->canCast('Schwifty!'));
-        self::assertFalse(BooleanValueType::true()->canCast(['foo' => 'bar']));
-        self::assertFalse(BooleanValueType::true()->canCast(new stdClass()));
-
-        self::assertFalse(BooleanValueType::false()->canCast(null));
-        self::assertFalse(BooleanValueType::false()->canCast(true));
-        self::assertFalse(BooleanValueType::false()->canCast(42.1337));
-        self::assertFalse(BooleanValueType::false()->canCast(404));
-        self::assertFalse(BooleanValueType::false()->canCast('Schwifty!'));
-        self::assertFalse(BooleanValueType::false()->canCast(['foo' => 'bar']));
-        self::assertFalse(BooleanValueType::false()->canCast(new stdClass()));
-    }
-
-    public function test_cast_value_returns_correct_result(): void
-    {
-        self::assertSame(true, BooleanValueType::true()->cast(true));
-        self::assertSame(true, BooleanValueType::true()->cast('1'));
-        self::assertSame(true, BooleanValueType::true()->cast(1));
-        self::assertSame(true, BooleanValueType::true()->cast('true'));
-
-        self::assertSame(false, BooleanValueType::false()->cast(false));
-        self::assertSame(false, BooleanValueType::false()->cast('0'));
-        self::assertSame(false, BooleanValueType::false()->cast(0));
-        self::assertSame(false, BooleanValueType::false()->cast('false'));
-    }
-
-    public function test_cast_invalid_value_type_to_true_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        BooleanValueType::true()->cast('foo');
-    }
-
-    public function test_cast_invalid_value_to_true_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        BooleanValueType::true()->cast(false);
-    }
-
-    public function test_cast_invalid_value_type_to_false_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        BooleanValueType::false()->cast('foo');
-    }
-
-    public function test_cast_invalid_value_to_false_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        BooleanValueType::false()->cast(true);
     }
 
     public function test_matches_same_type(): void

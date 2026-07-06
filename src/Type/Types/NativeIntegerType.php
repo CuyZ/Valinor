@@ -11,13 +11,8 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\call;
-use function filter_var;
-use function is_bool;
 use function is_int;
-use function is_string;
-use function ltrim;
 
 /** @internal */
 final class NativeIntegerType implements IntegerType
@@ -52,22 +47,6 @@ final class NativeIntegerType implements IntegerType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        if (is_string($value) && $value !== '') {
-            $value = ltrim($value, '0') ?: '0';
-        }
-
-        return ! is_bool($value) && filter_var($value, FILTER_VALIDATE_INT) !== false;
-    }
-
-    public function cast(mixed $value): int
-    {
-        assert($this->canCast($value));
-
-        return (int)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

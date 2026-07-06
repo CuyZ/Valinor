@@ -11,7 +11,6 @@ use CuyZ\Valinor\Type\BooleanType;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Type;
 
-use function assert;
 use function CuyZ\Valinor\Compiler\value;
 
 /** @internal */
@@ -51,26 +50,6 @@ final class BooleanValueType implements BooleanType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        if ($value === $this->value) {
-            return true;
-        }
-
-        if ($this->value === true) {
-            return $value === '1' || $value === 1 || $value === 'true';
-        }
-
-        return $value === '0' || $value === 0 || $value === 'false';
-    }
-
-    public function cast(mixed $value): bool
-    {
-        assert($this->canCast($value));
-
-        return $this->value;
     }
 
     public function errorMessage(): ErrorMessage

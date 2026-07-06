@@ -15,7 +15,6 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
-use LogicException;
 
 use function array_filter;
 use function array_map;
@@ -148,28 +147,6 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
         $otherTypes = UnionType::from(...$other->types);
 
         return $selfTypes->inferGenericsFrom($otherTypes, $generics);
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        foreach ($this->types as $type) {
-            if ($type instanceof ScalarType && $type->canCast($value)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function cast(mixed $value): string|int
-    {
-        foreach ($this->types as $type) {
-            if (! $type instanceof VacantType && $type->canCast($value)) {
-                return $type->cast($value);
-            }
-        }
-
-        throw new LogicException();
     }
 
     public function errorMessage(): ErrorMessage

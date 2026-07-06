@@ -15,11 +15,9 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use Stringable;
 
 use function array_filter;
 use function array_map;
-use function assert;
 use function CuyZ\Valinor\Compiler\{call, logicalOr, value};
 use function implode;
 use function is_a;
@@ -138,19 +136,6 @@ final class ClassStringType implements StringType, CompositeType
         $otherTypes = UnionType::from(...$other->subTypes);
 
         return $selfTypes->inferGenericsFrom($otherTypes, $generics);
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return (is_string($value) || $value instanceof Stringable)
-            && $this->accepts((string)$value);
-    }
-
-    public function cast(mixed $value): string
-    {
-        assert($this->canCast($value));
-
-        return (string)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage
