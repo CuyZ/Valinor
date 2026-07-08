@@ -76,7 +76,7 @@ $normalizer->normalize($users);
 
 By default, the JSON normalizer will only use `JSON_THROW_ON_ERROR` to encode
 non-boolean scalar values. There might be use-cases where projects will need
-flags like `JSON_JSON_PRESERVE_ZERO_FRACTION`.
+flags like `JSON_PRESERVE_ZERO_FRACTION`.
 
 This can be achieved by passing these flags to the
 `JsonNormalizer::withOptions()` method:
