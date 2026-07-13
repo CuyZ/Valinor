@@ -128,3 +128,70 @@ assert($result->baz === 'baz');
 ```
 
 [registering a constructor for the interface]: use-custom-object-constructors.md#interface-implementation-constructor
+
+## Inferring generic classes
+
+It can sometimes be useful for an inferred interface implementation to be a
+generic class. To do so, it is not possible to use the `class-string` return
+type, because by nature a class-string cannot be generic.
+
+To do so, a workaround is implemented: instead of returning a `class-string`,
+the callback can return a string value containing the signature of the generic
+class.
+
+```php
+namespace My\App;
+
+interface ApiResponse {}
+
+/**
+ * @template T
+ */
+final readonly class SuccessResponse implements ApiResponse
+{
+    /** @var T */
+    public mixed $data;
+}
+
+final readonly class User
+{
+    public string $name;
+    public string $email;
+}
+
+final readonly class Product
+{
+    public string $name;
+    public float $price;
+}
+
+$mapper = (new \CuyZ\Valinor\MapperBuilder())
+    ->infer(
+        ApiResponse::class,
+        /** @return '\My\App\SuccessResponse<\My\App\User>'|'\My\App\SuccessResponse<\My\App\Product>' */
+        static fn (string $type): string => match($type) {
+            'user' => SuccessResponse::class . '<' . User::class . '>',
+            'product' => SuccessResponse::class . '<' . Product::class . '>',
+            default => throw new \DomainException("Unhandled type `$type`."),
+        }
+    )
+    ->mapper();
+
+$userResponse = $mapper->map(ApiResponse::class, [
+    'type' => 'user', // Will return a `SuccessResponse<User>`
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+]);
+
+assert($userResponse instanceof SuccessResponse);
+assert($userResponse->data instanceof User);
+
+$productResponse = $mapper->map(ApiResponse::class, [
+    'type' => 'product', // Will return a `SuccessResponse<Product>`
+    'name' => 'Laptop',
+    'price' => 1337.42,
+]);
+
+assert($productResponse instanceof SuccessResponse);
+assert($productResponse->data instanceof Product);
+```
