@@ -22,19 +22,23 @@ final class PhpParser
     /** @var array<string, array<string, string>> */
     private static array $statements = [];
 
+    /** @var array<string, string|null> */
+    private static array $namespaces = [];
+
     /**
-     * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
-     * @return array<string, string>
+     * @param ReflectionClass<covariant object>|ReflectionFunction $reflection
      */
-    public static function parseUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
+    public static function parseNamespace(ReflectionClass|ReflectionFunction $reflection): ?string
     {
         $signature = "{$reflection->getFileName()}:{$reflection->getStartLine()}";
 
-        // @infection-ignore-all
-        return self::$statements[$signature] ??= self::fetchUseStatements($reflection);
+        return self::$namespaces[$signature] ??= self::fetchNamespace($reflection);
     }
 
-    public static function parseNamespace(ReflectionFunction $reflection): ?string
+    /**
+     * @param ReflectionClass<covariant object>|ReflectionFunction $reflection
+     */
+    private static function fetchNamespace(ReflectionClass|ReflectionFunction $reflection): ?string
     {
         $content = self::getFileContent($reflection);
 
@@ -43,6 +47,17 @@ final class PhpParser
         }
 
         return (new NamespaceFinder())->findNamespace($content);
+    }
+
+    /**
+     * @param ReflectionClass<covariant object>|ReflectionFunction|ReflectionMethod $reflection
+     * @return array<string, string>
+     */
+    public static function parseUseStatements(ReflectionClass|ReflectionFunction|ReflectionMethod $reflection): array
+    {
+        $signature = "{$reflection->getFileName()}:{$reflection->getStartLine()}";
+
+        return self::$statements[$signature] ??= self::fetchUseStatements($reflection);
     }
 
     /**
@@ -60,8 +75,12 @@ final class PhpParser
         $tokenParser = new TokenParser($content);
 
         if ($reflection instanceof ReflectionMethod) {
-            $namespaceName = $reflection->getDeclaringClass()->getNamespaceName();
-        } elseif ($reflection instanceof ReflectionFunction) {
+            $reflection = $reflection->getDeclaringClass();
+        }
+
+        if ($reflection instanceof ReflectionFunction || $reflection->isAnonymous()) {
+            // An anonymous class name carries either no namespace or the
+            // extended/implemented type's namespace, not reliably the lexical one.
             $namespaceName = $tokenParser->getNamespace();
         } else {
             $namespaceName = $reflection->getNamespaceName();

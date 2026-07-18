@@ -209,6 +209,20 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         self::assertSame('non-empty-array<string>', $propertyType->toString());
     }
 
+    public function test_named_class_declared_without_source_file_can_use_type_from_its_own_namespace(): void
+    {
+        // `eval()` of a static literal is used here as the only way to declare
+        // a named class without a source file: no source can be parsed, so the
+        // class name is the only remaining namespace-resolution context.
+        eval('namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection; final class NamedClassDeclaredWithoutSourceFile { /** @var ClassWithInheritedPrivateConstructor */ public object $value; }');
+
+        $type = new NativeClassType(NamedClassDeclaredWithoutSourceFile::class); // @phpstan-ignore class.notFound
+        $properties = $this->getClass($type)->properties;
+        $propertyType = $properties->get('value')->type;
+
+        self::assertSame(ClassWithInheritedPrivateConstructor::class, $propertyType->toString());
+    }
+
     public function test_can_use_nested_local_types(): void
     {
         $class =
