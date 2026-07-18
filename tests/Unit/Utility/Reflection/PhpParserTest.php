@@ -21,6 +21,9 @@ use ReflectionFunction;
 use ReflectionMethod;
 use stdClass;
 
+use function assert;
+use function is_object;
+
 require_once __DIR__ . '/Fixtures/TwoClassesInDifferentNamespaces.php';
 require_once __DIR__ . '/Fixtures/FunctionInRootNamespace.php';
 require_once __DIR__ . '/Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php';
@@ -174,6 +177,14 @@ final class PhpParserTest extends UnitTestCase
                 'foo' => Foo::class,
             ]
         ];
+
+        yield 'anonymous class' => [
+            new ReflectionClass(require __DIR__ . '/Fixtures/anonymous-class-with-imports.php'), // @phpstan-ignore argument.type
+            [
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+            ]
+        ];
     }
 
     public function test_can_parse_namespace_for_closure_with_one_level_namespace(): void
@@ -198,5 +209,28 @@ final class PhpParserTest extends UnitTestCase
         $namespace = PhpParser::parseNamespace($reflection);
 
         self::assertSame('Root\QualifiedNamespace', $namespace);
+    }
+
+    public function test_can_parse_namespace_for_anonymous_class(): void
+    {
+        $object = require __DIR__ . '/Fixtures/anonymous-class-with-imports.php';
+        assert(is_object($object));
+
+        $namespace = PhpParser::parseNamespace(new ReflectionClass($object));
+
+        self::assertSame('CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\AnonymousClassNamespace', $namespace);
+    }
+
+    public function test_parse_namespace_for_function_without_source_file_returns_null(): void
+    {
+        // `eval()` of a static literal is used here as the only way to
+        // declare a function without a source file.
+        $function = eval('return static fn () => null;');
+
+        assert($function instanceof Closure);
+
+        $namespace = PhpParser::parseNamespace(new ReflectionFunction($function));
+
+        self::assertNull($namespace);
     }
 }

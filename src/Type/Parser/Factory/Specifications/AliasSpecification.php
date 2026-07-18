@@ -88,7 +88,12 @@ final class AliasSpecification implements TypeParserSpecification
             }
         }
 
-        if ($reflection->inNamespace()) {
+        if ($reflection->isAnonymous()) {
+            // The name of an anonymous class or closure carries either no
+            // namespace or another type's namespace, not reliably the lexical
+            // one, so the namespace is recovered from the source instead.
+            $namespace = PhpParser::parseNamespace($reflection);
+        } elseif ($reflection->inNamespace()) {
             $namespace = $reflection->getNamespaceName();
         } elseif ($reflection instanceof ReflectionFunction) {
             $namespace = PhpParser::parseNamespace($reflection);

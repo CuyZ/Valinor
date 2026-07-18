@@ -8,6 +8,21 @@ use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\AbstractObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 
+/** @template Paged of object */
+final readonly class DummyPaginable
+{
+    /** @param list<Paged> $items */
+    public function __construct(
+        public string|null $nextPage,
+        public array $items,
+    ) {}
+}
+
+final readonly class User
+{
+    public function __construct(public string $username) {}
+}
+
 final class GenericTypesInAnonymousClassConstructorTest extends IntegrationTestCase
 {
     public function test_deserializes_generic_type(): void
@@ -138,19 +153,4 @@ final class GenericTypesInAnonymousClassConstructorTest extends IntegrationTestC
         self::assertCount(1, $result->wrapped->items);
         self::assertSame('foo', $result->wrapped->items[0]->value);
     }
-}
-
-/** @template Paged of object */
-final readonly class DummyPaginable
-{
-    /** @param list<Paged> $items */
-    public function __construct(
-        public string|null $nextPage,
-        public array $items,
-    ) {}
-}
-
-final readonly class User
-{
-    public function __construct(public string $username) {}
 }
