@@ -16,6 +16,12 @@ parameters:
     excludePaths:
         - tests/StaticAnalysis
         - tests/Integration/Normalizer/ExpectedCache/
+        # PHP8.4 remove
+        - tests/Fixture/Object/InterfaceWithPropertyHooks/BaseInterface.php
+        - tests/Fixture/Object/InterfaceWithPropertyHooks/ChildInterface.php
+        - tests/Fixture/Object/InterfaceWithPropertyHooks/GenericBaseInterface.php
+        - tests/Fixture/Object/InterfaceWithPropertyHooks/GrandChildInterface.php
+        - tests/Fixture/Object/InterfaceWithPropertyHooks/OtherBaseInterface.php
     resultCachePath: var/cache/phpstan/phpstan-resultCache.php
     ignoreErrors:
         # \PHPStan\Rules\BooleansInConditions
