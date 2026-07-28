@@ -42,6 +42,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
 
         $children = [];
         $errors = [];
+        $absentOptionalElements = 0;
 
         // First phase: we loop through all the shaped array elements and try
         // to find corresponding value in the source value to build them.
@@ -49,6 +50,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             $hasValue = array_key_exists($key, $value);
 
             if (! $hasValue && $element->isOptional()) {
+                $absentOptionalElements++;
                 continue;
             }
 
@@ -69,6 +71,10 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
             }
 
             unset($value[$key]);
+        }
+
+        if ($value === []) {
+            $shell->childrenCount += $absentOptionalElements;
         }
 
         // Second phase: if the shaped array/list is unsealed, we take the
