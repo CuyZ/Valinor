@@ -424,6 +424,21 @@ final class InterfaceInferringMappingTest extends IntegrationTestCase
             ]);
         }
     }
+
+    public function test_infer_interface_with_constructor_declared_in_parent_interface_works_properly(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(SomeInterfaceWithParentConstructor::class, fn () => SomeClassWithConstructorComingFromParentInterface::class)
+                ->mapper()
+                ->map(SomeInterfaceWithParentConstructor::class, ['valueA' => 'foo']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassWithConstructorComingFromParentInterface::class, $result);
+        self::assertSame('foo', $result->valueA);
+    }
 }
 
 interface SomeInterface {}
@@ -439,3 +454,15 @@ final class SomeClassThatInheritsInterfaceB implements SomeInterface
 }
 
 final class SomeClassThatInheritsInterfaceC implements SomeInterface {}
+
+interface SomeInterfaceWithConstructor
+{
+    public function __construct(string $valueA);
+}
+
+interface SomeInterfaceWithParentConstructor extends SomeInterfaceWithConstructor {}
+
+final class SomeClassWithConstructorComingFromParentInterface implements SomeInterfaceWithParentConstructor
+{
+    public function __construct(public string $valueA) {}
+}

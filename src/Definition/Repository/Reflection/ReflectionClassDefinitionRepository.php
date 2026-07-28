@@ -34,6 +34,7 @@ use function array_count_values;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function assert;
 
 /** @internal */
 final class ReflectionClassDefinitionRepository implements ClassDefinitionRepository
@@ -144,7 +145,10 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             if ($declaringClass->name === $type->className()) {
                 $properties[$property->name] = $this->propertyBuilder->for($property, $typeResolver);
             } else {
-                $parentClass = $this->parentTypeResolver->resolveParentTypeFor($type);
+                assert($type instanceof NativeClassType || $type instanceof InterfaceType);
+
+                $parentClass = $this->parentTypeResolver->resolveParentTypeFor($type, $property);
+
                 // @infection-ignore-all Just some memoization
                 $parentClasses[$parentClass->toString()] ??= $this->for($parentClass);
 
@@ -198,7 +202,9 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
                 continue;
             }
 
-            $parentClass = $this->parentTypeResolver->resolveParentTypeFor($type);
+            assert($type instanceof NativeClassType || $type instanceof InterfaceType);
+
+            $parentClass = $this->parentTypeResolver->resolveParentTypeFor($type, $method);
 
             // @infection-ignore-all Just some memoization
             $parentClasses[$parentClass->toString()] ??= $this->for($parentClass);
