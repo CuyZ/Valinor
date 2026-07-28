@@ -47,7 +47,7 @@ final class Shell
         private NodeBuilder $nodeBuilder,
         private TypeDumper $typeDumper,
         /** @var non-negative-int */
-        private int $childrenCount,
+        public int $childrenCount,
         /** @var array<array-key, array-key> */
         private array $nameMap = [],
         /** @var array<string, null> */

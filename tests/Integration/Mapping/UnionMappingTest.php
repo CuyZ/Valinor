@@ -224,6 +224,18 @@ final class UnionMappingTest extends IntegrationTestCase
                 self::assertSame(42, $result->integer);
             },
         ];
+
+        yield 'empty shaped array or shaped array with one optional key, with empty array' => [
+            'type' => 'array{}|array{value?: string}',
+            'source' => [],
+            'assertion' => fn (mixed $result) => self::assertSame([], $result),
+        ];
+
+        yield 'shaped array or shaped array with one additional optional key, with array matching both' => [
+            'type' => 'array{name: string}|array{name: string, extra?: int}',
+            'source' => ['name' => 'foo'],
+            'assertion' => fn (mixed $result) => self::assertSame(['name' => 'foo'], $result),
+        ];
     }
 
     public static function union_mapping_works_properly_with_scalar_value_casting_enabled_data_provider(): iterable
@@ -386,6 +398,54 @@ final class UnionMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_empty_array_matching_object_without_argument_and_object_with_optional_argument_in_union_maps_to_object_with_optional_argument(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->allowPermissiveTypes()
+                ->mapper()
+                ->map(UnionOfEmptyObjectAndObjectWithOptionalValue::class, ['child' => []]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeObjectWithOneOptionalObjectOrArrayValue::class, $result->child);
+        self::assertInstanceOf(SomeEmptyObject::class, $result->child->value);
+    }
+
+    public function test_array_matching_object_without_argument_and_object_with_optional_argument_in_union_maps_to_object_with_filled_argument(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->allowPermissiveTypes()
+                ->mapper()
+                ->map(UnionOfEmptyObjectAndObjectWithOptionalValue::class, ['child' => ['value' => ['foo', 'bar']]]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeObjectWithOneOptionalObjectOrArrayValue::class, $result->child);
+        self::assertSame(['foo', 'bar'], $result->child->value);
+    }
+
+    public function test_array_matching_two_objects_in_union_maps_to_the_one_with_an_additional_optional_argument(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(
+                    SomeObjectWithOneStringValue::class . '|' . SomeObjectWithOneStringValueAndOneOptionalIntValue::class,
+                    ['string' => 'foo'],
+                );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeObjectWithOneStringValueAndOneOptionalIntValue::class, $result);
+        self::assertSame('foo', $result->string);
+        self::assertSame(42, $result->integer);
+    }
+
     public function test_nullable_object_throwing_custom_exception_adds_exception_to_mapping_errors(): void
     {
         $class = new class () {
@@ -460,5 +520,30 @@ final readonly class SomeObjectWithOneStringValueAndOneIntValue
     public function __construct(
         public string $string,
         public int $integer,
+    ) {}
+}
+
+final readonly class SomeObjectWithOneStringValueAndOneOptionalIntValue
+{
+    public function __construct(
+        public string $string,
+        public int $integer = 42,
+    ) {}
+}
+
+final class SomeEmptyObject {}
+
+final readonly class SomeObjectWithOneOptionalObjectOrArrayValue
+{
+    /** @param SomeEmptyObject|array<mixed> $value */
+    public function __construct(
+        public SomeEmptyObject|array $value = new SomeEmptyObject(),
+    ) {}
+}
+
+final readonly class UnionOfEmptyObjectAndObjectWithOptionalValue
+{
+    public function __construct(
+        public SomeEmptyObject|SomeObjectWithOneOptionalObjectOrArrayValue $child,
     ) {}
 }
