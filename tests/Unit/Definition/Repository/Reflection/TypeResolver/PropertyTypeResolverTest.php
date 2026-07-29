@@ -125,6 +125,30 @@ final class PropertyTypeResolverTest extends UnitTestCase
             'non-empty-string',
         ];
 
+        yield 'valinor @var has precedence over other tags' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var string
+                 * @psalm-var string
+                 * @phpstan-var string
+                 * @valinor-var non-empty-string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
+        yield 'valinor @var overrides an unparseable @var' => [
+            new ReflectionProperty(new class () {
+                /**
+                 * @var ($foo is 1 ? int : string)
+                 * @valinor-var non-empty-string
+                 */
+                public $foo;
+            }, 'foo'),
+            'non-empty-string',
+        ];
+
         yield 'docBlock present but no @var annotation' => [
             new ReflectionProperty(new class () {
                 /**

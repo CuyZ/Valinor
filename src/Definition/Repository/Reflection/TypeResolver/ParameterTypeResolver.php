@@ -11,7 +11,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Annotations;
 use ReflectionParameter;
 
-use function array_search;
+use function in_array;
 
 /** @internal */
 final class ParameterTypeResolver
@@ -58,18 +58,36 @@ final class ParameterTypeResolver
         $annotations = Annotations::forParameters($reflection->getDeclaringFunction());
 
         foreach ($annotations as $annotation) {
-            $tokens = $annotation->filtered();
-
-            $dollarSignKey = array_search('$', $tokens, true);
-
-            if ($dollarSignKey === false) {
-                continue;
-            }
-
-            $parameterName = $tokens[$dollarSignKey + 1] ?? null;
+            $parameterName = $this->parameterNameOf($annotation->filtered());
 
             if ($parameterName === $reflection->name) {
                 return $annotation->raw();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds the parameter name declared by a `@param`-like annotation. The
+     * name is the first `$variable` token located outside of any bracket, so
+     * that variable references nested inside the type (for instance the `$a`
+     * in a conditional type `($a is 1 ? int : string) $b`) are not mistaken
+     * for the parameter name.
+     *
+     * @param array<int, non-empty-string> $tokens
+     */
+    private function parameterNameOf(array $tokens): ?string
+    {
+        $depth = 0;
+
+        foreach ($tokens as $key => $token) {
+            if (in_array($token, ['(', '<', '[', '{'], true)) {
+                $depth++;
+            } elseif (in_array($token, [')', '>', ']', '}'], true)) {
+                $depth--;
+            } elseif ($token === '$' && $depth === 0) {
+                return $tokens[$key + 1] ?? null;
             }
         }
 

@@ -34,6 +34,15 @@ final class ParameterTypeResolverTest extends UnitTestCase
             'string',
         ];
 
+        yield 'phpdoc @param with generic type' => [
+            new ReflectionParameter(
+                /** @param array<positive-int> $list */
+                static function ($list): void {},
+                'list',
+            ),
+            'array<positive-int>',
+        ];
+
         yield 'phpdoc @param with comment' => [
             new ReflectionParameter(
                 /**
@@ -121,6 +130,56 @@ final class ParameterTypeResolverTest extends UnitTestCase
                 'value',
             ),
             'non-empty-string',
+        ];
+
+        yield 'valinor @param has precedence over other tags' => [
+            new ReflectionParameter(
+                /**
+                 * @param string $value
+                 * @psalm-param string $value
+                 * @phpstan-param string $value
+                 * @valinor-param non-empty-string $value
+                 */
+                static function ($value): void {},
+                'value',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'valinor @param overrides an unparseable @param' => [
+            new ReflectionParameter(
+                /**
+                 * @phpstan-param ($value is 1 ? int : string) $value
+                 * @valinor-param non-empty-string $value
+                 */
+                static function ($value): void {},
+                'value',
+            ),
+            'non-empty-string',
+        ];
+
+        yield 'valinor @param overrides an unparseable @param targeting another parameter' => [
+            new ReflectionParameter(
+                /**
+                 * @phpstan-param ($a is 1 ? int : string) $b
+                 * @valinor-param int|null $b
+                 */
+                static function ($a, $b): void {},
+                'b',
+            ),
+            'int|null',
+        ];
+
+        yield 'conditional type referencing another parameter is not mis-attributed' => [
+            new ReflectionParameter(
+                /**
+                 * @param int $a
+                 * @phpstan-param ($a is 1 ? int : string) $b
+                 */
+                static function ($a, $b): void {},
+                'a',
+            ),
+            'int',
         ];
 
         yield 'phpdoc several incomplete @param' => [

@@ -4,6 +4,30 @@ To prevent conflicts or duplication of the type annotations, this library tries
 to handle most of the type annotations that are accepted by [PHPStan] and
 [Psalm].
 
+!!! tip
+
+    When a property, parameter or return type uses a PHPStan or Psalm syntax
+    that the library cannot parse yet, for instance a conditional type like
+    `($a is 1 ? int : null)`, the dedicated `@valinor-var`, `@valinor-param` and
+    `@valinor-return` annotations can be used to give the library a type it
+    understands. They take precedence over every other annotation, so the static
+    analysis tools keep using their own type while the library uses the
+    override:
+    
+    ```php
+    final class SomeClass
+    {
+        /**
+         * @phpstan-param ($a is 1 ? int : null) $b
+         * @valinor-param int|null $b
+         */
+        public function __construct(
+            public readonly int $a,
+            public readonly ?int $b,
+        ) {}
+    }
+    ```
+
 ## Scalar
 
 ```php
