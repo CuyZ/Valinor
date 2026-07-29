@@ -115,6 +115,7 @@ final class Annotations
     public static function forParameters(ReflectionFunctionAbstract $function): array
     {
         return (new self($function->getDocComment()))->filteredByPriority(
+            '@valinor-param',
             '@phpstan-param',
             '@psalm-param',
             '@param',
@@ -124,6 +125,7 @@ final class Annotations
     public static function forProperty(ReflectionProperty $function): ?string
     {
         return (new self($function->getDocComment()))->firstOf(
+            '@valinor-var',
             '@phpstan-var',
             '@psalm-var',
             '@var',
@@ -133,6 +135,7 @@ final class Annotations
     public static function forFunctionReturnType(ReflectionFunctionAbstract $function): ?string
     {
         return (new self($function->getDocComment()))->firstOf(
+            '@valinor-return',
             '@phpstan-return',
             '@psalm-return',
             '@return',

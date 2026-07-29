@@ -135,6 +135,26 @@ final class FunctionReturnTypeResolverTest extends UnitTestCase
             fn () => 42,
             'positive-int',
         ];
+
+        yield 'valinor has precedence over other tags' => [
+            /**
+             * @return int
+             * @psalm-return int
+             * @phpstan-return int
+             * @valinor-return positive-int
+             */
+            fn () => 42,
+            'positive-int',
+        ];
+
+        yield 'valinor overrides an unparseable return tag' => [
+            /**
+             * @phpstan-return ($foo is 1 ? int : string)
+             * @valinor-return positive-int
+             */
+            fn () => 42,
+            'positive-int',
+        ];
     }
 
     private function functionReturnTypeResolver(): FunctionReturnTypeResolver
