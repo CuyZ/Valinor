@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+>
+    <php>
+        <ini name="display_errors" value="1"/>
+        <ini name="error_reporting" value="-1"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <file>MappingTest.php</file>
+        </testsuite>
+    </testsuites>
+
+    <extensions>
+        <bootstrap class="CuyZ\Valinor\QA\PHPUnit\PrettyPrintMappingErrorsExtension"/>
+    </extensions>
+</phpunit>
