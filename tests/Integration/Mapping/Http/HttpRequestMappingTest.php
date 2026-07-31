@@ -480,6 +480,58 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame(['someQueryParameter' => $expected], $result);
     }
 
+    public function test_mapping_all_query_parameters_to_single_property_enables_scalar_value_casting(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => '42',
+            ],
+        );
+
+        /**
+         * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
+         */
+        $controller = fn (
+            #[FromQuery(asRoot: true)] array $query,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'query' => [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => 42,
+            ],
+        ], $result);
+    }
+
+    public function test_mapping_all_query_parameters_to_object_enables_scalar_value_casting(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['someRouteParameter' => '1337'],
+            queryParameters: [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => '42',
+            ],
+        );
+
+        $controller = fn (
+            #[FromRoute] int $someRouteParameter,
+            #[FromQuery(asRoot: true)] QueryParameters $query,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(1337, $result['someRouteParameter']);
+        self::assertSame('foo', $result['query']->someQueryParameter);
+        self::assertSame(42, $result['query']->anotherQueryParameter);
+    }
+
     public function test_detects_colliding_route_parameters_and_query_parameters(): void
     {
         $request = new HttpRequest(
@@ -1131,4 +1183,12 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
         self::assertSame('foo', $result->someRouteParameter);
     }
+}
+
+final class QueryParameters
+{
+    public function __construct(
+        public string $someQueryParameter,
+        public int $anotherQueryParameter,
+    ) {}
 }
