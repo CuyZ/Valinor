@@ -36,7 +36,13 @@ final class ClassGenericResolver
         $assignedGenerics = [];
 
         foreach ($templates as $template => $templateType) {
-            $generic = $generics === [] ? $templateType : array_shift($generics);
+            if ($generics !== []) {
+                $generic = array_shift($generics);
+            } elseif ($templateType->default !== null) {
+                $generic = $templateType->default;
+            } else {
+                $generic = $templateType;
+            }
 
             if ($templateType->innerType instanceof UnresolvableType) {
                 $generic = $templateType->innerType;

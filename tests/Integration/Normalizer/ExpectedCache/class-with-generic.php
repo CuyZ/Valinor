@@ -13,10 +13,10 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_1292a3d8($value, $references);
+        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_t_of_string__40f4d4fa($value, $references);
     }
 
-    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_1292a3d8(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithGeneric $value, WeakMap $references): array
+    private function transform_object_cuyz_valinor_tests_integration_normalizer_classwithgeneric_t_of_string__40f4d4fa(CuyZ\Valinor\Tests\Integration\Normalizer\ClassWithGeneric $value, WeakMap $references): array
     {
         if (isset($references[$value])) {
             throw new CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization($value);

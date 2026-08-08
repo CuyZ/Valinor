@@ -89,6 +89,22 @@ final class UnresolvableType implements VacantType
         );
     }
 
+    public static function forTemplateWithEmptyDefault(string $signature, string $template): self
+    {
+        return new self(
+            $template,
+            "The template `$template` in `$signature` has no default type declared after `=`."
+        );
+    }
+
+    public static function forTemplateDefaultNotTrailing(string $signature, string $template, string $previousTemplate): self
+    {
+        return new self(
+            $template,
+            "The template `$template` in `$signature` has no default type but is defined after the template `$previousTemplate` which declares one; templates with a default type must be defined last."
+        );
+    }
+
     public static function forClassTypeAliasesCollision(string $alias, int $numberOfCollisions): self
     {
         return new self(

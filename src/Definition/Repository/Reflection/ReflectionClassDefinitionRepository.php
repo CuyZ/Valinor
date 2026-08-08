@@ -19,6 +19,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ClassParentTypeRe
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
 use CuyZ\Valinor\Type\Parser\UnresolvableTypeFinderParser;
 use CuyZ\Valinor\Type\Parser\VacantTypeAssignerParser;
@@ -34,6 +35,7 @@ use function array_count_values;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function array_values;
 use function assert;
 
 /** @internal */
@@ -76,7 +78,15 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     {
         $reflection = Reflection::class($type->className());
 
-        $vacantTypes = $this->vacantTypes($type);
+        $generics = [];
+
+        if ($type instanceof ObjectWithGenericType) {
+            $generics = $this->genericResolver->resolveGenerics($type);
+
+            $type = new $type($type->className(), array_values($generics));
+        }
+
+        $vacantTypes = $this->vacantTypes($type, $generics);
 
         $nativeTypeParser = $this->typeParserFactory->buildNativeTypeParserForClass($type->className());
 
@@ -98,16 +108,11 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
     }
 
     /**
+     * @param array<non-empty-string, Type> $generics
      * @return array<non-empty-string, Type>
      */
-    private function vacantTypes(ObjectType $type): array
+    private function vacantTypes(ObjectType $type, array $generics): array
     {
-        $generics = [];
-
-        if ($type instanceof NativeClassType || $type instanceof InterfaceType) {
-            $generics = $this->genericResolver->resolveGenerics($type);
-        }
-
         $localTypes = $this->localTypeAliasResolver->resolveLocalTypeAliases($type);
         $importedTypes = $this->importedTypeAliasResolver->resolveImportedTypeAliases($type);
 
