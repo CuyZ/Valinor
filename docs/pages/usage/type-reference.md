@@ -114,6 +114,64 @@ final readonly class SomeCollection
 }
 ```
 
+## Generics
+
+A class can declare template types with the `@template` annotation; they are
+filled in with concrete types when the class is referenced. A template can be
+bound to a type with `of`, and can declare a default type with `=`.
+
+A template that declares a default type may be omitted when the class is
+referenced, in which case the default type is used. Templates that do not
+declare one must always be filled in.
+
+```php
+final readonly class SomeUser
+{
+    public function __construct(
+        public string $name,
+    ) {}
+}
+
+/**
+ * @template TValue
+ * @template TMeta of array<string, mixed> = array<string, string>
+ */
+final readonly class SomePage
+{
+    public function __construct(
+        /** @var list<TValue> */
+        public array $items,
+
+        /** @var TMeta */
+        public array $meta,
+    ) {}
+}
+
+final readonly class SomeClass
+{
+    public function __construct(
+        // `TMeta` is not filled in, its default type is used
+        /** @var SomePage<SomeUser> */
+        public SomePage $pageWithDefaultMeta,
+
+        // `TMeta` is filled in, overriding its default type
+        /** @var SomePage<SomeUser, array{cursor: int}> */
+        public SomePage $pageWithCursorMeta,
+    ) {}
+}
+```
+
+Templates declaring a default type must come last: a template without a default
+type cannot be declared after one that has a default type. A default type must
+also match the bound declared with `of`, when there is one.
+
+!!! note
+
+    A default type is what makes it possible to add a template to a class that
+    is already referenced elsewhere: the existing references, which do not fill
+    the new template in, keep resolving to its default type and can be made
+    more precise later on.
+
 ## Array & lists
 
 ```php

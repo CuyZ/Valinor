@@ -2213,6 +2213,36 @@ final class LexingParserTest extends UnitTestCase
         self::assertSame("Could not find a template to assign the generic(s) `string` for the class `$className`.", $type->message());
     }
 
+    public function test_omitted_generic_with_default_template_does_not_throw_exception(): void
+    {
+        $className = SomeClassWithDefaultTemplate::class;
+
+        $type = $this->parse($className);
+
+        self::assertNotInstanceOf(UnresolvableType::class, $type);
+        self::assertSame($className, $type->toString());
+    }
+
+    public function test_omitted_trailing_default_generic_does_not_throw_exception(): void
+    {
+        $className = SomeClassWithRequiredAndDefaultTemplate::class;
+
+        $type = $this->parse("$className<int>");
+
+        self::assertNotInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("$className<int>", $type->toString());
+    }
+
+    public function test_missing_required_generic_with_trailing_default_throws_exception(): void
+    {
+        $className = SomeClassWithRequiredAndDefaultTemplate::class;
+
+        $type = $this->parse($className);
+
+        self::assertInstanceOf(UnresolvableType::class, $type);
+        self::assertSame("There are 1 missing generics for `$className<?>`.", $type->message());
+    }
+
     public function test_value_of_enum_missing_opening_bracket_throws_exception(): void
     {
         $type = $this->parse('value-of');
@@ -2356,6 +2386,17 @@ final class SomeClassWithOneTemplate {}
  * @template TemplateC
  */
 final class SomeClassWithThreeTemplates {}
+
+/**
+ * @template TemplateA = string
+ */
+final class SomeClassWithDefaultTemplate {}
+
+/**
+ * @template TemplateA
+ * @template TemplateB = string
+ */
+final class SomeClassWithRequiredAndDefaultTemplate {}
 
 /**
  * @template TemplateA of array-key

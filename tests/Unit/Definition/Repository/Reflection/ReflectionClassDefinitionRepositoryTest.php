@@ -21,10 +21,12 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use stdClass;
 
@@ -526,11 +528,53 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         self::assertInstanceOf(NativeStringType::class, $properties->get('genericValue')->type);
     }
 
+    #[DataProvider('type_of_definition_data_provider')]
+    public function test_type_of_definition_is_the_type_that_was_asked_for(ObjectType $type, string $expected): void
+    {
+        self::assertSame($expected, $this->getClass($type)->type->toString());
+    }
+
+    public static function type_of_definition_data_provider(): iterable
+    {
+        $classWithDefaultedTemplate =
+            /**
+             * @template TemplateA = string
+             */
+            (new class () {})::class;
+
+        yield 'template with a default, no generic assigned' => [
+            new NativeClassType($classWithDefaultedTemplate),
+            "$classWithDefaultedTemplate<string>",
+        ];
+
+        $classWithPartiallyDefaultedTemplates =
+            /**
+             * @template TemplateA
+             * @template TemplateB = string
+             */
+            (new class () {})::class;
+
+        yield 'only the generic of the non-defaulted template assigned' => [
+            new NativeClassType($classWithPartiallyDefaultedTemplates, [NativeIntegerType::get()]),
+            "$classWithPartiallyDefaultedTemplates<int, string>",
+        ];
+
+        yield 'interface with a defaulted template' => [
+            new InterfaceType(SomeInterfaceWithDefaultedGeneric::class),
+            SomeInterfaceWithDefaultedGeneric::class . '<string>',
+        ];
+    }
+
     private function getClass(ObjectType $type): ClassDefinition
     {
         return $this->getService(ClassDefinitionRepository::class)->for($type);
     }
 }
+
+/**
+ * @template T = string
+ */
+interface SomeInterfaceWithDefaultedGeneric {}
 
 /**
  * @template T
