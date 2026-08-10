@@ -15,6 +15,7 @@ use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorMethodWithAttributeRe
 use CuyZ\Valinor\Mapper\Object\Exception\InvalidConstructorReturnType;
 use CuyZ\Valinor\Mapper\Object\Exception\MissingConstructorClassTypeParameter;
 use CuyZ\Valinor\Mapper\Object\FunctionObjectBuilder;
+use CuyZ\Valinor\Mapper\Object\InternalClassConstructors;
 use CuyZ\Valinor\Mapper\Object\MethodObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeConstructorObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\NativeEnumObjectBuilder;
@@ -25,6 +26,7 @@ use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Utility\Polyfill;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
 use function array_filter;
@@ -45,6 +47,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         /** @var array<class-string, null> */
         private array $nativeConstructors,
         private FunctionsContainer $constructors,
+        private InternalClassConstructors $internalConstructors,
     ) {}
 
     public function for(ClassDefinition $class): array
@@ -75,6 +78,16 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
             }
 
             $builders[$constructor->definition->signature] = $this->builderFor($constructor, $class);
+        }
+
+        if ($this->internalConstructors->has($class->name)) {
+            $hasBuilderWithOneArgument = Polyfill::array_any($builders, static fn (ObjectBuilder $builder) => $builder->describeArguments()->count() === 1);
+
+            if (! $hasBuilderWithOneArgument) {
+                $constructor = $this->internalConstructors->get($class->name);
+
+                $builders[$constructor->definition->signature] = $this->builderFor($constructor, $class);
+            }
         }
 
         foreach ($class->methods as $method) {

@@ -74,7 +74,13 @@ final class Annotations
      */
     public static function forTemplates(ReflectionClass|ReflectionFunctionAbstract $reflection): array
     {
-        return (new self($reflection->getDocComment()))->filteredByPriority(
+        $docBlock = $reflection->getDocComment();
+
+        if ($reflection instanceof ReflectionClass) {
+            $docBlock = InternalClassTemplates::docBlockFor($reflection->name) ?? $docBlock;
+        }
+
+        return (new self($docBlock))->filteredByPriority(
             '@phpstan-template',
             '@phpstan-template-covariant',
             '@psalm-template',
