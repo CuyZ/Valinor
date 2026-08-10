@@ -24,13 +24,12 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRe
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\Factory\CircularDependencyDetectorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\InternalClassConstructors;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\HttpRequestNodeBuilder;
@@ -156,9 +155,15 @@ final class Container
                 );
 
                 $factory = new ReflectionObjectBuilderFactory();
-                $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
-                $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
-                $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->get(FunctionDefinitionRepository::class));
+                $factory = new ConstructorObjectBuilderFactory(
+                    $factory,
+                    $settings->nativeConstructors,
+                    $constructors,
+                    new InternalClassConstructors(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->supportedDateFormats,
+                    ),
+                );
                 $factory = new SortingObjectBuilderFactory($factory);
                 $factory = new CircularDependencyDetectorObjectBuilderFactory($factory);
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "82a2d268b18d3131c15d2b8a8010aa26",
+    "content-hash": "9ab8578e6511ca20718a66b1793ed10b",
     "packages": [],
     "packages-dev": [
         {
@@ -3040,6 +3040,61 @@
                 "source": "https://github.com/phar-io/version/tree/3.2.1"
             },
             "time": "2022-02-21T01:04:05+00:00"
+        },
+        {
+            "name": "php-ds/php-ds",
+            "version": "v1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-ds/polyfill.git",
+                "reference": "2e1c133b99aaa1a5fa2318257a6e2501b9082b55"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-ds/polyfill/zipball/2e1c133b99aaa1a5fa2318257a6e2501b9082b55",
+                "reference": "2e1c133b99aaa1a5fa2318257a6e2501b9082b55",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "provide": {
+                "ext-ds": "1.5.0"
+            },
+            "require-dev": {
+                "php-ds/tests": "^1.8"
+            },
+            "suggest": {
+                "ext-ds": "to improve performance and reduce memory usage"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rudi Theunissen",
+                    "email": "rudolf.theunissen@gmail.com"
+                }
+            ],
+            "description": "Specialized data structures as alternatives to the PHP array",
+            "keywords": [
+                "data structures",
+                "ds",
+                "php",
+                "polyfill"
+            ],
+            "support": {
+                "issues": "https://github.com/php-ds/polyfill/issues",
+                "source": "https://github.com/php-ds/polyfill/tree/v1.8.0"
+            },
+            "time": "2026-04-10T23:35:50+00:00"
         },
         {
             "name": "phpbench/container",
