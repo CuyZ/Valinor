@@ -21,8 +21,6 @@ use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\UnresolvableTypeFinderParser;
-use CuyZ\Valinor\Type\Parser\VacantTypeAssignerParser;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
@@ -67,7 +65,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $this->typeParserFactory = $typeParserFactory;
         $this->attributesRepository = new ReflectionAttributesRepository($this, $allowedAttributes);
         $this->propertyBuilder = new ReflectionPropertyDefinitionBuilder($this->attributesRepository);
-        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($this->attributesRepository);
+        $this->methodBuilder = new ReflectionMethodDefinitionBuilder($this->attributesRepository, $this->typeParserFactory);
         $this->parentTypeResolver = new ClassParentTypeResolver($this->typeParserFactory);
         $this->genericResolver = new ClassGenericResolver($this->typeParserFactory);
         $this->localTypeAliasResolver = new ClassLocalTypeAliasResolver($this->typeParserFactory);
@@ -91,10 +89,8 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         $nativeTypeParser = $this->typeParserFactory->buildNativeTypeParserForClass($type->className());
 
         $advancedTypeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type->className());
-        $advancedTypeParser = new VacantTypeAssignerParser($advancedTypeParser, $vacantTypes);
-        $advancedTypeParser = new UnresolvableTypeFinderParser($advancedTypeParser);
 
-        $typeResolver = new ReflectionTypeResolver($nativeTypeParser, $advancedTypeParser);
+        $typeResolver = new ReflectionTypeResolver($nativeTypeParser, $advancedTypeParser, $vacantTypes);
 
         return new ClassDefinition(
             $reflection->name,

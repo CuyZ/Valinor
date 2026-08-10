@@ -13,8 +13,6 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\FunctionReturnTyp
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\TemplateResolver;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Parser\UnresolvableTypeFinderParser;
-use CuyZ\Valinor\Type\Parser\VacantTypeAssignerParser;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionFunction;
@@ -50,10 +48,8 @@ final class ReflectionFunctionDefinitionRepository implements FunctionDefinition
         $advancedParser = $this->typeParserFactory->buildAdvancedTypeParserForFunction($function);
 
         $templates = $this->templateResolver->templatesFromDocBlock($reflection, $signature, $advancedParser);
-        $advancedParser = new VacantTypeAssignerParser($advancedParser, $templates);
-        $advancedParser = new UnresolvableTypeFinderParser($advancedParser);
 
-        $typeResolver = new ReflectionTypeResolver($nativeParser, $advancedParser);
+        $typeResolver = new ReflectionTypeResolver($nativeParser, $advancedParser, $templates);
 
         $returnTypeResolver = new FunctionReturnTypeResolver($typeResolver);
 

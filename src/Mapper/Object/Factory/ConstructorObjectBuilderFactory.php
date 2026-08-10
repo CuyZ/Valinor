@@ -23,6 +23,7 @@ use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Types\ClassStringType;
 use CuyZ\Valinor\Type\Types\EnumType;
+use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 
@@ -73,13 +74,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
                 continue;
             }
 
-            if ($constructor->definition->class && $constructor->definition->isStatic && ! $constructor->definition->isClosure) {
-                $scopedClass = is_a($class->name, $constructor->definition->class, true) ? $class->name : $constructor->definition->class;
-
-                $builders[$constructor->definition->signature] = new MethodObjectBuilder($scopedClass, $constructor->definition->name, $constructor->definition->parameters);
-            } else {
-                $builders[$constructor->definition->signature] = new FunctionObjectBuilder($constructor, $class->type);
-            }
+            $builders[$constructor->definition->signature] = $this->builderFor($constructor, $class);
         }
 
         foreach ($class->methods as $method) {
@@ -103,6 +98,10 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
                 continue;
             }
 
+            $method = $method->assignGenerics(
+                $method->returnType->inferGenericsFrom($class->type, new Generics()),
+            );
+
             $builders[$method->signature] = new MethodObjectBuilder($class->name, $method->name, $method->parameters);
         }
 
@@ -124,6 +123,32 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         }
 
         return array_values($builders);
+    }
+
+    /**
+     * When the constructor declares its own templates, for instance a generic
+     * factory returning `SomeCollection<T>`, they are bound to the generics of
+     * the type being mapped, so that its parameters are specialized
+     * accordingly: `list<T>` becomes `list<SomeClass>`.
+     */
+    private function builderFor(FunctionObject $constructor, ClassDefinition $class): ObjectBuilder
+    {
+        $definition = $constructor->definition;
+
+        $generics = $definition->returnType->inferGenericsFrom($class->type, new Generics());
+
+        if ($generics->items !== []) {
+            $definition = $definition->assignGenerics($generics);
+            $constructor = new FunctionObject($definition, $constructor->callback);
+        }
+
+        if ($definition->class && $definition->isStatic && ! $definition->isClosure) {
+            $scopedClass = is_a($class->name, $definition->class, true) ? $class->name : $definition->class;
+
+            return new MethodObjectBuilder($scopedClass, $definition->name, $definition->parameters);
+        }
+
+        return new FunctionObjectBuilder($constructor, $class->type);
     }
 
     private function constructorMatches(FunctionObject $function, ObjectType $classType): bool
