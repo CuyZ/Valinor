@@ -70,6 +70,41 @@ final class TypeErrorDuringMappingTest extends IntegrationTestCase
         $this->mapperBuilder()->mapper()->map($class, 'foo');
     }
 
+    public function test_template_with_empty_default_throws_exception(): void
+    {
+        $class =
+            /**
+             * @template T =
+             */
+            (new class () {
+                /** @var T */
+                public mixed $value; // @phpstan-ignore-line
+            })::class;
+
+        $this->expectException(TypeErrorDuringMapping::class);
+        $this->expectExceptionMessage("Error while trying to map to `$class`: the type `T` for property `$class::\$value` could not be resolved: the template `T` in `$class` has no default type declared after `=`.");
+
+        $this->mapperBuilder()->mapper()->map($class, ['value' => 'foo']);
+    }
+
+    public function test_required_template_after_defaulted_template_throws_exception(): void
+    {
+        $class =
+            /**
+             * @template A = string
+             * @template B
+             */
+            (new class () {
+                /** @var B */
+                public mixed $b; // @phpstan-ignore-line
+            })::class;
+
+        $this->expectException(TypeErrorDuringMapping::class);
+        $this->expectExceptionMessage("Error while trying to map to `$class<int>`: the type `B` for property `$class::\$b` could not be resolved: the template `B` in `$class` has no default type but is defined after the template `A` which declares one; templates with a default type must be defined last.");
+
+        $this->mapperBuilder()->mapper()->map("$class<int>", ['b' => 'foo']);
+    }
+
     public function test_function_parameter_with_non_matching_types_throws_exception(): void
     {
         $function =

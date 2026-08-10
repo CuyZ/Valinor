@@ -29,7 +29,8 @@
         "mikey179/vfsstream": "^1.6.10",
         "rector/rector": "^2.0",
         "phpbench/phpbench": "^1.3",
-        "psr/http-message": "^2.0"
+        "psr/http-message": "^2.0",
+        "php-ds/php-ds": "^1.8"
     },
     "autoload": {
         "psr-4": {

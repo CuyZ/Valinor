@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Object;
 
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\CircularDependencyDetected;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject as SimpleObjectAlias;
@@ -39,6 +40,69 @@ final class GenericValuesMappingTest extends IntegrationTestCase
         }
 
         self::assertSame('foo', $result->value);
+    }
+
+    public function test_template_default_is_used_when_generic_is_omitted(): void
+    {
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(ObjectWithDefaultTemplate::class, ['value' => 'foo']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->value);
+    }
+
+    public function test_template_default_with_bound_is_used_when_generic_is_omitted(): void
+    {
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(ObjectWithBoundDefaultTemplate::class, ['value' => 42]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(42, $result->value);
+    }
+
+    public function test_assigned_generic_takes_precedence_over_template_default(): void
+    {
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(ObjectWithDefaultTemplate::class . '<int>', ['value' => 42]);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(42, $result->value);
+    }
+
+    public function test_self_referencing_object_with_template_default_is_detected_as_circular(): void
+    {
+        $this->expectException(CircularDependencyDetected::class);
+        $this->expectExceptionMessage('Circular dependency detected for `' . ObjectWithDefaultTemplateAndSelfReference::class . '::$value`.');
+
+        $this->mapperBuilder()->mapper()->map(ObjectWithDefaultTemplateAndSelfReference::class, []);
+    }
+
+    public function test_self_reference_omitting_only_the_defaulted_generic_is_detected_as_circular(): void
+    {
+        $this->expectException(CircularDependencyDetected::class);
+        $this->expectExceptionMessage('Circular dependency detected for `' . ObjectWithTrailingDefaultAndSelfReference::class . '::$value`.');
+
+        $this->mapperBuilder()->mapper()->map(ObjectWithTrailingDefaultAndSelfReference::class . '<int>', []);
+    }
+
+    public function test_object_nested_in_its_own_generic_is_not_detected_as_circular(): void
+    {
+        try {
+            $result = $this->mapperBuilder()->mapper()->map(
+                ObjectWithSingleGeneric::class . '<' . ObjectWithSingleGeneric::class . '<string>>',
+                ['value' => ['value' => 'foo']],
+            );
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo', $result->value->value);
     }
 
     public function test_values_are_mapped_properly(): void
@@ -302,4 +366,49 @@ final readonly class CovariantGenericObjectWithConstraint
     public function __construct(
         public mixed $value,
     ) {}
+}
+
+/**
+ * @template T = string
+ */
+final class ObjectWithDefaultTemplate
+{
+    /** @var T */
+    public mixed $value;
+}
+
+/**
+ * @template T of int|string = int
+ */
+final class ObjectWithBoundDefaultTemplate
+{
+    /** @var T */
+    public mixed $value;
+}
+
+/**
+ * @template T = string
+ */
+final class ObjectWithDefaultTemplateAndSelfReference
+{
+    public self $value;
+}
+
+/**
+ * @template T
+ */
+final class ObjectWithSingleGeneric
+{
+    /** @var T */
+    public mixed $value;
+}
+
+/**
+ * @template TemplateA
+ * @template TemplateB = string
+ */
+final class ObjectWithTrailingDefaultAndSelfReference
+{
+    /** @var self<TemplateA> */
+    public self $value;
 }

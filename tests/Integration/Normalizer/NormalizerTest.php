@@ -1861,6 +1861,22 @@ final class NormalizerTest extends IntegrationTestCase
         self::addToAssertionCount(1);
     }
 
+    /**
+     * A class internal to PHP declares no template of its own, its generic
+     * signature being provided by the library. Left bare in a signature, as it
+     * is in countless existing ones, it must stay a type the normalizer can
+     * resolve.
+     */
+    public function test_internal_class_stays_usable_bare_in_a_transformer_signature(): void
+    {
+        $result = $this->normalizerBuilder()
+            ->registerTransformer(fn (ArrayObject $object) => 'transformed')
+            ->normalizer(Format::array())
+            ->normalize(new ArrayObject(['foo']));
+
+        self::assertSame('transformed', $result);
+    }
+
     public function test_no_param_in_transformer_attribute_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);

@@ -21,11 +21,14 @@ use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionClass;
 use ReflectionClassConstant;
 
+use function array_column;
+use function array_filter;
 use function array_map;
 use function array_values;
 use function count;
 use function current;
 use function explode;
+use function in_array;
 use function preg_match;
 use function reset;
 
@@ -67,12 +70,14 @@ final class ClassNameToken implements TraversingToken
             $templates = $this->templates($this->reflection->name);
             $generics = $this->generics($stream, $this->reflection->name);
 
-            if (count($templates) > count($generics)) {
-                throw new MissingGenerics($this->reflection->name, $generics, $templates);
+            $required = array_filter($templates, static fn (array $template) => ! $template['hasDefault']);
+
+            if (count($generics) < count($required)) {
+                throw new MissingGenerics($this->reflection->name, $generics, array_column($required, 'name'));
             }
 
             if (count($generics) > count($templates)) {
-                throw new CannotAssignGeneric($this->reflection->name, $templates, $generics);
+                throw new CannotAssignGeneric($this->reflection->name, array_column($templates, 'name'), $generics);
             }
         }
 
@@ -159,7 +164,7 @@ final class ClassNameToken implements TraversingToken
 
     /**
      * @param class-string $className
-     * @return list<non-empty-string>
+     * @return list<array{name: non-empty-string, hasDefault: bool}>
      */
     private function templates(string $className): array
     {
@@ -170,7 +175,10 @@ final class ClassNameToken implements TraversingToken
         foreach ($annotations as $annotation) {
             $tokens = $annotation->filtered();
 
-            $templates[] = current($tokens);
+            $templates[] = [
+                'name' => current($tokens),
+                'hasDefault' => in_array('=', $tokens, true),
+            ];
         }
 
         return $templates;

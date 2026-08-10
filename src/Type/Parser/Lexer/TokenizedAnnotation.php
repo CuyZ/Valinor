@@ -6,6 +6,7 @@ namespace CuyZ\Valinor\Type\Parser\Lexer;
 
 use function array_filter;
 use function array_map;
+use function array_slice;
 use function array_splice;
 use function implode;
 
@@ -36,6 +37,15 @@ final class TokenizedAnnotation
 
         /** @var non-empty-string */
         return implode('', array_splice($tokens, $offset));
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public function allBetween(int $start, int $end): string
+    {
+        /** @var non-empty-string */
+        return implode('', array_slice($this->tokens, $start, $end - $start));
     }
 
     /**
