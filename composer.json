@@ -32,6 +32,9 @@
         "psr/http-message": "^2.0",
         "php-ds/php-ds": "^1.8"
     },
+    "suggest": {
+        "symfony/console": "To use the PHPUnit extension for formatting mapping errors"
+    },
     "autoload": {
         "psr-4": {
             "CuyZ\\Valinor\\": "src"
