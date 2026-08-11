@@ -15,6 +15,7 @@ final readonly class ClassDefinition
         public ObjectType $type,
         public Attributes $attributes,
         public Properties $properties,
+        public Properties $magicProperties,
         public Methods $methods,
         public bool $isFinal,
         public bool $isAbstract,
