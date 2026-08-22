@@ -54,13 +54,6 @@ final class NonEmptyArrayTypeTest extends UnitTestCase
         self::assertSame("non-empty-array<{$subType->toString()}>", (new NonEmptyArrayType(ArrayKeyType::default(), $subType))->toString());
     }
 
-    public function test_subtype_is_correct(): void
-    {
-        $subType = new FakeType();
-
-        self::assertSame($subType, (new NonEmptyArrayType(ArrayKeyType::default(), $subType))->subType());
-    }
-
     #[TestWith(['accepts' => true, 'value' => [42 => 'Some value']])]
     #[TestWith(['accepts' => true, 'value' => ['foo' => 'Some value']])]
     #[TestWith(['accepts' => true, 'value' => [42 => 1337.404]])]

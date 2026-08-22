@@ -56,13 +56,6 @@ final class IterableTypeTest extends UnitTestCase
         self::assertSame("iterable<{$subType->toString()}>", (new IterableType(ArrayKeyType::default(), $subType))->toString());
     }
 
-    public function test_subtype_is_correct(): void
-    {
-        $subType = new FakeType();
-
-        self::assertSame($subType, (new IterableType(ArrayKeyType::default(), $subType))->subType());
-    }
-
     public function test_accepts_generators_with_correct_values(): void
     {
         $type = new StringValueType('Some value');

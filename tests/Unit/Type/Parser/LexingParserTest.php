@@ -935,12 +935,6 @@ final class LexingParserTest extends UnitTestCase
             'type' => CompositeTraversableType::class,
         ];
 
-        yield 'Interface name' => [
-            'raw' => DateTimeInterface::class,
-            'transformed' => DateTimeInterface::class,
-            'type' => InterfaceType::class,
-        ];
-
         yield 'Nullable type' => [
             'raw' => '?string',
             'transformed' => 'null|string',

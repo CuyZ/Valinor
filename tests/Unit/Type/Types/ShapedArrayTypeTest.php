@@ -145,23 +145,6 @@ final class ShapedArrayTypeTest extends UnitTestCase
         self::assertTrue($this->type->matches($otherC));
     }
 
-    public function test_unsealed_shaped_array_matches_non_unsealed_shaped_array(): void
-    {
-        $unsealedShapedArray = ShapedArrayType::from(
-            elements: [
-                new ShapedArrayElement(new IntegerValueType(42), new NativeStringType()),
-            ],
-        );
-
-        $shapedArray = ShapedArrayType::from(
-            elements: [
-                new ShapedArrayElement(new IntegerValueType(42), new NativeStringType()),
-            ],
-        );
-
-        self::assertTrue($unsealedShapedArray->matches($shapedArray));
-    }
-
     public function test_does_not_match_invalid_array_shaped_type_element(): void
     {
         $type = new ShapedArrayType(

@@ -13,10 +13,10 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_object_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithpropertytransformerwithcallable_d67b1b63($value, $references);
+        return $this->transform_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_0c11da6260a6db3553df282aa070e27a0303112f($value, $references);
     }
 
-    private function transform_object_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithpropertytransformerwithcallable_d67b1b63(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithPropertyTransformerWithCallable $value, WeakMap $references): array
+    private function transform_object_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_ca2b7327(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithTransformerWithCallable $value, WeakMap $references): array
     {
         if (isset($references[$value])) {
             throw new CuyZ\Valinor\Normalizer\Exception\CircularReferenceFoundDuringNormalization($value);
@@ -26,15 +26,13 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         $values = [
             'value' => $value->value,
         ];
-        $transformed = [];
-        $transformed['value'] = $this->transform_string_ee734ad1df9498f24acd0cad1cd2fed3e95f69b3($values['value'], $references);
-        return $transformed;
+        return $values;
     }
 
-    private function transform_string_ee734ad1df9498f24acd0cad1cd2fed3e95f69b3(mixed $value, WeakMap $references): mixed
+    private function transform_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_0c11da6260a6db3553df282aa070e27a0303112f(mixed $value, WeakMap $references): mixed
     {
-        $next = fn () => $value;
-        $next = fn () => ((new ReflectionProperty(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithPropertyTransformerWithCallable::class, 'value'))->getAttributes()[0]->newInstance())->normalize($value, $next);
+        $next = fn () => $this->transform_object_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_ca2b7327($value, $references);
+        $next = fn () => ((new ReflectionClass(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithTransformerWithCallable::class))->getAttributes()[0]->newInstance())->normalize($value, $next);
         return $next();
     }
 };

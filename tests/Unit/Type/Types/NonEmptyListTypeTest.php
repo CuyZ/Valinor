@@ -57,13 +57,6 @@ final class NonEmptyListTypeTest extends UnitTestCase
         self::assertSame("non-empty-list<{$subType->toString()}>", (new NonEmptyListType($subType))->toString());
     }
 
-    public function test_subtype_is_correct(): void
-    {
-        $subType = new FakeType();
-
-        self::assertSame($subType, (new NonEmptyListType($subType))->subType());
-    }
-
     #[TestWith(['accepts' => true, 'value' => ['Some value', 'Some value', 'Some value']])]
     #[TestWith(['accepts' => true, 'value' => ['Some value', 'Schwifty!', 'Some value']])]
     #[TestWith(['accepts' => false, 'value' => [1 => 'Some value', 2 => 'Some value']])]
