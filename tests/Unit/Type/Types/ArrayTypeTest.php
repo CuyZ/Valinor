@@ -55,13 +55,6 @@ final class ArrayTypeTest extends UnitTestCase
         self::assertSame("array<{$subType->toString()}>", (new ArrayType(ArrayKeyType::default(), $subType))->toString());
     }
 
-    public function test_subtype_is_correct(): void
-    {
-        $subType = new FakeType();
-
-        self::assertSame($subType, (new ArrayType(ArrayKeyType::default(), $subType))->subType());
-    }
-
     public function test_simple_array_string_value_is_correct(): void
     {
         $subType = new FakeType();

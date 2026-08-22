@@ -25,8 +25,8 @@ return RectorConfig::configure()
         NullToStrictStringFuncCallArgRector::class,
         ReadOnlyPropertyRector::class,
         RestoreDefaultNullToNullableTypePropertyRector::class => [
-            __DIR__ . '/tests/Integration/Mapping/Other/UndefinedValuesMappingTest.php',
-            __DIR__ . '/tests/Integration/Mapping/SingleNodeMappingTest',
+            __DIR__ . '/tests/Integration/Mapping/Strictness/UndefinedValuesMappingTest.php',
+            __DIR__ . '/tests/Integration/Mapping/Object/SingleNodeMappingTest.php',
         ],
         // PHP8.5 remove
         ClosureToArrowFunctionRector::class => [

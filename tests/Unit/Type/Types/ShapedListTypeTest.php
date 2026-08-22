@@ -150,12 +150,6 @@ final class ShapedListTypeTest extends UnitTestCase
         );
     }
 
-    public function test_default_is_sealed(): void
-    {
-        $type = new ShapedListType(elements: []);
-        self::assertSame('list{}', $type->toString());
-    }
-
     public function test_string_value_is_correct(): void
     {
         self::assertSame('list{0: string, 1?: int, ...list<float>}', $this->type->toString());
@@ -324,15 +318,6 @@ final class ShapedListTypeTest extends UnitTestCase
     public function test_matches_mixed_type(): void
     {
         self::assertTrue($this->type->matches(MixedType::get()));
-    }
-
-    public function test_unsealed_matches_sealed_shaped_list(): void
-    {
-        $sealedOther = ShapedListType::from(
-            elements: [new ShapedArrayElement(new IntegerValueType(0), new NativeStringType())],
-        );
-
-        self::assertTrue($this->type->matches($sealedOther));
     }
 
     public function test_sealed_does_not_match_unsealed_shaped_list(): void

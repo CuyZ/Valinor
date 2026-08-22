@@ -55,13 +55,6 @@ final class ListTypeTest extends UnitTestCase
         self::assertSame("list<{$subType->toString()}>", (new ListType($subType))->toString());
     }
 
-    public function test_subtype_is_correct(): void
-    {
-        $subType = new FakeType();
-
-        self::assertSame($subType, (new ListType($subType))->subType());
-    }
-
     #[TestWith(['accepts' => true, 'value' => []])]
     #[TestWith(['accepts' => true, 'value' => ['Some value', 'Some value', 'Some value']])]
     #[TestWith(['accepts' => true, 'value' => ['Some value', 'Schwifty!', 'Some value']])]

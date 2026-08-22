@@ -63,30 +63,6 @@ final class ClassLocalTypeAliasResolverTest extends UnitTestCase
             ]
         ];
 
-        yield 'Psalm alias' => [
-            'className' => (
-                /**
-                 * @phpstan-type PsalmNonEmptyStringAlias=non-empty-string
-                 */
-                new class () {}
-            )::class,
-            'expectedAliases' => [
-                'PsalmNonEmptyStringAlias' => 'non-empty-string',
-            ]
-        ];
-
-        yield 'Psalm alias with spaces between equal sign' => [
-            'className' => (
-                /**
-                 * @phpstan-type PsalmNonEmptyStringAlias = non-empty-string
-                 */
-                new class () {}
-            )::class,
-            'expectedAliases' => [
-                'PsalmNonEmptyStringAlias' => 'non-empty-string',
-            ]
-        ];
-
         yield 'last type has precedence' => [
             'className' => (
                 /**

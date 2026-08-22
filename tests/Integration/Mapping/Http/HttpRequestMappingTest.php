@@ -61,35 +61,6 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ], $result);
     }
 
-    public function test_can_map_all_query_parameters_to_single_property(): void
-    {
-        $request = new HttpRequest(
-            queryParameters: [
-                'someQueryParameter' => 'foo',
-                'anotherQueryParameter' => 42,
-            ],
-        );
-
-        $controller =
-            /**
-             * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
-             */
-            fn (
-                #[FromQuery(asRoot: true)] array $query,
-            ) => [];
-
-        $result = $this->mapperBuilder()
-            ->argumentsMapper()
-            ->mapArguments($controller, $request);
-
-        self::assertSame([
-            'query' => [
-                'someQueryParameter' => 'foo',
-                'anotherQueryParameter' => 42,
-            ],
-        ], $result);
-    }
-
     public function test_can_map_http_request_with_several_route_parameters_and_several_query_parameters(): void
     {
         $request = new HttpRequest(

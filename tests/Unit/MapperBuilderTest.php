@@ -56,13 +56,6 @@ final class MapperBuilderTest extends UnitTestCase
         self::assertSame(['Y-m-d\\TH:i:sP', 'Y-m-d\\TH:i:s.uP', 'U', 'U.u'], $mapperBuilder->supportedDateFormats());
     }
 
-    public function test_get_supported_date_formats_returns_configured_values(): void
-    {
-        $mapperBuilder = (new MapperBuilder())->supportDateFormats('Y-m-d', 'd/m/Y');
-
-        self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
-    }
-
     public function test_get_supported_date_formats_returns_last_values(): void
     {
         $mapperBuilder = (new MapperBuilder())

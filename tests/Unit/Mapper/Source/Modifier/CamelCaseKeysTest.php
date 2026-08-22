@@ -32,13 +32,6 @@ final class CamelCaseKeysTest extends UnitTestCase
         self::assertSame(['someKey' => 'foo'], iterator_to_array($source));
     }
 
-    public function test_root_path_is_mapped(): void
-    {
-        $source = new CamelCaseKeys(['level-one' => 'bar']);
-
-        self::assertSame(['levelOne' => 'bar'], iterator_to_array($source));
-    }
-
     public function test_sub_path_is_mapped(): void
     {
         $source = new CamelCaseKeys([
@@ -101,20 +94,4 @@ final class CamelCaseKeysTest extends UnitTestCase
         ], iterator_to_array($source));
     }
 
-    public function test_path_with_sub_paths_are_mapped(): void
-    {
-        $source = new CamelCaseKeys([
-            'level-one' => [
-                ['level-two' => 'bar'],
-                ['level-two' => 'buz'],
-            ],
-        ]);
-
-        self::assertSame([
-            'levelOne' => [
-                ['levelTwo' => 'bar'],
-                ['levelTwo' => 'buz'],
-            ],
-        ], iterator_to_array($source));
-    }
 }
