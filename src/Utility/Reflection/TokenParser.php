@@ -7,9 +7,7 @@ namespace CuyZ\Valinor\Utility\Reflection;
 use LogicException;
 use PhpToken;
 
-use function array_pop;
 use function count;
-use function end;
 use function explode;
 use function strtolower;
 
@@ -56,38 +54,32 @@ final class TokenParser
         $currentNamespace = '';
         $statements = [];
 
-        /** @var list<bool> $blocks */
-        $blocks = [];
-        $classLikeDeclaration = false;
-        $previous = null;
+        $depth = 0;
+        $importDepth = 0;
 
         while ($token = $this->next()) {
-            if ($token->is([T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM])) {
-                $classLikeDeclaration = ! ($previous?->is(T_DOUBLE_COLON) ?? false);
-            } elseif ($token->is('{') || $token->text === '${') {
-                $blocks[] = $classLikeDeclaration;
-                $classLikeDeclaration = false;
+            if ($token->is('{') || $token->text === '${') {
+                $depth++;
             } elseif ($token->is('}')) {
-                array_pop($blocks);
+                $depth--;
             } elseif ($token->is(T_USE)) {
                 // Not a trait import nor a closure capture
                 $isImport = $currentNamespace === $namespaceName
-                    && end($blocks) !== true
-                    && ! ($this->peek()?->is('(') ?? false);
+                    && $depth === $importDepth
+                    && $this->peek()?->is('(') !== true;
 
                 if ($isImport) {
                     $statements = [...$statements, ...$this->parseUseStatement()];
                 }
             } elseif ($token->is(T_NAMESPACE)) {
                 $currentNamespace = $this->parseNamespace();
+                $importDepth = $this->peek()?->is('{') === true ? 1 : 0;
 
                 // Get fresh array for new namespace. This is to prevent the parser
                 // to collect the use statements for a previous namespace with the
                 // same name (this is the case if a namespace is defined twice).
                 $statements = [];
             }
-
-            $previous = $token;
         }
 
         return $statements;
@@ -154,13 +146,11 @@ final class TokenParser
 
     private function peek(): ?PhpToken
     {
-        for ($i = $this->pointer; $i < $this->numTokens; $i++) {
-            if (! $this->tokens[$i]->isIgnorable()) {
-                return $this->tokens[$i];
-            }
-        }
+        $pointer = $this->pointer;
+        $token = $this->next();
+        $this->pointer = $pointer;
 
-        return null;
+        return $token;
     }
 
     private function parseNamespace(): string
