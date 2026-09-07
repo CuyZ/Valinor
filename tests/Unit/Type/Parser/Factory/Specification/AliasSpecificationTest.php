@@ -78,6 +78,16 @@ final class AliasSpecificationTest extends UnitTestCase
         self::assertSame(SimpleObject\SimpleObject::class, $newToken->symbol());
     }
 
+    public function test_symbol_with_first_part_matching_plain_import_is_not_altered_in_class(): void
+    {
+        $specification = new AliasSpecification(new ReflectionClass(ClassWithAlias::class));
+
+        $token = new FakeToken('ObjectWithNameMatchingRootNamespace\SomeUnrelatedClass');
+        $newToken = $specification->manipulateToken($token);
+
+        self::assertSame($token, $newToken);
+    }
+
     public function test_resolve_unsupported_type_in_function_returns_same_type(): void
     {
         $function = fn () => 42;
