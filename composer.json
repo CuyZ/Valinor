@@ -30,7 +30,8 @@
         "rector/rector": "^2.0",
         "phpbench/phpbench": "^1.3",
         "psr/http-message": "^2.0",
-        "php-ds/php-ds": "^1.8"
+        "php-ds/php-ds": "^1.8",
+        "boundwize/structarmed": "^0.17.9"
     },
     "autoload": {
         "psr-4": {

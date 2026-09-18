@@ -188,7 +188,7 @@ final class TypeCompiler
                 $pattern = var_export($type->pattern(), true);
 
                 $cases = array_map(
-                    fn (string|int $key, UnitEnum $case) => var_export($key, true) . ' => ' . var_export($case, true),
+                    static fn (string|int $key, UnitEnum $case) => var_export($key, true) . ' => ' . var_export($case, true),
                     array_keys($type->cases()),
                     $type->cases()
                 );

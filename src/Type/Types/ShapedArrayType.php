@@ -108,7 +108,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
     {
         $conditions = [
             call('is_array', [$node]),
-            ...array_map(function (ShapedArrayElement $element) use ($node) {
+            ...array_map(static function (ShapedArrayElement $element) use ($node) {
                 $key = value($element->key()->value());
 
                 return ternary(
@@ -230,7 +230,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
     public function replace(callable $callback): Type
     {
         $elements = array_map(
-            fn (ShapedArrayElement $element) => new ShapedArrayElement(
+            static fn (ShapedArrayElement $element) => new ShapedArrayElement(
                 $element->key(),
                 $callback($element->type()),
                 $element->isOptional(),

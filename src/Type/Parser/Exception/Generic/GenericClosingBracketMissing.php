@@ -20,7 +20,7 @@ final class GenericClosingBracketMissing extends RuntimeException implements Inv
      */
     public function __construct(string $className, array $generics)
     {
-        $signature = $className . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $generics)) . '>';
+        $signature = $className . '<' . implode(', ', array_map(static fn (Type $type) => $type->toString(), $generics)) . '>';
 
         parent::__construct("The closing bracket is missing for the generic `$signature`.");
     }

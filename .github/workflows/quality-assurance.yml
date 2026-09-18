@@ -45,3 +45,6 @@ jobs:
 
       - name: Running Rector
         run: php vendor/bin/rector --dry-run
+
+      - name: Running StructArmed
+        run: php vendor/bin/structarmed analyze

@@ -249,7 +249,7 @@ final class Container
                 return new InMemoryFunctionDefinitionRepository($repository);
             },
 
-            TypeParserFactory::class => fn () => new TypeParserFactory(),
+            TypeParserFactory::class => static fn () => new TypeParserFactory(),
 
             TypeParser::class => fn () => $this->get(TypeParserFactory::class)->buildDefaultTypeParser(),
 
@@ -270,7 +270,7 @@ final class Container
                 $this->get(ObjectBuilderFactory::class),
             ),
 
-            Cache::class => fn () => new KeySanitizerCache($settings->cache, $settings),
+            Cache::class => static fn () => new KeySanitizerCache($settings->cache, $settings),
 
             TypeFilesWatcher::class => function () use ($settings) {
                 $classDefinitionRepository = new ReflectionClassDefinitionRepository(

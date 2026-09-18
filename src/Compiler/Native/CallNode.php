@@ -27,7 +27,7 @@ final class CallNode extends Node
 
         if ($this->arguments !== []) {
             $arguments = array_map(
-                fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
+                static fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
                 $this->arguments,
             );
 
