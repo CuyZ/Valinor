@@ -7,7 +7,6 @@ use Rector\Config\RectorConfig;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
-use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 
 return RectorConfig::configure()
@@ -22,7 +21,6 @@ return RectorConfig::configure()
     ->withParallel()
     ->withSkip([
         ClassPropertyAssignToConstructorPromotionRector::class,
-        NullToStrictStringFuncCallArgRector::class,
         ReadOnlyPropertyRector::class,
         RestoreDefaultNullToNullableTypePropertyRector::class => [
             __DIR__ . '/tests/Integration/Mapping/Strictness/UndefinedValuesMappingTest.php',
