@@ -29,9 +29,7 @@ final class ParameterTypeResolver
             $docBlockType = Annotations::forProperty($property);
         }
 
-        if ($docBlockType === null) {
-            $docBlockType = $this->extractTypeFromDocBlock($reflection);
-        }
+        $docBlockType ??= $this->extractTypeFromDocBlock($reflection);
 
         $type = $this->typeResolver->resolveType($reflection->getType(), $docBlockType);
 

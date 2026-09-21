@@ -84,10 +84,7 @@ final class ShapedListMappingTest extends IntegrationTestCase
     public function test_unsealed_list_without_type_accepts_any_extra_elements_with_permissive_types(): void
     {
         try {
-            /**
-             * @var array<int, mixed> $result
-             * @phpstan-ignore varTag.type
-             */
+            /** @var array<int, mixed> $result */
             $result = $this->mapperBuilder()
                 ->allowPermissiveTypes()
                 ->mapper()
