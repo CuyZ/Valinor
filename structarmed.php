@@ -9,4 +9,155 @@ return Architecture::define()
     // apply on qa and src directory for now
     // for ease gradual changes
     ->layer('Source', ['qa', 'src'])
+
+    // One layer per top-level namespace. A nested layer is excluded from its
+    // parent (third argument), so a class always belongs to a single layer.
+    ->layerPattern(
+        'Utility',
+        '/^CuyZ\\\\Valinor\\\\Utility\\\\.*$/',
+        [
+            '/^CuyZ\\\\Valinor\\\\Utility\\\\TypeHelper$/',
+            '/^CuyZ\\\\Valinor\\\\Utility\\\\Reflection\\\\Annotations$/',
+        ]
+    )
+    // keeps the rest of `Utility` unaware of `Type`
+    ->layer('UtilityType', [
+        'src/Utility/TypeHelper.php',
+        'src/Utility/Reflection/Annotations.php',
+    ])
+
+    ->layerPattern(
+        'Compiler',
+        '/^CuyZ\\\\Valinor\\\\Compiler\\\\.*$/',
+        '/^CuyZ\\\\Valinor\\\\Compiler\\\\Library\\\\.*$/'
+    )
+    ->layer('CompilerLibrary', 'src/Compiler/Library')
+
+    ->layerPattern(
+        'Type',
+        '/^CuyZ\\\\Valinor\\\\Type\\\\.*$/',
+        '/^CuyZ\\\\Valinor\\\\Type\\\\Dumper\\\\.*$/'
+    )
+    ->layer('TypeDumper', 'src/Type/Dumper')
+
+    ->layerPattern(
+        'Definition',
+        '/^CuyZ\\\\Valinor\\\\Definition\\\\.*$/',
+        [
+            '/^CuyZ\\\\Valinor\\\\Definition\\\\Repository\\\\Cache\\\\.*$/',
+            '/^CuyZ\\\\Valinor\\\\Definition\\\\Attributes$/',
+            '/^CuyZ\\\\Valinor\\\\Definition\\\\AttributeDefinition$/',
+        ]
+    )
+    ->layer('DefinitionCache', 'src/Definition/Repository/Cache')
+    // the only part of `Definition` that `Type` may see
+    ->layer('Attributes', [
+        'src/Definition/Attributes.php',
+        'src/Definition/AttributeDefinition.php',
+    ])
+
+    ->layerPattern(
+        'Cache',
+        '/^CuyZ\\\\Valinor\\\\Cache\\\\.*$/',
+        '/^CuyZ\\\\Valinor\\\\Cache\\\\Warmup\\\\.*$/'
+    )
+    ->layer('CacheWarmup', 'src/Cache/Warmup')
+
+    ->layerPattern(
+        'Mapper',
+        '/^CuyZ\\\\Valinor\\\\Mapper\\\\.*$/',
+        [
+            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Configurator\\\\.*$/',
+            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Http\\\\.*$/',
+            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Tree\\\\Message\\\\.*$/',
+            '/^CuyZ\\\\Valinor\\\\Mapper\\\\AsConverter$/',
+            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Object\\\\(Dynamic)?Constructor$/',
+        ]
+    )
+    ->layer('MapperConfigurator', 'src/Mapper/Configurator')
+    // the only part of `Mapper` that `Utility` may see
+    ->layer('MapperHttp', 'src/Mapper/Http')
+    // the only part of `Mapper` that `Type` may see
+    ->layer('Message', 'src/Mapper/Tree/Message')
+
+    ->layerPattern(
+        'Normalizer',
+        '/^CuyZ\\\\Valinor\\\\Normalizer\\\\.*$/',
+        [
+            '/^CuyZ\\\\Valinor\\\\Normalizer\\\\Configurator\\\\.*$/',
+            '/^CuyZ\\\\Valinor\\\\Normalizer\\\\AsTransformer$/',
+        ]
+    )
+    ->layer('NormalizerConfigurator', 'src/Normalizer/Configurator')
+
+    // the only part of `Mapper` and `Normalizer` that `Definition` may see
+    ->layer('FeatureAttribute', [
+        'src/Mapper/AsConverter.php',
+        'src/Mapper/Object/Constructor.php',
+        'src/Mapper/Object/DynamicConstructor.php',
+        'src/Normalizer/AsTransformer.php',
+    ])
+
+    ->layer('Settings', 'src/Library/Settings.php')
+    ->layer('Container', 'src/Library/Container.php')
+    ->layer('Builder', [
+        'src/MapperBuilder.php',
+        'src/NormalizerBuilder.php',
+    ])
+    ->layer('QA', [
+        'qa/Benchmark',
+        'qa/PHPStan',
+        'qa/Psalm',
+    ])
+
+    // Allowed dependencies of each layer, kept to what is used today.
+    // `+Layer` means: that layer and everything it may depend on.
+    ->ruleset([
+        'Utility'                => ['MapperHttp'],
+        'UtilityType'            => ['Utility', 'Type'],
+
+        'Compiler'               => [],
+        'CompilerLibrary'        => ['Compiler', 'Type', 'Attributes'],
+
+        'Type'                   => ['Utility', 'UtilityType', 'Compiler', 'Message', 'Attributes'],
+        'TypeDumper'             => ['+Type', 'Definition', 'Mapper'],
+
+        'Definition'             => ['Utility', 'UtilityType', 'Type', 'Attributes', 'FeatureAttribute'],
+        'DefinitionCache'        => ['+Definition', 'Cache'],
+        'Attributes'             => ['Definition'],
+
+        'Cache'                  => ['Utility', 'UtilityType', 'Type', 'Definition', 'Attributes', 'Settings'],
+        'CacheWarmup'            => ['+Cache', 'Mapper'],
+
+        // `Mapper` and `Normalizer` must stay independent from each other
+        'Mapper'                 => [
+            'Utility', 'UtilityType', 'Type', 'TypeDumper', 'Definition', 'Attributes', 'Settings',
+            'MapperConfigurator', 'MapperHttp', 'Message', 'FeatureAttribute',
+        ],
+        'MapperConfigurator'     => ['+Mapper', 'Builder'],
+        'MapperHttp'             => ['Mapper'],
+        'Message'                => ['Utility'],
+
+        'Normalizer'             => [
+            'Utility', 'Compiler', 'CompilerLibrary', 'Type', 'Definition', 'Attributes', 'Cache',
+            'NormalizerConfigurator',
+        ],
+        'NormalizerConfigurator' => ['+Normalizer', 'FeatureAttribute', 'Builder'],
+
+        // `DynamicConstructor` imports the builder for its docblock only
+        'FeatureAttribute'       => ['Builder'],
+
+        'Settings'               => ['Cache', 'MapperHttp', 'Message', 'FeatureAttribute'],
+        // composition root: only `Builder` may depend on it
+        'Container'              => [
+            'Settings', 'Type', 'TypeDumper', 'Definition', 'DefinitionCache', 'Cache', 'CacheWarmup',
+            'Mapper', 'Normalizer',
+        ],
+        'Builder'                => [
+            'Settings', 'Container', 'Cache',
+            'Mapper', 'MapperConfigurator', 'Message', 'Normalizer', 'NormalizerConfigurator',
+        ],
+        'QA'                     => ['Utility', 'Mapper', 'Builder'],
+    ])
+
     ->withPresets(Preset::PSR4(), Preset::CODEQUALITY());
