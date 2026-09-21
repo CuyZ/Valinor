@@ -58,6 +58,7 @@
             "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
+            "structarmed analyze",
             "@check-todo"
         ],
         "check-todo": [
@@ -66,7 +67,8 @@
         "fix": [
             "@putenv XDEBUG_MODE=off",
             "php-cs-fixer fix --diff",
-            "rector"
+            "rector",
+            "structarmed analyze --fix"
         ],
         "test": [
             "@putenv XDEBUG_MODE=off",
