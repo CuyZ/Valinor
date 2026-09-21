@@ -48,7 +48,7 @@ final class ValueOfToken implements TraversingToken
         if ($subType instanceof EnumType && is_a($subType->className(), BackedEnum::class, true)) {
             $cases = array_map(
                 // @phpstan-ignore-next-line / We know it's a BackedEnum
-                fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
+                static fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
                 array_values($subType->cases()),
             );
 
@@ -61,7 +61,7 @@ final class ValueOfToken implements TraversingToken
 
         if ($subType instanceof ShapedArrayType || $subType instanceof ShapedListType) {
             $types = array_map(
-                fn ($element) => $element->type(),
+                static fn ($element) => $element->type(),
                 array_values($subType->elements),
             );
 

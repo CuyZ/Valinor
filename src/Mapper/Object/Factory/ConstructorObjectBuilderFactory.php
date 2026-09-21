@@ -119,7 +119,7 @@ final class ConstructorObjectBuilderFactory implements ObjectBuilderFactory
         }
 
         if ($class->type instanceof EnumType) {
-            $buildersWithOneArguments = array_filter($builders, fn (ObjectBuilder $builder) => $builder->describeArguments()->count() === 1);
+            $buildersWithOneArguments = array_filter($builders, static fn (ObjectBuilder $builder) => $builder->describeArguments()->count() === 1);
 
             if (count($buildersWithOneArguments) === 0) {
                 $builders[] = new NativeEnumObjectBuilder($class->type);

@@ -80,7 +80,7 @@ final class RecursiveTransformer implements Transformer
             // First chunk of transformers to be used: attributes, coming from
             // class or property.
             ...array_map(
-                fn (AttributeDefinition $attribute) => $attribute->instantiate()->normalize(...), // @phpstan-ignore-line / We know the method exists
+                static fn (AttributeDefinition $attribute) => $attribute->instantiate()->normalize(...), // @phpstan-ignore-line / We know the method exists
                 $attributes,
             ),
             // Second chunk of transformers to be used: registered transformers.
@@ -100,7 +100,7 @@ final class RecursiveTransformer implements Transformer
         $transformer = array_shift($transformers);
 
         if ($transformers === []) {
-            return fn () => $transformer($value);
+            return static fn () => $transformer($value);
         }
 
         $function = $this->functionDefinitionRepository->for($transformer);

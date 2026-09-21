@@ -24,7 +24,7 @@ final class CannotAssignGeneric extends RuntimeException implements InvalidType
     public function __construct(string $className, array $templates, array $generics)
     {
         $generics = array_slice($generics, count($templates));
-        $list = implode('`, `', array_map(fn (Type $type) => $type->toString(), $generics));
+        $list = implode('`, `', array_map(static fn (Type $type) => $type->toString(), $generics));
 
         parent::__construct("Could not find a template to assign the generic(s) `$list` for the class `$className`.");
     }

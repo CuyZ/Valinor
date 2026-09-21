@@ -9,4 +9,4 @@ return Architecture::define()
     // apply on qa and src directory for now
     // for ease gradual changes
     ->layer('Source', ['qa', 'src'])
-    ->withPresets(Preset::PSR4());
+    ->withPresets(Preset::PSR4(), Preset::CODEQUALITY());

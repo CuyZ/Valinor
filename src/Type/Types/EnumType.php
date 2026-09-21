@@ -150,7 +150,7 @@ final class EnumType implements ClassType
     {
         // PHP8.5 use pipes
         return implode('|', array_map(
-            fn ($key) => is_string($key) ? "'$key'" : $key,
+            static fn ($key) => is_string($key) ? "'$key'" : $key,
             array_keys($this->cases),
         ));
     }

@@ -178,7 +178,7 @@ final class ClassParentTypeResolver
         $annotations = Annotations::forParents($reflection->name);
 
         return array_map(
-            fn (TokenizedAnnotation $annotation) => $annotation->raw(),
+            static fn (TokenizedAnnotation $annotation) => $annotation->raw(),
             $annotations,
         );
     }

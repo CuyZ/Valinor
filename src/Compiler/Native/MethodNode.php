@@ -28,7 +28,7 @@ final class MethodNode extends Node
     public function compile(Compiler $compiler): Compiler
     {
         $parameters = implode(', ', array_map(
-            fn (ParameterDeclarationNode $parameter) => $compiler->sub()->compile($parameter)->code(),
+            static fn (ParameterDeclarationNode $parameter) => $compiler->sub()->compile($parameter)->code(),
             $this->parameters,
         ));
 

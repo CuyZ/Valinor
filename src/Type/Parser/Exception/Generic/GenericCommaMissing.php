@@ -20,7 +20,7 @@ final class GenericCommaMissing extends RuntimeException implements InvalidType
      */
     public function __construct(string $className, array $generics)
     {
-        $signature = $className . '<' . implode(', ', array_map(fn (Type $type) => $type->toString(), $generics)) . ', ?>';
+        $signature = $className . '<' . implode(', ', array_map(static fn (Type $type) => $type->toString(), $generics)) . ', ?>';
 
         parent::__construct("A comma is missing for the generic `$signature`.");
     }
