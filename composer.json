@@ -30,7 +30,8 @@
         "rector/rector": "^2.6",
         "phpbench/phpbench": "^1.3",
         "psr/http-message": "^2.0",
-        "php-ds/php-ds": "^1.8"
+        "php-ds/php-ds": "^1.8",
+        "boundwize/structarmed": "^0.17"
     },
     "autoload": {
         "psr-4": {
@@ -57,6 +58,7 @@
             "psalm --config=tests/StaticAnalysis/psalm-with-plugin.xml",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-without-extension.neon.dist",
             "phpstan --configuration=tests/StaticAnalysis/phpstan-with-extension.neon.dist",
+            "structarmed analyze",
             "@check-todo"
         ],
         "check-todo": [
@@ -65,7 +67,8 @@
         "fix": [
             "@putenv XDEBUG_MODE=off",
             "php-cs-fixer fix --diff",
-            "rector"
+            "rector",
+            "structarmed analyze --fix"
         ],
         "test": [
             "@putenv XDEBUG_MODE=off",

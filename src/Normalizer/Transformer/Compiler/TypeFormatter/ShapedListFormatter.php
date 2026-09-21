@@ -71,7 +71,7 @@ final class ShapedListFormatter implements TypeFormatter
                     key: 'key',
                     item: 'item',
                     body: variable('result')->key(variable('key'))->assign(
-                        (function () use ($defaultDefinition, $elementsDefinitions) {
+                        (static function () use ($defaultDefinition, $elementsDefinitions) {
                             $match = match_(variable('key'));
 
                             foreach ($elementsDefinitions as $name => $definition) {

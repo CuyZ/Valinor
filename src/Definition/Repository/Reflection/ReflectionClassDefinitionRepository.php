@@ -119,7 +119,7 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
         // PHP8.5 use pipes
         $aliasCollision = array_filter(
             array_count_values($keys),
-            fn (int $count) => $count > 1
+            static fn (int $count) => $count > 1
         );
 
         foreach ($aliasCollision as $alias => $numberOfCollisions) {
@@ -162,10 +162,10 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
 
         while ($reflection) {
             $currentProperties = array_map(
-                fn (ReflectionProperty $property) => $properties[$property->name],
+                static fn (ReflectionProperty $property) => $properties[$property->name],
                 array_filter(
                     $reflection->getProperties(),
-                    fn (ReflectionProperty $property) => isset($properties[$property->name]),
+                    static fn (ReflectionProperty $property) => isset($properties[$property->name]),
                 ),
             );
 

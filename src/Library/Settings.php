@@ -90,7 +90,7 @@ final class Settings
     public function __construct()
     {
         $this->inferredMapping[DateTimeInterface::class] = static fn () => DateTimeImmutable::class;
-        $this->exceptionFilter = fn (Throwable $exception) => throw $exception;
+        $this->exceptionFilter = static fn (Throwable $exception) => throw $exception;
     }
 
     /**
@@ -159,7 +159,7 @@ final class Settings
             $this->allowPermissiveTypes,
             $this->mapperConverterAttributes,
             $this->normalizerTransformerAttributes,
-            implode('', array_map(function (callable $callable) {
+            implode('', array_map(static function (callable $callable) {
                 $reflection = new ReflectionFunction(Closure::fromCallable($callable));
 
                 return ($reflection->getClosureCalledClass()->name ?? $reflection->getFileName()) . $reflection->getStartLine() . $reflection->getEndLine();

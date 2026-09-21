@@ -25,7 +25,7 @@ final class MissingGenerics extends RuntimeException implements InvalidType
     {
         /** @var positive-int $missing */
         $missing = count($templates) - count($generics);
-        $generics = array_map(fn (Type $type) => $type->toString(), $generics);
+        $generics = array_map(static fn (Type $type) => $type->toString(), $generics);
         $generics += array_fill(count($generics), $missing, '?');
 
         $signature = $className . '<' . implode(', ', $generics) . '>';

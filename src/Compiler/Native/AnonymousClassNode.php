@@ -93,7 +93,7 @@ final class AnonymousClassNode extends Node
     public function compile(Compiler $compiler): Compiler
     {
         $arguments = implode(', ', array_map(
-            fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
+            static fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
             $this->arguments,
         ));
 
@@ -107,11 +107,11 @@ final class AnonymousClassNode extends Node
 
         $body = [
             ...array_map(
-                fn (PropertyDeclarationNode $property) => $compiler->sub()->indent()->compile($property)->code(),
+                static fn (PropertyDeclarationNode $property) => $compiler->sub()->indent()->compile($property)->code(),
                 $this->properties,
             ),
             ...array_map(
-                fn (MethodNode $method) => $compiler->sub()->indent()->compile($method)->code(),
+                static fn (MethodNode $method) => $compiler->sub()->indent()->compile($method)->code(),
                 $this->methods,
             ),
         ];

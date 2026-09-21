@@ -110,7 +110,7 @@ final class UnionNodeBuilder implements NodeBuilder
         } elseif ($scalars !== []) {
             usort(
                 $scalars,
-                fn (array $a, array $b): int => TypeHelper::scalarTypePriority($b['type']) <=> TypeHelper::scalarTypePriority($a['type']),
+                static fn (array $a, array $b): int => TypeHelper::scalarTypePriority($b['type']) <=> TypeHelper::scalarTypePriority($a['type']),
             );
 
             return $scalars[0]['node'];

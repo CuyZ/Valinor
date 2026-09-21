@@ -77,7 +77,7 @@ final class UnionType implements CombiningType, DumpableType
     {
         return logicalOr(
             ...array_map(
-                fn (Type $type) => $type->compiledAccept($node),
+                static fn (Type $type) => $type->compiledAccept($node),
                 $this->types,
             )
         );

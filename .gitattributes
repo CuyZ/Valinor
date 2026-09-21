@@ -18,6 +18,7 @@
 /phpbench.json export-ignore
 /phpunit.xml.dist export-ignore
 /rector.php export-ignore
+/structarmed.php export-ignore
 /renovate.json5 export-ignore
 
 *.stub linguist-language=PHP

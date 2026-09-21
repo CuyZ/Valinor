@@ -61,7 +61,7 @@ final class IntersectionType implements CombiningType
     public function compiledAccept(Node $node): Node
     {
         return logicalAnd(...array_map(
-            fn (Type $type) => $type->compiledAccept($node),
+            static fn (Type $type) => $type->compiledAccept($node),
             $this->types,
         ));
     }

@@ -20,7 +20,7 @@ final class ShapedArrayUnexpectedTokenAfterSealedType extends RuntimeException i
      */
     public function __construct(string $signature, Type $unsealedType, array $unexpectedTokens)
     {
-        $unexpected = implode('', array_map(fn (Token $token) => $token->symbol(), $unexpectedTokens));
+        $unexpected = implode('', array_map(static fn (Token $token) => $token->symbol(), $unexpectedTokens));
 
         $signature .= ', ...' . $unsealedType->toString() . $unexpected;
 

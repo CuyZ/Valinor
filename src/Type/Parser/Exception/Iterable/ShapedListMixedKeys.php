@@ -20,7 +20,7 @@ final class ShapedListMixedKeys extends RuntimeException implements InvalidType
      */
     public function __construct(array $elements)
     {
-        $hasOptional = array_filter($elements, fn (ShapedArrayElement $element) => $element->isOptional()) !== [];
+        $hasOptional = array_filter($elements, static fn (ShapedArrayElement $element) => $element->isOptional()) !== [];
         $parts = array_map(
             static fn (ShapedArrayElement $element) => $hasOptional
                 ? $element->key()->value() . ($element->isOptional() ? '?: ' : ': ') . $element->type()->toString()
