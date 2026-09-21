@@ -54,22 +54,32 @@ final class TokenParser
         $currentNamespace = '';
         $statements = [];
 
+        $depth = 0;
+        $importDepth = 0;
+
         while ($token = $this->next()) {
-            if ($currentNamespace === $namespaceName && $token->is(T_USE)) {
-                $statements = [...$statements, ...$this->parseUseStatement()];
-                continue;
+            if ($token->is('{') || $token->text === '${') {
+                $depth++;
+            } elseif ($token->is('}')) {
+                $depth--;
+            } elseif ($token->is(T_USE)) {
+                // Not a trait import nor a closure capture
+                $isImport = $currentNamespace === $namespaceName
+                    && $depth === $importDepth
+                    && $this->peek()?->is('(') !== true;
+
+                if ($isImport) {
+                    $statements = [...$statements, ...$this->parseUseStatement()];
+                }
+            } elseif ($token->is(T_NAMESPACE)) {
+                $currentNamespace = $this->parseNamespace();
+                $importDepth = $this->peek()?->is('{') === true ? 1 : 0;
+
+                // Get fresh array for new namespace. This is to prevent the parser
+                // to collect the use statements for a previous namespace with the
+                // same name (this is the case if a namespace is defined twice).
+                $statements = [];
             }
-
-            if (! $token->is(T_NAMESPACE)) {
-                continue;
-            }
-
-            $currentNamespace = $this->parseNamespace();
-
-            // Get fresh array for new namespace. This is to prevent the parser
-            // to collect the use statements for a previous namespace with the
-            // same name (this is the case if a namespace is defined twice).
-            $statements = [];
         }
 
         return $statements;
@@ -132,6 +142,15 @@ final class TokenParser
         }
 
         return null;
+    }
+
+    private function peek(): ?PhpToken
+    {
+        $pointer = $this->pointer;
+        $token = $this->next();
+        $this->pointer = $pointer;
+
+        return $token;
     }
 
     private function parseNamespace(): string
