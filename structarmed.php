@@ -12,43 +12,27 @@ return Architecture::define()
 
     // One layer per top-level namespace. A nested layer is excluded from its
     // parent (third argument), so a class always belongs to a single layer.
-    ->layerPattern(
-        'Utility',
-        '/^CuyZ\\\\Valinor\\\\Utility\\\\.*$/',
-        [
-            '/^CuyZ\\\\Valinor\\\\Utility\\\\TypeHelper$/',
-            '/^CuyZ\\\\Valinor\\\\Utility\\\\Reflection\\\\Annotations$/',
-        ]
-    )
+    ->layer('Utility', 'src/Utility', [
+        'src/Utility/TypeHelper.php',
+        'src/Utility/Reflection/Annotations.php',
+    ])
     // keeps the rest of `Utility` unaware of `Type`
     ->layer('UtilityType', [
         'src/Utility/TypeHelper.php',
         'src/Utility/Reflection/Annotations.php',
     ])
 
-    ->layerPattern(
-        'Compiler',
-        '/^CuyZ\\\\Valinor\\\\Compiler\\\\.*$/',
-        '/^CuyZ\\\\Valinor\\\\Compiler\\\\Library\\\\.*$/'
-    )
+    ->layer('Compiler', 'src/Compiler', 'src/Compiler/Library')
     ->layer('CompilerLibrary', 'src/Compiler/Library')
 
-    ->layerPattern(
-        'Type',
-        '/^CuyZ\\\\Valinor\\\\Type\\\\.*$/',
-        '/^CuyZ\\\\Valinor\\\\Type\\\\Dumper\\\\.*$/'
-    )
+    ->layer('Type', 'src/Type', 'src/Type/Dumper')
     ->layer('TypeDumper', 'src/Type/Dumper')
 
-    ->layerPattern(
-        'Definition',
-        '/^CuyZ\\\\Valinor\\\\Definition\\\\.*$/',
-        [
-            '/^CuyZ\\\\Valinor\\\\Definition\\\\Repository\\\\Cache\\\\.*$/',
-            '/^CuyZ\\\\Valinor\\\\Definition\\\\Attributes$/',
-            '/^CuyZ\\\\Valinor\\\\Definition\\\\AttributeDefinition$/',
-        ]
-    )
+    ->layer('Definition', 'src/Definition', [
+        'src/Definition/Repository/Cache',
+        'src/Definition/Attributes.php',
+        'src/Definition/AttributeDefinition.php',
+    ])
     ->layer('DefinitionCache', 'src/Definition/Repository/Cache')
     // the only part of `Definition` that `Type` may see
     ->layer('Attributes', [
@@ -56,38 +40,27 @@ return Architecture::define()
         'src/Definition/AttributeDefinition.php',
     ])
 
-    ->layerPattern(
-        'Cache',
-        '/^CuyZ\\\\Valinor\\\\Cache\\\\.*$/',
-        '/^CuyZ\\\\Valinor\\\\Cache\\\\Warmup\\\\.*$/'
-    )
+    ->layer('Cache', 'src/Cache', 'src/Cache/Warmup')
     ->layer('CacheWarmup', 'src/Cache/Warmup')
 
-    ->layerPattern(
-        'Mapper',
-        '/^CuyZ\\\\Valinor\\\\Mapper\\\\.*$/',
-        [
-            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Configurator\\\\.*$/',
-            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Http\\\\.*$/',
-            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Tree\\\\Message\\\\.*$/',
-            '/^CuyZ\\\\Valinor\\\\Mapper\\\\AsConverter$/',
-            '/^CuyZ\\\\Valinor\\\\Mapper\\\\Object\\\\(Dynamic)?Constructor$/',
-        ]
-    )
+    ->layer('Mapper', 'src/Mapper', [
+        'src/Mapper/Configurator',
+        'src/Mapper/Http',
+        'src/Mapper/Tree/Message',
+        'src/Mapper/AsConverter.php',
+        'src/Mapper/Object/Constructor.php',
+        'src/Mapper/Object/DynamicConstructor.php',
+    ])
     ->layer('MapperConfigurator', 'src/Mapper/Configurator')
     // the only part of `Mapper` that `Utility` may see
     ->layer('MapperHttp', 'src/Mapper/Http')
     // the only part of `Mapper` that `Type` may see
     ->layer('Message', 'src/Mapper/Tree/Message')
 
-    ->layerPattern(
-        'Normalizer',
-        '/^CuyZ\\\\Valinor\\\\Normalizer\\\\.*$/',
-        [
-            '/^CuyZ\\\\Valinor\\\\Normalizer\\\\Configurator\\\\.*$/',
-            '/^CuyZ\\\\Valinor\\\\Normalizer\\\\AsTransformer$/',
-        ]
-    )
+    ->layer('Normalizer', 'src/Normalizer', [
+        'src/Normalizer/Configurator',
+        'src/Normalizer/AsTransformer.php',
+    ])
     ->layer('NormalizerConfigurator', 'src/Normalizer/Configurator')
 
     // the only part of `Mapper` and `Normalizer` that `Definition` may see
