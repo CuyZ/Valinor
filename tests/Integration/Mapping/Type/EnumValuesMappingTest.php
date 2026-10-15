@@ -110,6 +110,19 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_error_name_is_correct_when_enum_value_is_flattened(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map('array{status: ' . BackedStringEnum::class . '}', ['status' => 'invalid']);
+            self::fail('A mapping error was expected.');
+        } catch (MappingError $exception) {
+            $message = $exception->messages()->errors()->toArray()[0];
+
+            self::assertSame('status', $message->name());
+            self::assertSame('status', $message->path());
+        }
+    }
+
     public function test_error_path_is_correct_when_using_nested_argument_for_enum(): void
     {
         try {
@@ -118,6 +131,7 @@ final class EnumValuesMappingTest extends IntegrationTestCase
             self::assertMappingErrors($exception, [
                 'value' => "[cannot_resolve_type_from_union] Value 'foo' does not match any of 42, 404, 1337.",
             ]);
+            self::assertSame('value', $exception->messages()->errors()->toArray()[0]->name());
         }
     }
 }
