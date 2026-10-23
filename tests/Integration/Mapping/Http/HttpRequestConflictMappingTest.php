@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
-use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
@@ -44,7 +44,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'userId' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }
@@ -72,7 +72,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'userId' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }
@@ -100,7 +100,7 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'userId' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'userId' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }
@@ -116,14 +116,14 @@ final class HttpRequestConflictMappingTest extends IntegrationTestCase
 
         try {
             $this->mapperBuilder()
-                ->configureWith(new ConvertKeysToCamelCase())
+                ->configureWith(new MapKeysToCamelCase())
                 ->argumentsMapper()
                 ->mapArguments($controller, $request);
 
             self::fail('Expected MappingError');
         } catch (MappingError $exception) {
             self::assertMappingErrors($exception, [
-                'user_id' => "[key_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
+                'user_id' => "[http_request_keys_collision] Key `userId` was found in several HTTP request sources. It must be sent in only one of route, query or body.",
             ]);
         }
     }

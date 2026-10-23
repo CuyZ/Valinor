@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -16,11 +15,10 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 use CuyZ\Valinor\Utility\IsSingleton;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
-use Stringable;
 
 use function array_filter;
 use function array_map;
-use function assert;
+use function CuyZ\Valinor\Compiler\{call, logicalOr, value};
 use function implode;
 use function is_a;
 use function is_string;
@@ -72,27 +70,27 @@ final class ClassStringType implements StringType, CompositeType
         return false;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        $condition = Node::functionCall('is_string', [$node]);
+        $condition = call('is_string', [$node]);
 
         if ($this->subTypes === []) {
-            return $condition->and(Node::functionCall(Reflection::class . '::classOrInterfaceExists', [$node]));
+            return $condition->and(call(Reflection::class . '::classOrInterfaceExists', [$node]));
         }
 
         $conditions = [];
 
         foreach ($this->subTypes as $type) {
             if ($type instanceof ObjectType) {
-                $conditions[] = Node::functionCall('is_a', [
+                $conditions[] = call('is_a', [
                     $node,
-                    Node::value($type->className()),
-                    Node::value(true),
+                    value($type->className()),
+                    value(true),
                 ]);
             }
         }
 
-        return $condition->and(Node::logicalOr(...$conditions)->wrap());
+        return $condition->and(logicalOr(...$conditions)->wrap());
     }
 
     public function matches(Type $other): bool
@@ -138,19 +136,6 @@ final class ClassStringType implements StringType, CompositeType
         $otherTypes = UnionType::from(...$other->subTypes);
 
         return $selfTypes->inferGenericsFrom($otherTypes, $generics);
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return (is_string($value) || $value instanceof Stringable)
-            && $this->accepts((string)$value);
-    }
-
-    public function cast(mixed $value): string
-    {
-        assert($this->canCast($value));
-
-        return (string)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

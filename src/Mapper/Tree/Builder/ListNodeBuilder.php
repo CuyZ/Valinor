@@ -51,7 +51,7 @@ final class ListNodeBuilder implements NodeBuilder
                 throw new InvalidIterableKeyType($key, $shell->path);
             }
 
-            if ($shell->allowNonSequentialList || $key === $expected) {
+            if ($key === $expected) {
                 $child = $shell->child((string)$expected, $subType);
 
                 $childNode = $children[$expected] = $child->withValue($val)->build();

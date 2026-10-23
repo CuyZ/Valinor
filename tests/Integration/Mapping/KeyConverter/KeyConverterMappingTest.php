@@ -274,6 +274,20 @@ final class KeyConverterMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_numeric_source_key_with_identity_conversion_does_not_spuriously_collide(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerKeyConverter(fn (string $key): string => $key === 'custom' ? '0' : $key)
+                ->mapper()
+                ->map('array{0: string}', [0 => 'overridden', 'custom' => 'kept']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('kept', $result[0]);
+    }
+
     public function test_key_converter_with_no_parameter_throws_exception(): void
     {
         $this->expectException(KeyConverterHasNoParameter::class);

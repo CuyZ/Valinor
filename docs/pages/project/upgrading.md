@@ -164,7 +164,7 @@ reasons:
 > and user experience.
 
 After a discussion with `@pure` aficionados, the decision has been made to
-re-introduce them. This time, is is possible to easily suppress the errors
+re-introduce them. This time, it is possible to easily suppress the errors
 reported by PHPStan and Psalm by using plugins provided out of the box by this
 library.
 

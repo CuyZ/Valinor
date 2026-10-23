@@ -43,7 +43,7 @@ final class Attributes implements IteratorAggregate, Countable
     public function forCallable(callable $callable): self
     {
         return new self(...array_map(
-            fn (AttributeDefinition $attribute) => $attribute->forCallable($callable),
+            static fn (AttributeDefinition $attribute) => $attribute->forCallable($callable),
             $this->attributes,
         ));
     }

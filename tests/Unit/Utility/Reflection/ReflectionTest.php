@@ -27,13 +27,23 @@ final class ReflectionTest extends UnitTestCase
         self::assertSame($classReflectionA, $classReflectionB);
     }
 
-    public function test_function_reflection_is_created_only_once(): void
+    public function test_get_function_reflection_returns_function_reflection(): void
+    {
+        $reflection = Reflection::function('strlen');
+
+        self::assertSame('strlen', $reflection->getName());
+    }
+
+    public function test_function_reflection_is_created_for_each_call(): void
     {
         $function = fn () => 42;
 
-        $functionReflectionA = Reflection::function($function);
-        $functionReflectionB = Reflection::function($function);
-
-        self::assertSame($functionReflectionA, $functionReflectionB);
+        // Unlike class reflections, function reflections are intentionally not
+        // memoized. The previous cache keyed on `spl_object_hash()`, which is
+        // distinct for every closure instance, so it grew without bound.
+        self::assertNotSame(
+            Reflection::function($function),
+            Reflection::function($function),
+        );
     }
 }

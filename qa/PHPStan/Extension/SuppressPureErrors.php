@@ -40,7 +40,7 @@ final class SuppressPureErrors implements IgnoreErrorExtension
             return false;
         }
 
-        if (! Polyfill::array_find($type->getObjectClassNames(), fn (string $className) => $className === MapperBuilder::class || $className === NormalizerBuilder::class)) {
+        if (! Polyfill::array_find($type->getObjectClassNames(), static fn (string $className) => $className === MapperBuilder::class || $className === NormalizerBuilder::class)) {
             return false;
         }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -16,13 +15,13 @@ use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
-use LogicException;
 
 use function array_filter;
 use function array_map;
 use function array_shift;
 use function array_values;
 use function count;
+use function CuyZ\Valinor\Compiler\{call, logicalOr};
 use function implode;
 use function in_array;
 use function is_int;
@@ -99,7 +98,7 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
         return false;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         $conditions = [];
 
@@ -107,13 +106,13 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
             $condition = $type->compiledAccept($node);
 
             if ($type instanceof NativeStringType) {
-                $condition = $condition->or(Node::functionCall('is_int', [$node]));
+                $condition = $condition->or(call('is_int', [$node]));
             }
 
             $conditions[] = $condition;
         }
 
-        return Node::logicalOr(...$conditions);
+        return logicalOr(...$conditions);
     }
 
     public function matches(Type $other): bool
@@ -148,28 +147,6 @@ final class ArrayKeyType implements ScalarType, CompositeType, DumpableType
         $otherTypes = UnionType::from(...$other->types);
 
         return $selfTypes->inferGenericsFrom($otherTypes, $generics);
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        foreach ($this->types as $type) {
-            if ($type instanceof ScalarType && $type->canCast($value)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function cast(mixed $value): string|int
-    {
-        foreach ($this->types as $type) {
-            if (! $type instanceof VacantType && $type->canCast($value)) {
-                return $type->cast($value);
-            }
-        }
-
-        throw new LogicException();
     }
 
     public function errorMessage(): ErrorMessage

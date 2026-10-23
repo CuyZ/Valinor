@@ -19,7 +19,7 @@ final class ExpectedClosingParenthesisAfterCallable extends RuntimeException imp
      */
     public function __construct(array $parameters)
     {
-        $parameters = implode(', ', array_map(fn (Type $type) => $type->toString(), $parameters));
+        $parameters = implode(', ', array_map(static fn (Type $type) => $type->toString(), $parameters));
 
         parent::__construct("Expected closing parenthesis after `callable($parameters`.");
     }

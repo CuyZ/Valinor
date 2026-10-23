@@ -6,24 +6,17 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Iterable;
 
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
-use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use RuntimeException;
 
-use function array_map;
-use function implode;
+use function str_ends_with;
 
 /** @internal */
 final class ShapedArrayElementTypeMissing extends RuntimeException implements InvalidType
 {
-    /**
-     * @param ShapedArrayElement[] $elements
-     */
-    public function __construct(array $elements, StringValueType|IntegerValueType $key, bool $optional)
+    public function __construct(string $signature, StringValueType|IntegerValueType $key, bool $optional)
     {
-        $signature = 'array{' . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements));
-
-        if (! empty($elements)) {
+        if (! str_ends_with($signature, '{')) {
             $signature .= ', ';
         }
 
@@ -35,6 +28,6 @@ final class ShapedArrayElementTypeMissing extends RuntimeException implements In
 
         $signature .= ':';
 
-        parent::__construct("Missing element type in shaped array signature `$signature`.");
+        parent::__construct("Missing element type in `$signature`.");
     }
 }

@@ -69,7 +69,7 @@ final class Messages implements IteratorAggregate, Countable
     public function errors(): self
     {
         $clone = clone $this;
-        $clone->messages = array_filter($this->messages, fn (NodeMessage $message) => $message->isError());
+        $clone->messages = array_filter($this->messages, static fn (NodeMessage $message) => $message->isError());
 
         return $clone;
     }

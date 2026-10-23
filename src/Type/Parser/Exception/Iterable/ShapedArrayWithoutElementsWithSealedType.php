@@ -11,10 +11,10 @@ use RuntimeException;
 /** @internal */
 final class ShapedArrayWithoutElementsWithSealedType extends RuntimeException implements InvalidType
 {
-    public function __construct(Type $unsealedType)
+    public function __construct(string $signature, Type $unsealedType)
     {
-        $signature = "array{...{$unsealedType->toString()}}";
+        $signature .= '...' . $unsealedType->toString() . '}';
 
-        parent::__construct("Missing elements in shaped array signature `$signature`.");
+        parent::__construct("Missing elements in `$signature`.");
     }
 }

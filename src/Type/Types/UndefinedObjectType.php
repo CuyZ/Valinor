@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
+use function CuyZ\Valinor\Compiler\call;
 use function is_object;
 
 /** @internal */
@@ -21,9 +21,9 @@ final class UndefinedObjectType implements Type
         return is_object($value);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_object', [$node]);
+        return call('is_object', [$node]);
     }
 
     public function matches(Type $other): bool

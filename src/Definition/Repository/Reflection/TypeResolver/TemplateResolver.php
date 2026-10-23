@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver;
 
 use CuyZ\Valinor\Type\Parser\TypeParser;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
@@ -13,9 +14,10 @@ use ReflectionClass;
 use ReflectionFunctionAbstract;
 
 use function array_key_exists;
-use function current;
-use function key;
-use function next;
+use function array_keys;
+use function array_search;
+use function array_values;
+use function count;
 use function str_ends_with;
 
 /** @internal */
@@ -31,43 +33,73 @@ final class TemplateResolver
 
         $templates = [];
 
+        $previousDefaultedTemplate = null;
+
         foreach ($annotations as $annotation) {
             $tokens = $annotation->filtered();
 
-            $name = current($tokens);
+            $keys = array_keys($tokens);
+            $values = array_values($tokens);
+
+            $name = $values[0];
 
             $covariant = str_ends_with($annotation->name(), '-covariant');
 
             if (array_key_exists($name, $templates)) {
-                $templateType = UnresolvableType::forDuplicatedTemplateName($signature, $name);
-            } else {
-                $of = next($tokens);
+                $templates[$name] = new GenericType($name, UnresolvableType::forDuplicatedTemplateName($signature, $name), $covariant);
 
-                if ($of !== 'of') {
-                    // The keyword `of` was not found, the following tokens are
-                    // considered as comments, and we ignore them.
-                    $templateType = MixedType::get();
+                continue;
+            }
+
+            $bound = MixedType::get();
+            $default = null;
+
+            $defaultPosition = array_search('=', $values, true);
+
+            if ($defaultPosition !== false) {
+                if (isset($values[$defaultPosition + 1])) {
+                    $default = $typeParser->parse($annotation->allAfter($keys[$defaultPosition + 1]));
                 } else {
-                    // The keyword `of` was found, the following tokens represent
-                    // the template type.
-                    next($tokens);
+                    // A trailing `=` with no type after it is invalid.
+                    $templates[$name] = new GenericType($name, UnresolvableType::forTemplateWithEmptyDefault($signature, $name), $covariant);
 
-                    /** @var array<int, non-empty-string> $tokens */
-                    $key = key($tokens);
+                    $previousDefaultedTemplate = $name;
 
-                    if ($key === null) {
-                        $templateType = MixedType::get();
-                    } else {
-                        $templateType = $typeParser->parse($annotation->allAfter($key));
-
-                        if ($templateType instanceof UnresolvableType) {
-                            $templateType = $templateType->forInvalidTemplateType($signature, $name);
-                        }
-                    }
+                    continue;
                 }
             }
 
-            $templates[$name] = new GenericType($name, $templateType, $covariant);
+            if (($values[1] ?? null) === 'of') {
+                $boundEnd = $default ? $defaultPosition : count($values);
+
+                if ($boundEnd > 2) {
+                    $bound = $typeParser->parse(
+                        $default
+                            ? $annotation->allBetween($keys[2], $keys[$defaultPosition])
+                            : $annotation->allAfter($keys[2])
+                    );
+                }
+            }
+
+            if ($default === null && $previousDefaultedTemplate !== null) {
+                $templates[$name] = new GenericType($name, UnresolvableType::forTemplateDefaultNotTrailing($signature, $name, $previousDefaultedTemplate), $covariant);
+
+                continue;
+            }
+
+            if ($default !== null) {
+                $previousDefaultedTemplate = $name;
+            }
+
+            if ($bound instanceof UnresolvableType) {
+                $bound = $bound->forInvalidTemplateType($signature, $name);
+            }
+
+            if ($default instanceof UnresolvableType) {
+                $default = $default->forInvalidTemplateType($signature, $name);
+            }
+
+            $templates[$name] = new GenericType($name, $bound, $covariant, $default);
         }
 
         return $templates;

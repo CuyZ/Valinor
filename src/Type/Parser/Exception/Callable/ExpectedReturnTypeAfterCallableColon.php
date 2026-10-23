@@ -19,7 +19,7 @@ final class ExpectedReturnTypeAfterCallableColon extends RuntimeException implem
      */
     public function __construct(array $parameters)
     {
-        $parameters = implode(', ', array_map(fn (Type $type) => $type->toString(), $parameters));
+        $parameters = implode(', ', array_map(static fn (Type $type) => $type->toString(), $parameters));
 
         parent::__construct("Expected return type after `callable($parameters):`.");
     }

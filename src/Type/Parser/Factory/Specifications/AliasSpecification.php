@@ -13,6 +13,7 @@ use ReflectionFunction;
 use Reflector;
 
 use function array_shift;
+use function end;
 use function explode;
 use function implode;
 use function in_array;
@@ -73,6 +74,12 @@ final class AliasSpecification implements TypeParserSpecification
             return $aliases[$alias];
         }
 
+        $importedParts = explode('\\', $aliases[$alias]);
+
+        if (strtolower(end($importedParts)) === $alias) {
+            return $symbol;
+        }
+
         return $aliases[$alias] . '\\' . implode('\\', $namespaceParts);
     }
 
@@ -88,7 +95,12 @@ final class AliasSpecification implements TypeParserSpecification
             }
         }
 
-        if ($reflection->inNamespace()) {
+        if ($reflection->isAnonymous()) {
+            // The name of an anonymous class or closure carries either no
+            // namespace or another type's namespace, not reliably the lexical
+            // one, so the namespace is recovered from the source instead.
+            $namespace = PhpParser::parseNamespace($reflection);
+        } elseif ($reflection->inNamespace()) {
             $namespace = $reflection->getNamespaceName();
         } elseif ($reflection instanceof ReflectionFunction) {
             $namespace = PhpParser::parseNamespace($reflection);

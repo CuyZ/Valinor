@@ -15,6 +15,7 @@ use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\Factory\ValueTypeFactory;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use CuyZ\Valinor\Utility\IsSingleton;
 
@@ -47,7 +48,7 @@ final class ValueOfToken implements TraversingToken
         if ($subType instanceof EnumType && is_a($subType->className(), BackedEnum::class, true)) {
             $cases = array_map(
                 // @phpstan-ignore-next-line / We know it's a BackedEnum
-                fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
+                static fn (BackedEnum $case) => ValueTypeFactory::from($case->value),
                 array_values($subType->cases()),
             );
 
@@ -58,9 +59,9 @@ final class ValueOfToken implements TraversingToken
             return $cases[0];
         }
 
-        if ($subType instanceof ShapedArrayType) {
+        if ($subType instanceof ShapedArrayType || $subType instanceof ShapedListType) {
             $types = array_map(
-                fn ($element) => $element->type(),
+                static fn ($element) => $element->type(),
                 array_values($subType->elements),
             );
 

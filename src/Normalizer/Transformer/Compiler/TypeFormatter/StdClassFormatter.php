@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Normalizer\Transformer\EmptyObject;
 use CuyZ\Valinor\Type\Types\MixedType;
 use stdClass;
 use WeakMap;
+
+use function CuyZ\Valinor\Compiler\{call, castToArray, className, if_, param, return_, shortClosure, this, value, variable};
 
 /** @internal */
 final class StdClassFormatter implements TypeFormatter
@@ -26,43 +27,44 @@ final class StdClassFormatter implements TypeFormatter
 
         $class = $defaultDefinition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
-        return $class->withMethods(
-            Node::method('transform_stdclass')
-                ->witParameters(
-                    Node::parameterDeclaration('value', stdClass::class),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('mixed')
-                ->withBody(
-                    Node::variable('values')->assign(Node::variable('value')->castToArray())->asExpression(),
-                    Node::if(
-                        condition: Node::variable('values')->equals(Node::array()),
-                        body: Node::return(
-                            Node::class(EmptyObject::class)->callStaticMethod('get'),
-                        ),
-                    ),
-                    Node::return(
-                        Node::functionCall(
-                            name: 'array_map',
-                            arguments: [
-                                Node::shortClosure(
-                                    return: $defaultDefinition->typeFormatter()->formatValueNode(Node::variable('value')),
-                                )->witParameters(Node::parameterDeclaration('value', 'mixed')),
-                                Node::variable('value')->castToArray(),
-                            ],
-                        )
+        return $class->withMethod(
+            name: 'transform_stdclass',
+            parameters: [
+                param('value', stdClass::class),
+                param('references', WeakMap::class),
+            ],
+            returnType: 'mixed',
+            body: [
+                variable('values')->assign(castToArray(variable('value')))->asStatement(),
+                if_(
+                    condition: variable('values')->equals(value([])),
+                    body: return_(
+                        className(EmptyObject::class)->callStaticMethod('get'),
                     ),
                 ),
+                return_(
+                    call(
+                        name: 'array_map',
+                        arguments: [
+                            shortClosure(
+                                return: $defaultDefinition->typeFormatter()->formatValueNode(variable('value')),
+                                parameters: [param('value', 'mixed')],
+                            ),
+                            castToArray(variable('value')),
+                        ],
+                    ),
+                ),
+            ],
         );
     }
 
-    public function formatValueNode(ComplianceNode $valueNode): Node
+    public function formatValueNode(Node $valueNode): Node
     {
-        return Node::this()->callMethod(
+        return this()->callMethod(
             method: 'transform_stdclass',
             arguments: [
                 $valueNode,
-                Node::variable('references'),
+                variable('references'),
             ],
         );
     }

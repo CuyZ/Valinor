@@ -44,6 +44,14 @@ With this setting enabled, scalar types will accept castable values:
     ]);
 ```
 
+!!! note
+    This setting relaxes strictness for every scalar value handled by the
+    mapper. For finer control, the [scalar casting configurators] cast a single
+    property, or every value of a given type, without loosening the rules for
+    all scalars at once.
+
+    [scalar casting configurators]: ../how-to/use-provided-mapper-configurators.md#casting-scalar-values
+
 ## Allowing non-sequential lists
 
 By default, list types will only accept sequential keys starting from 0.
@@ -62,6 +70,12 @@ sequential keys.
 
 // => [0 => 42, 1 => 1337]
 ```
+
+!!! note
+    This setting converts every associative array mapped to a list. To target a
+    single property instead, the
+    [`MapArrayToList` configurator](../how-to/use-provided-mapper-configurators.md#mapping-an-array-to-a-list)
+    can be applied as an attribute.
 
 ## Allowing undefined values
 

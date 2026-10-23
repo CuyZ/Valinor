@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Http;
 
-use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\MapFromKey;
+use CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase;
 use CuyZ\Valinor\Mapper\Configurator\RestrictKeysToSnakeCase;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringArgumentsMapping;
 use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
@@ -13,8 +14,10 @@ use CuyZ\Valinor\Mapper\Http\FromQuery;
 use CuyZ\Valinor\Mapper\Http\FromRoute;
 use CuyZ\Valinor\Mapper\Http\HttpRequest;
 use CuyZ\Valinor\Mapper\MappingError;
+use CuyZ\Valinor\Mapper\Tree\Exception\SeveralAttributesMapToSameKey;
 use CuyZ\Valinor\Tests\Fake\Mapper\Source\FakePsrRequest;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Psr\Http\Message\ServerRequestInterface;
 
 final class HttpRequestMappingTest extends IntegrationTestCase
@@ -55,35 +58,6 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame([
             'someQueryParameter' => 'foo',
             'anotherQueryParameter' => 42,
-        ], $result);
-    }
-
-    public function test_can_map_all_query_parameters_to_single_property(): void
-    {
-        $request = new HttpRequest(
-            queryParameters: [
-                'someQueryParameter' => 'foo',
-                'anotherQueryParameter' => 42,
-            ],
-        );
-
-        $controller =
-            /**
-             * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
-             */
-            fn (
-                #[FromQuery(asRoot: true)] array $query,
-            ) => [];
-
-        $result = $this->mapperBuilder()
-            ->argumentsMapper()
-            ->mapArguments($controller, $request);
-
-        self::assertSame([
-            'query' => [
-                'someQueryParameter' => 'foo',
-                'anotherQueryParameter' => 42,
-            ],
         ], $result);
     }
 
@@ -383,7 +357,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame(['someRouteParameter' => 42], $result);
     }
 
-    public function test_mapping_route_parameters_allows_superflous_keys(): void
+    public function test_mapping_route_parameters_allows_superfluous_keys(): void
     {
         $request = new HttpRequest(
             routeParameters: [
@@ -416,6 +390,117 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ->mapArguments($controller, $request);
 
         self::assertSame(['someQueryParameter' => 42], $result);
+    }
+
+    public function test_mapping_query_parameter_casts_value_to_float(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => '1.5',
+            ],
+        );
+
+        $controller = fn (#[FromQuery] float $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => 1.5], $result);
+    }
+
+    public function test_mapping_query_parameter_casts_non_string_value_to_string(): void
+    {
+        // Query values are not necessarily strings; a non-string value (here an
+        // integer) is cast to string for a string parameter.
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => 42,
+            ],
+        );
+
+        $controller = fn (#[FromQuery] string $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => '42'], $result);
+    }
+
+    #[TestWith([1, true])]
+    #[TestWith(['1', true])]
+    #[TestWith(['true', true])]
+    #[TestWith([0, false])]
+    #[TestWith(['0', false])]
+    #[TestWith(['false', false])]
+    public function test_mapping_query_parameter_casts_value_to_boolean(mixed $value, bool $expected): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => $value,
+            ],
+        );
+
+        $controller = fn (#[FromQuery] bool $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => $expected], $result);
+    }
+
+    public function test_mapping_all_query_parameters_to_single_property_enables_scalar_value_casting(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => '42',
+            ],
+        );
+
+        /**
+         * @param array{someQueryParameter: string, anotherQueryParameter: int} $query
+         */
+        $controller = fn (
+            #[FromQuery(asRoot: true)] array $query,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'query' => [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => 42,
+            ],
+        ], $result);
+    }
+
+    public function test_mapping_all_query_parameters_to_object_enables_scalar_value_casting(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['someRouteParameter' => '1337'],
+            queryParameters: [
+                'someQueryParameter' => 'foo',
+                'anotherQueryParameter' => '42',
+            ],
+        );
+
+        $controller = fn (
+            #[FromRoute] int $someRouteParameter,
+            #[FromQuery(asRoot: true)] QueryParameters $query,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(1337, $result['someRouteParameter']);
+        self::assertSame('foo', $result['query']->someQueryParameter);
+        self::assertSame(42, $result['query']->anotherQueryParameter);
     }
 
     public function test_detects_colliding_route_parameters_and_query_parameters(): void
@@ -516,6 +601,144 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ->map($class, $request);
 
         self::assertSame('foo', $result->someRouteParameter);
+    }
+
+    public function test_mapping_http_request_to_shaped_list_returns_error(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map('list{string}', new HttpRequest(bodyValues: ['a' => 'x']));
+
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                '*root*' => "[value_is_not_iterable] Value HttpRequest{body: array{a: 'x'}} does not match `list{string}`.",
+            ]);
+        }
+    }
+
+    public function test_can_map_http_request_to_union_of_shaped_array_and_shaped_list(): void
+    {
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map('array{a: string}|list{string}', new HttpRequest(bodyValues: ['a' => 'x']));
+
+        self::assertSame(['a' => 'x'], $result);
+    }
+
+    public function test_route_parameter_from_attribute_cannot_come_from_query(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromRoute] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            queryParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_route_parameter_from_attribute_cannot_come_from_body(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromRoute] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            bodyValues: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_query_parameter_from_attribute_cannot_come_from_route(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromQuery] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            routeParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_query_parameter_from_attribute_cannot_come_from_body(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromQuery] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            bodyValues: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_body_value_from_attribute_cannot_come_from_route(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromBody] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            routeParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
+    }
+
+    public function test_body_value_from_attribute_cannot_come_from_query(): void
+    {
+        $class = (new class () {
+            public function __construct(
+                #[FromBody] public string $someParameter = 'default value',
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            queryParameters: ['someParameter' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('default value', $result->someParameter);
     }
 
     public function test_mapping_http_request_with_invalid_value_returns_errors(): void
@@ -687,7 +910,7 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         ) => [];
 
         $result = $this->mapperBuilder()
-            ->configureWith(new ConvertKeysToCamelCase())
+            ->configureWith(new MapKeysToCamelCase())
             ->argumentsMapper()
             ->mapArguments($controller, $request);
 
@@ -719,4 +942,224 @@ final class HttpRequestMappingTest extends IntegrationTestCase
             ]);
         }
     }
+
+    public function test_can_map_http_request_route_parameter_from_key(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['route_key' => 'foo'],
+        );
+
+        $controller = fn (#[FromRoute] #[MapFromKey('route_key')] string $someRouteParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someRouteParameter' => 'foo'], $result);
+    }
+
+    public function test_can_map_http_request_query_parameter_from_key(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['query_key' => 'foo'],
+        );
+
+        $controller = fn (#[FromQuery] #[MapFromKey('query_key')] string $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => 'foo'], $result);
+    }
+
+    public function test_can_map_http_request_body_value_from_key(): void
+    {
+        $request = new HttpRequest(
+            bodyValues: ['body_key' => 'foo'],
+        );
+
+        $controller = fn (#[FromBody] #[MapFromKey('body_key')] string $someBodyValue) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someBodyValue' => 'foo'], $result);
+    }
+
+    public function test_literal_key_superfluous_to_remapped_body_value_is_tolerated(): void
+    {
+        // The argument is fed from `body_key`, so the literal argument-name key
+        // `someBodyValue` is superfluous. Unlike an array source, an HTTP
+        // request tolerates it rather than raising an unexpected-key error.
+        $request = new HttpRequest(
+            bodyValues: ['body_key' => 'kept', 'someBodyValue' => 'ignored'],
+        );
+
+        $controller = fn (#[FromBody] #[MapFromKey('body_key')] string $someBodyValue) => $someBodyValue;
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someBodyValue' => 'kept'], $result);
+    }
+
+    public function test_can_map_http_request_from_keys_across_all_sources(): void
+    {
+        $request = new HttpRequest(
+            routeParameters: ['route_key' => 'foo'],
+            queryParameters: ['query_key' => 'bar'],
+            bodyValues: ['body_key' => 'baz'],
+        );
+
+        $controller = fn (
+            #[FromRoute] #[MapFromKey('route_key')] string $routeParam,
+            #[FromQuery] #[MapFromKey('query_key')] string $queryParam,
+            #[FromBody] #[MapFromKey('body_key')] string $bodyParam,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame([
+            'routeParam' => 'foo',
+            'queryParam' => 'bar',
+            'bodyParam' => 'baz',
+        ], $result);
+    }
+
+    public function test_map_from_key_reads_only_from_its_declared_source(): void
+    {
+        // The key is present in both route and query, but `#[FromQuery]`
+        // restricts the parameter to the query source.
+        $request = new HttpRequest(
+            routeParameters: ['shared' => 'from-route'],
+            queryParameters: ['shared' => 'from-query'],
+        );
+
+        $controller = fn (#[FromQuery] #[MapFromKey('shared')] string $someParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someParameter' => 'from-query'], $result);
+    }
+
+    public function test_literal_parameter_name_key_is_superfluous_when_remapped(): void
+    {
+        // An HTTP request always allows superfluous keys, so the literal
+        // parameter-name key of a remapped parameter is silently dropped.
+        $request = new HttpRequest(
+            queryParameters: [
+                'query_key' => 'foo',
+                'someQueryParameter' => 'ignored',
+            ],
+        );
+
+        $controller = fn (#[FromQuery] #[MapFromKey('query_key')] string $someQueryParameter) => [];
+
+        $result = $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        self::assertSame(['someQueryParameter' => 'foo'], $result);
+    }
+
+    public function test_map_from_key_error_path_uses_source_key(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['query_key' => 'not-an-int'],
+        );
+
+        $controller = fn (#[FromQuery] #[MapFromKey('query_key')] int $someQueryParameter) => [];
+
+        try {
+            $this->mapperBuilder()
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
+
+            self::fail('Expected MappingError');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'query_key' => "[invalid_integer] Value 'not-an-int' is not a valid integer.",
+            ]);
+        }
+    }
+
+    public function test_map_from_key_bypasses_key_converter_in_http_request(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'my_key' => 'foo',
+                'other_param' => 'bar',
+            ],
+        );
+
+        $controller = fn (
+            #[FromQuery] #[MapFromKey('my_key')] string $someParameter,
+            #[FromQuery] string $otherParam,
+        ) => [];
+
+        $result = $this->mapperBuilder()
+            ->configureWith(new MapKeysToCamelCase())
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+
+        // `my_key` is read as-is (bypass), while `other_param` still goes
+        // through the camelCase key converter.
+        self::assertSame([
+            'someParameter' => 'foo',
+            'otherParam' => 'bar',
+        ], $result);
+    }
+
+    public function test_two_parameters_mapped_from_same_key_throws_exception(): void
+    {
+        $this->expectException(SeveralAttributesMapToSameKey::class);
+        $this->expectExceptionMessage('Attributes on `someParameter` and `anotherParameter` both map from the source key `shared`.');
+
+        $request = new HttpRequest(
+            queryParameters: ['shared' => 'foo'],
+        );
+
+        $controller = fn (
+            #[FromQuery] #[MapFromKey('shared')] string $someParameter,
+            #[FromQuery] #[MapFromKey('shared')] string $anotherParameter,
+        ) => [];
+
+        $this->mapperBuilder()
+            ->argumentsMapper()
+            ->mapArguments($controller, $request);
+    }
+
+    public function test_can_map_http_request_to_object_with_map_from_key(): void
+    {
+        $class = (new class ('') {
+            public function __construct(
+                #[FromRoute] #[MapFromKey('route_key')] public string $someRouteParameter,
+            ) {}
+        })::class;
+
+        $request = new HttpRequest(
+            routeParameters: ['route_key' => 'foo'],
+        );
+
+        $result = $this->mapperBuilder()
+            ->mapper()
+            ->map($class, $request);
+
+        self::assertSame('foo', $result->someRouteParameter);
+    }
+}
+
+final class QueryParameters
+{
+    public function __construct(
+        public string $someQueryParameter,
+        public int $anotherQueryParameter,
+    ) {}
 }

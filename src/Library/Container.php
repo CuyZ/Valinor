@@ -24,19 +24,17 @@ use CuyZ\Valinor\Definition\Repository\Reflection\ReflectionFunctionDefinitionRe
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
 use CuyZ\Valinor\Mapper\Object\Factory\CircularDependencyDetectorObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ConstructorObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\DateTimeObjectBuilderFactory;
-use CuyZ\Valinor\Mapper\Object\Factory\DateTimeZoneObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\InMemoryObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\ReflectionObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\SortingObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Object\Factory\StrictTypesObjectBuilderFactory;
+use CuyZ\Valinor\Mapper\Object\InternalClassConstructors;
 use CuyZ\Valinor\Mapper\Tree\Builder\ArrayNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ConverterContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\HttpRequestNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceInferringContainer;
 use CuyZ\Valinor\Mapper\Tree\Builder\InterfaceNodeBuilder;
-use CuyZ\Valinor\Mapper\Tree\Builder\KeyConversionPipeline;
 use CuyZ\Valinor\Mapper\Tree\Builder\KeyConverterNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\ListNodeBuilder;
 use CuyZ\Valinor\Mapper\Tree\Builder\MixedNodeBuilder;
@@ -100,12 +98,19 @@ final class Container
                 $builder = new TypeNodeBuilder(
                     new ArrayNodeBuilder(),
                     new ListNodeBuilder(),
-                    new ShapedArrayNodeBuilder(),
                     new ScalarNodeBuilder(),
                     new UnionNodeBuilder(),
                     new NullNodeBuilder(),
                     new MixedNodeBuilder(),
                     new UndefinedObjectNodeBuilder(),
+                    new KeyConverterNodeBuilder(
+                        new ShapedArrayNodeBuilder(
+                            new HttpRequestNodeBuilder(),
+                        ),
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->keyConverters,
+                        $settings->exceptionFilter,
+                    ),
                     new ObjectNodeBuilder(
                         $this->get(ClassDefinitionRepository::class),
                         $this->get(ObjectBuilderFactory::class),
@@ -121,18 +126,6 @@ final class Container
                     ),
                 );
 
-                if ($settings->keyConverters !== []) {
-                    $builder = new KeyConverterNodeBuilder(
-                        $builder,
-                        $this->get(KeyConversionPipeline::class),
-                    );
-                }
-
-                $builder = new HttpRequestNodeBuilder(
-                    $builder,
-                    $this->get(KeyConversionPipeline::class),
-                );
-
                 return new ValueConverterNodeBuilder(
                     $builder,
                     $this->get(ConverterContainer::class),
@@ -145,12 +138,6 @@ final class Container
             ConverterContainer::class => fn () => new ConverterContainer(
                 $this->get(FunctionDefinitionRepository::class),
                 $settings->convertersSortedByPriority(),
-            ),
-
-            KeyConversionPipeline::class => fn () => new KeyConversionPipeline(
-                $this->get(FunctionDefinitionRepository::class),
-                $settings->keyConverters,
-                $settings->exceptionFilter,
             ),
 
             InterfaceInferringContainer::class => fn () => new InterfaceInferringContainer(
@@ -168,9 +155,15 @@ final class Container
                 );
 
                 $factory = new ReflectionObjectBuilderFactory();
-                $factory = new ConstructorObjectBuilderFactory($factory, $settings->nativeConstructors, $constructors);
-                $factory = new DateTimeZoneObjectBuilderFactory($factory, $this->get(FunctionDefinitionRepository::class));
-                $factory = new DateTimeObjectBuilderFactory($factory, $settings->supportedDateFormats, $this->get(FunctionDefinitionRepository::class));
+                $factory = new ConstructorObjectBuilderFactory(
+                    $factory,
+                    $settings->nativeConstructors,
+                    $constructors,
+                    new InternalClassConstructors(
+                        $this->get(FunctionDefinitionRepository::class),
+                        $settings->supportedDateFormats,
+                    ),
+                );
                 $factory = new SortingObjectBuilderFactory($factory);
                 $factory = new CircularDependencyDetectorObjectBuilderFactory($factory);
 
@@ -256,7 +249,7 @@ final class Container
                 return new InMemoryFunctionDefinitionRepository($repository);
             },
 
-            TypeParserFactory::class => fn () => new TypeParserFactory(),
+            TypeParserFactory::class => static fn () => new TypeParserFactory(),
 
             TypeParser::class => fn () => $this->get(TypeParserFactory::class)->buildDefaultTypeParser(),
 
@@ -277,7 +270,7 @@ final class Container
                 $this->get(ObjectBuilderFactory::class),
             ),
 
-            Cache::class => fn () => new KeySanitizerCache($settings->cache, $settings),
+            Cache::class => static fn () => new KeySanitizerCache($settings->cache, $settings),
 
             TypeFilesWatcher::class => function () use ($settings) {
                 $classDefinitionRepository = new ReflectionClassDefinitionRepository(

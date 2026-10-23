@@ -63,30 +63,6 @@ final class ClassLocalTypeAliasResolverTest extends UnitTestCase
             ]
         ];
 
-        yield 'Psalm alias' => [
-            'className' => (
-                /**
-                 * @phpstan-type PsalmNonEmptyStringAlias=non-empty-string
-                 */
-                new class () {}
-            )::class,
-            'expectedAliases' => [
-                'PsalmNonEmptyStringAlias' => 'non-empty-string',
-            ]
-        ];
-
-        yield 'Psalm alias with spaces between equal sign' => [
-            'className' => (
-                /**
-                 * @phpstan-type PsalmNonEmptyStringAlias = non-empty-string
-                 */
-                new class () {}
-            )::class,
-            'expectedAliases' => [
-                'PsalmNonEmptyStringAlias' => 'non-empty-string',
-            ]
-        ];
-
         yield 'last type has precedence' => [
             'className' => (
                 /**
@@ -98,6 +74,20 @@ final class ClassLocalTypeAliasResolverTest extends UnitTestCase
             'expectedAliases' => [
                 'SomeType' => 'int<42, 1337>',
             ]
+        ];
+
+        yield 'local alias can reference previous local alias' => [
+            'className' => (
+                /**
+                 * @phpstan-type AddressType = 'foo'|'bar'
+                 * @phpstan-type Address = array{types: list<AddressType>}
+                 */
+                new class () {}
+            )::class,
+            'expectedAliases' => [
+                'AddressType' => "'foo'|'bar'",
+                'Address' => "array{types: list<'foo'|'bar'>}",
+            ],
         ];
     }
 

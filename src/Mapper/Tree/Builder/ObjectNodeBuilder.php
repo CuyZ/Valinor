@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Mapper\Tree\Builder;
 
 use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
-use CuyZ\Valinor\Mapper\Object\ArgumentsValues;
 use CuyZ\Valinor\Mapper\Object\Exception\CannotFindObjectBuilder;
 use CuyZ\Valinor\Mapper\Object\Factory\ObjectBuilderFactory;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
@@ -44,14 +43,23 @@ final class ObjectNodeBuilder implements NodeBuilder
             return $this->interfaceNodeBuilder->build($shell);
         }
 
-        $shell = $shell->shouldApplyConverters();
+        $className = $shell->type->className();
         $objectBuilders = $this->objectBuilderFactory->for($class);
 
-        foreach ($objectBuilders as $objectBuilder) {
-            $arguments = $objectBuilder->describeArguments();
-            $argumentsValues = ArgumentsValues::forClass($shell, $arguments);
+        $shell = $shell->shouldApplyConverters();
 
-            $valuesNode = $argumentsValues->shell->build();
+        foreach ($objectBuilders as $objectBuilder) {
+            $arguments = $objectBuilder
+                ->describeArguments()
+                ->withoutSelfReferencingSingleArgument($shell->value(), $className);
+
+            $valuesShell = $shell->withType($arguments->toShapedArray());
+
+            if (count($arguments) === 1) {
+                $valuesShell = $valuesShell->wrapSingleValueIfNeeded();
+            }
+
+            $valuesNode = $valuesShell->build();
 
             if (! $valuesNode->isValid()) {
                 if (count($objectBuilders) > 1) {
@@ -62,7 +70,8 @@ final class ObjectNodeBuilder implements NodeBuilder
             }
 
             try {
-                $values = $argumentsValues->transform($valuesNode->value());
+                /** @var array<string, mixed> */
+                $values = $valuesNode->value();
 
                 // HOTFIX: https://github.com/CuyZ/Valinor/issues/727
                 // We should find a better way to handle this, and add non-regression tests
@@ -83,7 +92,7 @@ final class ObjectNodeBuilder implements NodeBuilder
                 return $shell->error($exception);
             }
 
-            $node = $argumentsValues->shell->node($object);
+            $node = Node::new($object, $valuesNode->childrenCount());
 
             if ($node->isValid()) {
                 return $node;

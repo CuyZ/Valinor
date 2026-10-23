@@ -17,6 +17,6 @@ final class ClassNameNode extends Node
 
     public function compile(Compiler $compiler): Compiler
     {
-        return $compiler->write($this->className . '::class');
+        return $compiler->write($this->className);
     }
 }

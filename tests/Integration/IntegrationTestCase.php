@@ -11,7 +11,7 @@ use CuyZ\Valinor\Mapper\Tree\Message\DefaultMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\NormalizerBuilder;
-use CuyZ\Valinor\Tests\Integration\Mapping\Namespace\NamespacedInterfaceInferringTest;
+use CuyZ\Valinor\Tests\Integration\Mapping\Inferring\NamespacedInterfaceInferringTest;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 

@@ -20,7 +20,7 @@ final class UnexpectedTokenAfterCallableClosingParenthesis extends RuntimeExcept
      */
     public function __construct(array $parameters, Token $token)
     {
-        $parameters = implode(', ', array_map(fn (Type $type) => $type->toString(), $parameters));
+        $parameters = implode(', ', array_map(static fn (Type $type) => $type->toString(), $parameters));
 
         parent::__construct(
             "Expected `:` to define return type after `callable($parameters)`, got `{$token->symbol()}`.",

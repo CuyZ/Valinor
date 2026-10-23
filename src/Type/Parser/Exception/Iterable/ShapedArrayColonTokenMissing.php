@@ -6,28 +6,21 @@ namespace CuyZ\Valinor\Type\Parser\Exception\Iterable;
 
 use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\Type;
-use CuyZ\Valinor\Type\Types\ShapedArrayElement;
 use RuntimeException;
 
-use function array_map;
-use function implode;
+use function str_ends_with;
 
 /** @internal */
 final class ShapedArrayColonTokenMissing extends RuntimeException implements InvalidType
 {
-    /**
-     * @param ShapedArrayElement[] $elements
-     */
-    public function __construct(array $elements, Type $type)
+    public function __construct(string $signature, Type $type)
     {
-        $signature = 'array{' . implode(', ', array_map(fn (ShapedArrayElement $element) => $element->toString(), $elements));
-
-        if (! empty($elements)) {
+        if (! str_ends_with($signature, '{')) {
             $signature .= ', ';
         }
 
         $signature .= "{$type->toString()}?";
 
-        parent::__construct("A colon symbol is missing in shaped array signature `$signature`.");
+        parent::__construct("Missing colon in `$signature`.");
     }
 }

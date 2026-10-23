@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
@@ -24,7 +23,7 @@ use function array_shift;
 use function array_values;
 use function assert;
 use function count;
-use function function_exists;
+use function CuyZ\Valinor\Compiler\{call, logicalAnd, param, shortClosure, ternary, value, variable};
 use function implode;
 use function in_array;
 use function is_array;
@@ -37,7 +36,6 @@ final class ShapedArrayType implements CompositeType, DumpableType
     public function __construct(
         /** @var array<ShapedArrayElement> */
         public readonly array $elements,
-        public readonly bool $isUnsealed = false,
         public readonly ArrayType|VacantType|null $unsealedType = null,
     ) {}
 
@@ -46,7 +44,6 @@ final class ShapedArrayType implements CompositeType, DumpableType
      */
     public static function from(
         array $elements,
-        bool $isUnsealed,
         Type|null $unsealedType = null,
     ): self {
         if ($unsealedType && ! $unsealedType instanceof ArrayType && ! $unsealedType instanceof VacantType) {
@@ -69,19 +66,19 @@ final class ShapedArrayType implements CompositeType, DumpableType
             $sortedElements[$key] = $element;
         }
 
-        return new self($sortedElements, $isUnsealed, $unsealedType);
+        return new self($sortedElements, $unsealedType);
     }
 
-    public function hasUnsealedType(): bool
+    public function isUnsealed(): bool
     {
         return $this->unsealedType !== null;
     }
 
     public function unsealedType(): ArrayType|VacantType
     {
-        assert($this->isUnsealed);
+        assert($this->unsealedType !== null);
 
-        return $this->unsealedType ?? ArrayType::native();
+        return $this->unsealedType;
     }
 
     public function accepts(mixed $value): bool
@@ -100,52 +97,53 @@ final class ShapedArrayType implements CompositeType, DumpableType
             }
         }
 
-        if ($this->isUnsealed) {
-            return $this->unsealedType()->accepts(array_diff_key($value, $elements));
+        if ($this->unsealedType) {
+            return $this->unsealedType->accepts(array_diff_key($value, $elements));
         }
 
         return count($value) <= count($elements);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         $conditions = [
-            Node::functionCall('is_array', [$node]),
-            ...array_map(function (ShapedArrayElement $element) use ($node) {
-                $key = Node::value($element->key()->value());
+            call('is_array', [$node]),
+            ...array_map(static function (ShapedArrayElement $element) use ($node) {
+                $key = value($element->key()->value());
 
-                return Node::ternary(
-                    condition: Node::functionCall('array_key_exists', [$key, $node]),
+                return ternary(
+                    condition: call('array_key_exists', [$key, $node]),
                     ifTrue: $element->type()->compiledAccept($node->key($key)),
-                    ifFalse: Node::value($element->isOptional()),
+                    ifFalse: value($element->isOptional()),
                 )->wrap();
             }, array_values($this->elements)),
         ];
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             $unsealedType = $this->unsealedType();
 
             if ($unsealedType instanceof VacantType) {
-                return Node::value(false);
+                return value(false);
             }
 
             $elementsKeys = array_flip(array_keys($this->elements));
 
-            $conditions[] = Node::functionCall(function_exists('array_all') ? 'array_all' : Polyfill::class . '::array_all', [
-                Node::functionCall('array_diff_key', [$node, Node::value($elementsKeys)]),
-                Node::shortClosure(
-                    Node::logicalAnd(
-                        $unsealedType->keyType()->compiledAccept(Node::variable('key'))->wrap(),
-                        $unsealedType->subType()->compiledAccept(Node::variable('item'))->wrap(),
+            $conditions[] = call(Polyfill::array_all_name(), [
+                call('array_diff_key', [$node, value($elementsKeys)]),
+                shortClosure(
+                    logicalAnd(
+                        $unsealedType->keyType()->compiledAccept(variable('key'))->wrap(),
+                        $unsealedType->subType()->compiledAccept(variable('item'))->wrap(),
                     ),
-                )->witParameters(
-                    Node::parameterDeclaration('item', 'mixed'),
-                    Node::parameterDeclaration('key', 'mixed'),
+                    parameters: [
+                        param('item', 'mixed'),
+                        param('key', 'mixed'),
+                    ],
                 ),
             ]);
         }
 
-        return Node::logicalAnd(...$conditions);
+        return logicalAnd(...$conditions);
     }
 
     public function matches(Type $other): bool
@@ -169,9 +167,9 @@ final class ShapedArrayType implements CompositeType, DumpableType
                 }
             }
 
-            if ($other->isUnsealed) {
-                return $this->isUnsealed
-                    && $this->unsealedType()->matches($other->unsealedType());
+            if ($other->unsealedType) {
+                return $this->unsealedType
+                    && $this->unsealedType->matches($other->unsealedType);
             }
 
             return true;
@@ -191,7 +189,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
                 }
             }
 
-            if ($this->isUnsealed && ! $this->unsealedType()->matches($other)) {
+            if ($this->unsealedType && ! $this->unsealedType->matches($other)) {
                 return false;
             }
 
@@ -232,7 +230,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
     public function replace(callable $callback): Type
     {
         $elements = array_map(
-            fn (ShapedArrayElement $element) => new ShapedArrayElement(
+            static fn (ShapedArrayElement $element) => new ShapedArrayElement(
                 $element->key(),
                 $callback($element->type()),
                 $element->isOptional(),
@@ -243,7 +241,7 @@ final class ShapedArrayType implements CompositeType, DumpableType
 
         $unsealedType = $this->unsealedType ? $callback($this->unsealedType) : null;
 
-        return new self($elements, $this->isUnsealed, $unsealedType);
+        return new self($elements, $unsealedType);
     }
 
     public function nativeType(): ArrayType
@@ -267,6 +265,18 @@ final class ShapedArrayType implements CompositeType, DumpableType
             }
         }
 
+        if ($this->unsealedType) {
+            if ($this->elements !== []) {
+                yield ', ...';
+            } else {
+                yield '...';
+            }
+
+            if ($this->unsealedType !== ArrayType::native()) {
+                yield $this->unsealedType;
+            }
+        }
+
         yield '}';
     }
 
@@ -280,10 +290,10 @@ final class ShapedArrayType implements CompositeType, DumpableType
         $signature = 'array{';
         $signature .= implode(', ', array_map(static fn (ShapedArrayElement $element) => $element->toString(), $this->elements));
 
-        if ($this->isUnsealed) {
+        if ($this->unsealedType) {
             $signature .= ', ...';
 
-            if ($this->unsealedType) {
+            if ($this->unsealedType !== ArrayType::native()) {
                 $signature .= $this->unsealedType->toString();
             }
         }

@@ -16,6 +16,7 @@ use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
 use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\ShapedArrayType;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\UndefinedObjectType;
 use CuyZ\Valinor\Type\Types\UnionType;
 
@@ -25,12 +26,12 @@ final class TypeNodeBuilder implements NodeBuilder
     public function __construct(
         private ArrayNodeBuilder $arrayNodeBuilder,
         private ListNodeBuilder $listNodeBuilder,
-        private ShapedArrayNodeBuilder $shapedArrayNodeBuilder,
         private ScalarNodeBuilder $scalarNodeBuilder,
         private UnionNodeBuilder $unionNodeBuilder,
         private NullNodeBuilder $nullNodeBuilder,
         private MixedNodeBuilder $mixedNodeBuilder,
         private UndefinedObjectNodeBuilder $undefinedObjectNodeBuilder,
+        private KeyConverterNodeBuilder $shapedArrayNodeBuilder,
         private ObjectNodeBuilder $objectNodeBuilder,
     ) {}
 
@@ -46,8 +47,9 @@ final class TypeNodeBuilder implements NodeBuilder
             NonEmptyArrayType::class,
             IterableType::class => $this->arrayNodeBuilder,
 
-            // ShapedArray
-            ShapedArrayType::class => $this->shapedArrayNodeBuilder,
+            // ShapedArray / ShapedList
+            ShapedArrayType::class,
+            ShapedListType::class => $this->shapedArrayNodeBuilder,
 
             // Union
             UnionType::class => $this->unionNodeBuilder,

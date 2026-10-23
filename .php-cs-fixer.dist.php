@@ -8,7 +8,16 @@ $finder = PhpCsFixer\Finder::create()->in([
     ->notPath('Integration/Normalizer/ExpectedCache/')
     ->notPath('Fixtures/FunctionWithGroupedImportStatements.php')
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
-    ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php');
+    ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php')
+    ->notPath('Integration/Mapping/TypeResolution/imported-class-name-matching-root-namespace.php');
+
+if (PHP_VERSION_ID < 8_04_00) {
+    $finder = $finder->notPath('Fixture/Object/InterfaceWithPropertyHooks/BaseInterface.php')
+        ->notPath('Fixture/Object/InterfaceWithPropertyHooks/ChildInterface.php')
+        ->notPath('Fixture/Object/InterfaceWithPropertyHooks/GenericBaseInterface.php')
+        ->notPath('Fixture/Object/InterfaceWithPropertyHooks/GrandChildInterface.php')
+        ->notPath('Fixture/Object/InterfaceWithPropertyHooks/OtherBaseInterface.php');
+}
 
 if (PHP_VERSION_ID < 8_05_00) {
     $finder = $finder->notPath('Integration/Normalizer/TemporaryPHP85/ClassWithPropertyTransformerWithCallable.php');

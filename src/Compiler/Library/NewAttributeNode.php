@@ -11,6 +11,7 @@ use ReflectionClass;
 use ReflectionProperty;
 
 use function array_map;
+use function CuyZ\Valinor\Compiler\{className, newClass, value};
 
 /** @internal */
 final class NewAttributeNode extends Node
@@ -21,23 +22,30 @@ final class NewAttributeNode extends Node
     {
         if ($this->attribute->arguments !== null) {
             return $compiler->compile(
-                Node::newClass(
+                newClass(
                     $this->attribute->class->name,
-                    ...array_map(Node::value(...), $this->attribute->arguments),
+                    ...array_map(value(...), $this->attribute->arguments),
                 ),
             );
         }
 
         // @phpstan-ignore match.unhandled (for now only those two cases can be handled here anyway)
         $node = match ($this->attribute->reflectionParts[0]) {
-            'class' => Node::newClass(ReflectionClass::class, Node::className($this->attribute->reflectionParts[1])),
-            'property' => Node::newClass(ReflectionProperty::class, Node::className($this->attribute->reflectionParts[1]), Node::value($this->attribute->reflectionParts[2])),
+            'class' => newClass(
+                ReflectionClass::class,
+                className($this->attribute->reflectionParts[1])->asClassConstant()
+            ),
+            'property' => newClass(
+                ReflectionProperty::class,
+                className($this->attribute->reflectionParts[1])->asClassConstant(),
+                value($this->attribute->reflectionParts[2])
+            ),
         };
 
         return $compiler->compile(
             $node->wrap()
                 ->callMethod('getAttributes')
-                ->key(Node::value($this->attribute->attributeIndex))
+                ->key(value($this->attribute->attributeIndex))
                 ->callMethod('newInstance'),
         );
     }

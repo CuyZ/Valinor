@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
 use CuyZ\Valinor\Compiler\Compiler;
-use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
@@ -18,6 +17,8 @@ use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
+
+use function CuyZ\Valinor\Compiler\variable;
 
 final class ArrayTypeTest extends UnitTestCase
 {
@@ -52,13 +53,6 @@ final class ArrayTypeTest extends UnitTestCase
         $subType = new FakeType();
 
         self::assertSame("array<{$subType->toString()}>", (new ArrayType(ArrayKeyType::default(), $subType))->toString());
-    }
-
-    public function test_subtype_is_correct(): void
-    {
-        $subType = new FakeType();
-
-        self::assertSame($subType, (new ArrayType(ArrayKeyType::default(), $subType))->subType());
     }
 
     public function test_simple_array_string_value_is_correct(): void
@@ -245,6 +239,6 @@ final class ArrayTypeTest extends UnitTestCase
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */
-        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
+        return eval('return ' . $type->compiledAccept(variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

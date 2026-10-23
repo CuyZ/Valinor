@@ -31,7 +31,7 @@ final class ClosureNode extends Node
     public function uses(string ...$names): self
     {
         $self = clone $this;
-        $self->use = array_map(fn (string $name) => '$' . $name, $names);
+        $self->use = array_map(static fn (string $name) => '$' . $name, $names);
 
         return $self;
     }

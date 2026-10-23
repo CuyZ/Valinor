@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CompositeType;
 use CuyZ\Valinor\Type\Type;
 
 use function array_map;
 use function count;
+use function CuyZ\Valinor\Compiler\call;
 use function implode;
 use function is_callable;
 
@@ -35,9 +35,9 @@ final class CallableType implements CompositeType
         return is_callable($value);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_callable', [$node]);
+        return call('is_callable', [$node]);
     }
 
     public function matches(Type $other): bool

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Configurator;
 
-use CuyZ\Valinor\Mapper\Configurator\ConvertKeysToCamelCase;
+use CuyZ\Valinor\Mapper\Configurator\MapKeysToCamelCase;
 use CuyZ\Valinor\Mapper\Configurator\RestrictKeysToPascalCase;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
@@ -22,7 +22,7 @@ final class RestrictKeysToPascalCaseTest extends IntegrationTestCase
             $result = $this->mapperBuilder()
                 ->configureWith(
                     new RestrictKeysToPascalCase(),
-                    new ConvertKeysToCamelCase(),
+                    new MapKeysToCamelCase(),
                 )
                 ->mapper()
                 ->map($class::class, ['SomeValue' => 'foo']);

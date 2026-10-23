@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -12,8 +11,7 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 
-use function assert;
-use function is_numeric;
+use function CuyZ\Valinor\Compiler\value;
 
 /** @internal */
 final class FloatValueType implements FloatType, FixedType
@@ -25,9 +23,9 @@ final class FloatValueType implements FloatType, FixedType
         return $value === $this->value;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return $node->equals(Node::value($this->value));
+        return $node->equals(value($this->value));
     }
 
     public function matches(Type $other): bool
@@ -38,18 +36,6 @@ final class FloatValueType implements FloatType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return is_numeric($value) && (float)$value === $this->value;
-    }
-
-    public function cast(mixed $value): float
-    {
-        assert($this->canCast($value));
-
-        return (float)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

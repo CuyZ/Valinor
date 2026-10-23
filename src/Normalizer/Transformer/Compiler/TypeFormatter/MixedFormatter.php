@@ -6,7 +6,6 @@ namespace CuyZ\Valinor\Normalizer\Transformer\Compiler\TypeFormatter;
 
 use CuyZ\Valinor\Compiler\Library\TypeAcceptNode;
 use CuyZ\Valinor\Compiler\Native\AnonymousClassNode;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Normalizer\Transformer\Compiler\TransformerDefinitionBuilder;
 use CuyZ\Valinor\Type\Types\IterableType;
@@ -21,16 +20,18 @@ use DateTimeZone;
 use UnitEnum;
 use WeakMap;
 
+use function CuyZ\Valinor\Compiler\{if_, param, return_, this, variable};
+
 /** @internal */
 final class MixedFormatter implements TypeFormatter
 {
-    public function formatValueNode(ComplianceNode $valueNode): Node
+    public function formatValueNode(Node $valueNode): Node
     {
-        return Node::this()->callMethod(
+        return this()->callMethod(
             method: 'transform_mixed',
             arguments: [
                 $valueNode,
-                Node::variable('references'),
+                variable('references'),
             ],
         );
     }
@@ -42,7 +43,7 @@ final class MixedFormatter implements TypeFormatter
         }
 
         // This is a placeholder method to avoid infinite loops.
-        $class = $class->withMethods(Node::method('transform_mixed'));
+        $class = $class->withMethod('transform_mixed');
 
         $nodes = [];
 
@@ -63,28 +64,28 @@ final class MixedFormatter implements TypeFormatter
 
             $class = $definition->typeFormatter()->manipulateTransformerClass($class, $definitionBuilder);
 
-            $nodes[] = Node::if(
-                condition: new TypeAcceptNode(Node::variable('value'), $definition->type),
-                body: Node::return($definition->typeFormatter()->formatValueNode(Node::variable('value'))),
+            $nodes[] = if_(
+                condition: new TypeAcceptNode(variable('value'), $definition->type),
+                body: return_($definition->typeFormatter()->formatValueNode(variable('value'))),
             );
         }
 
-        $nodes[] = Node::return(
-            Node::this()
+        $nodes[] = return_(
+            this()
                 ->access('delegate')
                 ->callMethod('transform', [
-                    Node::variable('value'),
+                    variable('value'),
                 ]),
         );
 
-        return $class->withMethods(
-            Node::method('transform_mixed')
-                ->witParameters(
-                    Node::parameterDeclaration('value', 'mixed'),
-                    Node::parameterDeclaration('references', WeakMap::class),
-                )
-                ->withReturnType('mixed')
-                ->withBody(...$nodes),
+        return $class->withMethod(
+            name: 'transform_mixed',
+            parameters: [
+                param('value', 'mixed'),
+                param('references', WeakMap::class),
+            ],
+            returnType: 'mixed',
+            body: $nodes,
         );
     }
 }

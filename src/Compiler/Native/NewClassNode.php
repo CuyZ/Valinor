@@ -31,7 +31,7 @@ final class NewClassNode extends Node
     public function compile(Compiler $compiler): Compiler
     {
         $arguments = array_map(
-            fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
+            static fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
             $this->arguments,
         );
         $arguments = implode(', ', $arguments);

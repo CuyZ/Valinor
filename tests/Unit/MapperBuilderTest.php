@@ -23,6 +23,10 @@ final class MapperBuilderTest extends UnitTestCase
             $mapperBuilder->infer(DateTimeInterface::class, static fn () => DateTime::class),
             $mapperBuilder->registerConstructor(static fn (): stdClass => new stdClass()),
             $mapperBuilder->allowScalarValueCasting(),
+            $mapperBuilder->allowCastingToBoolean(),
+            $mapperBuilder->allowCastingToInteger(),
+            $mapperBuilder->allowCastingToFloat(),
+            $mapperBuilder->allowCastingToString(),
             $mapperBuilder->allowNonSequentialList(),
             $mapperBuilder->allowSuperfluousKeys(),
             $mapperBuilder->allowPermissiveTypes(),
@@ -50,13 +54,6 @@ final class MapperBuilderTest extends UnitTestCase
         $mapperBuilder = new MapperBuilder();
 
         self::assertSame(['Y-m-d\\TH:i:sP', 'Y-m-d\\TH:i:s.uP', 'U', 'U.u'], $mapperBuilder->supportedDateFormats());
-    }
-
-    public function test_get_supported_date_formats_returns_configured_values(): void
-    {
-        $mapperBuilder = (new MapperBuilder())->supportDateFormats('Y-m-d', 'd/m/Y');
-
-        self::assertSame(['Y-m-d', 'd/m/Y'], $mapperBuilder->supportedDateFormats());
     }
 
     public function test_get_supported_date_formats_returns_last_values(): void

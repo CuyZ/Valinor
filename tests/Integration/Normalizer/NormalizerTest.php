@@ -1089,6 +1089,14 @@ final class NormalizerTest extends IntegrationTestCase
             'transformerAttributes' => [AttributeWithObjectInConstructor::class],
         ];
 
+        yield 'object with attribute on property with object in constructor' => [
+            'input' => new SomeClassWithPropertyWithAttributeWithObjectInConstructor(),
+            'expectedArray' => ['value' => 'bar'],
+            'expectedJson' => '{"value":"bar"}',
+            'transformers' => [],
+            'transformerAttributes' => [AttributeWithObjectInConstructor::class],
+        ];
+
         yield 'object with attribute on class with array in constructor' => [
             'input' => new SomeClassWithAttributeWithArrayInConstructor(),
             'expectedArray' => 'baz',
@@ -1853,6 +1861,22 @@ final class NormalizerTest extends IntegrationTestCase
         self::addToAssertionCount(1);
     }
 
+    /**
+     * A class internal to PHP declares no template of its own, its generic
+     * signature being provided by the library. Left bare in a signature, as it
+     * is in countless existing ones, it must stay a type the normalizer can
+     * resolve.
+     */
+    public function test_internal_class_stays_usable_bare_in_a_transformer_signature(): void
+    {
+        $result = $this->normalizerBuilder()
+            ->registerTransformer(fn (ArrayObject $object) => 'transformed')
+            ->normalizer(Format::array())
+            ->normalize(new ArrayObject(['foo']));
+
+        self::assertSame('transformed', $result);
+    }
+
     public function test_no_param_in_transformer_attribute_throws_exception(): void
     {
         $this->expectException(TransformerHasNoParameter::class);
@@ -2229,7 +2253,7 @@ enum SomeEnumWithTransformerAttribute: string
     case BAR = 'bar';
 }
 
-#[Attribute(Attribute::TARGET_CLASS)]
+#[Attribute]
 final class AttributeWithObjectInConstructor
 {
     /**
@@ -2246,6 +2270,14 @@ final class AttributeWithObjectInConstructor
 
 #[AttributeWithObjectInConstructor(new BasicObject('bar'))]
 final class SomeClassWithAttributeWithObjectInConstructor {}
+
+final class SomeClassWithPropertyWithAttributeWithObjectInConstructor
+{
+    public function __construct(
+        #[AttributeWithObjectInConstructor(new BasicObject('bar'))]
+        public stdClass $value = new stdClass(),
+    ) {}
+}
 
 #[Attribute(Attribute::TARGET_CLASS)]
 final class AttributeWithArrayInConstructor

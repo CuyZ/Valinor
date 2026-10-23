@@ -8,6 +8,11 @@ use CuyZ\Valinor\Cache\Cache;
 use CuyZ\Valinor\Library\Container;
 use CuyZ\Valinor\Library\Settings;
 use CuyZ\Valinor\Mapper\ArgumentsMapper;
+use CuyZ\Valinor\Mapper\Configurator\MapArrayToList;
+use CuyZ\Valinor\Mapper\Configurator\MapAsBool;
+use CuyZ\Valinor\Mapper\Configurator\MapAsFloat;
+use CuyZ\Valinor\Mapper\Configurator\MapAsInt;
+use CuyZ\Valinor\Mapper\Configurator\MapAsString;
 use CuyZ\Valinor\Mapper\Configurator\MapperBuilderConfigurator;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\TreeMapper;
@@ -373,11 +378,87 @@ final class MapperBuilder
      * ```
      *
      * @pure
+     * @param non-empty-list<non-empty-string|int> $true
+     * @param non-empty-list<non-empty-string|int> $false
      */
-    public function allowScalarValueCasting(): self
+    public function allowScalarValueCasting(
+        array $true = [1, '1', 'true'],
+        array $false = [0, '0', 'false'],
+    ): self {
+        return $this
+            ->allowCastingToBoolean($true, $false)
+            ->allowCastingToInteger()
+            ->allowCastingToFloat()
+            ->allowCastingToString();
+    }
+
+    /**
+     * Allows the mapper to cast castable values to a boolean, for instance the
+     * string values "true" and "false" or the integers 1 and 0.
+     *
+     * To cast a single property only, use the {@see MapAsBool} attribute.
+     *
+     * The recognized `true`/`false` representations default to those of
+     * {@see MapAsBool}, and can be overridden here.
+     *
+     * @pure
+     * @param non-empty-list<non-empty-string|int> $true
+     * @param non-empty-list<non-empty-string|int> $false
+     */
+    public function allowCastingToBoolean(
+        array $true = [1, '1', 'true'],
+        array $false = [0, '0', 'false'],
+    ): self {
+        $clone = clone $this;
+        $clone->settings->allowCastingToBoolean = ['true' => $true, 'false' => $false];
+
+        return $clone;
+    }
+
+    /**
+     * Allows the mapper to cast a string representation of an integer to a real
+     * `int`, for instance the string value "42".
+     *
+     * To cast a single property only, use the {@see MapAsInt} attribute.
+     *
+     * @pure
+     */
+    public function allowCastingToInteger(): self
     {
         $clone = clone $this;
-        $clone->settings->allowScalarValueCasting = true;
+        $clone->settings->allowCastingToInteger = true;
+
+        return $clone;
+    }
+
+    /**
+     * Allows the mapper to cast a string representation of a number to a real
+     * `float`, for instance the string value "1337.42".
+     *
+     * To cast a single property only, use the {@see MapAsFloat} attribute.
+     *
+     * @pure
+     */
+    public function allowCastingToFloat(): self
+    {
+        $clone = clone $this;
+        $clone->settings->allowCastingToFloat = true;
+
+        return $clone;
+    }
+
+    /**
+     * Allows the mapper to cast an integer or a float to a `string`, for
+     * instance an identifier or a postal code that must be handled as a string.
+     *
+     * To cast a single property only, use the {@see MapAsString} attribute.
+     *
+     * @pure
+     */
+    public function allowCastingToString(): self
+    {
+        $clone = clone $this;
+        $clone->settings->allowCastingToString = true;
 
         return $clone;
     }
@@ -385,8 +466,8 @@ final class MapperBuilder
     /**
      * By default, list types will only accept sequential keys starting from 0.
      *
-     * This setting allows the mapper to convert associative arrays to a list
-     * with sequential keys.
+     * This allows the mapper to convert associative arrays to a list with
+     * sequential keys.
      *
      * ```
      * (new \CuyZ\Valinor\MapperBuilder())
@@ -404,10 +485,7 @@ final class MapperBuilder
      */
     public function allowNonSequentialList(): self
     {
-        $clone = clone $this;
-        $clone->settings->allowNonSequentialList = true;
-
-        return $clone;
+        return $this->configureWith(new MapArrayToList());
     }
 
     /**

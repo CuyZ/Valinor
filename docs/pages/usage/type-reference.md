@@ -4,6 +4,30 @@ To prevent conflicts or duplication of the type annotations, this library tries
 to handle most of the type annotations that are accepted by [PHPStan] and
 [Psalm].
 
+!!! tip
+
+    When a property, parameter or return type uses a PHPStan or Psalm syntax
+    that the library cannot parse yet, for instance a conditional type like
+    `($a is 1 ? int : null)`, the dedicated `@valinor-var`, `@valinor-param` and
+    `@valinor-return` annotations can be used to give the library a type it
+    understands. They take precedence over every other annotation, so the static
+    analysis tools keep using their own type while the library uses the
+    override:
+    
+    ```php
+    final class SomeClass
+    {
+        /**
+         * @phpstan-param ($a is 1 ? int : null) $b
+         * @valinor-param int|null $b
+         */
+        public function __construct(
+            public readonly int $a,
+            public readonly ?int $b,
+        ) {}
+    }
+    ```
+
 ## Scalar
 
 ```php
@@ -90,6 +114,64 @@ final readonly class SomeCollection
 }
 ```
 
+## Generics
+
+A class can declare template types with the `@template` annotation; they are
+filled in with concrete types when the class is referenced. A template can be
+bound to a type with `of`, and can declare a default type with `=`.
+
+A template that declares a default type may be omitted when the class is
+referenced, in which case the default type is used. Templates that do not
+declare one must always be filled in.
+
+```php
+final readonly class SomeUser
+{
+    public function __construct(
+        public string $name,
+    ) {}
+}
+
+/**
+ * @template TValue
+ * @template TMeta of array<string, mixed> = array<string, string>
+ */
+final readonly class SomePage
+{
+    public function __construct(
+        /** @var list<TValue> */
+        public array $items,
+
+        /** @var TMeta */
+        public array $meta,
+    ) {}
+}
+
+final readonly class SomeClass
+{
+    public function __construct(
+        // `TMeta` is not filled in, its default type is used
+        /** @var SomePage<SomeUser> */
+        public SomePage $pageWithDefaultMeta,
+
+        // `TMeta` is filled in, overriding its default type
+        /** @var SomePage<SomeUser, array{cursor: int}> */
+        public SomePage $pageWithCursorMeta,
+    ) {}
+}
+```
+
+Templates declaring a default type must come last: a template without a default
+type cannot be declared after one that has a default type. A default type must
+also match the bound declared with `of`, when there is one.
+
+!!! note
+
+    A default type is what makes it possible to add a template to a class that
+    is already referenced elsewhere: the existing references, which do not fill
+    the new template in, keep resolving to its default type and can be made
+    more precise later on.
+
 ## Array & lists
 
 ```php
@@ -149,6 +231,30 @@ final readonly class SomeClass
         
         /** @var array{foo: string, ...array<int, string>} */
         public array $unsealedShapedArrayWithExplicitKeyAndType,
+
+        /** @var array{foo: string, ...<string>} */
+        public array $unsealedShapedArrayWithShorthandType,
+
+        /** @var array{foo: string, ...<int, string>} */
+        public array $unsealedShapedArrayWithShorthandKeyAndType,
+
+        /** @var list{string, int, float} */
+        public array $shapedList,
+
+        /** @var list{0: string, 1: int} */
+        public array $shapedListWithExplicitKeys,
+
+        /** @var list{0: string, 1?: int} */
+        public array $shapedListWithOptionalElement,
+
+        /** @var list{string, int, ...} */
+        public array $unsealedShapedList,
+
+        /** @var list{string, int, ...list<float>} */
+        public array $unsealedShapedListWithExplicitType,
+
+        /** @var list{string, ...<float>} */
+        public array $unsealedShapedListWithShorthandType,
     ) {}
 }
 ```

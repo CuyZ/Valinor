@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Type\Types;
 
 use BackedEnum;
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ClassType;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\Parser\Exception\Enum\EnumCaseNotFound;
@@ -109,7 +109,7 @@ final class EnumType implements ClassType
         return in_array($value, $this->cases, true);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         return $node->instanceOf($this->enumName);
     }
@@ -150,7 +150,7 @@ final class EnumType implements ClassType
     {
         // PHP8.5 use pipes
         return implode('|', array_map(
-            fn ($key) => is_string($key) ? "'$key'" : $key,
+            static fn ($key) => is_string($key) ? "'$key'" : $key,
             array_keys($this->cases),
         ));
     }

@@ -52,13 +52,35 @@ final class AnonymousClassNode extends Node
         return $self;
     }
 
-    public function withMethods(MethodNode ...$methods): self
-    {
-        $self = clone $this;
+    /**
+     * @param 'public'|'private' $visibility
+     * @param list<ParameterDeclarationNode> $parameters
+     * @param list<Node> $body
+     */
+    public function withConstructor(
+        string $visibility = 'public',
+        array $parameters = [],
+        array $body = [],
+    ): self {
+        return $this->withMethod('__construct', $visibility, $parameters, null, $body);
+    }
 
-        foreach ($methods as $method) {
-            $self->methods[$method->name()] = $method;
-        }
+    /**
+     * @param non-empty-string $name
+     * @param 'public'|'private' $visibility
+     * @param list<ParameterDeclarationNode> $parameters
+     * @param non-empty-string|null $returnType
+     * @param list<Node> $body
+     */
+    public function withMethod(
+        string $name,
+        string $visibility = 'private',
+        array $parameters = [],
+        ?string $returnType = null,
+        array $body = [],
+    ): self {
+        $self = clone $this;
+        $self->methods[$name] = new MethodNode($name, $visibility, $parameters, $returnType, $body);
 
         return $self;
     }
@@ -71,7 +93,7 @@ final class AnonymousClassNode extends Node
     public function compile(Compiler $compiler): Compiler
     {
         $arguments = implode(', ', array_map(
-            fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
+            static fn (Node $argument) => $compiler->sub()->compile($argument)->code(),
             $this->arguments,
         ));
 
@@ -85,11 +107,11 @@ final class AnonymousClassNode extends Node
 
         $body = [
             ...array_map(
-                fn (PropertyDeclarationNode $property) => $compiler->sub()->indent()->compile($property)->code(),
+                static fn (PropertyDeclarationNode $property) => $compiler->sub()->indent()->compile($property)->code(),
                 $this->properties,
             ),
             ...array_map(
-                fn (MethodNode $method) => $compiler->sub()->indent()->compile($method)->code(),
+                static fn (MethodNode $method) => $compiler->sub()->indent()->compile($method)->code(),
                 $this->methods,
             ),
         ];

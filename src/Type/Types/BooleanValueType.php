@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -12,7 +11,7 @@ use CuyZ\Valinor\Type\BooleanType;
 use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\Type;
 
-use function assert;
+use function CuyZ\Valinor\Compiler\value;
 
 /** @internal */
 final class BooleanValueType implements BooleanType, FixedType
@@ -38,9 +37,9 @@ final class BooleanValueType implements BooleanType, FixedType
         return $value === $this->value;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return $node->equals(Node::value($this->value));
+        return $node->equals(value($this->value));
     }
 
     public function matches(Type $other): bool
@@ -51,26 +50,6 @@ final class BooleanValueType implements BooleanType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        if ($value === $this->value) {
-            return true;
-        }
-
-        if ($this->value === true) {
-            return $value === '1' || $value === 1 || $value === 'true';
-        }
-
-        return $value === '0' || $value === 0 || $value === 'false';
-    }
-
-    public function cast(mixed $value): bool
-    {
-        assert($this->canCast($value));
-
-        return $this->value;
     }
 
     public function errorMessage(): ErrorMessage

@@ -70,6 +70,32 @@ final class NormalizerCompiledCodeTest extends TestCase
         (new Filesystem())->remove($directory);
     }
 
+    public function test_shaped_list_values_are_normalized_by_position(): void
+    {
+        $directory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . bin2hex(random_bytes(16));
+
+        $cache = new FileSystemCache($directory);
+
+        $normalizer = (new NormalizerBuilder())
+            ->withCache($cache)
+            ->normalizer(Format::array());
+
+        self::assertSame(
+            [
+                'values' => ['foo', 42],
+                'otherValues' => ['bar', 404],
+            ],
+            $normalizer->normalize(new ClassWithTwoShapedLists(
+                // @phpstan-ignore-next-line argument.type (deliberately checking runtime normalization of non-list keys)
+                values: [2 => 'foo', 5 => 42],
+                // @phpstan-ignore-next-line argument.type (deliberately checking runtime normalization of non-list keys)
+                otherValues: [8 => 'bar', 13 => 404],
+            )),
+        );
+
+        (new Filesystem())->remove($directory);
+    }
+
     public static function compiled_code_is_correct_data_provider(): iterable
     {
         yield 'iterable of scalars without transformers' => [
@@ -122,6 +148,11 @@ final class NormalizerCompiledCodeTest extends TestCase
             'expectedFile' => __DIR__ . '/ExpectedCache/class-with-unsealed-shaped-array.php',
         ];
 
+        yield 'class with shaped list' => [
+            'input' => new ClassWithShapedList(['foo', 42]),
+            'expectedFile' => __DIR__ . '/ExpectedCache/class-with-shaped-list.php',
+        ];
+
         yield 'class with union' => [
             'input' => new ClassWithUnion('foo'),
             'expectedFile' => __DIR__ . '/ExpectedCache/class-with-union.php',
@@ -163,13 +194,13 @@ final class NormalizerCompiledCodeTest extends TestCase
         if (PHP_VERSION_ID >= 8_05_00) {
             yield 'class with transformer with callable' => [
                 // @phpstan-ignore-next-line PHP8.5 remove
-                'input' => (require 'TemporaryPHP85/TemporaryAttributesWithCallable.php')[0],
+                'input' => (require 'TemporaryPHP85/TemporaryAttributesWithCallable.php')[1],
                 'expectedFile' => __DIR__ . '/ExpectedCache/class-with-transformer-with-callable.php',
             ];
 
             yield 'class with property transformer with callable' => [
                 // @phpstan-ignore-next-line PHP8.5 remove
-                'input' => (require 'TemporaryPHP85/TemporaryAttributesWithCallable.php')[1],
+                'input' => (require 'TemporaryPHP85/TemporaryAttributesWithCallable.php')[0],
                 'expectedFile' => __DIR__ . '/ExpectedCache/class-with-property-transformer-with-callable.php',
             ];
         }
@@ -204,6 +235,24 @@ final class ClassWithUnsealedShapedArray
     public function __construct(
         /** @var array{someString: string, someInt: int, ...array<int, string>} */
         public array $shapedArray,
+    ) {}
+}
+
+final class ClassWithShapedList
+{
+    public function __construct(
+        /** @var list{string, int} */
+        public array $values,
+    ) {}
+}
+
+final class ClassWithTwoShapedLists
+{
+    public function __construct(
+        /** @var list{string, int} */
+        public array $values,
+        /** @var list{string, int} */
+        public array $otherValues,
     ) {}
 }
 

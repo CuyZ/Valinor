@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Type\Types;
 
-use AssertionError;
 use CuyZ\Valinor\Compiler\Compiler;
-use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
-use CuyZ\Valinor\Tests\Fixture\Object\StringableObject;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
@@ -18,9 +15,10 @@ use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NumericStringType;
 use CuyZ\Valinor\Type\Types\ScalarConcreteType;
 use CuyZ\Valinor\Type\Types\UnionType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
+
+use function CuyZ\Valinor\Compiler\variable;
 
 final class NumericStringTypeTest extends UnitTestCase
 {
@@ -54,60 +52,6 @@ final class NumericStringTypeTest extends UnitTestCase
     {
         self::assertFalse($this->numericStringType->accepts($value));
         self::assertFalse($this->compiledAccept($this->numericStringType, $value));
-    }
-
-    public function test_can_cast_stringable_value(): void
-    {
-        self::assertTrue($this->numericStringType->canCast(42.1337));
-        self::assertTrue($this->numericStringType->canCast(404));
-        self::assertTrue($this->numericStringType->canCast(new StringableObject('1337')));
-    }
-
-    public function test_cannot_cast_other_types(): void
-    {
-        self::assertFalse($this->numericStringType->canCast('Schwifty!'));
-        self::assertFalse($this->numericStringType->canCast(null));
-        self::assertFalse($this->numericStringType->canCast(['foo' => 'bar']));
-        self::assertFalse($this->numericStringType->canCast(false));
-        self::assertFalse($this->numericStringType->canCast(new stdClass()));
-    }
-
-    #[DataProvider('cast_value_returns_correct_result_data_provider')]
-    public function test_cast_value_returns_correct_result(mixed $value, string $expected): void
-    {
-        self::assertSame($expected, $this->numericStringType->cast($value));
-    }
-
-    public static function cast_value_returns_correct_result_data_provider(): array
-    {
-        return [
-            'String from float' => [
-                'value' => 404.42,
-                'expected' => '404.42',
-            ],
-            'String from integer' => [
-                'value' => 42,
-                'expected' => '42',
-            ],
-            'String from object' => [
-                'value' => new StringableObject('700'),
-                'expected' => '700',
-            ],
-        ];
-    }
-
-    public function test_cast_invalid_value_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->numericStringType->cast(new stdClass());
-    }
-
-    public function test_cast_invalid_numeric_throws_exception(): void
-    {
-        $this->expectException(AssertionError::class);
-
-        $this->numericStringType->cast('qqq');
     }
 
     public function test_string_value_is_correct(): void
@@ -189,6 +133,6 @@ final class NumericStringTypeTest extends UnitTestCase
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */
-        return eval('return ' . $type->compiledAccept(Node::variable('value'))->compile(new Compiler())->code() . ';');
+        return eval('return ' . $type->compiledAccept(variable('value'))->compile(new Compiler())->code() . ';');
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -12,11 +11,8 @@ use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\ValueDumper;
-use Stringable;
 
-use function assert;
-use function is_numeric;
-use function is_string;
+use function CuyZ\Valinor\Compiler\value;
 use function str_contains;
 use function str_ends_with;
 use function str_replace;
@@ -51,9 +47,9 @@ final class StringValueType implements StringType, FixedType
         return $value === $this->value;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return $node->equals(Node::value($this->value));
+        return $node->equals(value($this->value));
     }
 
     public function matches(Type $other): bool
@@ -64,19 +60,6 @@ final class StringValueType implements StringType, FixedType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return (is_string($value) || is_numeric($value) || $value instanceof Stringable)
-            && (string)$value === $this->value;
-    }
-
-    public function cast(mixed $value): string
-    {
-        assert($this->canCast($value));
-
-        return $this->value;
     }
 
     public function hasQuoteChar(): bool

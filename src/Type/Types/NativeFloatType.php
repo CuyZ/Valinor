@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -12,9 +11,8 @@ use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
-use function assert;
+use function CuyZ\Valinor\Compiler\call;
 use function is_float;
-use function is_numeric;
 
 /** @internal */
 final class NativeFloatType implements FloatType
@@ -26,9 +24,9 @@ final class NativeFloatType implements FloatType
         return is_float($value);
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_float', [$node]);
+        return call('is_float', [$node]);
     }
 
     public function matches(Type $other): bool
@@ -45,18 +43,6 @@ final class NativeFloatType implements FloatType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return is_numeric($value);
-    }
-
-    public function cast(mixed $value): float
-    {
-        assert($this->canCast($value));
-
-        return (float)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

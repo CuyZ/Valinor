@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
 use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\MessageBuilder;
@@ -12,9 +11,7 @@ use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Utility\IsSingleton;
 
-use function assert;
-use function filter_var;
-use function is_bool;
+use function CuyZ\Valinor\Compiler\{call, value};
 use function is_int;
 
 /** @internal */
@@ -27,9 +24,9 @@ final class NonPositiveIntegerType implements IntegerType
         return is_int($value) && $value <= 0;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
-        return Node::functionCall('is_int', [$node])->and($node->isLessOrEqualsTo(Node::value(0)));
+        return call('is_int', [$node])->and($node->isLessOrEqualsTo(value(0)));
     }
 
     public function matches(Type $other): bool
@@ -51,20 +48,6 @@ final class NonPositiveIntegerType implements IntegerType
     public function inferGenericsFrom(Type $other, Generics $generics): Generics
     {
         return $generics;
-    }
-
-    public function canCast(mixed $value): bool
-    {
-        return ! is_bool($value)
-            && filter_var($value, FILTER_VALIDATE_INT) !== false
-            && $value <= 0;
-    }
-
-    public function cast(mixed $value): int
-    {
-        assert($this->canCast($value));
-
-        return (int)$value; // @phpstan-ignore-line
     }
 
     public function errorMessage(): ErrorMessage

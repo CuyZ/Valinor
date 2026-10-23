@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\CombiningType;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\ObjectWithGenericType;
@@ -39,7 +39,7 @@ final class InterfaceType implements ObjectType, ObjectWithGenericType
         return $value instanceof $this->interfaceName;
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         return $node->instanceOf($this->interfaceName);
     }

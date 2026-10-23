@@ -11,7 +11,7 @@
 
     Fetch common examples of mapping converters [in the documentation].
 
-    [in the documentation]: ../../how-to/common-converters-examples.md
+    [in the documentation]: ../../how-to/convert-input.md
 
 Callable converters allow targeting any value during mapping, whereas attribute
 converters allow targeting a specific class or property for a more granular

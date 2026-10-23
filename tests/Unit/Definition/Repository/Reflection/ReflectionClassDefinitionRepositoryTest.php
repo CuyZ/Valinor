@@ -9,6 +9,8 @@ use CuyZ\Valinor\Definition\Repository\ClassDefinitionRepository;
 use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Fixture\Object\AbstractObjectWithInterface;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithPropertyHooks\ChildInterfaceWithGenericParent;
+use CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithPropertyHooks\ChildInterfaceWithSeveralParents;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\StringType;
@@ -19,9 +21,13 @@ use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
+use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use stdClass;
 
 final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
@@ -203,6 +209,20 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         $propertyType = $properties->get('propertyWithGenericAlias')->type;
 
         self::assertSame('non-empty-array<string>', $propertyType->toString());
+    }
+
+    public function test_named_class_declared_without_source_file_can_use_type_from_its_own_namespace(): void
+    {
+        // `eval()` of a static literal is used here as the only way to declare
+        // a named class without a source file: no source can be parsed, so the
+        // class name is the only remaining namespace-resolution context.
+        eval('namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection; final class NamedClassDeclaredWithoutSourceFile { /** @var ClassWithInheritedPrivateConstructor */ public object $value; }');
+
+        $type = new NativeClassType(NamedClassDeclaredWithoutSourceFile::class); // @phpstan-ignore class.notFound
+        $properties = $this->getClass($type)->properties;
+        $propertyType = $properties->get('value')->type;
+
+        self::assertSame(ClassWithInheritedPrivateConstructor::class, $propertyType->toString());
     }
 
     public function test_can_use_nested_local_types(): void
@@ -425,7 +445,7 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         $type = $this->getClass(new NativeClassType($class))->properties->get('value')->type;
 
         self::assertInstanceOf(UnresolvableType::class, $type);
-        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: the type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: missing closing curly bracket in shaped array signature `array{foo: string`\.$/', $type->message());
+        self::assertMatchesRegularExpression('/^The type `array{foo: string` for property `.*\$value` could not be resolved: the type `array{foo: string` for local alias `T` of the class `.*` could not be resolved: missing closing curly bracket in `array{foo: string`\.$/', $type->message());
     }
 
     public function test_template_with_invalid_value_for_property_subtype_returns_unresolvable_type(): void
@@ -445,11 +465,116 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         self::assertMatchesRegularExpression('/The type `class-string<T>` for property `.*` could not be resolved: invalid class string `class-string<float>`, each element must be a class name or an interface name but found `float`./', $type->message());
     }
 
+    public function test_method_declared_in_parent_interface_can_be_retrieved(): void
+    {
+        $type = new InterfaceType(SomeGrandChildInterfaceWithParentMethod::class);
+        $methods = $this->getClass($type)->methods;
+
+        self::assertInstanceOf(StringType::class, $methods->get('map')->returnType);
+    }
+
+    public function test_constructor_declared_in_parent_interface_is_listed_in_methods(): void
+    {
+        $type = new InterfaceType(SomeChildInterfaceWithParentConstructor::class);
+        $methods = $this->getClass($type)->methods;
+
+        self::assertTrue($methods->hasConstructor());
+        self::assertInstanceOf(NativeBooleanType::class, $methods->constructor()->parameters->get('value')->type);
+    }
+
+    public function test_generics_are_assigned_for_parent_interfaces(): void
+    {
+        $type = new InterfaceType(SomeInterfaceWithSeveralGenericParents::class);
+        $methods = $this->getClass($type)->methods;
+
+        self::assertInstanceOf(NonEmptyStringType::class, $methods->get('map')->returnType);
+        self::assertInstanceOf(NativeFloatType::class, $methods->get('normalize')->returnType);
+    }
+
+    public function test_several_extend_tags_for_same_parent_interface_are_marked_as_unresolvable(): void
+    {
+        $type = new InterfaceType(SomeInterfaceWithSeveralExtendTagsForSameParentInterface::class);
+        $returnType = $this->getClass($type)->methods->get('map')->returnType;
+
+        self::assertInstanceOf(UnresolvableType::class, $returnType);
+        self::assertMatchesRegularExpression('/The return type `T` of method `.*` could not be resolved: only one `@extends` tag should be set for the class `.*`./', $returnType->message());
+    }
+
+    public function test_invalid_extend_tag_for_parent_interface_is_marked_as_unresolvable(): void
+    {
+        $type = new InterfaceType(SomeInterfaceWithInvalidExtendTag::class);
+        $returnType = $this->getClass($type)->methods->get('map')->returnType;
+
+        self::assertInstanceOf(UnresolvableType::class, $returnType);
+        self::assertMatchesRegularExpression('/The return type `T` of method `.*` could not be resolved: the `@extends` tag of the class `.*` is not valid: cannot parse unknown symbol `SomeUnknownParentInterface`./', $returnType->message());
+    }
+
+    #[RequiresPhp('>=8.4')]
+    public function test_properties_declared_in_parent_interfaces_can_be_retrieved(): void
+    {
+        $type = new InterfaceType(ChildInterfaceWithSeveralParents::class);
+        $properties = $this->getClass($type)->properties;
+
+        self::assertSame('string|null', $properties->get('deleted')->type->toString());
+        self::assertSame('int', $properties->get('count')->type->toString());
+    }
+
+    #[RequiresPhp('>=8.4')]
+    public function test_generics_are_assigned_for_property_declared_in_parent_interface(): void
+    {
+        $type = new InterfaceType(ChildInterfaceWithGenericParent::class);
+        $properties = $this->getClass($type)->properties;
+
+        self::assertInstanceOf(NativeStringType::class, $properties->get('genericValue')->type);
+    }
+
+    #[DataProvider('type_of_definition_data_provider')]
+    public function test_type_of_definition_is_the_type_that_was_asked_for(ObjectType $type, string $expected): void
+    {
+        self::assertSame($expected, $this->getClass($type)->type->toString());
+    }
+
+    public static function type_of_definition_data_provider(): iterable
+    {
+        $classWithDefaultedTemplate =
+            /**
+             * @template TemplateA = string
+             */
+            (new class () {})::class;
+
+        yield 'template with a default, no generic assigned' => [
+            new NativeClassType($classWithDefaultedTemplate),
+            "$classWithDefaultedTemplate<string>",
+        ];
+
+        $classWithPartiallyDefaultedTemplates =
+            /**
+             * @template TemplateA
+             * @template TemplateB = string
+             */
+            (new class () {})::class;
+
+        yield 'only the generic of the non-defaulted template assigned' => [
+            new NativeClassType($classWithPartiallyDefaultedTemplates, [NativeIntegerType::get()]),
+            "$classWithPartiallyDefaultedTemplates<int, string>",
+        ];
+
+        yield 'interface with a defaulted template' => [
+            new InterfaceType(SomeInterfaceWithDefaultedGeneric::class),
+            SomeInterfaceWithDefaultedGeneric::class . '<string>',
+        ];
+    }
+
     private function getClass(ObjectType $type): ClassDefinition
     {
         return $this->getService(ClassDefinitionRepository::class)->for($type);
     }
 }
+
+/**
+ * @template T = string
+ */
+interface SomeInterfaceWithDefaultedGeneric {}
 
 /**
  * @template T
@@ -487,3 +612,60 @@ final class SomeClassImportingAliasWithGeneric
     /** @var ArrayOfGenericAlias */ // @phpstan-ignore class.notFound
     public $propertyWithGenericAlias;
 }
+
+interface SomeParentInterfaceWithMethod
+{
+    public function map(): string;
+}
+
+interface SomeChildInterfaceWithParentMethod extends SomeParentInterfaceWithMethod {}
+
+interface SomeGrandChildInterfaceWithParentMethod extends SomeChildInterfaceWithParentMethod {}
+
+interface SomeParentInterfaceWithConstructor
+{
+    public function __construct(bool $value);
+}
+
+interface SomeChildInterfaceWithParentConstructor extends SomeParentInterfaceWithConstructor {}
+
+/**
+ * @template T
+ */
+interface SomeGenericParentInterfaceWithMapMethod
+{
+    /**
+     * @return T
+     */
+    public function map();
+}
+
+/**
+ * @template T
+ */
+interface SomeGenericParentInterfaceWithNormalizeMethod
+{
+    /**
+     * @return T
+     */
+    public function normalize();
+}
+
+/**
+ * @extends SomeGenericParentInterfaceWithMapMethod<non-empty-string>
+ * @extends SomeGenericParentInterfaceWithNormalizeMethod<float>
+ */
+interface SomeInterfaceWithSeveralGenericParents extends SomeGenericParentInterfaceWithMapMethod, SomeGenericParentInterfaceWithNormalizeMethod {}
+
+/**
+ * @extends SomeGenericParentInterfaceWithMapMethod<non-empty-string>
+ * @extends SomeGenericParentInterfaceWithMapMethod<float>
+ */
+interface SomeInterfaceWithSeveralExtendTagsForSameParentInterface extends SomeGenericParentInterfaceWithMapMethod {}
+
+/**
+ * @extends SomeUnknownParentInterface<float>
+ *
+ * @phpstan-ignore missingType.generics, generics.wrongParent (This tag is intentionally invalid)
+ */
+interface SomeInterfaceWithInvalidExtendTag extends SomeGenericParentInterfaceWithMapMethod {}

@@ -131,7 +131,7 @@ final class ValueDumper
 
     /**
      * @param iterable<string|int, mixed> $iterable
-     * @return array<mixed>
+     * @return list<string>
      */
     private static function listValues(iterable $iterable): array
     {

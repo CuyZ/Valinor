@@ -19,7 +19,6 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntegerValueToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\IntersectionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\KeyOfToken;
-use CuyZ\Valinor\Type\Parser\Lexer\Token\ListToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\NullableToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningBracketToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\OpeningCurlyBracketToken;
@@ -32,12 +31,17 @@ use CuyZ\Valinor\Type\Parser\Lexer\Token\TypeToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\UnionToken;
 use CuyZ\Valinor\Type\Parser\Lexer\Token\ValueOfToken;
 use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\ArrayType;
 use CuyZ\Valinor\Type\Types\BooleanValueType;
+use CuyZ\Valinor\Type\Types\IterableType;
+use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 use CuyZ\Valinor\Type\Types\NegativeIntegerType;
+use CuyZ\Valinor\Type\Types\NonEmptyArrayType;
+use CuyZ\Valinor\Type\Types\NonEmptyListType;
 use CuyZ\Valinor\Type\Types\NonEmptyStringType;
 use CuyZ\Valinor\Type\Types\NonNegativeIntegerType;
 use CuyZ\Valinor\Type\Types\NonPositiveIntegerType;
@@ -77,11 +81,11 @@ final class NativeLexer implements TypeLexer
             '...' => TripleDotsToken::get(),
 
             'int', 'integer' => IntegerToken::get(),
-            'array' => ArrayToken::array(),
-            'non-empty-array' => ArrayToken::nonEmptyArray(),
-            'iterable' => ArrayToken::iterable(),
-            'list' => ListToken::list(),
-            'non-empty-list' => ListToken::nonEmptyList(),
+            'array' => new ArrayToken('array', ArrayType::class),
+            'non-empty-array' => new ArrayToken('non-empty-array', NonEmptyArrayType::class),
+            'iterable' => new ArrayToken('iterable', IterableType::class),
+            'list' => new ArrayToken('list', ListType::class),
+            'non-empty-list' => new ArrayToken('non-empty-list', NonEmptyListType::class),
             'class-string' => ClassStringToken::get(),
             'callable' => CallableToken::get(),
             'value-of' => ValueOfToken::get(),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Type\Types;
 
-use CuyZ\Valinor\Compiler\Native\ComplianceNode;
+use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
@@ -86,6 +86,22 @@ final class UnresolvableType implements VacantType
         return new self(
             $template,
             "The template `$template` in `$signature` was defined at least twice."
+        );
+    }
+
+    public static function forTemplateWithEmptyDefault(string $signature, string $template): self
+    {
+        return new self(
+            $template,
+            "The template `$template` in `$signature` has no default type declared after `=`."
+        );
+    }
+
+    public static function forTemplateDefaultNotTrailing(string $signature, string $template, string $previousTemplate): self
+    {
+        return new self(
+            $template,
+            "The template `$template` in `$signature` has no default type but is defined after the template `$previousTemplate` which declares one; templates with a default type must be defined last."
         );
     }
 
@@ -182,7 +198,7 @@ final class UnresolvableType implements VacantType
         throw new LogicException();
     }
 
-    public function compiledAccept(ComplianceNode $node): ComplianceNode
+    public function compiledAccept(Node $node): Node
     {
         throw new LogicException();
     }
