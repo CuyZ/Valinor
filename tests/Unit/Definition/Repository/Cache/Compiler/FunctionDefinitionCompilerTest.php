@@ -62,7 +62,7 @@ final class FunctionDefinitionCompilerTest extends UnitTestCase
 
         try {
             /** @var FunctionDefinition|bool */
-            return eval("return $code;");
+            return eval("namespace CompiledCode; return $code;");
         } catch (Error $exception) {
             self::fail($exception->getMessage());
         }
