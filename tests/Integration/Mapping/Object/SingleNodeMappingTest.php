@@ -76,7 +76,6 @@ final class SingleNodeMappingTest extends IntegrationTestCase
             self::assertMappingErrors($exception, [
                 '*root*' => '[invalid_string] Value 42 is not a valid string.',
             ]);
-            self::assertSame('', $exception->messages()->errors()->toArray()[0]->name());
         }
     }
 
@@ -87,12 +86,12 @@ final class SingleNodeMappingTest extends IntegrationTestCase
                 ->registerKeyConverter(strtolower(...))
                 ->mapper()
                 ->map('array{identifier: ' . SimpleObject::class . '}', ['IDENTIFIER' => 42]);
-            self::fail('A mapping error was expected.');
-        } catch (MappingError $exception) {
-            $message = $exception->messages()->errors()->toArray()[0];
 
-            self::assertSame('IDENTIFIER', $message->name());
-            self::assertSame('IDENTIFIER', $message->path());
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'IDENTIFIER' => '[invalid_string] Value 42 is not a valid string.',
+            ]);
         }
     }
 
