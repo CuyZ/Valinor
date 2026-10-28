@@ -20,7 +20,7 @@ final class ConvertKeysToCamelCase implements MapperBuilderConfigurator
     public function configureMapperBuilder(MapperBuilder $builder): MapperBuilder
     {
         return $builder->registerKeyConverter(
-            static fn (string $key): string => lcfirst(str_replace(['_', '-'], '', ucwords($key, '_-'))), // @phpstan-ignore argument.type
+            static fn (string $key): string => lcfirst(str_replace(['_', '-'], '', ucwords($key, '_-'))),
         );
     }
 }

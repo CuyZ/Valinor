@@ -192,7 +192,7 @@ final class TypeCompilerTest extends UnitTestCase
 
         try {
             /** @var Type */
-            return eval("return $code;");
+            return eval("namespace CompiledCode; return $code;");
         } catch (Error $exception) {
             self::fail($exception->getMessage());
         }

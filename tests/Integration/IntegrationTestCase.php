@@ -12,12 +12,14 @@ use CuyZ\Valinor\Mapper\Tree\Message\NodeMessage;
 use CuyZ\Valinor\MapperBuilder;
 use CuyZ\Valinor\NormalizerBuilder;
 use CuyZ\Valinor\Tests\Integration\Mapping\Inferring\NamespacedInterfaceInferringTest;
+use CuyZ\Valinor\Utility\Polyfill;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 use function array_keys;
 use function array_map;
 use function bin2hex;
+use function explode;
 use function implode;
 use function preg_match;
 use function random_bytes;
@@ -119,8 +121,14 @@ abstract class IntegrationTestCase extends TestCase
                 self::fail('Incorrect error message format. Expected format: `[code] message`.');
             }
 
-            self::assertSame($matches[2], $remainingErrors[$path]->toString());
-            self::assertSame($matches[1], $remainingErrors[$path]->code());
+            $error = $remainingErrors[$path];
+
+            self::assertSame($matches[2], $error->toString());
+            self::assertSame($matches[1], $error->code());
+
+            if ($error->path() !== '*root*') {
+                self::assertSame(Polyfill::array_last(explode('.', $error->path())), $error->name(), "Error name does not match path `$path`.");
+            }
 
             unset($remainingErrors[$path]);
         }

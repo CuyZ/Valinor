@@ -19,7 +19,7 @@ final class AttributesCompiler
     public function compile(Attributes $attributes): string
     {
         if (count($attributes) === 0) {
-            return Attributes::class . '::empty()';
+            return '\\' . Attributes::class . '::empty()';
         }
 
         $attributesListCode = $this->compileAttributes($attributes);

@@ -183,9 +183,11 @@ final class MapAsBoolTest extends IntegrationTestCase
                 ->mapper()
                 ->map($class::class, ['value' => 'not a bool']);
 
-            self::fail('Expected a mapping error to be raised.');
+            self::fail('No mapping error when one was expected');
         } catch (MappingError $error) {
-            self::assertSame('value', $error->messages()->toArray()[0]->path());
+            self::assertMappingErrors($error, [
+                'value' => "[invalid_boolean] Value 'not a bool' is not a valid boolean.",
+            ]);
         }
     }
 }

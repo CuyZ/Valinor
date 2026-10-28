@@ -371,7 +371,7 @@ final class AttributesCompilerTest extends UnitTestCase
 
         try {
             /** @var Attributes */
-            return eval('return ' . $code . ';');
+            return eval('namespace CompiledCode; return ' . $code . ';');
         } catch (Error $exception) {
             self::fail($exception->getMessage());
         }

@@ -86,12 +86,11 @@ final class MapFromJsonTest extends IntegrationTestCase
                 ->mapper()
                 ->map($class::class, ['name' => 'John Doe', 'roles' => 'not json']);
 
-            self::fail('Expected a mapping error to be raised.');
+            self::fail('No mapping error when one was expected');
         } catch (MappingError $error) {
-            $message = $error->messages()->toArray()[0];
-
-            self::assertSame('roles', $message->path());
-            self::assertSame('invalid_json', $message->code());
+            self::assertMappingErrors($error, [
+                'roles' => "[invalid_json] Value 'not json' is not valid JSON.",
+            ]);
         }
     }
 }
