@@ -103,12 +103,11 @@ final class MapToDateTimeFromFormatTest extends IntegrationTestCase
                 ->mapper()
                 ->map($class::class, ['name' => 'John Doe', 'date' => '1971-11-08']);
 
-            self::fail('Expected a mapping error to be raised.');
+            self::fail('No mapping error when one was expected');
         } catch (MappingError $error) {
-            $message = $error->messages()->toArray()[0];
-
-            self::assertSame('date', $message->path());
-            self::assertSame('cannot_parse_datetime_format', $message->code());
+            self::assertMappingErrors($error, [
+                'date' => "[cannot_parse_datetime_format] Value '1971-11-08' does not match the date format `d/m/Y`.",
+            ]);
         }
     }
 }
