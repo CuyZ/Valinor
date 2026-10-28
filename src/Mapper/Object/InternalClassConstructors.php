@@ -275,10 +275,8 @@ final class InternalClassConstructors
      */
     public static function dsVector(array $values): Vector
     {
-        /** @var Vector<TValue> $vector */
-        $vector = new Vector($values);
-
-        return $vector;
+        /** @var Vector<TValue> */
+        return new Vector($values);
     }
 
     /**
@@ -288,10 +286,8 @@ final class InternalClassConstructors
      */
     public static function dsDeque(array $values): Deque
     {
-        /** @var Deque<TValue> $deque */
-        $deque = new Deque($values);
-
-        return $deque;
+        /** @var Deque<TValue> */
+        return new Deque($values);
     }
 
     /**

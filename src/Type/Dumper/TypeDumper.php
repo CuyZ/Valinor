@@ -212,7 +212,7 @@ final class TypeDumper
     {
         return array_reduce(
             array: $arguments->toArray(),
-            callback: static fn ($weight, Argument $argument) => $weight + TypeHelper::typePriority($argument->type()),
+            callback: static fn (int $weight, Argument $argument): int => $weight + TypeHelper::typePriority($argument->type()),
             // @infection-ignore-all (the initial value does not really matter here)
             initial: 0,
         );
