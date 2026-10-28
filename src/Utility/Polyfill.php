@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Utility;
 
+use function array_key_last;
 use function function_exists;
 
 /** @internal */
@@ -75,6 +76,19 @@ final class Polyfill
         }
 
         return null;
+    }
+
+    /**
+     * PHP8.5 use native function `array_last` instead.
+     *
+     * @infection-ignore-all
+     * @template T
+     * @param array<T> $array
+     * @return ($array is non-empty-array<T> ? T : null)
+     */
+    public static function array_last(array $array): mixed
+    {
+        return $array === [] ? null : $array[array_key_last($array)];
     }
 
     /**
