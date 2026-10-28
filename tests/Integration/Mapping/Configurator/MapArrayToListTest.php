@@ -136,9 +136,11 @@ final class MapArrayToListTest extends IntegrationTestCase
                 ->mapper()
                 ->map('non-empty-list<string>', []);
 
-            self::fail('Expected a mapping error to be raised.');
+            self::fail('No mapping error when one was expected');
         } catch (MappingError $error) {
-            self::assertSame('*root*', $error->messages()->toArray()[0]->path());
+            self::assertMappingErrors($error, [
+                '*root*' => "[value_is_empty_list] Cannot be empty and must be filled with a value matching `non-empty-list<string>`.",
+            ]);
         }
     }
 
@@ -150,9 +152,11 @@ final class MapArrayToListTest extends IntegrationTestCase
                 ->mapper()
                 ->map('list<string>', 'foo');
 
-            self::fail('Expected a mapping error to be raised.');
+            self::fail('No mapping error when one was expected');
         } catch (MappingError $error) {
-            self::assertSame('*root*', $error->messages()->toArray()[0]->path());
+            self::assertMappingErrors($error, [
+                '*root*' => "[value_is_not_iterable] Value 'foo' does not match `list<string>`.",
+            ]);
         }
     }
 

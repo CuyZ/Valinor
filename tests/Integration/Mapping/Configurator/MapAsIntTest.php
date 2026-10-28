@@ -162,9 +162,11 @@ final class MapAsIntTest extends IntegrationTestCase
                 ->mapper()
                 ->map($class::class, ['value' => 42.5]);
 
-            self::fail('Expected a mapping error to be raised.');
+            self::fail('No mapping error when one was expected');
         } catch (MappingError $error) {
-            self::assertSame('value', $error->messages()->toArray()[0]->path());
+            self::assertMappingErrors($error, [
+                'value' => '[invalid_integer] Value 42.5 is not a valid integer.',
+            ]);
         }
     }
 
