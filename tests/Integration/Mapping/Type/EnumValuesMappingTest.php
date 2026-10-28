@@ -110,6 +110,38 @@ final class EnumValuesMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_error_name_is_correct_when_enum_value_is_flattened(): void
+    {
+        try {
+            $this->mapperBuilder()->mapper()->map('array{status: ' . BackedStringEnum::class . '}', ['status' => 'invalid']);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'status' => "[cannot_resolve_type_from_union] Value 'invalid' does not match any of 'foo', 'bar', 'baz'.",
+            ]);
+        }
+    }
+
+    public function test_error_name_is_property_name_when_enum_property_value_is_invalid(): void
+    {
+        $class = new class (BackedStringEnum::FOO) {
+            public function __construct(
+                public BackedStringEnum $foo,
+            ) {}
+        };
+
+        try {
+            $this->mapperBuilder()->mapper()->map($class::class, ['foo' => 'invalid']);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'foo' => "[cannot_resolve_type_from_union] Value 'invalid' does not match any of 'foo', 'bar', 'baz'.",
+            ]);
+        }
+    }
+
     public function test_error_path_is_correct_when_using_nested_argument_for_enum(): void
     {
         try {

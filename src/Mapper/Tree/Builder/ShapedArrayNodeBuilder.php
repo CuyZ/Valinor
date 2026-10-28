@@ -202,6 +202,7 @@ final class ShapedArrayNodeBuilder implements NodeBuilder
         // never surfaces in error paths.
         return $shell
             ->withValue([$key => $value])
+            ->withNameMap([$key => $shell->name])
             ->withPathMap(["$shell->path.$key" => $shell->path]);
     }
 }

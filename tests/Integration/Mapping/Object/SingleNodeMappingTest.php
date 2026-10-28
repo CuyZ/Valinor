@@ -79,6 +79,22 @@ final class SingleNodeMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_single_argument_error_name_matches_original_source_key(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->registerKeyConverter(strtolower(...))
+                ->mapper()
+                ->map('array{identifier: ' . SimpleObject::class . '}', ['IDENTIFIER' => 42]);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'IDENTIFIER' => '[invalid_string] Value 42 is not a valid string.',
+            ]);
+        }
+    }
+
     public function test_single_argument_with_self_type_throws_exception(): void
     {
         $this->expectException(CircularDependencyDetected::class);

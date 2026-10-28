@@ -122,13 +122,11 @@ abstract class IntegrationTestCase extends TestCase
             }
 
             $error = $remainingErrors[$path];
+            $expectedName = $error->path() === '*root*' ? '' : Polyfill::array_last(explode('.', $error->path()));
 
             self::assertSame($matches[2], $error->toString());
             self::assertSame($matches[1], $error->code());
-
-            if ($error->path() !== '*root*') {
-                self::assertSame(Polyfill::array_last(explode('.', $error->path())), $error->name(), "Error name does not match path `$path`.");
-            }
+            self::assertSame($expectedName, $error->name(), "Error name does not match path `$path`.");
 
             unset($remainingErrors[$path]);
         }
