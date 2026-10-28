@@ -20,7 +20,7 @@ function normalize_with_covariant_template_is_inferred_properly(): void
 {
     $normalizer = (new NormalizerBuilder())->normalizer(Format::array());
 
-    normalizeWithMixedType($normalizer);
+    assertType('mixed', normalizeWithMixedType($normalizer));
 }
 
 /**
