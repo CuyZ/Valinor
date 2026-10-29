@@ -43,6 +43,13 @@ final class ClassDefinitionCompiler
 
         $properties = implode(', ', $properties);
 
+        $magicProperties = array_map(
+            $this->propertyCompiler->compile(...),
+            iterator_to_array($value->magicProperties)
+        );
+
+        $magicProperties = implode(', ', $magicProperties);
+
         $methods = array_map(
             $this->methodCompiler->compile(...),
             iterator_to_array($value->methods)
@@ -60,6 +67,7 @@ final class ClassDefinitionCompiler
             $type,
             $attributes,
             new \CuyZ\Valinor\Definition\Properties($properties),
+            new \CuyZ\Valinor\Definition\Properties($magicProperties),
             new \CuyZ\Valinor\Definition\Methods($methods),
             $isFinal,
             $isAbstract,
