@@ -36,8 +36,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: var/cache
-          key: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
-          restore-keys: mutation-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/mutation.yml') }}
+          key: mutation-${{ github.run_id }}
+          restore-keys: mutation-
 
       - name: Running mutation tests
         if: github.ref == 'refs/heads/master'

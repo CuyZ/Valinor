@@ -26,8 +26,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: var/cache
-          key: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/static-analysis-plugins.yml') }}
-          restore-keys: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/static-analysis-plugins.yml') }}
+          key: static-analysis-plugins-${{ github.run_id }}
+          restore-keys: static-analysis-plugins-
 
       - uses: "ramsey/composer-install@v2"
 

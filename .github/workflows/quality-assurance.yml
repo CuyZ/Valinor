@@ -26,8 +26,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: var/cache
-          key: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/quality-assurance.yml') }}
-          restore-keys: qa-${{ hashFiles('composer.lock') }}-${{ hashFiles('.github/workflows/quality-assurance.yml') }}
+          key: qa-${{ github.run_id }}
+          restore-keys: qa-
 
       - name: Checking Composer
         run: composer validate --strict
