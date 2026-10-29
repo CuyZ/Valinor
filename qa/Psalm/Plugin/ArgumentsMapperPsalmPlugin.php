@@ -73,7 +73,7 @@ final class ArgumentsMapperPsalmPlugin implements MethodReturnTypeProviderInterf
 
         // TKeyedArray constructor is private in Psalm 7+
         /** @var TKeyedArray */
-        $keyedArray = method_exists(TKeyedArray::class, 'make')
+        $keyedArray = method_exists(TKeyedArray::class, 'make') // @phpstan-ignore function.alreadyNarrowedType (support for older Psalm v5)
             ? TKeyedArray::make($params)
             : new TKeyedArray($params);
 
