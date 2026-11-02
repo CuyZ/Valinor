@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "vimeo/psalm": "^7.0@rc"
+        "vimeo/psalm": "^7.0"
     },
     "autoload": {
         "psr-4": {
