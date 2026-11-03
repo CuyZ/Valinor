@@ -37,6 +37,10 @@ jobs:
 
       - uses: "ramsey/composer-install@v2"
         with:
+          working-directory: "qa/StaticAnalysis/psalm/v7"
+
+      - uses: "ramsey/composer-install@v2"
+        with:
           working-directory: "qa/StaticAnalysis/psalm/v5"
 
       - uses: "ramsey/composer-install@v2"
@@ -46,6 +50,12 @@ jobs:
       - uses: "ramsey/composer-install@v2"
         with:
           working-directory: "qa/StaticAnalysis/phpstan/v2"
+
+      - name: Running Psalm v7 (without plugin installed)
+        run: cd qa/StaticAnalysis/psalm/v7 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/Psalm/v7/psalm-without-plugin.xml --no-cache
+
+      - name: Running Psalm v7 (with plugin installed)
+        run: cd qa/StaticAnalysis/psalm/v7 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/Psalm/v7/psalm-with-plugin.xml --no-cache
 
       - name: Running Psalm v6 (without plugin installed)
         run: cd qa/StaticAnalysis/psalm/v6 && php vendor/bin/psalm --config=../../../../tests/StaticAnalysis/psalm-without-plugin.xml --no-cache
