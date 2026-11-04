@@ -24,7 +24,7 @@ final class ClassDefinitionTest extends UnitTestCase
         $properties = new Properties(FakePropertyDefinition::new());
         $methods = new Methods(FakeMethodDefinition::new());
 
-        $class = new ClassDefinition(stdClass::class, $type, $attributes, $properties, $methods, true, false);
+        $class = new ClassDefinition(stdClass::class, $type, $attributes, $properties, new Properties(), $methods, true, false);
 
         self::assertSame(stdClass::class, $class->name);
         self::assertSame($type, $class->type);
