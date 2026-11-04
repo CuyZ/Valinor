@@ -7,6 +7,8 @@ namespace CuyZ\Valinor\Mapper\Tree\Message;
 /** @api */
 interface Message
 {
-    /** @pure */
+    /**
+     * @psalm-mutation-free
+     */
     public function body(): string;
 }
