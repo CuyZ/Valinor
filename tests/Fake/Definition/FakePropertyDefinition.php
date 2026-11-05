@@ -27,7 +27,8 @@ final class FakePropertyDefinition
             false,
             null,
             false,
-            new Attributes()
+            new Attributes(),
+            false
         );
     }
 
@@ -50,7 +51,8 @@ final class FakePropertyDefinition
             isset($defaultProperties[$reflection->name]),
             $defaultProperties[$reflection->name] ?? null,
             $reflection->isPublic(),
-            new Attributes()
+            new Attributes(),
+            false
         );
     }
 }

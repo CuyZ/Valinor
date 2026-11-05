@@ -431,6 +431,46 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
         self::assertSame("The type `AnotherTemplate` for property `$className::\$anotherTemplate` could not be resolved: collision for the type alias `AnotherTemplate` that was declared 2 times.", $anotherTemplateProperty->type->message());
     }
 
+    public function test_method_template_takes_precedence_over_local_type_alias_with_same_name(): void
+    {
+        $className =
+            /**
+             * @phpstan-type SomeType = int
+             */
+            (new class () {
+                /**
+                 * @template SomeType of string
+                 * @param SomeType $value
+                 */
+                #[Constructor]
+                public static function someMethod($value): void {}
+            })::class;
+
+        $type = $this->getClass(new NativeClassType($className))->methods->get('someMethod')->parameters->get('value')->type;
+
+        self::assertSame('SomeType of string', $type->toString());
+    }
+
+    public function test_method_template_takes_precedence_over_imported_type_alias_with_same_name(): void
+    {
+        $className =
+            /**
+             * @phpstan-import-type ArrayOfGenericAlias from SomeClassWithGenericLocalAlias<string>
+             */
+            (new class () {
+                /**
+                 * @template ArrayOfGenericAlias of string
+                 * @param ArrayOfGenericAlias $value
+                 */
+                #[Constructor]
+                public static function someMethod($value): void {}
+            })::class;
+
+        $type = $this->getClass(new NativeClassType($className))->methods->get('someMethod')->parameters->get('value')->type;
+
+        self::assertSame('ArrayOfGenericAlias of string', $type->toString());
+    }
+
     public function test_class_with_invalid_type_alias_is_marked_as_unresolvable(): void
     {
         $class =

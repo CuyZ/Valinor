@@ -9,7 +9,9 @@ use CuyZ\Valinor\Type\Types\Generics;
 use IteratorAggregate;
 use Traversable;
 
+use function array_filter;
 use function array_map;
+use function array_slice;
 use function array_values;
 use function count;
 
@@ -48,6 +50,11 @@ final class Parameters implements IteratorAggregate, Countable
         return array_values($this->parameters)[$index];
     }
 
+    public function shift(): self
+    {
+        return new self(...array_slice($this->parameters, 1));
+    }
+
     public function assignGenerics(Generics $generics): self
     {
         return new self(
@@ -56,6 +63,14 @@ final class Parameters implements IteratorAggregate, Countable
                 $this->parameters,
             ),
         );
+    }
+
+    public function withoutFixed(): self
+    {
+        return new self(...array_filter(
+            $this->parameters,
+            static fn (ParameterDefinition $parameter) => ! $parameter->isFixed,
+        ));
     }
 
     /**

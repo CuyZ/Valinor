@@ -35,7 +35,8 @@ final class FunctionDefinitionCompilerTest extends UnitTestCase
                     false,
                     false,
                     'foo',
-                    new Attributes()
+                    new Attributes(),
+                    true
                 )
             ),
             NativeStringType::get()
@@ -51,6 +52,7 @@ final class FunctionDefinitionCompilerTest extends UnitTestCase
         self::assertSame(true, $compiledFunction->isClosure);
         self::assertSame(stdClass::class, $compiledFunction->class);
         self::assertTrue($compiledFunction->parameters->has('bar'));
+        self::assertTrue($compiledFunction->parameters->get('bar')->isFixed);
         self::assertInstanceOf(NativeStringType::class, $compiledFunction->returnType);
     }
 

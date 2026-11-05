@@ -61,7 +61,7 @@ final readonly class Arguments implements IteratorAggregate, Countable
     {
         return new self(...array_map(
             Argument::fromParameter(...),
-            [...$parameters],
+            [...$parameters->withoutFixed()],
         ));
     }
 
@@ -69,7 +69,7 @@ final readonly class Arguments implements IteratorAggregate, Countable
     {
         return new self(...array_map(
             Argument::fromProperty(...),
-            [...$properties],
+            [...$properties->withoutFixed()],
         ));
     }
 

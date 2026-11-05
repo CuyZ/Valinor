@@ -24,6 +24,12 @@ final class ReflectionObjectBuilder implements ObjectBuilder
     {
         $object = new ($this->class->name)();
 
+        foreach ($this->class->properties as $property) {
+            if ($property->isFixed) {
+                $arguments[$property->name] = $property->fixedValue();
+            }
+        }
+
         if (count($arguments) > 0) {
             (function () use ($arguments): void {
                 foreach ($arguments as $name => $value) {

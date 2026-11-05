@@ -18,19 +18,8 @@ final class ParameterTypeResolver
 {
     public function __construct(private ReflectionTypeResolver $typeResolver) {}
 
-    public function resolveTypeFor(ReflectionParameter $reflection): Type
+    public function resolveTypeFor(ReflectionParameter $reflection, ?string $docBlockType): Type
     {
-        $docBlockType = null;
-
-        if ($reflection->isPromoted()) {
-            // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
-            $property = $reflection->getDeclaringClass()->getProperty($reflection->name);
-
-            $docBlockType = Annotations::forProperty($property);
-        }
-
-        $docBlockType ??= $this->extractTypeFromDocBlock($reflection);
-
         $type = $this->typeResolver->resolveType($reflection->getType(), $docBlockType);
 
         if ($reflection->isVariadic() && ! $type instanceof UnresolvableType) {
@@ -49,6 +38,22 @@ final class ParameterTypeResolver
         }
 
         return $type;
+    }
+
+    public function docBlockTypeFor(ReflectionParameter $reflection): ?string
+    {
+        $docBlockType = null;
+
+        if ($reflection->isPromoted()) {
+            // @phpstan-ignore-next-line / parameter is promoted so class exists for sure
+            $property = $reflection->getDeclaringClass()->getProperty($reflection->name);
+
+            $docBlockType = Annotations::forProperty($property);
+        }
+
+        $docBlockType ??= $this->extractTypeFromDocBlock($reflection);
+
+        return $docBlockType;
     }
 
     private function extractTypeFromDocBlock(ReflectionParameter $reflection): ?string

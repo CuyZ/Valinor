@@ -24,6 +24,7 @@ final class PropertyDefinitionCompiler
         $defaultValue = var_export($property->defaultValue, true);
         $isPublic = var_export($property->isPublic, true);
         $attributes = $this->attributesCompiler->compile($property->attributes);
+        $isFixed = var_export($property->isFixed, true);
 
         return <<<PHP
             new \CuyZ\Valinor\Definition\PropertyDefinition(
@@ -34,7 +35,8 @@ final class PropertyDefinitionCompiler
                 $hasDefaultValue,
                 $defaultValue,
                 $isPublic,
-                $attributes
+                $attributes,
+                $isFixed
             )
             PHP;
     }

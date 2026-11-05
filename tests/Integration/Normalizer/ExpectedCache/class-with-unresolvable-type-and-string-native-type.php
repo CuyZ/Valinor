@@ -27,11 +27,11 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'value' => $value->value,
         ];
         $transformed = [];
-        $transformed['value'] = $this->transform_string_c80acf3f0352152a3298abfbddc6f6c62c5da4b6($values['value'], $references);
+        $transformed['value'] = $this->transform_string_0c9a1f4d1f900084e0445e44dd333babc84ed5a7($values['value'], $references);
         return $transformed;
     }
 
-    private function transform_string_c80acf3f0352152a3298abfbddc6f6c62c5da4b6(mixed $value, WeakMap $references): mixed
+    private function transform_string_0c9a1f4d1f900084e0445e44dd333babc84ed5a7(mixed $value, WeakMap $references): mixed
     {
         $next = fn () => $value;
         $next = fn () => (new CuyZ\Valinor\Tests\Integration\Normalizer\PrependToStringAttribute())->normalize($value, $next);

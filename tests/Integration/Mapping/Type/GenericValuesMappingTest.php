@@ -120,10 +120,10 @@ final class GenericValuesMappingTest extends IntegrationTestCase
             'genericWithBoolean' => true,
             'genericWithFloat' => 42.404,
             'genericWithInteger' => 1337,
-            'genericWithIntegerValue' => 1337,
+            'genericWithIntegerValue' => [],
             'genericWithString' => 'foo',
-            'genericWithSingleQuoteStringValue' => 'foo',
-            'genericWithDoubleQuoteStringValue' => 'foo',
+            'genericWithSingleQuoteStringValue' => [],
+            'genericWithDoubleQuoteStringValue' => [],
             'genericWithArrayOfStrings' => ['foo', 'bar', 'baz'],
             'genericWithSimpleArrayOfStrings' => ['foo', 'bar', 'baz'],
             'genericWithUnionOfScalar' => 'foo',
@@ -139,8 +139,8 @@ final class GenericValuesMappingTest extends IntegrationTestCase
             ],
             'genericWithSpecifiedTypeWithString' => 'foo',
             'genericWithSpecifiedTypeWithObject' => 'foo',
-            'genericWithSpecifiedTypeWithIntegerValue' => 42,
-            'genericWithSpecifiedTypeWithStringValue' => 'foo',
+            'genericWithSpecifiedTypeWithIntegerValue' => [],
+            'genericWithSpecifiedTypeWithStringValue' => [],
         ];
 
         foreach ([GenericValues::class, GenericValuesWithConstructor::class] as $class) {

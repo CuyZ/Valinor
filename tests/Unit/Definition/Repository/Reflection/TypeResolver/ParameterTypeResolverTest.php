@@ -17,7 +17,8 @@ final class ParameterTypeResolverTest extends UnitTestCase
     #[DataProvider('parameter_type_is_resolved_properly_data_provider')]
     public function test_parameter_type_is_resolved_properly(ReflectionParameter $reflection, string $expectedType): void
     {
-        $type = $this->parameterTypeResolver()->resolveTypeFor($reflection);
+        $resolver = $this->parameterTypeResolver();
+        $type = $resolver->resolveTypeFor($reflection, $resolver->docBlockTypeFor($reflection));
 
         self::assertNotInstanceOf(UnresolvableType::class, $type);
         self::assertSame($expectedType, $type->toString());
@@ -207,7 +208,8 @@ final class ParameterTypeResolverTest extends UnitTestCase
             'value',
         );
 
-        $type = $this->parameterTypeResolver()->resolveTypeFor($reflection);
+        $resolver = $this->parameterTypeResolver();
+        $type = $resolver->resolveTypeFor($reflection, $resolver->docBlockTypeFor($reflection));
 
         self::assertInstanceOf(UnresolvableType::class, $type);
     }
