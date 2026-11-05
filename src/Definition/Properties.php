@@ -8,6 +8,7 @@ use Countable;
 use IteratorAggregate;
 use Traversable;
 
+use function array_filter;
 use function count;
 
 /**
@@ -35,6 +36,14 @@ final class Properties implements IteratorAggregate, Countable
     public function get(string $name): PropertyDefinition
     {
         return $this->properties[$name];
+    }
+
+    public function withoutFixed(): self
+    {
+        return new self(...array_filter(
+            $this->properties,
+            static fn (PropertyDefinition $property) => ! $property->isFixed,
+        ));
     }
 
     public function count(): int

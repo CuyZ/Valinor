@@ -10,6 +10,7 @@ use CuyZ\Valinor\Definition\Repository\AttributesRepository;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ParameterTypeResolver;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Utility\TypeHelper;
 use ReflectionParameter;
 
 /** @internal */
@@ -24,7 +25,9 @@ final class ReflectionParameterDefinitionBuilder
         /** @var non-empty-string $name */
         $name = $reflection->name;
         $signature = $this->signature($reflection);
-        $type = $parameterTypeResolver->resolveTypeFor($reflection);
+        $docBlockType = $parameterTypeResolver->docBlockTypeFor($reflection);
+        $type = $parameterTypeResolver->resolveTypeFor($reflection, $docBlockType);
+        $typeIsTemplate = $typeResolver->isTemplate($docBlockType);
         $nativeType = $parameterTypeResolver->resolveNativeTypeFor($reflection);
         $isOptional = $reflection->isOptional();
         $isVariadic = $reflection->isVariadic();
@@ -54,6 +57,7 @@ final class ReflectionParameterDefinitionBuilder
             $isVariadic,
             $defaultValue,
             new Attributes(...$this->attributesRepository->for($reflection)),
+            $typeIsTemplate && TypeHelper::acceptsSingleValue($type),
         );
     }
 

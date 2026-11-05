@@ -17,7 +17,8 @@ final class PropertyTypeResolverTest extends UnitTestCase
     #[DataProvider('property_type_is_resolved_properly_data_provider')]
     public function test_property_type_is_resolved_properly(ReflectionProperty $reflection, string $expectedType): void
     {
-        $type = $this->propertyTypeResolver()->resolveTypeFor($reflection);
+        $resolver = $this->propertyTypeResolver();
+        $type = $resolver->resolveTypeFor($reflection, $resolver->docBlockTypeFor($reflection));
 
         self::assertNotInstanceOf(UnresolvableType::class, $type);
         self::assertSame($expectedType, $type->toString());

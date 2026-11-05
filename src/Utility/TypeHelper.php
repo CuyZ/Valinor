@@ -7,6 +7,7 @@ namespace CuyZ\Valinor\Utility;
 use CuyZ\Valinor\Type\BooleanType;
 use CuyZ\Valinor\Type\CompositeTraversableType;
 use CuyZ\Valinor\Type\CompositeType;
+use CuyZ\Valinor\Type\FixedType;
 use CuyZ\Valinor\Type\FloatType;
 use CuyZ\Valinor\Type\IntegerType;
 use CuyZ\Valinor\Type\ObjectType;
@@ -14,9 +15,12 @@ use CuyZ\Valinor\Type\Parser\Exception\InvalidType;
 use CuyZ\Valinor\Type\ScalarType;
 use CuyZ\Valinor\Type\StringType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\EnumType;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Type\VacantType;
+
+use function count;
 
 /** @internal */
 final class TypeHelper
@@ -63,6 +67,13 @@ final class TypeHelper
         }
 
         return $types;
+    }
+
+    public static function acceptsSingleValue(Type $type): bool
+    {
+        return $type instanceof FixedType
+            || $type instanceof NullType
+            || ($type instanceof EnumType && count($type->cases()) === 1);
     }
 
     /**

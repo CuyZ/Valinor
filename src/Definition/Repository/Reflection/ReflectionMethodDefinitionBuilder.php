@@ -44,7 +44,7 @@ final class ReflectionMethodDefinitionBuilder
 
         $methodTemplates = $this->templateResolver->templatesFromDocBlock($reflection, $signature, $typeParser);
 
-        $typeResolver = $typeResolver->withVacantTypes($methodTemplates);
+        $typeResolver = $typeResolver->withGenerics($methodTemplates);
 
         $parameters = array_map(
             fn (ReflectionParameter $parameter) => $this->parameterBuilder->for($parameter, $typeResolver),

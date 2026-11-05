@@ -11,6 +11,7 @@ use CuyZ\Valinor\Tests\Fake\Definition\FakeParameterDefinition;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\GenericType;
+use CuyZ\Valinor\Type\Types\IntegerValueType;
 use CuyZ\Valinor\Type\Types\MixedType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
 
@@ -40,6 +41,17 @@ final class ParametersTest extends UnitTestCase
         self::assertSame($parameterB, $parameters->at(1));
     }
 
+    public function test_shift_parameters_removes_first_parameter(): void
+    {
+        $parameterA = FakeParameterDefinition::new('SomeParameterA');
+        $parameterB = FakeParameterDefinition::new('SomeParameterB');
+        $parameterC = FakeParameterDefinition::new('SomeParameterC');
+        $parameters = new Parameters($parameterA, $parameterB, $parameterC);
+
+        self::assertSame(['SomeParameterB' => $parameterB, 'SomeParameterC' => $parameterC], $parameters->shift()->toArray());
+        self::assertCount(3, $parameters);
+    }
+
     public function test_parameters_to_list_returns_list(): void
     {
         $parameterA = FakeParameterDefinition::new('SomeParameterA');
@@ -47,6 +59,27 @@ final class ParametersTest extends UnitTestCase
         $parameters = new Parameters($parameterA, $parameterB);
 
         self::assertSame(['SomeParameterA' => $parameterA, 'SomeParameterB' => $parameterB], $parameters->toArray());
+    }
+
+    public function test_fixed_parameters_can_be_filtered_out(): void
+    {
+        $parameter = FakeParameterDefinition::new('notFixed');
+        $parameters = new Parameters(
+            $parameter,
+            new ParameterDefinition(
+                name: 'fixed',
+                signature: 'someSignature',
+                type: new IntegerValueType(42),
+                nativeType: new IntegerValueType(42),
+                isOptional: false,
+                isVariadic: false,
+                defaultValue: null,
+                attributes: new Attributes(),
+                isFixed: true,
+            ),
+        );
+
+        self::assertSame(['notFixed' => $parameter], $parameters->withoutFixed()->toArray());
     }
 
     public function test_parameters_can_have_generics_assigned(): void
@@ -61,6 +94,7 @@ final class ParametersTest extends UnitTestCase
                 isVariadic: false,
                 defaultValue: null,
                 attributes: Attributes::empty(),
+                isFixed: false,
             ),
         );
 
