@@ -21,6 +21,7 @@ final class PropertyDefinitionTest extends UnitTestCase
         $defaultValue = 'Some property default value';
         $isPublic = true;
         $attributes = new Attributes();
+        $isFixed = true;
 
         $property = new PropertyDefinition(
             $name,
@@ -30,7 +31,8 @@ final class PropertyDefinitionTest extends UnitTestCase
             $hasDefaultValue,
             $defaultValue,
             $isPublic,
-            $attributes
+            $attributes,
+            $isFixed
         );
 
         self::assertSame($name, $property->name);
@@ -41,5 +43,6 @@ final class PropertyDefinitionTest extends UnitTestCase
         self::assertSame($defaultValue, $property->defaultValue);
         self::assertSame($isPublic, $property->isPublic);
         self::assertSame($attributes, $property->attributes);
+        self::assertSame($isFixed, $property->isFixed);
     }
 }

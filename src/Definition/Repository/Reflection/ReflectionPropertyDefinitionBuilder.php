@@ -12,6 +12,7 @@ use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeRes
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\NullType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Utility\TypeHelper;
 use ReflectionProperty;
 
 /** @internal */
@@ -26,7 +27,9 @@ final class ReflectionPropertyDefinitionBuilder
         /** @var non-empty-string $name */
         $name = $reflection->name;
         $signature = $reflection->getDeclaringClass()->name . '::$' . $reflection->name;
-        $type = $propertyTypeResolver->resolveTypeFor($reflection);
+        $docBlockType = $propertyTypeResolver->docBlockTypeFor($reflection);
+        $type = $propertyTypeResolver->resolveTypeFor($reflection, $docBlockType);
+        $typeIsTemplate = $typeResolver->isTemplate($docBlockType);
         $nativeType = $propertyTypeResolver->resolveNativeTypeFor($reflection);
         $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
         $defaultValue = $hasDefaultValue ? $reflection->getDefaultValue() : null;
@@ -49,6 +52,7 @@ final class ReflectionPropertyDefinitionBuilder
             $defaultValue,
             $isPublic,
             new Attributes(...$this->attributesRepository->for($reflection)),
+            $typeIsTemplate && TypeHelper::acceptsSingleValue($type),
         );
     }
 
