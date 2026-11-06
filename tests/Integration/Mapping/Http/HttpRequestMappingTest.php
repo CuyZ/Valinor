@@ -1154,6 +1154,35 @@ final class HttpRequestMappingTest extends IntegrationTestCase
 
         self::assertSame('foo', $result->someRouteParameter);
     }
+
+    public function test_query_as_root_error_path_is_kept_for_key_named_like_parameter(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['query' => 'foo'],
+        );
+
+        $controller = fn (#[FromQuery(asRoot: true)] QueryParametersWithQueryKey $query) => [];
+
+        try {
+            $this->mapperBuilder()
+                ->argumentsMapper()
+                ->mapArguments($controller, $request);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'query' => "[invalid_integer] Value 'foo' is not a valid integer.",
+            ]);
+        }
+    }
+}
+
+final class QueryParametersWithQueryKey
+{
+    public function __construct(
+        public int $query,
+        public string $other = '',
+    ) {}
 }
 
 final class QueryParameters
