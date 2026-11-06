@@ -11,6 +11,7 @@
     <projectFiles>
         <file name="inferring-normalizer-types.php"/>
         <file name="inferring-types-from-annotations.php" />
+        <file name="implementing-message-contracts.php" />
         <file name="inferring-types-with-plugin.php" />
     </projectFiles>
     
