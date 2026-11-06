@@ -90,6 +90,7 @@ final class Shell
         $self->attributes = Attributes::empty();
         $self->childrenCount = 0;
         $self->nameMap = [];
+        $self->pathMap = [];
         $self->wrapSingleValueIfNeeded = false;
 
         if ($this->pathMap !== []) {

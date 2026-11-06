@@ -95,6 +95,38 @@ final class SingleNodeMappingTest extends IntegrationTestCase
         }
     }
 
+    public function test_single_list_argument_with_key_matching_argument_name_keeps_path_in_error_nodes(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleListProperty::class, ['value' => 'foo', 'other' => 'bar']);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'value' => "[invalid_list_key] Invalid sequential key 'value', expected 0.",
+                'other' => "[invalid_list_key] Invalid sequential key 'other', expected 1.",
+            ]);
+        }
+    }
+
+    public function test_nested_single_list_argument_with_key_matching_argument_name_keeps_path_in_error_nodes(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map('array{list: ' . SingleListProperty::class . '}', ['list' => ['value' => 'foo', 'other' => 'bar']]);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'list.value' => "[invalid_list_key] Invalid sequential key 'value', expected 0.",
+                'list.other' => "[invalid_list_key] Invalid sequential key 'other', expected 1.",
+            ]);
+        }
+    }
+
     public function test_single_argument_with_self_type_throws_exception(): void
     {
         $this->expectException(CircularDependencyDetected::class);
