@@ -35,7 +35,8 @@ final class FakeFunctionDefinition
                     false,
                     false,
                     'foo',
-                    new Attributes()
+                    new Attributes(),
+                    false
                 )
             ),
             NativeStringType::get()

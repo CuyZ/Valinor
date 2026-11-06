@@ -27,7 +27,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'value' => $value->value,
         ];
         $transformed = [];
-        $transformed['value'] = $this->transform_mixed_81119e8ac7b14bb88fa09fcfa886afe87aa69fa1($values['value'], $references);
+        $transformed['value'] = $this->transform_mixed_8b8603ecd07cacdfd51704c57b509b5f59a70dad($values['value'], $references);
         return $transformed;
     }
 
@@ -75,7 +75,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         })();
     }
 
-    private function transform_mixed_81119e8ac7b14bb88fa09fcfa886afe87aa69fa1(mixed $value, WeakMap $references): mixed
+    private function transform_mixed_8b8603ecd07cacdfd51704c57b509b5f59a70dad(mixed $value, WeakMap $references): mixed
     {
         $next = fn () => $this->transform_mixed($value, $references);
         if (\is_string($value)) {

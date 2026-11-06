@@ -9,10 +9,6 @@ use CuyZ\Valinor\Mapper\Tree\Message\UserlandError;
 use CuyZ\Valinor\Type\ObjectType;
 use Exception;
 
-use function array_map;
-use function array_shift;
-use function array_values;
-
 /** @internal */
 final class FunctionObjectBuilder implements ObjectBuilder
 {
@@ -26,22 +22,17 @@ final class FunctionObjectBuilder implements ObjectBuilder
 
     public function __construct(FunctionObject $function, ObjectType $type)
     {
-        $definition = $function->definition;
+        $this->isDynamicConstructor = $function->definition->attributes->has(DynamicConstructor::class);
 
-        $arguments = array_map(
-            Argument::fromParameter(...),
-            array_values([...$definition->parameters])
-        );
-
-        $this->isDynamicConstructor = $definition->attributes->has(DynamicConstructor::class);
+        $parameters = $function->definition->parameters;
 
         if ($this->isDynamicConstructor) {
-            array_shift($arguments);
+            $parameters = $parameters->shift();
         }
 
         $this->function = $function;
         $this->className = $type->className();
-        $this->arguments = new Arguments(...$arguments);
+        $this->arguments = Arguments::fromParameters($parameters);
     }
 
     public function describeArguments(): Arguments

@@ -27,7 +27,8 @@ final class FakeParameterDefinition
             false,
             false,
             null,
-            new Attributes()
+            new Attributes(),
+            false
         );
     }
 
@@ -44,7 +45,8 @@ final class FakeParameterDefinition
             true,
             false,
             $defaultValue,
-            new Attributes()
+            new Attributes(),
+            false
         );
     }
 
@@ -66,7 +68,8 @@ final class FakeParameterDefinition
             $reflection->isOptional(),
             $reflection->isVariadic(),
             $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null,
-            new Attributes()
+            new Attributes(),
+            false
         );
     }
 }

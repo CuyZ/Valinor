@@ -13,11 +13,14 @@ final class PropertyTypeResolver
 {
     public function __construct(private ReflectionTypeResolver $typeResolver) {}
 
-    public function resolveTypeFor(ReflectionProperty $reflection): Type
+    public function resolveTypeFor(ReflectionProperty $reflection, ?string $docBlockType): Type
     {
-        $docBlockType = Annotations::forProperty($reflection);
-
         return $this->typeResolver->resolveType($reflection->getType(), $docBlockType);
+    }
+
+    public function docBlockTypeFor(ReflectionProperty $reflection): ?string
+    {
+        return Annotations::forProperty($reflection);
     }
 
     public function resolveNativeTypeFor(ReflectionProperty $reflection): Type

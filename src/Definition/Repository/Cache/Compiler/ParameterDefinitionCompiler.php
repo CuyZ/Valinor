@@ -26,6 +26,7 @@ final class ParameterDefinitionCompiler
         $type = $this->typeCompiler->compile($parameter->type);
         $nativeType = $this->typeCompiler->compile($parameter->nativeType);
         $attributes = $this->attributesCompiler->compile($parameter->attributes);
+        $isFixed = var_export($parameter->isFixed, true);
 
         return <<<PHP
             new \CuyZ\Valinor\Definition\ParameterDefinition(
@@ -36,7 +37,8 @@ final class ParameterDefinitionCompiler
                 $isOptional,
                 $isVariadic,
                 $defaultValue,
-                $attributes
+                $attributes,
+                $isFixed
             )
             PHP;
     }

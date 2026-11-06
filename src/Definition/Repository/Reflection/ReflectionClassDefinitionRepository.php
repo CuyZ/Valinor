@@ -21,17 +21,13 @@ use CuyZ\Valinor\Mapper\Object\Constructor;
 use CuyZ\Valinor\Type\ObjectType;
 use CuyZ\Valinor\Type\ObjectWithGenericType;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
-use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
-use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
 use ReflectionMethod;
 use ReflectionProperty;
 
-use function array_count_values;
 use function array_filter;
-use function array_keys;
 use function array_map;
 use function array_values;
 use function assert;
@@ -84,13 +80,19 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $type = new $type($type->className(), array_values($generics));
         }
 
-        $vacantTypes = $this->vacantTypes($type, $generics);
-
         $nativeTypeParser = $this->typeParserFactory->buildNativeTypeParserForClass($type->className());
-
         $advancedTypeParser = $this->typeParserFactory->buildAdvancedTypeParserForClass($type->className());
 
-        $typeResolver = new ReflectionTypeResolver($nativeTypeParser, $advancedTypeParser, $vacantTypes);
+        $localTypes = $this->localTypeAliasResolver->resolveLocalTypeAliases($type);
+        $importedTypes = $this->importedTypeAliasResolver->resolveImportedTypeAliases($type);
+
+        $typeResolver = new ReflectionTypeResolver(
+            $nativeTypeParser,
+            $advancedTypeParser,
+            $generics,
+            $localTypes,
+            $importedTypes,
+        );
 
         return new ClassDefinition(
             $reflection->name,
@@ -101,33 +103,6 @@ final class ReflectionClassDefinitionRepository implements ClassDefinitionReposi
             $reflection->isFinal(),
             $reflection->isAbstract(),
         );
-    }
-
-    /**
-     * @param array<non-empty-string, Type> $generics
-     * @return array<non-empty-string, Type>
-     */
-    private function vacantTypes(ObjectType $type, array $generics): array
-    {
-        $localTypes = $this->localTypeAliasResolver->resolveLocalTypeAliases($type);
-        $importedTypes = $this->importedTypeAliasResolver->resolveImportedTypeAliases($type);
-
-        $vacantTypes = [...$generics, ...$localTypes, ...$importedTypes];
-
-        $keys = [...array_keys($generics), ...array_keys($localTypes), ...array_keys($importedTypes)];
-
-        // PHP8.5 use pipes
-        $aliasCollision = array_filter(
-            array_count_values($keys),
-            static fn (int $count) => $count > 1
-        );
-
-        foreach ($aliasCollision as $alias => $numberOfCollisions) {
-            /** @var non-empty-string $alias */
-            $vacantTypes[$alias] = UnresolvableType::forClassTypeAliasesCollision($alias, $numberOfCollisions);
-        }
-
-        return $vacantTypes;
     }
 
     /**
