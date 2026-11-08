@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CuyZ\Valinor\Tests\Unit\Type\Parser\Factory\Specification;
 
 use CuyZ\Valinor\Tests\Fake\Type\Parser\Lexer\Token\FakeToken;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture;
 use CuyZ\Valinor\Tests\Integration\Mapping\Fixture as SimpleObject;
 use CuyZ\Valinor\Tests\Unit\Type\Parser\Factory\Specification as PathAlias;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
@@ -56,6 +57,16 @@ final class AliasSpecificationTest extends UnitTestCase
         $newToken = $specification->manipulateToken($token);
 
         self::assertSame(ClassWithAlias::class, $newToken->symbol());
+    }
+
+    public function test_namespace_import_without_alias_is_checked_in_class(): void
+    {
+        $specification = new AliasSpecification(new ReflectionClass(ClassWithAlias::class));
+
+        $token = new FakeToken('Fixture\SimpleObject');
+        $newToken = $specification->manipulateToken($token);
+
+        self::assertSame(Fixture\SimpleObject::class, $newToken->symbol());
     }
 
     public function test_object_with_same_name_as_root_namespace_are_checked_in_class(): void
@@ -134,6 +145,18 @@ final class AliasSpecificationTest extends UnitTestCase
         $newToken = $specification->manipulateToken($token);
 
         self::assertSame(ClassWithAlias::class, $newToken->symbol());
+    }
+
+    public function test_namespace_import_without_alias_is_checked_in_function(): void
+    {
+        $function = fn () => 42;
+
+        $specification = new AliasSpecification(new ReflectionFunction($function));
+
+        $token = new FakeToken('Fixture\SimpleObject');
+        $newToken = $specification->manipulateToken($token);
+
+        self::assertSame(Fixture\SimpleObject::class, $newToken->symbol());
     }
 
     public function test_object_with_same_name_as_root_namespace_are_checked_in_function(): void

@@ -75,12 +75,13 @@ final class AliasSpecification implements TypeParserSpecification
         }
 
         $importedParts = explode('\\', $aliases[$alias]);
+        $resolved = $aliases[$alias] . '\\' . implode('\\', $namespaceParts);
 
-        if (strtolower(end($importedParts)) === $alias) {
+        if (strtolower(end($importedParts)) === $alias && ! Reflection::classOrInterfaceExists($resolved)) {
             return $symbol;
         }
 
-        return $aliases[$alias] . '\\' . implode('\\', $namespaceParts);
+        return $resolved;
     }
 
     private function resolveNamespaced(string $symbol): string
