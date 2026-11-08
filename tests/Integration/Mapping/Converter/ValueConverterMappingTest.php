@@ -235,14 +235,13 @@ final class ValueConverterMappingTest extends IntegrationTestCase
             ]],
         ];
 
-        yield 'generic boolean' => [
+        yield 'return type narrower than boolean target' => [
             'type' => 'bool',
             'value' => false,
             'expectedResult' => true,
             'convertersByPriority' => [[
                 /**
-                 * @template T of true
-                 * @return T
+                 * @return true
                  */
                 fn (bool $value) => true,
             ]],
@@ -419,16 +418,15 @@ final class ValueConverterMappingTest extends IntegrationTestCase
             ],
         ];
 
-        yield 'generic union' => [
+        yield 'return type narrower than union target' => [
             'type' => 'array<string|int|float>',
             'value' => ['foo', 42],
             'expectedResult' => ['foo!', '42!'],
             'convertersByPriority' => [
                 [
                     /**
-                     * @template T of non-empty-string|positive-int
                      * @param scalar $value
-                     * @return T|float
+                     * @return non-empty-string
                      */
                     fn ($value) => "$value!", // @phpstan-ignore encapsedStringPart.nonString (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
                 ]

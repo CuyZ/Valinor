@@ -52,6 +52,38 @@ executed. The default priority is 0.
     ->map('string', 'hello world'); // 'HELLO WORLD?!'
 ```
 
+## Converters with a template return type
+
+A converter can declare its return type with a template, which is then inferred
+from the target type. The converter is called only when this inference
+succeeds, meaning the target is within the template bound. For a union target,
+the template is inferred from the members within its bound, for instance
+`T of int` is inferred as `int` from `int|string`.
+
+This allows a converter to target a family of types without being called for
+wider targets: in the example below, a decimal comma is replaced by a dot only
+when the target is a `numeric-string`, a value mapped to a plain `string` is
+left untouched.
+
+```php
+(new \CuyZ\Valinor\MapperBuilder())
+    ->registerConverter(
+        /**
+         * @template T of numeric-string
+         * @param callable(string): T $next
+         * @return T
+         */
+        fn (string $value, callable $next): string => $next(
+            str_replace(',', '.', $value)
+        )
+    )
+    ->mapper()
+    ->map('array{price: numeric-string, comment: string}', [
+        'price' => '19,90', // mapped to `19.90`
+        'comment' => 'Fragile, handle with care', // kept as is
+    ]);
+```
+
 ## Attribute converters
 
 Callable converters allow targeting any value during mapping, whereas attribute
