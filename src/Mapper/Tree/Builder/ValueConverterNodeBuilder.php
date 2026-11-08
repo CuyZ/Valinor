@@ -19,6 +19,7 @@ use CuyZ\Valinor\Type\Types\UnresolvableType;
 use Exception;
 use Throwable;
 
+use function array_key_exists;
 use function array_map;
 use function array_shift;
 use function func_get_arg;
@@ -61,9 +62,7 @@ final class ValueConverterNodeBuilder implements NodeBuilder
             $converterAttributes->toArray(),
         );
 
-        if ($shell->shouldApplyConverters) {
-            $stack = [...$stack, ...$converters];
-        }
+        $stack = [...$stack, ...$converters];
 
         if ($stack === []) {
             // @infection-ignore-all (This is a performance optimization, we don't test this)
@@ -71,7 +70,7 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         }
 
         try {
-            $result = $this->unstack($stack, $shell);
+            $result = $this->unstack($stack, $shell, $shell->calledConverters);
 
             if (! $shell->type->accepts($result)) {
                 return $shell->withValue($result)->error(InvalidNodeValue::from($shell->type));
@@ -84,12 +83,21 @@ final class ValueConverterNodeBuilder implements NodeBuilder
     }
 
     /**
+     * A node can be built several times for the same value, for instance as a
+     * union and then as one of its members: the converters already called by
+     * a previous build of this node are not called again.
+     *
      * @param array<callable> $stack
+     * @param array<non-empty-string, null> $calledConverters
      */
-    private function unstack(array $stack, Shell $shell): mixed
+    private function unstack(array $stack, Shell $shell, array $calledConverters): mixed
     {
         while ($current = array_shift($stack)) {
             $converter = $this->functionDefinitionRepository->for($current);
+
+            if (array_key_exists($converter->signature, $calledConverters)) {
+                continue;
+            }
 
             if ($converter->returnType instanceof UnresolvableType) {
                 throw new ConverterHasInvalidReturnType($converter);
@@ -116,12 +124,14 @@ final class ValueConverterNodeBuilder implements NodeBuilder
             $arguments = [$shell->value()];
 
             if ($converter->parameters->count() > 1) {
-                $arguments[] = function () use ($stack, $shell) {
+                $nextShell = $shell->withCalledConverter($converter->signature);
+
+                $arguments[] = function () use ($stack, $nextShell, $calledConverters) {
                     if (func_num_args() > 0) {
-                        $shell = $shell->withValue(func_get_arg(0));
+                        $nextShell = $nextShell->withValue(func_get_arg(0));
                     }
 
-                    return $this->unstack($stack, $shell);
+                    return $this->unstack($stack, $nextShell, $calledConverters);
                 };
             }
 
