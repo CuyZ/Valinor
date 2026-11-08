@@ -46,7 +46,6 @@ final class Shell
         public bool $allowPermissiveTypes,
         /** @var array<string, null> */
         public array $allowedSuperfluousKeys,
-        public bool $shouldApplyConverters,
         private NodeBuilder $nodeBuilder,
         private TypeDumper $typeDumper,
         /** @var non-negative-int */
@@ -58,6 +57,8 @@ final class Shell
         /** @var array<string, null> */
         private array $childrenWithScalarValueCasting = [],
         public bool $wrapSingleValueIfNeeded = false,
+        /** @var array<non-empty-string, null> */
+        public array $calledConverters = [],
     ) {}
 
     public function build(): Node
@@ -92,6 +93,7 @@ final class Shell
         $self->nameMap = [];
         $self->pathMap = [];
         $self->wrapSingleValueIfNeeded = false;
+        $self->calledConverters = [];
 
         if ($this->pathMap !== []) {
             $self->path = $this->pathMap["$this->path.$name"] ?? $self->path;
@@ -233,20 +235,14 @@ final class Shell
         return $self;
     }
 
-    public function shouldApplyConverters(): self
+    /**
+     * @param non-empty-string $signature
+     */
+    public function withCalledConverter(string $signature): self
     {
         // @infection-ignore-all / We don't want to test the clone behavior
         $self = clone $this;
-        $self->shouldApplyConverters = true;
-
-        return $self;
-    }
-
-    public function shouldNotApplyConverters(): self
-    {
-        // @infection-ignore-all / We don't want to test the clone behavior
-        $self = clone $this;
-        $self->shouldApplyConverters = false;
+        $self->calledConverters[$signature] = null;
 
         return $self;
     }

@@ -10,12 +10,15 @@ use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasInvalidReturnType;
 use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasNoParameter;
 use CuyZ\Valinor\Mapper\Tree\Exception\ConverterHasTooManyParameters;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use CuyZ\Valinor\Tests\Integration\Mapping\Fixture\SimpleObject;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 
 use function array_map;
 use function iterator_to_array;
+use function strtoupper;
+use function trim;
 
 final class ValueConverterMappingTest extends IntegrationTestCase
 {
@@ -504,6 +507,225 @@ final class ValueConverterMappingTest extends IntegrationTestCase
             ->map(SomeInterfaceForClassInferring::class, 123);
 
         self::assertSame(124, $result->value); // @phpstan-ignore property.notFound
+    }
+
+    public function test_converters_are_called_only_once_for_object(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter(
+                    /**
+                     * @template T
+                     * @param array<string> $value
+                     * @param callable(array<string>): T $next
+                     * @return T
+                     */
+                    fn (array $value, callable $next) => $next(array_map(fn (string $item) => $item . '!', $value)), // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                )
+                ->mapper()
+                ->map(SimpleObject::class, ['value' => 'foo']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo!', $result->value);
+    }
+
+    public function test_converter_not_called_for_object_is_called_for_its_arguments(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter(
+                    /**
+                     * @param array<string> $value
+                     * @return array{value: string}
+                     */
+                    fn (array $value) => ['value' => strtoupper($value['value'] ?? '')], // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                )
+                ->mapper()
+                ->map(SimpleObject::class, ['value' => 'foo']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('FOO', $result->value);
+    }
+
+    public function test_converters_are_called_only_once_for_union(): void
+    {
+        $mapper = $this->mapperBuilder()
+            ->registerConverter(
+                fn (int $value, callable $next): int => $next($value + 1) // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+            )
+            ->mapper();
+
+        try {
+            $resultForUnion = $mapper->map('int|string', 1);
+            $resultForNullable = $mapper->map('?int', 1);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(2, $resultForUnion);
+        self::assertSame(2, $resultForNullable);
+    }
+
+    public function test_converters_are_called_for_children_of_union_member(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter(
+                    fn (string $value, callable $next): string => $next($value . '!') // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                )
+                ->mapper()
+                ->map('list<string>|null', ['foo', 'bar']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['foo!', 'bar!'], $result);
+    }
+
+    public function test_converter_not_called_for_union_is_called_for_union_member(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter(
+                    /**
+                     * @template T of int|float
+                     * @param callable(int): T $next
+                     * @return T
+                     */
+                    fn (string $value, callable $next) => $next((int)$value),
+                )
+                ->mapper()
+                ->map('int|string', '42');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(42, $result);
+    }
+
+    public function test_converter_skipped_for_union_member_does_not_prevent_next_converters_from_being_called(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter(
+                    /**
+                     * @return int|string
+                     */
+                    fn (string $value, callable $next) => $next(trim($value)),
+                    priority: 10,
+                )
+                ->registerConverter(
+                    /**
+                     * @template T of int|float
+                     * @param callable(int): T $next
+                     * @return T
+                     */
+                    fn (string $value, callable $next) => $next((int)$value),
+                )
+                ->mapper()
+                ->map('int|string', ' 42 ');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(42, $result);
+    }
+
+    public function test_nullable_object_is_converted_like_object(): void
+    {
+        $mapper = $this->mapperBuilder()
+            ->registerConverter(
+                /**
+                 * @template T
+                 * @param callable(string): T $next
+                 * @return T
+                 */
+                fn (string $value, callable $next) => $next($value . '!'),
+            )
+            ->mapper();
+
+        try {
+            $object = $mapper->map(SimpleObject::class, 'foo');
+            $nullableObject = $mapper->map('?' . SimpleObject::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertNotNull($nullableObject);
+        // The converter is called for the object and for its flattened
+        // property, which is another node.
+        self::assertSame('foo!!', $object->value);
+        self::assertSame('foo!!', $nullableObject->value);
+    }
+
+    public function test_converters_are_called_only_once_for_inferred_interface(): void
+    {
+        $class = new class () implements SomeInterfaceForClassInferring {
+            public string $value;
+        };
+
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(SomeInterfaceForClassInferring::class, fn () => $class::class)
+                ->registerConverter(
+                    /**
+                     * @template T
+                     * @param array<string> $value
+                     * @param callable(array<string>): T $next
+                     * @return T
+                     */
+                    fn (array $value, callable $next) => $next(array_map(fn (string $item) => $item . '!', $value)), // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                )
+                ->mapper()
+                ->map(SomeInterfaceForClassInferring::class, ['value' => 'foo']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo!', $result->value); // @phpstan-ignore property.notFound
+    }
+
+    public function test_converters_are_called_only_once_for_unsealed_shaped_array(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter(
+                    /**
+                     * @template T
+                     * @param array<string> $value
+                     * @param callable(array<string>): T $next
+                     * @return T
+                     */
+                    fn (array $value, callable $next) => $next(array_map(fn (string $item) => $item . '!', $value)), // @phpstan-ignore argument.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+                )
+                ->mapper()
+                ->map('array{foo: string, ...array<string>}', ['foo' => 'a', 'bar' => 'b']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['foo' => 'a!', 'bar' => 'b!'], $result);
+    }
+
+    public function test_same_converter_registered_twice_is_called_twice(): void
+    {
+        $converter = fn (string $value, callable $next): string => $next($value . '!'); // @phpstan-ignore return.type (we cannot set closure parameters / see https://github.com/phpstan/phpstan/issues/3770)
+
+        try {
+            $result = $this->mapperBuilder()
+                ->registerConverter($converter)
+                ->registerConverter($converter)
+                ->mapper()
+                ->map('string|int', 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo!!', $result);
     }
 
     public function test_converter_is_stopped_if_mapping_error_occurs(): void

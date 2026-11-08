@@ -196,6 +196,44 @@ final class AttributeValueConverterMappingTest extends IntegrationTestCase
         self::assertSame('FOO?!@', $result->value);
     }
 
+    public function test_converter_attribute_is_called_only_once_for_union(): void
+    {
+        $class = new class () {
+            #[AppendExclamationMarkConverter]
+            public string|int $value;
+        };
+
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map($class::class, 'foo');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame('foo!', $result->value);
+    }
+
+    public function test_converter_attribute_is_called_only_once_for_inferred_interface(): void
+    {
+        $class = new class () {
+            #[AppendExclamationMarkToAnyTargetConverter]
+            public SomeInterfaceWithSingleValue $value;
+        };
+
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(SomeInterfaceWithSingleValue::class, fn () => SomeClassWithSingleValue::class)
+                ->mapper()
+                ->map($class::class, ['value' => 'foo']);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SomeClassWithSingleValue::class, $result->value);
+        self::assertSame('foo!', $result->value->value);
+    }
+
     public function test_converter_attribute_returning_invalid_value_makes_mapping_fail(): void
     {
         $class = new class () {
@@ -334,6 +372,39 @@ final class UppercaseSelfRegisteredConverter
     public function map(string $value, callable $next): string
     {
         return strtoupper($next($value));
+    }
+}
+
+interface SomeInterfaceWithSingleValue {}
+
+final class SomeClassWithSingleValue implements SomeInterfaceWithSingleValue
+{
+    public string $value;
+}
+
+#[Attribute, AsConverter]
+final class AppendExclamationMarkToAnyTargetConverter
+{
+    /**
+     * @template T
+     * @param callable(string): T $next
+     * @return T
+     */
+    public function map(string $value, callable $next): mixed
+    {
+        return $next($value . '!');
+    }
+}
+
+#[Attribute, AsConverter]
+final class AppendExclamationMarkConverter
+{
+    /**
+     * @param callable(string): string $next
+     */
+    public function map(string $value, callable $next): string
+    {
+        return $next($value . '!');
     }
 }
 

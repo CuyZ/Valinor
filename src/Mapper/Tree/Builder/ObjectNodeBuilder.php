@@ -46,8 +46,6 @@ final class ObjectNodeBuilder implements NodeBuilder
         $className = $shell->type->className();
         $objectBuilders = $this->objectBuilderFactory->for($class);
 
-        $shell = $shell->shouldApplyConverters();
-
         foreach ($objectBuilders as $objectBuilder) {
             $arguments = $objectBuilder
                 ->describeArguments()

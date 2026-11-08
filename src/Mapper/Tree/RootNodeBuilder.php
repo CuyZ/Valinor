@@ -37,7 +37,6 @@ final class RootNodeBuilder
             allowSuperfluousKeys: $this->settings->allowSuperfluousKeys,
             allowPermissiveTypes: $this->settings->allowPermissiveTypes,
             allowedSuperfluousKeys: [],
-            shouldApplyConverters: true,
             nodeBuilder: $this->nodeBuilder,
             typeDumper: $this->typeDumper,
             // @infection-ignore-all

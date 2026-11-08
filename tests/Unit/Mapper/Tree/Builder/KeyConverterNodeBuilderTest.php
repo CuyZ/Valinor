@@ -56,7 +56,6 @@ final class KeyConverterNodeBuilderTest extends UnitTestCase
             allowSuperfluousKeys: true,
             allowPermissiveTypes: false,
             allowedSuperfluousKeys: [],
-            shouldApplyConverters: true,
             nodeBuilder: new FakeNodeBuilder(),
             typeDumper: $this->getService(TypeDumper::class),
             childrenCount: 0,
