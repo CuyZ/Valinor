@@ -8,6 +8,8 @@ use CuyZ\Valinor\Compiler\Node;
 use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\VacantType;
 
+use function array_filter;
+
 /** @internal */
 final readonly class GenericType implements VacantType
 {
@@ -38,6 +40,19 @@ final readonly class GenericType implements VacantType
     {
         if ($other->matches($this->innerType)) {
             return $generics->with($this, $other);
+        }
+
+        // For a union, the template is inferred from the members within its
+        // bound: `T of int` is inferred as `int` from `int|string`.
+        if ($other instanceof UnionType) {
+            $members = array_filter(
+                $other->types(),
+                fn (Type $type) => $type->matches($this->innerType),
+            );
+
+            if ($members !== []) {
+                return $generics->with($this, UnionType::from(...$members));
+            }
         }
 
         return $generics;

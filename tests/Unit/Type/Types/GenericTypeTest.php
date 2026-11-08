@@ -8,9 +8,14 @@ use CuyZ\Valinor\Compiler\Compiler;
 use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeFloatType;
+use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NonEmptyStringType;
+use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
 
@@ -118,6 +123,46 @@ final class GenericTypeTest extends UnitTestCase
 
         self::assertSame('T', $genericTypeWithDefault->toString());
         self::assertSame('T of string', $genericTypeWithBoundAndDefault->toString());
+    }
+
+    public function test_template_is_inferred_from_single_union_member_within_its_bound(): void
+    {
+        $genericType = new GenericType('T', new NativeIntegerType());
+        $union = new UnionType(new NativeIntegerType(), new NativeStringType());
+
+        $generics = $genericType->inferGenericsFrom($union, new Generics());
+
+        self::assertSame('int', $generics->items['T']->toString());
+    }
+
+    public function test_template_is_inferred_from_union_member_that_is_a_subtype_of_its_bound(): void
+    {
+        $genericType = new GenericType('T', new NativeStringType());
+        $union = new UnionType(NonEmptyStringType::get(), new NativeIntegerType());
+
+        $generics = $genericType->inferGenericsFrom($union, new Generics());
+
+        self::assertSame('non-empty-string', $generics->items['T']->toString());
+    }
+
+    public function test_template_is_inferred_from_several_union_members_within_its_bound(): void
+    {
+        $genericType = new GenericType('T', UnionType::from(new NativeIntegerType(), new NativeFloatType()));
+        $union = new UnionType(new NativeIntegerType(), new NativeFloatType(), new NativeStringType());
+
+        $generics = $genericType->inferGenericsFrom($union, new Generics());
+
+        self::assertSame('int|float', $generics->items['T']->toString());
+    }
+
+    public function test_template_is_not_inferred_from_union_without_member_within_its_bound(): void
+    {
+        $genericType = new GenericType('T', new NativeIntegerType());
+        $union = new UnionType(new NativeStringType(), new NativeFloatType());
+
+        $generics = $genericType->inferGenericsFrom($union, new Generics());
+
+        self::assertSame([], $generics->items);
     }
 
     private function compiledAccept(Type $type, mixed $value): bool

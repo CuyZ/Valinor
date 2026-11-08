@@ -14,8 +14,11 @@ use CuyZ\Valinor\Mapper\Tree\Message\ErrorMessage;
 use CuyZ\Valinor\Mapper\Tree\Message\Message;
 use CuyZ\Valinor\Mapper\Tree\Shell;
 use CuyZ\Valinor\Type\ObjectType;
+use CuyZ\Valinor\Type\Type;
 use CuyZ\Valinor\Type\Types\Generics;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
+use CuyZ\Valinor\Type\VacantType;
+use CuyZ\Valinor\Utility\TypeHelper;
 use Exception;
 use Throwable;
 
@@ -113,6 +116,10 @@ final class ValueConverterNodeBuilder implements NodeBuilder
                 continue;
             }
 
+            if (self::hasVacantType($returnType)) {
+                continue;
+            }
+
             if (! $converter->returnType->matches($shell->type)) {
                 continue;
             }
@@ -155,5 +162,20 @@ final class ValueConverterNodeBuilder implements NodeBuilder
         }
 
         return $node->value();
+    }
+
+    /**
+     * A template of the return type that could not be inferred from the target
+     * remains vacant, meaning the target is not a subtype of its bound.
+     */
+    private static function hasVacantType(Type $type): bool
+    {
+        foreach ([$type, ...TypeHelper::traverseRecursively($type)] as $subType) {
+            if ($subType instanceof VacantType) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

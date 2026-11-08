@@ -8,6 +8,7 @@ use ArrayIterator;
 use CuyZ\Valinor\Mapper\Configurator\MapArrayToList;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class MapArrayToListTest extends IntegrationTestCase
 {
@@ -200,6 +201,106 @@ final class MapArrayToListTest extends IntegrationTestCase
         }
 
         self::assertSame(['a' => 'foo', 'b' => 'bar'], $result);
+    }
+
+    #[DataProvider('permissive_target_keeps_its_keys_data_provider')]
+    public function test_permissive_target_keeps_its_keys(string $type, mixed $value, mixed $expected): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->allowNonSequentialList()
+                ->allowPermissiveTypes()
+                ->mapper()
+                ->map($type, $value);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($expected, $result);
+    }
+
+    public static function permissive_target_keeps_its_keys_data_provider(): iterable
+    {
+        yield 'array' => [
+            'type' => 'array',
+            'value' => ['a' => 'foo', 'b' => 'bar'],
+            'expected' => ['a' => 'foo', 'b' => 'bar'],
+        ];
+
+        yield 'array of mixed' => [
+            'type' => 'array<mixed>',
+            'value' => ['a' => 'foo', 'b' => 'bar'],
+            'expected' => ['a' => 'foo', 'b' => 'bar'],
+        ];
+
+        yield 'array with array-key and mixed' => [
+            'type' => 'array<array-key, mixed>',
+            'value' => ['a' => 'foo', 'b' => 'bar'],
+            'expected' => ['a' => 'foo', 'b' => 'bar'],
+        ];
+
+        yield 'sparse array of int keys and mixed' => [
+            'type' => 'array<int, mixed>',
+            'value' => [1 => 'foo', 3 => 'bar'],
+            'expected' => [1 => 'foo', 3 => 'bar'],
+        ];
+
+        yield 'iterable of mixed' => [
+            'type' => 'iterable<mixed>',
+            'value' => ['a' => 'foo', 'b' => 'bar'],
+            'expected' => ['a' => 'foo', 'b' => 'bar'],
+        ];
+
+        yield 'mixed' => [
+            'type' => 'mixed',
+            'value' => ['a' => 'foo', 'b' => 'bar'],
+            'expected' => ['a' => 'foo', 'b' => 'bar'],
+        ];
+
+        yield 'mixed leaf in shaped array' => [
+            'type' => 'array{value: mixed}',
+            'value' => ['value' => ['a' => 'foo']],
+            'expected' => ['value' => ['a' => 'foo']],
+        ];
+
+        yield 'mixed leaf in list' => [
+            'type' => 'list<mixed>',
+            'value' => ['a' => ['b' => 'foo']],
+            'expected' => [['b' => 'foo']],
+        ];
+    }
+
+    public function test_mixed_target_keeps_array_iterator_untouched(): void
+    {
+        $iterator = new ArrayIterator(['a' => 'foo', 'b' => 'bar']);
+
+        try {
+            $result = $this->mapperBuilder()
+                ->allowNonSequentialList()
+                ->allowPermissiveTypes()
+                ->mapper()
+                ->map('mixed', $iterator);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame($iterator, $result);
+    }
+
+    public function test_invalid_values_in_associative_array_are_reported_at_list_indexes(): void
+    {
+        try {
+            $this->mapperBuilder()
+                ->allowNonSequentialList()
+                ->mapper()
+                ->map('list<int>', ['a' => 'foo', 'b' => 42]);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $error) {
+            self::assertMappingErrors($error, [
+                '0' => "[invalid_integer] Value 'foo' is not a valid integer.",
+            ]);
+        }
     }
 
     public function test_attribute_on_array_property_is_not_applied(): void
