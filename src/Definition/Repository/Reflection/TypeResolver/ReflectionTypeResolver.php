@@ -14,6 +14,7 @@ use ReflectionNamedType;
 use ReflectionType;
 use ReflectionUnionType;
 
+use function array_map;
 use function implode;
 use function trim;
 
@@ -76,14 +77,19 @@ final class ReflectionTypeResolver
     private function exportNativeType(ReflectionType $type): string
     {
         if ($type instanceof ReflectionUnionType) {
-            return implode('|', $type->getTypes());
+            return implode('|', array_map($this->exportNativeType(...), $type->getTypes()));
         }
+
         if ($type instanceof ReflectionIntersectionType) {
-            return implode('&', $type->getTypes());
+            return implode('&', array_map($this->exportNativeType(...), $type->getTypes()));
         }
 
         /** @var ReflectionNamedType $type */
         $name = $type->getName();
+
+        if (! $type->isBuiltin() && $name !== 'self' && $name !== 'static') {
+            $name = '\\' . $name;
+        }
 
         if ($name !== 'null' && $type->allowsNull() && $name !== 'mixed') {
             return $name . '|null';

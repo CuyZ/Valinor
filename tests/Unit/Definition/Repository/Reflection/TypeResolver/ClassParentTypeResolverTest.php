@@ -16,8 +16,11 @@ use CuyZ\Valinor\Type\Types\InterfaceType;
 use CuyZ\Valinor\Type\Types\NativeClassType;
 use CuyZ\Valinor\Type\Types\UnresolvableType;
 use CuyZ\Valinor\Utility\Reflection\Reflection;
+use E\F\SomeChildInterface;
+use E\F\SomeParentInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
+use ReflectionMethod;
 use ReflectionProperty;
 use stdClass;
 
@@ -96,6 +99,18 @@ final class ClassParentTypeResolverTest extends UnitTestCase
             'memberName' => 'genericValue',
             'expectedParent' => 'CuyZ\Valinor\Tests\Fixture\Object\InterfaceWithPropertyHooks\GenericBaseInterface<string>',
         ];
+    }
+
+    public function test_parent_interface_is_not_resolved_against_imports(): void
+    {
+        require_once 'class-parent-with-imported-class-name-matching-root-namespace.php';
+
+        $parent = $this->classParentTypeResolver()->resolveParentTypeFor(
+            new InterfaceType(SomeChildInterface::class),
+            new ReflectionMethod(SomeChildInterface::class, 'value'),
+        );
+
+        self::assertSame(SomeParentInterface::class, $parent->toString());
     }
 
     #[RequiresPhp('>=8.4')]

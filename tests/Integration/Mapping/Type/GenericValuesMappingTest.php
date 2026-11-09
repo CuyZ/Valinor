@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Integration\Mapping\Type;
 
+use CuyZ\Valinor\Mapper\Exception\TypeErrorDuringMapping;
 use CuyZ\Valinor\Mapper\MappingError;
 use CuyZ\Valinor\Mapper\Tree\Exception\CircularDependencyDetected;
 use CuyZ\Valinor\Tests\Integration\IntegrationTestCase;
@@ -73,6 +74,14 @@ final class GenericValuesMappingTest extends IntegrationTestCase
         }
 
         self::assertSame(42, $result->value);
+    }
+
+    public function test_native_property_type_with_missing_generics_throws_exception(): void
+    {
+        $this->expectException(TypeErrorDuringMapping::class);
+        $this->expectExceptionMessage('could not be resolved: there are 1 missing generics for `' . GenericObjectWithOneTemplate::class . '<?>`.');
+
+        $this->mapperBuilder()->mapper()->map(ObjectWithNativeGenericPropertyType::class, ['value' => 'foo']);
     }
 
     public function test_self_referencing_object_with_template_default_is_detected_as_circular(): void
@@ -172,6 +181,11 @@ final class GenericObjectWithOneTemplate
 {
     /** @var T */
     public $value;
+}
+
+final class ObjectWithNativeGenericPropertyType
+{
+    public GenericObjectWithOneTemplate $value; // @phpstan-ignore missingType.generics (missing generics on purpose)
 }
 
 /**

@@ -57,7 +57,7 @@ final class ClassParentTypeResolver
         if (count($extendedClass) > 1) {
             return $this->fillParentGenericsWithUnresolvableTypes($parentReflection, UnresolvableType::forSeveralExtendTagsFound($reflection->name));
         } elseif (count($extendedClass) === 0) {
-            $extendedClass = $parentReflection->name;
+            $extendedClass = '\\' . $parentReflection->name;
         } else {
             $extendedClass = $extendedClass[0];
         }
@@ -116,7 +116,7 @@ final class ClassParentTypeResolver
             return $this->fillParentInterfaceGenericsWithUnresolvableTypes($parent, $unresolvableType->forExtendTagTypeError($reflection->name));
         }
 
-        $parentType = $typeParser->parse($parent->name);
+        $parentType = $typeParser->parse('\\' . $parent->name);
 
         if ($parentType instanceof UnresolvableType) {
             return $this->fillParentInterfaceGenericsWithUnresolvableTypes($parent, $parentType->forExtendTagTypeError($reflection->name));
