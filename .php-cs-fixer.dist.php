@@ -9,7 +9,10 @@ $finder = PhpCsFixer\Finder::create()->in([
     ->notPath('Fixtures/FunctionWithGroupedImportStatements.php')
     ->notPath('Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php')
     ->notPath('Fixtures/TwoClassesInDifferentNamespaces.php')
-    ->notPath('Integration/Mapping/TypeResolution/imported-class-name-matching-root-namespace.php');
+    ->notPath('Integration/Mapping/TypeResolution/imported-class-name-matching-root-namespace.php')
+    ->notPath('Unit/Definition/Repository/Reflection/TypeResolver/class-parent-with-imported-class-name-matching-root-namespace.php')
+    ->notPath('Unit/Definition/Repository/Reflection/TypeResolver/native-type-with-imported-class-name-matching-root-namespace.php')
+    ->notPath('Unit/Type/Parser/Factory/Specification/imported-class-name-matching-root-namespace.php');
 
 if (PHP_VERSION_ID < 8_04_00) {
     $finder = $finder->notPath('Fixture/Object/InterfaceWithPropertyHooks/BaseInterface.php')

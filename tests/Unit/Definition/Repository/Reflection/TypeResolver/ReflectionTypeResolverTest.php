@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace CuyZ\Valinor\Tests\Unit\Definition\Repository\Reflection\TypeResolver;
 
+use C\D\ClassWithIntersection;
+use C\D\FirstInterface;
+use C\D\SecondInterface;
 use Countable;
 use CuyZ\Valinor\Definition\Repository\Reflection\TypeResolver\ReflectionTypeResolver;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Factory\TypeParserFactory;
+use CuyZ\Valinor\Type\Types\IntersectionType;
 use DateTime;
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -90,7 +94,7 @@ final class ReflectionTypeResolverTest extends UnitTestCase
                 'someProperty'
             )
             )->getType(),
-            'expectedType' => 'Countable&Iterator|Countable&DateTime',
+            'expectedType' => '\\Countable&\\Iterator|\\Countable&\\DateTime',
         ];
 
         yield 'native null type' => [
@@ -125,6 +129,21 @@ final class ReflectionTypeResolverTest extends UnitTestCase
             )->getType(),
             'expectedType' => 'false',
         ];
+    }
+
+    public function test_native_intersection_type_is_not_resolved_against_imports(): void
+    {
+        require_once 'native-type-with-imported-class-name-matching-root-namespace.php';
+
+        $resolver = new ReflectionTypeResolver(
+            (new TypeParserFactory())->buildNativeTypeParserForClass(ClassWithIntersection::class),
+            (new TypeParserFactory())->buildAdvancedTypeParserForClass(ClassWithIntersection::class),
+        );
+
+        $type = $resolver->resolveType((new ReflectionProperty(ClassWithIntersection::class, 'value'))->getType(), null);
+
+        self::assertInstanceOf(IntersectionType::class, $type);
+        self::assertSame(FirstInterface::class . '&' . SecondInterface::class, $type->toString());
     }
 
     private function reflectionTypeResolver(): ReflectionTypeResolver
