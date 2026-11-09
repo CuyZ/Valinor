@@ -9,9 +9,14 @@ use MessageFormatter;
 
 use function class_exists;
 use function intl_get_error_message;
+use function json_decode;
+use function json_encode;
 use function preg_match;
 use function preg_quote;
 use function preg_replace;
+
+use const JSON_INVALID_UTF8_SUBSTITUTE;
+use const JSON_THROW_ON_ERROR;
 
 /** @internal */
 final class StringFormatter
@@ -23,6 +28,15 @@ final class StringFormatter
      */
     public static function format(string $locale, string $body, array $parameters = []): string
     {
+        foreach ($parameters as $name => $value) {
+            if (preg_match('//u', $value) === false) {
+                // JSON replaces malformed UTF-8 without requiring optional extensions.
+                /** @var string $value */
+                $value = json_decode(json_encode($value, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR);
+                $parameters[$name] = $value;
+            }
+        }
+
         return class_exists(MessageFormatter::class)
             ? self::formatWithIntl($locale, $body, $parameters)
             : self::formatWithRegex($body, $parameters);
