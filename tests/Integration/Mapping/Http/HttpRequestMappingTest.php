@@ -603,6 +603,104 @@ final class HttpRequestMappingTest extends IntegrationTestCase
         self::assertSame('foo', $result->someRouteParameter);
     }
 
+    public function test_single_argument_missing_from_http_request_falls_back_to_default_value(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['limit' => '10'],
+        );
+
+        try {
+            $sortQuery = $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleArgumentSortQuery::class, $request);
+
+            $searchQuery = $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleArgumentSearchQuery::class, $request);
+
+            $fromQuerySearchQuery = $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleArgumentFromQuerySearchQuery::class, $request);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['createdAt' => 'desc'], $sortQuery->sort);
+        self::assertSame('', $searchQuery->term);
+        self::assertSame('', $fromQuerySearchQuery->term);
+    }
+
+    public function test_single_argument_missing_from_empty_http_request_falls_back_to_default_value(): void
+    {
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleArgumentSortQuery::class, new HttpRequest());
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['createdAt' => 'desc'], $result->sort);
+    }
+
+    public function test_single_argument_of_inferred_implementation_missing_from_http_request_falls_back_to_default_value(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['limit' => '10'],
+        );
+
+        try {
+            $result = $this->mapperBuilder()
+                ->infer(SingleArgumentQueryInterface::class, fn () => SingleArgumentQueryImplementation::class)
+                ->mapper()
+                ->map(SingleArgumentQueryInterface::class, $request);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertInstanceOf(SingleArgumentQueryImplementation::class, $result);
+        self::assertSame('', $result->term);
+    }
+
+    public function test_single_argument_object_is_mapped_from_its_key_in_http_request(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: [
+                'sort' => ['title' => 'asc'],
+                'limit' => '10',
+            ],
+        );
+
+        try {
+            $result = $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleArgumentSortQuery::class, $request);
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame(['title' => 'asc'], $result->sort);
+    }
+
+    public function test_single_argument_missing_from_http_request_is_reported_as_missing(): void
+    {
+        $request = new HttpRequest(
+            queryParameters: ['limit' => '10'],
+        );
+
+        try {
+            $this->mapperBuilder()
+                ->mapper()
+                ->map(SingleRequiredArgumentSearchQuery::class, $request);
+
+            self::fail('No mapping error when one was expected');
+        } catch (MappingError $exception) {
+            self::assertMappingErrors($exception, [
+                'term' => '[invalid_string] Value *missing* is not a valid string.',
+            ]);
+        }
+    }
+
     public function test_mapping_http_request_to_shaped_list_returns_error(): void
     {
         try {
@@ -1182,6 +1280,44 @@ final class QueryParametersWithQueryKey
     public function __construct(
         public int $query,
         public string $other = '',
+    ) {}
+}
+
+final class SingleArgumentSortQuery
+{
+    public function __construct(
+        /** @var array<'createdAt'|'title', 'asc'|'desc'> */
+        public array $sort = ['createdAt' => 'desc'],
+    ) {}
+}
+
+final class SingleArgumentSearchQuery
+{
+    public function __construct(
+        public string $term = '',
+    ) {}
+}
+
+final class SingleArgumentFromQuerySearchQuery
+{
+    public function __construct(
+        #[FromQuery] public string $term = '',
+    ) {}
+}
+
+interface SingleArgumentQueryInterface {}
+
+final class SingleArgumentQueryImplementation implements SingleArgumentQueryInterface
+{
+    public function __construct(
+        public string $term = '',
+    ) {}
+}
+
+final class SingleRequiredArgumentSearchQuery
+{
+    public function __construct(
+        public string $term,
     ) {}
 }
 

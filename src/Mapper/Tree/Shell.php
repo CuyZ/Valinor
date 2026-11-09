@@ -235,6 +235,15 @@ final class Shell
         return $self;
     }
 
+    public function withoutSingleValueWrapping(): self
+    {
+        // @infection-ignore-all / We don't want to test the clone behavior
+        $self = clone $this;
+        $self->wrapSingleValueIfNeeded = false;
+
+        return $self;
+    }
+
     /**
      * @param non-empty-string $signature
      */
