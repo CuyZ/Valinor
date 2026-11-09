@@ -36,10 +36,17 @@ final class HttpRequestNodeBuilder implements NodeBuilder
             throw new CannotMapHttpRequestToUnsealedShapedArray();
         }
 
-        // We always allow superfluous keys: HTTP request are coming from the
-        // outside of the application, meaning extra parameters can be added
-        // anytime. This could lead to server issues like DDoS log spam.
-        $shell = $shell->allowSuperfluousKeys();
+        $shell = $shell
+            // We always allow superfluous keys: HTTP request are coming from
+            // the outside of the application, meaning extra parameters can be
+            // added anytime. This could lead to server issues like DDoS log
+            // spam.
+            ->allowSuperfluousKeys()
+            // The request is flattened into a keyed array whose entries are
+            // matched by key, so it must never be wrapped as the bare value of
+            // a single element; a missing key falls back to the element's
+            // default value.
+            ->withoutSingleValueWrapping();
 
         $queryAttributes = 0;
         $bodyAttributes = 0;
