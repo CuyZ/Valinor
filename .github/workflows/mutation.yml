@@ -9,7 +9,7 @@ jobs:
     name: Mutation tests
     runs-on: ubuntu-latest
     env:
-      php-version: '8.5'
+      php-version: '8.6'
       php-extensions: ds,yaml
     steps:
       - name: Checkout
@@ -27,7 +27,7 @@ jobs:
 
       - uses: "ramsey/composer-install@v2"
         with:
-          composer-options: "--ignore-platform-reqs" # Remove when Psalm supports PHP 8.5
+          composer-options: "--ignore-platform-reqs" # Remove when Psalm supports PHP 8.6
 
       - name: Creating var directory
         run: mkdir -p var/cache
