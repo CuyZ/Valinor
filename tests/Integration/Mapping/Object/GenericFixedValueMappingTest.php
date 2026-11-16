@@ -548,6 +548,80 @@ final class GenericFixedValueMappingTest extends IntegrationTestCase
             ->map("$class<50>", ['value' => 'some text']);
     }
 
+    public function test_fixed_generic_value_is_given_to_constructor_argument_with_default_value(): void
+    {
+        $class =
+            (new /**
+             * @template Min of int
+             * @template Max of int|null = null
+             */ class ('', 0) {
+                public function __construct(
+                    public string $value,
+                    /** @var Min */
+                    public int $min,
+                    /** @var Max */
+                    public ?int $max = null,
+                ) {}
+            })::class;
+
+        try {
+            $mapper = $this->mapperBuilder()->mapper();
+
+            $withMax = $mapper->map("$class<50, 100>", 'some text');
+            $withoutMax = $mapper->map("$class<50>", 'some text');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([
+            'value' => 'some text',
+            'min' => 50,
+            'max' => 100,
+        ], get_object_vars($withMax));
+        self::assertSame([
+            'value' => 'some text',
+            'min' => 50,
+            'max' => null,
+        ], get_object_vars($withoutMax));
+    }
+
+    public function test_fixed_generic_value_is_given_to_property_with_default_value(): void
+    {
+        $class =
+            (new /**
+             * @template Min of int
+             * @template Max of int|null = null
+             */ class () {
+                public string $value;
+
+                /** @var Min */
+                public int $min;
+
+                /** @var Max */
+                public ?int $max = null;
+            })::class;
+
+        try {
+            $mapper = $this->mapperBuilder()->mapper();
+
+            $withMax = $mapper->map("$class<50, 100>", 'some text');
+            $withoutMax = $mapper->map("$class<50>", 'some text');
+        } catch (MappingError $error) {
+            $this->mappingFail($error);
+        }
+
+        self::assertSame([
+            'value' => 'some text',
+            'min' => 50,
+            'max' => 100,
+        ], get_object_vars($withMax));
+        self::assertSame([
+            'value' => 'some text',
+            'min' => 50,
+            'max' => null,
+        ], get_object_vars($withoutMax));
+    }
+
     public function test_generic_value_within_union_is_not_given_to_constructor(): void
     {
         $class =
