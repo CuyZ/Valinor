@@ -27,7 +27,7 @@ final class ReflectionParameterDefinitionBuilder
         $signature = $this->signature($reflection);
         $docBlockType = $parameterTypeResolver->docBlockTypeFor($reflection);
         $type = $parameterTypeResolver->resolveTypeFor($reflection, $docBlockType);
-        $typeIsTemplate = $typeResolver->isTemplate($docBlockType);
+        $isFixed = $typeResolver->isTemplate($docBlockType) && TypeHelper::acceptsSingleValue($type);
         $nativeType = $parameterTypeResolver->resolveNativeTypeFor($reflection);
         $isOptional = $reflection->isOptional();
         $isVariadic = $reflection->isVariadic();
@@ -44,7 +44,7 @@ final class ReflectionParameterDefinitionBuilder
             $type = $type->forParameter($signature);
         } elseif (! $type->matches($nativeType)) {
             $type = UnresolvableType::forNonMatchingTypes($nativeType, $type)->forParameter($signature);
-        } elseif ($isOptional && ! $type->accepts($defaultValue)) {
+        } elseif ($isOptional && ! $isFixed && ! $type->accepts($defaultValue)) {
             $type = UnresolvableType::forInvalidDefaultValue($type, $defaultValue)->forParameter($signature);
         }
 
@@ -57,7 +57,7 @@ final class ReflectionParameterDefinitionBuilder
             $isVariadic,
             $defaultValue,
             new Attributes(...$this->attributesRepository->for($reflection)),
-            $typeIsTemplate && TypeHelper::acceptsSingleValue($type),
+            $isFixed && ! $type instanceof UnresolvableType,
         );
     }
 

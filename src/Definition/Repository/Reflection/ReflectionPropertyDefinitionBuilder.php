@@ -29,7 +29,7 @@ final class ReflectionPropertyDefinitionBuilder
         $signature = $reflection->getDeclaringClass()->name . '::$' . $reflection->name;
         $docBlockType = $propertyTypeResolver->docBlockTypeFor($reflection);
         $type = $propertyTypeResolver->resolveTypeFor($reflection, $docBlockType);
-        $typeIsTemplate = $typeResolver->isTemplate($docBlockType);
+        $isFixed = $typeResolver->isTemplate($docBlockType) && TypeHelper::acceptsSingleValue($type);
         $nativeType = $propertyTypeResolver->resolveNativeTypeFor($reflection);
         $hasDefaultValue = $this->hasDefaultValue($reflection, $type);
         $defaultValue = $hasDefaultValue ? $reflection->getDefaultValue() : null;
@@ -39,7 +39,7 @@ final class ReflectionPropertyDefinitionBuilder
             $type = $type->forProperty($signature);
         } elseif (! $type->matches($nativeType)) {
             $type = UnresolvableType::forNonMatchingTypes($nativeType, $type)->forProperty($signature);
-        } elseif ($hasDefaultValue && ! $type->accepts($defaultValue)) {
+        } elseif ($hasDefaultValue && ! $isFixed && ! $type->accepts($defaultValue)) {
             $type = UnresolvableType::forInvalidDefaultValue($type, $defaultValue)->forProperty($signature);
         }
 
@@ -52,7 +52,7 @@ final class ReflectionPropertyDefinitionBuilder
             $defaultValue,
             $isPublic,
             new Attributes(...$this->attributesRepository->for($reflection)),
-            $typeIsTemplate && TypeHelper::acceptsSingleValue($type),
+            $isFixed && ! $type instanceof UnresolvableType,
         );
     }
 
