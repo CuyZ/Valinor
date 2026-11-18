@@ -1428,6 +1428,27 @@ final class NormalizerTest extends IntegrationTestCase
             'expectedJson' => '{"value":{"stringValue":"foo","intValue":42}}',
         ];
 
+        yield 'object with untyped shaped list property holding a non-list array' => [
+            'input' => new ObjectWithUntypedShapedListPropertyHoldingNonListArray(),
+            'expectedArray' => ['value' => ['stringValue' => 'foo', 'intValue' => 42]],
+            'expectedJson' => '{"value":{"stringValue":"foo","intValue":42}}',
+        ];
+
+        yield 'object with untyped shaped list property holding a non-list array with transformer for arrays' => [
+            'input' => new ObjectWithUntypedShapedListPropertyHoldingNonListArray(),
+            'expectedArray' => ['value' => ['wrapped' => ['stringValue' => 'foo', 'intValue' => 42]]],
+            'expectedJson' => '{"value":{"wrapped":{"stringValue":"foo","intValue":42}}}',
+            'transformers' => [
+                [fn (array $value, callable $next) => ['wrapped' => $next()]],
+            ],
+        ];
+
+        yield 'object with untyped nullable template property' => [
+            'input' => new ObjectWithUntypedNullableTemplateProperty('foo'),
+            'expectedArray' => ['value' => 'foo'],
+            'expectedJson' => '{"value":"foo"}',
+        ];
+
         yield 'object with property of type interface' => [
             'input' => new class (
                 new class () implements SomeInterface {
@@ -2315,5 +2336,33 @@ final class ObjectWithShapedListPropertyHoldingNonListArray
     public function __construct()
     {
         $this->value = ['stringValue' => 'foo', 'intValue' => 42]; // @phpstan-ignore assign.propertyType (the value is not a list on purpose)
+    }
+}
+
+final class ObjectWithUntypedShapedListPropertyHoldingNonListArray
+{
+    /** @var list{string, int} */
+    public $value;
+
+    public function __construct()
+    {
+        $this->value = ['stringValue' => 'foo', 'intValue' => 42]; // @phpstan-ignore assign.propertyType (the value is not a list on purpose)
+    }
+}
+
+/**
+ * @template T
+ */
+final class ObjectWithUntypedNullableTemplateProperty
+{
+    /** @var T|null */
+    public $value;
+
+    /**
+     * @param T $value
+     */
+    public function __construct(mixed $value)
+    {
+        $this->value = $value;
     }
 }

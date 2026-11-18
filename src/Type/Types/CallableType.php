@@ -90,9 +90,9 @@ final class CallableType implements CompositeType
         return $generics;
     }
 
-    public function nativeType(): Type
+    public function nativeType(): self
     {
-        return $this;
+        return self::default();
     }
 
     public function toString(): string

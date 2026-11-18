@@ -242,9 +242,9 @@ final class ShapedListType implements CompositeType, DumpableType
         return new self($elements, $unsealedType);
     }
 
-    public function nativeType(): ListType
+    public function nativeType(): ArrayType
     {
-        return ListType::native();
+        return ArrayType::native();
     }
 
     public function dumpParts(): iterable

@@ -166,6 +166,13 @@ final class CallableTypeTest extends UnitTestCase
         self::assertSame('callable', $this->callableType->nativeType()->toString());
     }
 
+    public function test_native_type_of_callable_with_signature_is_callable(): void
+    {
+        $callableType = new CallableType([NativeStringType::get()], NativeIntegerType::get());
+
+        self::assertSame('callable', $callableType->nativeType()->toString());
+    }
+
     private function compiledAccept(Type $type, mixed $value): bool
     {
         /** @var bool */

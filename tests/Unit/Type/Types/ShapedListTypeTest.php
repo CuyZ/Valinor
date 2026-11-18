@@ -440,9 +440,9 @@ final class ShapedListTypeTest extends UnitTestCase
         self::assertSame('int', $generics->items['U']->toString());
     }
 
-    public function test_native_type_is_list(): void
+    public function test_native_type_is_array(): void
     {
-        self::assertSame('list', $this->type->nativeType()->toString());
+        self::assertSame('array', $this->type->nativeType()->toString());
     }
 
     public function test_traverse_returns_element_types(): void

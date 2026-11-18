@@ -9,12 +9,20 @@ use CuyZ\Valinor\Tests\Fake\Type\FakeType;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Type\Parser\Exception\Union\ForbiddenMixedType;
 use CuyZ\Valinor\Type\Type;
+use CuyZ\Valinor\Type\Types\ArrayKeyType;
+use CuyZ\Valinor\Type\Types\BooleanValueType;
 use CuyZ\Valinor\Type\Types\FloatValueType;
+use CuyZ\Valinor\Type\Types\GenericType;
 use CuyZ\Valinor\Type\Types\IntegerValueType;
+use CuyZ\Valinor\Type\Types\ListType;
 use CuyZ\Valinor\Type\Types\MixedType;
+use CuyZ\Valinor\Type\Types\NativeBooleanType;
 use CuyZ\Valinor\Type\Types\NativeFloatType;
 use CuyZ\Valinor\Type\Types\NativeIntegerType;
 use CuyZ\Valinor\Type\Types\NativeStringType;
+use CuyZ\Valinor\Type\Types\NullType;
+use CuyZ\Valinor\Type\Types\ShapedArrayElement;
+use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\Types\StringValueType;
 use CuyZ\Valinor\Type\Types\UnionType;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -170,6 +178,39 @@ final class UnionTypeTest extends UnitTestCase
             new NativeStringType(),
             new NativeFloatType()
         ))->nativeType()->toString());
+    }
+
+    public function test_native_type_merges_members_with_same_native_type(): void
+    {
+        $unionType = new UnionType(
+            new ListType(NativeStringType::get()),
+            new ShapedListType([new ShapedArrayElement(new IntegerValueType(0), NativeIntegerType::get())]),
+            NativeIntegerType::get(),
+            new IntegerValueType(42),
+        );
+
+        self::assertSame('array|int', $unionType->nativeType()->toString());
+    }
+
+    public function test_native_type_of_members_with_union_native_type_is_flattened(): void
+    {
+        $unionType = new UnionType(NativeIntegerType::get(), ArrayKeyType::default(), NullType::get());
+
+        self::assertSame('int|string|null', $unionType->nativeType()->toString());
+    }
+
+    public function test_native_type_of_member_with_mixed_native_type_is_mixed(): void
+    {
+        $unionType = new UnionType(new GenericType('T', MixedType::get()), NullType::get());
+
+        self::assertSame(MixedType::get(), $unionType->nativeType());
+    }
+
+    public function test_native_type_of_members_with_one_native_type_is_this_native_type(): void
+    {
+        $unionType = new UnionType(BooleanValueType::true(), BooleanValueType::false());
+
+        self::assertSame(NativeBooleanType::get(), $unionType->nativeType());
     }
 
     private function compiledAccept(Type $type, mixed $value): bool
