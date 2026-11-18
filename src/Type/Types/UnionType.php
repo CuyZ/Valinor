@@ -134,19 +134,25 @@ final class UnionType implements CombiningType, DumpableType
         return $this->types;
     }
 
-    public function nativeType(): UnionType
+    public function nativeType(): Type
     {
-        $subNativeTypes = [];
+        $nativeTypes = [];
 
         foreach ($this->types as $type) {
-            if (isset($subNativeTypes[$type->toString()])) {
-                continue;
+            $nativeType = $type->nativeType();
+
+            if ($nativeType instanceof MixedType) {
+                return $nativeType;
             }
 
-            $subNativeTypes[$type->toString()] = $type->nativeType();
+            $subNativeTypes = $nativeType instanceof self ? $nativeType->types : [$nativeType];
+
+            foreach ($subNativeTypes as $subNativeType) {
+                $nativeTypes[$subNativeType->toString()] = $subNativeType;
+            }
         }
 
-        return new self(...array_values($subNativeTypes));
+        return self::from(...array_values($nativeTypes));
     }
 
     public function dumpParts(): iterable
