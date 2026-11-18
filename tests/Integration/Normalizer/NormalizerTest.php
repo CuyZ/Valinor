@@ -1422,6 +1422,12 @@ final class NormalizerTest extends IntegrationTestCase
             ],
         ];
 
+        yield 'object with shaped list property holding a non-list array' => [
+            'input' => new ObjectWithShapedListPropertyHoldingNonListArray(),
+            'expectedArray' => ['value' => ['stringValue' => 'foo', 'intValue' => 42]],
+            'expectedJson' => '{"value":{"stringValue":"foo","intValue":42}}',
+        ];
+
         yield 'object with property of type interface' => [
             'input' => new class (
                 new class () implements SomeInterface {
@@ -2300,3 +2306,14 @@ final class AttributeWithArrayInConstructor
 final class SomeClassWithAttributeWithArrayInConstructor {}
 
 interface SomeInterface {}
+
+final class ObjectWithShapedListPropertyHoldingNonListArray
+{
+    /** @var list{string, int} */
+    public array $value;
+
+    public function __construct()
+    {
+        $this->value = ['stringValue' => 'foo', 'intValue' => 42]; // @phpstan-ignore assign.propertyType (the value is not a list on purpose)
+    }
+}

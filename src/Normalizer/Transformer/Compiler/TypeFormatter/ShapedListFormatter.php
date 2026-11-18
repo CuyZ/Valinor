@@ -12,7 +12,7 @@ use CuyZ\Valinor\Type\Types\ShapedListType;
 use CuyZ\Valinor\Type\VacantType;
 use WeakMap;
 
-use function CuyZ\Valinor\Compiler\{call, forEach_, match_, param, return_, this, value, variable};
+use function CuyZ\Valinor\Compiler\{forEach_, match_, param, return_, this, value, variable};
 use function hash;
 
 /** @internal */
@@ -67,7 +67,7 @@ final class ShapedListFormatter implements TypeFormatter
             body: [
                 variable('result')->assign(value([]))->asStatement(),
                 forEach_(
-                    value: call('array_values', [variable('value')]),
+                    value: variable('value'),
                     key: 'key',
                     item: 'item',
                     body: variable('result')->key(variable('key'))->assign(
