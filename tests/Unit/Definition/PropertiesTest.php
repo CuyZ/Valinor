@@ -51,6 +51,7 @@ final class PropertiesTest extends UnitTestCase
                 hasDefaultValue: false,
                 defaultValue: null,
                 isPublic: true,
+                isReadonly: false,
                 attributes: new Attributes(),
                 isFixed: true,
             ),

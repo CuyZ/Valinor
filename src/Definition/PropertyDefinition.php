@@ -22,6 +22,7 @@ final readonly class PropertyDefinition
         public bool $hasDefaultValue,
         public mixed $defaultValue,
         public bool $isPublic,
+        public bool $isReadonly,
         public Attributes $attributes,
         public bool $isFixed,
     ) {}

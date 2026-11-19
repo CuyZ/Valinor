@@ -51,6 +51,7 @@ final class ReflectionPropertyDefinitionBuilder
             $hasDefaultValue,
             $defaultValue,
             $isPublic,
+            $reflection->isReadOnly(),
             new Attributes(...$this->attributesRepository->for($reflection)),
             $isFixed && ! $type instanceof UnresolvableType,
         );

@@ -27,11 +27,11 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
             'value' => $value->value,
         ];
         $transformed = [];
-        $transformed['value'] = $this->transform_string_e168f063cc5009d639b0d56359591d8aeee59531($values['value'], $references);
+        $transformed['value'] = $this->transform_string_920a68926c24b01ad914f7b8e17621232e611c43($values['value'], $references);
         return $transformed;
     }
 
-    private function transform_string_e168f063cc5009d639b0d56359591d8aeee59531(mixed $value, WeakMap $references): mixed
+    private function transform_string_920a68926c24b01ad914f7b8e17621232e611c43(mixed $value, WeakMap $references): mixed
     {
         $next = fn () => $value;
         $next = fn () => ((new ReflectionProperty(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithPropertyTransformerWithCallable::class, 'value'))->getAttributes()[0]->newInstance())->normalize($value, $next);
