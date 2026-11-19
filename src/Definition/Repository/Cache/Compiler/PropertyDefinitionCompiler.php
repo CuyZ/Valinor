@@ -23,6 +23,7 @@ final class PropertyDefinitionCompiler
         $hasDefaultValue = var_export($property->hasDefaultValue, true);
         $defaultValue = var_export($property->defaultValue, true);
         $isPublic = var_export($property->isPublic, true);
+        $isReadonly = var_export($property->isReadonly, true);
         $attributes = $this->attributesCompiler->compile($property->attributes);
         $isFixed = var_export($property->isFixed, true);
 
@@ -35,6 +36,7 @@ final class PropertyDefinitionCompiler
                 $hasDefaultValue,
                 $defaultValue,
                 $isPublic,
+                $isReadonly,
                 $attributes,
                 $isFixed
             )

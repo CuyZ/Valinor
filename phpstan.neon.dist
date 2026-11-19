@@ -22,6 +22,8 @@ parameters:
         - tests/Fixture/Object/InterfaceWithPropertyHooks/GenericBaseInterface.php
         - tests/Fixture/Object/InterfaceWithPropertyHooks/GrandChildInterface.php
         - tests/Fixture/Object/InterfaceWithPropertyHooks/OtherBaseInterface.php
+        # PHP8.6 remove
+        - tests/Fixture/Object/ReadonlyPropertyWithDefaultValue
     resultCachePath: var/cache/phpstan/phpstan-resultCache.php
     ignoreErrors:
         # \PHPStan\Rules\BooleansInConditions

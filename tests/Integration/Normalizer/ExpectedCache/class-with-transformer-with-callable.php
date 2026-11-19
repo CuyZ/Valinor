@@ -13,7 +13,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
     public function transform(mixed $value): mixed
     {
         $references = new WeakMap();
-        return $this->transform_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_0e3e1b756649be256d8578c54276d04cf99f9a4d($value, $references);
+        return $this->transform_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_dfd1ed2e488a9156b1e51eddd8de6899c923f5ea($value, $references);
     }
 
     private function transform_object_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_ca2b7327(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithTransformerWithCallable $value, WeakMap $references): array
@@ -29,7 +29,7 @@ return fn (array $transformers, CuyZ\Valinor\Normalizer\Transformer\Transformer 
         return $values;
     }
 
-    private function transform_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_0e3e1b756649be256d8578c54276d04cf99f9a4d(mixed $value, WeakMap $references): mixed
+    private function transform_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_dfd1ed2e488a9156b1e51eddd8de6899c923f5ea(mixed $value, WeakMap $references): mixed
     {
         $next = fn () => $this->transform_object_cuyz_valinor_tests_integration_normalizer_temporaryphp85_classwithtransformerwithcallable_ca2b7327($value, $references);
         $next = fn () => ((new ReflectionClass(CuyZ\Valinor\Tests\Integration\Normalizer\TemporaryPHP85\ClassWithTransformerWithCallable::class))->getAttributes()[0]->newInstance())->normalize($value, $next);

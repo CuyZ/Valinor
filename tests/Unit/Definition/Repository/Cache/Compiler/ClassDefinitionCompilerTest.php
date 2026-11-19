@@ -26,6 +26,8 @@ final class ClassDefinitionCompilerTest extends UnitTestCase
             new class () {
                 public string $property = 'Some property default value';
 
+                public readonly string $readonlyProperty; // @phpstan-ignore-line
+
                 #[Constructor]
                 public static function method(string $parameter = 'Some parameter default value', string ...$variadic): string
                 {
@@ -65,6 +67,8 @@ final class ClassDefinitionCompilerTest extends UnitTestCase
         self::assertTrue($property->hasDefaultValue);
         self::assertSame('Some property default value', $property->defaultValue);
         self::assertTrue($property->isPublic);
+        self::assertFalse($property->isReadonly);
+        self::assertTrue($properties->get('readonlyProperty')->isReadonly);
 
         $method = $class->methods->get('method');
 

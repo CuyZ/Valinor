@@ -47,6 +47,8 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
             protected string $protectedProperty;
 
             private bool $privateProperty; // @phpstan-ignore-line
+
+            public readonly string $readonlyProperty; // @phpstan-ignore-line
         };
 
         $type = new NativeClassType($object::class);
@@ -67,6 +69,9 @@ final class ReflectionClassDefinitionRepositoryTest extends UnitTestCase
 
         self::assertInstanceOf(NativeBooleanType::class, $properties->get('privateProperty')->type);
         self::assertFalse($properties->get('privateProperty')->isPublic);
+
+        self::assertFalse($properties->get('publicProperty')->isReadonly);
+        self::assertTrue($properties->get('readonlyProperty')->isReadonly);
     }
 
     public function test_methods_can_be_retrieved(): void
