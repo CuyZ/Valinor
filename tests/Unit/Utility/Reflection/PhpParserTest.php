@@ -10,6 +10,7 @@ use CuyZ\Valinor\Tests\Fixtures\WithAliasB\ClassB;
 use CuyZ\Valinor\Tests\Unit\UnitTestCase;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassInSingleNamespace;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassWithImport;
+use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\ClassWithTraitImport;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Bar;
 use CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\SubDir\Foo;
 use CuyZ\Valinor\Utility\Reflection\PhpParser;
@@ -28,6 +29,7 @@ require_once __DIR__ . '/Fixtures/TwoClassesInDifferentNamespaces.php';
 require_once __DIR__ . '/Fixtures/FunctionInRootNamespace.php';
 require_once __DIR__ . '/Fixtures/FunctionWithSeveralImportStatementsInSameUseStatement.php';
 require_once __DIR__ . '/Fixtures/FunctionWithGroupedImportStatements.php';
+require_once __DIR__ . '/Fixtures/FunctionAfterClosureWithCapture.php';
 
 final class PhpParserTest extends UnitTestCase
 {
@@ -181,6 +183,23 @@ final class PhpParserTest extends UnitTestCase
         yield 'anonymous class' => [
             new ReflectionClass(require __DIR__ . '/Fixtures/anonymous-class-with-imports.php'), // @phpstan-ignore argument.type
             [
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+            ]
+        ];
+
+        yield 'function declared after a closure capturing variables' => [
+            new ReflectionFunction('\CuyZ\Valinor\Tests\Unit\Utility\Reflection\Fixtures\function_after_closure_with_capture'),
+            [
+                'baralias' => Bar::class,
+                'foo' => Foo::class,
+            ]
+        ];
+
+        yield 'closure declared in a class importing a trait' => [
+            new ReflectionFunction((new ClassWithTraitImport())->closure()),
+            [
+                'closure' => Closure::class,
                 'baralias' => Bar::class,
                 'foo' => Foo::class,
             ]
