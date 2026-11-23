@@ -6,5 +6,6 @@ parameters:
     paths:
         - inferring-normalizer-types.php
         - inferring-types-from-annotations.php
+        - implementing-message-contracts.php
         - inferring-types-with-plugin.php
     tmpDir: ../../var/cache/phpstan
