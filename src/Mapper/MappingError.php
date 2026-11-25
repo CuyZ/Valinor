@@ -14,6 +14,7 @@ interface MappingError extends Throwable
      * Container for all messages that were caught during the mapping process.
      *
      * @pure
+     * @psalm-mutation-free
      */
     public function messages(): Messages;
 
@@ -21,6 +22,7 @@ interface MappingError extends Throwable
      * Returns the original type that the mapper was attempting to map to.
      *
      * @pure
+     * @psalm-mutation-free
      */
     public function type(): string;
 
@@ -28,6 +30,7 @@ interface MappingError extends Throwable
      * Returns the original source value given to the mapper.
      *
      * @pure
+     * @psalm-mutation-free
      */
     public function source(): mixed;
 }
